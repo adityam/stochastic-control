@@ -43,7 +43,8 @@
 
 
 
-<h1 id="optimal-gambling">Optimal Gambling</h1>
+<h1>Optimal Gambling</h1>
+
 <p>Imagine a gambler who goes to a casino with an initial fortune of <span class="math">\(x_1\)</span> dollars and places bets over time and must leave after <span class="math">\(T\)</span> bets. Let <span class="math">\(X_t\)</span> denote the gambler's fortune after <span class="math">\(t\)</span> bets. In this example, time denotes the number of times that the gambler has bet.</p>
 <p>At time <span class="math">\(t\)</span>, the gambler may place a bet for any amount <span class="math">\(U_t\)</span> less that his current fortune <span class="math">\(X_t\)</span>. If he wins the bet (denoted by the even <span class="math">\(W_t = 1\)</span>), the casino gives him the amount that he had bet. If he loses the bet (denoted by the event <span class="math">\(W_t = -1\)</span>), he pays the casino the amount that he had bet. Thus, the dynamics can be written as</p>
 <p><span class="math">\[ X_{t+1} = X_t + W_t U_t. \]</span></p>
@@ -64,8 +65,8 @@
   &amp;= p V_{t+1}(x+u) + (1-p) V_{t+1}(x-u),
   \end{align}
 \]</span> and <span class="math">\[ \begin{align}
-  V_t(x) &amp;=  \min_{u \in [0, x]} Q_t(x,u), \\
-  g_t(x) &amp;= \arg \min_{u \in [0, x]} Q_t(x,u). \\
+  V_t(x) &amp;=  \max_{u \in [0, x]} Q_t(x,u), \\
+  g_t(x) &amp;= \arg \max_{u \in [0, x]} Q_t(x,u). \\
   \end{align}
 \]</span></p>
 <p>Then the strategy <span class="math">\(g = (g_1, \dots, g_T)\)</span> is optimal.</p>
@@ -112,7 +113,7 @@
   \end{align}   
 \]</span></p>
 <p>This implies that <span class="math">\(Q_t(x,u)\)</span> is decreasing in <span class="math">\(u\)</span>. Therefore,</p>
-<p><span class="math">\[ g_t(x) = \arg\min_{u \in [0, x]} Q_t(x,u) = 0. \]</span></p>
+<p><span class="math">\[ g_t(x) = \arg\max_{u \in [0, x]} Q_t(x,u) = 0. \]</span></p>
 <p>Moreover, <span class="math">\[ V_t(x) = Q_t(x, g_t(x)) = \log x.\]</span></p>
 <p>This completes the induction step.</p>
 <h4 id="proof-when-p-0.5">Proof when <span class="math">\(p &gt; 0.5\)</span></h4>
@@ -145,6 +146,50 @@
   \end{align}   
 \]</span></p>
 <p>This completes the induction step.</p>
+<h2 id="generalized-model">Generalized model</h2>
+<p>Suppose that the terminal reward <span class="math">\(r_T(x)\)</span> is monotone increasing<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> in <span class="math">\(x\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><p>For the generalized optimal gambling problem:</p>
+<ul>
+<li>For each <span class="math">\(t\)</span>, the value function <span class="math">\(V_t(x)\)</span> is monotone increasing in <span class="math">\(x\)</span>.</li>
+<li>For each <span class="math">\(x\)</span>, the value function <span class="math">\(V_t(x)\)</span> is monotone decreasing in <span class="math">\(t\)</span>.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<h4 id="proof-of-monotonicity-in-x">Proof of monotonicity in <span class="math">\(x\)</span></h4>
+<p>We proceed by backward induction. <span class="math">\(V_T(x) = r_T(x)\)</span> which is monotone increasing in <span class="math">\(x\)</span>. Assume that <span class="math">\(V_{t+1}(x)\)</span> is increasing in <span class="math">\(x\)</span>. Now, consider <span class="math">\(V_t(x)\)</span>. Consider <span class="math">\(x_1, x_2 \in \reals_{\ge 0}\)</span> such that <span class="math">\(x_1 \le x_2\)</span>. Then for any <span class="math">\(u \le x_1\)</span>, we have that</p>
+<p><span class="math">\[ \begin{align}
+    Q_t(x_1, u) &amp;= p V_{t+1}(x_1+u) + q V_{t+1}(x_1-u) \\
+    &amp; \stackrel{(a)}{\le} p V_{t+1}(x_2 + u) + q V_{t+1}(x_2  - u) \\
+    &amp; = Q_t(x_2, u),
+  \end{align}
+\]</span> where <span class="math">\((a)\)</span> uses the induction hypothesis. Now consider</p>
+<p><span class="math">\[ \begin{align}
+  V_t(x_1) &amp;= \max_{u \in [0, x_1]} Q_t(x_1, u) \\
+  &amp; \stackrel{(b)}{\le} \max_{u \in [0, x_1]} Q_t(x_2, u) \\
+  &amp; \le \max_{u \in [0, x_2]} Q_t(x_2, u) \\
+  &amp;= V_t(x_2),
+  \end{align}
+\]</span> where <span class="math">\((b)\)</span> uses monotonicity of <span class="math">\(Q_t\)</span> in <span class="math">\(x\)</span>. This completes the induction step.</p>
+<h4 id="proof-of-monotonicity-in-t">Proof of monotonicity in <span class="math">\(t\)</span></h4>
+<p>This is a simple consequence of the following:</p>
+<p><span class="math">\[V_t(x) = \max_{u \in [0, x]} Q_t(x,u) \ge Q_t(x,0) = V_{t+1}(x).\]</span></p>
+<h2 id="references">References</h2>
+<p>The above model was introduced by <span class="citation">Kelly (1956)</span>. For generalizations, see <span class="citation">Ross (1974)</span>.</p>
+<hr />
+<div class="references">
+<p>Kelly, J., John L. (1956) ‘A new interpretation of information rate’, <em>Bell System Technical Journal</em>, 35(4), pp. 917–927. doi: <a href="http://dx.doi.org/10.1002/j.1538-7305.1956.tb03809.x">10.1002/j.1538-7305.1956.tb03809.x</a>.</p>
+<p>Ross, S. M. (1974) ‘Dynamic programming and gambling models’, <em>Advances in Applied Probability</em>. Applied Probability Trust, 6(3), pp. 593–606. doi: <a href="http://dx.doi.org/10.2307/1426236">10.2307/1426236</a>.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>I use the convention that <em>increasing</em> means <em>weakly increasing</em>. The alternative term <em>non-decreasing</em> implicitly assumes that we are talking about a totally ordered set.<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
 
 
 </body>

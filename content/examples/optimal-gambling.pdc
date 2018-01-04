@@ -1,4 +1,6 @@
-# Optimal Gambling
+---
+title: Optimal Gambling
+---
 
 Imagine  a gambler who goes to a casino with an initial fortune of $x_1$
 dollars and places bets over time and must leave after $T$ bets. Let $X_t$
@@ -46,8 +48,8 @@ as follows:
     $$
     and
     $$ \begin{align}
-      V_t(x) &=  \min_{u \in [0, x]} Q_t(x,u), \\
-      g_t(x) &= \arg \min_{u \in [0, x]} Q_t(x,u). \\
+      V_t(x) &=  \max_{u \in [0, x]} Q_t(x,u), \\
+      g_t(x) &= \arg \max_{u \in [0, x]} Q_t(x,u). \\
       \end{align}
     $$
 
@@ -109,7 +111,7 @@ $$
 
 This implies that $Q_t(x,u)$ is decreasing in $u$. Therefore,
 
-$$ g_t(x) = \arg\min_{u \in [0, x]} Q_t(x,u) = 0. $$
+$$ g_t(x) = \arg\max_{u \in [0, x]} Q_t(x,u) = 0. $$
 
 Moreover,
 $$ V_t(x) = Q_t(x, g_t(x)) = \log x.$$
@@ -162,3 +164,59 @@ $$ \begin{align}
 $$
 
 This completes the induction step. 
+
+## Generalized model
+
+Suppose that the terminal reward $r_T(x)$ is monotone increasing[^increasing] in $x$.
+
+[^increasing]: I use the convention that _increasing_ means _weakly
+  increasing_. The alternative term _non-decreasing_ implicitly assumes that
+  we are talking about a totally ordered set. 
+
+<div class="highlight">
+Theorem
+
+:   For the generalized optimal gambling problem:
+
+    - For each $t$, the value function $V_t(x)$ is monotone increasing in $x$.
+    - For each $x$, the value function $V_t(x)$ is monotone decreasing in $t$.
+
+</div>
+
+#### Proof of monotonicity in $x$
+
+We proceed by backward induction. $V_T(x) = r_T(x)$ which is monotone
+increasing in $x$. Assume that $V_{t+1}(x)$ is increasing in $x$. Now,
+consider $V_t(x)$. Consider $x_1, x_2 \in \reals_{\ge 0}$ such that $x_1 \le
+x_2$. Then for any $u \le x_1$, we have that
+
+$$ \begin{align}
+    Q_t(x_1, u) &= p V_{t+1}(x_1+u) + q V_{t+1}(x_1-u) \\
+    & \stackrel{(a)}{\le} p V_{t+1}(x_2 + u) + q V_{t+1}(x_2  - u) \\
+    & = Q_t(x_2, u),
+  \end{align}
+$$
+where $(a)$ uses the induction hypothesis. Now consider
+
+$$ \begin{align}
+  V_t(x_1) &= \max_{u \in [0, x_1]} Q_t(x_1, u) \\
+  & \stackrel{(b)}{\le} \max_{u \in [0, x_1]} Q_t(x_2, u) \\
+  & \le \max_{u \in [0, x_2]} Q_t(x_2, u) \\
+  &= V_t(x_2),
+  \end{align}
+$$
+where $(b)$ uses monotonicity of $Q_t$ in $x$. This completes the induction
+step. 
+
+#### Proof of monotonicity in $t$
+
+This is a simple consequence of the following:
+
+$$V_t(x) = \max_{u \in [0, x]} Q_t(x,u) \ge Q_t(x,0) = V_{t+1}(x).$$ 
+
+## References
+
+The above model was introduced by @Kelly1956. For generalizations, see
+@Ross1974.
+
+--- 
