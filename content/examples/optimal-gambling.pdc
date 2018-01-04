@@ -8,18 +8,52 @@ number of times that the gambler has bet.
 At time $t$, the gambler may place a bet for any amount $U_t$ less that his
 current fortune $X_t$. If he wins the bet (denoted by the even $W_t = 1$), the
 casino gives him the amount that he had bet. If he loses the bet (denoted by
-the event $W_t = -1$), he pays the casino the amount that he had bet. 
+the event $W_t = -1$), he pays the casino the amount that he had bet. Thus,
+the dynamics can be written as 
+
+$$ X_{t+1} = X_t + W_t U_t. $$
 
 The outcomes of the bets $\{W_t\}_{t \ge 1}$ are _primitive random variables_,
 i.e., they are independent of each other, the gambler's initial fortune, and
 his betting strategy. 
 
-The gambler's utility is $\log X_T$, the logarithm of his final fortune.
-**Find the strategy that maximizes the gambler's utility.**
+The gambler's utility is $\log X_T$, the logarithm of his final fortune. Thus,
+the reward function may be written as
 
-## Modeling the problem as an MDP
+$$ r_t(x, u) = 0 
+   \quad \text{and} \quad
+   r_T(x) = \log x.
+$$
+
+Find the strategy that maximizes the gambler's utility, $\EXP[\log X_T]$. 
 
 ## Optimal gambling strategy and value functions
+
+The above model of optimal gambling is a Markov decision process. Therefore,
+the optimal solution is given by dynamic programming. 
+
+<div class="highlight">
+Dynamic program
+
+:   Define the following value function $V_t \colon \reals_{\ge 0} \to \reals$
+as follows:
+    $$ V_T(x) = \log x $$
+    and for $t \in \{T-1, \dots, 1\}$:
+    $$ \begin{align}
+      Q_t(x,u) &= \EXP[ r_t(x,u) + V_{t+1}(X_{t+1}) \,|\, X_t = x, U_t = u] \\
+      &= p V_{t+1}(x+u) + (1-p) V_{t+1}(x-u),
+      \end{align}
+    $$
+    and
+    $$ \begin{align}
+      V_t(x) &=  \min_{u \in [0, x]} Q_t(x,u), \\
+      g_t(x) &= \arg \min_{u \in [0, x]} Q_t(x,u). \\
+      \end{align}
+    $$
+
+    Then the strategy $g = (g_1, \dots, g_T)$ is optimal.
+
+</div>
 
 The above model is one of the rare instances when the optimal strategy and
 value function can be identified in closed form. 
@@ -109,7 +143,7 @@ Setting $\partial Q_t(x,u)/\partial u = 0$, we get that the optimal action is
 
 $$ g_t(x) = (p-q) x. $$
 
-Note that 
+Note that $(p-q) \in (0,1)$ 
 
 $$ 
   \frac { \partial^2 Q_t(x,u) } {\partial u^2} = 
