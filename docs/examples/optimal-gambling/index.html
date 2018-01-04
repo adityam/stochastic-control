@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+
+  <link rel="stylesheet" href="http://www.cim.mcgill.ca/~decinfo/courses/ecse506/winter-2018//css/style.css" type="text/css" />
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["Gyre-Pagella"]
+      },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="http://www.cim.mcgill.ca/~decinfo/courses/ecse506/winter-2018/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="http://www.cim.mcgill.ca/~decinfo/courses/ecse506/winter-2018//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="http://www.cim.mcgill.ca/~decinfo/courses/ecse506/winter-2018//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1 id="optimal-gambling">Optimal Gambling</h1>
+<p>Imagine a gambler who goes to a casino with an initial fortune of <span class="math">\(x_1\)</span> dollars and places bets over time and must leave after <span class="math">\(T\)</span> bets. Let <span class="math">\(X_t\)</span> denote the gambler's fortune after <span class="math">\(t\)</span> bets. In this example, time denotes the number of times that the gambler has bet.</p>
+<p>At time <span class="math">\(t\)</span>, the gambler may place a bet for any amount <span class="math">\(U_t\)</span> less that his current fortune <span class="math">\(X_t\)</span>. If he wins the bet (denoted by the even <span class="math">\(W_t = 1\)</span>), the casino gives him the amount that he had bet. If he loses the bet (denoted by the event <span class="math">\(W_t = -1\)</span>), he pays the casino the amount that he had bet.</p>
+<p>The outcomes of the bets <span class="math">\(\{W_t\}_{t \ge 1}\)</span> are <em>primitive random variables</em>, i.e., they are independent of each other, the gambler's initial fortune, and his betting strategy.</p>
+<p>The gambler's utility is <span class="math">\(\log X_T\)</span>, the logarithm of his final fortune. <strong>Find the strategy that maximizes the gambler's utility.</strong></p>
+<h2 id="modeling-the-problem-as-an-mdp">Modeling the problem as an MDP</h2>
+<h2 id="optimal-gambling-strategy-and-value-functions">Optimal gambling strategy and value functions</h2>
+<p>The above model is one of the rare instances when the optimal strategy and value function can be identified in closed form.</p>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><p>When <span class="math">\(p \le 0.5\)</span>:</p>
+<ul>
+<li>the optimal strategy is to <em>not gamble</em>, specifically <span class="math">\(g_t(x) = 0\)</span>;</li>
+<li>the value function is <span class="math">\(V_t(x) = \log x\)</span>.</li>
+</ul>
+<p>When <span class="math">\(p &gt; 0.5\)</span>:</p>
+<ul>
+<li>the optimal strategy is <em>to bet a fraction of the current fortune</em>, specifically <span class="math">\(g_t(x) = (2p - 1)x\)</span>;</li>
+<li>the value function is <span class="math">\(V_t(x) = \log x + (T - t) C\)</span>, where <span class="math">\[ C = \log 2 + p \log p + (1-p) \log (1-p).\]</span></li>
+</ul>
+</dd>
+</dl>
+</div>
+<dl>
+<dt>Side Remark</dt>
+<dd><p>The constant <span class="math">\(C\)</span> defined above is equal to the capacity of a binary symmetric channel!</p>
+</dd>
+</dl>
+<p>We prove the two cases separately.</p>
+<h4 id="proof-when-p-le-0.5">Proof when <span class="math">\(p \le 0.5\)</span></h4>
+<p>Let <span class="math">\(p = \PR(W_t = 1)\)</span> and <span class="math">\(q = \PR(W_t = -1)\)</span>. Then <span class="math">\(p \le 0.5\)</span> implies that <span class="math">\(p \le 1 - p = q\)</span>.</p>
+<p>We proceed by backward induction. For <span class="math">\(t = T\)</span>, we have that <span class="math">\(V_T(x) = \log x\)</span>. This forms the basis of induction. Now assume that for <span class="math">\(t+1\)</span>, <span class="math">\(V_{t+1}(x) = \log x\)</span>. Now consider</p>
+<p><span class="math">\[ Q_t(x,u) = p V_{t+1}(x+u) + qV_{t+1}(x-u). \]</span></p>
+<p>Differentiating both sides w.r.t. <span class="math">\(u\)</span>, we get <span class="math">\[ \begin{align} 
+  \frac { \partial Q_t(x,u) } {\partial u} &amp;= 
+   \frac p { x + u} - \frac q { x - u } 
+   \\
+   &amp; = \frac { (p - q) x - (p + q) u } { x^2 - u^2 } 
+   \\
+   &amp; =
+   \frac { - (q - p) x - u } {x^2 - u^2 } 
+   \\
+   &amp;&lt; 0.
+  \end{align}   
+\]</span></p>
+<p>This implies that <span class="math">\(Q_t(x,u)\)</span> is decreasing in <span class="math">\(u\)</span>. Therefore,</p>
+<p><span class="math">\[ g_t(x) = \arg\min_{u \in [0, x]} Q_t(x,u) = 0. \]</span></p>
+<p>Moreover, <span class="math">\[ V_t(x) = Q_t(x, g_t(x)) = \log x.\]</span></p>
+<p>This completes the induction step.</p>
+<h4 id="proof-when-p-0.5">Proof when <span class="math">\(p &gt; 0.5\)</span></h4>
+<p>As in the previous case, let <span class="math">\(p = \PR(W_t = 1)\)</span> and <span class="math">\(q = \PR(W_t = -1)\)</span>. Then <span class="math">\(p &gt; 0.5\)</span> implies that <span class="math">\(p &gt; 1 - p = q\)</span>.</p>
+<p>We proceed by backward induction. For <span class="math">\(t = T\)</span>, we have that <span class="math">\(V_T(x) = \log x\)</span>. This forms the basis of induction. Now assume that for <span class="math">\(t+1\)</span>, <span class="math">\(V_{t+1}(x) = \log x + (T -t - 1)C\)</span>. Now consider</p>
+<p><span class="math">\[ Q_t(x,u) = p V_{t+1}(x+u) + qV_{t+1}(x-u). \]</span></p>
+<p>Differentiating both sides w.r.t. <span class="math">\(u\)</span>, we get <span class="math">\[ \begin{align} 
+  \frac { \partial Q_t(x,u) } {\partial u} &amp;= 
+   \frac p { x + u} - \frac q { x - u } 
+   \\
+   &amp; = \frac { (p - q) x - (p + q) u } { x^2 - u^2 } 
+   \\
+   &amp; =
+   \frac { (p - q) x - u } {x^2 - u^2 } 
+  \end{align}   
+\]</span></p>
+<p>Setting <span class="math">\(\partial Q_t(x,u)/\partial u = 0\)</span>, we get that the optimal action is</p>
+<p><span class="math">\[ g_t(x) = (p-q) x. \]</span></p>
+<p>Note that</p>
+<p><span class="math">\[ 
+  \frac { \partial^2 Q_t(x,u) } {\partial u^2} = 
+   - \frac p { (x + u)^2 } - \frac q { (x - u)^2 } 
+  &lt; 0;
+\]</span> hence the above action is indeed the minimizer. Moreover, <span class="math">\[ \begin{align} 
+  V_t(x) &amp;= Q_t(x, g_t(x))  \\
+  &amp;= p V_{t+1}(x + g_t(x)) + q V_{t+1}( x - g_t(x) )\\
+  &amp;= \log x + p \log (1 + (p-q)) + q \log (1 - (p-q)) + (T - t -1)C \\
+  &amp;= \log x + p \log 2p + q \log 2q + (T - t + 1)C \\
+  &amp;= \log x + (T - t) C
+  \end{align}   
+\]</span></p>
+<p>This completes the induction step.</p>
+
+
+</body>
+</html>
+
+
