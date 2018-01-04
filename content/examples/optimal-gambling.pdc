@@ -1,0 +1,130 @@
+# Optimal Gambling
+
+Imagine  a gambler who goes to a casino with an initial fortune of $x_1$
+dollars and places bets over time and must leave after $T$ bets. Let $X_t$
+denote the gambler's fortune after $t$ bets. In this example, time denotes the
+number of times that the gambler has bet.
+
+At time $t$, the gambler may place a bet for any amount $U_t$ less that his
+current fortune $X_t$. If he wins the bet (denoted by the even $W_t = 1$), the
+casino gives him the amount that he had bet. If he loses the bet (denoted by
+the event $W_t = -1$), he pays the casino the amount that he had bet. 
+
+The outcomes of the bets $\{W_t\}_{t \ge 1}$ are _primitive random variables_,
+i.e., they are independent of each other, the gambler's initial fortune, and
+his betting strategy. 
+
+The gambler's utility is $\log X_T$, the logarithm of his final fortune.
+**Find the strategy that maximizes the gambler's utility.**
+
+## Modeling the problem as an MDP
+
+## Optimal gambling strategy and value functions
+
+The above model is one of the rare instances when the optimal strategy and
+value function can be identified in closed form. 
+
+<div class="highlight">
+Theorem 
+
+:   When $p \le 0.5$:
+
+    - the optimal strategy is to _not gamble_, specifically $g_t(x) = 0$;
+    - the value function is $V_t(x) = \log x$. 
+
+    When $p > 0.5$:
+
+    - the optimal strategy is _to bet a fraction of the current fortune_,
+      specifically $g_t(x) = (2p - 1)x$;
+    - the value function is $V_t(x) = \log x + (T - t) C$, where 
+      $$ C = \log 2 + p \log p + (1-p) \log (1-p).$$
+
+</div>
+
+Side Remark 
+
+:   The constant $C$ defined above is equal to the capacity of a binary
+symmetric channel!
+
+We prove the two cases separately. 
+
+#### Proof when $p \le 0.5$
+
+Let $p = \PR(W_t = 1)$ and $q = \PR(W_t = -1)$. Then $p \le 0.5$ implies that
+$p \le 1 - p = q$. 
+
+We proceed by backward induction. For $t = T$, we have that $V_T(x) = \log x$.
+This forms the basis of induction. Now assume that for $t+1$, $V_{t+1}(x) =
+\log x$. Now consider
+
+$$ Q_t(x,u) = p V_{t+1}(x+u) + qV_{t+1}(x-u). $$
+
+Differentiating both sides w.r.t. $u$, we get
+$$ \begin{align} 
+  \frac { \partial Q_t(x,u) } {\partial u} &= 
+   \frac p { x + u} - \frac q { x - u } 
+   \\
+   & = \frac { (p - q) x - (p + q) u } { x^2 - u^2 } 
+   \\
+   & =
+   \frac { - (q - p) x - u } {x^2 - u^2 } 
+   \\
+   &< 0.
+  \end{align}   
+$$
+
+This implies that $Q_t(x,u)$ is decreasing in $u$. Therefore,
+
+$$ g_t(x) = \arg\min_{u \in [0, x]} Q_t(x,u) = 0. $$
+
+Moreover,
+$$ V_t(x) = Q_t(x, g_t(x)) = \log x.$$
+
+This completes the induction step. 
+
+#### Proof when $p > 0.5$
+
+As in the previous case, let $p = \PR(W_t = 1)$ and $q = \PR(W_t = -1)$. Then
+$p > 0.5$ implies that $p > 1 - p = q$. 
+
+We proceed by backward induction. For $t = T$, we have that $V_T(x) = \log x$.
+This forms the basis of induction. Now assume that for $t+1$, $V_{t+1}(x) =
+\log x + (T -t - 1)C$. Now consider
+
+$$ Q_t(x,u) = p V_{t+1}(x+u) + qV_{t+1}(x-u). $$
+
+Differentiating both sides w.r.t. $u$, we get
+$$ \begin{align} 
+  \frac { \partial Q_t(x,u) } {\partial u} &= 
+   \frac p { x + u} - \frac q { x - u } 
+   \\
+   & = \frac { (p - q) x - (p + q) u } { x^2 - u^2 } 
+   \\
+   & =
+   \frac { (p - q) x - u } {x^2 - u^2 } 
+  \end{align}   
+$$
+
+Setting $\partial Q_t(x,u)/\partial u = 0$, we get that the optimal action is
+
+$$ g_t(x) = (p-q) x. $$
+
+Note that 
+
+$$ 
+  \frac { \partial^2 Q_t(x,u) } {\partial u^2} = 
+   - \frac p { (x + u)^2 } - \frac q { (x - u)^2 } 
+  < 0;
+$$
+hence the above action is indeed the minimizer. 
+Moreover,
+$$ \begin{align} 
+  V_t(x) &= Q_t(x, g_t(x))  \\
+  &= p V_{t+1}(x + g_t(x)) + q V_{t+1}( x - g_t(x) )\\
+  &= \log x + p \log (1 + (p-q)) + q \log (1 - (p-q)) + (T - t -1)C \\
+  &= \log x + p \log 2p + q \log 2q + (T - t + 1)C \\
+  &= \log x + (T - t) C
+  \end{align}   
+$$
+
+This completes the induction step. 
