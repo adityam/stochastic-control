@@ -1,0 +1,80 @@
+---
+title: Stochastic dominance
+weight: 21
+---
+
+Stochastic dominance is a partial order on random variables. 
+Let $\ALPHABET X$ be a totally ordered finite set, say $\{1, \dots, n\}$ and
+let $\Delta(\ALPHABET X)$ denote the state of pmfs on $\ALPHABET X$.  
+
+Definition
+
+:   Suppose $X$ and $Y$ are $\ALPHABET X$ valued random variables where $X
+    \sim \pi$ and $Y \sim \mu$. We say $X$ _stochastically dominates_ $Y$ if
+    for any $x \in \ALPHABET X$,
+    $$ \PR(X \ge x) \ge \PR(Y \ge x). $$ {#eq:inc-prob}
+
+    Stochastic domination is denoted by $X \succeq_s Y$ or $\pi \succeq_s
+    \mu$. 
+
+Let $\Pi$ and ${\rm M}$ denote the CDF of $\pi$ and $\mu$. Then
+({@eq:inc-prob}) is equivalent to the following:
+$$ \Pi_i \le {\rm M}_i, \quad \forall i \in \{1, \dots, n\}. $$ {#eq:cdf}
+Thus, visually, $X \succeq_s Y$ means that the CDF of $X$ _lies below_ the CDF of $Y$. 
+
+Example
+
+:   $\left[0, \frac 14, \frac 14, \frac 12\right]
+    \succeq_s
+    \left[\frac 14, 0, \frac 14, \frac 12 \right]
+    \succeq_s
+    \left[\frac 14, \frac 14, \frac 14, \frac 14 \right].$
+
+Stochastic dominance is important due to the following property.
+
+<div class="highlight">
+Theorem
+
+:   Let $f \colon \ALPHABET X \to \reals$ be a (weakly) increasing function 
+    and $X \sim \pi$ and $Y \sim \mu$ are random variables defined on
+    $\ALPHABET X$. Then $X \succeq_s Y$ if and only if
+    $$ \EXP[f(X)] \ge \EXP[f(Y)]. $$ {#eq:inc-fun}
+
+</div>
+
+#### Proof
+
+We first prove the “if” part. For ease of notation, we use $f_i$ to denote
+$f(i)$ and define $\Pi_0 = {\rm M}_0 = 0$. Consider the following:
+$$ \begin{align}
+    \sum_{i=1}^n f_i \pi_i 
+    &= \sum_{i=1}^n f_i (\Pi_i - \Pi_{i-1})
+    \\
+    &= \sum_{i=1}^n \Pi_{i-1} (f_{i-1} - f_{i}) + f_n \Pi_n
+    \\
+    &\stackrel{(a)}{\ge}
+    \sum_{i=1}^n {\rm M}_{i-1} (f_i - f_{i-1}) + f_n {\rm M}_n
+    \\
+    &= \sum_{i=1}^n f_i ({\rm M}_i - {\rm M}_{i-1})
+    \\
+    &= \sum_{i=1}^n f_i \mu_i, 
+  \end{align}
+$$ 
+which completes the proof. In the above equations, $(a)$ uses the following
+facts:
+
+1. For any $i$, $\Pi_{i-1} \le {\rm M}_{i-1}$ (because of ({@eq:cdf})) and
+   $f_{i-1} - f_{i} < 0$ (because $f$ is increasing function). Thus,
+   $$\Pi_{i-1}(f_{i-1} - f_i) \ge {\rm M}_{i-1}(f_{i-1} - f_i). $$
+2. $\Pi_n = {\rm M}_n = 1$. 
+
+
+
+Now consider the “only if” part. Suppose for any increasing function $f$,
+(@eq:inc-fun) holds. Given any $i \in \{1, \dots, n\}$, define the function
+$f_i(k) = \IND\{k > i\}$, which is an increasing function of $k$. Then,
+$$ \EXP[f_i(X)] = \sum_{k=1}^n f_i(k) \pi_k = \sum_{k > i} \pi_k = 1 - \Pi_i.
+$$
+By a similar argument, we have
+$$ \EXP[f_i(Y)] = 1 - {\rm M}_i. $$
+Since $\EXP[f_i(X)] \ge \EXP[f_i(Y)]$, we have that $\Pi_i \le {\rm M}_i$. 
