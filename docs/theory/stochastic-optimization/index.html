@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Stochastic optimization</h1>
+
+<p>Let’s start with a simple stochastic optimization problem. Suppose <span class="math inline">\(\ALPHABET X\)</span>, <span class="math inline">\(\ALPHABET U\)</span>, <span class="math inline">\(\ALPHABET W\)</span> are finite sets and let <span class="math inline">\(X \in \ALPHABET X\)</span> and <span class="math inline">\(W \in \ALPHABET W\)</span> be random variables defined on a common probability space. A decision maker observes the realization of <span class="math inline">\(X\)</span> and chooses and action <span class="math inline">\(U \in \ALPHABET U\)</span> according to a <em>decison rule</em> <span class="math inline">\(g\)</span>, i.e., <span class="math display">\[ U = g(X) \]</span> and incurs a cost <span class="math display">\[J(g) = \EXP[ c(X, g(X), W) ],\]</span> where the expectation is taken with respect to the joint probability distribution of <span class="math inline">\((X,W)\)</span>.</p>
+<div class="highlight">
+<p>The basic stochastic optimization probelem is <a name="eq:basic"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \min_{g} \EXP[ c(X, g(X), W) ] \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span>  i.e., choose a <em>function</em> <span class="math inline">\(g\)</span> to minimize the <em>functional</em> <span class="math inline">\(J(g)\)</span>.</p>
+</div>
+<p>Problem (<a href="#eq:basic">1</a>) can be interpreted as follows. Before the system starts running, the decision maker wants to pick a rule <span class="math inline">\(g\)</span> to determine an action for each realization of his observation <span class="math inline">\(X\)</span>. What rule should he pick to minimize the expected cost?</p>
+<p>At first glance, this appears to be a formidable optimization problem, but there is an alternative way of viewing the problem that simplifies it considerably. Instead of viewing the optimization problem before the system starts running, imagine that the decision maker waits until he sees the realization <span class="math inline">\(x\)</span> of <span class="math inline">\(X\)</span>. He then asks what action <span class="math inline">\(u\)</span> should he take to minimize the expected <em>conditional</em> cost <span class="math inline">\(\EXP[ c(x,u, W) | X = x]\)</span>, i.e., he considers the problem</p>
+<p><a name="eq:cond-1"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \min_{u \in \ALPHABET U} \EXP[ c(x,u,W) | X = x].\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(2)</span></span> </p>
+<p>In Problem (<a href="#eq:cond-1">2</a>) is a <em>parameter optimization problem</em>, which is considerably simpler than Problem (<a href="#eq:basic">1</a>), which is a <em>functional optimization problem</em>.</p>
+<p>Now define <a name="eq:cond"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ g^*(x) = \arg \min_{u \in \ALPHABET U} \EXP[ c(x,u, W) | X = x] \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(3)</span></span>  where ties (in the minimization) are broken arbitarily.</p>
+<div class="highlight">
+<dl>
+<dt>Basic fact</dt>
+<dd><p><span class="math inline">\(g^*\)</span> defined in (<a href="#eq:cond">3</a>) is optimal for Problem (<a href="#eq:basic">1</a>).</p>
+</dd>
+</dl>
+</div>
+<dl>
+<dt>Remark</dt>
+<dd><p>In the beginning we restricted attention to <span class="math inline">\(\ALPHABET X\)</span>, <span class="math inline">\(\ALPHABET U\)</span>, <span class="math inline">\(\ALPHABET W\)</span> being finite. This is to avoid any measurability issues. If <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET U\)</span> are continuous sets, we need to restrict to <em>measurable</em> <span class="math inline">\(g\)</span> in Problem~(<a href="#eq:basic">1</a>) (otherwise the expectation is not well defined; of course the cost <span class="math inline">\(c\)</span> also has to be measurable). However, it is not immediately obvious that <span class="math inline">\(g^*\)</span> defined in (<a href="#eq:cond">3</a>) is measurable. Conditions that ensure this are known as <em>measurable selection theorems</em>.</p>
+</dd>
+</dl>
+<h2 id="proof">Proof</h2>
+<p>Let <span class="math inline">\(g\)</span> be any other decision rule. Then, <span class="math display">\[ \begin{align}
+  \EXP[ c(X, g(X), W) ] &amp;\stackrel{(a)}= \EXP[ \EXP[c(X, g(X), W) | X = x] ] \\
+  &amp;\stackrel{(b)}\ge \EXP[\EXP[ c(X, g^*(X), W) | X = x] ] \\
+  &amp;\stackrel{(c)}= \EXP[ c(X, g^*(X), W) ],
+\end{align} \]</span> where <span class="math inline">\((a)\)</span> and <span class="math inline">\((c)\)</span> follow from the law of iterated expectations and <span class="math inline">\((b)\)</span> follows from the definition of <span class="math inline">\(g^*\)</span> in (<a href="#eq:cond">3</a>).</p>
+<hr />
+<h1 id="blackwells-principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</h1>
+
+
+
+
+
+
+</body>
+</html>
+
+
