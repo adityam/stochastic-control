@@ -1,0 +1,97 @@
+---
+title: Stochastic optimization
+weight: 01
+---
+
+Let's start with a simple stochastic optimization problem. Suppose $\ALPHABET
+X$, $\ALPHABET U$, $\ALPHABET W$ are finite sets and let $X \in \ALPHABET X$
+and $W \in \ALPHABET W$ be random variables defined on a common probability
+space. A decision maker observes the realization of $X$ and chooses and
+action $U \in \ALPHABET U$ according to a _decison rule_ $g$, i.e.,
+$$ U = g(X) $$
+and incurs a cost
+$$J(g) = \EXP[ c(X, g(X), W) ],$$
+where the expectation is taken with respect to the joint probability
+distribution of $(X,W)$. 
+
+::: highlight :::
+The basic stochastic optimization probelem is 
+$$ \min_{g} \EXP[ c(X, g(X), W) ] $$ {#eq:basic}
+i.e., choose a _function_ $g$ to minimize the _functional_ $J(g)$. 
+:::
+
+Problem ({@eq:basic}) can be interpreted as follows. Before the system starts
+running, the decision maker wants to pick a rule $g$ to determine an action
+for each realization of his observation $X$. What rule should he pick to
+minimize the expected cost?
+
+At first glance, this appears to be a formidable optimization problem, but
+there is an alternative way of viewing the problem that simplifies it
+considerably. Instead of viewing the optimization problem before the system
+starts running, imagine that the decision maker waits until he sees the
+realization $x$ of $X$. He then asks what action $u$ should he take to
+minimize the expected _conditional_ cost $\EXP[ c(x,u, W) | X = x]$, i.e., he
+considers the problem
+
+$$ \min_{u \in \ALPHABET U} \EXP[ c(x,u,W) | X = x].$$ {#eq:cond-1}
+
+In Problem ({@eq:cond-1}) is a _parameter optimization problem_, which is
+considerably simpler than Problem ({@eq:basic}), which is a _functional
+optimization problem_.
+
+Now define
+$$ g^*(x) = \arg \min_{u \in \ALPHABET U} \EXP[ c(x,u, W) | X = x] $$ {#eq:cond}
+where ties (in the minimization) are broken arbitarily. 
+
+::: highlight :::
+Basic fact
+
+: $g^*$ defined in ({@eq:cond}) is optimal for Problem ({@eq:basic}).
+:::
+
+Remark
+
+:   In the beginning we restricted attention to $\ALPHABET X$, $\ALPHABET U$,
+$\ALPHABET W$ being finite. This is to avoid any measurability issues. If
+$\ALPHABET X$ and $\ALPHABET U$ are continuous sets, we need to restrict to
+_measurable_ $g$ in Problem ({@eq:basic}) (otherwise the expectation is not
+well defined; of course the cost $c$ also has to be measurable). However, it
+is not immediately obvious that $g^*$ defined in ({@eq:cond}) is measurable.
+Conditions that ensure this are known as _measurable selection theorems_. 
+
+## Proof
+
+Let $g$ be any other decision rule. Then,
+$$ \begin{align}
+  \EXP[ c(X, g(X), W) ] &\stackrel{(a)}= \EXP[ \EXP[c(X, g(X), W) | X ] ] \\
+  &\stackrel{(b)}\ge \EXP[\EXP[ c(X, g^*(X), W) | X ] ] \\
+  &\stackrel{(c)}= \EXP[ c(X, g^*(X), W) ],
+\end{align} $$
+where $(a)$ and $(c)$ follow from the law of iterated expectations and $(b)$
+follows from the definition of $g^*$ in ({@eq:cond}). 
+
+## Exercise
+
+1. Suppose $\ALPHABET X = \{1, 2 \}$, $\ALPHABET U = \{1, 2, 3\}$, and $\ALPHABET
+   W = \{1, 2, 3\}$. Let $X$ and $W$ be random variables taking values in
+   $\ALPHABET X$ and $\ALPHABET W$ with joint distribution $P$ shown below.
+    
+   $$ P = \MATRIX{ 0.25 & 0.15 & 0.05  \\ 0.30 & 0.10 & 0.15 } $$
+
+   Here the row corresponds to the value of $x$ and the column corresponds to
+   the value of $w$. For example $\PR(X=2, W=1) = P_{21} = 0.30$. 
+
+   The cost function $c \colon \ALPHABET X \times \ALPHABET U \times \ALPHABET
+   W \to \reals$ is shown below
+
+   $$
+    c(\cdot,\cdot,1) = \MATRIX{3 & 5 & 1 \\ 2 & 3 & 1 }, \quad
+    c(\cdot,\cdot,2) = \MATRIX{4 & 3 & 1 \\ 1 & 2 & 8 }, \quad
+    c(\cdot,\cdot,3) = \MATRIX{1 & 2 & 2 \\ 4 & 1 & 3 }.
+   $$
+
+   Here the row corresponds to the value of $x$ and the column corresponds to
+   the value of $w$. For example $c(1,2,1) = 5$. 
+
+   Find the policy $g \colon \ALPHABET X \to \ALPHABET U$ that minimizes
+   $\EXP[ c(X, g(X), W) ]$. 
