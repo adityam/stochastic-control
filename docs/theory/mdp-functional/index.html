@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Markov decision processes</h1>
+
+<p>Markov decision processes (MDP) model model the simplest stochastic control architecture. The dynamic behavior of an MDP is modeled by an equation of the form <span class="math display">\[ X_{t+1} = f_t(X_t, U_t, W_t) \]</span> where <span class="math inline">\(X_t \in \ALPHABET X\)</span> is the state, <span class="math inline">\(U_t \in \ALPHABET U\)</span> is the control input, and <span class="math inline">\(W_t \in \ALPHABET W\)</span> is the noise. An agent/controller observes the state and chooses the control input <span class="math inline">\(U_t\)</span>.</p>
+<p>The controller can be as sophisticated as we want. In principle, it can analyze all the entire history of observations and control actions to choose the current control action. Thus, the control action can be written as <span class="math display">\[ U_t = g_t(X_{1:t}, U_{1:t-1}),\]</span> where <span class="math inline">\(X_{1:t}\)</span> is a shorthand for <span class="math inline">\((X_1, \dots, X_t)\)</span> and a similar interpreation holds for <span class="math inline">\(U_{1:t-1})\)</span>. The function <span class="math inline">\(g_t\)</span> is called the <em>control law</em> at time <span class="math inline">\(t\)</span>.</p>
+<p>At each time, the system incurs a cost that may depend on the current state and control action. This cost is denoted by <span class="math inline">\(c_t(X_t, U_t)\)</span>. The system operates for a time horizon <span class="math inline">\(T\)</span>. During this time, it incurs a total cost <span class="math display">\[ \sum_{t=1}^T c_t(X_t, U_t). \]</span></p>
+<p>The initial state <span class="math inline">\(X_1\)</span> and the noise process <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are random variables defined on a common probability space (these are called <em>primitive random variables</em>) and are mutually independent.</p>
+<p>Suppose we have to design such a controller/ We are told the probability distribution of the initial state and the noise. We are also told the system update functions <span class="math inline">\((f_1, \dots, f_T)\)</span> and the cost functions <span class="math inline">\((c_1, \dots, c_T)\)</span>. We are asked to choose a <em>control strategy</em> <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> to minimize the expected total cost <span class="math display">\[ \EXP\bigg[ \sum_{t=1}^T c_t(X_t, U_t) \bigg]. \]</span> How should we proceed?</p>
+<p>At first glance, the problem looks intimidating. It appears that we have to design a very sophisticated controller; one that can analyzes all past data to choose a control input. However, this is not the case. A remarkable result is that even the optimal control station can discard all past data and choose the control input based only on the current state of the system. Formally, we have the following:</p>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><p><strong>(Structural Result)</strong> For the system model described above, there is no loss of optimality in chosing the control action according to <span class="math display">\[ U_t = g_t(X_t), \quad t=1, \dots, T.\]</span> Such a control strategy is called a <em>Markov strategy</em>.</p>
+</dd>
+</dl>
+</div>
+<p>The above result claims that the cost incurred by the best Markovian strategy is the same as the cost incurred by the best history dependent strategy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../../theory/principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a>.</p>
+
+
+
+
+
+
+</body>
+</html>
+
+
