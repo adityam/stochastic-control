@@ -66,16 +66,59 @@
 <p>The controller can be as sophisticated as we want. In principle, it can analyze all the entire history of observations and control actions to choose the current control action. Thus, the control action can be written as <span class="math display">\[ U_t = g_t(X_{1:t}, U_{1:t-1}),\]</span> where <span class="math inline">\(X_{1:t}\)</span> is a shorthand for <span class="math inline">\((X_1, \dots, X_t)\)</span> and a similar interpreation holds for <span class="math inline">\(U_{1:t-1})\)</span>. The function <span class="math inline">\(g_t\)</span> is called the <em>control law</em> at time <span class="math inline">\(t\)</span>.</p>
 <p>At each time, the system incurs a cost that may depend on the current state and control action. This cost is denoted by <span class="math inline">\(c_t(X_t, U_t)\)</span>. The system operates for a time horizon <span class="math inline">\(T\)</span>. During this time, it incurs a total cost <span class="math display">\[ \sum_{t=1}^T c_t(X_t, U_t). \]</span></p>
 <p>The initial state <span class="math inline">\(X_1\)</span> and the noise process <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are random variables defined on a common probability space (these are called <em>primitive random variables</em>) and are mutually independent.</p>
-<p>Suppose we have to design such a controller/ We are told the probability distribution of the initial state and the noise. We are also told the system update functions <span class="math inline">\((f_1, \dots, f_T)\)</span> and the cost functions <span class="math inline">\((c_1, \dots, c_T)\)</span>. We are asked to choose a <em>control strategy</em> <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> to minimize the expected total cost <span class="math display">\[ \EXP\bigg[ \sum_{t=1}^T c_t(X_t, U_t) \bigg]. \]</span> How should we proceed?</p>
+<p>Suppose we have to design such a controller/ We are told the probability distribution of the initial state and the noise. We are also told the system update functions <span class="math inline">\((f_1, \dots, f_T)\)</span> and the cost functions <span class="math inline">\((c_1, \dots, c_T)\)</span>. We are asked to choose a <em>control strategy</em> <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> to minimize the expected total cost <span class="math display">\[ J(g) := \EXP\bigg[ \sum_{t=1}^T c_t(X_t, U_t) \bigg]. \]</span> How should we proceed?</p>
 <p>At first glance, the problem looks intimidating. It appears that we have to design a very sophisticated controller; one that can analyzes all past data to choose a control input. However, this is not the case. A remarkable result is that even the optimal control station can discard all past data and choose the control input based only on the current state of the system. Formally, we have the following:</p>
 <div class="highlight">
 <dl>
 <dt>Theorem</dt>
-<dd><p><strong>(Structural Result)</strong> For the system model described above, there is no loss of optimality in chosing the control action according to <span class="math display">\[ U_t = g_t(X_t), \quad t=1, \dots, T.\]</span> Such a control strategy is called a <em>Markov strategy</em>.</p>
+<dd><p><strong>(Optimality of Markov strategies)</strong> For the system model described above, there is no loss of optimality in chosing the control action according to <span class="math display">\[ U_t = g_t(X_t), \quad t=1, \dots, T.\]</span> Such a control strategy is called a <em>Markov strategy</em>.</p>
 </dd>
 </dl>
 </div>
-<p>The above result claims that the cost incurred by the best Markovian strategy is the same as the cost incurred by the best history dependent strategy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../../theory/principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a>.</p>
+<p>The above result claims that the cost incurred by the best Markovian strategy is the same as the cost incurred by the best history dependent strategy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../../theory/principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a> <span class="citation" data-cites="Blackwell1964">@Blackwell1964</span></p>
+<div class="highlight">
+<dl>
+<dt>Two-Step Lemma</dt>
+<dd><p>Consider an MDP that operates for two steps (<span class="math inline">\(T=2\)</span>). Then there is no loss of optimality in restricting attention to a Markov control strategy at time <span class="math inline">\(t=2\)</span>.</p>
+</dd>
+</dl>
+</div>
+<p>Note that <span class="math inline">\(g_1\)</span> is Markov because it can only depend <span class="math inline">\(X_1\)</span>.</p>
+<h4 id="proof">Proof</h4>
+<p>Fix <span class="math inline">\(g_1\)</span> and look at the problem of optimizing <span class="math inline">\(g_2\)</span>. The total cost is <span class="math display">\[ \EXP[ c_1(X_1, g_1(X_1)) + c_2(X_2, g_2(X_{1:2}, U_1)) ]\]</span> The choice of <span class="math inline">\(g_2\)</span> does not influence the first term. So, for a fixed <span class="math inline">\(g_1\)</span>, minimizing the total cost is the equivalent to minimizing the second term. Now, from Blackwell’s principle of irrelevant information, there exists a <span class="math inline">\(g_2^* \colon X_2 \mapsto U_2\)</span> such that for any <span class="math inline">\(g_2\)</span> <span class="math display">\[\EXP[c_2(X_2, g_2^*(X_2) ] \le \EXP[c_2(X_2, g_2(X_{1:2}, U_2) ].\]</span></p>
+<div class="highlight">
+<dl>
+<dt>Three-Step Lemma</dt>
+<dd><p>Consider an MDP that operates for three steps (<span class="math inline">\(T=3\)</span>). Assume that the control law <span class="math inline">\(g_3\)</span> at time <span class="math inline">\(t=3\)</span> is Markov, i.e., <span class="math inline">\(U_3 = g_3(X_3)\)</span>. Then, there is no loss of optimality in restricting attention to Markov control law at time <span class="math inline">\(t=2\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-1">Proof</h4>
+<p>Fix <span class="math inline">\(g_1\)</span> and <span class="math inline">\(g_3\)</span> and look at optimizing <span class="math inline">\(g_2\)</span>. The tot`al cost is <span class="math display">\[ \EXP[ c_1(X_1, g_1(X_1)) + c_2(X_2, g_2(X_{1:2}, U_1)) + c_3(X_3, g_3(X_3)].\]</span></p>
+<p>The choice of <span class="math inline">\(g_2\)</span> does not affect the first term. So, for a fixed <span class="math inline">\(g_1\)</span> and <span class="math inline">\(g_3\)</span>, minimizing the total cost is the same as minimizing the last two terms. Let us look at the last term carefully. Bu the law of iterated expectations, we have <span class="math display">\[ \EXP[ c_3(X_3, g_3(X_3) ] = \EXP[ \EXP[ c_3(X_3, g_3(X_3)) | X_2, U_2 ] ]. \]</span> Now, <span class="math display">\[\begin{align}
+  \EXP[ c_3(X_3, g_3(X_3)) | X_2 = x_2, U_2 = u_2 ] &amp;= 
+  \sum_{x_3 \in \ALPHABET X} c_3(x_3, g_3(x_3)) \\
+  &amp;= \PR( w_2 \in \ALPHABET W : f_2(x_2, u_2, w_2) = x_3 )
+  \\
+  &amp;=: h_2(x_2, u_2).
+\end{align}\]</span> The key point is that <span class="math inline">\(h_2(x_2, u_2)\)</span> does not depend on <span class="math inline">\(g_1\)</span> or <span class="math inline">\(g_2\)</span>.</p>
+<p>Thus, the total expected cost affected by the choice of <span class="math inline">\(g_2\)</span> can be written as <span class="math display">\[\begin{align}
+  \EXP[ c_2(X_2, U_2) + c_3(X_3, U_3) ] &amp;= \EXP[ c_2(X_2, U_2) + h_2(X_2, U_2)
+  ] \\
+  &amp;=: \EXP[ \tilde c_2(X_2, U_2) ].
+\end{align}\]</span> Now, by Blackwell’s principle of irrelevant information, there exists a <span class="math inline">\(g_2^* : X_2 \mapsto U_2\)</span> such that for any <span class="math inline">\(g_2\)</span>, we have <span class="math display">\[ \EXP[ \tilde c_2(X_2, g_2^*(X_2))] \le  \EXP[ \tilde c_2(X_2, g_2(X_{1:2},
+U_1) ].\]</span></p>
+<hr />
+<p>Now we have enough background to present the proof of optimality of Markov strategies.</p>
+<h4 id="proof-of-optimality-of-markov-strategies">Proof of optimality of Markov strategies</h4>
+<p>The main idea is that any system can be thought of as a two- or three-step system by aggregating time. Suppose that the system operates for <span class="math inline">\(T\)</span> steps. It can be thought of as a two-step system where <span class="math inline">\(t \in \{1, \dots, T - 1\}\)</span> corresponds to step 1 and <span class="math inline">\(t = T\)</span> corresponds to step 2. From the two-step lemma, there is no loss of optimality in restricting attention to Markov control law at step 2 (i.e., at time <span class="math inline">\(t=T\)</span>), i.e., <span class="math display">\[ U_T = g_T(X_T). \]</span></p>
+<p>Now consider a system where we are using a Markov strategy at time <span class="math inline">\(t=T\)</span>. This system can be thought of as a three-step system where <span class="math inline">\(t \in \{1, \dots, T-2\}\)</span> corresponds to step 1, <span class="math inline">\(t = T-1\)</span> corresponds to step 2, and <span class="math inline">\(t=T\)</span> corresponds to step 3. Since the controller at time <span class="math inline">\(T\)</span> is Markov, the assumption of the three step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-1\)</span>), i.e., <span class="math display">\[U_{T-1} = g_{T-1}(X_{T-1}).\]</span></p>
+<p>Now consider a system where we are using a Markov strategy at time <span class="math inline">\(t \in \{T-1, T\}\)</span>. This can be throught of as a three-step system where <span class="math inline">\(t \in \{1, \dots, T - 3\}\)</span> correspond to step 1$, <span class="math inline">\(t = T-2\)</span> correspond to step 2, and <span class="math inline">\(t \in \{T-1, T\}\)</span> correspond to step 3. Since the controllers at time <span class="math inline">\(t \in \{T-1, T\}\)</span> are Markov, the assumption of the three-step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-2\)</span>), i.e., <span class="math display">\[U_{T-2} = g_{T-2}(X_{T-2}).\]</span></p>
+<p>Proceeding this way, we continue to think of the system as a three step system by different relabeling of time. Once we have shown that the controllers at times <span class="math inline">\(t \in \{s+1, s+2, \dots, T\}\)</span> are Markov, we relabel time as follows: <span class="math inline">\(t=\{1, \dots, s-1\}\)</span> corresponds to step 1, <span class="math inline">\(t = s\)</span> corresponds to step 2, and <span class="math inline">\(t \in \{s+1, \dots, T\}\)</span> corresponds to step 3. Since the controllers at time <span class="math inline">\(t \in \{s+1, \dots, T\}\)</span> are Markov, the assumption of the three-step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Makrkov controllers at stage 2 (i.e. at time <span class="math inline">\(s\)</span>), i.e., <span class="math display">\[U_s = g_s(X_s).\]</span></p>
+<p>Proceeding until <span class="math inline">\(s=2\)</span>, completes the proof.</p>
+<h2 id="references">References</h2>
+<p>The proof idea for the the optimality of Markov strategies is based on a proof by <span class="citation" data-cites="Witsenhausen1979">@Witsenhausen1979</span> on the structure of optimal coding strategies for real-time communication. Note that the proof does not require us to find a dynamic programming decomposition of the problem. This is in contrast with the standard textbook proof where the optimality of Markov strategies is proves as part of the dynamic programming decomposition.</p>
+<hr />
 
 
 
