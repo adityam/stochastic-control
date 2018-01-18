@@ -193,6 +193,93 @@ Note that $J_t(x; g)$ only depends on the future strategy $(g_t, \dots, g_T)$. T
   &= \EXP^g\big[ c_t(x, g_t(x)) + J_{t+1}(X_{t+1}; g) \big| X_t = x \big].
 \end{align}
 
+## Dynamic Programming Decomposition
+
+Now we are ready to state the main result of MDPs
+
+::: highlight :::
+Theorem
+
+:   **(Dynamic program)** Recursive define _value functions_ $\{V_t\}_{t =
+    1}^{T+1} \colon \ALPHABET X \to \reals$ as follows:
+    $$ V_{T+1}(x) = 0 $$ {#eq:DP-1}
+    and for $t \in \{T, \dots, 1\}$:
+    $$\begin{align}
+       Q_t(x,u) &= c(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] \\
+       &= c(x,u) + \EXP[ V_{t+1}(f_t(x,u,W_t)) ],
+    \end{align}$$ {#eq:DP-2}
+    and define
+    $$V_t(x) = \min_{u \in \ALPHABET U} Q_t(x,u), $$ {#eq:DP-3}
+    and
+    $$ g_t^*(x) = \arg \min_{u \in \ALPHABET U} Q_t(x,u).$$ {#eq:verification}
+    
+    Then, a Markov policy is optimal if and only if it satisfies
+    ({@eq:verification}).
+:::
+
+Instead of proving the above result, we prove a related result
+
+::: highlight :::
+Theorem
+:   **(The comparison principle)** For any Markov strategy $g$
+    $$ J_t(x; g) \ge V_t(x) $$
+    with equality at $t$ if and only if the _future strategy_ $g_{t:T}$
+    satisfies the verification step ({@eq:verification}). 
+::: 
+
+Note that the comparison principle immediately implies that the strategy
+obtained using dynamic programming is optimal. 
+
+The comparison principle also allows us to interpret the value functions. The
+value function at time $t$ is the minimum of all the cost-to-go functions over
+all future strategies. The compasion principle also allows us to interpret the
+optimal policy (the interpretation is due to Bellman and is colloquially
+called Bellman's principle of optimality).
+
+::: highlight :::
+**Bellman's principle of optimality.**
+An optimal policy has the property that whatever the initial state and the
+initial decisions are, the remaining decisions must constitute an optimal
+policy with regard tot hstate resulting from the first decision.
+:::
+
+#### Proof of the comparison principle
+
+The proof proceeds by backward induction. Consider any Markov strategy $g =
+(g_1, \dots, g_T)$. For $t = T$, 
+\begin{align}
+  V_T(x) &= \min_{u \in \ALPHABET U} Q_T(x,u) \\
+  &\stackrel{(a)}= \min_{u \in \ALPHABET U} c_T(x,u) \\
+  &\stackrel{(b)}\le c_T(x, g_T(x)) \\
+  &\stackrel{(c)}= J_T(x; g),
+\end{align}
+where $(a)$ follows from the definition of $Q_T$, $(b)$ follows from the
+definition of minimization, and $(c)$ follows from the definition of $J_T$. 
+Equality holds in $(b)$ iff the policy $g_T$ is optimal. This result forms the basis of induction.
+
+Now assume that the statement of the theorem is true for $t+1$. Then, for $t$
+\begin{align}
+  V_t(x) &= \min_{u \in \ALPHABET U} Q_t(x,u) \\
+  &\stackrel{(a)}= \min_{u \in \ALPHABET U} \Big\{
+  c_t(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
+  \Big\}
+  \\
+  &\stackrel{(b)}\le  \Big\{
+  c_t(x,g_t(x)) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = g_t(x)] 
+  \Big\} \\
+  &\stackrel{(c)}\le  \Big\{
+  c_t(x,g_t(x)) + \EXP[ J_{t+1}(X_{t+1}; g) | X_t = x, U_t = g_t(x)] 
+  \Big\} \\
+  &\stackrel{(d)}= J_t(x; g),
+\end{align}
+where $(a)$ follows from the definition of $Q_t$, $(b)$ follows from the
+definition of minimization, $(c)$ follows from the induction hypothesis, and
+$(d)$ follows from the definition of $J_t$. We have equality in step $(b)$ iff
+$g_t$ satisfies the verification step ({@eq:verification}) and have equality
+in step $(c)$ iff $g_{t+1:T}$ is optimal (this is part of the induction
+hypothesis). Thus, the result is true for time $t$ and, by the principle of
+induction, is true for all time. 
+
 ## References
 
 The proof idea for the the optimality of Markov strategies is based on a proof
