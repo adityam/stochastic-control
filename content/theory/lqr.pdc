@@ -1,6 +1,13 @@
 ---
 title: Linear Quadratic Regulation (LQR)
 weight: 20
+categories:
+  - MDP
+tags:
+  - Linear systems
+  - Riccati equation
+  - LQR
+  - Optimal tracking
 ---
 
 _Note: To be consistent with the notation used in linear systems, we denote
@@ -47,7 +54,7 @@ cost. Depending on the cost, such models can be classified as follows:
 The LQR problem is one of the few instances where the solution of the Markov
 decision process can be obtained in closed form. 
 
-<div class="highlight">
+::: highlight :::
 Theorem
 
 :   The value function at time $t$ is
@@ -63,7 +70,8 @@ Theorem
     $$ S_t = A_t^\TRANS S_{t+1} A_t + Q_t - 
        \Lambda^T [ R_t + B_t^\TRANS S_{t+1} B_t ] ^{-1} \Lambda_t.
     $$ {#eq:riccati}
-</div>
+:::
+
 
 Side remark
 
@@ -137,9 +145,60 @@ completion of squares lemma with $H_t$ and $L_t$ defined similar to the lemma,
 and $(c)$ follows from minimizing over $u$, where the minima is achieved by
 choosing $u = -H_t x$. This proves the induction step.
 
-## LQR tracking
+## Linear quadratic tracking
 
-Now consider the LQR tracking problem.
+Now consider the LQR tracking problem. **TO BE WRITTEN**
+
+## Stochastic linear quadratic regulator
+
+Now consider a system with stochastic dynamics
+$$ x_{t+1} = A_t x_t + B_t u_t + w_t $$
+where $\{w_1,\dots,w_T$ are independent random variables with zero mean
+and finite variance
+given by $\EXP[w_t^\TRANS w_t] = \Sigma^w_t$. 
+
+::: highlight :::
+Theorem
+
+:   The value function at time $t$ is
+    $$ V_t(x_t) = x_t^\TRANS S_t x_t + α_t$$ {#eq:Vt-s}
+    and the optimal control action is
+    $$ u_t = - H_t x_t$$ {#eq:gt-s}
+    where the matrices_ $\{H_t\}_{t\ge 1}$ and $\{S_t\}_{t \ge 1}$ follow 
+    _the same recursion_ as before and the sequence $\{α_t\}_{t=1}^T$ is
+    computed in a backward manner as follows: $α_T = 0$ and 
+    $$α_t = α_{t+1} + \TR(Σ^w_t S_{t+1}) = \sum_{τ=t+1}^{T-1} \TR(Σ^w_t S_{t+1}).$$
+:::
+
+The proof is similar to the deterministic case and relies on the following
+observation.
+
+Lemma
+
+:   For any deterministic value of $x \in \reals^n$ and a random zero
+    mean variable $w \in \reals^n$ with finite variance given by
+    $\EXP[w^\TRANS w] = Σ^w$, we have 
+    $$ \EXP[ (x + w)^\TRANS Q (x+w) ] = x^\TRANS Q x + \TR(Q Σ^w). $$
+
+
+#### Proof
+
+Note that
+
+$$\begin{align}
+  \EXP[ (x+w)^\TRANS Q (x+w) ] &= 
+  \EXP[ x^\TRANS Q x + 2 x^\TRANS Q w + w^\TRANS Q w ] \\
+  &= x^\TRANS Q x + \TR(Σ^w Q).
+\end{align}$$
+where the second term is zero because $w$ is a zero mean random variable. For
+the third term, we are using
+$$ \begin{align}
+  \EXP[ w^\TRANS Q w]  &= 
+  \EXP\bigg[ \sum_{i=1}^n \sum_{j=1}^n w_i Q_{ij} w_j \bigg]  \\
+  &= \sum_{i=1}^n \sum_{j=1}^n \EXP[w_i w_j] Q_{ij} \\
+  &= \sum_{i=1}^n \sum_{j=1}^n Σ^w_{ij} Q_{ij} \\
+  &= \TR(Σ^w Q)
+\end{align} $$
 
 <!--
 Lemma
