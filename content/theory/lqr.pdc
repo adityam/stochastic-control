@@ -145,9 +145,45 @@ completion of squares lemma with $H_t$ and $L_t$ defined similar to the lemma,
 and $(c)$ follows from minimizing over $u$, where the minima is achieved by
 choosing $u = -H_t x$. This proves the induction step.
 
-## Linear quadratic tracking
+## Linear quadratic tracking {#LQT}
 
-Now consider the LQR tracking problem. **TO BE WRITTEN**
+Now consider the LQR tracking problem where we want to ensure that the output
+signal $y_t = C_t x_t$ is close to a reference trajectory $\{y^\circ_t\}_{t
+\ge 1}$. The per step cost function is 
+$$ c_t(x_t, u_t) = (C_t x_t - y^\circ_t)^\TRANS Q_t (C_t x_t - y^\circ_t) +
+u_t^\TRANS R_t u_t$$
+and the terminal cost is
+$$ c_T(x_T) = (C_T x_T - y^\circ_T)^\TRANS Q_T (C_T x_T - y^\circ_T).$$
+
+::: highlight :::
+Theorem
+
+:   The value function at time $t$ is
+    $$ V_t(x) = x^\TRANS S_t x + ρ_t $$
+    and the optimal control action is 
+    $$ u_t = - H_t x_t + H^\circ_t r_{t+1}$$
+    where
+    $\{S_t\}_{t=1}^T$ and $\{H_t\}_{t=1}^T$ follow the same recursions as
+    before. The gain matrices $\{H^\circ_t\}$ are given by
+    $$ H^\circ_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS $$
+    and the correction terms $\{r_t\}$ are given by 
+    $$ \begin{align}
+      r_T &= C_T^\TRANS Q_T y^\circ_T \\
+      r_t &= [A_t - B_t H_t]^\TRANS r_{t+1} + C_t^\TRANS Q_t y^\circ_t
+    \end{align} $$
+    and the tracking error $\{ρ_t\}_{t=1}^T$ is given by
+    $$ \begin{align}
+      ρ_T &= (y^\circ_T)^\TRANS Q_T y^\circ_T \\
+      ρ_t &= (y^\circ_t)^\TRANS Q_t y^\circ_t  
+      - 2 r^\TRANS_{t+1} B_t [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS
+        r_{t+1}
+      + ρ_{t+1}
+    \end{align} $$
+
+:::
+
+The proof follows from backward induction and basic algebra and is left as an
+exercise.
 
 ## Stochastic linear quadratic regulator
 
