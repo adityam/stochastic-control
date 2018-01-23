@@ -1,0 +1,74 @@
+---
+title: Matrix formulation of Markov decision processes 
+weight: 11
+categories:
+  - MDP
+tags:
+  - numerical methods
+---
+
+In this section, we present a matrix formulation for finite state finite
+action MDPs, which is useful for computing the solutions numerically. 
+Let's start with [the function model][MDP] described earlier and assume that
+$\ALPHABET X$ and $\ALPHABET U$ are finite sets and that the cost function and
+the probability distribution of $\{W_t\}_{t \ge 1}$ are time-homogeneous.
+Then, the following is a fundamental property of MDPs:
+
+[MDP]: ../mdp-functional
+
+::: highlight :::
+Lemma
+
+:   For any $x_1, x_2, \dots, x_T \in \ALPHABET X$ and $u_1, \dots, u_T \in
+    \ALPHABET U$, we have
+    $$ \PR(X_{t+1} = x_{t+1} | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t})
+     = \PR(X_{t+1} = x_{t+1} | X_{t}   = x_t    , U_t = u_t).$$
+    Moreover, the right hand side does not depend on the policy $g$.
+:::
+
+#### Proof
+For a given policy $g$ consider
+$$\begin{align}
+  \hskip 2em & \hskip -2em
+  \PR(X_{t+1} = x_{t+1} | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t})
+  \\
+  &\stackrel{(a)}=
+  \PR(\{ w_t \in \ALPHABET W : f_t(x_t, u_t, w_t) = x_{t+1} \}
+  | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t}) 
+  \\
+  &\stackrel{(b)}=
+  \PR(\{ w_t \in \ALPHABET W : f_t(x_t, u_t, w_t) = x_{t+1} \})
+  \\
+  &=
+  \PR(X_{t+1} = x_{t+1} | X_{t} = x_{t}, U_{t} = u_{t})
+\end{align}$$
+where $(a)$ follows from the update equation for $X_{t+1}$ and $(b)$ follows
+because the primitive random variables are independent. The expression in the
+right hand side of $(b)$ does not depend on the control strategy $g$. 
+
+---
+
+Let $|\ALPHABET X| = n$ and $|\ALPHABET U| = m$. The idea behind the matrix
+formulation of MDP is to think of $\{X_t\}_{t \ge 1}$ as a _controlled_ Markov
+process and define the $n \times n$ tranistion matrices $\{P(u)\}_{u \in
+\ALPHABET U}$ as follows:
+$$ P_{xy}(u) = \PR(X_{t+1} = y | X_t = x, U_t = u).$$
+
+Observe that
+$$\EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
+  = \sum_{y \in \ALPHABET X} V_{t+1}(y) \PR(X_{t+1} = y | X_t = x, U_t = u).
+  $$
+Now, if we think of $V_t$ as a $n \times 1$ column vector, then we can write
+$$ \EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] = [ P(u)V_{t+1} ]_{x}, $$
+or, equivalently,
+$$ \MATRIX{ \EXP[V_{t+1}(X_{t+1}) | X_t = 1, U_t = u] \\ \vdots \\
+    \EXP[V_{t+1}(X_{t+1}) | X_t = n, U_t = u] }
+    = P(u)V_{t+1}. $$
+
+Now, think of $c_t$ and $Q_t$ as $n \times m$ matrices. Then, we can write
+$$ Q_t = c_t + \MATRIX { P(1)V_{t+1} & \cdots & P(n) V_{t+1} }. $$
+
+Define $\bar P = \MATRIX{P(1) \\ \vdots \\ P(n)}$, then 
+$$ Q_t = c_t + \text{reshape}( \bar P \, V_{t+1}, n, m). $$
+Hence, the key step of dynamic programming can be done using simple linear
+algebra and therefore implemented efficiently in any programming language. 
