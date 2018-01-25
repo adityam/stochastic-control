@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Matrix formulation of Markov decision processes</h1>
+
+<p>In this section, we present a matrix formulation for finite state finite action MDPs, which is useful for computing the solutions numerically. Let’s start with <a href="../mdp-functional">the function model</a> described earlier and assume that <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET U\)</span> are finite sets and that the cost function and the probability distribution of <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are time-homogeneous. Then, the following is a fundamental property of MDPs:</p>
+<div class="highlight">
+<dl>
+<dt>Lemma</dt>
+<dd><p>For any <span class="math inline">\(x_1, x_2, \dots, x_T \in \ALPHABET X\)</span> and <span class="math inline">\(u_1, \dots, u_T \in \ALPHABET U\)</span>, we have <span class="math display">\[ \PR(X_{t+1} = x_{t+1} | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t})
+ = \PR(X_{t+1} = x_{t+1} | X_{t}   = x_t    , U_t = u_t).\]</span> Moreover, the right hand side does not depend on the policy <span class="math inline">\(g\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof">Proof</h4>
+<p>For a given policy <span class="math inline">\(g\)</span> consider <span class="math display">\[\begin{align}
+  \hskip 2em &amp; \hskip -2em
+  \PR(X_{t+1} = x_{t+1} | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t})
+  \\
+  &amp;\stackrel{(a)}=
+  \PR(\{ w_t \in \ALPHABET W : f_t(x_t, u_t, w_t) = x_{t+1} \}
+  | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t}) 
+  \\
+  &amp;\stackrel{(b)}=
+  \PR(\{ w_t \in \ALPHABET W : f_t(x_t, u_t, w_t) = x_{t+1} \})
+  \\
+  &amp;=
+  \PR(X_{t+1} = x_{t+1} | X_{t} = x_{t}, U_{t} = u_{t})
+\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the update equation for <span class="math inline">\(X_{t+1}\)</span> and <span class="math inline">\((b)\)</span> follows because the primitive random variables are independent. The expression in the right hand side of <span class="math inline">\((b)\)</span> does not depend on the control strategy <span class="math inline">\(g\)</span>.</p>
+<hr />
+<p>Let <span class="math inline">\(|\ALPHABET X| = n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>. The idea behind the matrix formulation of MDP is to think of <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> as a <em>controlled</em> Markov process and define the <span class="math inline">\(n \times n\)</span> tranistion matrices <span class="math inline">\(\{P(u)\}_{u \in \ALPHABET U}\)</span> as follows: <span class="math display">\[ P_{xy}(u) = \PR(X_{t+1} = y | X_t = x, U_t = u).\]</span></p>
+<p>Observe that <span class="math display">\[\EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
+  = \sum_{y \in \ALPHABET X} V_{t+1}(y) \PR(X_{t+1} = y | X_t = x, U_t = u).
+  \]</span> Now, if we think of <span class="math inline">\(V_t\)</span> as a <span class="math inline">\(n \times 1\)</span> column vector, then we can write <span class="math display">\[ \EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] = [ P(u)V_{t+1} ]_{x}, \]</span> or, equivalently, <span class="math display">\[ \MATRIX{ \EXP[V_{t+1}(X_{t+1}) | X_t = 1, U_t = u] \\ \vdots \\
+    \EXP[V_{t+1}(X_{t+1}) | X_t = n, U_t = u] }
+    = P(u)V_{t+1}. \]</span></p>
+<p>Now, think of <span class="math inline">\(c_t\)</span> and <span class="math inline">\(Q_t\)</span> as <span class="math inline">\(n \times m\)</span> matrices. Then, we can write <span class="math display">\[ Q_t = c_t + \MATRIX { P(1)V_{t+1} &amp; \cdots &amp; P(n) V_{t+1} }. \]</span></p>
+<p>Define <span class="math inline">\(\bar P = \MATRIX{P(1) \\ \vdots \\ P(n)}\)</span>, then <span class="math display">\[ Q_t = c_t + \text{reshape}( \bar P \, V_{t+1}, n, m). \]</span> Hence, the key step of dynamic programming can be done using simple linear algebra and therefore implemented efficiently in any programming language.</p>
+
+
+<p class="categories">
+This entry was last updated on
+24 Jan 2018
+
+and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a> 
+and tagged 
+
+<a href="https://adityam.github.io/stochastic-control/tags/numerical-methods">numerical methods</a>.
+ 
+
+</p>
+
+
+
+</div>
+</body>
+</html>
+
+
