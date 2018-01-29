@@ -1,0 +1,173 @@
+---
+title: Monotone value functions and policies
+weight: 25
+categories:
+  - MDP
+tags:
+  - stochastic monotonicity
+  - submodularity
+---
+
+Consider the [matrix formulation](../mdp-matrix) of MDPs and suppose the state
+space $\ALPHABET X$ is totally ordered. In many applications, it is useful to
+know if the value function is increasing (or decreasing) in state. 
+
+::: highlight :::
+Theorem
+
+:   Consider an MDP where the state space $\ALPHABET X$ is totally ordered. 
+    Suppose the following conditions are satisfied.
+
+    C1. For every $u \in \ALPHABET U$, the per-step cost $c_t(x,u)$ is weakly
+        inceasing in $x$.
+
+    C2. For every $u \in \ALPHABET U$, the transition matrix $P(u)$ is
+        stochastically monotone. 
+
+    Then, the value function $V_t(x)$ is weakly increasing in $x$.
+:::
+
+Note
+
+:   The result above also applies to models with continuous (and totally
+    ordered) state space provided the measurable selection conditions hold
+    so that the arg min at each step of the dynamic program is attained. 
+
+
+#### Proof
+
+We proceed by backward induction. By definition, $V_{T+1}(x) = 0$, which is
+weakly increasing. This forms the basis of induction. Assume that
+$V_{t+1}(x)$ is weakly increasing. Now consider,
+$$Q_t(x,u) = c_t(x,u) + \EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u].$$
+For any  $u \in \ALPHABET U$, $Q_t(x,u)$ is a sum of two weakly increasing
+functions in $x$; hence $Q_t(x,u)$ is weakly increasing in $x$. 
+
+Now consider $x, y \in \ALPHABET X$ such that $x > y$. Suppose $u^*$ is the
+optimal action at state $x$. Then
+$$ 
+  V_t(x) = Q_t(x, u^*) \stackrel{(a)}\ge Q_t(y,u^*) \stackrel{(b)}\ge V_t(y),
+$$
+where $(a)$ follows because $Q_t(\cdot, u^*)$ is weakly increasing and $(b)$
+follows from the definition of the value function. 
+
+---
+
+# Submodularity
+
+Definition
+
+:   Let $\ALPHABET X$ and $\ALPHABET Y$ be partially ordered sets. A function
+    $f \colon \ALPHABET X \times \ALPHABET Y \to \reals$ is called
+    _submodular_ if for any $x^+ \ge x^-$ and $y^+ \ge y^-$, we have
+    $$
+      f(x^+, y^+) + f(y^-, y^-) \le f(x^+, y^-) + f(x^-, y^+).
+    $$ {#eq:submodular}
+
+    The function is called _supermodular_ if the inequality in
+    (@eq:submodular) is reversed. 
+
+A continuous and differentiable function on $\reals^2$ is submodular iff
+$$ \frac{ \partial^2 f(x,y) }{ \partial x \partial y } \le 0,
+  \quad \forall x,y. 
+$$
+
+Submodularity is a useful property because it implies monotonicity of the arg
+min.
+
+::: highlight :::
+
+Theorem
+
+:   Let $\ALPHABET X$ be a partially ordered set,  $\ALPHABET Y$ be a
+    totally ordered set, and $f \colon \ALPHABET X \times \ALPHABET Y \to \reals$
+    be a submodular function. Suppose that for all $x$, $\arg \min_{y \in
+    \ALPHABET Y} f(x,y)$ exists. Then,
+    $$
+      g(x) := \max \{ y^* \in \arg \min_{y \in \ALPHABET Y} f(x,y) \}
+    $$
+    is weakly increasing in $x$.
+::: 
+
+#### Proof
+Consider $x^+, x^- \in \ALPHABET X$ such that $x^+ \ge x^-$. Since $f$ is
+sumodular, for any $y \le g(x^-)$, we have
+$$
+  f(x^+, g(x^-)) - f(x^+, y) \le f(x^+, g(x^-)) - f(x^-, y) \le 0,
+$$ {#eq:1}
+where the last inequality follows because $g(x^-)$ is the arg min of $f(x^-,
+y)$. Eq. (@eq:1) implies that (for all $y \le g(x^-)$), 
+$$ 
+  f(x^+, g(x^-)) \le f(x^+, y).
+$$
+Thus, $g(x^+) \ge g(x^-)$. 
+
+---
+
+# Monotonicity of optimal policy
+
+::: highlight :::
+Theorem
+
+:   Consider an MDP where the state space $\ALPHABET X$ and the action space
+    $\ALPHABET U$ are totally ordered. Suppose that, in addition to (C1) and
+    (C2), the following condition is satisfied.
+
+    C3. For any weakly increasing function $v$,
+    $$ c_t(x,u) + \EXP[ v(X_{t+1} | X_t = x, U_t = u]$$
+    is submodular in $(x,u)$.
+
+    Let $g^*_t(x) = \max\{ u^* \in \arg \min_{u \in \ALPHABET X} Q_t(x,u) \}$.
+    Then, $g^*(x)$ is weakly increasing in $x$.
+:::
+
+#### Proof
+Conditions (C1) and (C2) imply that the value function $V_{t+1}(x)$ is weakly
+increasing. Therefore, condition (C3) implies that $Q_t(x,u)$ is submodular in
+$(x,u)$. Therefore, the arg min is increasing in $x$
+
+---
+
+It is difficult to verify condition (C3). The following conditions
+are sufficient for (C3).
+
+Lemma
+
+:   Consider an MDP with totally ordered state and action spaces. Suppose
+    
+    (a) $c_t(x,u)$ is submodular in $(x,u)$.
+    (b) For all $y \in \ALPHABET X$, 
+        $S(y | x,u) = 1 - \sum_{x' \le y} P_{xx'}(u)$ is submodular in $(x,y)$.
+
+    The condition (C3) of the previous theorem holds.
+
+#### Proof
+
+Consider $x^+, x^- \in \ALPHABET X$ and $u^+, u^- \in \ALPHABET U$ such that
+$x^+ > x^-$ and $u^+ > u^-$. Define
+
+$$\begin{align}
+  \pi(x) &= \tfrac 12 P_{x x^-}(u^-) + \tfrac 12 P_{x x^+}(u^+), \\
+  \mu(x) &= \tfrac 12 P_{x x^-}(u^+) + \tfrac 12 P_{x x^+}(u^-).
+\end{align}$$
+Since $S(y | x,u)$ is submodular, we have
+$$ S(y | x^+, u^+) + S(y | x^=, u^-) \le S(y | x^+, u^-) + S(y | x^-, u^+) $$
+or equivalently,
+$$\sum_{x' \le y} \big[ P_{x^+ x'}(u^+) + P_{x^- x'}(u^-) \big]
+  \ge 
+  \sum_{x' \le y} \big[ P_{x^+ x'}(u^-) + P_{x^- x'}(u^+) \big]. $$
+which implies
+$$ \Pi(y) \ge M(y)$$
+where $\Pi$ and $M$ are the CDFs of $\pi$ and $\mu$. Thus, $\pi \succeq_s
+\mu$.
+
+Hence, for any weakly increasing function $v \colon \ALPHABET X \to \reals$,
+$$ \sum_{x' \in \ALPHABET X} \pi(x') v(x') \le 
+   \sum_{x' \in \ALPHABET X} \mu(x') v(x').$$
+Or, equivalently, 
+$$H(x^+, u^+) + H(x^-, u^-) \le H(x^-, u^+) + H(x^+, u^-)$$
+where $H(x,u) = \EXP[ v(X_{t+1} | X_t = x, U_t = u]$. 
+
+Therefore, $c_t(x,u) + H_t(x,u)$ is submodular in $(x,u)$. 
+   
+
