@@ -1,0 +1,154 @@
+---
+title: Power-delay trade-off in wireless communication
+weight: 06
+categories:
+  - MDP
+tags:
+  - stochastic monotonicity
+  - post-decision state
+  - wireless communication
+  - structural results
+---
+
+In a cell phone, higher layer applications such as voicecall, email, browsers,
+etc. generate data packets. These packets are buffered in a queue and the
+transmission protocol decides how many packets to transmit at each time
+depending the number of packets in the queue and the quality of the wireless
+channel.
+
+Let $X_t \in \integers_{\ge 0}$ denote the number of packets buffered at time
+$t$ and $U_t \in \integers_{\ge 0}$, $U_t \le X_t$, denote the number of
+packets transmitted at time $t$. The remaining $X_t - U_t$ packets incur a
+delay penalty given by $d(X_t - U_t)$, where $d(\cdot)$ is a _strictly_
+increasing and convex function where $d(0) = 0$. 
+
+During time $t$, $W_t \in \integers_{\ge 0}$ additional packets arrive and 
+$$ X_{t+1} = X_t - U_t + W_t.$$
+We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d. process.
+
+The packets are transmitted over a wireless fading channel. Let $S_t \in
+\ALPHABET S$ denote the state of the fading channel. We assume that
+$\{S_t\}_{t \ge 1}$ is a [stochastically monotone][monotone] Markov process that is
+independent of $\{W_t\}_{t \ge 1}$.
+
+[monotone]: ../../theory/stochastic-dominance#stochastic-monotonicity
+
+The transmission protocol sets the transmit power such that the signal to
+noise ratio (SNR) at the receiver is above a desired threshold. It can be
+shown that for additive white Gaussian channels (AWGN), the transmitted power
+is of the form
+$$p(U_t) q(S_t),$$
+where 
+
+* $p(\cdot)$ is a strictly increasing and convex function where $p(0) = 0$;
+* $q(\cdot)$ is a strictly decreasing function.
+
+The objective is to choose a transmission policy $U_t = g_t(X_t, S_t)$ to
+minimize the weighted sum of transmitted power and delay
+$$ \EXP\bigg[ \sum_{t=1}^T \big[ p(U_t) q_(S_t) + \lambda d(X_t - U_t) \big]
+\bigg],$$
+where $\lambda$ may be viewed as a Lagrange multiplier corresponding to a
+constrained optimization problem. 
+
+## Dynamic program
+
+We can assume $Y_t = X_t - U_t$ as a post-decision state in the above model
+and write the dynamic program as follows:
+
+$$ V_{T+1}(x,s) = 0 $$
+and for $t \in \{T, \dots, 1\}$, 
+$$\begin{align}
+  Q_t(y,s) &= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
+  V_t(x,s) &= \min_{u \le x} \big\{ p(u) q(s) + Q_t(x-u, s) \big\}
+\end{align}$$
+
+::: highlight :::
+
+Lemma
+
+:   For all $t$, $V_t(x,s)$ and $Q_t(y,s)$ are increasing in the first
+    variable and decreasing in the second variable. 
+:::
+
+#### Proof
+
+First note that the constraint set $\ALPHABET U(x) = \{0, \dots, x\}$
+satisfies the conditions that generalize the result of monotonicity to
+constrained actions. 
+
+We prove the two monotonicity properties by backward induction. First note
+that $V_{T+1}(x,s)$ is trivially monotone. This forms the basis of induction.
+Now suppose $V_{t+1}(x,s)$ is increasing in $x$ and decreasing in $s$. Since
+$\{S_t\}_{t \ge 1}$ is stochastically monotone, 
+$$Q_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1} | S_t = s ]$$
+is decreasing in $s$. Moreover, since both $d(y)$ and $V_{t+1}(y + w, s)$ are
+increasing in $y$, so is $Q_t(y,s)$.
+
+Now, for every $u$, $p(u) q(s)$ and $Q_t(x-u, s)$ is increasing in $x$ and
+decreasing in $s$. So, the pointwise minima over $u$ is also increasing in $x$
+and decreasing in $s$.
+
+::: highlight :::
+Lemma
+
+:   For all $t$ and $s$, $V_t(x,s)$ and $Q_t(y,s)$ are convex in the first
+    variable.
+:::
+
+#### Proof
+
+We proceed by backward induction. First note that $V_{T+1}(x,s)$ is trivially
+convex in $x$. Now assume that $V_{t+1}(x,s)$ is convex in $x$. Then,
+$\EXP[V_{t+1}(y + W_t, S_{t+1}) | S_t = s]$ is weighted sum of convex functions
+and is, therefore, convex in $y$. Therefore, $Q_t(y,s)$ is a sum of two convex
+functions and, therefore, covnex in $y$. 
+
+We cannot directly show the convexity of $V_t(x,s)$ because the pointwise
+minimum of convex functions is not convex. So, we consider the following
+arguement. Fix $s$ and pick $x > 1$. Let $\underline u = g^*_t(x-1,s)$ and
+$\bar u = g^*_t(x+1,s)$. Let $\underline v = \lfloor (\underline u + \bar u)/2
+\rfloor$ and $\bar v = \lceil (\underline u + \bar u)/2
+\rceil$. Note that both $\underline v$ and $\bar v$ are feasible at $x$. Then,
+$$ \begin{align}
+  \hskip 2em & \hskip -2em
+  V_t(x-1, s) + V_t(x+1, s)
+  \\
+  &= 
+  [ p(\underline u) + p(\bar u) ] q(s) + Q_t(x - 1 - \underline u, s)
+  + Q_t(x + 1 - \bar u, s)
+  \\
+  &\stackrel{(a)}\ge [ p(\underline v) + p(\bar v)] q(s) + 
+    Q_t(x - \underline v, s) + Q_t(x - \bar v, s) \\
+  &\ge 2 \min_{u \le x} \big\{ p(u) q(s) + Q_t(x-u, s) \\
+  &= 2 V_t(x,s),
+\end{align} $$
+where $(a)$ follows from convexity of $p(\cdot)$ and $Q_t(\cdot, s)$. Thus,
+$V_t(x,s)$ is convex in $x$. This completes the induction step. 
+
+::: highlight :::
+Theorem
+
+:   For all $t$ and $s$, the optimal strategy $g^*_t(x,s)$ is increasing in
+    $x$.
+:::
+
+#### Proof
+
+In the previous lemma, we have shown that $Q_t(y,s)$ is convex
+in $y$. Therefore, $Q_t(x-u, s)$ is submodular in $(x,s)$. 
+
+[ One can show this by finite difference, but for simplicity, we assume that
+$Q_t(y,s)$ is twice differentiable. Then, $\partial^2 Q_t(x - u, s)/ \partial
+x \partial u \le 0$ (by convexity of $Q_t$). ]
+
+Thus, for a fixed $s$, $p(u)q(s) + Q_t(x-u, s)$ is submodular in $(x,u)$.
+Therefore, the optimal policy is increasing in $x$. 
+
+---
+
+## References
+
+The mathematical model of power-delay trade-off is taken from @Berry2010. 
+
+
+
