@@ -1,0 +1,138 @@
+---
+title: Optimal choice of the best alternative
+weight: 10
+categories:
+  - MDP
+tags:
+  - optimal stopping
+  - structural results
+  - threshold strategy
+---
+
+A decision maker (DM) wants to select the best alternative from a set of $T$
+alternatives. The DM evaluates the alternatives sequentially. After evaluating
+alternative $t$, the DM knows whether alternative $t$ was the best alternative
+so far or not. Based on this information, the DM must decide whether to choose
+alternative $t$ and stop the search, or to permanently reject alternative $t$
+and evaluate remaining alternatives. The DM may reject the last alternative
+and not make a choice at all. All alternatives are equally likely to be the
+best. Find the optimal choice strategy that maximize the probability of
+picking the best alternative.
+
+This optimization problem is known by different names including _secretary
+problem_ (in which the alternatives correspond to finding the best
+candidate as a secretary), _marriage problem_ (in which the alternatives
+correspond of find the best spouse), _Googol_ (in which the alternatives
+consist of finding the biggest number), _parking problem_ (in which the
+alternatives correspond to finding the nearest parking spot) and so on
+
+We can view this an optimal stopping problem with binary state $X_t$. 
+$X_t = 1$ means that alternative $t$ is the best alternative so far. Thus,
+$\{X_t\}_{t \ge 1}$ is an independent process with $\PR(X_t = 1) = 1/t$. 
+
+This is an optimal stopping problem with perfect state observation. The
+continuation reward is zero. The DM receives a stopping reward only if the
+current alternative is best, i.e., the current alternative is best so far
+($X_t = 1$) and better than all future alternative ($X_\tau = 0, \tau > t$).
+Thus, the expected stopping reward conditioned on $X_t$ is 
+$$ s_t(x) = \IND\{ x = 1 \} \cdot \PR( X_{t+1:T} = 0 | X_t = x )
+= x \cdot \frac tT. $$
+Thus, the optimal strategy is given by the solution of the followind dynamic
+program.
+
+::: highlight :::
+**Dynamic program**
+$$ \begin{align}
+  V_{T+1}(x) &= 0 \\
+  V_t(x) &= \max\bigg\{ x \cdot \frac tT, 
+  \EXP[ V_{t+1}(X_{t+1}) ] \bigg\}
+\end{align}$$
+:::
+
+## Structure of optimal policy
+
+::: highlight :::
+Lemma
+
+:   Define
+    $$ L_t = V_t(0) = 
+    \frac t{t+1} V_{t+1}(0) + \frac 1{t+1}V_{t+1}(1). $$
+    Then, 
+    $$V_t(1) = \max\bigg\{ \frac tT, L_t \bigg\}$$
+    and, therefore,
+    $$ 
+      L_t - L_{t+1} = \bigg[ \frac 1T - \frac {L_{t+1}}{t+1} \bigg]^+
+      \quad \text{with } L_T = 0. 
+    $$
+:::
+
+Note that it is never optimal to select an alternative if it is not the best
+so far (i.e., $X_t = 0$). Thus, we can completely characterize an optimal
+strategy by solving for $\{L_t\}_{t=1}^T$ in a backward manner. 
+
+#### Proof
+
+The result follows immediately from the definition of $L_t$.
+
+::: highlight :::
+Theorem
+
+:   1.  There exists a critical time $t_0$, $t_0 < T$, such that it is optimal
+        to reject all alternatives until $t_0 - 1$ and then select the first
+        alternative that is superior to all previous ones, if it occurs. 
+
+    2.  The critical time is the smallest integer $t$ such that
+        $$ 
+          \sum_{k=t}^{T-1} \frac 1k < 1.
+        $$
+
+    3.  The value function are given by
+        $$ 
+          L_t = \begin{cases}
+          \displaystyle \frac tT \sum_{k=t}^{T-1} \frac 1k,
+          & \text{for } t \ge t_0, \\
+          L_{t_0}, & \text{for } t < t_0.
+          \end{cases}
+        $$
+
+    4.  For large $T$, $t_0 \approx T/e$ and the probability of selecting the
+        best candidate is approximately $1/e$.
+:::
+
+#### Proof
+
+Note that $L_t - L_{t+1} \ge 0$. Thus, $L_t$ is decreasing with time. 
+
+$V_t(1) = \max\{t/T, L_t\}$ where the first term is increasing with time and
+the second term is decreasing with time. Thus, the critical time $t_0$ is the
+first time when $t/T \ge L_t$. Since $L_T = 0$ and $T/T = 1$, such a $t_0 <
+T$. 
+
+For any $t < t_0$ (i.e., $t/T < L_t$), 
+$$
+  L_{t-1} = L_t + \bigg[ \frac 1T - \frac{L_t}{t} \bigg]^+ = L_t.
+$$
+
+For any $t \ge t_0$ (i.e., $t/T \ge L_t$), we have $(t+1)/T \ge L_{t+1}$.
+Therefore,
+$$
+  L_{t} = L_{t+1} + \bigg[ \frac 1T - \frac{L_{t+1}}{t+1} \bigg]^+ 
+  = L_{t+1} + \frac 1T - \frac{L_{t+1}}{t+1} 
+  = \frac tT \bigg[ \frac 1t + \frac{T}{t+1} L_{t+1} \bigg].
+$$
+The above $L_t$ can be shown to be equal to the form given above in point 3 by
+induction.
+
+For large $T$, 
+$$
+  \sum_{k=t}^{T-1} \frac 1k \approx 
+  \int_{t}^T \frac 1k dk = \log \frac Tt.
+$$
+Thus, $t_0 \approx T/e$. Moreover
+$$
+V_1(0) = V_1(1) = L_1 = L_{t_0} \approx \frac{t_0}{T} = \frac 1e.
+$$
+    
+
+
+

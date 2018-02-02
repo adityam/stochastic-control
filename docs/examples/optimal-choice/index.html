@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            integers: "\\mathbb{Z}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Optimal choice of the best alternative</h1>
+
+<p>A decision maker (DM) wants to select the best alternative from a set of <span class="math inline">\(T\)</span> alternatives. The DM evaluates the alternatives sequentially. After evaluating alternative <span class="math inline">\(t\)</span>, the DM knows whether alternative <span class="math inline">\(t\)</span> was the best alternative so far or not. Based on this information, the DM must decide whether to choose alternative <span class="math inline">\(t\)</span> and stop the search, or to permanently reject alternative <span class="math inline">\(t\)</span> and evaluate remaining alternatives. The DM may reject the last alternative and not make a choice at all. All alternatives are equally likely to be the best. Find the optimal choice strategy that maximize the probability of picking the best alternative.</p>
+<p>This optimization problem is known by different names including <em>secretary problem</em> (in which the alternatives correspond to finding the best candidate as a secretary), <em>marriage problem</em> (in which the alternatives correspond of find the best spouse), <em>Googol</em> (in which the alternatives consist of finding the biggest number), <em>parking problem</em> (in which the alternatives correspond to finding the nearest parking spot) and so on</p>
+<p>We can view this an optimal stopping problem with binary state <span class="math inline">\(X_t\)</span>. <span class="math inline">\(X_t = 1\)</span> means that alternative <span class="math inline">\(t\)</span> is the best alternative so far. Thus, <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is an independent process with <span class="math inline">\(\PR(X_t = 1) = 1/t\)</span>.</p>
+<p>This is an optimal stopping problem with perfect state observation. The continuation reward is zero. The DM receives a stopping reward only if the current alternative is best, i.e., the current alternative is best so far (<span class="math inline">\(X_t = 1\)</span>) and better than all future alternative (<span class="math inline">\(X_\tau = 0, \tau &gt; t\)</span>). Thus, the expected stopping reward conditioned on <span class="math inline">\(X_t\)</span> is <span class="math display">\[ s_t(x) = \IND\{ x = 1 \} \cdot \PR( X_{t+1:T} = 0 | X_t = x )
+= x \cdot \frac tT. \]</span> Thus, the optimal strategy is given by the solution of the followind dynamic program.</p>
+<div class="highlight">
+<p><strong>Dynamic program</strong> <span class="math display">\[ \begin{align}
+  V_{T+1}(x) &amp;= 0 \\
+  V_t(x) &amp;= \max\bigg\{ x \cdot \frac tT, 
+  \EXP[ V_{t+1}(X_{t+1}) ] \bigg\}
+\end{align}\]</span></p>
+</div>
+<h2 id="structure-of-optimal-policy">Structure of optimal policy</h2>
+<div class="highlight">
+<dl>
+<dt>Lemma</dt>
+<dd><p>Define <span class="math display">\[ L_t = V_t(0) = 
+\frac t{t+1} V_{t+1}(0) + \frac 1{t+1}V_{t+1}(1). \]</span> Then, <span class="math display">\[V_t(1) = \max\bigg\{ \frac tT, L_t \bigg\}\]</span> and, therefore, <span class="math display">\[ 
+  L_t - L_{t+1} = \bigg[ \frac 1T - \frac {L_{t+1}}{t+1} \bigg]^+
+  \quad \text{with } L_T = 0. 
+\]</span></p>
+</dd>
+</dl>
+</div>
+<p>Note that it is never optimal to select an alternative if it is not the best so far (i.e., <span class="math inline">\(X_t = 0\)</span>). Thus, we can completely characterize an optimal strategy by solving for <span class="math inline">\(\{L_t\}_{t=1}^T\)</span> in a backward manner.</p>
+<h4 id="proof">Proof</h4>
+<p>The result follows immediately from the definition of <span class="math inline">\(L_t\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><ol type="1">
+<li><p>There exists a critical time <span class="math inline">\(t_0\)</span>, <span class="math inline">\(t_0 &lt; T\)</span>, such that it is optimal to reject all alternatives until <span class="math inline">\(t_0 - 1\)</span> and then select the first alternative that is superior to all previous ones, if it occurs.</p></li>
+<li><p>The critical time is the smallest integer <span class="math inline">\(t\)</span> such that <span class="math display">\[ 
+  \sum_{k=t}^{T-1} \frac 1k &lt; 1.
+\]</span></p></li>
+<li><p>The value function are given by <span class="math display">\[ 
+  L_t = \begin{cases}
+  \displaystyle \frac tT \sum_{k=t}^{T-1} \frac 1k,
+  &amp; \text{for } t \ge t_0, \\
+  L_{t_0}, &amp; \text{for } t &lt; t_0.
+  \end{cases}
+\]</span></p></li>
+<li><p>For large <span class="math inline">\(T\)</span>, <span class="math inline">\(t_0 \approx T/e\)</span> and the probability of selecting the best candidate is approximately <span class="math inline">\(1/e\)</span>.</p></li>
+</ol>
+</dd>
+</dl>
+</div>
+<h4 id="proof-1">Proof</h4>
+<p>Note that <span class="math inline">\(L_t - L_{t+1} \ge 0\)</span>. Thus, <span class="math inline">\(L_t\)</span> is decreasing with time.</p>
+<p><span class="math inline">\(V_t(1) = \max\{t/T, L_t\}\)</span> where the first term is increasing with time and the second term is decreasing with time. Thus, the critical time <span class="math inline">\(t_0\)</span> is the first time when <span class="math inline">\(t/T \ge L_t\)</span>. Since <span class="math inline">\(L_T = 0\)</span> and <span class="math inline">\(T/T = 1\)</span>, such a <span class="math inline">\(t_0 &lt; T\)</span>.</p>
+<p>For any <span class="math inline">\(t &lt; t_0\)</span> (i.e., <span class="math inline">\(t/T &lt; L_t\)</span>), <span class="math display">\[
+  L_{t-1} = L_t + \bigg[ \frac 1T - \frac{L_t}{t} \bigg]^+ = L_t.
+\]</span></p>
+<p>For any <span class="math inline">\(t \ge t_0\)</span> (i.e., <span class="math inline">\(t/T \ge L_t\)</span>), we have <span class="math inline">\((t+1)/T \ge L_{t+1}\)</span>. Therefore, <span class="math display">\[
+  L_{t} = L_{t+1} + \bigg[ \frac 1T - \frac{L_{t+1}}{t+1} \bigg]^+ 
+  = L_{t+1} + \frac 1T - \frac{L_{t+1}}{t+1} 
+  = \frac tT \bigg[ \frac 1t + \frac{T}{t+1} L_{t+1} \bigg].
+\]</span> The above <span class="math inline">\(L_t\)</span> can be shown to be equal to the form given above in point 3 by induction.</p>
+<p>For large <span class="math inline">\(T\)</span>, <span class="math display">\[
+  \sum_{k=t}^{T-1} \frac 1k \approx 
+  \int_{t}^T \frac 1k dk = \log \frac Tt.
+\]</span> Thus, <span class="math inline">\(t_0 \approx T/e\)</span>. Moreover <span class="math display">\[
+V_1(0) = V_1(1) = L_1 = L_{t_0} \approx \frac{t_0}{T} = \frac 1e.
+\]</span></p>
+
+
+<p class="categories">
+This entry was last updated on
+02 Feb 2018
+
+and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a> 
+and tagged 
+
+<a href="https://adityam.github.io/stochastic-control/tags/optimal-stopping">optimal stopping</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/structural-results">structural results</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/threshold-strategy">threshold strategy</a>.
+ 
+
+</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

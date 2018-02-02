@@ -1,0 +1,122 @@
+---
+title: Call options
+weight: 11
+categories:
+  - MDP
+tags:
+  - Optimal stopping
+  - structural results
+  - threshold strategy
+  - finance
+---
+
+An investor has a [call option] to buy one share of a stock at a fixed price
+$p$ dollars and has $T$ days to _exercise_ this option. For simplicity, we
+assume that the investor makes a decision at the beginning of each day. 
+
+[call option]: https://en.wikipedia.org/wiki/Call_option
+
+The investory may decide not to exercise the option but if he does exercise
+the option when the stock price is $x$, he effectively gets $(x-p)$. 
+
+Assume that the price of the stoch varies with independent increments, i.e.,
+the price on day $t+1$ is 
+$$X_{t+1} = X_t + W_t$$
+where $\{W_t\}_{t \ge 1}$ is an i.i.d. process with mean $\mu$. 
+
+Let $\tau$ denote the stopping time when the investor exercises his option.
+Then the optimization problem is to maximize
+$$ \EXP\big[ (X_{\tau} - p )\cdot \IND\{\tau \le T \} \big].$$
+
+Since this is an optimal stopping problem with perfect state observation, the
+optimal strategy is given by the solution of the following dynamic program
+
+::: highlight :::
+**Dynamic program**
+$$\begin{align}
+V_{T}(x) &= \max\{ x-p, 0 \} \\
+V_{t}(x) &= \max\{ x-p, \EXP[ V_{t+1}(x + W) \}.
+\end{align}$$
+:::
+
+## Qualitative properties of the value function
+
+::: highlight :::
+Lemma
+
+:   1. For all $t$, $V_t(x)$ is increasing in $x$.
+    2. For all $t$, $V_t(x) - x$ is decreasing in $x$.
+    3. For all $x$, $V_t(x) \ge V_{t+1}(x)$.
+:::
+
+#### Proof
+
+The first property follows immediately from monotonicity of terminal reward
+and the monotonicity of the dynamics. From [Assignment 2], to show the third
+property, we need to show that $V_{T-1}(x) \ge V_T(x)$. Observe that
+$$ V_{T-1}(x) = 
+\max\{x - p, \EXP[V_{T}(x + W) \} \ge \max\{ x - p, 0 \} = V_T(x).
+$$
+
+Now we prove the second property using backward induction. At $t=T$,
+$$ V_T(x) - x = \max\{ -p, -x \}$$
+which is decreasing in $x$. This forms the basis of induction. Now assume that
+$V_{t+1}(x) - x$ is decreasing in $x$. Then,
+$$ \begin{align}
+  V_t(x) - x &= \max\{ -p, \EXP[ V_{t+1}(x+W) ] - x  \} \\
+  &= \max\{ -p, \EXP[ V_{t+1}(x+W) - (x + W) ] + \EXP[W] \}.
+\end{align} $$
+By the induction hypothesis the second term is decreasing in $x$. The minimum
+of a constant and a decreasing function is decreasing in $x$. Thus, $V_t(x) -
+x$ is decreasing in $x$. This completes the induction step. 
+
+[Assignment 2]: ../../assignments/02
+
+::: highlight :::
+Lemma
+
+:   At any time $t$, if it is optimal to sell when the stock price is
+    $x^\circ$, then it is optimal to sell at all $x \ge x^\circ$. 
+:::
+
+#### Proof
+
+Since it is optimal to sell at $x^\circ$, we must have
+$$ x^\circ - p \ge \EXP[V_{t+1}(x^\circ + W) ] $$ {#eq:p1}
+Since $V_{t}(x) - x$ is decreasing in $x$, we have that for any $x \ge
+x^\circ$, 
+$$\EXP[ V_{t+1}(x + W) - x ] \le \EXP[ V_{t+1}(x^\circ + W) - x^\circ ]
+\le -p $$ {#eq:p2}
+where the last inequality follows from ({@eq:p1}). Eq (@eq:p2) implies that 
+$$ \EXP[ V_{t+1}(x+W) ] \le x - p. $$
+Thus, the stopping action is also optimal at $x$.
+
+::: highlight :::
+Theorem
+
+:   The optimal strategy is of the _threshold type_. In particular, 
+    there exist numbers $s_1 \ge s_2 \ge \cdots \ge s_T$ such that it is
+    optimal to exercise the option at time $t$ if and only if $x_t \ge s_t$.
+:::
+
+#### Proof
+
+Let $S_t = \{x : g_t(x) = 1\}$. The previous Lemma shows that $S_t$ is of the
+form $[s_t, \infty)$, where $s_t = \min \{ x : g_t(x) = 1\}$, where we assume
+that $s_t = \infty$ is it is not optimal to stop in any state. Thus proves the
+threshold property. 
+
+To show that the thresholds are decreasing with time, it suffices to show that
+$S_t \subseteq S_{t+1}$. Suppose $x \in S_t$. Then,
+$$ x - p \ge \EXP[ V_{t+1}(x + W) ] \ge \EXP[ V_{t+2}(x + W) ], $$ {#eq:p3}
+where the first inequality follows because $x \in S_t$ and the second
+inequality follows because $V_{t+1}(x) \ge V_{t+2}(x)$. Eq ({@eq:p3}) implies
+that $x \in S_{t+1}$. Hence, $S_t \subseteq S_{t+1}$ and, therefore, the optimal thresholds are decreasing.
+
+---
+
+## References
+
+The above model for pricing options was introduced by @Taylor1967.
+
+
