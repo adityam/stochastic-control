@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/github.css" type="text/css" />
+  <script src="https://adityam.github.io/stochastic-control//js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            integers: "\\mathbb{Z}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Optimality of threshold policies in optimal stopping</h1>
+
+<p>Consider an <a href="../mdp-functional/#optimal-stopping">optimal stopping</a> problem and define the <em>benefit function</em> as the expected benefit<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> of delaying the stopping decision at time <span class="math inline">\(t\)</span>, i.e., <a name="eq:B"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ B_t(x) = c_t(x) + \EXP[ V_{t+1}( X_{t+1} | X_t = x] - s_t(x). \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span>  Thus, it is optimal to stop whenever <span class="math inline">\(B_t(x) \ge 0\)</span>.</p>
+<p>Note that, we can write the value function in terms of the benefit function as follows: <a name="eq:V"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[\begin{align}
+  V_t(x) &amp;= \min\{ s_t(x), B_t(x) + s_t(x) \} \\
+  &amp;= s_t(x) + [ B_t(x) ]^-,
+\end{align}\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(2)</span></span>  where <span class="math inline">\([y]^-\)</span> is a short hand for <span class="math inline">\(\min\{y, 0\}\)</span>.</p>
+<p>Now, define the <em>one-step look-ahead function</em> as the benefit of delaying the stopping decision by one step, i.e., <a name="eq:M"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ M_t(x) = c_t(x) + \EXP[ s_{t+1}(X_{t+1}) | X_t = x] - s_t(x). \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(3)</span></span> </p>
+<p>The benefit function and the one-step look-ahead functions are related as follows. <span class="math display">\[ B_T(x) = M_T(x) \]</span> and <span class="math display">\[ \begin{align}
+  B_t(x) &amp;= c_t(x) + \EXP[ V_{t+1}(X_{t+1} | X_t = x] - s_t(x) \\
+  &amp;= c_t(x) + \EXP[ s_{t+1}(X_{t+1}) + [B_{t+1}(X_{t+1}]^- | X_t = x] - s_t(x)
+  \\
+  &amp;= M_t(x) + \EXP[ [B_{t+1}(X_{t+1}]^- | X_t = x ].
+\end{align} \]</span></p>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><p>Suppose the following conditions hold.</p>
+<ol type="1">
+<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(M_t(x)\)</span> is weakly increasing in <span class="math inline">\(x\)</span>.</li>
+<li><span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is stochastic monotone.</li>
+</ol>
+<p>Then <span class="math inline">\(B_t(x)\)</span> is weakly increasing in <span class="math inline">\(x\)</span> for all <span class="math inline">\(t\)</span> and there exists a sequence <span class="math inline">\(\{\lambda_t\}_{t \ge 1}\)</span> such that it is optimal to stop at time <span class="math inline">\(t\)</span> if and only if <span class="math inline">\(X_t \ge \lambda_t\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof">Proof</h4>
+<p>We first prove monotonicity of <span class="math inline">\(B_t(x)\)</span>. As usual, the proof is by backward induction. For <span class="math inline">\(t = T\)</span>, <span class="math inline">\(B_T(x) = M_T(x)\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(B_{t+1}(x)\)</span> is increasing in <span class="math inline">\(x\)</span> and consider the problem at time <span class="math inline">\(t\)</span>.</p>
+<p>Since <span class="math inline">\(B_{t+1}(x)\)</span> is increasing so is <span class="math inline">\([B_{t+1}(x)]^{-}\)</span>. Moreover, since <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math inline">\(\EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x]\)</span> is increasing in <span class="math inline">\(x\)</span>. Therefore, <span class="math display">\[ B_t(x) = M_t(x) + \EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x] \]</span> is increasing in <span class="math inline">\(x\)</span>. Thus, by induction, <span class="math inline">\(B_t(x)\)</span> is increasing in <span class="math inline">\(x\)</span> for all <span class="math inline">\(t\)</span>.</p>
+<p>Recall that it is optimal to stop iff <span class="math inline">\(B_t(x) \ge 0\)</span>. Since <span class="math inline">\(B_t(x)\)</span> is increasing in <span class="math inline">\(x\)</span>, the optimal decision rule is of a threshold type.</p>
+<hr />
+<h2 id="example-time-to-market-model">Example: Time-to-Market Model</h2>
+<p>Consider a firm that decides when to introduce a new product. When the firm introduces the product earlier than the competition, it captures a larger market share. However, an early introduction results in high production costs and low profit margins due to low manufacturing yields. Hence, the firm needs to determine the optimal time to enter the market. Suppose that the total market demand <span class="math inline">\(D\)</span> is deterministic. Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> denote the number of competitors at time <span class="math inline">\(t\)</span>. It is assumed that <span class="math display">\[ X_{t+1} = X_t + W_t, \]</span> where <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is an independent process independent of <span class="math inline">\(X_1\)</span>.</p>
+<p>Let <span class="math inline">\(r(x)\)</span> denote the market share of the firm when it enters the market after the <span class="math inline">\(x\)</span>-th competitor. It is assumed that <span class="math inline">\(v(x)\)</span> is decreasing and concave in <span class="math inline">\(x\)</span>.</p>
+<p>Let <span class="math inline">\(p_*\)</span> denote the sale price of the product and <span class="math inline">\(p_t\)</span> denote the production cost at time <span class="math inline">\(t\)</span>. It is assumed that <span class="math inline">\(p_t\)</span> decreases with <span class="math inline">\(t\)</span>.</p>
+<p>The continuation reward is zero and the stopping reward at time <span class="math inline">\(t\)</span> is <span class="math display">\[ s_t(x) = r(x)(p_* - p_t) D. \]</span> When should the firm enter the market?</p>
+<p>First observe that <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is a monotone process. Now consider the one step look-ahead function <span class="math display">\[ \begin{align}
+M_t(x) &amp;= \EXP[ s_{t+1}(x + W) ] - s_t(x) \\
+&amp;= \EXP[ r(x + W) (p_* - p_{t+1}) D ] - r(x)(p_* - p_t) D \\
+&amp;= \EXP[ r(x + W) - r(x) ] (p_* - p_{t+1}) D 
+    + r(x)( p_* - p_{t+1})D  - r(x)(p_* - p_t ) D \\
+&amp;= \EXP[ r(x + W) - r(x) ] (p_* - p_{t+1}) D 
+    + r(x) (p_t - p_{t+1}) D.
+\end{align} \]</span> Since <span class="math inline">\(r(x)\)</span> is concave, the first term is decreasing in <span class="math inline">\(x\)</span>. The second term is also decreasing in <span class="math inline">\(x\)</span> because <span class="math inline">\(r(x)\)</span> is decreasing in <span class="math inline">\(x\)</span> and <span class="math inline">\(p_t \ge p_{t+1}\)</span>. Therefore, <span class="math inline">\(M_t(x)\)</span> is decreasing in <span class="math inline">\(x\)</span>. Hence, by the above theorem[^2], there exist a sequence of thresholds <span class="math inline">\(\{\lambda_t\}_{t \ge 1}\)</span> such that the firm should enter the market at time <span class="math inline">\(t\)</span> iff <span class="math inline">\(X_t \ge \lambda_t\)</span>.</p>
+<hr />
+<h2 id="references">References</h2>
+<p>The result presented in this section is taken from <span class="citation" data-cites="Oh2016">Oh and Özer (<a href="#ref-Oh2016">2016</a>)</span>.</p>
+<div id="refs" class="references">
+<div id="ref-Oh2016">
+<p><span class="smallcaps">Oh, S. and Özer, Ö.</span> 2016. Characterizing the structure of optimal stopping policies. <em>Production and Operations Management</em> <em>25</em>, 11, 1820–1838.</p>
+</div>
+</div>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>The terminology comes from reward maximization problems. In cost minimization problems, this may be thought of as the <em>disadvantage function</em>.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+
+
+<p class="categories">
+This entry was last updated on
+07 Feb 2018
+
+and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a> 
+and tagged 
+
+<a href="https://adityam.github.io/stochastic-control/tags/optimal-stopping">optimal stopping</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/threshold-policies">threshold policies</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/monotone-policies">monotone policies</a>.
+ 
+
+</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
