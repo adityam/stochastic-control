@@ -67,7 +67,145 @@
 
 <h1>Assignment 2 (solution)</h1>
 
+<h2 id="problem-1">Problem 1</h2>
+<p>We prove the result for the case when <span class="math inline">\(V_{T-1}(x) \le V_T(x)\)</span>. The case when <span class="math inline">\(V_{T-1}(x) \ge V_T(x)\)</span> follows from a similar argument.</p>
+<p>As usual, the proof proceeds by backward induction. We know that the result is true for <span class="math inline">\(t = T-1\)</span>. Assume that the result is true for <span class="math inline">\(t+1\)</span>, i.e., <a name="eq:1.1"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V_{t+1}(x) \le V_{t+2}(x), \quad \forall x \in \ALPHABET X\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span> </p>
+<p>Now consider the value function at time <span class="math inline">\(t\)</span>. <span class="math display">\[ \begin{align}
+V_t(x) &amp;= \min_{u \in \ALPHABET U} \big\{
+  c(x,u) + \EXP[ V_{t+1}(f(x,u,W)) ] \big\} \\
+  &amp;\stackrel{(a)}\le \min_{u \in \ALPHABET U} \big\{
+  c(x,u) + \EXP[ V_{t+2}(f(x,u,W)) ] \big\} \\
+  &amp;\stackrel{(b)}=
+  V_{t+1}(x).
+\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the induction hypothesis and <span class="math inline">\((b)\)</span> follows from the definition of <span class="math inline">\(V_{t+1}\)</span>. Thus, the result holds for <span class="math inline">\(t\)</span> and, therefore, from the principle of induction, holds for all time.</p>
+<h2 id="problem-2">Problem 2</h2>
 <h2 id="problem-3">Problem 3</h2>
+<ol type="a">
+<li><p>We start by writing the dynamic program for the above model.</p>
+<p><span class="math display">\[V_{T+1}(x) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span> <span class="math display">\[ \begin{align}
+  Q_t(x,u) &amp;= x^2 + λ u + V_{t+1}(ax + bu) \\
+  V_t(x) &amp;= \min_{u \in \reals} Q_t(x,u) 
+\end{align}\]</span></p></li>
+<li><p>Now we compute the value function and optimal policy at time <span class="math inline">\(T\)</span>.</p>
+<p><span class="math inline">\(Q_T(x,u) = x^2\)</span>. Thus, <span class="math inline">\(V_T(x) = x^2\)</span> and <span class="math inline">\(g_T(x) = 0\)</span>.</p></li>
+<li><p>Now we compute the value function and optimal policy at time <span class="math inline">\(T-1\)</span>.</p>
+<p><span class="math display">\[\begin{align}
+       Q_{T-1}(x,u) &amp;= x^2 + λu + (ax + bu)^2 \\
+       &amp;= x^2 + λ u + a^2 x^2 + b^2 u^2 + 2abxu \\
+       &amp;= b^2 u^2 + 2 \left( \frac λ{2b} + ax \right) (bu) + 
+          \left( \frac λ{2b} + ax \right)^2 
+          - \left( \frac λ{2b} + ax \right)^2 
+          + x^2 + a^2 x^2 \\
+       &amp;= \left( bu + \frac λ{2b} + ax \right)^2 
+          + x^2 -  \frac{λax}{b} - \frac {λ^2}{4b^2} \\
+       &amp;= \left( bu + \frac λ{2b} + ax \right)^2 
+          + \left(x - \frac {λa}{2b} \right)^2 
+          - \frac{λ^2 (1+a^2) }{4 b^2 }
+\end{align}\]</span></p>
+<p>Thus, <span class="math display">\[
+ g_{T-1}(x) = - \frac{λ}{2b^2} - \frac ab x,
+ \quad\text{and}\quad
+ V_{T-1}(x) = \left( x - \frac {λa}{2b} \right)^2
+     - \frac{λ^2 (1+a^2) }{4 b^2 } 
+\]</span></p>
+<p>We can also test this using symbolic computation:</p>
+<pre><code>julia&gt; using SymPy
+julia&gt; x = symbols(&quot;x&quot;, real=true);
+julia&gt; u = symbols(&quot;u&quot;, real=true);
+julia&gt; a = symbols(&quot;a&quot;, real=true, positive=true);
+julia&gt; b = symbols(&quot;b&quot;, real=true, positive=true);
+julia&gt; λ = symbols(&quot;λ&quot;, real=true, positive=true);
+julia&gt; c(x,u) = x^2 + λ*u;
+julia&gt; f(x,y) = a*x + b*y;
+
+julia&gt; VT(x) = x^2;
+julia&gt; QT_1(x,u) = c(x,u) + VT(f(x,u));
+julia&gt; gT_1(x) = solve(diff(QT_1(x,u), u), u)[1];
+
+julia&gt; gT_1(x)
+ ⎛        λ⎞
+-⎜a⋅b⋅x + ─⎟
+ ⎝        2⎠
+─────────────
+       2
+      b
+
+julia&gt; VT_1(x) = QT_1(x, gT_1(x) );
+
+julia&gt; VT_1(x)
+                      2
+     ⎛              λ⎞      ⎛        λ⎞
+     ⎜      a⋅b⋅x + ─⎟     λ⋅⎜a⋅b⋅x + ─⎟
+ 2   ⎜              2⎟      ⎝        2⎠
+x  + ⎜a⋅x - ─────────⎟  - ─────────────
+     ⎝          b    ⎠           2
+                                b
+julia&gt; VT_1(x) - (x - λ*a/(2*b))^2 |&gt; simplify
+  2 ⎛ 2    ⎞
+-λ ⋅⎝a  + 1⎠
+─────────────
+        2
+     4⋅b</code></pre></li>
+<li><p>Based on the above, we guess that for <span class="math inline">\(t &lt; T-1\)</span>, the value function is of the form <span class="math display">\[V_{t}(x) = \left(x - \frac{λa}{2b}\right)^2 - α_{t}\]</span> where we will determine <span class="math inline">\(\alpha_t\)</span>.</p>
+<p>Assume that <span class="math inline">\(V_{t+1}(x)\)</span> is of the above form. Then, <span class="math display">\[\begin{align}
+   Q_t(x,u) &amp;= x^2 + λ u + 
+      \left( ax + bu - \frac{λa}{2b} \right)^2 
+      - α_{t+1}
+      \\
+   &amp;= x^2 + λu + a^2 x^2 + b^2 u^2 + 2abxu 
+      - \frac{λa^2}{b} x - λ a u 
+      + \frac{λ^2 a^2 }{4b^2} 
+      - α_{t+1} \\
+   &amp;= b^2 u^2 + 2 \left( \frac {λ(1-a)}{2b} + ax\right) (bu) 
+      + \left( \frac {λ(1-a)}{2b} + ax \right)^2
+      \\
+   &amp; \quad
+      - \left( \frac {λ(1-a)}{2b} + ax \right)^2
+      + x^2 + a^2 x^2 
+      - \frac{λa^2}{b} x 
+      + \frac{λ^2 a^2 }{4b^2} 
+      - α_{t+1} \\
+   &amp;= \left( bu + \frac{λ(1-a)}{2b} + ax \right)^2 
+      + x^2 - ((1-a) + a)\frac{λax}{b} 
+      + \frac{λ^2 a^2}{4b^2}  - \frac{λ^2(1-a)^2 }{4b^2} 
+      - α_{t+1} \\
+   &amp;= \left( bu + \frac{λ(1-a)}{2b} + ax \right)^2 
+      + \left(x - \frac{λa}{2b}\right)^2  
+      - \frac{λ^2(1-a)^2}{4b^2} - α_{t+1}\\
+   &amp;= \left( bu + \frac{λ(1-a)}{2b} + ax \right)^2 
+      + \left(x - \frac{λa}{2b}\right)^2  
+      - α_t,
+\end{align}\]</span> where <span class="math inline">\(α_t = \frac{λ^2(1-a)^2}{4b^2} + α_{t+1}\)</span>.</p>
+<p>Thus, <span class="math display">\[
+  g_t(x) = - \frac{λ(1-a)}{2b^2} - \frac{a}{b}x,
+  \quad\text{and}\quad
+  V_t(x) = \left(x - \frac{λa}{2b}\right)^2 - α_t
+\]</span> Moreover, <span class="math inline">\(α_{T-1} = \dfrac{λ^2(1+a^2)}{4b^2}\)</span> and for <span class="math inline">\(t \in \{T-2, \dots, 1\}\)</span>, <span class="math display">\[
+  α_t = \frac{λ^2 (1+a^2)}{4b^2} + (T - t - 1) \frac{λ^2(1-a)^2}{4b^2}.
+\]</span></p>
+<p>Again, we can verify the calculations using symbolic computation.</p>
+<pre><code>julia&gt; α = symbols(&quot;α&quot;, real=true)
+julia&gt; Vt1(x) = (x - λ*a/(2*b))^2 - α;
+julia&gt; Qt(x,u) = c(x,u) + Vt1(f(x,u));
+julia&gt; gt(x) = solve(diff(Qt(x,u), u), u)[1];
+
+julia&gt; gt(x)
+         λ⋅(a - 1)
+-a⋅b⋅x + ─────────
+             2
+──────────────────
+         2
+        b
+
+julia&gt; Vt(x) = Qt(x, gt(x));
+
+julia&gt; Vt(x) - (x - λ*a/2b)^2 + α |&gt; factor
+  2        2
+-λ ⋅(a - 1)
+─────────────
+        2
+     4⋅b</code></pre></li>
+</ol>
 
 
 <p class="categories">
