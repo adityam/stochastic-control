@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/github.css" type="text/css" />
+  <script src="https://adityam.github.io/stochastic-control//js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            integers: "\\mathbb{Z}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Assignment 4 (solution)</h1>
+
+<h2 id="problem-1">Problem 1</h2>
+<ol type="a">
+<li><p>This is an optimal stopping problem. Let <span class="math inline">\(X_t\)</span> denote the population at time <span class="math inline">\(t\)</span> and <span class="math inline">\(U_t \in \{0,1\}\)</span> deote the decision to stop (<span class="math inline">\(U_t = 0\)</span>) or not (<span class="math inline">\(U_t = 1\)</span>). If the hunter has not made a stopping decision, the dynamics of <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> are given by <span class="math display">\[
+  X_{t+1} = 
+  \begin{cases}
+    X_t, &amp; \text{with probability $1 - p(X_t)$} \\
+    X_t - 1, &amp; \text{with probability $p(X_t)$}
+  \end{cases}
+\]</span></p>
+<p>Thus, the transition probability matrix is <span class="math display">\[
+  P = \MATRIX{
+  1&amp; 0&amp; 0&amp; \ldots&amp; 0\\
+  p(1)&amp; 1 - p(1)&amp; 0&amp; \ldots&amp; 0\\
+  0&amp; p(2)&amp; 1 - p(2)&amp; \ldots&amp; 0\\
+  \ldots&amp; \ldots&amp; \ldots&amp; \ldots&amp; \ldots\\
+  0&amp; 0&amp; 0&amp; \ldots&amp; 1 - p(n) }
+\]</span></p>
+<p>The expected continuing reward at time <span class="math inline">\(t\)</span> is given by <span class="math display">\[
+  r_t(x) = -c + p(x).
+\]</span></p>
+<p>The stopping reward reward is <span class="math display">\[
+  s_t(x) = 0.
+\]</span></p>
+<p>Hence, the above system is a MDP and an optimal solution is given by the solution to the following dynamic program. <span class="math display">\[ \begin{align}
+   V_T(x) &amp;= \max\{0, -c + p(x)\} \\
+   V_t(x) 
+    &amp;= \max\{0, -c + p(x) + (1-p(x))V_{t+1}(x-1) + p(x)V_{t+1}(x) \}
+    \\
+\end{align} \]</span> In the above equations, the first term corresponds to <span class="math inline">\(u_t = 1\)</span> and the second to <span class="math inline">\(u_t = 0\)</span>.</p></li>
+<li><p>As stated in the hint, the result can be proved based on the following result.</p>
+<div class="highlight">
+<dl>
+<dt>Lemma</dt>
+<dd><p>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(x) = 0 \iff x \le λ\)</span>.</p>
+</dd>
+</dl>
+</div>
+<p>First observe that <span class="math inline">\(V_t(x) \ge 0\)</span> for all <span class="math inline">\(x\)</span> and <span class="math inline">\(t\)</span>. Then the above lemma implies that <span class="math inline">\(g_t(x) = \IND\{p(x) \ge x\}\)</span>, and hence, it is optimal to stop hunting when the current population falls below <span class="math inline">\(λ\)</span>.</p>
+<p>We prove the Lemma backward induction. For <span class="math inline">\(t=T\)</span>. <span class="math display">\[
+  V_T(x) = \max\{0, -c + p(x) \}.
+\]</span> Thus, <span class="math display">\[
+  V_T(x) = 0 \iff p(x) \le c \iff x \le λ.
+\]</span> This forms the basis of induction. Now assume that the lemma is true for <span class="math inline">\(t+1\)</span> and consider <span class="math inline">\(V_t(x)\)</span>. <span class="math display">\[
+  V_t(x) = 
+  \max\{0, -c + p(x) + (1-p(x))V_{t+1}(x-1) + p(x)V_{t+1}(x) \}
+\]</span></p>
+<p>If <span class="math inline">\(x \le λ\)</span>, then <span class="math inline">\(p(x) -c \le 0\)</span> and by the assertion of the induction hypothesis, <span class="math inline">\(V_{t+1}(x) = V_{t+1}({x-1}) = 0\)</span>.</p>
+<p>On the other hand, if <span class="math inline">\(x &gt; λ\)</span>, <span class="math inline">\(p(x) -c &gt; 0\)</span>, and since <span class="math inline">\(V_{t+1}(⋅) \ge 0\)</span>, we have that <span class="math inline">\(V_t(x) &gt; 0\)</span>.</p>
+<p>Thus, the assertion is true for <span class="math inline">\(t\)</span>, and, by the principle of induction, true for all values of <span class="math inline">\(t\)</span>.</p></li>
+</ol>
+<h2 id="problem-2">Problem 2</h2>
+<ol type="a">
+<li><p>This is an optmal stopping problem. The continuation reward is given by <span class="math inline">\(-c\)</span> while the stopping reward is given by <span class="math inline">\(r(x)\)</span>. Therefore, the dynamic program is given by <span class="math display">\[ \begin{align}
+  V_{T}(x) &amp;= r(x) \\
+  V_t(x)   &amp;= \max\{r(x), -c + \sum_{y \in \mathbb N} P_{xy}
+    V_{t+1}(y) \}
+\end{align} \]</span> In the above equation, the first term corresponds to stopping (<span class="math inline">\(u_t = 1\)</span>) and the second to continuing (<span class="math inline">\(u_t = 0\)</span>).</p></li>
+<li><p>From <a href="../../assignments/02">Assignment 2</a>, we know that to show monotonicity in time, we need to show <span class="math inline">\(V_{T-1}(x) \ge V_T(x)\)</span>. This follows immediately from the definition of <span class="math inline">\(V_{T-1}(x)\)</span>.</p></li>
+<li><p>For any <span class="math inline">\(t\)</span>, let <span class="math inline">\(x \in H_t\)</span>. Then, <span class="math display">\[
+   r(x) \ge 
+   -c + \sum_{y \in \mathbb N} P_{xy} V_{t+1}(y) 
+   \ge
+   -c + \sum_{y \in \mathbb N} P_{xy} V_{t+2}(y) 
+\]</span> where the first inequality follows because <span class="math inline">\(x \in H_t\)</span> and the second inequality follows from the monotonicity of the value function (in time).</p>
+<p>The second inequality implies that <span class="math inline">\(x \in H_{t+1}\)</span>. Thus, <span class="math inline">\(H_t \subseteq H_{t+1}\)</span>.</p>
+<p>Now, assume that <strong>(P1)</strong> is true. We claim that under <strong>(P1)</strong>, <span class="math inline">\(H_t = H_{T-1}\)</span> for all <span class="math inline">\(t\)</span>. To prove the claim, we proceed by backward induction.</p>
+<p>The result is trivially true for <span class="math inline">\(T-1\)</span>. This forms the basis of induction. Suppose that the result is true for <span class="math inline">\(t+1\)</span>, i.e., <span class="math display">\[
+  H_{t+1} = H_{t+1} = \cdots H_{T-1}
+\]</span> Moreover, for any <span class="math inline">\(x \in H_{T-1}\)</span>, <span class="math display">\[ \begin{align}
+   V_{t+1}(x) = r(x) &amp;\ge
+      -c + \sum_{y \in \mathbb N} P_{xy} V_{t+2}(y) 
+    \\
+  &amp;\stackrel {(a)}=
+      -c + \sum_{{y \in H_{T-1}}} P_{xy} V_{t+2}(y)
+    \\
+  &amp;\stackrel {(b)}=
+      -c + \sum_{{y \in H_{T-1}}} P_{xy} r(y)
+\end{align} \]</span> where <span class="math inline">\((a)\)</span> follows from property (P1) and <span class="math inline">\((b)\)</span> follows from the fact that for any <span class="math inline">\(y \in H_{T-1} = H_{t+1}\)</span>, it is optimal to exploit; therefore, <span class="math inline">\(V_{t+2}(y) = r(y)\)</span>.</p>
+<p>Now, consider <span class="math inline">\(x \in H_{T-1}\)</span>. <span class="math display">\[ \begin{align}
+  -c + \sum_{y \in \mathbb N} P_{xy} V_{t+1}(y) 
+  &amp;= -c + \sum_{y \in H_{T-1}} P_{xy} V_{t+1}(y) 
+  \\
+  &amp;\stackrel {(a)}=
+  -c + \sum_{y \in H_{T-1}} P_{xy} r(y) 
+  \\
+  &amp;\stackrel {(b)}\le r(x)
+\end{align} \]</span> where <span class="math inline">\((a)\)</span> follows from property (P1) and <span class="math inline">\((b)\)</span> follows from the previous equation. Thus, <span class="math inline">\(x \in H_t\)</span>. This implies that <span class="math inline">\(H_{T-1} \subseteq H_t\)</span>.</p>
+<p>We had already shown that <span class="math inline">\(H_t \subseteq H_{T-1}\)</span>. Thus, <span class="math inline">\(H_t = H_{T-1}\)</span>. This completes the proof of the claim.</p></li>
+</ol>
+
+
+<p class="categories">
+This entry was last updated on
+11 Feb 2018
+
+</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

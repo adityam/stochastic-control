@@ -1,0 +1,59 @@
+---
+title: Infinite horizon discounted MDP
+weight: 50
+categories:
+  - MDP
+tags:
+  - infinite horizon
+---
+
+Throughout this section, we assume that $\ALPHABET X$ and $\ALPHABET U$ are
+finite and $|\ALPHABET X|= n$ and $|\ALPHABET U| = m$. 
+
+## Performance of a time-homogeneous Markov policy
+
+For any $g \colon \ALPHABET X \to \ALPHABET U$, consider the time homogeneous
+policy $(g, g, \dots)$. For ease of notation, we denote this policy simply by
+$g$. The expected discounted cost under this policy is given by
+$$ V_g(x) = \EXP^g\bigg[ \sum_{t=1}^∞ β^{t-1} c(X_t, U_t) \biggm| X_1 = x
+\bigg].$$
+
+To get a compact expression for this, define a $n × 1$ vector $c_g$ and a $n
+× n$ matrix $P_g$ as follows:
+$$ [c_g]_x = c(x, g(x))
+   \quad\text{and}\quad
+   [P_g]_{xy} = P_{xy}(g(x)).
+$$
+Then the dynamics under policy $g$ are Markovian with transition probability
+matrix $P_g$ and a cost function $c_g$. Then
+$$ \begin{align}
+\EXP^g\big[ c(X_t, g(X_t)) \bigm| X_1 = x \big]
+  &= \sum_{y \in \ALPHABET X} \PR^g(X_t = y | X_1 = x) c(y, g(y))
+  \\
+  &= \sum_{y \in \ALPHABET X} [P_g^{t-1}]_{xy} [c_g]_y
+  \\
+  &= δ_x P_g^{t-1} c_g.
+\end{align} $$
+
+Let $V_g$ denote the $n × 1$ vector given by $[V_g]_x = V_g(x)$. Then,
+$$ \begin{align}
+V_g &= c_g + β P_g c_g + β^2 P_g^2 c_g + \cdots \\
+    &= c_g + β P_g \big( c_g + β P_g c_g + \cdots \big) \\
+    &= c_g + β P_g V_g.
+\end{align} $$
+which can be rewritten as
+$$ (I - β P_g) V_g = c_g. $$
+
+The [spectral radius] of $ρ(β P_d)$ is upper bounded by $\lVert β P_d \rVert = β < 1$. Therefore, the matrix $(I - β P_g)$ has an inverse and
+$$ V_g = (I - βP_g)^{-1} c_g. $$
+
+[spectral radius]: https://en.wikipedia.org/wiki/Spectral_radius
+
+The equation 
+$$ V_g = c_g + β P_g V_g $$
+is sometimes also written as
+$$ V_g = \mathcal B_g V_g $$
+where the operator $\mathcal B_g$, which is called the _Bellman operator_,
+is an operator from $\reals^n$ to $\reals^n$
+given by
+$$ \mathcal B_g v = c_g + β P_g v.$$
