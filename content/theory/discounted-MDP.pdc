@@ -57,3 +57,222 @@ where the operator $\mathcal B_g$, which is called the _Bellman operator_,
 is an operator from $\reals^n$ to $\reals^n$
 given by
 $$ \mathcal B_g v = c_g + β P_g v.$$
+
+---
+
+## Bellman operator 
+
+Definition
+
+:   Define the _Bellman operator_ $\mathcal B : \reals^n \to \reals^n$ as
+    follows: for any $v \in \reals^n$
+    $$ [\mathcal B v]_x = \min_{u \in \ALPHABET U}
+    \Big\{ c(x,u) + β \sum_{y \in \ALPHABET Y} P_{xy}(u) v_y \Big\}.
+    $$
+
+Note that the above may also be written as[^1]
+$$ \mathcal B v = \min_{g \in \ALPHABET G} \mathcal B_g v, $$
+where $\ALPHABET G$ denotes the set of all deterministic Markov policies. 
+
+[^1]: This is true for general models only when the arg min at each state
+  exists.
+
+::: highlight :::
+Proposition
+
+:   For any $v \in \reals^n$, define the norm $\NORM{V} := \sup_{x \in
+    \ALPHABET X} \ABS{V_x}$. Then, the Bellman operator is a contraction,
+    i.e., for any $v, w \in \reals^n$,
+    $$ \NORM{\mathcal B v - \mathcal B w} \le β \NORM{v - w}. $$
+:::
+
+
+#### Proof
+
+To be written
+
+
+An immediate consequence of the contraction property is the following.
+
+::: highlight :::
+Theorem
+
+:   There is a unique $V^* \in \reals^n$ that satisfies the 
+    _Bellman equation_
+    $$ V = \mathcal B V $$
+
+    Moreover, if we start from any $V_0 \in \reals^n$ and recursively define
+    $$ V_n = \mathcal B V_{n-1} $$
+    then
+    $$ \lim_{n \to ∞} V_n = V^*. $$
+:::
+
+#### Proof
+
+This follows immediately from the [Banach fixed point
+theorem](https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem)
+
+## Optimal time-homogeneous policy
+
+<!--
+::: highlight :::
+Proposition
+
+:   Let $h$ be any (possibly randomized) history dependent policy. Then,      
+    there exists a randomized Markov policy $g$ that has the same performance
+    as $h$.
+:::
+
+#### Proof
+
+For any policy $h$, define the _occupation measure_
+$$ \mu(x,u | x^∘; h) 
+  := \EXP^h \bigg[ \sum_{t=1}^∞ β^{t-1} \IND\{X_t = x, U_t = u\} 
+  \biggm| X_1 = x^∘ \bigg]
+$$
+Then 
+$$ J(x^∘; h) = \sum_{x \in \ALPHABET X, u \in \ALPHABET U}
+   μ(x,u | x^∘; h) c(x,u).
+$$ {#eq:performance}
+
+Now, define a randomized Markov policy $g$ as follows:
+$$\PR(U_t = u | X_t = x; g) = \frac{ μ(x, u| x^∘; h) } { μ(x | x^∘; h) }$$
+where $μ(x|x^∘;h) = \sum_{u \in \ALPHABET U} μ(x,u | x^∘; h)$. Then, by
+construction, 
+$ μ(x,u | x^∘; g) = μ(x,u | x^∘; h) $
+and therefore by ({@eq:performance}), we have that $J(x^∘; g) = J(x^∘; h).$
+
+-->
+
+
+::: highlight :::
+Proposition
+
+:   Define 
+    $$ V^{opt}_∞(x) := \min_{g} \EXP^g \bigg[ \sum_{t=1}^∞ β^{t-1} c(X_t, U_t) 
+    \biggm| X_1 = x \bigg], $$
+    where the minimum is over all (possibly randomized) history dependent
+    policies. Then, 
+    $$ V^{opt} = V^*, $$
+    where $V^*$ is the solution of the Bellman equation.
+:::
+
+#### Proof
+
+Consider the finite horizon truncation 
+$$ V^{opt}_T(x) \min_{g} \EXP^g\bigg[ \sum_{t=1}^T β^{t-1} c(X_t, U_t) | X_1 = x \bigg].
+$$
+From the results for finite horizon MDP, we have that
+$$ V^{opt}_T = \mathcal B^T V_0 $$
+where $V_0$ is the all zeros vector. 
+
+Now by construction, 
+$$V^{opt}_∞(x) \ge V^{opt}_T(x) = \mathcal B^T V_0. $$
+Taking limit as $T \to ∞$, we get that
+$$V^{opt}_∞(x) \ge \lim_{T \to ∞} \mathcal B^T V_0 = V^*. $$ {#eq:1}
+
+Without loss of optimality, we can assume that $0 < c(x,u) < M$. Then, for any $T$,
+$$ \begin{align}
+V^{opt}_∞(x) &\le \min_g \EXP^g \bigg[ \sum_{t=1}^T β^{t-1} c(X_t, U_t) 
+\biggm| X_1 = x \bigg] + \sum_{t=T+1}^∞ β^{t-1} M \\
+&= V^{opt}_T(x) + β^T M / (1 - β) \\
+&= \mathcal B^T V_0 + β^T M / (1-β). 
+\end{align} $$
+Taking limit as $T \to ∞$, we get that
+$$ V^{opt}_∞(x) \le \lim_{T \to ∞} 
+\big[ \mathcal B^T V_0 + β^T M / (1-β) \big]
+= V^*. $$ {#eq:2}
+
+From ({@eq:1}) and ({@eq:2}), we get that $V^{opt}_∞ = V^*$. 
+
+## Properties of Bellman operator
+
+::: highlight :::
+Proposition
+
+:   The Bellman operator satisfies the following properties
+
+    * _Monotonicity_. For any $v, w \in \reals^n$, if $v \le w$, then
+      $\mathcal B_g v \le \mathcal B_g w$ and 
+      $\mathcal B v \le \mathcal B w$. 
+    * _Discounting_. For any $v \in \reals^n$ and $m \in \reals$, 
+      $\mathcal B_g (v + m) = \mathcal B_g v + β m$
+      and 
+      $\mathcal B (v + m) = \mathcal B v + β m$.
+:::
+
+Note that we interpret $v + m$ as $[v + m]_x = v_x + m$. 
+
+#### Proof
+We first prove the monotonicity property. Recall that
+Recall that
+$$ \mathcal B_g v = c_g + β P_g v. $$
+So, monotonicity of $\mathcal B_g$ follows immediately from monotonicity of
+matrix multiplication for positive matrices. 
+
+Let $h$ be such that $\mathcal B w = \mathcal B_h w$. 
+Then,
+$$ v = \mathcal B v \le \mathcal B_h v 
+\stackrel{(a)} \le \mathcal B_h w = \mathcal B w = w,
+$$
+where $(a)$ uses the monotonicity of $\mathcal B_h$. 
+
+We now prove the discounting property. 
+Recall that
+$$ \mathcal B_g v = c_g + β P_g v. $$
+Thus,
+$$ \mathcal B_g(v+m) = c_g + β P_g (v+m) = c_g + β P_g v + β m = \mathcal B_g
+v + β m.$$ 
+Thus, $\mathcal B_g$ is discounting. Now consider 
+$$ \mathcal B (v + m ) = \min_{g} \mathcal B_g (v+m)
+= \min_g \mathcal B g v + β m = \mathcal B v + β m.$$
+Thus, $\mathcal B$ is discounting.  
+
+::: highlight :::
+Proposition
+
+:   For any $V \in \reals^n$,
+
+    * If $V \ge \mathcal B V$, then $V \ge V^*$;
+    * If $V \le \mathcal B V$, then $V \le V^*$;
+    * If $V = \mathcal B V$, then $V$ is the only vector with this property
+      and $V = V^*$.
+:::
+
+#### Proof
+We prove the first part. The proof of the other parts is similar.
+
+We are given that
+$$V \ge \mathcal B V.$$ 
+Then, by monotonicity of the Bellman operator, 
+$$ \mathcal B V \ge \mathcal B^2 V.$$ 
+Continuing this way, we get
+$$ \mathcal B^k V \ge \mathcal B^{k+1} V.$$
+Adding the above equations, we get
+$$ V \ge \mathcal B^{k+1} V.$$
+Taking limit as $k \to ∞$, we get 
+$$V \ge V^*.$$
+
+::: highlight :::
+Proposition
+
+:   For any $V \in \reals^n$ and $m \in \reals$, 
+
+    * If $V + m \ge \mathcal B V$, then $V  + m/(1-β) \ge V^*$;
+    * If $V + m \le \mathcal B V$, then $V  + m/(1-β) \le V^*$;
+:::
+
+#### Proof
+Again, we only prove the first part. The proof of the second part is the same. We have that
+$$ V + m \ge \mathcal B V. $$
+From discounting and monotonicity properties, we get
+$$ \mathcal B V + β m \ge \mathcal B^2 V. $$
+Again, from discounting and monotonitiy properties, we get
+$$ \mathcal B^2 V + β^2 m \ge \mathcal B^3 V. $$
+Continuing this way, we get
+$$ \mathcal B^k V + β^k m \ge \mathcal B^{k+1} V. $$
+Adding all the above equations, we get
+$$ V + \sum_{\ell = 0}^k β^\ell m \ge \mathcal B^{k+1} V. $$
+Taking the limit as $k \to ∞$, we get
+$$ V + m/(1-β) \ge V^*. $$
+
