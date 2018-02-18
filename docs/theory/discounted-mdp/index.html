@@ -202,6 +202,7 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 <li>If <span class="math inline">\(V \le \mathcal B V\)</span>, then <span class="math inline">\(V \le V^*\)</span>;</li>
 <li>If <span class="math inline">\(V = \mathcal B V\)</span>, then <span class="math inline">\(V\)</span> is the only vector with this property and <span class="math inline">\(V = V^*\)</span>.</li>
 </ul>
+<p>The same bounds are true when <span class="math inline">\((\mathcal B, V^*)\)</span> is replaced with <span class="math inline">\((\mathcal B_g, V_g)\)</span>.</p>
 </dd>
 </dl>
 </div>
@@ -216,11 +217,60 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 <li>If <span class="math inline">\(V + m \ge \mathcal B V\)</span>, then <span class="math inline">\(V + m/(1-β) \ge V^*\)</span>;</li>
 <li>If <span class="math inline">\(V + m \le \mathcal B V\)</span>, then <span class="math inline">\(V + m/(1-β) \le V^*\)</span>;</li>
 </ul>
+<p>The same bounds are true when <span class="math inline">\((\mathcal B, V^*)\)</span> is replaced with <span class="math inline">\((\mathcal B_g, V_g)\)</span>.</p>
 </dd>
 </dl>
 </div>
 <h4 id="proof-5">Proof</h4>
 <p>Again, we only prove the first part. The proof of the second part is the same. We have that <span class="math display">\[ V + m \ge \mathcal B V. \]</span> From discounting and monotonicity properties, we get <span class="math display">\[ \mathcal B V + β m \ge \mathcal B^2 V. \]</span> Again, from discounting and monotonitiy properties, we get <span class="math display">\[ \mathcal B^2 V + β^2 m \ge \mathcal B^3 V. \]</span> Continuing this way, we get <span class="math display">\[ \mathcal B^k V + β^k m \ge \mathcal B^{k+1} V. \]</span> Adding all the above equations, we get <span class="math display">\[ V + \sum_{\ell = 0}^k β^\ell m \ge \mathcal B^{k+1} V. \]</span> Taking the limit as <span class="math inline">\(k \to ∞\)</span>, we get <span class="math display">\[ V + m/(1-β) \ge V^*. \]</span></p>
+<hr />
+<h1 id="value-iteration-algorithm">Value Iteration Algorithm</h1>
+<div class="highlight">
+<h4 id="value-iteration-algorithm-1">Value Iteration Algorithm</h4>
+<ol type="1">
+<li>Start with any <span class="math inline">\(V_0 \in \reals^n\)</span>.</li>
+<li>Compute <span class="math inline">\(V_{k+1} = \mathcal B V_k = \mathcal B_{g_k} V_k.\)</span></li>
+<li>Define <span class="math display">\[ \begin{align}
+   \underline δ_k &amp;= \frac{β}{1-β} \min_x \{ V_k(x) - V_{k-1}(x) \}, \\
+   \bar δ_k &amp;=       \frac{β}{1-β} \max_x \{ V_k(x) - V_{k-1}(x) \}.
+ \end{align} \]</span></li>
+</ol>
+<p>Then, for all <span class="math inline">\(k\)</span></p>
+<ol type="1">
+<li><span class="math inline">\(V_k + \underline δ_k \le V^* \le V_k + \bar δ_k\)</span>.</li>
+<li><span class="math inline">\(\underline δ_k - \bar δ_k \le \NORM{V_{g_k} - V^*} \le \bar δ_k - \underline δ_k.\)</span></li>
+</ol>
+</div>
+<h4 id="proof-6">Proof</h4>
+<p>By construction, <span class="math display">\[ \begin{align} 
+   \mathcal B V_k - V_k &amp;= \mathcal B V_k - \mathcal B V_{k-1} \\ 
+   &amp; \le \mathcal B_{g_{k-1}} V_k - \mathcal B_{g_{k-1}} V_{k-1}\\
+   &amp; \le β \EXP[ V_{k}(X_{+}) - V_{k-1}(X_+) | X, g_{k-1}(X) ] \\
+   &amp;= (1-β) \bar δ_k.
+\end{align} \]</span> Thus, by the previous proposition, we have <span class="math display">\[ V^* \le V_k + \bar δ_k \]</span> and <span class="math display">\[ V_{g_k} \le V_k + \bar δ_k. \]</span></p>
+<p>By a similar argument, we can show <span class="math display">\[ V^* \ge V_k + \underline δ_k\]</span> and <span class="math display">\[ V_{g_k} \ge V_k + \underline δ_k. \]</span></p>
+<p>Now, by the triangle inequality <span class="math display">\[ \max\{ V_{g_k} - V^* \} \le 
+   \max\{ V_{g_k} - V_k \} + \max\{ V_{k} - V^* \}
+   \le \bar δ_k - \underline δ_k.
+\]</span> Similarly, <span class="math display">\[ \max\{ V^* - V_{g_k} \} \le
+   \max \{ V^* - V_k \} + \max\{ V_k - V_{g_k} \}
+   \le \bar δ_k - \underline δ_k.
+\]</span></p>
+<p>Thus, <span class="math display">\[ \NORM{ V_{g_k} - V^* } \le \bar δ_k - \underline δ_k. \]</span></p>
+<p>By a similar argument, we can show that <span class="math display">\[ \NORM{ V_{g_k} - V^* } \ge \underline δ_k - \bar δ_k. \]</span></p>
+<hr />
+<h1 id="policy-iteration-algorithm">Policy Iteration Algorithm</h1>
+<div class="highlight">
+<dl>
+<dt>Proposition</dt>
+<dd><p>Suppose <span class="math inline">\(V_g\)</span> is the fixed point of <span class="math inline">\(\mathcal B_g\)</span> and <span class="math display">\[\mathcal B_{h} V_g = \mathcal B V_g. \]</span> Then, <span class="math display">\[V_{h}(x) \le V_g(x), \quad \forall x \in \ALPHABET X. \]</span> Moreover, if <span class="math inline">\(g\)</span> is not optimal, then at least one inequality is strict.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-7">Proof</h4>
+<p><span class="math display">\[ V_g = \mathcal B_g V_g \ge \mathcal B V_g = \mathcal B_{h} V_g.\]</span> Thus, <span class="math display">\[ V_g \ge V_{h}. \]</span></p>
+<p>Finally, suppose <span class="math inline">\(V_h = V_g\)</span>. Then, <span class="math display">\[ V_h = \mathcal B_h V_h = \mathcal B_h V_g = \mathcal B V_g = \mathcal B
+V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="math inline">\(V_g\)</span>) is the unique fixed point of <span class="math inline">\(\mathcal B\)</span>. Hence <span class="math inline">\(h\)</span> and <span class="math inline">\(g\)</span> are optimal.</p>
 <section class="footnotes">
 <hr />
 <ol>
@@ -231,7 +281,7 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 
 <p class="categories">
 This entry was last updated on
-14 Feb 2018
+18 Feb 2018
 
 and posted in 
 

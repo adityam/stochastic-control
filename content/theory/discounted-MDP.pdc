@@ -237,6 +237,9 @@ Proposition
     * If $V \le \mathcal B V$, then $V \le V^*$;
     * If $V = \mathcal B V$, then $V$ is the only vector with this property
       and $V = V^*$.
+
+    The same bounds are true when $(\mathcal B, V^*)$ is replaced with
+    $(\mathcal B_g, V_g)$. 
 :::
 
 #### Proof
@@ -260,6 +263,9 @@ Proposition
 
     * If $V + m \ge \mathcal B V$, then $V  + m/(1-β) \ge V^*$;
     * If $V + m \le \mathcal B V$, then $V  + m/(1-β) \le V^*$;
+
+    The same bounds are true when $(\mathcal B, V^*)$ is replaced with
+    $(\mathcal B_g, V_g)$. 
 :::
 
 #### Proof
@@ -276,3 +282,89 @@ $$ V + \sum_{\ell = 0}^k β^\ell m \ge \mathcal B^{k+1} V. $$
 Taking the limit as $k \to ∞$, we get
 $$ V + m/(1-β) \ge V^*. $$
 
+---
+
+# Value Iteration Algorithm
+
+::: highlight :::
+
+#### Value Iteration Algorithm
+
+1. Start with any $V_0 \in \reals^n$.
+2. Compute $V_{k+1} = \mathcal B V_k = \mathcal B_{g_k} V_k.$
+3. Define 
+   $$ \begin{align}
+      \underline δ_k &= \frac{β}{1-β} \min_x \{ V_k(x) - V_{k-1}(x) \}, \\
+      \bar δ_k &=       \frac{β}{1-β} \max_x \{ V_k(x) - V_{k-1}(x) \}.
+    \end{align} $$
+
+Then, for all $k$
+
+1. $V_k + \underline δ_k \le V^* \le V_k + \bar δ_k$.
+2. $\underline δ_k - \bar δ_k  \le \NORM{V_{g_k} - V^*} \le \bar δ_k -
+   \underline δ_k.$
+   
+:::  
+
+#### Proof
+
+By construction, 
+$$ \begin{align} 
+   \mathcal B V_k - V_k &= \mathcal B V_k - \mathcal B V_{k-1} \\ 
+   & \le \mathcal B_{g_{k-1}} V_k - \mathcal B_{g_{k-1}} V_{k-1}\\
+   & \le β \EXP[ V_{k}(X_{+}) - V_{k-1}(X_+) | X, g_{k-1}(X) ] \\
+   &= (1-β) \bar δ_k.
+\end{align} $$
+Thus, by the previous proposition, we have
+$$ V^* \le V_k + \bar δ_k $$
+and
+$$ V_{g_k} \le V_k + \bar δ_k. $$
+
+By a similar argument, we can show
+$$ V^* \ge V_k + \underline δ_k$$
+and 
+$$ V_{g_k} \ge V_k + \underline δ_k. $$
+
+Now, by the triangle inequality
+$$ \max\{ V_{g_k} - V^* \} \le 
+   \max\{ V_{g_k} - V_k \} + \max\{ V_{k} - V^* \}
+   \le \bar δ_k - \underline δ_k.
+$$
+Similarly,
+$$ \max\{ V^* - V_{g_k} \} \le
+   \max \{ V^* - V_k \} + \max\{ V_k - V_{g_k} \}
+   \le \bar δ_k - \underline δ_k.
+$$
+
+Thus, 
+$$ \NORM{ V_{g_k} - V^* } \le \bar δ_k - \underline δ_k. $$
+
+By a similar argument, we can show that
+$$ \NORM{ V_{g_k} - V^* } \ge \underline δ_k - \bar δ_k. $$
+
+---
+
+# Policy Iteration Algorithm
+
+
+::: highlight :::
+Proposition
+
+:   Suppose $V_g$ is the fixed point of $\mathcal B_g$ and
+    $$\mathcal B_{h} V_g = \mathcal B V_g. $$
+    Then,
+    $$V_{h}(x) \le V_g(x), \quad \forall x \in \ALPHABET X. $$
+    Moreover, if $g$ is not optimal, then at least one inequality is strict. 
+:::
+
+#### Proof
+
+$$ V_g = \mathcal B_g V_g \ge \mathcal B V_g = \mathcal B_{h} V_g.$$
+Thus,
+$$ V_g \ge V_{h}. $$
+
+Finally, suppose $V_h = V_g$. Then, 
+$$ V_h = \mathcal B_h V_h = \mathcal B_h V_g = \mathcal B V_g = \mathcal B
+V_h. $$
+Thus, $V_h$ (and $V_g$) is the unique fixed point of $\mathcal B$. Hence $h$
+and $g$ are optimal.
