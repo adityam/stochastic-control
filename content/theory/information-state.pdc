@@ -1,0 +1,227 @@
+---
+title: Dynamic programming for general models
+weight: 100
+categories:
+  - POMDP
+tags:
+  - information state
+---
+
+Consider a general controlled input output system with two inputs---control
+action $U_t$ and disturbance $W_t$---and two outputs---observation $Y_t$ and
+cost $C_t$. We assume that the system has an initial state, which we denote by
+$X_1$, and assume to be random. _We do not assume a state-space model for the
+system, but simply assume an input-ouput model_, i.e., there exist functions
+$\{f_t\}_{t \ge 1}$ and $\{h_t\}_{t \ge 1}$ such that[^1]
+$$ Y_t = f_t(X_1, U_{1:t-1}, W_{1:t-1}) $$ {#eq:Y}
+and
+$$ C_t = h_t(X_1, U_{1:t}, W_{1:t-1}). $$ {#eq:C}
+
+[^1]: We could have assume a simpler model with
+$$ (Y_t, C_t) = f_t(X_1, U_{1:t-1}, W_{1:t-1}), $$
+but we have assumed the slightly more elaborate model to be consistent with
+the standard model of MDP discussed earlier where we assumed that the cost is
+a function of the current control action. 
+
+For simplicity, we assume that all variables are finite valued and $(X_1, W_1,
+W_2, \dots)$ are independent random variables that are defined on a common
+probability space. 
+
+A decision-maker observes the output process[^2] $\{Y_t\}_{t \ge 1}$ and
+chooses the control input $U_t$ based on all the information
+$I_t = \{ Y_{1:t}, U_{1:t-1} \}$ available to it, i.e.,
+$$ U_t = g_t(I_t). $$
+
+[^2]: Note that we are assuming that the cost process $\{C_t\}_{t \ge 1}$
+  is not observed. If the cost were observed (as is assumed in 
+  reinforcement learning for POMDPs), it should be included in $I_t$ and all
+  the subsequent definitions need to be adapted accordingly.
+
+The decision-maker is interested in choosing a _control strategy_ $g := (g_1,
+\dots, g_T)$ to minimize the total expected cost over horizon $T$, which is
+given by
+$$ J(g) = \EXP^g\bigg[ \sum_{t=1}^T C_t \bigg], $$
+where the expectation is taken with respect to the joint measure on $(C_1,
+\dots, C_T)$ induced by the choice of the strategy $g$. 
+
+## Dynamic programming decomposition
+
+It is always possible to write a dynamic program in terms of the information
+$I_t$. To show this, we follow the same idea that we used to establish the  [dynamic programming decomposition](../MDP-functional#DP) for MDPs. Given any strategy $g$, let $J_t(i_t; g)$ denote _the cost-to-go function_ from time $t$ onwards when the information $I_t$ is $i_t$, i.e., 
+$$
+J_t(i_t; g) = \EXP^g \bigg[ \sum_{s=t}^T C_s \biggm| I_t = i_t \bigg].
+$$
+Since the past inputs $U_{1:t-1}$ are a part of the information $I_t$,
+$J_t(i_t;g)$ only depends on the future strategy $(g_t, \dots, g_T)$ and does
+not depend on the past strategy $(g_1, \dots, g_{t-1})$. These functions can
+be computed recursively as follows.
+$$ \begin{align}
+J_t(i_t; g) &= \EXP^g\bigg[ \sum_{s=t}^T C_s \biggm| I_t = i_t \bigg] \\
+&\stackrel{(a)}= \EXP^g \bigg[ C_t + \EXP^g\bigg[ \sum_{s = t+1}^T C_s \biggm| I_{t+1}
+\bigg] \biggm| I_t = i_t \bigg] \\
+&= \EXP^g \big[ C_s + J_{t+1}(I_{t+1}; g) \bigm| I_t = i_t \big]
+\end{align} $$
+where $(a)$ follows from the towering property of conditional expectation and
+the fact that the decision maker has perfect recall, i.e., $I_t \subseteq
+I_{t+1}$.
+
+Now, as was the case for MDP, we can write a dynamic programming decomposition
+for a general decision problem.
+
+::: highlight :::
+Theorem #thm:DP
+
+:   **(Dynamic Program)** \
+    Recursively define _value function_ $\{V_t\}_{t=1}^{T}$, where $V_t \colon
+    I_t \mapsto \reals$ as follows:
+    $$ V_{T+1}(i_{T+1}) = 0 $$ {#eq:DP-1}
+    and for $t \in \{T, \dots, 1\}$:
+    $$ Q_t(i_t, u_t) = \EXP\big[ C_t + \EXP[ V_{t+1}(I_{t+1}) \bigm| I_t = i_t,
+    U_t = u_t \big]$$ {#eq:DP-Q}
+    and define
+    $$V_t(i_t) = \min_{u_t \in \ALPHABET U} Q_t(i_t, u) $$ {#eq:DP-2}
+    and
+    $$ g^*_t(i_t) = \arg\min_{u_t \in \ALPHABET U} Q_t(i_t, u_t). $$ {#eq:DP-policy}
+    Then, a policy is optimal if and only if it satisfies ({@eq:DP-policy}). 
+:::
+
+Note that the expectation in the right hand side of ({@eq:DP-Q}) does not
+depend on the choice of policy. This is because (i) $I_{t+1} = \{I_t, Y_{t+1},
+U_t\}$, and (ii) $\PR( Y_{t+1}, C_t | I_t, U_t)$ does not depend on the policy
+$g$ due to ({@eq:Y}) and ({@eq:C}). 
+
+As was the case for MDPs, instead of proving the above result, we prove a
+related result.
+
+::: highlight :::
+Theorem #thm:CP
+
+:   **(The comparison principle)** \
+    For any strategy $g$
+    $$ J_t(i_t; g) \ge V_t(i_t) $$
+    with equality at $t$ if and only if the _future strategy_ $(g_t, \dots,
+    g_T)$ satisfies the verification step ({@eq:DP-policy}).
+:::
+
+Note that the comparison principle immediately implies that the strategy
+obtained using dynamic programming is optimal. 
+
+#### Proof of the comparison principle
+
+The proof proceeds by backward induction. For $t = T$
+$$ \begin{align}
+J_T(i_T; g) &= \EXP[ C_T | I_T = i_T, U_T = g_T(i_T) ] \\
+&= Q_T(i_T, g_T(i_T) ) \\
+&\ge V_T(i_t).
+\end{align} $$
+This forms the basis of induction. Now assume that the state statement of the
+theorem is true for $t+1$. Then for time $t$
+$$ \begin{align}
+J_t(i_i; g) &= \EXP^g\big[ C_t + J_{t+1}(I_{t+1}) \bigm| I_t = i_t, U_t =
+g_t(i_t) \big] \\
+&\stackrel{(a)}\ge \EXP^g\big[ C_t + V_{t+1}(I_{t+1}) \bigm| I_t = i_t, U_t = g_t(i_t) \big]
+\\
+&= Q_t(i_t, g_t(i_t)) \\
+&\ge V_t(i_t),
+\end{align} $$
+where $(a)$ follows from the induction hypothesis. Note that we have equality
+in $(a)$ if and only if $g_{t+1:T}$ satisfy ({@eq:DP-policy}) (this is part of
+the induction hypothesis) and we have equality in the last step if and only if
+$g_t$ satisfies ({@eq:DP-policy}).
+
+# Information state
+
+An information state $\{Z_t\}_{t \ge 1}$ is a function of the information
+$I_t$ (more precisely is measurable wrt the observation sigma algebra) which
+we denote by $Z_t = F_t(I_t)$ that satisfies the following properties:
+
+1. **Is sufficient for predicting itselt**, i.e.,
+   $$ \PR(Z_{t+1} = z_{t+1} | I_t = i_t, U_t = u_t) 
+    = \PR(Z_{t+1} = z_{t+1} | Z_t = F_t(i_t), U_t = u_t). $$
+
+2. **Is sufficient for performance evaluation**, i.e.,
+   $$ \EXP[ C_t | I_t = i_t, U_t = u_t ] = 
+      \EXP[ C_t | Z_t = F_t(i_t), U_t = u_t ]. $$
+
+In certain models, instead of 1, it is easier to establish the following
+weaker conditions:
+
+a. **Evolves in a state-like manner**, i.e.,
+   there exists a function $H_t$ such that 
+   $$ Z_{t+1} = H_t(Z_t, Y_{t+1}, U_t),$$
+   or, more precisely, for any realization of the system variables,
+   $$ F_{t+1}(y_{1:t+1}, u_{1:t}) = H_t( F_t(y_{1:t}, u_{1:t-1}), y_{t+1},
+   u_t). $$
+
+b. **Is sufficient for predicting future observations**, i.e.,
+   $$ \PR(Y_{t+1} = y_{t+1} | I_t = i_t, U_t = u_t)
+    = \PR(Y_{t+1} = y_{t+1} | Z_t = F_t(i_t), U_t = u_t). $$
+
+An information state is useful because it is sufficient for dynamic
+programming. 
+
+::: highlight :::
+Theorem
+
+:   Let $\{Z_t\}_{t \ge 1}$ be an information state of the system. 
+    Recursively define value function $\{ \tilde V_t \}_{t \ge 1}$, where
+    $\tilde V_t \colon Z_t \mapsto \reals$ as follows:
+    $$ \tilde V_{T+1}(z_{T+1}) = 0 $$ {#eq:DPI-1}
+    and for $t \in \{T, \dots, 1\}$:
+    $$ \tilde Q_t(z_t, u_t) = \EXP\big[ C_t + \EXP[ \tilde V_{t+1}(Z_{t+1}) \bigm| Z_t = z_t,
+    U_t = u_t \big]$$ {#eq:DPI-Q}
+    and define
+    $$\tilde V_t(z_t) = \min_{u_t \in \ALPHABET U} \tilde Q_t(z_t, u)  $$ {#eq:DPI-2}
+    and
+    $$ \tilde g^*_t(z_t) = \arg\min_{u_t \in \ALPHABET U} \tilde Q_t(z_t, u_t). $$ {#eq:DP-policy}
+
+    Then, 
+
+    * $Q_t(i_t, u_t) = \tilde Q_t(F_t(i_t), u_t)$.  
+    * $V_t(i_t) = \tilde V_t(F_t(i_t))$. 
+    * $g^*(i_t) = \tilde g^*(F_t(i_t))$.
+:::
+
+#### Proof
+
+As usual, we proceed by backward induction. At $t = T+1$, both value functions
+are equal. This forms the basis of induction. Suppose that at time $t+1$,
+$V_{t+1} = \tilde V_{t+1} \circ F_{t+1}$. Now consider the system at time $t$.
+$$ \begin{align}
+Q_t(i_t, u_t) &= \EXP\big[ C_t + V_{t+1}(I_{t+1}) \bigm| I_t = i_t, U_t = u_t
+\big]
+\\
+&\stackrel{(a)}= \EXP\big[ C_t + \tilde V_{t+1}(Z_{t+1}) \bigm| I_t = i_t, U_t
+= u_t \big] \\
+&\stackrel{(b)}= \EXP\big[ C_t + \tilde V_{t+1}(Z_{t+1}) \bigm| Z_t =
+F_t(i_t), U_t = u_t ] \\
+&\stackrel{(c)}= \tilde Q( F_t(i_t), u_t).
+\end{align} $$
+where $(a)$ follows from the induction hypothesis, $(b)$ follows from the two
+properties of information state, and $(c)$ follows from the definition of
+$\tilde Q$. This shows that the $Q$-functions are equal. Minimizing over the
+actions, we get that the value functions and the optimal policy are also the same.  
+
+<!--
+## Examples of information state
+
+1. **Even MDP**: Under what conditions is $V_t(x) = V_t(|x|)$? Reverse
+   engineer the conditions. $Z_t = |X_t|$. 
+
+   $$\PR( |X_{t+1}| = y | X_t = x, U_t = u)
+   = \PR( |X_{t+1}| = y | |X_t| = |x|, U_t = u). $$
+
+   For $x, y > 0$, 
+   $$P_{xy}(u) + P_{x(-y)}(u) = P_{(-x)y}(u) + P_{(-x)(-y)}(u) $$
+   and
+   $$ c(x,u) = c(|x|, u). $$
+
+   Sufficient condition: $P_{xy}(u) = P_{(-x)(-y)}(u)$ for all $x,y$ and
+   $c(x,u)$ is even. 
+
+   Folded MDP
+
+   $\tilde P_{xy}(u) = P_{xy}(u) + P_{x(-y)}(u)$. 
+
+
+-->
