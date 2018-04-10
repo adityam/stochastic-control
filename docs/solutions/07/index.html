@@ -68,7 +68,7 @@
 
 
 
-<h1>Assignment 7</h1>
+<h1>Assignment 7 (solution)</h1>
 
 <ol type="1">
 <li><p>A person is offered <span class="math inline">\(N\)</span> free plays to be distributed as he pleases between two slot machines <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>. Machine <span class="math inline">\(A\)</span> pays <span class="math inline">\(\alpha\)</span> dollars with known probability <span class="math inline">\(s\)</span> and nothing with probability <span class="math inline">\((1-s)\)</span>. Machine <span class="math inline">\(B\)</span> pays <span class="math inline">\(\beta\)</span> dollars with probability <span class="math inline">\(p\)</span> and nothing with probability <span class="math inline">\((1-p)\)</span>. The person does not know <span class="math inline">\(p\)</span> but has an a priori probability distribution function <span class="math inline">\(f(p)\)</span> for <span class="math inline">\(p\)</span>. The problem is to find a playing policy that maximizes expected profit.</p>
@@ -79,6 +79,59 @@
 <li>Write down a dynamic program in terms of <span class="math inline">\((m,n)\)</span>.</li>
 <li>Find an optimal strategy for <span class="math inline">\(T = 6\)</span>, <span class="math inline">\(\alpha = \beta = 1\)</span>, <span class="math inline">\(s = 0.6\)</span>, <span class="math inline">\(f(p) = 1\)</span> for <span class="math inline">\(0 \le p \le 1\)</span>. (For each time, you need to identify the pairs <span class="math inline">\((m,n)\)</span> where machine <span class="math inline">\(B\)</span> should be playerd.)</li>
 </ol></li>
+<li><p><strong>Part a.</strong> Let <span class="math inline">\(Y_t \in \{0, 1\}\)</span> denote the observation of the player where <span class="math inline">\(Y_t = 0\)</span> means that the output was a failure and <span class="math inline">\(Y_t = 1\)</span> means that the output was a success. Let <span class="math inline">\(I_t = \{Y_{1:t-1}, U_{1:t-1} \}\)</span> denote all the information available to the player.</p>
+<p>From the definition of <span class="math inline">\((M_t, N_t)\)</span>, the evolution of <span class="math inline">\((M_t, N_t)\)</span> can be written as <span class="math display">\[ (M_{t+1}, N_{t+1}) = 
+\begin{cases}
+   (M_t, N_t), &amp; U_t = A \\
+   (M_t + 1, N_t), &amp; U_t = B, Y_t = 1 \\
+   (M_t , N_t + 1), &amp; U_t = B, Y_t = 0 
+\end{cases}\]</span></p>
+<p>Furthermore, the probability of next observation is given as <span class="math display">\[\PR(Y_t = 1 | I_t, U_t) = 
+\begin{cases}
+   s, &amp; U_t = A \\
+   ξ(M_t, N_t), &amp; U_t = B 
+\end{cases}\]</span></p>
+<p>Combing the two, we can write <span class="math display">\[\begin{align}
+\PR( (M_{t+1}, N_{t+1}) | I_t, U_t) &amp;=
+\begin{cases}
+   1, &amp; \hbox{if } U_t = A \hbox{ and } (M_{t+1}, N_{t+1}) = (M_t, N_t) \\
+   ξ(M_t, N_t), &amp; \hbox{if } U_t = B \hbox{ and } (M_{t+1}, N_{t+1}) = (M_t
+   + 1, N_t) \\
+   1 - ξ(M_t, N_t), &amp; \hbox{if } U_t = B \hbox{ and } (M_{t+1}, N_{t+1}) =
+   (M_t, N_t + 1) 
+\end{cases} \\
+&amp;= 
+\PR( (M_{t+1}, N_{t+1}) | (M_t, N_t), U_t)
+\end{align}\]</span> Thus, <span class="math inline">\((M_t, N_t)\)</span> evolves in a controlled Markovian manner.</p>
+<p>Now, let’s consider the per-step reward. <span class="math display">\[R_t(Y_t, U_t) = 
+\begin{cases}
+   α, Y_t = 1, U_t = A \\
+   β, Y_t = 1, U_t = B 
+\end{cases}\]</span></p>
+<p>Thus, <span class="math display">\[\begin{align}
+\EXP[ R_t(Y_t, U_t) | I_t, U_t ] &amp;=
+\begin{cases}
+   α s, &amp; \hbox{if } U_t = A \\
+   β ξ(M_t, N_t), &amp; \hbox{if } U_t = B
+\end{cases} \\
+&amp;= \EXP[ R_t(Y_t, U_t) | (M_t, N_t), U_t ].
+\end{align}\]</span> Thus, <span class="math inline">\((M_t, N_t)\)</span> is a sufficient statistic for evaluating current reward.</p>
+<p>Therefore, <span class="math inline">\((M_t, N_t)\)</span> satisfies the two properties of information states. Hence, it is an information state.</p>
+<p><strong>Part b.</strong> Based on the properties of the information state, we can write the dynamic program as follows.</p>
+<p><span class="math display">\[V_{T+1}(m,n) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, we have <span class="math display">\[\begin{align}
+   Q_t(m,n,A) &amp;= α s + V_{t+1}(m,n) \\
+   Q_t(m,n,B) &amp;= β ξ(m,n) + ξ(m,n) V_{t+1}(m+1, n) + (1 - ξ(m,n)) 
+   V_{t+1}(m, n+1) \\
+   V_t(m, n) &amp;= \min\{ Q_t(m,n,A), Q_t(m,n,B) \}.
+\end{align}\]</span></p>
+<p><strong>Part c.</strong> First note that <span class="math display">\[\int_0^1 p^m (1-p)^n dp = B(m+1, n+1)\]</span> where <span class="math inline">\(B(m,n)\)</span> is the <a href="https://www.statlect.com/mathematical-tools/beta-function">Beta function</a> which is given by <span class="math display">\[B(m,n) = \frac{Γ(m) Γ(n)}{Γ(m+n)}\]</span> where <span class="math inline">\(Γ(\cdot)\)</span> is the <a href="https://www.statlect.com/mathematical-tools/gamma-function">Gamma function</a>. Thus, for integer valued <span class="math inline">\(m\)</span> and <span class="math inline">\(n\)</span>, <span class="math inline">\(Γ(m) = (m-1)!\)</span> and <span class="math inline">\(Γ(n) = (n-1)!\)</span>. Hence, <span class="math display">\[\int_0^1 p^m (1-p)^n dp = \frac{m! n!}{(m+n+1)!}\]</span>. Therefore, we have <span class="math display">\[\begin{align}
+  ξ(m,n) &amp;= \frac{ (m+1)! n! }{ (m+n+1)! } 
+  \frac{ (m+n)!}{ m! n!} \\
+  &amp;= \frac{ m + 1 } { m + n +1 }.
+\end{align}\]</span></p>
+<p>See <a href="../07-2/">this Jupyter notebook</a> for the code for numerically solving the dynamic program.</p></li>
+</ol>
+<ol start="2" type="1">
 <li><p>Consider the following modification of the sequential hypothesis testing problem considered in class. As in the model discussed in class, there are two hypothesis <span class="math inline">\(h_0\)</span> and <span class="math inline">\(h_1\)</span>. The a priori probability that the hypothesis is <span class="math inline">\(h_0\)</span> is <span class="math inline">\(p\)</span>.</p>
 <p>In contrast to the model discussed in class, there are <span class="math inline">\(N\)</span> sensors. If sensor <span class="math inline">\(m\)</span> is used at time <span class="math inline">\(t\)</span> and the underlying hypothesis is <span class="math inline">\(h_i\)</span>, then the observation <span class="math inline">\(Y_t\)</span> is distrubted according to pdf (or pmf) <span class="math inline">\(f^m_j(y)\)</span>. The cost of using sensor <span class="math inline">\(m\)</span> is <span class="math inline">\(c_m\)</span>.</p>
 <p>Whenever the decision maker takes a measurement, he picks a sensor <span class="math inline">\(m\)</span> uniformly at random from <span class="math inline">\(\{1, \dots, N\}\)</span> and observes <span class="math inline">\(Y_t\)</span> according to the distribution <span class="math inline">\(f^m_j(\cdot)\)</span> and incurs a cost <span class="math inline">\(c_m\)</span>.</p>
