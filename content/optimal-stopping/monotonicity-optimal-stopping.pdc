@@ -1,0 +1,123 @@
+---
+title: Optimality of threshold policies in optimal stopping
+weight: 01
+categories:
+  - MDP
+tags:
+  - optimal stopping
+  - threshold policies
+  - monotone policies
+---
+
+Consider an [optimal stopping] problem and define the _benefit function_ as
+the expected benefit[^1] of delaying the stopping decision at time $t$, i.e.,
+$$ B_t(x) = c_t(x) + \EXP[ V_{t+1}( X_{t+1} | X_t = x] - s_t(x). $$ {#eq:B}
+Thus, it is optimal to stop whenever $B_t(x) \ge 0$. 
+
+[optimal stopping]: ../../mdp/mdp-functional/#optimal-stopping
+
+[^1]: The terminology comes from reward maximization problems. In cost
+  minimization problems, this may be thought of as the _disadvantage
+  function_. 
+
+Note that, we can write the value function in terms of the benefit function as
+follows:
+$$\begin{align}
+  V_t(x) &= \min\{ s_t(x), B_t(x) + s_t(x) \} \\
+  &= s_t(x) + [ B_t(x) ]^-,
+\end{align}$$ {#eq:V}
+where $[y]^-$ is a short hand for $\min\{y, 0\}$. 
+
+Now, define the _one-step look-ahead function_ as the benefit of delaying the
+stopping decision by one step, i.e.,
+$$ M_t(x) = c_t(x) + \EXP[ s_{t+1}(X_{t+1}) | X_t = x] - s_t(x). $$ {#eq:M}
+
+The benefit function and the one-step look-ahead functions are related as
+follows.
+$$ B_T(x) = M_T(x) $$
+and
+$$ \begin{align}
+  B_t(x) &= c_t(x) + \EXP[ V_{t+1}(X_{t+1} | X_t = x] - s_t(x) \\
+  &= c_t(x) + \EXP[ s_{t+1}(X_{t+1}) + [B_{t+1}(X_{t+1}]^- | X_t = x] - s_t(x)
+  \\
+  &= M_t(x) + \EXP[ [B_{t+1}(X_{t+1}]^- | X_t = x ].
+\end{align} $$
+
+::: highlight :::
+Theorem #monotone-stopping
+
+:   Suppose the following conditions hold.
+    
+    1. For all $t$, $M_t(x)$ is weakly increasing in $x$.
+    2. $\{X_t\}_{t \ge 1}$ is stochastic monotone.
+
+    Then $B_t(x)$ is weakly increasing in $x$ for all $t$ and there exists a
+    sequence $\{\lambda_t\}_{t \ge 1}$ such that it is optimal to stop at time
+    $t$ if and only if $X_t \ge \lambda_t$.
+:::
+
+#### Proof
+
+We first prove monotonicity of $B_t(x)$. As usual, the proof is by backward
+induction. For $t = T$, $B_T(x) = M_T(x)$. This forms the basis of induction.
+Now assume that $B_{t+1}(x)$ is increasing in $x$ and consider the problem at
+time $t$. 
+
+Since $B_{t+1}(x)$ is increasing so is $[B_{t+1}(x)]^{-}$. Moreover, since
+$\{X_t\}_{t \ge 1}$ is stochastically monotone, $\EXP[ [B_{t+1}(X_{t+1})]^- |
+X_t = x]$ is increasing in $x$. Therefore,
+$$ B_t(x) = M_t(x) + \EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x] $$
+is increasing in $x$. Thus, by induction, $B_t(x)$ is increasing in $x$ for
+all $t$. 
+
+Recall that it is optimal to stop iff $B_t(x) \ge 0$. Since $B_t(x)$ is
+increasing in $x$, the optimal decision rule is of a threshold type. 
+
+---
+
+## Example: Time-to-Market Model
+
+Consider a firm that decides when to introduce a new product. When the firm
+introduces the product earlier than the competition, it captures a larger
+market share. However, an early introduction results in high production costs
+and low profit margins due to low manufacturing yields. Hence, the firm needs
+to determine the optimal time to enter the market. Suppose that the total
+market demand $D$ is deterministic. Let $\{X_t\}_{t \ge 1}$ denote the number
+of competitors at time $t$. It is assumed that
+$$ X_{t+1} = X_t + W_t, $$
+where $\{W_t\}_{t \ge 1}$ is an independent process independent of $X_1$. 
+
+Let $r(x)$ denote the market share of the firm when it enters the market after
+the $x$-th competitor. It is assumed that $v(x)$ is decreasing and concave in
+$x$.
+
+Let $p_*$ denote the sale price of the product and $p_t$ denote the production
+cost at time $t$. It is assumed that $p_t$ decreases with $t$. 
+
+The continuation reward is zero and the stopping reward at time $t$ is
+$$ s_t(x) = r(x)(p_* - p_t) D. $$
+When should the firm enter the market?
+
+First observe that $\{X_t\}_{t \ge 1}$ is a monotone process. Now consider the
+one step look-ahead function
+$$ \begin{align}
+M_t(x) &= \EXP[ s_{t+1}(x + W) ] - s_t(x) \\
+&= \EXP[ r(x + W) (p_* - p_{t+1}) D ] - r(x)(p_* - p_t) D \\
+&= \EXP[ r(x + W) - r(x) ] (p_* - p_{t+1}) D 
+    + r(x)( p_* - p_{t+1})D  - r(x)(p_* - p_t ) D \\
+&= \EXP[ r(x + W) - r(x) ] (p_* - p_{t+1}) D 
+    + r(x) (p_t - p_{t+1}) D.
+\end{align} $$
+Since $r(x)$ is concave, the first term is decreasing in $x$. The second term
+is also decreasing in $x$ because $r(x)$ is decreasing in $x$ and $p_t \ge
+p_{t+1}$. Therefore, $M_t(x)$ is decreasing in $x$. Hence, by the above
+theorem[^2], there exist a sequence of thresholds $\{\lambda_t\}_{t \ge 1}$
+such that the firm should enter the market at time $t$ iff $X_t \ge
+\lambda_t$. 
+
+---
+
+## References
+
+The result presented in this section is taken from @Oh2016.
+

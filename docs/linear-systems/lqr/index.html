@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Linear systems,Riccati equation,LQR,Optimal tracking" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/github.css" type="text/css" />
+  <script src="https://adityam.github.io/stochastic-control//js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            integers: "\\mathbb{Z}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+            NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+            ABS: ["\\left\\lvert #1 \\right\\rvert", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Linear Quadratic Regulation (LQR)</h1>
+
+<p><em>Note: To be consistent with the notation used in linear systems, we denote the state and action by lowercase <span class="math inline">\(x\)</span> and <span class="math inline">\(u\)</span>, even for stochastic systems (unlike the notation used for other models where we use uppercase <span class="math inline">\(X\)</span> and <span class="math inline">\(U\)</span> for state and actions to emphasize the fact they are random variables.</em></p>
+<p>We start by considering a <em>determinisitc</em> linear system with state <span class="math inline">\(x_t \in \reals^n\)</span> and control actions <span class="math inline">\(u_t \in \reals^m\)</span> and dynamics <span class="math display">\[ x_{t+1} = A_t x_t + B_t u_t,\]</span> where <span class="math inline">\(A_t \in \reals^{n \times n}\)</span> and <span class="math inline">\(B_t \in \reals^{n \times m}\)</span> are known matrices. The objective is to choose the control actions to minimize the finite horizon cost given by <span class="math display">\[ \sum_{t=1}^{T-1} c_t(x_t, u_t) + c_T(x_T),\]</span> where <span class="math inline">\(c_t(x_t, u_t)\)</span> is the per-step cost and <span class="math inline">\(c_T(x_T)\)</span> is the terminal cost. Depending on the cost, such models can be classified as follows:</p>
+<ul>
+<li><p><strong>Regulation problem</strong> where the objective is to keep the state of the system close to origin. These are modeled by considering that there are sequence of <a href="../../appendix/positive-definite-matrix">positive semi-definite matrices</a> <span class="math inline">\(\{Q_t\}_{t=1}^{T-1}\)</span> and <a href="../../appendix/positive-definite-matrix">positive definite matrices</a> <span class="math inline">\(\{R_t\}_{t=1}^T\)</span> where <span class="math display">\[
+  c_t(x_t, u_t) = x_t^\TRANS Q_t x_t + u_t^\TRANS R_t u_t
+  \quad\text{and}\quad
+  c_T(x_T) = x_T^\TRANS Q_T x_T.
+\]</span> This is often referred to as the <em>Linear Quadratic Regulartor (LQR)</em>.</p></li>
+<li><p><strong>Tracking problem</strong> where it is assumed that the system has an output <span class="math inline">\(y_t = C_t x_t\)</span> and the objective is to keep the output of the system close to a pre-specified trajectory <span class="math inline">\(\{x^\circ_t\}_{t=1}^T\)</span>. These are modeled by considering the per-step cost as <span class="math display">\[ \begin{align}
+  c_t(x_t, u_t) &amp;= (C_tx_t - y^\circ_t)^\TRANS Q_t (C_tx_t - y^\circ_t) + u_t^\TRANS R_t u_t
+  \\
+  \text{and}\quad
+  c_T(x_T) &amp;= (C_Tx_T - y^\circ_T)^\TRANS Q_T (C_Tx_T - y^\circ_T).
+\end{align} \]</span></p></li>
+</ul>
+<h2 id="optimal-solution-of-the-regulation-problem">Optimal solution of the regulation problem</h2>
+<p>The LQR problem is one of the few instances where the solution of the Markov decision process can be obtained in closed form.</p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:lqr" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
+<dd><p>The value function at time <span class="math inline">\(t\)</span> is <a name="eq:Vt"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V_t(x_t) = x_t^\TRANS S_t x_t\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span>  and the optimal control action is <a name="eq:gt"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ u_t = - H_t x_t\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(2)</span></span>  where the <em>gain matrices</em> <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> are given by: <span class="math display">\[ H_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} \Lambda_t \]</span> where <span class="math display">\[ \Lambda_t = B_t^\TRANS S_{t+1} A_t \]</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> are determined by the <em>backward Riccati difference equations</em>: <span class="math inline">\(S_T = Q_T\)</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <a name="eq:riccati"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ S_t = A_t^\TRANS S_{t+1} A_t + Q_t - 
+   \Lambda_t^T [ R_t + B_t^\TRANS S_{t+1} B_t ] ^{-1} \Lambda_t.
+\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(3)</span></span> </p>
+</dd>
+</dl>
+</div>
+<dl>
+<dt>Side remark</dt>
+<dd><p><strong>Riccati equations</strong> are named after <em>Jacopo Riccati</em> (1670–1754) who studied the differential equations of the form <span class="math display">\[\dot x = a x^2 + b t + c t^2\]</span> and its variations. In modern control, such equations arise in the calculus of variations and optimal filtering. The discrete-time version of these equations are also named after Riccati.</p>
+</dd>
+</dl>
+<p>Since the LQR model is really simply, there are multiple ways in which the above result can be proved. We first present a dynamic programming based proof. The proof relies on the following completion of squares lemma.</p>
+<div class="highlight">
+<dl>
+<dt>Lemma</dt>
+<dd><p><strong>(Completion of squares)</strong></p>
+<p>For any <span class="math inline">\(x \in \reals^n\)</span> and <span class="math inline">\(u \in \reals^m\)</span> and matrices <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, <span class="math inline">\(S\)</span>, and <span class="math inline">\(R\)</span> of appropriate dimensions, we have <span class="math display">\[\begin{align}
+  &amp;u^\TRANS R u + (Ax + Bu)^\TRANS S (Ax + Bu) 
+  \\ &amp;\qquad = 
+ (u + H x)^\TRANS [R + B^\TRANS S B] (u + Hx) + x^\TRANS L x
+ \end{align}\]</span> where</p>
+<ul>
+<li><span class="math inline">\(L = A^\TRANS S A - \Lambda^\TRANS[R + B^\TRANS S B]^{-1} \Lambda_t\)</span></li>
+<li><span class="math inline">\(H = [R + B^\TRANS S B]^{-1} \Lambda\)</span></li>
+<li><span class="math inline">\(\Lambda = B^\TRANS S A\)</span></li>
+</ul>
+</dd>
+</dl>
+</div>
+<h4 id="proof">Proof</h4>
+<p>The proof follows immediately by completing the square on the left hand side. In particular</p>
+<span class="math display">\[\begin{align}
+&amp; u^\TRANS R u +  (Ax+Bu)^\TRANS S (Ax + Bu) \\
+&amp; \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS B^\TRANS S A x 
+  + x^\TRANS A^\TRANS S A x \\
+&amp; \quad = u^\TRANS [R + B^\TRANS S B] u + 2 u^\TRANS B^\TRANS S A x 
+  + x^\TRANS H^\TRANS [R + B^\TRANS S B] H x + x^\TRANS L x \\
+&amp; \quad = 
+  (u + H x)^\TRANS [R + B^\TRANS S B] (u + Hx) + x^\TRANS L x.
+\end{align}\]</span>
+<h4 id="proof-of-dynamic-programming-decomposition">Proof of dynamic programming decomposition</h4>
+<p>The proof of the dynamic program now follows from backward induction.</p>
+<p>For <span class="math inline">\(t=T\)</span>, we have <span class="math display">\[ V_T(x) = c_T(x) = x^\TRANS Q_T x \]</span> which forms the basis of induction. Assume that (<a href="#eq:Vt">1</a>) holds for <span class="math inline">\(t+1\)</span> and consider the value function at time <span class="math inline">\(t\)</span>. <span class="math display">\[\begin{align}
+  V_{t}(x) &amp;= \min_{u \in \reals^m} \Big\{
+  x^\TRANS Q_t x + u^\TRANS R_t u + V_{t+1}(Ax + Bu) \Big\} \\
+  &amp;\stackrel{(a)}= \min_{u \in \reals^m} \Big\{
+  x^\TRANS Q_t x + u^\TRANS R_t u + (Ax + Bu)^\TRANS S_{t+1} (Ax + Bu) \Big\} \\
+  &amp;\stackrel{(b)}= \min_{u \in \reals^m} \Big\{
+  x^\TRANS Q_t x + (u + H_t x)^\TRANS [B_t^\TRANS S_{t+1} B_t + R_t] (u+ H_tx)
+  + x^\TRANS L_t x \Big\}
+  \\
+  &amp;\stackrel{(c)}=x^\TRANS (Q_t + L_t) x
+\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the induction hypothesis, <span class="math inline">\((b)\)</span> follows from completion of squares lemma with <span class="math inline">\(H_t\)</span> and <span class="math inline">\(L_t\)</span> defined similar to the lemma, and <span class="math inline">\((c)\)</span> follows from minimizing over <span class="math inline">\(u\)</span>, where the minima is achieved by choosing <span class="math inline">\(u = -H_t x\)</span>. This proves the induction step.</p>
+<h2 id="LQT">Linear quadratic tracking</h2>
+<p>Now consider the (simplified form of) LQR tracking problem where we want to ensure that the state signal <span class="math inline">\(\{x_t\}_{t \ge 1}\)</span> is close to a reference trajectory <span class="math inline">\(\{x^\circ_t\}_{t \ge 1}\)</span>. The per step cost function is <span class="math display">\[ c_t(x_t, u_t) = (x_t - x^\circ_t)^\TRANS Q_t (x_t - x^\circ_t) +
+u_t^\TRANS R_t u_t\]</span> and the terminal cost is <span class="math display">\[ c_T(x_T) = (x_T - x^\circ_T)^\TRANS Q_T (x_T - x^\circ_T).\]</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:lqt" class="pandoc-numbering-text thm"><strong>Theorem 2</strong></span></dt>
+<dd><p>The value function at time <span class="math inline">\(t\)</span> is <span class="math display">\[ V_t(x) = x^\TRANS S_t x - 2 x^\TRANS r_t + ρ_t \]</span> and the optimal control action is <span class="math display">\[ u_t = - H_t x_t + H^\circ_t r_{t+1}\]</span> where <span class="math inline">\(\{S_t\}_{t=1}^T\)</span> and <span class="math inline">\(\{H_t\}_{t=1}^T\)</span> follow the same recursions as before. The gain matrices <span class="math inline">\(\{H^\circ_t\}\)</span> are given by <span class="math display">\[ H^\circ_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS \]</span> and the correction terms <span class="math inline">\(\{r_t\}\)</span> are given by <span class="math display">\[ \begin{align}
+  r_T &amp;= Q_T x^\circ_T \\
+  r_t &amp;= [A_t - B_t H_t]^\TRANS r_{t+1} + Q_t x^\circ_t
+\end{align} \]</span> and the tracking error <span class="math inline">\(\{ρ_t\}_{t=1}^T\)</span> is given by <span class="math display">\[ \begin{align}
+  ρ_T &amp;= (x^\circ_T)^\TRANS Q_T x^\circ_T, \\
+  ρ_t &amp;= (x^\circ_t)^\TRANS Q_t x^\circ_t  
+  - 2 r^\TRANS_{t+1} B_t [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS
+    r_{t+1}
+  + ρ_{t+1}.
+\end{align} \]</span></p>
+</dd>
+</dl>
+</div>
+<p>The proof follows from backward induction and basic algebra and is left as an exercise.</p>
+<h2 id="stochastic-linear-quadratic-regulator">Stochastic linear quadratic regulator</h2>
+<p>Now consider a system with stochastic dynamics <span class="math display">\[ x_{t+1} = A_t x_t + B_t u_t + w_t \]</span> where <span class="math inline">\(\{w_1,\dots,w_T\}\)</span> are independent random variables with zero mean and finite variance given by <span class="math inline">\(\EXP[w_t^\TRANS w_t] = \Sigma^w_t\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:stochastic-lqr" class="pandoc-numbering-text thm"><strong>Theorem 3</strong></span></dt>
+<dd><p>The value function at time <span class="math inline">\(t\)</span> is <a name="eq:Vt-s"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V_t(x_t) = x_t^\TRANS S_t x_t + α_t\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(4)</span></span>  and the optimal control action is <a name="eq:gt-s"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ u_t = - H_t x_t\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(5)</span></span>  where the matrices <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> follow <em>the same recursion</em> as before and the sequence <span class="math inline">\(\{α_t\}_{t=1}^T\)</span> is computed in a backward manner as follows: <span class="math inline">\(α_T = 0\)</span> and <span class="math display">\[α_t = α_{t+1} + \TR(Σ^w_t S_{t+1}) = \sum_{τ=t+1}^{T-1} \TR(Σ^w_t S_{t+1}).\]</span></p>
+</dd>
+</dl>
+</div>
+<p>The proof is similar to the deterministic case and relies on the following observation.</p>
+<dl>
+<dt>Lemma</dt>
+<dd><p>For any deterministic value of <span class="math inline">\(x \in \reals^n\)</span> and a random zero mean variable <span class="math inline">\(w \in \reals^n\)</span> with finite variance given by <span class="math inline">\(\EXP[w^\TRANS w] = Σ^w\)</span>, we have <span class="math display">\[ \EXP[ (x + w)^\TRANS Q (x+w) ] = x^\TRANS Q x + \TR(Q Σ^w). \]</span></p>
+</dd>
+</dl>
+<h4 id="proof-1">Proof</h4>
+<p>Note that</p>
+<p><span class="math display">\[\begin{align}
+  \EXP[ (x+w)^\TRANS Q (x+w) ] &amp;= 
+  \EXP[ x^\TRANS Q x + 2 x^\TRANS Q w + w^\TRANS Q w ] \\
+  &amp;= x^\TRANS Q x + \TR(Σ^w Q).
+\end{align}\]</span> where the second term is zero because <span class="math inline">\(w\)</span> is a zero mean random variable. For the third term, we are using <span class="math display">\[ \begin{align}
+  \EXP[ w^\TRANS Q w]  &amp;= 
+  \EXP\bigg[ \sum_{i=1}^n \sum_{j=1}^n w_i Q_{ij} w_j \bigg]  \\
+  &amp;= \sum_{i=1}^n \sum_{j=1}^n \EXP[w_i w_j] Q_{ij} \\
+  &amp;= \sum_{i=1}^n \sum_{j=1}^n Σ^w_{ij} Q_{ij} \\
+  &amp;= \TR(Σ^w Q)
+\end{align} \]</span></p>
+<h4 id="proof-of-stochastic-lqr">Proof of stochastic LQR</h4>
+<p>Using the above lemma, we can prove the result for stochastic LQR using backward induction. The details are left as an exercise.</p>
+<hr />
+<h2 id="astrom">An alternative proof for stochastic LQR without using dynamic programming</h2>
+<p>We now present a proof of the stochastic LQR that does not use dynamic programming. This is based on a simple idea of transforming the total cost using the solution of the Riccati equation.</p>
+<div class="highlight">
+<dl>
+<dt><span id="prop:astrom" class="pandoc-numbering-text prop"><strong>Proposition 1</strong></span></dt>
+<dd><p>For any control strategy, the total cost <span class="math display">\[ \EXP\bigg[\sum_{t=1}^{T-1} \big[ x_t^\TRANS Q_t x_t + u_t^\TRANS R_t
+u_t \big] + x_T^\TRANS Q_T x_T \bigg]\]</span> may be written as <a name="eq:astrom"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \begin{align}
+    &amp; \EXP\bigg[ \sum_{t=1}^{T-1} (u_t + H_t x_t)^\TRANS [R_t + B_t^\TRANS
+    S_{t+1}B_t] (u_t + H_t x_t) \bigg] \\
+    &amp; \quad + 
+    \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg],
+\end{align}\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(6)</span></span>  where the matrices <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> follow are given as in <a href="#thm:lqr" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a>.</p>
+</dd>
+</dl>
+</div>
+<h3 id="proof-2">Proof</h3>
+<p>This result can be obtained by repeatedly applying the completion of squares lemma. In particular, note that <span class="math inline">\(S_T = Q_T\)</span> and using the telescopic sum, we can write <a name="eq:astrom-1"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[x_T^\TRANS Q_T x_T = x_1^\TRANS S_1 x_1 + \sum_{t=1}^{T-1} 
+  \big[ x_{t+1}^\TRANS S_{t+1} x_{t+1} - x_t^\TRANS S_t x_t \big].\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(7)</span></span> </p>
+<p>Furthermore, since <span class="math inline">\(w_t\)</span> is independet of <span class="math inline">\(x_t\)</span>, we have <a name="eq:astrom-2"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \begin{align}
+  \EXP[ x_{t+1}^\TRANS S_{t+1} x_{t+1}] &amp;= 
+   \EXP[ (A_t x_t + B_t u_t + w_t)^\TRANS S_{t+1} (A_t x_t + B_t u_t + w_t) \\
+   &amp;= \EXP[ (A_t x_t + B_t u_t)^\TRANS S_{t+1} (A_t x_t + B_t u_t) ]
+     + \EXP[ w_t^\TRANS S_{t+1} w_t ].
+   \end{align}\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(8)</span></span> </p>
+<p>Using (<a href="#eq:astrom-1">7</a>) and (<a href="#eq:astrom-2">8</a>), we get that the total cost can be written as <a name="eq:astrom-3"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \begin{align} 
+      &amp; \EXP\bigg[ \sum_{t=1}^{T-1} \overbrace{\big[
+        x_t^\TRANS Q_t x_t + u_t^\TRANS R_t u_t + x_{t+1}^\TRANS S_{t+1}
+        x_{t+1} - x_t^\TRANS S_t x_t \big]}^{\text{Term 1}}
+      \\
+      &amp; \quad + 
+      \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg].
+\end{align} \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(9)</span></span> </p>
+<p>Now, from the completion of squares lemma, we get that “Term 1” is equal to <span class="math display">\[ (u_t + H_t x_t)^\TRANS [R_t + B_t^\TRANS S_{t+1} B_t] (u_t + H_t x_t).\]</span> Substituting this back in (<a href="#eq:astrom-3">9</a>), we get (<a href="#eq:astrom">6</a>).</p>
+<hr />
+<p>Now we can prove <a href="#thm:stochastic-lqr" title="Theorem 3"><span class="pandoc-numbering-link thm">Theorem 3</span></a> using <a href="#prop:astrom" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>. Note that the second term in (<a href="#eq:astrom">6</a>) does not depend on choice of control actions <span class="math inline">\(u_t\)</span>. Thus, in order to minimimze the total expected cost, it suffices to minimize the first term of (<a href="#eq:astrom">6</a>). Since <span class="math inline">\(R_t\)</span> is positive definite and <span class="math inline">\(S_{t+1}\)</span> is positive semi-definite, <span class="math inline">\(R_t + B_t^\TRANS S_{t+1} B_t\)</span> is positive definite. Thus, the first term of (<a href="#eq:astrom">6</a>) is sum of squares. Choosing $ u_t = -H_t x_t$ sets this term to its minimum value of <span class="math inline">\(0\)</span>. Hence, <span class="math inline">\(u_t = -H_t x_t\)</span> is the optimal control strategy.</p>
+<h2 id="references">References</h2>
+<p>The term <em>certainty equivalence</em> is due <span class="citation" data-cites="Simon1956">Simon (<a href="#ref-Simon1956">1956</a>)</span>, who was looking at a static problem; a similar result had earlier been shown by <span class="citation" data-cites="Theil1954">Theil (<a href="#ref-Theil1954">1954</a>)</span>. A result which is essentially equivalent to the stochastic LQR problem is proved by <span class="citation" data-cites="Theil1957">Theil (<a href="#ref-Theil1957">1957</a>)</span>. The model for deterministic LQR is due to <span class="citation" data-cites="Kalman1960b">Kalman (<a href="#ref-Kalman1960b">1960</a>)</span>, who proved the result for continuous time systems.</p>
+<!--
+Lemma
+
+:   Suppose $x$ and $u$ are vectors. Consider a quadratic form
+    $$ Q(x,u) = \MATRIX{ x \\ u }^\TRANS
+       \MATRIX{ Q_{xx} & Q_{xu} \\ Q_{ux} & Q_{uu} }
+       \MATRIX{ x \\ u }.
+       $$ {#eq:quadratic}
+
+    Assume it is symmetric and $Q_{uu}$ is [positive definite]. Then the
+    minimum with respect to $u$ is achieved at 
+    $$ u = - Q_{uu}^{-1} Q_{ux} x,$$ {#eq:opt-schur}
+    and is equal to
+    $$ x^\TRANS [ Q_{xx} - Q_{xu} Q_{uu}^{-1} Q_{ux} ] x. $$ {#eq:schur}
+
+The term in the square brackets in ({@eq:schur}) is the [Schur complement] of 
+$\MATRIX{ Q_{xx} & Q_{xu} \\ Q_{ux} & Q_{uu} }$
+
+[positive definite]: ../../appendix/positive-definite-matrix
+[Schur complement]: https://en.wikipedia.org/wiki/Schur_complement
+
+### Proof
+
+Observe that
+$$ Q(x,u) = x^\TRANS Q_{xx} x + 2 x^\TRANS Q_{xu} u + u^\TRANS Q_{uu} u$$
+
+Taking the derivative w.r.t. $u$, we get
+$$ \frac{\partial Q(x,u)}{\partial u} = 2 x^\TRANS Q_{xu} + 2 u^\TRANS
+Q_{uu}
+\quad \text{and} \quad
+\frac{\partial^2 Q(x,u)}{\partial u^2} = Q_{uu} > 0.
+$$
+
+Thus, the optimal $u$ is given by ({@eq:opt-schur}) and the minimum value is
+({@eq:schur}). 
+
+## Astrom's Proof
+
+-->
+<div id="refs" class="references">
+<div id="ref-Kalman1960b">
+<p><span class="smallcaps">Kalman, R.E.</span> 1960. Contributions to the theory of optimal control. <em>Boletin de la Sociedad Matematica Mexicana</em> <em>5</em>, 102–119.</p>
+</div>
+<div id="ref-Simon1956">
+<p><span class="smallcaps">Simon, H.A.</span> 1956. Dynamic programming under uncertainty with a quadratic criterion function. <em>Econometrica</em>, 74–81.</p>
+</div>
+<div id="ref-Theil1954">
+<p><span class="smallcaps">Theil, H.</span> 1954. Econometric models and welfare maximization. <em>Wirtschaftliches Archiv</em> <em>72</em>, 60–83.</p>
+</div>
+<div id="ref-Theil1957">
+<p><span class="smallcaps">Theil, H.</span> 1957. A note on certainty equivalence in dynamic planning. <em>Econometrica</em>, 346–349.</p>
+</div>
+</div>
+
+
+<p class="categories">
+and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a> 
+and tagged 
+
+<a href="https://adityam.github.io/stochastic-control/tags/linear-systems">linear systems</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/riccati-equation">riccati equation</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/lqr">lqr</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/optimal-tracking">optimal tracking</a>.
+ 
+
+</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

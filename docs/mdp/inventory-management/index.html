@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="inventory management,post-decision state,base-stock policy,structural results" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/github.css" type="text/css" />
+  <script src="https://adityam.github.io/stochastic-control//js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            integers: "\\mathbb{Z}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+            NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+            ABS: ["\\left\\lvert #1 \\right\\rvert", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Example: Inventory Management</h1>
+
+<p>TL;DR <em>The inventory management example illustrates that a dynamic programming formulation is useful even when a closed form solution does not exist. This model also introduces the idea of <em>post-decision state</em>, which is useful in many contexts.</em></p>
+<hr />
+<p>Imagine a retail store that stockpiles products in its warehouse to meet random demand. Suppose the store procures new stocks at the end of each day (and that there is no lead time and stocks are available next morning). Let</p>
+<ul>
+<li><span class="math inline">\(X_t\)</span> denote the amount of stock at the beginning of day <span class="math inline">\(t\)</span>,</li>
+<li><span class="math inline">\(U_t\)</span> denote the stock ordered (and immediately delivered) at the beginning of day <span class="math inline">\(t\)</span>, and</li>
+<li><span class="math inline">\(W_t\)</span> denote the demand during day <span class="math inline">\(t\)</span>.</li>
+</ul>
+<p>The random variables <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are i.i.d. with known probability distribution.</p>
+<p>Excess demand is backlogged and filled when new inventory becomes available. Thus, the stock evolves according to <span class="math display">\[X_{t+1} = X_t + U_t - W_t,\]</span> where negative stock denotes backlogged demand.</p>
+<p>The cost incurred during day <span class="math inline">\(t\)</span> consists of two components:</p>
+<ul>
+<li>A procurement cost of <span class="math inline">\(p\, U_t\)</span>, where <span class="math inline">\(p\)</span> is the cost per unit.</li>
+<li><p>At the end of the day, if the stock <span class="math inline">\(X_{t+1}\)</span> is positive, then there is a holding cost of <span class="math inline">\(a X_{t+1}\)</span> for storing excess inventory; if <span class="math inline">\(X_{t+1}\)</span> is negative, then a shortage cost of <span class="math inline">\(-bX_{t+1}\)</span> for unfilled demand.</p>
+<p>We denote this cost by <span class="math inline">\(h(X_{t+1})\)</span>, where <span class="math display">\[ h(x) = \begin{cases} 
+     ax, &amp; \text{if } x \ge 0 \\
+    -bx, &amp; \text{if } x &lt; 0
+  \end{cases}\]</span></p></li>
+</ul>
+<h2 id="structure-of-optimal-procurement-strategy">Structure of optimal procurement strategy</h2>
+<p>The above model is a Markov decision process.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> Therefore, the optimal solution is given by dynamic programming.</p>
+<div class="highlight">
+<dl>
+<dt>Dynamic programming</dt>
+<dd><p>Define the following value functions <span class="math inline">\(V_t \colon \reals \to \reals\)</span> <span class="math display">\[V_{T+1}(x) = 0\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span> <span class="math display">\[ Q_t(x, u) = p u + \EXP[ h(x + u - W_t) + V_{t+1}( x + u - W_t ) ]\]</span> and <span class="math display">\[ \begin{align}
+V_t(x) &amp;= \min_{u \in \reals} Q_t(x,u) \\
+g_t(x) &amp;= \arg \min_{u \in \reals} Q_t(x,u) 
+\end{align}
+  \]</span> Then the strategy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> is optimal.</p>
+</dd>
+</dl>
+</div>
+<p>It is possible to simplify the above dynamic program by exploiting a feature of the model. Notice that the dynamics can be split into two parts: <span class="math display">\[ \begin{align}
+    Y_t &amp;= X_t + U_t,  \\
+    X_{t+1} &amp;= Y_t - W_t.
+   \end{align}
+\]</span> The first part, <span class="math inline">\(Y_t\)</span>, depends only on the current state and action. The second part depends only on <span class="math inline">\(Y_t\)</span> and a primitive random variable. In this particular model, <span class="math inline">\(Y_t\)</span> is a deterministic function of <span class="math inline">\(X_t\)</span> and <span class="math inline">\(U_t\)</span>; but, in general, it could be stochastic as well; what is important is that the second part should only depend on <span class="math inline">\(Y_t\)</span> and a primitive random variable. The variable <span class="math inline">\(Y_t\)</span> is sometimes called the <em>post-decision state</em>.</p>
+<p>Now write the dynamic program in terms of the post-decision state as follows. Define <span class="math display">\[ \tilde Q_t(y) = p y + H(y) + \tilde V_{t+1}(y) \]</span> where <span class="math display">\[ \begin{align}
+  H(y) &amp;= \EXP[ a [ y - W]^+ + b[W - y]^+ ] \\
+  \tilde V_{t+1}(y) &amp;= \EXP[ V_{t+1}(y - W) ]
+  \end{align} 
+\]</span> where <span class="math inline">\([x]^+\)</span> denotes <span class="math inline">\(\max(x, 0)\)</span>. Then, <span class="math display">\[ \begin{align}
+  V_t(x) &amp;= \min_{y \in [x, \infty)} \tilde Q_t(y) - p x \\
+  g_t(x) &amp;= \Bigl( \arg \min_{y \in [x, \infty)} \tilde Q_t(y) \Bigr) - p x \\
+  \end{align}
+\]</span></p>
+<p>The optimal policy is then characterized as follows.</p>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><p>Define <span class="math display">\[ S_t = \arg \min_{y \in \reals} \tilde Q_t(y). \]</span> Then, <a name="eq:V"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V_t(x) = \begin{cases}
+  \tilde Q_t(S_t) - p x, &amp;\text{if } x \le S_t \\
+  \tilde Q_t(x)   - p x, &amp; \text{otherwise }
+\end{cases} \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span>  and <span class="math display">\[g_t(x) = \begin{cases}
+  S_t - x, &amp;\text{if } x \le S_t \\
+  0, &amp; \text{otherwise }
+\end{cases} \]</span></p>
+<p>Furthermore, for all <span class="math inline">\(t\)</span>, <span class="math inline">\(\tilde Q_t(y)\)</span> and <span class="math inline">\(V_t(x)\)</span> are convex in <span class="math inline">\(y\)</span> and <span class="math inline">\(x\)</span>, respectively.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof">Proof</h4>
+<p>We first establish some preliminary results.</p>
+<ol type="1">
+<li><p><span class="math inline">\(H(y)\)</span> is convex in <span class="math inline">\(y\)</span>.</p>
+<p><strong>Proof</strong> Recall that <span class="math display">\[ H(y) = \EXP[a [y - W]^+ + b [W - y]^+].\]</span> For any realization of <span class="math inline">\(W\)</span>, the term inside the expectation is convex in <span class="math inline">\(y\)</span>. The expectation w.r.t. <span class="math inline">\(W\)</span> is simply the sum of convex functions and is, therefore, convex.</p></li>
+<li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, let <span class="math inline">\(s = \arg \min_{y \in \reals} f(y)\)</span>. Then <span class="math display">\[\arg \min_{y \in [x,\infty)} f(y) = \max(x, s)\]</span> and <span class="math display">\[\min_{y \in [x, \infty)} f(y) = \begin{cases}
+ f(s), &amp; \text{if } x \le s \\
+ f(x), &amp; \text{if } x &gt; s
+ \end{cases}\]</span> and <span class="math inline">\(\min_{y \in [x, \infty)} f(y)\)</span> is convex in <span class="math inline">\(x\)</span>.</p>
+<p><strong>Proof</strong> If <span class="math inline">\(s \in [x, \infty)\)</span> (i.e., <span class="math inline">\(s \ge x\)</span>), then the arg min is <span class="math inline">\(s\)</span>. If <span class="math inline">\(s \not\in [x, \infty)\)</span> (i.e., <span class="math inline">\(s &lt; x\)</span>), then <span class="math inline">\(f\)</span> is increasing in the interval <span class="math inline">\((x, \infty)\)</span> and the arg min in <span class="math inline">\(x\)</span>. The result for <span class="math inline">\(\min_{y \in [x, \infty)} f(y)\)</span> follows by substituting in the arg min. See the figures below.</p></li>
+</ol>
+<div class="flex">
+<div id="function:f" style="width:400px; height:250px;">
+
+</div>
+<div id="function:g" style="width:400px; height:250px;">
+
+</div>
+</div>
+<script>
+  var state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  var Q     = [15, 9, 5.5, 3, 2, 3, 6, 11, 18, 27];
+  var Qmin  = [2,  2, 2,   2, 2, 3, 6, 11, 18, 27];
+
+  function show_plot(dom, x, y, xtitle, ytitle) {
+    var data = [{ 
+        x: x,
+        y: y,
+        line : { shape: "spline" },
+        mode: "lines", 
+    }];
+
+    var layout = { 
+        xaxis : {
+          showgrid: false,
+          showline: true,
+          showticklabels: false,
+        },
+        yaxis : {
+          showgrid: false,
+          ticks: '',
+          showticklabels: false,
+        },
+        title : ytitle,
+        margin: 0,
+        hovermode: false,
+        annotations : [{
+          xref: 'paper',
+          yref: 'paper',
+          x: 1,
+          xanchor: 'left',
+          y: 0,
+          yanchor: 'middle',
+          text: xtitle,
+          showarrow: false,
+        }]
+    };
+
+    Plotly.plot(dom, data, layout);
+  }
+
+  show_plot('function:f', state, Q, "$y$", "$f(y)$");
+  show_plot('function:g', state, Qmin, "$x$",  "$\\displaystyle \\min_{y \\in [x, \\infty)} f(y)$");
+</script>
+<p>As usual, we prove the result by backward induction. For <span class="math inline">\(t=T\)</span>, <span class="math display">\[\tilde Q_T(y) = p y + H(y),\]</span> which is the sum of a linear and a convex function and is, therefore, convex. Furthermore, by fact 2 above, <span class="math display">\[g_T(x) = \Bigl( \arg \min_{y \in [x, \infty)} Q_T(y) \Bigr)
+  - x = \max(x, S_T) - x = \max(0, S_T).\]</span> and <span class="math display">\[V_T(x) = \min_{y \in [x, \infty)} \tilde Q_T(y) - px = 
+  \begin{cases}
+    \tilde Q_T(S_T) - px, &amp; \text{if } x \le S_T \\
+    \tilde Q_T(x) - px, &amp; \text{otherwise}.
+  \end{cases}
+\]</span> Thus, <span class="math inline">\(V_T\)</span> and <span class="math inline">\(g_T\)</span> have the desired form. This forms the basis of induction.</p>
+<p>Now assume that <span class="math inline">\(V_{t+1}(x)\)</span> is convex and of the form (<a href="#eq:V">1</a>). Now note that <span class="math display">\[ Q_t(y) = py + H(y) + \EXP[ V_{t+1}(y - W) ]\]</span> is convex. Hence, by fact 2 above, <span class="math display">\[ g_t(x) = \max(x, S_t)\]</span> and <span class="math inline">\(V_t(x)\)</span> is of the desired form and convex.</p>
+<p>Thus, the result is holds by induction.</p>
+<h2 id="references">References</h2>
+<p>The mathematical model of inventory management considered here was originally proposed by <span class="citation" data-cites="Arrow1951">Arrow et al. (<a href="#ref-Arrow1951">1951</a>)</span>. The optimality of base-stock policy was established by <span class="citation" data-cites="Bellman1955">Bellman et al. (<a href="#ref-Bellman1955">1955</a>)</span>.</p>
+<hr />
+<div id="refs" class="references">
+<div id="ref-Arrow1951">
+<p><span class="smallcaps">Arrow, K.J., Harris, T., and Marschak, J.</span> 1951. Optimal inventory policy. <em>Econometrica: Journal of the Econometric Society</em>, 250–272. DOI: <a href="https://doi.org/10.2307/1907830">10.2307/1907830</a>.</p>
+</div>
+<div id="ref-Bellman1955">
+<p><span class="smallcaps">Bellman, R., Glicksberg, I., and Gross, O.</span> 1955. On the optimal inventory equation. <em>Management Science</em> <em>2</em>, 1, 83–104. DOI: <a href="https://doi.org/10.1287/mnsc.2.1.83">10.1287/mnsc.2.1.83</a>.</p>
+</div>
+</div>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Part of the per-step cost depends on the <em>future</em> state <span class="math inline">\(X_{t+1}\)</span>. It is easy to show that the standard MDP model works even when the per-step cost is a function of <span class="math inline">\((X_t, U_t, X_{t+1})\)</span><a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+
+
+<p class="categories">
+and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a> 
+and tagged 
+
+<a href="https://adityam.github.io/stochastic-control/tags/inventory-management">inventory management</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/post-decision-state">post-decision state</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/base-stock-policy">base-stock policy</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/structural-results">structural results</a>.
+ 
+
+</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

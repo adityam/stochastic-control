@@ -1,0 +1,241 @@
+---
+title: "Example: Inventory Management"
+weight: 13
+categories:
+  - MDP
+tags:
+  - inventory management
+  - post-decision state
+  - base-stock policy
+  - structural results
+---
+
+TL;DR _The inventory management example illustrates that a dynamic programming
+formulation is useful even when a closed form solution does not exist. This
+model also introduces the idea of *post-decision state*, which is useful in
+many contexts._
+
+---
+
+Imagine a retail store that stockpiles products in its warehouse to
+meet random demand. Suppose the store procures new stocks at the end of each
+day (and that there is no lead time and stocks are available next morning).
+Let 
+
+* $X_t$ denote the amount of stock at the beginning of day $t$,
+* $U_t$ denote the stock ordered (and immediately delivered) at the beginning of day $t$, and
+* $W_t$ denote the demand during day $t$. 
+
+The random variables $\{W_t\}_{t \ge 1}$ are i.i.d. with known probability
+distribution. 
+
+Excess demand is backlogged and filled when new inventory becomes available.
+Thus, the stock evolves according to
+$$X_{t+1} = X_t + U_t - W_t,$$
+where negative stock denotes backlogged demand. 
+
+The cost incurred during day $t$ consists of two components:
+
+*   A procurement cost of $p\, U_t$, where $p$ is the cost per unit. 
+*   At the end of the day, if the stock $X_{t+1}$ is positive, then there is a
+    holding cost of $a X_{t+1}$ for storing excess inventory; if $X_{t+1}$ is
+    negative, then a shortage cost of $-bX_{t+1}$ for unfilled demand. 
+
+      We denote this cost by $h(X_{t+1})$, where
+      $$ h(x) = \begin{cases} 
+         ax, & \text{if } x \ge 0 \\
+        -bx, & \text{if } x < 0
+      \end{cases}$$
+
+## Structure of optimal procurement strategy 
+
+The above model is a Markov decision process.[^cost] Therefore, the optimal
+solution is given by dynamic programming. 
+
+[^cost]: Part of the per-step cost depends on the _future_ state $X_{t+1}$.
+  It is easy to show that the standard MDP model works even when the per-step
+  cost is a function of $(X_t, U_t, X_{t+1})$
+
+::: highlight
+Dynamic programming
+
+: Define the following value functions $V_t \colon \reals \to \reals$ 
+  $$V_{T+1}(x) = 0$$
+  and for $t \in \{T, \dots, 1\}$
+  $$ Q_t(x, u) = p u + \EXP[ h(x + u - W_t) + V_{t+1}( x + u - W_t ) ]$$
+  and
+  $$ \begin{align}
+    V_t(x) &= \min_{u \in \reals} Q_t(x,u) \\
+    g_t(x) &= \arg \min_{u \in \reals} Q_t(x,u) 
+    \end{align}
+  $$
+  Then the strategy $g = (g_1, \dots, g_T)$ is optimal. 
+::: 
+
+It is possible to simplify the above dynamic program by exploiting a feature
+of the model. Notice that the dynamics can be split into two parts: 
+$$ \begin{align}
+    Y_t &= X_t + U_t,  \\
+    X_{t+1} &= Y_t - W_t.
+   \end{align}
+$$
+The first part, $Y_t$, depends only on the current state and action. The
+second part depends only on $Y_t$ and a primitive random variable. 
+In this particular model, $Y_t$ is a deterministic function of $X_t$ and
+$U_t$; but, in general, it could be stochastic as well; what is important is
+that the second part should only depend on $Y_t$ and a primitive random
+variable. The variable $Y_t$ is sometimes called the _post-decision state_. 
+
+Now write the dynamic program in terms of the post-decision state as follows.
+Define
+$$ \tilde Q_t(y) = p y + H(y) + \tilde V_{t+1}(y) $$
+where
+$$ \begin{align}
+  H(y) &= \EXP[ a [ y - W]^+ + b[W - y]^+ ] \\
+  \tilde V_{t+1}(y) &= \EXP[ V_{t+1}(y - W) ]
+  \end{align} 
+$$
+where $[x]^+$ denotes $\max(x, 0)$. Then,
+$$ \begin{align}
+  V_t(x) &= \min_{y \in [x, \infty)} \tilde Q_t(y) - p x \\
+  g_t(x) &= \Bigl( \arg \min_{y \in [x, \infty)} \tilde Q_t(y) \Bigr) - p x \\
+  \end{align}
+$$
+
+The optimal policy is then characterized as follows.
+
+::: highlight :::
+Theorem
+
+:   Define 
+    $$ S_t = \arg \min_{y \in \reals} \tilde Q_t(y). $$
+    Then, 
+    $$ V_t(x) = \begin{cases}
+      \tilde Q_t(S_t) - p x, &\text{if } x \le S_t \\
+      \tilde Q_t(x)   - p x, & \text{otherwise }
+    \end{cases} $$ {#eq:V}
+    and
+    $$g_t(x) = \begin{cases}
+      S_t - x, &\text{if } x \le S_t \\
+      0, & \text{otherwise }
+    \end{cases} $$
+
+    Furthermore, for all $t$, $\tilde Q_t(y)$ and $V_t(x)$ are convex in $y$
+    and $x$, respectively. 
+:::
+
+#### Proof
+
+We first establish some preliminary results.
+
+1. $H(y)$ is convex in $y$.
+
+     **Proof** Recall that $$ H(y) = \EXP[a [y - W]^+ + b [W - y]^+].$$ For
+     any realization of $W$, the term inside the expectation is convex in $y$.
+     The expectation w.r.t. $W$ is simply the sum of convex functions and is,
+     therefore, convex. 
+
+2. For any convex function $f \colon \reals \to \reals$, let $s = \arg \min_{y
+   \in \reals} f(y)$. Then
+   $$\arg \min_{y \in [x,\infty)} f(y) = \max(x, s)$$
+   and
+   $$\min_{y \in [x, \infty)} f(y) = \begin{cases}
+    f(s), & \text{if } x \le s \\
+    f(x), & \text{if } x > s
+    \end{cases}$$
+    and $\min_{y \in [x, \infty)} f(y)$ is convex in $x$.
+
+     **Proof** If $s \in [x, \infty)$ (i.e., $s \ge x$), then the arg min is
+     $s$. If $s \not\in [x, \infty)$ (i.e., $s < x$), then $f$ is increasing
+     in the interval $(x, \infty)$ and the arg min in $x$. The result for
+     $\min_{y \in [x, \infty)} f(y)$ follows by substituting in the arg min.
+     See the figures below.
+
+ <div class="flex">
+   <div id="function:f" style="width:400px; height:250px;"></div>
+   <div id="function:g" style="width:400px; height:250px;"></div>
+ </div>
+
+
+<script>
+  var state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  var Q     = [15, 9, 5.5, 3, 2, 3, 6, 11, 18, 27];
+  var Qmin  = [2,  2, 2,   2, 2, 3, 6, 11, 18, 27];
+
+  function show_plot(dom, x, y, xtitle, ytitle) {
+    var data = [{ 
+        x: x,
+        y: y,
+        line : { shape: "spline" },
+        mode: "lines", 
+    }];
+
+    var layout = { 
+        xaxis : {
+          showgrid: false,
+          showline: true,
+          showticklabels: false,
+        },
+        yaxis : {
+          showgrid: false,
+          ticks: '',
+          showticklabels: false,
+        },
+        title : ytitle,
+        margin: 0,
+        hovermode: false,
+        annotations : [{
+          xref: 'paper',
+          yref: 'paper',
+          x: 1,
+          xanchor: 'left',
+          y: 0,
+          yanchor: 'middle',
+          text: xtitle,
+          showarrow: false,
+        }]
+    };
+
+    Plotly.plot(dom, data, layout);
+  }
+
+  show_plot('function:f', state, Q, "$y$", "$f(y)$");
+  show_plot('function:g', state, Qmin, "$x$",  "$\\displaystyle \\min_{y \\in [x, \\infty)} f(y)$");
+</script>
+
+
+
+As usual, we prove the result by backward induction. For $t=T$, 
+$$\tilde Q_T(y) = p y + H(y),$$ 
+which is the sum of a linear and a convex function and is, therefore, convex.
+Furthermore, by fact 2 above,
+$$g_T(x) = \Bigl( \arg \min_{y \in [x, \infty)} Q_T(y) \Bigr)
+  - x = \max(x, S_T) - x = \max(0, S_T).$$
+and
+$$V_T(x) = \min_{y \in [x, \infty)} \tilde Q_T(y) - px = 
+  \begin{cases}
+    \tilde Q_T(S_T) - px, & \text{if } x \le S_T \\
+    \tilde Q_T(x) - px, & \text{otherwise}.
+  \end{cases}
+$$
+Thus, $V_T$ and $g_T$ have the desired form. This forms the basis of
+induction.
+
+Now assume that $V_{t+1}(x)$ is convex and of the form ({@eq:V}). Now note
+that
+$$ Q_t(y) = py + H(y) + \EXP[ V_{t+1}(y - W) ]$$
+is convex. Hence, by fact 2 above,
+$$ g_t(x) = \max(x, S_t)$$
+and $V_t(x)$ is of the desired form and convex. 
+
+Thus, the result is holds by induction.
+
+
+
+## References
+
+The mathematical model of inventory management considered here was originally
+proposed by @Arrow1951. The optimality of base-stock policy was established by
+@Bellman1955.
+
+---

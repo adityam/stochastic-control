@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Optimal stopping,structural results,threshold strategy,finance" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/github.css" type="text/css" />
+  <script src="https://adityam.github.io/stochastic-control//js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            integers: "\\mathbb{Z}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+            NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+            ABS: ["\\left\\lvert #1 \\right\\rvert", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Example: Call options</h1>
+
+<p>An investor has a <a href="https://en.wikipedia.org/wiki/Call_option">call option</a> to buy one share of a stock at a fixed price <span class="math inline">\(p\)</span> dollars and has <span class="math inline">\(T\)</span> days to <em>exercise</em> this option. For simplicity, we assume that the investor makes a decision at the beginning of each day.</p>
+<p>The investory may decide not to exercise the option but if he does exercise the option when the stock price is <span class="math inline">\(x\)</span>, he effectively gets <span class="math inline">\((x-p)\)</span>.</p>
+<p>Assume that the price of the stoch varies with independent increments, i.e., the price on day <span class="math inline">\(t+1\)</span> is <span class="math display">\[X_{t+1} = X_t + W_t\]</span> where <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is an i.i.d. process with mean <span class="math inline">\(\mu\)</span>.</p>
+<p>Let <span class="math inline">\(\tau\)</span> denote the stopping time when the investor exercises his option. Then the optimization problem is to maximize <span class="math display">\[ \EXP\big[ (X_{\tau} - p )\cdot \IND\{\tau \le T \} \big].\]</span></p>
+<p>Since this is an optimal stopping problem with perfect state observation, the optimal strategy is given by the solution of the following dynamic program</p>
+<div class="highlight">
+<p><strong>Dynamic program</strong> <span class="math display">\[\begin{align}
+V_{T}(x) &amp;= \max\{ x-p, 0 \} \\
+V_{t}(x) &amp;= \max\{ x-p, \EXP[ V_{t+1}(x + W) \}.
+\end{align}\]</span></p>
+</div>
+<h2 id="qualitative-properties-of-the-value-function">Qualitative properties of the value function</h2>
+<div class="highlight">
+<dl>
+<dt>Lemma</dt>
+<dd><ol type="1">
+<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(x)\)</span> is increasing in <span class="math inline">\(x\)</span>.</li>
+<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(x) - x\)</span> is decreasing in <span class="math inline">\(x\)</span>.</li>
+<li>For all <span class="math inline">\(x\)</span>, <span class="math inline">\(V_t(x) \ge V_{t+1}(x)\)</span>.</li>
+</ol>
+</dd>
+</dl>
+</div>
+<h4 id="proof">Proof</h4>
+<p>The first property follows immediately from monotonicity of terminal reward and the monotonicity of the dynamics. From <a href="../../assignments/02">Assignment 2</a>, to show the third property, we need to show that <span class="math inline">\(V_{T-1}(x) \ge V_T(x)\)</span>. Observe that <span class="math display">\[ V_{T-1}(x) = 
+\max\{x - p, \EXP[V_{T}(x + W) \} \ge \max\{ x - p, 0 \} = V_T(x).
+\]</span></p>
+<p>Now we prove the second property using backward induction. At <span class="math inline">\(t=T\)</span>, <span class="math display">\[ V_T(x) - x = \max\{ -p, -x \}\]</span> which is decreasing in <span class="math inline">\(x\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(V_{t+1}(x) - x\)</span> is decreasing in <span class="math inline">\(x\)</span>. Then, <span class="math display">\[ \begin{align}
+  V_t(x) - x &amp;= \max\{ -p, \EXP[ V_{t+1}(x+W) ] - x  \} \\
+  &amp;= \max\{ -p, \EXP[ V_{t+1}(x+W) - (x + W) ] + \EXP[W] \}.
+\end{align} \]</span> By the induction hypothesis the second term is decreasing in <span class="math inline">\(x\)</span>. The minimum of a constant and a decreasing function is decreasing in <span class="math inline">\(x\)</span>. Thus, <span class="math inline">\(V_t(x) - x\)</span> is decreasing in <span class="math inline">\(x\)</span>. This completes the induction step.</p>
+<div class="highlight">
+<dl>
+<dt>Lemma</dt>
+<dd><p>At any time <span class="math inline">\(t\)</span>, if it is optimal to sell when the stock price is <span class="math inline">\(x^\circ\)</span>, then it is optimal to sell at all <span class="math inline">\(x \ge x^\circ\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-1">Proof</h4>
+<p>Since it is optimal to sell at <span class="math inline">\(x^\circ\)</span>, we must have <a name="eq:p1"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ x^\circ - p \ge \EXP[V_{t+1}(x^\circ + W) ] \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span>  Since <span class="math inline">\(V_{t}(x) - x\)</span> is decreasing in <span class="math inline">\(x\)</span>, we have that for any <span class="math inline">\(x \ge x^\circ\)</span>, <a name="eq:p2"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[\EXP[ V_{t+1}(x + W) - x ] \le \EXP[ V_{t+1}(x^\circ + W) - x^\circ ]
+\le -p \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(2)</span></span>  where the last inequality follows from (<a href="#eq:p1">1</a>). Eq (<a href="#eq:p2">2</a>) implies that <span class="math display">\[ \EXP[ V_{t+1}(x+W) ] \le x - p. \]</span> Thus, the stopping action is also optimal at <span class="math inline">\(x\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><p>The optimal strategy is of the <em>threshold type</em>. In particular, there exist numbers <span class="math inline">\(s_1 \ge s_2 \ge \cdots \ge s_T\)</span> such that it is optimal to exercise the option at time <span class="math inline">\(t\)</span> if and only if <span class="math inline">\(x_t \ge s_t\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-2">Proof</h4>
+<p>Let <span class="math inline">\(S_t = \{x : g_t(x) = 1\}\)</span>. The previous Lemma shows that <span class="math inline">\(S_t\)</span> is of the form <span class="math inline">\([s_t, \infty)\)</span>, where <span class="math inline">\(s_t = \min \{ x : g_t(x) = 1\}\)</span>, where we assume that <span class="math inline">\(s_t = \infty\)</span> is it is not optimal to stop in any state. Thus proves the threshold property.</p>
+<p>To show that the thresholds are decreasing with time, it suffices to show that <span class="math inline">\(S_t \subseteq S_{t+1}\)</span>. Suppose <span class="math inline">\(x \in S_t\)</span>. Then, <a name="eq:p3"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ x - p \ge \EXP[ V_{t+1}(x + W) ] \ge \EXP[ V_{t+2}(x + W) ], \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(3)</span></span>  where the first inequality follows because <span class="math inline">\(x \in S_t\)</span> and the second inequality follows because <span class="math inline">\(V_{t+1}(x) \ge V_{t+2}(x)\)</span>. Eq (<a href="#eq:p3">3</a>) implies that <span class="math inline">\(x \in S_{t+1}\)</span>. Hence, <span class="math inline">\(S_t \subseteq S_{t+1}\)</span> and, therefore, the optimal thresholds are decreasing.</p>
+<hr />
+<h2 id="references">References</h2>
+<p>The above model for pricing options was introduced by <span class="citation" data-cites="Taylor1967">Taylor (<a href="#ref-Taylor1967">1967</a>)</span>.</p>
+<div id="refs" class="references">
+<div id="ref-Taylor1967">
+<p><span class="smallcaps">Taylor, H.M.</span> 1967. Evaluating a call option and optimal timing strategy in the stock market. <em>Management Science</em> <em>14</em>, 1, 111–120. Available at: <a href="http://www.jstor.org/stable/2628546" class="uri">http://www.jstor.org/stable/2628546</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a> 
+and tagged 
+
+<a href="https://adityam.github.io/stochastic-control/tags/optimal-stopping">optimal stopping</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/structural-results">structural results</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/threshold-strategy">threshold strategy</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/finance">finance</a>.
+ 
+
+</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

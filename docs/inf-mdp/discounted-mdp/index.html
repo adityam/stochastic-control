@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="infinite horizon,discounted cost,Bellman operator,value iteration,policy iteration" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/github.css" type="text/css" />
+  <script src="https://adityam.github.io/stochastic-control//js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            integers: "\\mathbb{Z}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+            NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+            ABS: ["\\left\\lvert #1 \\right\\rvert", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Infinite horizon discounted MDP</h1>
+
+<p>Throughout this section, we assume that <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET U\)</span> are finite and <span class="math inline">\(|\ALPHABET X|= n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>.</p>
+<h2 id="performance-of-a-time-homogeneous-markov-policy">Performance of a time-homogeneous Markov policy</h2>
+<p>For any <span class="math inline">\(g \colon \ALPHABET X \to \ALPHABET U\)</span>, consider the time homogeneous policy <span class="math inline">\((g, g, \dots)\)</span>. For ease of notation, we denote this policy simply by <span class="math inline">\(g\)</span>. The expected discounted cost under this policy is given by <span class="math display">\[ V_g(x) = \EXP^g\bigg[ \sum_{t=1}^∞ β^{t-1} c(X_t, U_t) \biggm| X_1 = x
+\bigg].\]</span></p>
+<p>To get a compact expression for this, define a <span class="math inline">\(n × 1\)</span> vector <span class="math inline">\(c_g\)</span> and a <span class="math inline">\(n × n\)</span> matrix <span class="math inline">\(P_g\)</span> as follows: <span class="math display">\[ [c_g]_x = c(x, g(x))
+   \quad\text{and}\quad
+   [P_g]_{xy} = P_{xy}(g(x)).
+\]</span> Then the dynamics under policy <span class="math inline">\(g\)</span> are Markovian with transition probability matrix <span class="math inline">\(P_g\)</span> and a cost function <span class="math inline">\(c_g\)</span>. Then <span class="math display">\[ \begin{align}
+\EXP^g\big[ c(X_t, g(X_t)) \bigm| X_1 = x \big]
+  &amp;= \sum_{y \in \ALPHABET X} \PR^g(X_t = y | X_1 = x) c(y, g(y))
+  \\
+  &amp;= \sum_{y \in \ALPHABET X} [P_g^{t-1}]_{xy} [c_g]_y
+  \\
+  &amp;= δ_x P_g^{t-1} c_g.
+\end{align} \]</span></p>
+<p>Let <span class="math inline">\(V_g\)</span> denote the <span class="math inline">\(n × 1\)</span> vector given by <span class="math inline">\([V_g]_x = V_g(x)\)</span>. Then, <span class="math display">\[ \begin{align}
+V_g &amp;= c_g + β P_g c_g + β^2 P_g^2 c_g + \cdots \\
+    &amp;= c_g + β P_g \big( c_g + β P_g c_g + \cdots \big) \\
+    &amp;= c_g + β P_g V_g,
+\end{align} \]</span> which can be rewritten as <span class="math display">\[ (I - β P_g) V_g = c_g. \]</span></p>
+<p>The <a href="https://en.wikipedia.org/wiki/Spectral_radius">spectral radius</a> of <span class="math inline">\(ρ(β P_d)\)</span> is upper bounded by <span class="math inline">\(\lVert β P_d \rVert = β &lt; 1\)</span>. Therefore, the matrix <span class="math inline">\((I - β P_g)\)</span> has an inverse and by left multiplying both sides by <span class="math inline">\((I - β P_g)^{-1}\)</span>, we get <span class="math display">\[ V_g = (I - βP_g)^{-1} c_g. \]</span></p>
+<p>The equation <span class="math display">\[ V_g = c_g + β P_g V_g \]</span> is sometimes also written as <span class="math display">\[ V_g = \mathcal B_g V_g \]</span> where the operator <span class="math inline">\(\mathcal B_g\)</span>, which is called the <em>Bellman operator</em>, is an operator from <span class="math inline">\(\reals^n\)</span> to <span class="math inline">\(\reals^n\)</span> given by <span class="math display">\[ \mathcal B_g v = c_g + β P_g v.\]</span></p>
+<hr />
+<h2 id="bellman-operator">Bellman operator</h2>
+<dl>
+<dt>Definition</dt>
+<dd><p>Define the <em>Bellman operator</em> <span class="math inline">\(\mathcal B : \reals^n \to \reals^n\)</span> as follows: for any <span class="math inline">\(v \in \reals^n\)</span> <span class="math display">\[ [\mathcal B v]_x = \min_{u \in \ALPHABET U}
+\Big\{ c(x,u) + β \sum_{y \in \ALPHABET Y} P_{xy}(u) v_y \Big\}.
+\]</span></p>
+</dd>
+</dl>
+<p>Note that the above may also be written as<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> <span class="math display">\[ \mathcal B v = \min_{g \in \ALPHABET G} \mathcal B_g v, \]</span> where <span class="math inline">\(\ALPHABET G\)</span> denotes the set of all deterministic Markov policies.</p>
+<div class="highlight">
+<dl>
+<dt><span id="prop:contraction" class="pandoc-numbering-text prop"><strong>Proposition 1</strong></span></dt>
+<dd><p>For any <span class="math inline">\(v \in \reals^n\)</span>, define the norm <span class="math inline">\(\NORM{V} := \sup_{x \in \ALPHABET X} \ABS{V_x}\)</span>. Then, the Bellman operator is a contraction, i.e., for any <span class="math inline">\(v, w \in \reals^n\)</span>, <span class="math display">\[ \NORM{\mathcal B v - \mathcal B w} \le β \NORM{v - w}. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 id="proof">Proof</h4>
+<p>To be written  <span class="math inline">\(\Box\)</span></p>
+<p>An immediate consequence of the contraction property is the following.</p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:fixed-point" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
+<dd><p>There is a unique bounded <span class="math inline">\(V^* \in \reals^n\)</span> that satisfies the <em>Bellman equation</em> <span class="math display">\[ V = \mathcal B V \]</span></p>
+<p>Moreover, if we start from any <span class="math inline">\(V_0 \in \reals^n\)</span> and recursively define <span class="math display">\[ V_n = \mathcal B V_{n-1} \]</span> then <span class="math display">\[ \lim_{n \to ∞} V_n = V^*. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-1">Proof</h4>
+<p>This follows immediately from the <a href="https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem">Banach fixed point theorem</a>  <span class="math inline">\(\Box\)</span></p>
+<h2 id="optimal-time-homogeneous-policy">Optimal time-homogeneous policy</h2>
+<!--
+::: highlight :::
+Proposition
+
+:   Let $h$ be any (possibly randomized) history dependent policy. Then,      
+    there exists a randomized Markov policy $g$ that has the same performance
+    as $h$.
+:::
+
+#### Proof
+
+For any policy $h$, define the _occupation measure_
+$$ \mu(x,u | x^∘; h) 
+  := \EXP^h \bigg[ \sum_{t=1}^∞ β^{t-1} \IND\{X_t = x, U_t = u\} 
+  \biggm| X_1 = x^∘ \bigg]
+$$
+Then 
+$$ J(x^∘; h) = \sum_{x \in \ALPHABET X, u \in \ALPHABET U}
+   μ(x,u | x^∘; h) c(x,u).
+$$ {#eq:performance}
+
+Now, define a randomized Markov policy $g$ as follows:
+$$\PR(U_t = u | X_t = x; g) = \frac{ μ(x, u| x^∘; h) } { μ(x | x^∘; h) }$$
+where $μ(x|x^∘;h) = \sum_{u \in \ALPHABET U} μ(x,u | x^∘; h)$. Then, by
+construction, 
+$ μ(x,u | x^∘; g) = μ(x,u | x^∘; h) $
+and therefore by ({@eq:performance}), we have that $J(x^∘; g) = J(x^∘; h).$
+
+-->
+<div class="highlight">
+<dl>
+<dt><span id="prop:optimal" class="pandoc-numbering-text prop"><strong>Proposition 2</strong></span></dt>
+<dd><p>Define <span class="math display">\[ V^{opt}_∞(x) := \min_{g} \EXP^g \bigg[ \sum_{t=1}^∞ β^{t-1} c(X_t, U_t) 
+\biggm| X_1 = x \bigg], \]</span> where the minimum is over all (possibly randomized) history dependent policies. Then, <span class="math display">\[ V^{opt} = V^*, \]</span> where <span class="math inline">\(V^*\)</span> is the solution of the Bellman equation.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-2">Proof</h4>
+<p>Consider the finite horizon truncation <span class="math display">\[ V^{opt}_T(x) =  \min_{g} \EXP^g\bigg[ \sum_{t=1}^T β^{t-1} c(X_t, U_t) | X_1 = x \bigg].
+\]</span> From the results for finite horizon MDP, we have that <span class="math display">\[ V^{opt}_T = \mathcal B^T V_0 \]</span> where <span class="math inline">\(V_0\)</span> is the all zeros vector.</p>
+<p>Now by construction, <span class="math display">\[V^{opt}_∞(x) \ge V^{opt}_T(x) = \mathcal B^T V_0. \]</span> Taking limit as <span class="math inline">\(T \to ∞\)</span>, we get that <a name="eq:1"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[V^{opt}_∞(x) \ge \lim_{T \to ∞} \mathcal B^T V_0 = V^*. \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span> </p>
+<p>Since the state and action space are finite, without loss of optimality, we can assume that <span class="math inline">\(0 &lt; c(x,u) &lt; M\)</span>. Then, for any <span class="math inline">\(T\)</span>, <span class="math display">\[ \begin{align}
+V^{opt}_∞(x) &amp;\le \min_g \EXP^g \bigg[ \sum_{t=1}^T β^{t-1} c(X_t, U_t) 
+\biggm| X_1 = x \bigg] + \sum_{t=T+1}^∞ β^{t-1} M \\
+&amp;= V^{opt}_T(x) + β^T M / (1 - β) \\
+&amp;= \mathcal B^T V_0 + β^T M / (1-β). 
+\end{align} \]</span> Taking limit as <span class="math inline">\(T \to ∞\)</span>, we get that <a name="eq:2"></a><span style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V^{opt}_∞(x) \le \lim_{T \to ∞} 
+\big[ \mathcal B^T V_0 + β^T M / (1-β) \big]
+= V^*. \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(2)</span></span> </p>
+<p>From (<a href="#eq:1">1</a>) and (<a href="#eq:2">2</a>), we get that <span class="math inline">\(V^{opt}_∞ = V^*\)</span>.  <span class="math inline">\(\Box\)</span></p>
+<h2 id="properties-of-bellman-operator">Properties of Bellman operator</h2>
+<div class="highlight">
+<dl>
+<dt><span id="prop:properties" class="pandoc-numbering-text prop"><strong>Proposition 3</strong></span></dt>
+<dd><p>The Bellman operator satisfies the following properties</p>
+<ul>
+<li><em>Monotonicity</em>. For any <span class="math inline">\(v, w \in \reals^n\)</span>, if <span class="math inline">\(v \le w\)</span>, then <span class="math inline">\(\mathcal B_g v \le \mathcal B_g w\)</span> and <span class="math inline">\(\mathcal B v \le \mathcal B w\)</span>.</li>
+<li><em>Discounting</em>. For any <span class="math inline">\(v \in \reals^n\)</span> and <span class="math inline">\(m \in \reals\)</span>, <span class="math inline">\(\mathcal B_g (v + m) = \mathcal B_g v + β m\)</span> and <span class="math inline">\(\mathcal B (v + m) = \mathcal B v + β m\)</span>.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<p>Note that we interpret <span class="math inline">\(v + m\)</span> as <span class="math inline">\([v + m]_x = v_x + m\)</span>.</p>
+<h4 id="proof-3">Proof</h4>
+<p>We first prove the monotonicity property. Recall that <span class="math display">\[ \mathcal B_g v = c_g + β P_g v. \]</span> So, monotonicity of <span class="math inline">\(\mathcal B_g\)</span> follows immediately from monotonicity of matrix multiplication for positive matrices.</p>
+<p>Let <span class="math inline">\(h\)</span> be such that <span class="math inline">\(\mathcal B w = \mathcal B_h w\)</span>. Then, <span class="math display">\[ v = \mathcal B v \le \mathcal B_h v 
+\stackrel{(a)} \le \mathcal B_h w = \mathcal B w = w,
+\]</span> where <span class="math inline">\((a)\)</span> uses the monotonicity of <span class="math inline">\(\mathcal B_h\)</span>.</p>
+<p>We now prove the discounting property. Recall that <span class="math display">\[ \mathcal B_g v = c_g + β P_g v. \]</span> Thus, <span class="math display">\[ \mathcal B_g(v+m) = c_g + β P_g (v+m) = c_g + β P_g v + β m = \mathcal B_g
+v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is discounting. Now consider <span class="math display">\[ \mathcal B (v + m ) = \min_{g} \mathcal B_g (v+m)
+= \min_g \mathcal (B_g v + β m) = \mathcal B v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B\)</span> is discounting.  <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="prop:coarse-bounds" class="pandoc-numbering-text prop"><strong>Proposition 4</strong></span></dt>
+<dd><p>For any <span class="math inline">\(V \in \reals^n\)</span>,</p>
+<ul>
+<li>If <span class="math inline">\(V \ge \mathcal B V\)</span>, then <span class="math inline">\(V \ge V^*\)</span>;</li>
+<li>If <span class="math inline">\(V \le \mathcal B V\)</span>, then <span class="math inline">\(V \le V^*\)</span>;</li>
+<li>If <span class="math inline">\(V = \mathcal B V\)</span>, then <span class="math inline">\(V\)</span> is the only vector with this property and <span class="math inline">\(V = V^*\)</span>.</li>
+</ul>
+<p>The same bounds are true when <span class="math inline">\((\mathcal B, V^*)\)</span> is replaced with <span class="math inline">\((\mathcal B_g, V_g)\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-4">Proof</h4>
+<p>We prove the first part. The proof of the other parts is similar.</p>
+<p>We are given that <span class="math display">\[V \ge \mathcal B V.\]</span> Then, by monotonicity of the Bellman operator, <span class="math display">\[ \mathcal B V \ge \mathcal B^2 V.\]</span> Continuing this way, we get <span class="math display">\[ \mathcal B^k V \ge \mathcal B^{k+1} V.\]</span> Adding the above equations, we get <span class="math display">\[ V \ge \mathcal B^{k+1} V.\]</span> Taking limit as <span class="math inline">\(k \to ∞\)</span>, we get <span class="math display">\[V \ge V^*. \qquad \Box\]</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="prop:bounds" class="pandoc-numbering-text prop"><strong>Proposition 5</strong></span></dt>
+<dd><p>For any <span class="math inline">\(V \in \reals^n\)</span> and <span class="math inline">\(m \in \reals\)</span>,</p>
+<ul>
+<li>If <span class="math inline">\(V + m \ge \mathcal B V\)</span>, then <span class="math inline">\(V + m/(1-β) \ge V^*\)</span>;</li>
+<li>If <span class="math inline">\(V + m \le \mathcal B V\)</span>, then <span class="math inline">\(V + m/(1-β) \le V^*\)</span>;</li>
+</ul>
+<p>The same bounds are true when <span class="math inline">\((\mathcal B, V^*)\)</span> is replaced with <span class="math inline">\((\mathcal B_g, V_g)\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-5">Proof</h4>
+<p>Again, we only prove the first part. The proof of the second part is the same. We have that <span class="math display">\[ V + m \ge \mathcal B V. \]</span> From discounting and monotonicity properties, we get <span class="math display">\[ \mathcal B V + β m \ge \mathcal B^2 V. \]</span> Again, from discounting and monotonitiy properties, we get <span class="math display">\[ \mathcal B^2 V + β^2 m \ge \mathcal B^3 V. \]</span> Continuing this way, we get <span class="math display">\[ \mathcal B^k V + β^k m \ge \mathcal B^{k+1} V. \]</span> Adding all the above equations, we get <span class="math display">\[ V + \sum_{\ell = 0}^k β^\ell m \ge \mathcal B^{k+1} V. \]</span> Taking the limit as <span class="math inline">\(k \to ∞\)</span>, we get <span class="math display">\[ V + m/(1-β) \ge V^*. \]</span></p>
+<hr />
+<h1 id="value-iteration-algorithm">Value Iteration Algorithm</h1>
+<div class="highlight">
+<h4 id="value-iteration-algorithm-1">Value Iteration Algorithm</h4>
+<ol type="1">
+<li>Start with any <span class="math inline">\(V_0 \in \reals^n\)</span>.</li>
+<li>Compute <span class="math inline">\(V_{k+1} = \mathcal B V_k = \mathcal B_{g_k} V_k.\)</span></li>
+<li>Define <span class="math display">\[ \begin{align}
+   \underline δ_k &amp;= \frac{β}{1-β} \min_x \{ V_k(x) - V_{k-1}(x) \}, \\
+   \bar δ_k &amp;=       \frac{β}{1-β} \max_x \{ V_k(x) - V_{k-1}(x) \}.
+ \end{align} \]</span></li>
+</ol>
+<p>Then, for all <span class="math inline">\(k\)</span></p>
+<ol type="1">
+<li><span class="math inline">\(V_k + \underline δ_k \le V^* \le V_k + \bar δ_k\)</span>.</li>
+<li><span class="math inline">\(\underline δ_k - \bar δ_k \le \NORM{V_{g_k} - V^*} \le \bar δ_k - \underline δ_k.\)</span></li>
+</ol>
+</div>
+<h4 id="proof-6">Proof</h4>
+<p>By construction, <span class="math display">\[ \begin{align} 
+   \mathcal B V_k - V_k &amp;= \mathcal B V_k - \mathcal B V_{k-1} \\ 
+   &amp; \le \mathcal B_{g_{k-1}} V_k - \mathcal B_{g_{k-1}} V_{k-1}\\
+   &amp; \le β \EXP[ V_{k}(X_{+}) - V_{k-1}(X_+) | X, g_{k-1}(X) ] \\
+   &amp;= (1-β) \bar δ_k.
+\end{align} \]</span> Thus, by the previous proposition, we have <span class="math display">\[ V^* \le V_k + \bar δ_k \]</span> and <span class="math display">\[ V_{g_k} \le V_k + \bar δ_k. \]</span></p>
+<p>By a similar argument, we can show <span class="math display">\[ V^* \ge V_k + \underline δ_k\]</span> and <span class="math display">\[ V_{g_k} \ge V_k + \underline δ_k. \]</span></p>
+<p>Now, by the triangle inequality <span class="math display">\[ \max\{ V_{g_k} - V^* \} \le 
+   \max\{ V_{g_k} - V_k \} + \max\{ V_{k} - V^* \}
+   \le \bar δ_k - \underline δ_k.
+\]</span> Similarly, <span class="math display">\[ \max\{ V^* - V_{g_k} \} \le
+   \max \{ V^* - V_k \} + \max\{ V_k - V_{g_k} \}
+   \le \bar δ_k - \underline δ_k.
+\]</span></p>
+<p>Thus, <span class="math display">\[ \NORM{ V_{g_k} - V^* } \le \bar δ_k - \underline δ_k. \]</span></p>
+<p>By a similar argument, we can show that <span class="math display">\[ \NORM{ V_{g_k} - V^* } \ge \underline δ_k - \bar δ_k. 
+\qquad \Box\]</span></p>
+<hr />
+<h1 id="policy-iteration-algorithm">Policy Iteration Algorithm</h1>
+<div class="highlight">
+<dl>
+<dt><span id="prop:PI" class="pandoc-numbering-text prop"><strong>Proposition 6</strong></span></dt>
+<dd><p>Suppose <span class="math inline">\(V_g\)</span> is the fixed point of <span class="math inline">\(\mathcal B_g\)</span> and <span class="math display">\[\mathcal B_{h} V_g = \mathcal B V_g. \]</span> Then, <span class="math display">\[V_{h}(x) \le V_g(x), \quad \forall x \in \ALPHABET X. \]</span> Moreover, if <span class="math inline">\(g\)</span> is not optimal, then at least one inequality is strict.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-7">Proof</h4>
+<p><span class="math display">\[ V_g = \mathcal B_g V_g \ge \mathcal B V_g = \mathcal B_{h} V_g.\]</span> Thus, <span class="math display">\[ V_g \ge V_{h}. \]</span></p>
+<p>Finally, suppose <span class="math inline">\(V_h = V_g\)</span>. Then, <span class="math display">\[ V_h = \mathcal B_h V_h = \mathcal B_h V_g = \mathcal B V_g = \mathcal B
+V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="math inline">\(V_g\)</span>) is the unique fixed point of <span class="math inline">\(\mathcal B\)</span>. Hence <span class="math inline">\(h\)</span> and <span class="math inline">\(g\)</span> are optimal.  <span class="math inline">\(\Box\)</span></p>
+<hr />
+<h2 id="references">References</h2>
+<p>The material included here is referenced from different sources. Perhaps the best sources to study this material are the books by <span class="citation" data-cites="Puterman2014">Puterman (<a href="#ref-Puterman2014">2014</a>)</span>, <span class="citation" data-cites="Whittle1982">Whittle (<a href="#ref-Whittle1982">1982</a>)</span>, and <span class="citation" data-cites="Bertsekas:book">Bertsekas (<a href="#ref-Bertsekas:book">2011</a>)</span>.</p>
+<div id="refs" class="references">
+<div id="ref-Bertsekas:book">
+<p><span class="smallcaps">Bertsekas, D.P.</span> 2011. <em>Dynamic programming and optimal control 3rd edition, vol I &amp; II</em>. Athena Scientific.</p>
+</div>
+<div id="ref-Puterman2014">
+<p><span class="smallcaps">Puterman, M.L.</span> 2014. <em>Markov decision processes: Discrete stochastic dynamic programming</em>. John Wiley &amp; Sons.</p>
+</div>
+<div id="ref-Whittle1982">
+<p><span class="smallcaps">Whittle, P.</span> 1982. <em>Optimization over time: Dynamic programming and stochastic control. Vol. 1 and 2</em>. Wiley.</p>
+</div>
+</div>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>This is true for general models only when the arg min at each state exists.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+
+
+<p class="categories">
+and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a> 
+and tagged 
+
+<a href="https://adityam.github.io/stochastic-control/tags/infinite-horizon">infinite horizon</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/discounted-cost">discounted cost</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/bellman-operator">bellman operator</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/value-iteration">value iteration</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/policy-iteration">policy iteration</a>.
+ 
+
+</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

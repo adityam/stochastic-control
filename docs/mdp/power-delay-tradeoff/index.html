@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="stochastic monotonicity,post-decision state,wireless communication,structural results" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/github.css" type="text/css" />
+  <script src="https://adityam.github.io/stochastic-control//js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-1.2.0.min.js">
+  </script>
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      "HTML-CSS": { 
+          fonts: ["TeX"]
+      }, 
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true,
+    },
+      TeX : {
+          Macros : {
+            PR: "\\mathbb{P}",
+            EXP: "\\mathbb{E}",
+            IND: "\\mathbb{I}",
+            reals: "\\mathbb{R}",
+            integers: "\\mathbb{Z}",
+            TRANS: "\\intercal",
+            VEC: "\\operatorname{vec}",
+            TR:  "\\operatorname{Tr}",
+            // mathcal: "\\mathscr",
+            ALPHABET: ["\\mathcal{#1}", 1],
+            MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+            NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+            ABS: ["\\left\\lvert #1 \\right\\rvert", 1],
+          }
+      }
+    });
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Example: Power-delay trade-off in wireless communication</h1>
+
+<p>TL;DR <em>This stylized example of power-delay trade-off in wireless communications illustrates that a dynamic programming formulation can be used to identify qualitative properties of the value function and optimal policies.</em></p>
+<hr />
+<p>In a cell phone, higher layer applications such as voicecall, email, browsers, etc. generate data packets. These packets are buffered in a queue and the transmission protocol decides how many packets to transmit at each time depending the number of packets in the queue and the quality of the wireless channel.</p>
+<p>Let <span class="math inline">\(X_t \in \integers_{\ge 0}\)</span> denote the number of packets buffered at time <span class="math inline">\(t\)</span> and <span class="math inline">\(U_t \in \integers_{\ge 0}\)</span>, <span class="math inline">\(U_t \le X_t\)</span>, denote the number of packets transmitted at time <span class="math inline">\(t\)</span>. The remaining <span class="math inline">\(X_t - U_t\)</span> packets incur a delay penalty given by <span class="math inline">\(d(X_t - U_t)\)</span>, where <span class="math inline">\(d(\cdot)\)</span> is a <em>strictly</em> increasing and convex function where <span class="math inline">\(d(0) = 0\)</span>.</p>
+<p>During time <span class="math inline">\(t\)</span>, <span class="math inline">\(W_t \in \integers_{\ge 0}\)</span> additional packets arrive and <span class="math display">\[ X_{t+1} = X_t - U_t + W_t.\]</span> We assume that <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is an i.i.d. process.</p>
+<p>The packets are transmitted over a wireless fading channel. Let <span class="math inline">\(S_t \in \ALPHABET S\)</span> denote the state of the fading channel. We assume that <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is a <a href="../../theory/stochastic-dominance#stochastic-monotonicity">stochastically monotone</a> Markov process that is independent of <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>.</p>
+<p>The transmission protocol sets the transmit power such that the signal to noise ratio (SNR) at the receiver is above a desired threshold. It can be shown that for additive white Gaussian channels (AWGN), the transmitted power is of the form <span class="math display">\[p(U_t) q(S_t),\]</span> where</p>
+<ul>
+<li><span class="math inline">\(p(\cdot)\)</span> is a strictly increasing and convex function where <span class="math inline">\(p(0) = 0\)</span>;</li>
+<li><span class="math inline">\(q(\cdot)\)</span> is a strictly decreasing function.</li>
+</ul>
+<p>The objective is to choose a transmission policy <span class="math inline">\(U_t = g_t(X_t, S_t)\)</span> to minimize the weighted sum of transmitted power and delay <span class="math display">\[ \EXP\bigg[ \sum_{t=1}^T \big[ p(U_t) q_(S_t) + \lambda d(X_t - U_t) \big]
+\bigg],\]</span> where <span class="math inline">\(\lambda\)</span> may be viewed as a Lagrange multiplier corresponding to a constrained optimization problem.</p>
+<h2 id="dynamic-program">Dynamic program</h2>
+<p>We can assume <span class="math inline">\(Y_t = X_t - U_t\)</span> as a post-decision state in the above model and write the dynamic program as follows:</p>
+<p><span class="math display">\[ V_{T+1}(x,s) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, <span class="math display">\[\begin{align}
+  Q_t(y,s) &amp;= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
+  V_t(x,s) &amp;= \min_{u \le x} \big\{ p(u) q(s) + Q_t(x-u, s) \big\}
+\end{align}\]</span></p>
+<div class="highlight">
+<dl>
+<dt>Lemma</dt>
+<dd><p>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(x,s)\)</span> and <span class="math inline">\(Q_t(y,s)\)</span> are increasing in the first variable and decreasing in the second variable.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof">Proof</h4>
+<p>First note that the constraint set <span class="math inline">\(\ALPHABET U(x) = \{0, \dots, x\}\)</span> satisfies the conditions that generalize the result of monotonicity to constrained actions.</p>
+<p>We prove the two monotonicity properties by backward induction. First note that <span class="math inline">\(V_{T+1}(x,s)\)</span> is trivially monotone. This forms the basis of induction. Now suppose <span class="math inline">\(V_{t+1}(x,s)\)</span> is increasing in <span class="math inline">\(x\)</span> and decreasing in <span class="math inline">\(s\)</span>. Since <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math display">\[Q_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1} | S_t = s ]\]</span> is decreasing in <span class="math inline">\(s\)</span>. Moreover, since both <span class="math inline">\(d(y)\)</span> and <span class="math inline">\(V_{t+1}(y + w, s)\)</span> are increasing in <span class="math inline">\(y\)</span>, so is <span class="math inline">\(Q_t(y,s)\)</span>.</p>
+<p>Now, for every <span class="math inline">\(u\)</span>, <span class="math inline">\(p(u) q(s)\)</span> and <span class="math inline">\(Q_t(x-u, s)\)</span> is increasing in <span class="math inline">\(x\)</span> and decreasing in <span class="math inline">\(s\)</span>. So, the pointwise minima over <span class="math inline">\(u\)</span> is also increasing in <span class="math inline">\(x\)</span> and decreasing in <span class="math inline">\(s\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt>Lemma</dt>
+<dd><p>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(s\)</span>, <span class="math inline">\(V_t(x,s)\)</span> and <span class="math inline">\(Q_t(y,s)\)</span> are convex in the first variable.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-1">Proof</h4>
+<p>We proceed by backward induction. First note that <span class="math inline">\(V_{T+1}(x,s)\)</span> is trivially convex in <span class="math inline">\(x\)</span>. Now assume that <span class="math inline">\(V_{t+1}(x,s)\)</span> is convex in <span class="math inline">\(x\)</span>. Then, <span class="math inline">\(\EXP[V_{t+1}(y + W_t, S_{t+1}) | S_t = s]\)</span> is weighted sum of convex functions and is, therefore, convex in <span class="math inline">\(y\)</span>. Therefore, <span class="math inline">\(Q_t(y,s)\)</span> is a sum of two convex functions and, therefore, covnex in <span class="math inline">\(y\)</span>.</p>
+<p>We cannot directly show the convexity of <span class="math inline">\(V_t(x,s)\)</span> because the pointwise minimum of convex functions is not convex. So, we consider the following arguement. Fix <span class="math inline">\(s\)</span> and pick <span class="math inline">\(x &gt; 1\)</span>. Let <span class="math inline">\(\underline u = g^*_t(x-1,s)\)</span> and <span class="math inline">\(\bar u = g^*_t(x+1,s)\)</span>. Let <span class="math inline">\(\underline v = \lfloor (\underline u + \bar u)/2 \rfloor\)</span> and <span class="math inline">\(\bar v = \lceil (\underline u + \bar u)/2 \rceil\)</span>. Note that both <span class="math inline">\(\underline v\)</span> and <span class="math inline">\(\bar v\)</span> are feasible at <span class="math inline">\(x\)</span>. Then, <span class="math display">\[ \begin{align}
+  \hskip 2em &amp; \hskip -2em
+  V_t(x-1, s) + V_t(x+1, s)
+  \\
+  &amp;= 
+  [ p(\underline u) + p(\bar u) ] q(s) + Q_t(x - 1 - \underline u, s)
+  + Q_t(x + 1 - \bar u, s)
+  \\
+  &amp;\stackrel{(a)}\ge [ p(\underline v) + p(\bar v)] q(s) + 
+    Q_t(x - \underline v, s) + Q_t(x - \bar v, s) \\
+  &amp;\ge 2 \min_{u \le x} \big\{ p(u) q(s) + Q_t(x-u, s) \\
+  &amp;= 2 V_t(x,s),
+\end{align} \]</span> where <span class="math inline">\((a)\)</span> follows from convexity of <span class="math inline">\(p(\cdot)\)</span> and <span class="math inline">\(Q_t(\cdot, s)\)</span>. Thus, <span class="math inline">\(V_t(x,s)\)</span> is convex in <span class="math inline">\(x\)</span>. This completes the induction step.</p>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><p>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(s\)</span>, the optimal strategy <span class="math inline">\(g^*_t(x,s)\)</span> is increasing in <span class="math inline">\(x\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-2">Proof</h4>
+<p>In the previous lemma, we have shown that <span class="math inline">\(Q_t(y,s)\)</span> is convex in <span class="math inline">\(y\)</span>. Therefore, <span class="math inline">\(Q_t(x-u, s)\)</span> is submodular in <span class="math inline">\((x,s)\)</span>.</p>
+<p>[ One can show this by finite difference, but for simplicity, we assume that <span class="math inline">\(Q_t(y,s)\)</span> is twice differentiable. Then, <span class="math inline">\(\partial^2 Q_t(x - u, s)/ \partial x \partial u \le 0\)</span> (by convexity of <span class="math inline">\(Q_t\)</span>). ]</p>
+<p>Thus, for a fixed <span class="math inline">\(s\)</span>, <span class="math inline">\(p(u)q(s) + Q_t(x-u, s)\)</span> is submodular in <span class="math inline">\((x,u)\)</span>. Therefore, the optimal policy is increasing in <span class="math inline">\(x\)</span>.</p>
+<hr />
+<h2 id="references">References</h2>
+<p>The mathematical model of power-delay trade-off is taken from <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span>, where the monotonicty results were proved using first principles. More detailed characterization of the optimal transmission strategy when the average power or the average delay goes to zero are provided in <span class="citation" data-cites="Berry2002">Berry and Gallager (<a href="#ref-Berry2002">2002</a>)</span> and <span class="citation" data-cites="Berry2013">Berry (<a href="#ref-Berry2013">2013</a>)</span>.</p>
+<div id="refs" class="references">
+<div id="ref-Berry2000">
+<p><span class="smallcaps">Berry, R.A.</span> 2000. Power and delay trade-offs in fading channels..</p>
+</div>
+<div id="ref-Berry2013">
+<p><span class="smallcaps">Berry, R.A.</span> 2013. Optimal power-delay tradeoffs in fading channels—small-delay asymptotics. <em>IEEE Transactions on Information Theory</em> <em>59</em>, 6, 3939–3952.</p>
+</div>
+<div id="ref-Berry2002">
+<p><span class="smallcaps">Berry, R.A. and Gallager, R.G.</span> 2002. Communication over fading channels with delay constraints. <em>IEEE Transactions on Information theory</em> <em>48</em>, 5, 1135–1149.</p>
+</div>
+</div>
+
+
+<p class="categories">
+and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a> 
+and tagged 
+
+<a href="https://adityam.github.io/stochastic-control/tags/stochastic-monotonicity">stochastic monotonicity</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/post-decision-state">post-decision state</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/wireless-communication">wireless communication</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/structural-results">structural results</a>.
+ 
+
+</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

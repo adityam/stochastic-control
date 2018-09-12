@@ -1,0 +1,333 @@
+---
+title: Basic model of an MDP
+weight: 10
+categories:
+  - MDP
+tags:
+  - Markov strategies
+  - dynamic programming
+  - comparison principle
+  - principle of irrelevant information
+---
+
+Markov decision processes (MDP) are the simplest model of a stochastic control
+system. The dynamic behavior of an MDP is modeled by an equation of the
+form
+$$ X_{t+1} = f_t(X_t, U_t, W_t) $$
+where $X_t \in \ALPHABET X$ is the state, $U_t \in \ALPHABET U$ is the control
+input, and $W_t \in \ALPHABET W$ is the noise. An agent/controller observes
+the state and chooses the control input $U_t$.
+
+The controller can be as sophisticated as we want. In principle, it can
+analyze the entire history of observations and control actions to choose
+the current control action. Thus, the control action can be written as
+$$ U_t = g_t(X_{1:t}, U_{1:t-1}),$$
+where $X_{1:t}$ is a shorthand for $(X_1, \dots, X_t)$ and a similar
+interpretation holds for $U_{1:t-1})$. The function $g_t$ is called the
+_control law_ at time $t$. 
+
+At each time, the system incurs a cost that may depend on the current state
+and control action. This cost is denoted by $c_t(X_t, U_t)$. The system
+operates for a time horizon $T$. During this time, it incurs a total cost
+$$ \sum_{t=1}^T c_t(X_t, U_t). $$
+
+The initial state $X_1$ and the noise process $\{W_t\}_{t \ge 1}$ are random
+variables defined on a common probability space (these are called
+_primitive random variables_) and are mutually independent. 
+
+Suppose we have to design such a controller. We are told the probability
+distribution of the initial state and the noise. We are also told the system
+update functions $(f_1, \dots, f_T)$ and the cost functions $(c_1, \dots,
+c_T)$. We are asked to choose a _control strategy_ $g = (g_1, \dots, g_T)$ to
+minimize the expected total cost
+$$ J(g) := \EXP\bigg[ \sum_{t=1}^T c_t(X_t, U_t) \bigg]. $$
+How should we proceed?
+
+At first glance, the problem looks intimidating. It appears that we have to
+design a very sophisticated controller: one that analyzes all past data to
+choose a control input. However, this is not the case. A remarkable result is
+that the optimal control station can discard all past data and choose the
+control input based only on the current state of the system. Formally, we have
+the following:
+
+::: proclaim :::
+**Optimality of Markov strategies.**
+For the system model described above, there is no loss of optimality in
+chosing the control action according to
+$$ U_t = g_t(X_t), \quad t=1, \dots, T.$$
+Such a control strategy is called a _Markov strategy_.
+:::
+
+The above result claims that the cost incurred by the best Markovian strategy
+is the same as the cost incurred by the best history dependent strategy. This
+appears to be a tall claim, so lets see how we can prove it. The main idea of
+the proof is to repeatedly apply [Blackwell's principle of irrelevant
+information][Blackwell] -@Blackwell1964
+
+[Blackwell]: ../principle-of-irrelevant-information
+
+::: proclaim :::
+**Two-Step Lemma.**
+Consider an MDP that operates for two steps ($T=2$). Then there is no loss
+of optimality in restricting attention to a Markov control strategy at time
+$t=2$.
+:::
+
+Note that $g_1$ is Markov because it can only depend $X_1$. 
+
+#### Proof
+
+Fix $g_1$ and look at the problem of optimizing $g_2$. The total cost is
+$$ \EXP[ c_1(X_1, g_1(X_1)) + c_2(X_2, g_2(X_{1:2}, U_1)) ]$$
+The choice of $g_2$ does not influence the first term. So, for a fixed $g_1$,
+minimizing the total cost is the equivalent to minimizing the second term.
+Now, from Blackwell's principle of irrelevant information, there
+exists a $g_2^* \colon X_2 \mapsto U_2$ such that for any $g_2$
+$$\EXP[c_2(X_2, g_2^*(X_2) ] \le \EXP[c_2(X_2, g_2(X_{1:2}, U_2) ].$$
+
+
+::: proclaim :::
+**Three-Step Lemma.**
+Consider an MDP that operates for three steps ($T=3$). Assume that the
+control law $g_3$ at time $t=3$ is Markov, i.e., $U_3 = g_3(X_3)$. Then, there
+is no loss of optimality in restricting attention to Markov control law at
+time $t=2$.
+:::
+
+#### Proof
+
+Fix $g_1$ and $g_3$ and look at optimizing $g_2$. The total cost is
+$$ \EXP[ c_1(X_1, g_1(X_1)) + c_2(X_2, g_2(X_{1:2}, U_1)) + c_3(X_3, g_3(X_3)].$$
+
+The choice of $g_2$ does not affect the first term. So, for a fixed $g_1$ and
+$g_3$, minimizing the total cost is the same as minimizing the last two terms. Let us look at the last term carefully. Bu the law of iterated expectations, we have
+$$ \EXP[ c_3(X_3, g_3(X_3) ] = \EXP[ \EXP[ c_3(X_3, g_3(X_3)) | X_2, U_2 ] ]. $$
+Now,
+\begin{align}
+  \EXP[ c_3(X_3, g_3(X_3)) | X_2 = x_2, U_2 = u_2 ] &= 
+  \sum_{x_3 \in \ALPHABET X} c_3(x_3, g_3(x_3)) \\
+  &= \PR( w_2 \in \ALPHABET W : f_2(x_2, u_2, w_2) = x_3 )
+  \\
+  &=: h_2(x_2, u_2).
+\end{align}
+The key point is that $h_2(x_2, u_2)$ does not depend on $g_1$ or $g_2$. 
+
+Thus, the total expected cost affected by the choice of $g_2$ can be written
+as 
+\begin{align}
+  \EXP[ c_2(X_2, U_2) + c_3(X_3, U_3) ] &= \EXP[ c_2(X_2, U_2) + h_2(X_2, U_2)
+  ] \\
+  &=: \EXP[ \tilde c_2(X_2, U_2) ].
+\end{align}
+Now, by Blackwell's principle of irrelevant information, there exists a
+$g_2^* : X_2 \mapsto U_2$ such that for any $g_2$, we have
+$$ \EXP[ \tilde c_2(X_2, g_2^*(X_2))] \le  \EXP[ \tilde c_2(X_2, g_2(X_{1:2},
+U_1) ].$$
+
+---
+
+Now we have enough background to present the proof of optimality of Markov
+strategies.
+
+#### Proof of optimality of Markov strategies
+
+The main idea is that any system can be thought of as a two- or three-step
+system by aggregating time. Suppose that the system operates for $T$ steps. 
+It can be thought of as a two-step system where $t \in \{1, \dots, T - 1\}$
+corresponds to step 1 and $t = T$ corresponds to step 2. From the two-step
+lemma, there is no loss of optimality in restricting attention to Markov
+control law at step 2 (i.e., at time $t=T$), i.e., 
+$$ U_T = g_T(X_T). $$
+
+Now consider a system where we are using a Markov strategy at time $t=T$. This
+system can be thought of as a three-step system where $t \in \{1, \dots,
+T-2\}$ corresponds to step 1, $t = T-1$ corresponds to step 2, and $t=T$
+corresponds to step 3. Since the controller at time $T$ is Markov, the
+assumption of the three step lemma is satisfied. Thus, by that lemma, there is
+no loss of optimality in restricting attention to Markov controllers at step 2
+(i.e., at time $t=T-1$), i.e., 
+$$U_{T-1} = g_{T-1}(X_{T-1}).$$
+
+Now consider a system where we are using a Markov strategy at time $t \in
+\{T-1, T\}$. This can be thought of as a three-step system where $t \in \{1,
+\dots, T - 3\}$ correspond to step 1, $t = T-2$ correspond to step 2, and $t
+\in \{T-1, T\}$ correspond to step 3. Since the controllers at time $t \in
+\{T-1, T\}$ are Markov, the assumption of the three-step lemma is satisfied.
+Thus, by that lemma, there is no loss of optimality in restricting attention
+to Markov controllers at step 2 (i.e., at time $t=T-2$), i.e.,
+$$U_{T-2} = g_{T-2}(X_{T-2}).$$
+
+Proceeding this way, we continue to think of the system as a three step system
+by different relabeling of time. Once we have shown that the controllers at
+times $t \in \{s+1, s+2, \dots, T\}$ are Markov, we relabel time as follows:
+$t=\{1, \dots, s-1\}$ corresponds to step 1, $t = s$ corresponds to step 2,
+and $t \in \{s+1, \dots, T\}$ corresponds to step 3. Since the controllers at
+time $t \in \{s+1, \dots, T\}$ are Markov, the assumption of the three-step
+lemma is satisfied. Thus, by that lemma, there is no loss of optimality in
+restricting attention to Markov controllers at stage 2 (i.e. at time $s$),
+i.e.,
+$$U_s = g_s(X_s).$$
+
+Proceeding until $s=2$, completes the proof.
+
+## Performance of Markov strategies {#performance}
+
+We have shown that there is no loss of optimality to restrict attention to
+Markov strategies. One of the advantages of Markov strategies is that it is
+easy to recursively compute their performance. In particular, given any Markov
+strategy $g = (g_1, \dots, g_T)$, define _the cost-to-go functions_ as
+follows:
+$$J_t(x; g) = \EXP^g \bigg[ \sum_{s = t}^{T} c_s(X_s, g_s(X_s)) \biggm| X_t =
+x\bigg]. $$
+Note that $J_t(x; g)$ only depends on the future strategy $(g_t, \dots, g_T)$. These functions can be computed recursively as follows:
+\begin{align}
+  J_t(x; g) &= \EXP^g \bigg[ \sum_{s = t}^{T} c_s(X_s, g_s(X_s)) \biggm| X_t =
+  x \bigg] \\
+  &= \EXP^g \bigg[ c_t(x, g_t(x)) + \EXP^g \bigg[ \sum_{s = t+1}^T
+    c_s(X_s, g_s(X_s)) \biggm| X_{t+1} \bigg] \biggm| X_t = x \bigg]
+  \\
+  &= \EXP^g\big[ c_t(x, g_t(x)) + J_{t+1}(X_{t+1}; g) \big| X_t = x \big].
+\end{align}
+
+## Dynamic Programming Decomposition {#DP}
+
+Now we are ready to state the main result of MDPs
+
+::: proclaim :::
+**Theorem (Dynamic program)**
+Recursive define _value functions_ $\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET X
+\to \reals$ as follows: $$ V_{T+1}(x) = 0 $$ {#eq:DP-1} and for $t \in \{T,
+\dots, 1\}$:
+$$\begin{align}
+   Q_t(x,u) &= c(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] \\
+   &= c(x,u) + \EXP[ V_{t+1}(f_t(x,u,W_t)) ],
+\end{align}$$ {#eq:DP-2}
+and define
+$$V_t(x) = \min_{u \in \ALPHABET U} Q_t(x,u), $$ {#eq:DP-3}
+and
+$$ g_t^*(x) = \arg \min_{u \in \ALPHABET U} Q_t(x,u).$$ {#eq:verification}
+
+Then, a Markov policy is optimal if and only if it satisfies
+({@eq:verification}).
+:::
+
+Instead of proving the above result, we prove a related result
+
+::: proclaim :::
+**Theorem (The comparison principle)** For any Markov strategy $g$
+$$ J_t(x; g) \ge V_t(x) $$
+with equality at $t$ if and only if the _future strategy_ $g_{t:T}$
+satisfies the verification step ({@eq:verification}). 
+::: 
+
+Note that the comparison principle immediately implies that the strategy
+obtained using dynamic programming is optimal. 
+
+The comparison principle also allows us to interpret the value functions. The
+value function at time $t$ is the minimum of all the cost-to-go functions over
+all future strategies. The comparison principle also allows us to interpret the
+optimal policy (the interpretation is due to Bellman and is colloquially
+called Bellman's principle of optimality).
+
+::: proclaim :::
+**Bellman's principle of optimality.**
+An optimal policy has the property that whatever the initial state and the
+initial decisions are, the remaining decisions must constitute an optimal
+policy with regard to the state resulting from the first decision.
+:::
+
+#### Proof of the comparison principle
+
+The proof proceeds by backward induction. Consider any Markov strategy $g =
+(g_1, \dots, g_T)$. For $t = T$, 
+\begin{align}
+  V_T(x) &= \min_{u \in \ALPHABET U} Q_T(x,u) \\
+  &\stackrel{(a)}= \min_{u \in \ALPHABET U} c_T(x,u) \\
+  &\stackrel{(b)}\le c_T(x, g_T(x)) \\
+  &\stackrel{(c)}= J_T(x; g),
+\end{align}
+where $(a)$ follows from the definition of $Q_T$, $(b)$ follows from the
+definition of minimization, and $(c)$ follows from the definition of $J_T$. 
+Equality holds in $(b)$ iff the policy $g_T$ is optimal. This result forms the basis of induction.
+
+Now assume that the statement of the theorem is true for $t+1$. Then, for $t$
+\begin{align}
+  V_t(x) &= \min_{u \in \ALPHABET U} Q_t(x,u) \\
+  &\stackrel{(a)}= \min_{u \in \ALPHABET U} \Big\{
+  c_t(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
+  \Big\}
+  \\
+  &\stackrel{(b)}\le  \Big\{
+  c_t(x,g_t(x)) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = g_t(x)] 
+  \Big\} \\
+  &\stackrel{(c)}\le  \Big\{
+  c_t(x,g_t(x)) + \EXP[ J_{t+1}(X_{t+1}; g) | X_t = x, U_t = g_t(x)] 
+  \Big\} \\
+  &\stackrel{(d)}= J_t(x; g),
+\end{align}
+where $(a)$ follows from the definition of $Q_t$, $(b)$ follows from the
+definition of minimization, $(c)$ follows from the induction hypothesis, and
+$(d)$ follows from the definition of $J_t$. We have equality in step $(b)$ iff
+$g_t$ satisfies the verification step ({@eq:verification}) and have equality
+in step $(c)$ iff $g_{t+1:T}$ is optimal (this is part of the induction
+hypothesis). Thus, the result is true for time $t$ and, by the principle of
+induction, is true for all time. 
+
+# Variations of a theme 
+
+## Cost depends on next state
+
+## Exponential cost function
+
+## Multiplicative cost
+
+## Discounted cost
+
+## Optimal stopping {#optimal-stopping}
+
+Let $\{X_t\}_{t \ge 1}$ be a Markov chain. At each time $t$, a decision maker
+observes the state $X_t$ of the Markov chain and decides whether to continue
+or stop the process. If the decision maker decides to continue, he incurs a
+_continuation cost_ $c_t(X_t)$ and the state evolves. If the DM decides to
+stop, he incurs a _stopping cost_ of $s_t(X_t)$ and the problem is terminated.
+The objective is to determine an optimal _stopping time_ $\tau$ to minimize
+$$J(\tau) := \EXP\bigg[ \sum_{t=1}^{\tau-1} c_t(X_t) + s_\tau(X_\tau)
+\bigg].$$
+
+Such problems are called _Optimal stopping problems_. 
+
+Define the _cost-to-go function_ of any stopping rule as
+$$J_t(x; \tau) = \EXP\bigg[ \sum_{s = t}^{\tau - 1} c_{\tau}(X_t) +
+s_\tau(X_\tau) \,\bigg|\, \tau > t \bigg]$$
+and the _value function_ as
+$$V_t(x) = \inf_{\tau} J_t(x; \tau). $$
+Then, it can be shown that the value functions satisfy the following
+recursion:
+
+::: highlight :::
+**Dynamic Program for optimal stopping**
+$$ \begin{align}
+V_T(x) &= s_T(x) \\
+V_t(x) &= \min\{ s_t(x), c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x].
+\end{align}$$
+:::
+
+For more details on the optimal stopping problems, see @Ferguson:book.
+
+
+## Minimax setup
+
+
+
+## References
+
+The proof idea for the optimality of Markov strategies is based on a proof
+by @Witsenhausen1979 on the structure of optimal coding strategies for
+real-time communication. Note that the proof does not require us to find a
+dynamic programming decomposition of the problem. This is in contrast with the
+standard textbook proof where the optimality of Markov strategies is proves as
+part of the dynamic programming decomposition. 
+
+
+--- 
+
