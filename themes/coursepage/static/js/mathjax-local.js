@@ -27,4 +27,4 @@ tex2jax: {
   }
 });
 
-Mathjax.Ajax.loadComplete("https://adityam.github.io/stochastic-control/js/mathjax-local.js")
+MathJax.Ajax.loadComplete("https://adityam.github.io/stochastic-control/js/mathjax-local.js")

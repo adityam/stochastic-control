@@ -8,6 +8,7 @@ tex2jax: {
   processEscapes: true,
 },
   TeX : {
+      equationNumbers : { autoNumbers: "AMS" }, 
       Macros : {
         PR: "\\mathbb{P}",
         EXP: "\\mathbb{E}",
@@ -26,4 +27,4 @@ tex2jax: {
   }
 });
 
-Mathjax.Ajax.loadComplete("https://adityam.github.io/stochastic-control/js/mathjax-local.js")
+MathJax.Ajax.loadComplete("https://adityam.github.io/stochastic-control/js/mathjax-local.js")
