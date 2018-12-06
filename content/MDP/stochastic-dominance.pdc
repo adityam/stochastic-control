@@ -40,6 +40,112 @@ Example
     \succeq_s
     \left[\frac 14, \frac 14, \frac 14, \frac 14 \right].$
 
+
+     <div class="flex">
+       <div id="distribition:1" style="width:200px; height:250px;"></div>
+       $\succeq_s$
+       <div id="distribition:2" style="width:200px; height:250px;"></div>
+       $\succeq_s$
+       <div id="distribition:3" style="width:200px; height:250px;"></div>
+     </div>
+
+<script>
+  var x  = [1, 2, 3, 4];
+  var D1 = [0, 0.25, 0.25, 0.5];
+  var D2 = [0.25, 0, 0.25, 0.5];
+  var D3 = [0.25, 0.25, 0.25, 0.25];
+
+  function show_distribution(dom, x, y, xtitle, ytitle) {
+    var cx = [0, x[0]];
+    var cy = [0, 0];
+    var val = 0;
+
+    for(var i = 0; i < x.length; i++) {
+       val += y[i];
+       cx.push(x[i]);
+       cy.push(val);
+
+       if (x[i+1]) {
+         cx.push(x[i+1]);
+         cy.push(val);
+      } else {
+         cx.push(x[i] + 0.5);
+         cy.push(val);
+      }
+    }
+
+    var pmf = { 
+        x: x,
+        y: y,
+        type: "bar", 
+        name: 'PMF'
+    };
+
+    var cmf = { 
+        x: cx,
+        y: cy,
+        mode: "lines", 
+        name: 'CMF'
+    }
+
+    var data = [cmf,pmf];
+
+    var layout = { 
+        paper_bgcolor: "#fffff8",
+        plot_bgcolor:  "#fffff8",
+        xaxis : {
+          title: xtitle,
+          showgrid: false,
+          zeroline: true,
+          showline: false,
+          showticklabels: false,
+          range: [-0.1, 5.0],
+        },
+        yaxis : {
+          showgrid: false,
+          showline: false,
+          zeroline: true,
+          showticklabels: false,
+          range: [-0.1, 1.05],
+        },
+
+        legend : { 
+          x : 0.1,
+          y : 1.2, 
+          orientation: "h"
+        },
+
+        title : ytitle,
+        width: 200,
+        height: 250,
+        automargin: true,
+        margin: {
+          l : 15,
+          r : 15,
+          b : 15,
+          t : 35,
+          pad : 15
+        } ,
+        hovermode: false,
+
+        bargap: 0.65,
+    };
+
+    var options = {
+        staticPlot: true,
+        displayModeBar: false,
+    };
+
+    Plotly.plot(dom, data, layout, options);
+  }
+
+  show_distribution("distribition:1", x, D1, "$\\left[0, \\frac 14, \\frac 14, \\frac 12\\right]$", "");
+  show_distribution("distribition:2", x, D2, "$\\left[\\frac 14, 0, \\frac 14, \\frac 12\\right]$", "");
+  show_distribution("distribition:3", x, D3, "$\\left[\\frac 14, \\frac 14, \\frac 14, \\frac 14\\right]$", "");
+
+</script>
+
+
 Stochastic dominance is important due to the following property.
 
 <div class="highlight">
