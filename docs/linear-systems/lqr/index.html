@@ -51,21 +51,26 @@
   \quad\text{and}\quad
   c_T(x_T) = x_T^\TRANS Q_T x_T.
 \]</span> This is often referred to as the <em>Linear Quadratic Regulartor (LQR)</em>.</p></li>
-<li><p><strong>Tracking problem</strong> where it is assumed that the system has an output <span class="math inline">\(y_t = C_t x_t\)</span> and the objective is to keep the output of the system close to a pre-specified trajectory <span class="math inline">\(\{x^\circ_t\}_{t=1}^T\)</span>. These are modeled by considering the per-step cost as <span class="math display">\[ \begin{align}
+<li><p><strong>Tracking problem</strong> where it is assumed that the system has an output <span class="math inline">\(y_t = C_t x_t\)</span> and the objective is to keep the output of the system close to a pre-specified trajectory <span class="math inline">\(\{x^\circ_t\}_{t=1}^T\)</span>. These are modeled by considering the per-step cost as <span class="math display">\[ \begin{align*}
   c_t(x_t, u_t) &amp;= (C_tx_t - y^\circ_t)^\TRANS Q_t (C_tx_t - y^\circ_t) + u_t^\TRANS R_t u_t
   \\
   \text{and}\quad
   c_T(x_T) &amp;= (C_Tx_T - y^\circ_T)^\TRANS Q_T (C_Tx_T - y^\circ_T).
-\end{align} \]</span></p></li>
+\end{align*} \]</span></p></li>
 </ul>
 <h2 id="optimal-solution-of-the-regulation-problem">Optimal solution of the regulation problem</h2>
 <p>The LQR problem is one of the few instances where the solution of the Markov decision process can be obtained in closed form.</p>
 <div class="highlight">
 <dl>
 <dt><span id="thm:lqr" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
-<dd><p>The value function at time <span class="math inline">\(t\)</span> is <span id="eq:Vt" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V_t(x_t) = x_t^\TRANS S_t x_t\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span>  and the optimal control action is <span id="eq:gt" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ u_t = - H_t x_t\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(2)</span></span>  where the <em>gain matrices</em> <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> are given by: <span class="math display">\[ H_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} \Lambda_t \]</span> where <span class="math display">\[ \Lambda_t = B_t^\TRANS S_{t+1} A_t \]</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> are determined by the <em>backward Riccati difference equations</em>: <span class="math inline">\(S_T = Q_T\)</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span id="eq:riccati" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ S_t = A_t^\TRANS S_{t+1} A_t + Q_t - 
-   \Lambda_t^\TRANS [ R_t + B_t^\TRANS S_{t+1} B_t ] ^{-1} \Lambda_t.
-\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(3)</span></span> </p>
+<dd><p>The value function at time <span class="math inline">\(t\)</span> is <span class="math display">\[\begin{equation}\label{eq:Vt}
+  V_t(x_t) = x_t^\TRANS S_t x_t
+\end{equation}\]</span> and the optimal control action is <span class="math display">\[\begin{equation}\label{eq:gt}
+  u_t = - H_t x_t
+\end{equation}\]</span> where the <em>gain matrices</em> <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> are given by: <span class="math display">\[ H_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} \Lambda_t \]</span> where <span class="math display">\[ \Lambda_t = B_t^\TRANS S_{t+1} A_t \]</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> are determined by the <em>backward Riccati difference equations</em>: <span class="math inline">\(S_T = Q_T\)</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span class="math display">\[\begin{equation}\label{eq:riccati}
+  S_t = A_t^\TRANS S_{t+1} A_t + Q_t - 
+  \Lambda_t^\TRANS [ R_t + B_t^\TRANS S_{t+1} B_t ] ^{-1} \Lambda_t. 
+\end{equation}\]</span></p>
 </dd>
 </dl>
 </div>
@@ -79,11 +84,11 @@
 <dl>
 <dt>Lemma</dt>
 <dd><p><strong>(Completion of squares)</strong></p>
-<p>For any <span class="math inline">\(x \in \reals^n\)</span> and <span class="math inline">\(u \in \reals^m\)</span> and matrices <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, <span class="math inline">\(S\)</span>, and <span class="math inline">\(R\)</span> of appropriate dimensions, we have <span class="math display">\[\begin{align}
+<p>For any <span class="math inline">\(x \in \reals^n\)</span> and <span class="math inline">\(u \in \reals^m\)</span> and matrices <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, <span class="math inline">\(S\)</span>, and <span class="math inline">\(R\)</span> of appropriate dimensions, we have <span class="math display">\[\begin{align*}
   &amp;u^\TRANS R u + (Ax + Bu)^\TRANS S (Ax + Bu) 
   \\ &amp;\qquad = 
  (u + H x)^\TRANS [R + B^\TRANS S B] (u + Hx) + x^\TRANS L x
- \end{align}\]</span> where</p>
+ \end{align*}\]</span> where</p>
 <ul>
 <li><span class="math inline">\(L = A^\TRANS S A - \Lambda^\TRANS[R + B^\TRANS S B]^{-1} \Lambda_t\)</span></li>
 <li><span class="math inline">\(H = [R + B^\TRANS S B]^{-1} \Lambda\)</span></li>
@@ -94,7 +99,7 @@
 </div>
 <h4 id="proof">Proof</h4>
 <p>The proof follows immediately by completing the square on the left hand side. In particular</p>
-<span class="math display">\[\begin{align}
+<p><span class="math display">\[ \begin{align*}
 &amp; u^\TRANS R u +  (Ax+Bu)^\TRANS S (Ax + Bu) \\
 &amp; \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS B^\TRANS S A x 
   + x^\TRANS A^\TRANS S A x \\
@@ -102,10 +107,10 @@
   + x^\TRANS H^\TRANS [R + B^\TRANS S B] H x + x^\TRANS L x \\
 &amp; \quad = 
   (u + H x)^\TRANS [R + B^\TRANS S B] (u + Hx) + x^\TRANS L x.
-\end{align}\]</span>
+\end{align*} \]</span></p>
 <h4 id="proof-of-dynamic-programming-decomposition">Proof of dynamic programming decomposition</h4>
 <p>The proof of the dynamic program now follows from backward induction.</p>
-<p>For <span class="math inline">\(t=T\)</span>, we have <span class="math display">\[ V_T(x) = c_T(x) = x^\TRANS Q_T x \]</span> which forms the basis of induction. Assume that (<a href="#eq:Vt">1</a>) holds for <span class="math inline">\(t+1\)</span> and consider the value function at time <span class="math inline">\(t\)</span>. <span class="math display">\[\begin{align}
+<p>For <span class="math inline">\(t=T\)</span>, we have <span class="math display">\[ V_T(x) = c_T(x) = x^\TRANS Q_T x \]</span> which forms the basis of induction. Assume that \eqref{eq:Vt} holds for <span class="math inline">\(t+1\)</span> and consider the value function at time <span class="math inline">\(t\)</span>. <span class="math display">\[\begin{align*}
   V_{t}(x) &amp;= \min_{u \in \reals^m} \Big\{
   x^\TRANS Q_t x + u^\TRANS R_t u + V_{t+1}(Ax + Bu) \Big\} \\
   &amp;\stackrel{(a)}= \min_{u \in \reals^m} \Big\{
@@ -115,23 +120,23 @@
   + x^\TRANS L_t x \Big\}
   \\
   &amp;\stackrel{(c)}=x^\TRANS (Q_t + L_t) x
-\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the induction hypothesis, <span class="math inline">\((b)\)</span> follows from completion of squares lemma with <span class="math inline">\(H_t\)</span> and <span class="math inline">\(L_t\)</span> defined similar to the lemma, and <span class="math inline">\((c)\)</span> follows from minimizing over <span class="math inline">\(u\)</span>, where the minima is achieved by choosing <span class="math inline">\(u = -H_t x\)</span>. This proves the induction step.</p>
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the induction hypothesis, <span class="math inline">\((b)\)</span> follows from completion of squares lemma with <span class="math inline">\(H_t\)</span> and <span class="math inline">\(L_t\)</span> defined similar to the lemma, and <span class="math inline">\((c)\)</span> follows from minimizing over <span class="math inline">\(u\)</span>, where the minima is achieved by choosing <span class="math inline">\(u = -H_t x\)</span>. This proves the induction step.</p>
 <h2 id="LQT">Linear quadratic tracking</h2>
 <p>Now consider the (simplified form of) LQR tracking problem where we want to ensure that the state signal <span class="math inline">\(\{x_t\}_{t \ge 1}\)</span> is close to a reference trajectory <span class="math inline">\(\{x^\circ_t\}_{t \ge 1}\)</span>. The per step cost function is <span class="math display">\[ c_t(x_t, u_t) = (x_t - x^\circ_t)^\TRANS Q_t (x_t - x^\circ_t) +
 u_t^\TRANS R_t u_t\]</span> and the terminal cost is <span class="math display">\[ c_T(x_T) = (x_T - x^\circ_T)^\TRANS Q_T (x_T - x^\circ_T).\]</span></p>
 <div class="highlight">
 <dl>
 <dt><span id="thm:lqt" class="pandoc-numbering-text thm"><strong>Theorem 2</strong></span></dt>
-<dd><p>The value function at time <span class="math inline">\(t\)</span> is <span class="math display">\[ V_t(x) = x^\TRANS S_t x - 2 x^\TRANS r_t + ρ_t \]</span> and the optimal control action is <span class="math display">\[ u_t = - H_t x_t + H^\circ_t r_{t+1}\]</span> where <span class="math inline">\(\{S_t\}_{t=1}^T\)</span> and <span class="math inline">\(\{H_t\}_{t=1}^T\)</span> follow the same recursions as before. The gain matrices <span class="math inline">\(\{H^\circ_t\}\)</span> are given by <span class="math display">\[ H^\circ_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS \]</span> and the correction terms <span class="math inline">\(\{r_t\}\)</span> are given by <span class="math display">\[ \begin{align}
+<dd><p>The value function at time <span class="math inline">\(t\)</span> is <span class="math display">\[ V_t(x) = x^\TRANS S_t x - 2 x^\TRANS r_t + ρ_t \]</span> and the optimal control action is <span class="math display">\[ u_t = - H_t x_t + H^\circ_t r_{t+1}\]</span> where <span class="math inline">\(\{S_t\}_{t=1}^T\)</span> and <span class="math inline">\(\{H_t\}_{t=1}^T\)</span> follow the same recursions as before. The gain matrices <span class="math inline">\(\{H^\circ_t\}\)</span> are given by <span class="math display">\[ H^\circ_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS \]</span> and the correction terms <span class="math inline">\(\{r_t\}\)</span> are given by <span class="math display">\[ \begin{align*}
   r_T &amp;= Q_T x^\circ_T \\
   r_t &amp;= [A_t - B_t H_t]^\TRANS r_{t+1} + Q_t x^\circ_t
-\end{align} \]</span> and the tracking error <span class="math inline">\(\{ρ_t\}_{t=1}^T\)</span> is given by <span class="math display">\[ \begin{align}
+\end{align*} \]</span> and the tracking error <span class="math inline">\(\{ρ_t\}_{t=1}^T\)</span> is given by <span class="math display">\[ \begin{align*}
   ρ_T &amp;= (x^\circ_T)^\TRANS Q_T x^\circ_T, \\
   ρ_t &amp;= (x^\circ_t)^\TRANS Q_t x^\circ_t  
   - 2 r^\TRANS_{t+1} B_t [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS
     r_{t+1}
   + ρ_{t+1}.
-\end{align} \]</span></p>
+\end{align*} \]</span></p>
 </dd>
 </dl>
 </div>
@@ -141,7 +146,11 @@ u_t^\TRANS R_t u_t\]</span> and the terminal cost is <span class="math display">
 <div class="highlight">
 <dl>
 <dt><span id="thm:stochastic-lqr" class="pandoc-numbering-text thm"><strong>Theorem 3</strong></span></dt>
-<dd><p>The value function at time <span class="math inline">\(t\)</span> is <span id="eq:Vt-s" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V_t(x_t) = x_t^\TRANS S_t x_t + α_t\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(4)</span></span>  and the optimal control action is <span id="eq:gt-s" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ u_t = - H_t x_t\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(5)</span></span>  where the matrices <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> follow <em>the same recursion</em> as before and the sequence <span class="math inline">\(\{α_t\}_{t=1}^T\)</span> is computed in a backward manner as follows: <span class="math inline">\(α_T = 0\)</span> and <span class="math display">\[α_t = α_{t+1} + \TR(Σ^w_t S_{t+1}) = \sum_{τ=t+1}^{T-1} \TR(Σ^w_t S_{t+1}).\]</span></p>
+<dd><p>The value function at time <span class="math inline">\(t\)</span> is <span class="math display">\[\begin{equation}\label{eq:Vt-s}
+  V_t(x_t) = x_t^\TRANS S_t x_t + α_t
+\end{equation}\]</span> and the optimal control action is <span class="math display">\[\begin{equation}\label{eq:gt-s}
+  u_t = - H_t x_t
+\end{equation}\]</span> where the matrices <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> follow <em>the same recursion</em> as before and the sequence <span class="math inline">\(\{α_t\}_{t=1}^T\)</span> is computed in a backward manner as follows: <span class="math inline">\(α_T = 0\)</span> and <span class="math display">\[α_t = α_{t+1} + \TR(Σ^w_t S_{t+1}) = \sum_{τ=t+1}^{T-1} \TR(Σ^w_t S_{t+1}).\]</span></p>
 </dd>
 </dl>
 </div>
@@ -153,17 +162,17 @@ u_t^\TRANS R_t u_t\]</span> and the terminal cost is <span class="math display">
 </dl>
 <h4 id="proof-1">Proof</h4>
 <p>Note that</p>
-<p><span class="math display">\[\begin{align}
+<p><span class="math display">\[\begin{align*}
   \EXP[ (x+w)^\TRANS Q (x+w) ] &amp;= 
   \EXP[ x^\TRANS Q x + 2 x^\TRANS Q w + w^\TRANS Q w ] \\
   &amp;= x^\TRANS Q x + \TR(Σ^w Q).
-\end{align}\]</span> where the second term is zero because <span class="math inline">\(w\)</span> is a zero mean random variable. For the third term, we are using <span class="math display">\[ \begin{align}
+\end{align*}\]</span> where the second term is zero because <span class="math inline">\(w\)</span> is a zero mean random variable. For the third term, we are using <span class="math display">\[ \begin{align*}
   \EXP[ w^\TRANS Q w]  &amp;= 
   \EXP\bigg[ \sum_{i=1}^n \sum_{j=1}^n w_i Q_{ij} w_j \bigg]  \\
   &amp;= \sum_{i=1}^n \sum_{j=1}^n \EXP[w_i w_j] Q_{ij} \\
   &amp;= \sum_{i=1}^n \sum_{j=1}^n Σ^w_{ij} Q_{ij} \\
   &amp;= \TR(Σ^w Q)
-\end{align} \]</span></p>
+\end{align*} \]</span></p>
 <h4 id="proof-of-stochastic-lqr">Proof of stochastic LQR</h4>
 <p>Using the above lemma, we can prove the result for stochastic LQR using backward induction. The details are left as an exercise.</p>
 <hr />
@@ -173,35 +182,39 @@ u_t^\TRANS R_t u_t\]</span> and the terminal cost is <span class="math display">
 <dl>
 <dt><span id="prop:astrom" class="pandoc-numbering-text prop"><strong>Proposition 1</strong></span></dt>
 <dd><p>For any control strategy, the total cost <span class="math display">\[ \EXP\bigg[\sum_{t=1}^{T-1} \big[ x_t^\TRANS Q_t x_t + u_t^\TRANS R_t
-u_t \big] + x_T^\TRANS Q_T x_T \bigg]\]</span> may be written as <span id="eq:astrom" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \begin{align}
+u_t \big] + x_T^\TRANS Q_T x_T \bigg]\]</span> may be written as <span class="math display">\[ \begin{align}
     &amp; \EXP\bigg[ \sum_{t=1}^{T-1} (u_t + H_t x_t)^\TRANS [R_t + B_t^\TRANS
-    S_{t+1}B_t] (u_t + H_t x_t) \bigg] \\
+    S_{t+1}B_t] (u_t + H_t x_t) \bigg] \nonumber \\
     &amp; \quad + 
-    \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg],
-\end{align}\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(6)</span></span>  where the matrices <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> follow are given as in <a href="#thm:lqr" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a>.</p>
+    \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg], \label{eq:astrom}
+\end{align}\]</span> where the matrices <span class="math inline">\(\{H_t\}_{t\ge 1}\)</span> and <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> follow are given as in <a href="#thm:lqr" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a>.</p>
 </dd>
 </dl>
 </div>
 <h3 id="proof-2">Proof</h3>
-<p>This result can be obtained by repeatedly applying the completion of squares lemma. In particular, note that <span class="math inline">\(S_T = Q_T\)</span> and using the telescopic sum, we can write <span id="eq:astrom-1" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[x_T^\TRANS Q_T x_T = x_1^\TRANS S_1 x_1 + \sum_{t=1}^{T-1} 
-  \big[ x_{t+1}^\TRANS S_{t+1} x_{t+1} - x_t^\TRANS S_t x_t \big].\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(7)</span></span> </p>
-<p>Furthermore, since <span class="math inline">\(w_t\)</span> is independet of <span class="math inline">\(x_t\)</span>, we have <span id="eq:astrom-2" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \begin{align}
+<p>This result can be obtained by repeatedly applying the completion of squares lemma. In particular, note that <span class="math inline">\(S_T = Q_T\)</span> and using the telescopic sum, we can write <span class="math display">\[\begin{equation}\label{eq:astrom-1}
+  x_T^\TRANS Q_T x_T = x_1^\TRANS S_1 x_1 + 
+  \sum_{t=1}^{T-1} \big[ x_{t+1}^\TRANS S_{t+1} x_{t+1} - x_t^\TRANS S_t x_t \big].
+\end{equation}\]</span></p>
+<p>Furthermore, since <span class="math inline">\(w_t\)</span> is independet of <span class="math inline">\(x_t\)</span>, we have <span class="math display">\[ \begin{align}
   \EXP[ x_{t+1}^\TRANS S_{t+1} x_{t+1}] &amp;= 
-   \EXP[ (A_t x_t + B_t u_t + w_t)^\TRANS S_{t+1} (A_t x_t + B_t u_t + w_t) \\
+   \EXP[ (A_t x_t + B_t u_t + w_t)^\TRANS S_{t+1} (A_t x_t + B_t u_t + w_t) 
+   \nonumber \\
    &amp;= \EXP[ (A_t x_t + B_t u_t)^\TRANS S_{t+1} (A_t x_t + B_t u_t) ]
-     + \EXP[ w_t^\TRANS S_{t+1} w_t ].
-   \end{align}\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(8)</span></span> </p>
-<p>Using (<a href="#eq:astrom-1">7</a>) and (<a href="#eq:astrom-2">8</a>), we get that the total cost can be written as <span id="eq:astrom-3" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \begin{align} 
+     + \EXP[ w_t^\TRANS S_{t+1} w_t ]. \label{eq:astrom-2}
+   \end{align}\]</span></p>
+<p>Using \eqref{eq:astrom-1} and \eqref{eq:astrom-2}, we get that the total cost can be written as <span class="math display">\[ \begin{align} 
       &amp; \EXP\bigg[ \sum_{t=1}^{T-1} \overbrace{\big[
         x_t^\TRANS Q_t x_t + u_t^\TRANS R_t u_t + x_{t+1}^\TRANS S_{t+1}
         x_{t+1} - x_t^\TRANS S_t x_t \big]}^{\text{Term 1}}
-      \\
+      \nonumber \\
       &amp; \quad + 
       \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg].
-\end{align} \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(9)</span></span> </p>
-<p>Now, from the completion of squares lemma, we get that “Term 1” is equal to <span class="math display">\[ (u_t + H_t x_t)^\TRANS [R_t + B_t^\TRANS S_{t+1} B_t] (u_t + H_t x_t).\]</span> Substituting this back in (<a href="#eq:astrom-3">9</a>), we get (<a href="#eq:astrom">6</a>).  <span class="math inline">\(\Box\)</span></p>
+      \label{eq:astrom-3}
+\end{align} \]</span></p>
+<p>Now, from the completion of squares lemma, we get that “Term 1” is equal to <span class="math display">\[ (u_t + H_t x_t)^\TRANS [R_t + B_t^\TRANS S_{t+1} B_t] (u_t + H_t x_t).\]</span> Substituting this back in \eqref{eq:astrom-3}, we get \eqref{eq:astrom}.  <span class="math inline">\(\Box\)</span></p>
 <hr />
-<p>Now we can prove <a href="#thm:stochastic-lqr" title="Theorem 3"><span class="pandoc-numbering-link thm">Theorem 3</span></a> using <a href="#prop:astrom" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>. Note that the second term in (<a href="#eq:astrom">6</a>) does not depend on choice of control actions <span class="math inline">\(u_t\)</span>. Thus, in order to minimimze the total expected cost, it suffices to minimize the first term of (<a href="#eq:astrom">6</a>). Since <span class="math inline">\(R_t\)</span> is positive definite and <span class="math inline">\(S_{t+1}\)</span> is positive semi-definite, <span class="math inline">\(R_t + B_t^\TRANS S_{t+1} B_t\)</span> is positive definite. Thus, the first term of (<a href="#eq:astrom">6</a>) is sum of squares. Choosing $ u_t = -H_t x_t$ sets this term to its minimum value of <span class="math inline">\(0\)</span>. Hence, <span class="math inline">\(u_t = -H_t x_t\)</span> is the optimal control strategy.</p>
+<p>Now we can prove <a href="#thm:stochastic-lqr" title="Theorem 3"><span class="pandoc-numbering-link thm">Theorem 3</span></a> using <a href="#prop:astrom" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>. Note that the second term in \eqref{eq:astrom} does not depend on choice of control actions <span class="math inline">\(u_t\)</span>. Thus, in order to minimimze the total expected cost, it suffices to minimize the first term of \eqref{eq:astrom}. Since <span class="math inline">\(R_t\)</span> is positive definite and <span class="math inline">\(S_{t+1}\)</span> is positive semi-definite, <span class="math inline">\(R_t + B_t^\TRANS S_{t+1} B_t\)</span> is positive definite. Thus, the first term of \eqref{eq:astrom} is sum of squares. Choosing $ u_t = -H_t x_t$ sets this term to its minimum value of <span class="math inline">\(0\)</span>. Hence, <span class="math inline">\(u_t = -H_t x_t\)</span> is the optimal control strategy.</p>
 <h2 id="references">References</h2>
 <p>The term <em>certainty equivalence</em> is due <span class="citation" data-cites="Simon1956">Simon (<a href="#ref-Simon1956">1956</a>)</span>, who was looking at a static problem; a similar result had earlier been shown by <span class="citation" data-cites="Theil1954">Theil (<a href="#ref-Theil1954">1954</a>)</span>. A result which is essentially equivalent to the stochastic LQR problem is proved by <span class="citation" data-cites="Theil1957">Theil (<a href="#ref-Theil1957">1957</a>)</span>. The model for deterministic LQR is due to <span class="citation" data-cites="Kalman1960b">Kalman (<a href="#ref-Kalman1960b">1960</a>)</span>, who proved the result for continuous time systems.</p>
 <p>The alternative proof that does not use dynamic programming is due to <span class="citation" data-cites="Astrom1970">Aström (<a href="#ref-Astrom1970">1970</a>)</span>.</p>
@@ -216,11 +229,15 @@ Lemma
 
     Assume it is symmetric and $Q_{uu}$ is [positive definite]. Then the
     minimum with respect to $u$ is achieved at 
-    $$ u = - Q_{uu}^{-1} Q_{ux} x,$$ {#eq:opt-schur}
+    $$\begin{equation}\label{eq:opt-schur}
+      u = - Q_{uu}^{-1} Q_{ux} x,
+    \end{equation}$$
     and is equal to
-    $$ x^\TRANS [ Q_{xx} - Q_{xu} Q_{uu}^{-1} Q_{ux} ] x. $$ {#eq:schur}
+    $$\begin{equation}\label{eq:schur}
+      x^\TRANS [ Q_{xx} - Q_{xu} Q_{uu}^{-1} Q_{ux} ] x. 
+    \end{equation}$$
 
-The term in the square brackets in ({@eq:schur}) is the [Schur complement] of 
+The term in the square brackets in \\eqref{eq:schur} is the [Schur complement] of 
 $\MATRIX{ Q_{xx} & Q_{xu} \\ Q_{ux} & Q_{uu} }$
 
 [positive definite]: ../../appendix/positive-definite-matrix
@@ -238,8 +255,8 @@ Q_{uu}
 \frac{\partial^2 Q(x,u)}{\partial u^2} = Q_{uu} > 0.
 $$
 
-Thus, the optimal $u$ is given by ({@eq:opt-schur}) and the minimum value is
-({@eq:schur}). 
+Thus, the optimal $u$ is given by \\eqref{eq:opt-schur} and the minimum value is
+\\eqref{eq:schur}. 
 
 ## Astrom's Proof
 

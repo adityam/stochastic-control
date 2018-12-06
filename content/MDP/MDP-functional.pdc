@@ -103,22 +103,22 @@ The choice of $g_2$ does not affect the first term. So, for a fixed $g_1$ and
 $g_3$, minimizing the total cost is the same as minimizing the last two terms. Let us look at the last term carefully. Bu the law of iterated expectations, we have
 $$ \EXP[ c_3(X_3, g_3(X_3) ] = \EXP[ \EXP[ c_3(X_3, g_3(X_3)) | X_2, U_2 ] ]. $$
 Now,
-\begin{align}
+\begin{align*}
   \EXP[ c_3(X_3, g_3(X_3)) | X_2 = x_2, U_2 = u_2 ] &= 
   \sum_{x_3 \in \ALPHABET X} c_3(x_3, g_3(x_3)) \\
   &= \PR( w_2 \in \ALPHABET W : f_2(x_2, u_2, w_2) = x_3 )
   \\
   &=: h_2(x_2, u_2).
-\end{align}
+\end{align*}
 The key point is that $h_2(x_2, u_2)$ does not depend on $g_1$ or $g_2$. 
 
 Thus, the total expected cost affected by the choice of $g_2$ can be written
 as 
-\begin{align}
+\begin{align*}
   \EXP[ c_2(X_2, U_2) + c_3(X_3, U_3) ] &= \EXP[ c_2(X_2, U_2) + h_2(X_2, U_2)
   ] \\
   &=: \EXP[ \tilde c_2(X_2, U_2) ].
-\end{align}
+\end{align*}
 Now, by Blackwell's principle of irrelevant information, there exists a
 $g_2^* : X_2 \mapsto U_2$ such that for any $g_2$, we have
 $$ \EXP[ \tilde c_2(X_2, g_2^*(X_2))] \le  \EXP[ \tilde c_2(X_2, g_2(X_{1:2},
@@ -180,14 +180,14 @@ follows:
 $$J_t(x; g) = \EXP^g \bigg[ \sum_{s = t}^{T} c_s(X_s, g_s(X_s)) \biggm| X_t =
 x\bigg]. $$
 Note that $J_t(x; g)$ only depends on the future strategy $(g_t, \dots, g_T)$. These functions can be computed recursively as follows:
-\begin{align}
+\begin{align*}
   J_t(x; g) &= \EXP^g \bigg[ \sum_{s = t}^{T} c_s(X_s, g_s(X_s)) \biggm| X_t =
   x \bigg] \\
   &= \EXP^g \bigg[ c_t(x, g_t(x)) + \EXP^g \bigg[ \sum_{s = t+1}^T
     c_s(X_s, g_s(X_s)) \biggm| X_{t+1} \bigg] \biggm| X_t = x \bigg]
   \\
   &= \EXP^g\big[ c_t(x, g_t(x)) + J_{t+1}(X_{t+1}; g) \big| X_t = x \big].
-\end{align}
+\end{align*}
 
 ## Dynamic Programming Decomposition {#DP}
 
@@ -196,19 +196,27 @@ Now we are ready to state the main result of MDPs
 ::: proclaim :::
 **Theorem (Dynamic program)**
 Recursive define _value functions_ $\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET X
-\to \reals$ as follows: $$ V_{T+1}(x) = 0 $$ {#eq:DP-1} and for $t \in \{T,
-\dots, 1\}$:
+\to \reals$ as follows: 
+$$ \begin{equation} \label{eq:DP-1}
+  V_{T+1}(x) = 0 
+\end{equation} $$ 
+and for $t \in \{T, \dots, 1\}$:
 $$\begin{align}
-   Q_t(x,u) &= c(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] \\
-   &= c(x,u) + \EXP[ V_{t+1}(f_t(x,u,W_t)) ],
-\end{align}$$ {#eq:DP-2}
+   Q_t(x,u) &= c(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
+   \nonumber \\
+   &= c(x,u) + \EXP[ V_{t+1}(f_t(x,u,W_t)) ], \label{eq:DP-2}
+\end{align}$$ {
 and define
-$$V_t(x) = \min_{u \in \ALPHABET U} Q_t(x,u), $$ {#eq:DP-3}
+$$ \begin{equation} \label{eq:DP-3}
+  V_t(x) = \min_{u \in \ALPHABET U} Q_t(x,u),
+\end{equation} $$
 and
-$$ g_t^*(x) = \arg \min_{u \in \ALPHABET U} Q_t(x,u).$$ {#eq:verification}
+$$ \begin{equation} \label{eq:verification} 
+  g_t^*(x) = \arg \min_{u \in \ALPHABET U} Q_t(x,u).
+\end{equation} $$
 
 Then, a Markov policy is optimal if and only if it satisfies
-({@eq:verification}).
+\\eqref{eq:verification}.
 :::
 
 Instead of proving the above result, we prove a related result
@@ -217,7 +225,7 @@ Instead of proving the above result, we prove a related result
 **Theorem (The comparison principle)** For any Markov strategy $g$
 $$ J_t(x; g) \ge V_t(x) $$
 with equality at $t$ if and only if the _future strategy_ $g_{t:T}$
-satisfies the verification step ({@eq:verification}). 
+satisfies the verification step \\eqref{eq:verification}. 
 ::: 
 
 Note that the comparison principle immediately implies that the strategy
@@ -240,18 +248,18 @@ policy with regard to the state resulting from the first decision.
 
 The proof proceeds by backward induction. Consider any Markov strategy $g =
 (g_1, \dots, g_T)$. For $t = T$, 
-\begin{align}
+$$ \begin{align*}
   V_T(x) &= \min_{u \in \ALPHABET U} Q_T(x,u) \\
   &\stackrel{(a)}= \min_{u \in \ALPHABET U} c_T(x,u) \\
   &\stackrel{(b)}\le c_T(x, g_T(x)) \\
   &\stackrel{(c)}= J_T(x; g),
-\end{align}
+\end{align*} $$
 where $(a)$ follows from the definition of $Q_T$, $(b)$ follows from the
 definition of minimization, and $(c)$ follows from the definition of $J_T$. 
 Equality holds in $(b)$ iff the policy $g_T$ is optimal. This result forms the basis of induction.
 
 Now assume that the statement of the theorem is true for $t+1$. Then, for $t$
-\begin{align}
+$$ \begin{align*}
   V_t(x) &= \min_{u \in \ALPHABET U} Q_t(x,u) \\
   &\stackrel{(a)}= \min_{u \in \ALPHABET U} \Big\{
   c_t(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
@@ -264,11 +272,11 @@ Now assume that the statement of the theorem is true for $t+1$. Then, for $t$
   c_t(x,g_t(x)) + \EXP[ J_{t+1}(X_{t+1}; g) | X_t = x, U_t = g_t(x)] 
   \Big\} \\
   &\stackrel{(d)}= J_t(x; g),
-\end{align}
+\end{align*} $$
 where $(a)$ follows from the definition of $Q_t$, $(b)$ follows from the
 definition of minimization, $(c)$ follows from the induction hypothesis, and
 $(d)$ follows from the definition of $J_t$. We have equality in step $(b)$ iff
-$g_t$ satisfies the verification step ({@eq:verification}) and have equality
+$g_t$ satisfies the verification step \\eqref{eq:verification} and have equality
 in step $(c)$ iff $g_{t+1:T}$ is optimal (this is part of the induction
 hypothesis). Thus, the result is true for time $t$ and, by the principle of
 induction, is true for all time. 
@@ -306,10 +314,10 @@ recursion:
 
 ::: highlight :::
 **Dynamic Program for optimal stopping**
-$$ \begin{align}
+$$ \begin{align*}
 V_T(x) &= s_T(x) \\
 V_t(x) &= \min\{ s_t(x), c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x].
-\end{align}$$
+\end{align*}$$
 :::
 
 For more details on the optimal stopping problems, see @Ferguson:book.

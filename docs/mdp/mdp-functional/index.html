@@ -64,18 +64,18 @@
 </div>
 <h4 id="proof-1">Proof</h4>
 <p>Fix <span class="math inline">\(g_1\)</span> and <span class="math inline">\(g_3\)</span> and look at optimizing <span class="math inline">\(g_2\)</span>. The total cost is <span class="math display">\[ \EXP[ c_1(X_1, g_1(X_1)) + c_2(X_2, g_2(X_{1:2}, U_1)) + c_3(X_3, g_3(X_3)].\]</span></p>
-<p>The choice of <span class="math inline">\(g_2\)</span> does not affect the first term. So, for a fixed <span class="math inline">\(g_1\)</span> and <span class="math inline">\(g_3\)</span>, minimizing the total cost is the same as minimizing the last two terms. Let us look at the last term carefully. Bu the law of iterated expectations, we have <span class="math display">\[ \EXP[ c_3(X_3, g_3(X_3) ] = \EXP[ \EXP[ c_3(X_3, g_3(X_3)) | X_2, U_2 ] ]. \]</span> Now, <span class="math display">\[\begin{align}
+<p>The choice of <span class="math inline">\(g_2\)</span> does not affect the first term. So, for a fixed <span class="math inline">\(g_1\)</span> and <span class="math inline">\(g_3\)</span>, minimizing the total cost is the same as minimizing the last two terms. Let us look at the last term carefully. Bu the law of iterated expectations, we have <span class="math display">\[ \EXP[ c_3(X_3, g_3(X_3) ] = \EXP[ \EXP[ c_3(X_3, g_3(X_3)) | X_2, U_2 ] ]. \]</span> Now, <span class="math display">\[\begin{align*}
   \EXP[ c_3(X_3, g_3(X_3)) | X_2 = x_2, U_2 = u_2 ] &amp;= 
   \sum_{x_3 \in \ALPHABET X} c_3(x_3, g_3(x_3)) \\
   &amp;= \PR( w_2 \in \ALPHABET W : f_2(x_2, u_2, w_2) = x_3 )
   \\
   &amp;=: h_2(x_2, u_2).
-\end{align}\]</span> The key point is that <span class="math inline">\(h_2(x_2, u_2)\)</span> does not depend on <span class="math inline">\(g_1\)</span> or <span class="math inline">\(g_2\)</span>.</p>
-<p>Thus, the total expected cost affected by the choice of <span class="math inline">\(g_2\)</span> can be written as <span class="math display">\[\begin{align}
+\end{align*}\]</span> The key point is that <span class="math inline">\(h_2(x_2, u_2)\)</span> does not depend on <span class="math inline">\(g_1\)</span> or <span class="math inline">\(g_2\)</span>.</p>
+<p>Thus, the total expected cost affected by the choice of <span class="math inline">\(g_2\)</span> can be written as <span class="math display">\[\begin{align*}
   \EXP[ c_2(X_2, U_2) + c_3(X_3, U_3) ] &amp;= \EXP[ c_2(X_2, U_2) + h_2(X_2, U_2)
   ] \\
   &amp;=: \EXP[ \tilde c_2(X_2, U_2) ].
-\end{align}\]</span> Now, by Blackwell’s principle of irrelevant information, there exists a <span class="math inline">\(g_2^* : X_2 \mapsto U_2\)</span> such that for any <span class="math inline">\(g_2\)</span>, we have <span class="math display">\[ \EXP[ \tilde c_2(X_2, g_2^*(X_2))] \le  \EXP[ \tilde c_2(X_2, g_2(X_{1:2},
+\end{align*}\]</span> Now, by Blackwell’s principle of irrelevant information, there exists a <span class="math inline">\(g_2^* : X_2 \mapsto U_2\)</span> such that for any <span class="math inline">\(g_2\)</span>, we have <span class="math display">\[ \EXP[ \tilde c_2(X_2, g_2^*(X_2))] \le  \EXP[ \tilde c_2(X_2, g_2(X_{1:2},
 U_1) ].\]</span></p>
 <hr />
 <p>Now we have enough background to present the proof of optimality of Markov strategies.</p>
@@ -87,26 +87,33 @@ U_1) ].\]</span></p>
 <p>Proceeding until <span class="math inline">\(s=2\)</span>, completes the proof.</p>
 <h2 id="performance">Performance of Markov strategies</h2>
 <p>We have shown that there is no loss of optimality to restrict attention to Markov strategies. One of the advantages of Markov strategies is that it is easy to recursively compute their performance. In particular, given any Markov strategy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span>, define <em>the cost-to-go functions</em> as follows: <span class="math display">\[J_t(x; g) = \EXP^g \bigg[ \sum_{s = t}^{T} c_s(X_s, g_s(X_s)) \biggm| X_t =
-x\bigg]. \]</span> Note that <span class="math inline">\(J_t(x; g)\)</span> only depends on the future strategy <span class="math inline">\((g_t, \dots, g_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align}
+x\bigg]. \]</span> Note that <span class="math inline">\(J_t(x; g)\)</span> only depends on the future strategy <span class="math inline">\((g_t, \dots, g_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align*}
   J_t(x; g) &amp;= \EXP^g \bigg[ \sum_{s = t}^{T} c_s(X_s, g_s(X_s)) \biggm| X_t =
   x \bigg] \\
   &amp;= \EXP^g \bigg[ c_t(x, g_t(x)) + \EXP^g \bigg[ \sum_{s = t+1}^T
     c_s(X_s, g_s(X_s)) \biggm| X_{t+1} \bigg] \biggm| X_t = x \bigg]
   \\
   &amp;= \EXP^g\big[ c_t(x, g_t(x)) + J_{t+1}(X_{t+1}; g) \big| X_t = x \big].
-\end{align}\]</span></p>
+\end{align*}\]</span></p>
 <h2 id="DP">Dynamic Programming Decomposition</h2>
 <p>Now we are ready to state the main result of MDPs</p>
 <div class="proclaim">
-<p><strong>Theorem (Dynamic program)</strong> Recursive define <em>value functions</em> <span class="math inline">\(\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET X \to \reals\)</span> as follows: <span id="eq:DP-1" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V_{T+1}(x) = 0 \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>: <span id="eq:DP-2" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[\begin{align}
-   Q_t(x,u) &amp;= c(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] \\
-   &amp;= c(x,u) + \EXP[ V_{t+1}(f_t(x,u,W_t)) ],
-\end{align}\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(2)</span></span>  and define <span id="eq:DP-3" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[V_t(x) = \min_{u \in \ALPHABET U} Q_t(x,u), \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(3)</span></span>  and <span id="eq:verification" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ g_t^*(x) = \arg \min_{u \in \ALPHABET U} Q_t(x,u).\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(4)</span></span> </p>
-<p>Then, a Markov policy is optimal if and only if it satisfies (<a href="#eq:verification">4</a>).</p>
+<p><strong>Theorem (Dynamic program)</strong> Recursive define <em>value functions</em> <span class="math inline">\(\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET X \to \reals\)</span> as follows: <span class="math display">\[ \begin{equation} \label{eq:DP-1}
+  V_{T+1}(x) = 0 
+\end{equation} \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>: <span class="math display">\[\begin{align}
+   Q_t(x,u) &amp;= c(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
+   \nonumber \\
+   &amp;= c(x,u) + \EXP[ V_{t+1}(f_t(x,u,W_t)) ], \label{eq:DP-2}
+\end{align}\]</span> { and define <span class="math display">\[ \begin{equation} \label{eq:DP-3}
+  V_t(x) = \min_{u \in \ALPHABET U} Q_t(x,u),
+\end{equation} \]</span> and <span class="math display">\[ \begin{equation} \label{eq:verification} 
+  g_t^*(x) = \arg \min_{u \in \ALPHABET U} Q_t(x,u).
+\end{equation} \]</span></p>
+<p>Then, a Markov policy is optimal if and only if it satisfies \eqref{eq:verification}.</p>
 </div>
 <p>Instead of proving the above result, we prove a related result</p>
 <div class="proclaim">
-<p><strong>Theorem (The comparison principle)</strong> For any Markov strategy <span class="math inline">\(g\)</span> <span class="math display">\[ J_t(x; g) \ge V_t(x) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future strategy</em> <span class="math inline">\(g_{t:T}\)</span> satisfies the verification step (<a href="#eq:verification">4</a>).</p>
+<p><strong>Theorem (The comparison principle)</strong> For any Markov strategy <span class="math inline">\(g\)</span> <span class="math display">\[ J_t(x; g) \ge V_t(x) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future strategy</em> <span class="math inline">\(g_{t:T}\)</span> satisfies the verification step \eqref{eq:verification}.</p>
 </div>
 <p>Note that the comparison principle immediately implies that the strategy obtained using dynamic programming is optimal.</p>
 <p>The comparison principle also allows us to interpret the value functions. The value function at time <span class="math inline">\(t\)</span> is the minimum of all the cost-to-go functions over all future strategies. The comparison principle also allows us to interpret the optimal policy (the interpretation is due to Bellman and is colloquially called Bellman’s principle of optimality).</p>
@@ -114,13 +121,13 @@ x\bigg]. \]</span> Note that <span class="math inline">\(J_t(x; g)\)</span> only
 <p><strong>Bellman’s principle of optimality.</strong> An optimal policy has the property that whatever the initial state and the initial decisions are, the remaining decisions must constitute an optimal policy with regard to the state resulting from the first decision.</p>
 </div>
 <h4 id="proof-of-the-comparison-principle">Proof of the comparison principle</h4>
-<p>The proof proceeds by backward induction. Consider any Markov strategy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span>. For <span class="math inline">\(t = T\)</span>, <span class="math display">\[\begin{align}
+<p>The proof proceeds by backward induction. Consider any Markov strategy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span>. For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ \begin{align*}
   V_T(x) &amp;= \min_{u \in \ALPHABET U} Q_T(x,u) \\
   &amp;\stackrel{(a)}= \min_{u \in \ALPHABET U} c_T(x,u) \\
   &amp;\stackrel{(b)}\le c_T(x, g_T(x)) \\
   &amp;\stackrel{(c)}= J_T(x; g),
-\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the definition of <span class="math inline">\(Q_T\)</span>, <span class="math inline">\((b)\)</span> follows from the definition of minimization, and <span class="math inline">\((c)\)</span> follows from the definition of <span class="math inline">\(J_T\)</span>. Equality holds in <span class="math inline">\((b)\)</span> iff the policy <span class="math inline">\(g_T\)</span> is optimal. This result forms the basis of induction.</p>
-<p>Now assume that the statement of the theorem is true for <span class="math inline">\(t+1\)</span>. Then, for <span class="math inline">\(t\)</span> <span class="math display">\[\begin{align}
+\end{align*} \]</span> where <span class="math inline">\((a)\)</span> follows from the definition of <span class="math inline">\(Q_T\)</span>, <span class="math inline">\((b)\)</span> follows from the definition of minimization, and <span class="math inline">\((c)\)</span> follows from the definition of <span class="math inline">\(J_T\)</span>. Equality holds in <span class="math inline">\((b)\)</span> iff the policy <span class="math inline">\(g_T\)</span> is optimal. This result forms the basis of induction.</p>
+<p>Now assume that the statement of the theorem is true for <span class="math inline">\(t+1\)</span>. Then, for <span class="math inline">\(t\)</span> <span class="math display">\[ \begin{align*}
   V_t(x) &amp;= \min_{u \in \ALPHABET U} Q_t(x,u) \\
   &amp;\stackrel{(a)}= \min_{u \in \ALPHABET U} \Big\{
   c_t(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
@@ -133,7 +140,7 @@ x\bigg]. \]</span> Note that <span class="math inline">\(J_t(x; g)\)</span> only
   c_t(x,g_t(x)) + \EXP[ J_{t+1}(X_{t+1}; g) | X_t = x, U_t = g_t(x)] 
   \Big\} \\
   &amp;\stackrel{(d)}= J_t(x; g),
-\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the definition of <span class="math inline">\(Q_t\)</span>, <span class="math inline">\((b)\)</span> follows from the definition of minimization, <span class="math inline">\((c)\)</span> follows from the induction hypothesis, and <span class="math inline">\((d)\)</span> follows from the definition of <span class="math inline">\(J_t\)</span>. We have equality in step <span class="math inline">\((b)\)</span> iff <span class="math inline">\(g_t\)</span> satisfies the verification step (<a href="#eq:verification">4</a>) and have equality in step <span class="math inline">\((c)\)</span> iff <span class="math inline">\(g_{t+1:T}\)</span> is optimal (this is part of the induction hypothesis). Thus, the result is true for time <span class="math inline">\(t\)</span> and, by the principle of induction, is true for all time.</p>
+\end{align*} \]</span> where <span class="math inline">\((a)\)</span> follows from the definition of <span class="math inline">\(Q_t\)</span>, <span class="math inline">\((b)\)</span> follows from the definition of minimization, <span class="math inline">\((c)\)</span> follows from the induction hypothesis, and <span class="math inline">\((d)\)</span> follows from the definition of <span class="math inline">\(J_t\)</span>. We have equality in step <span class="math inline">\((b)\)</span> iff <span class="math inline">\(g_t\)</span> satisfies the verification step \eqref{eq:verification} and have equality in step <span class="math inline">\((c)\)</span> iff <span class="math inline">\(g_{t+1:T}\)</span> is optimal (this is part of the induction hypothesis). Thus, the result is true for time <span class="math inline">\(t\)</span> and, by the principle of induction, is true for all time.</p>
 <h1 id="variations-of-a-theme">Variations of a theme</h1>
 <h2 id="cost-depends-on-next-state">Cost depends on next state</h2>
 <h2 id="exponential-cost-function">Exponential cost function</h2>
@@ -146,10 +153,10 @@ x\bigg]. \]</span> Note that <span class="math inline">\(J_t(x; g)\)</span> only
 <p>Define the <em>cost-to-go function</em> of any stopping rule as <span class="math display">\[J_t(x; \tau) = \EXP\bigg[ \sum_{s = t}^{\tau - 1} c_{\tau}(X_t) +
 s_\tau(X_\tau) \,\bigg|\, \tau &gt; t \bigg]\]</span> and the <em>value function</em> as <span class="math display">\[V_t(x) = \inf_{\tau} J_t(x; \tau). \]</span> Then, it can be shown that the value functions satisfy the following recursion:</p>
 <div class="highlight">
-<p><strong>Dynamic Program for optimal stopping</strong> <span class="math display">\[ \begin{align}
+<p><strong>Dynamic Program for optimal stopping</strong> <span class="math display">\[ \begin{align*}
 V_T(x) &amp;= s_T(x) \\
 V_t(x) &amp;= \min\{ s_t(x), c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x].
-\end{align}\]</span></p>
+\end{align*}\]</span></p>
 </div>
 <p>For more details on the optimal stopping problems, see <span class="citation" data-cites="Ferguson:book">Ferguson (<a href="#ref-Ferguson:book">2008</a>)</span>.</p>
 <h2 id="minimax-setup">Minimax setup</h2>

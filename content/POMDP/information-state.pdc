@@ -13,9 +13,13 @@ cost $C_t$. We assume that the system has an initial state, which we denote by
 $X_1$, and assume to be random. _We do not assume a state-space model for the
 system, but simply assume an input-ouput model_, i.e., there exist functions
 $\{f_t\}_{t \ge 1}$ and $\{h_t\}_{t \ge 1}$ such that[^1]
-$$ Y_t = f_t(X_1, U_{1:t-1}, W_{1:t-1}) $$ {#eq:Y}
+$$\begin{equation}\label{eq:Y}
+  Y_t = f_t(X_1, U_{1:t-1}, W_{1:t-1}) 
+\end{equation}$$
 and
-$$ C_t = h_t(X_1, U_{1:t}, W_{1:t-1}). $$ {#eq:C}
+$$\begin{equation}\label{eq:C}
+  C_t = h_t(X_1, U_{1:t}, W_{1:t-1}). 
+\end{equation}$$
 
 [^1]: We could have assume a simpler model with
 $$ (Y_t, C_t) = f_t(X_1, U_{1:t-1}, W_{1:t-1}), $$
@@ -55,12 +59,12 @@ Since the past inputs $U_{1:t-1}$ are a part of the information $I_t$,
 $J_t(i_t;g)$ only depends on the future strategy $(g_t, \dots, g_T)$ and does
 not depend on the past strategy $(g_1, \dots, g_{t-1})$. These functions can
 be computed recursively as follows.
-$$ \begin{align}
+$$ \begin{align*}
 J_t(i_t; g) &= \EXP^g\bigg[ \sum_{s=t}^T C_s \biggm| I_t = i_t \bigg] \\
 &\stackrel{(a)}= \EXP^g \bigg[ C_t + \EXP^g\bigg[ \sum_{s = t+1}^T C_s \biggm| I_{t+1}
 \bigg] \biggm| I_t = i_t \bigg] \\
 &= \EXP^g \big[ C_s + J_{t+1}(I_{t+1}; g) \bigm| I_t = i_t \big]
-\end{align} $$
+\end{align*} $$
 where $(a)$ follows from the towering property of conditional expectation and
 the fact that the decision maker has perfect recall, i.e., $I_t \subseteq
 I_{t+1}$.
@@ -74,21 +78,29 @@ Theorem #thm:DP
 :   **(Dynamic Program)** \
     Recursively define _value function_ $\{V_t\}_{t=1}^{T}$, where $V_t \colon
     I_t \mapsto \reals$ as follows:
-    $$ V_{T+1}(i_{T+1}) = 0 $$ {#eq:DP-1}
+    $$\begin{equation}\label{eq:DP-1}
+      V_{T+1}(i_{T+1}) = 0 
+    \end{equation}$$
     and for $t \in \{T, \dots, 1\}$:
-    $$ Q_t(i_t, u_t) = \EXP\big[ C_t + \EXP[ V_{t+1}(I_{t+1}) \bigm| I_t = i_t,
-    U_t = u_t \big]$$ {#eq:DP-Q}
+    $$\begin{equation}\label{eq:DP-Q}
+      Q_t(i_t, u_t) = 
+      \EXP\big[ C_t + \EXP[ V_{t+1}(I_{t+1}) \bigm| I_t = i_t, U_t = u_t \big]
+    \end{equation}$$
     and define
-    $$V_t(i_t) = \min_{u_t \in \ALPHABET U} Q_t(i_t, u) $$ {#eq:DP-2}
+    $$\begin{equation}\label{eq:DP-2}
+      V_t(i_t) = \min_{u_t \in \ALPHABET U} Q_t(i_t, u) 
+    \end{equation}$$
     and
-    $$ g^*_t(i_t) = \arg\min_{u_t \in \ALPHABET U} Q_t(i_t, u_t). $$ {#eq:DP-policy}
-    Then, a policy is optimal if and only if it satisfies ({@eq:DP-policy}). 
+    $$\begin{equation}\label{eq:DP-policy}
+      g^*_t(i_t) = \arg\min_{u_t \in \ALPHABET U} Q_t(i_t, u_t). 
+    \end{equation}$$
+    Then, a policy is optimal if and only if it satisfies \\eqref{eq:DP-policy}. 
 :::
 
-Note that the expectation in the right hand side of ({@eq:DP-Q}) does not
+Note that the expectation in the right hand side of \\eqref{eq:DP-Q} does not
 depend on the choice of policy. This is because (i) $I_{t+1} = \{I_t, Y_{t+1},
 U_t\}$, and (ii) $\PR( Y_{t+1}, C_t | I_t, U_t)$ does not depend on the policy
-$g$ due to ({@eq:Y}) and ({@eq:C}). 
+$g$ due to \\eqref{eq:Y} and \\eqref{eq:C}. 
 
 As was the case for MDPs, instead of proving the above result, we prove a
 related result.
@@ -100,7 +112,7 @@ Theorem #thm:CP
     For any strategy $g$
     $$ J_t(i_t; g) \ge V_t(i_t) $$
     with equality at $t$ if and only if the _future strategy_ $(g_t, \dots,
-    g_T)$ satisfies the verification step ({@eq:DP-policy}).
+    g_T)$ satisfies the verification step \\eqref{eq:DP-policy}.
 :::
 
 Note that the comparison principle immediately implies that the strategy
@@ -109,25 +121,25 @@ obtained using dynamic programming is optimal.
 #### Proof of the comparison principle
 
 The proof proceeds by backward induction. For $t = T$
-$$ \begin{align}
+$$ \begin{align*}
 J_T(i_T; g) &= \EXP[ C_T | I_T = i_T, U_T = g_T(i_T) ] \\
 &= Q_T(i_T, g_T(i_T) ) \\
 &\ge V_T(i_t).
-\end{align} $$
+\end{align*} $$
 This forms the basis of induction. Now assume that the state statement of the
 theorem is true for $t+1$. Then for time $t$
-$$ \begin{align}
+$$ \begin{align*}
 J_t(i_i; g) &= \EXP^g\big[ C_t + J_{t+1}(I_{t+1}) \bigm| I_t = i_t, U_t =
 g_t(i_t) \big] \\
 &\stackrel{(a)}\ge \EXP^g\big[ C_t + V_{t+1}(I_{t+1}) \bigm| I_t = i_t, U_t = g_t(i_t) \big]
 \\
 &= Q_t(i_t, g_t(i_t)) \\
 &\ge V_t(i_t),
-\end{align} $$
+\end{align*} $$
 where $(a)$ follows from the induction hypothesis. Note that we have equality
-in $(a)$ if and only if $g_{t+1:T}$ satisfy ({@eq:DP-policy}) (this is part of
+in $(a)$ if and only if $g_{t+1:T}$ satisfy \\eqref{eq:DP-policy} (this is part of
 the induction hypothesis) and we have equality in the last step if and only if
-$g_t$ satisfies ({@eq:DP-policy}).
+$g_t$ satisfies \\eqref{eq:DP-policy}.
 
 # Information state
 
@@ -166,14 +178,20 @@ Theorem
 :   Let $\{Z_t\}_{t \ge 1}$ be an information state of the system. 
     Recursively define value function $\{ \tilde V_t \}_{t \ge 1}$, where
     $\tilde V_t \colon Z_t \mapsto \reals$ as follows:
-    $$ \tilde V_{T+1}(z_{T+1}) = 0 $$ {#eq:DPI-1}
+    $$\begin{equation}\label{eq:DPI-1}
+      \tilde V_{T+1}(z_{T+1}) = 0 
+    \end{equation}$$
     and for $t \in \{T, \dots, 1\}$:
     $$ \tilde Q_t(z_t, u_t) = \EXP\big[ C_t + \EXP[ \tilde V_{t+1}(Z_{t+1}) \bigm| Z_t = z_t,
     U_t = u_t \big]$$ {#eq:DPI-Q}
     and define
-    $$\tilde V_t(z_t) = \min_{u_t \in \ALPHABET U} \tilde Q_t(z_t, u)  $$ {#eq:DPI-2}
+    $$\begin{equation}\label{eq:DPI-2}
+      \tilde V_t(z_t) = \min_{u_t \in \ALPHABET U} \tilde Q_t(z_t, u)  
+    \end{equation}$$
     and
-    $$ \tilde g^*_t(z_t) = \arg\min_{u_t \in \ALPHABET U} \tilde Q_t(z_t, u_t). $$ {#eq:DP-policy}
+    $$\begin{equation}\label{eq:DP-policy}
+      \tilde g^*_t(z_t) = \arg\min_{u_t \in \ALPHABET U} \tilde Q_t(z_t, u_t). 
+    \end{equation}$$
 
     Then, 
 
@@ -187,7 +205,7 @@ Theorem
 As usual, we proceed by backward induction. At $t = T+1$, both value functions
 are equal. This forms the basis of induction. Suppose that at time $t+1$,
 $V_{t+1} = \tilde V_{t+1} \circ F_{t+1}$. Now consider the system at time $t$.
-$$ \begin{align}
+$$ \begin{align*}
 Q_t(i_t, u_t) &= \EXP\big[ C_t + V_{t+1}(I_{t+1}) \bigm| I_t = i_t, U_t = u_t
 \big]
 \\
@@ -196,7 +214,7 @@ Q_t(i_t, u_t) &= \EXP\big[ C_t + V_{t+1}(I_{t+1}) \bigm| I_t = i_t, U_t = u_t
 &\stackrel{(b)}= \EXP\big[ C_t + \tilde V_{t+1}(Z_{t+1}) \bigm| Z_t =
 F_t(i_t), U_t = u_t ] \\
 &\stackrel{(c)}= \tilde Q( F_t(i_t), u_t).
-\end{align} $$
+\end{align*} $$
 where $(a)$ follows from the induction hypothesis, $(b)$ follows from the two
 properties of information state, and $(c)$ follows from the definition of
 $\tilde Q$. This shows that the $Q$-functions are equal. Minimizing over the

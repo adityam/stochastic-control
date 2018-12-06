@@ -40,12 +40,12 @@ cost. Depending on the cost, such models can be classified as follows:
   = C_t x_t$ and the objective is to keep the output of the system
   close to a pre-specified trajectory $\{x^\circ_t\}_{t=1}^T$. These are
   modeled by considering the per-step cost as
-  $$ \begin{align}
+  $$ \begin{align*}
     c_t(x_t, u_t) &= (C_tx_t - y^\circ_t)^\TRANS Q_t (C_tx_t - y^\circ_t) + u_t^\TRANS R_t u_t
     \\
     \text{and}\quad
     c_T(x_T) &= (C_Tx_T - y^\circ_T)^\TRANS Q_T (C_Tx_T - y^\circ_T).
-  \end{align} $$
+  \end{align*} $$
 
 [PD]: ../../appendix/positive-definite-matrix
 
@@ -58,18 +58,23 @@ decision process can be obtained in closed form.
 Theorem #thm:lqr
 
 :   The value function at time $t$ is
-    $$ V_t(x_t) = x_t^\TRANS S_t x_t$$ {#eq:Vt}
+    $$\begin{equation}\label{eq:Vt}
+      V_t(x_t) = x_t^\TRANS S_t x_t
+    \end{equation}$$
     and the optimal control action is
-    $$ u_t = - H_t x_t$$ {#eq:gt}
+    $$\begin{equation}\label{eq:gt}
+      u_t = - H_t x_t
+    \end{equation}$$
     where the _gain matrices_ $\{H_t\}_{t\ge 1}$ are given by:
     $$ H_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} \Lambda_t $$
     where
     $$ \Lambda_t = B_t^\TRANS S_{t+1} A_t $$
     and $\{S_t\}_{t \ge 1}$ are determined by the _backward Riccati difference
     equations_: $S_T = Q_T$ and for $t \in \{T-1, \dots, 1\}$: 
-    $$ S_t = A_t^\TRANS S_{t+1} A_t + Q_t - 
-       \Lambda_t^\TRANS [ R_t + B_t^\TRANS S_{t+1} B_t ] ^{-1} \Lambda_t.
-    $$ {#eq:riccati}
+    $$\begin{equation}\label{eq:riccati}
+      S_t = A_t^\TRANS S_{t+1} A_t + Q_t - 
+      \Lambda_t^\TRANS [ R_t + B_t^\TRANS S_{t+1} B_t ] ^{-1} \Lambda_t. 
+    \end{equation}$$
 :::
 
 
@@ -93,11 +98,11 @@ Lemma
 
     For any $x \in \reals^n$ and $u \in \reals^m$ and matrices $A$, $B$, $S$, and
     $R$ of appropriate dimensions, we have
-    $$\begin{align}
+    $$\begin{align*}
       &u^\TRANS R u + (Ax + Bu)^\TRANS S (Ax + Bu) 
       \\ &\qquad = 
      (u + H x)^\TRANS [R + B^\TRANS S B] (u + Hx) + x^\TRANS L x
-     \end{align}$$
+     \end{align*}$$
     where 
 
     *   $L = A^\TRANS S A - \Lambda^\TRANS[R + B^\TRANS S B]^{-1} \Lambda_t$
@@ -111,7 +116,7 @@ Lemma
 The proof follows immediately by completing the square on the left hand side.
 In particular
 
-\begin{align}
+$$ \begin{align*}
 & u^\TRANS R u +  (Ax+Bu)^\TRANS S (Ax + Bu) \\
 & \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS B^\TRANS S A x 
   + x^\TRANS A^\TRANS S A x \\
@@ -119,7 +124,7 @@ In particular
   + x^\TRANS H^\TRANS [R + B^\TRANS S B] H x + x^\TRANS L x \\
 & \quad = 
   (u + H x)^\TRANS [R + B^\TRANS S B] (u + Hx) + x^\TRANS L x.
-\end{align}
+\end{align*} $$
 
 #### Proof of dynamic programming decomposition
 
@@ -127,9 +132,9 @@ The proof of the dynamic program now follows from backward induction.
 
 For $t=T$, we have
 $$ V_T(x) = c_T(x) = x^\TRANS Q_T x $$
-which forms the basis of induction. Assume that ({@eq:Vt}) holds for
+which forms the basis of induction. Assume that \\eqref{eq:Vt} holds for
 $t+1$ and consider the value function at time $t$. 
-$$\begin{align}
+$$\begin{align*}
   V_{t}(x) &= \min_{u \in \reals^m} \Big\{
   x^\TRANS Q_t x + u^\TRANS R_t u + V_{t+1}(Ax + Bu) \Big\} \\
   &\stackrel{(a)}= \min_{u \in \reals^m} \Big\{
@@ -139,7 +144,7 @@ $$\begin{align}
   + x^\TRANS L_t x \Big\}
   \\
   &\stackrel{(c)}=x^\TRANS (Q_t + L_t) x
-\end{align}$$
+\end{align*}$$
 where $(a)$ follows from the induction hypothesis, $(b)$ follows from
 completion of squares lemma with $H_t$ and $L_t$ defined similar to the lemma,
 and $(c)$ follows from minimizing over $u$, where the minima is achieved by
@@ -167,18 +172,18 @@ Theorem #thm:lqt
     before. The gain matrices $\{H^\circ_t\}$ are given by
     $$ H^\circ_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS $$
     and the correction terms $\{r_t\}$ are given by 
-    $$ \begin{align}
+    $$ \begin{align*}
       r_T &= Q_T x^\circ_T \\
       r_t &= [A_t - B_t H_t]^\TRANS r_{t+1} + Q_t x^\circ_t
-    \end{align} $$
+    \end{align*} $$
     and the tracking error $\{ρ_t\}_{t=1}^T$ is given by
-    $$ \begin{align}
+    $$ \begin{align*}
       ρ_T &= (x^\circ_T)^\TRANS Q_T x^\circ_T, \\
       ρ_t &= (x^\circ_t)^\TRANS Q_t x^\circ_t  
       - 2 r^\TRANS_{t+1} B_t [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS
         r_{t+1}
       + ρ_{t+1}.
-    \end{align} $$
+    \end{align*} $$
 
 :::
 
@@ -197,9 +202,13 @@ given by $\EXP[w_t^\TRANS w_t] = \Sigma^w_t$.
 Theorem #thm:stochastic-lqr
 
 :   The value function at time $t$ is
-    $$ V_t(x_t) = x_t^\TRANS S_t x_t + α_t$$ {#eq:Vt-s}
+    $$\begin{equation}\label{eq:Vt-s}
+      V_t(x_t) = x_t^\TRANS S_t x_t + α_t
+    \end{equation}$$
     and the optimal control action is
-    $$ u_t = - H_t x_t$$ {#eq:gt-s}
+    $$\begin{equation}\label{eq:gt-s}
+      u_t = - H_t x_t
+    \end{equation}$$
     where the matrices $\{H_t\}_{t\ge 1}$ and $\{S_t\}_{t \ge 1}$ follow 
     _the same recursion_ as before and the sequence $\{α_t\}_{t=1}^T$ is
     computed in a backward manner as follows: $α_T = 0$ and 
@@ -221,20 +230,20 @@ Lemma
 
 Note that
 
-$$\begin{align}
+$$\begin{align*}
   \EXP[ (x+w)^\TRANS Q (x+w) ] &= 
   \EXP[ x^\TRANS Q x + 2 x^\TRANS Q w + w^\TRANS Q w ] \\
   &= x^\TRANS Q x + \TR(Σ^w Q).
-\end{align}$$
+\end{align*}$$
 where the second term is zero because $w$ is a zero mean random variable. For
 the third term, we are using
-$$ \begin{align}
+$$ \begin{align*}
   \EXP[ w^\TRANS Q w]  &= 
   \EXP\bigg[ \sum_{i=1}^n \sum_{j=1}^n w_i Q_{ij} w_j \bigg]  \\
   &= \sum_{i=1}^n \sum_{j=1}^n \EXP[w_i w_j] Q_{ij} \\
   &= \sum_{i=1}^n \sum_{j=1}^n Σ^w_{ij} Q_{ij} \\
   &= \TR(Σ^w Q)
-\end{align} $$
+\end{align*} $$
 
 #### Proof of stochastic LQR
 
@@ -258,10 +267,10 @@ Proposition #prop:astrom
     may be written as
     $$ \begin{align}
         & \EXP\bigg[ \sum_{t=1}^{T-1} (u_t + H_t x_t)^\TRANS [R_t + B_t^\TRANS
-        S_{t+1}B_t] (u_t + H_t x_t) \bigg] \\
+        S_{t+1}B_t] (u_t + H_t x_t) \bigg] \nonumber \\
         & \quad + 
-        \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg],
-    \end{align}$$ {#eq:astrom}
+        \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg], \label{eq:astrom}
+    \end{align}$$
     where the matrices $\{H_t\}_{t\ge 1}$ and $\{S_t\}_{t \ge 1}$ follow are
     given as in @thm:lqr.
 :::
@@ -271,41 +280,45 @@ Proposition #prop:astrom
 This result can be obtained by repeatedly applying the completion of squares
 lemma. In particular, note that $S_T = Q_T$ and using the telescopic sum, we
 can write
-$$x_T^\TRANS Q_T x_T = x_1^\TRANS S_1 x_1 + \sum_{t=1}^{T-1} 
-  \big[ x_{t+1}^\TRANS S_{t+1} x_{t+1} - x_t^\TRANS S_t x_t \big].$$ {#eq:astrom-1}
+$$\begin{equation}\label{eq:astrom-1}
+  x_T^\TRANS Q_T x_T = x_1^\TRANS S_1 x_1 + 
+  \sum_{t=1}^{T-1} \big[ x_{t+1}^\TRANS S_{t+1} x_{t+1} - x_t^\TRANS S_t x_t \big].
+\end{equation}$$
 
 Furthermore, since $w_t$ is independet of $x_t$, we have
 $$ \begin{align}
   \EXP[ x_{t+1}^\TRANS S_{t+1} x_{t+1}] &= 
-   \EXP[ (A_t x_t + B_t u_t + w_t)^\TRANS S_{t+1} (A_t x_t + B_t u_t + w_t) \\
+   \EXP[ (A_t x_t + B_t u_t + w_t)^\TRANS S_{t+1} (A_t x_t + B_t u_t + w_t) 
+   \nonumber \\
    &= \EXP[ (A_t x_t + B_t u_t)^\TRANS S_{t+1} (A_t x_t + B_t u_t) ]
-     + \EXP[ w_t^\TRANS S_{t+1} w_t ].
-   \end{align}$$ {#eq:astrom-2}
+     + \EXP[ w_t^\TRANS S_{t+1} w_t ]. \label{eq:astrom-2}
+   \end{align}$$
 
-Using ({@eq:astrom-1}) and ({@eq:astrom-2}), we get that the total cost can be
+Using \\eqref{eq:astrom-1} and \\eqref{eq:astrom-2}, we get that the total cost can be
 written as
 $$ \begin{align} 
       & \EXP\bigg[ \sum_{t=1}^{T-1} \overbrace{\big[
         x_t^\TRANS Q_t x_t + u_t^\TRANS R_t u_t + x_{t+1}^\TRANS S_{t+1}
         x_{t+1} - x_t^\TRANS S_t x_t \big]}^{\text{Term 1}}
-      \\
+      \nonumber \\
       & \quad + 
       \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg].
-\end{align} $$ {#eq:astrom-3}
+      \label{eq:astrom-3}
+\end{align} $$
 
 Now, from the completion of squares lemma, we get that "Term 1" is equal to
 $$ (u_t + H_t x_t)^\TRANS [R_t + B_t^\TRANS S_{t+1} B_t] (u_t + H_t x_t).$$
-Substituting this back in ({@eq:astrom-3}), we get ({@eq:astrom}).
+Substituting this back in \\eqref{eq:astrom-3}, we get \\eqref{eq:astrom}.
 &nbsp;$\Box$
 
 ---
 
 Now we can prove @thm:stochastic-lqr using @prop:astrom. Note that the second
-term in ({@eq:astrom}) does not depend on choice of control actions $u_t$.
+term in \\eqref{eq:astrom} does not depend on choice of control actions $u_t$.
 Thus, in order to minimimze the total expected cost, it suffices to minimize
-the first term of ({@eq:astrom}). Since $R_t$ is positive definite and
+the first term of \\eqref{eq:astrom}. Since $R_t$ is positive definite and
 $S_{t+1}$ is positive semi-definite, $R_t + B_t^\TRANS S_{t+1} B_t$ is
-positive definite. Thus, the first term of ({@eq:astrom}) is sum of squares.
+positive definite. Thus, the first term of \\eqref{eq:astrom} is sum of squares.
 Choosing $ u_t = -H_t x_t$
 sets this term to its minimum value of $0$. Hence, $u_t = -H_t x_t$ is the
 optimal control strategy.
@@ -333,11 +346,15 @@ Lemma
 
     Assume it is symmetric and $Q_{uu}$ is [positive definite]. Then the
     minimum with respect to $u$ is achieved at 
-    $$ u = - Q_{uu}^{-1} Q_{ux} x,$$ {#eq:opt-schur}
+    $$\begin{equation}\label{eq:opt-schur}
+      u = - Q_{uu}^{-1} Q_{ux} x,
+    \end{equation}$$
     and is equal to
-    $$ x^\TRANS [ Q_{xx} - Q_{xu} Q_{uu}^{-1} Q_{ux} ] x. $$ {#eq:schur}
+    $$\begin{equation}\label{eq:schur}
+      x^\TRANS [ Q_{xx} - Q_{xu} Q_{uu}^{-1} Q_{ux} ] x. 
+    \end{equation}$$
 
-The term in the square brackets in ({@eq:schur}) is the [Schur complement] of 
+The term in the square brackets in \\eqref{eq:schur} is the [Schur complement] of 
 $\MATRIX{ Q_{xx} & Q_{xu} \\ Q_{ux} & Q_{uu} }$
 
 [positive definite]: ../../appendix/positive-definite-matrix
@@ -355,8 +372,8 @@ Q_{uu}
 \frac{\partial^2 Q(x,u)}{\partial u^2} = Q_{uu} > 0.
 $$
 
-Thus, the optimal $u$ is given by ({@eq:opt-schur}) and the minimum value is
-({@eq:schur}). 
+Thus, the optimal $u$ is given by \\eqref{eq:opt-schur} and the minimum value is
+\\eqref{eq:schur}. 
 
 ## Astrom's Proof
 

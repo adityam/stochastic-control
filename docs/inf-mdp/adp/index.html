@@ -65,22 +65,24 @@
 </div>
 <p>If we use a periodic policy with period <span class="math inline">\(M\)</span>, then the above bound can be improved by a factor of <span class="math inline">\(1/(1-β)\)</span>.</p>
 <h4 id="proof">Proof</h4>
-<p>To prove the first part, note that repeatedly combining the <a href="../discounted-mdp#prop:contraction">contraction property of the Bellman operator</a> with the fact that <span class="math inline">\(\NORM{V_{k+1} - \mathcal B V_k} \le δ\)</span>, we get that <span id="eq:B1" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ \NORM{\mathcal B^m V_{k+1} - \mathcal B^{m+1} V_k} \le β^m δ. \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(1)</span></span> </p>
-<p>Now, from the triangle inequality, we have that <span class="math display">\[\begin{align}
+<p>To prove the first part, note that repeatedly combining the <a href="../discounted-mdp#prop:contraction">contraction property of the Bellman operator</a> with the fact that <span class="math inline">\(\NORM{V_{k+1} - \mathcal B V_k} \le δ\)</span>, we get that <span class="math display">\[\begin{equation}\label{eq:B1}
+  \NORM{\mathcal B^m V_{k+1} - \mathcal B^{m+1} V_k} \le β^m δ. 
+\end{equation}\]</span></p>
+<p>Now, from the triangle inequality, we have that <span class="math display">\[\begin{align*}
 \NORM{V_k - \mathcal B^k V_0} &amp;\le
   \NORM{V_k - \mathcal B V_{k-1}} + \NORM{V_{k-1} - \mathcal B^2 V_{k-2}}
   + \cdots + \NORM{B^{k-1} V_1 - \mathcal B^k V_0} \\
   &amp;\stackrel{(a)}\le δ + βδ + \dots + β^{k-1}δ \\
   &amp;= \left(\frac{1 - β^k}{1-β}\right) δ,
-\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from (<a href="#eq:B1">1</a>). Taking the limit as <span class="math inline">\(k \to ∞\)</span> gives the first result.</p>
-<p>Now, to prove the second part, we again apply the triangle inequality <span class="math display">\[\begin{align}
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from \eqref{eq:B1}. Taking the limit as <span class="math inline">\(k \to ∞\)</span> gives the first result.</p>
+<p>Now, to prove the second part, we again apply the triangle inequality <span class="math display">\[\begin{align*}
   \NORM{\mathcal B_{g_k} V^* - V^*} &amp;\le
   \NORM{\mathcal B_{g_k} V^* - \mathcal B_{g_k} V_k} + 
   \NORM{\mathcal B_{g_k} V_k - \mathcal B V_k} + 
   \NORM{\mathcal B V_k - V^*} \\
   &amp;\stackrel{(b)}\le β \NORM{V^* - V_k} + ε + β \NORM{V_k - V^*} \\
   &amp;\stackrel{(c)}\le ε + \frac{2βδ}{(1-β)} =: m,
-\end{align}\]</span> where the first term in <span class="math inline">\((b)\)</span> uses the contraction property, the second term uses the fact that <span class="math inline">\(g_k\)</span> is an <span class="math inline">\(ε\)</span>-optimal policy and the third term uses the fact that <span class="math inline">\(V^*\)</span> is the fixed point of <span class="math inline">\(\mathcal B\)</span> and thus <span class="math inline">\(V^* = \mathcal B V^*\)</span> and then uses the contraction property. The inequality in <span class="math inline">\((c)\)</span> use the result from the first part.</p>
+\end{align*}\]</span> where the first term in <span class="math inline">\((b)\)</span> uses the contraction property, the second term uses the fact that <span class="math inline">\(g_k\)</span> is an <span class="math inline">\(ε\)</span>-optimal policy and the third term uses the fact that <span class="math inline">\(V^*\)</span> is the fixed point of <span class="math inline">\(\mathcal B\)</span> and thus <span class="math inline">\(V^* = \mathcal B V^*\)</span> and then uses the contraction property. The inequality in <span class="math inline">\((c)\)</span> use the result from the first part.</p>
 <p>Now, from <a href="../discounted-mdp#prop:bounds">the discounting property of the Bellman operator</a>, <span class="math inline">\(\NORM{\mathcal B_{g_k} V^* - V^*} \le m\)</span> implies <span class="math display">\[ \NORM{V_{g_k} - V^*} \le \frac{m}{(1-β)}\]</span> which proves the second part.</p>
 <h2 id="approximate-policy-iteration">Approximate policy iteration</h2>
 <p>Before stating the approximate policy iteration algorithm, we state a preliminary result that serves as the main step in proving the error bounds for approximate policy iteration.</p>
@@ -95,17 +97,23 @@
 </dl>
 </div>
 <h4 id="proof-1">Proof</h4>
-<p>From the bounds on <span class="math inline">\(V\)</span>, <span class="math inline">\(g\)</span>, and <span class="math inline">\(h\)</span> and the <a href="../discounted-mdp#prop:properties">discounting property of the Bellman operator</a>, we have that <span id="eq:P1" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[\mathcal B_h V_g \le \mathcal B_h V + βδ \le \mathcal B V + ε + β δ.\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(2)</span></span> </p>
-<p>Again, from the bounds on <span class="math inline">\(V\)</span> and <span class="math inline">\(g\)</span> and the discounting property of the Bellman operator, we have <span class="math inline">\(\mathcal B V \le \mathcal B V_g + βδ\)</span>. Thus, <span id="eq:P2" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[\mathcal B_h V_g \le \mathcal B V_g + \underbrace{ε + 2βδ}_{:=m}.\]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(3)</span></span> </p>
-<p>Moreover, from the definition of the Bellman operator <span class="math display">\[ \mathcal B V_g \le \mathcal B_g V_g = V_g.\]</span> Substituting the above in (<a href="#eq:P2">3</a>), we get that <span class="math display">\[ \mathcal B_h V_g \le V_g + m. \]</span> Therefore, by the discounting property of Bellman operator, we get <span id="eq:P3" style="display: inline-block; position: relative; width: 100%"><span class="math display">\[ V_h \le V_g + \frac{m}{(1-β)}. \]</span><span style="position: absolute; right: 0em; top: 50%; line-height:0; text-align: right">(4)</span></span> </p>
-<p>Using (<a href="#eq:P3">4</a>) and the discounting property, we get that <span class="math display">\[V_h = \mathcal B_h V_h = \mathcal B_h V_g + \big( \mathcal B_h V_h -
+<p>From the bounds on <span class="math inline">\(V\)</span>, <span class="math inline">\(g\)</span>, and <span class="math inline">\(h\)</span> and the <a href="../discounted-mdp#prop:properties">discounting property of the Bellman operator</a>, we have that <span class="math display">\[\begin{equation}\label{eq:P1}
+  \mathcal B_h V_g \le \mathcal B_h V + βδ \le \mathcal B V + ε + β δ.
+\end{equation}\]</span></p>
+<p>Again, from the bounds on <span class="math inline">\(V\)</span> and <span class="math inline">\(g\)</span> and the discounting property of the Bellman operator, we have <span class="math inline">\(\mathcal B V \le \mathcal B V_g + βδ\)</span>. Thus, <span class="math display">\[\begin{equation}\label{eq:P2}
+  \mathcal B_h V_g \le \mathcal B V_g + \underbrace{ε + 2βδ}_{:=m}.
+\end{equation}\]</span></p>
+<p>Moreover, from the definition of the Bellman operator <span class="math display">\[ \mathcal B V_g \le \mathcal B_g V_g = V_g.\]</span> Substituting the above in \eqref{eq:P2}, we get that <span class="math display">\[ \mathcal B_h V_g \le V_g + m. \]</span> Therefore, by the discounting property of Bellman operator, we get <span class="math display">\[\begin{equation}\label{eq:P3}
+  V_h \le V_g + \frac{m}{(1-β)}. 
+\end{equation}\]</span></p>
+<p>Using \eqref{eq:P3} and the discounting property, we get that <span class="math display">\[V_h = \mathcal B_h V_h = \mathcal B_h V_g + \big( \mathcal B_h V_h -
 \mathcal B_h V_g \big) \le \mathcal B_h V_g + β \frac{m}{(1-β)}. \]</span></p>
-<p>Subtracting <span class="math inline">\(V^*\)</span> from both sides we get <span class="math display">\[\begin{align}
+<p>Subtracting <span class="math inline">\(V^*\)</span> from both sides we get <span class="math display">\[\begin{align*}
 V_h - V^* &amp;\le \mathcal B_h V_g - V^* + \frac{mβ}{(1-β)} \\
 &amp;\stackrel{(a)}\le \mathcal B V_g + m - V^* + \frac{mβ}{(1-β)} \\
 &amp;\stackrel{(b)}= \mathcal B V_g - \mathcal B V^* + \frac{m}{(1-β)} \\
 &amp;\stackrel{(c)}{\le} β \NORM{V_g - V^*} + \frac{m}{(1-β)},
-\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from (<a href="#eq:P1">2</a>), <span class="math inline">\((b)\)</span> uses the fact that <span class="math inline">\(V^*\)</span> is the fixed point of <span class="math inline">\(\mathcal B\)</span> and <span class="math inline">\((c)\)</span> uses the contraction property. Substituting the value of <span class="math inline">\(m\)</span> in the above equation gives the result.</p>
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from \eqref{eq:P1}, <span class="math inline">\((b)\)</span> uses the fact that <span class="math inline">\(V^*\)</span> is the fixed point of <span class="math inline">\(\mathcal B\)</span> and <span class="math inline">\((c)\)</span> uses the contraction property. Substituting the value of <span class="math inline">\(m\)</span> in the above equation gives the result.</p>
 <div class="highlight">
 <dl>
 <dt><span id="theorem:2" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
@@ -140,7 +148,7 @@ V_h - V^* &amp;\le \mathcal B_h V_g - V^* + \frac{mβ}{(1-β)} \\
 <p>Let <span class="math inline">\(V\)</span> be the approximate value function obtained at iteration <span class="math inline">\(k\)</span>, i.e., <span class="math display">\[\NORM{V - V_g} \le δ 
   \quad\text{and}\quad
   \NORM{\mathcal B_g V - \mathcal V} \le ε.\]</span></p>
-<p>Then, from the triangle inequality, we have <span class="math display">\[\begin{align}
+<p>Then, from the triangle inequality, we have <span class="math display">\[\begin{align*}
   \NORM{\mathcal B V_g - V_g } &amp;\le
   \NORM{\mathcal B V_g - \mathcal B V} + 
   \NORM{\mathcal B V - \mathcal B_g V} +
@@ -149,7 +157,7 @@ V_h - V^* &amp;\le \mathcal B_h V_g - V^* + \frac{mβ}{(1-β)} \\
   β\NORM{V_g - V} + ε + β \NORM{V - V_g} \\
   &amp;\stackrel{(b)}\le
   ε + 2βδ,
-\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the fact that <span class="math inline">\(V_g = \mathcal B_g V_g\)</span> and the contraction property and <span class="math inline">\((b)\)</span> follows from the assumption on <span class="math inline">\(V\)</span>. Now, from the discounting property, we get the result.</p>
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the fact that <span class="math inline">\(V_g = \mathcal B_g V_g\)</span> and the contraction property and <span class="math inline">\((b)\)</span> follows from the assumption on <span class="math inline">\(V\)</span>. Now, from the discounting property, we get the result.</p>
 <div class="highlight">
 <dl>
 <dt><span id="prop:approx" class="pandoc-numbering-text prop"><strong>Proposition 3</strong></span></dt>
