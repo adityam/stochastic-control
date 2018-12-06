@@ -8,7 +8,7 @@ tex2jax: {
   processEscapes: true,
 },
   TeX : {
-      equationNumbers : { autoNumbers: "AMS" }, 
+      equationNumbers : { autoNumber: "AMS" }, 
       Macros : {
         PR: "\\mathbb{P}",
         EXP: "\\mathbb{E}",
