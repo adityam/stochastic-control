@@ -37,7 +37,7 @@ Theorem #thm:reward-shaping
     $$ c^2_T(x) - c^1_T(x) = φ(x).  $$
 
     2. For $t \in \{1, \dots, T-1\}$, 
-    $$ c^2_t(x,u,x') - c^1_t(x,u,x') =  φ(x) - φ(x'). $$
+    $$ c^2_t(x,u,x') - c^1_t(x,u,x') =  φ(x') - φ(x). $$
 ::: 
 
 Remark
@@ -46,50 +46,67 @@ Remark
 
     2. The sign of the potential function is irrelevant. So, we could also
        have written
-       $$ c^2_t(x,u,x') - c^1_t(x,u,x') =  φ(x') - φ(x). $$
+       $$ c^2_t(x,u,x') - c^1_t(x,u,x') =  φ(x) - φ(x'). $$
 
 
     2. The result naturally extends to infinite horizon expected cost model
        (and is typically stated for such a model). In the infinite horizon
        case, condition 2 needs to be replaced by
-       $$ c^2(x,u,x') - c^1(x,u,x') = φ(x) - β φ(x'). $$
+       $$ c^2(x,u,x') - c^1(x,u,x') = β φ(x') - φ(x). $$
 
 
 #### Proof (sufficiency)
 
 Suppose conditions 1 and 2 in the statement of the theorem hold. That is,
-$$c^2_t(x,u,x') = c^1_t(x,u,x') + φ(x) - φ(x')
+$$c^2_t(x,u,x') = c^1_t(x,u,x') - φ(x) + φ(x')
 \quad\text{and}\quad
-c^2_T(x) = c^1_T(x) + φ(x). $$
+c^2_T(x) = c^1_T(x) - φ(x). $$
 
 Then, we claim that
 $$\begin{equation} \label{eq:claim}
-Q^2_t(x,u) = Q^1_t(x,u) + φ(x)
+Q^2_t(x,u) = Q^1_t(x,u) - φ(x)
 \quad
-V^2_t(x) = V^1_t(x) + φ(x).
+V^2_t(x) = V^1_t(x) - φ(x).
 \end{equation}$$
 
 We prove the result by backward induction. First note that
 $$
-  V^2_T(x) = c^2_T(x) = c^1_T(x) + φ(x) = V^1_T(x) + φ(x).
+  V^2_T(x) = c^2_T(x) = c^1_T(x) - φ(x) = V^1_T(x) - φ(x).
 $$
 This forms the basis of induction. Now suppose that \\eqref{eq:claim} holds for
 time $t+1$. Now consider
 $$\begin{align*}
 Q^2_t(x,u) &= \EXP[ c^2_t(x,u,X_{t+1}) + V^2_{t+1}(X_{t+1}) \mid X_t = x, U_t = u ]
 \\
-&\stackrel{(a)}= \EXP[ c^1_t(x,u,X_{t+1}) + φ(x) - φ(X_{t+1}) \\
-&\qquad + V^1_{t+1}(X_{t+1}) + φ(X_{t+1}) \mid X_t = x, U_t = u ] \\
-&= \EXP[ c^1_t(x,u,X_{t+1}) + φ(x) + V^1_{t+1}(X_{t+1}) \mid
+&\stackrel{(a)}= \EXP[ c^1_t(x,u,X_{t+1}) - φ(x) + φ(X_{t+1}) \\
+&\qquad + V^1_{t+1}(X_{t+1}) - φ(X_{t+1}) \mid X_t = x, U_t = u ] \\
+&= \EXP[ c^1_t(x,u,X_{t+1}) - φ(x) + V^1_{t+1}(X_{t+1}) \mid
 X_t = x, U_t = u] \\
-&= Q^1_t(x,u) + φ(x),
+&= Q^1_t(x,u) - φ(x),
 \end{align*}$$
 where $(a)$ follows from property 2 and the induction hypothesis.
 
 Now, mimimizing both sides over $u$ gives 
-$$ V^2_t(x) = V^1_t(x) + φ(x). $$
+$$ V^2_t(x) = V^1_t(x) - φ(x). $$
 
 This proves the induction step. &nbsp;$\Box$
+
+Additional Remarks
+
+:   1. The advantage function given by
+       $$ A_t(x,u) := Q_t(x,u) - V_t(x) $$
+       measures the relative cost of choosing action $u$ over the optimal
+       action. An implication of the claim \\eqref{eq:claim} used in the above
+       proof is that reward shaping does not change the advantage function!
+
+    2. In reinforcement learning in infinite horizon discounted cost setup,
+       reward shaping refers to choosing a potential function $φ$ to change
+       the cost function from $c(x,u,x')$ to $\tilde c(x,u,x') = c(x,u,x') + β
+       φ(x') - φ(x)$ to speed up learning. One often chooses $φ(x) = V(x)$. If
+       we extend claim \\eqref{eq:claim} to infinite horizon, then an
+       implication of choosing $φ(x) = V(x)$ is that the value function of the
+       modified cost $\tilde c(x,u,x')$ is zero!
+
 
 #### Proof (necessity)
 
