@@ -1,0 +1,106 @@
+---
+title: "Theory: Reward Shaping"
+weight: 31
+categories:
+  - MDP
+tags:
+  - reward shaping
+---
+
+What are the conditions under which two MDPs which have the same dynamics but
+different cost functions have the same optimal policy? This is an important
+question in reinforcement learning (where one often _shapes_ the reward
+function to speed up learning) and inverse reinforcement learning (where one
+learns the reward function from the behavior of an expert). The following
+result provides a complete answer to this question.
+
+Let $M^1$ and $M^2$ denote two MDPs on the same state space $\ALPHABET X$ and
+action space $\ALPHABET U$. Both MDPs have the same dynamics $f = (f^1, \dots,
+f_T)$, same distribution on the noise $P_W$, but different cost functions $c^1
+= (c^1_1, \dots, c^1_T)$ and $c^2 = (c^2_1, \dots, c^2_T)$. We assume that for
+$t \in \{1, \dots, T-1\}$, the per-step cost is a function of the current
+state, current action, and next state (see [cost depending on next
+state](../mdp-functional#cost-depends-on-next-state)) and for $t = T$, the
+per-step cost function is just a function of the current state. Let $g^1 =
+(g^1_1, \dots, g^1_T)$ and $g^2 = (g^2_1, \dots, g^2_T)$ denote the optimal
+policy corresponding to $M^1$ and $M^2$, respectively.
+
+::: highlight :::
+Theorem #thm:reward-shaping
+
+:   The policy $g^1$ is equal to the policy $g^2$ for every choice of
+    transition function $f$ and probability distribution $P_W$ if and only if
+    there exists a function $φ \colon \ALPHABET X \to \reals$, which is called
+    a _potential function_, such that:
+
+    1. For $t = T$,
+    $$ c^2_T(x) - c^1_T(x) = φ(x).  $$
+
+    2. For $t \in \{1, \dots, T-1\}$, 
+    $$ c^2_t(x,u,x') - c^1_t(x,u,x') =  φ(x) - φ(x'). $$
+::: 
+
+Remark
+
+:   1. The cost can depend on time, but the potential function is time-invariant.
+
+    2. The sign of the potential function is irrelevant. So, we could also
+       have written
+       $$ c^2_t(x,u,x') - c^1_t(x,u,x') =  φ(x') - φ(x). $$
+
+
+    2. The result naturally extends to infinite horizon expected cost model
+       (and is typically stated for such a model). In the infinite horizon
+       case, condition 2 needs to be replaced by
+       $$ c^2(x,u,x') - c^1(x,u,x') = φ(x) - β φ(x'). $$
+
+
+#### Proof (sufficiency)
+
+Suppose conditions 1 and 2 in the statement of the theorem hold. That is,
+$$c^2_t(x,u,x') = c^1_t(x,u,x') + φ(x) - φ(x')
+\quad\text{and}\quad
+c^2_T(x) = c^1_T(x) + φ(x). $$
+
+Then, we claim that
+$$\begin{equation} \label{eq:claim}
+Q^2_t(x,u) = Q^1_t(x,u) + φ(x)
+\quad
+V^2_t(x) = V^1_t(x) + φ(x).
+\end{equation}$$
+
+We prove the result by backward induction. First note that
+$$
+  V^2_T(x) = c^2_T(x) = c^1_T(x) + φ(x) = V^1_T(x) + φ(x).
+$$
+This forms the basis of induction. Now suppose that \\eqref{eq:claim} holds for
+time $t+1$. Now consider
+$$\begin{align*}
+Q^2_t(x,u) &= \EXP[ c^2_t(x,u,X_{t+1}) + V^2_{t+1}(X_{t+1}) \mid X_t = x, U_t = u ]
+\\
+&\stackrel{(a)}= \EXP[ c^1_t(x,u,X_{t+1}) + φ(x) - φ(X_{t+1}) \\
+&\qquad + V^1_{t+1}(X_{t+1}) + φ(X_{t+1}) \mid X_t = x, U_t = u ] \\
+&= \EXP[ c^1_t(x,u,X_{t+1}) + φ(x) + V^1_{t+1}(X_{t+1}) \mid
+X_t = x, U_t = u] \\
+&= Q^1_t(x,u) + φ(x),
+\end{align*}$$
+where $(a)$ follows from property 2 and the induction hypothesis.
+
+Now, mimimizing both sides over $u$ gives 
+$$ V^2_t(x) = V^1_t(x) + φ(x). $$
+
+This proves the induction step. &nbsp;$\Box$
+
+#### Proof (necessity)
+
+See @Ng1999.
+
+## References
+
+The above result is due to @Ng1999 who provided the result for infinite
+horizon models. However, in my opinion, it is conceptually simpler to start
+with the finite horizon model. For a discussion on practical considerations in
+using reward shaping in reinforcement learning, see @Grzes2009 and @Devlin2014.
+
+---
+

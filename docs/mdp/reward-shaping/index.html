@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="reward shaping" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/github.css" type="text/css" />
+  <script src="https://adityam.github.io/stochastic-control//js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-basic-latest.min.js">
+  </script>
+  <script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG,https://adityam.github.io/stochastic-control/js/mathjax-local.js">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2018
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Theory: Reward Shaping</h1>
+
+<p>What are the conditions under which two MDPs which have the same dynamics but different cost functions have the same optimal policy? This is an important question in reinforcement learning (where one often <em>shapes</em> the reward function to speed up learning) and inverse reinforcement learning (where one learns the reward function from the behavior of an expert). The following result provides a complete answer to this question.</p>
+<p>Let <span class="math inline">\(M^1\)</span> and <span class="math inline">\(M^2\)</span> denote two MDPs on the same state space <span class="math inline">\(\ALPHABET X\)</span> and action space <span class="math inline">\(\ALPHABET U\)</span>. Both MDPs have the same dynamics <span class="math inline">\(f = (f^1, \dots, f_T)\)</span>, same distribution on the noise <span class="math inline">\(P_W\)</span>, but different cost functions <span class="math inline">\(c^1 = (c^1_1, \dots, c^1_T)\)</span> and <span class="math inline">\(c^2 = (c^2_1, \dots, c^2_T)\)</span>. We assume that for <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, the per-step cost is a function of the current state, current action, and next state (see <a href="../mdp-functional#cost-depends-on-next-state">cost depending on next state</a>) and for <span class="math inline">\(t = T\)</span>, the per-step cost function is just a function of the current state. Let <span class="math inline">\(g^1 = (g^1_1, \dots, g^1_T)\)</span> and <span class="math inline">\(g^2 = (g^2_1, \dots, g^2_T)\)</span> denote the optimal policy corresponding to <span class="math inline">\(M^1\)</span> and <span class="math inline">\(M^2\)</span>, respectively.</p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:reward-shaping" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
+<dd><p>The policy <span class="math inline">\(g^1\)</span> is equal to the policy <span class="math inline">\(g^2\)</span> for every choice of transition function <span class="math inline">\(f\)</span> and probability distribution <span class="math inline">\(P_W\)</span> if and only if there exists a function <span class="math inline">\(φ \colon \ALPHABET X \to \reals\)</span>, which is called a <em>potential function</em>, such that:</p>
+<ol type="1">
+<li><p>For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ c^2_T(x) - c^1_T(x) = φ(x).  \]</span></p></li>
+<li><p>For <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, <span class="math display">\[ c^2_t(x,u,x&#39;) - c^1_t(x,u,x&#39;) =  φ(x) - φ(x&#39;). \]</span></p></li>
+</ol>
+</dd>
+</dl>
+</div>
+<dl>
+<dt>Remark</dt>
+<dd><ol type="1">
+<li><p>The cost can depend on time, but the potential function is time-invariant.</p></li>
+<li><p>The sign of the potential function is irrelevant. So, we could also have written <span class="math display">\[ c^2_t(x,u,x&#39;) - c^1_t(x,u,x&#39;) =  φ(x&#39;) - φ(x). \]</span></p></li>
+<li><p>The result naturally extends to infinite horizon expected cost model (and is typically stated for such a model). In the infinite horizon case, condition 2 needs to be replaced by <span class="math display">\[ c^2(x,u,x&#39;) - c^1(x,u,x&#39;) = φ(x) - β φ(x&#39;). \]</span></p></li>
+</ol>
+</dd>
+</dl>
+<h4 id="proof-sufficiency">Proof (sufficiency)</h4>
+<p>Suppose conditions 1 and 2 in the statement of the theorem hold. That is, <span class="math display">\[c^2_t(x,u,x&#39;) = c^1_t(x,u,x&#39;) + φ(x) - φ(x&#39;)
+\quad\text{and}\quad
+c^2_T(x) = c^1_T(x) + φ(x). \]</span></p>
+<p>Then, we claim that <span class="math display">\[\begin{equation} \label{eq:claim}
+Q^2_t(x,u) = Q^1_t(x,u) + φ(x)
+\quad
+V^2_t(x) = V^1_t(x) + φ(x).
+\end{equation}\]</span></p>
+<p>We prove the result by backward induction. First note that <span class="math display">\[
+  V^2_T(x) = c^2_T(x) = c^1_T(x) + φ(x) = V^1_T(x) + φ(x).
+\]</span> This forms the basis of induction. Now suppose that \eqref{eq:claim} holds for time <span class="math inline">\(t+1\)</span>. Now consider <span class="math display">\[\begin{align*}
+Q^2_t(x,u) &amp;= \EXP[ c^2_t(x,u,X_{t+1}) + V^2_{t+1}(X_{t+1}) \mid X_t = x, U_t = u ]
+\\
+&amp;\stackrel{(a)}= \EXP[ c^1_t(x,u,X_{t+1}) + φ(x) - φ(X_{t+1}) \\
+&amp;\qquad + V^1_{t+1}(X_{t+1}) + φ(X_{t+1}) \mid X_t = x, U_t = u ] \\
+&amp;= \EXP[ c^1_t(x,u,X_{t+1}) + φ(x) + V^1_{t+1}(X_{t+1}) \mid
+X_t = x, U_t = u] \\
+&amp;= Q^1_t(x,u) + φ(x),
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from property 2 and the induction hypothesis.</p>
+<p>Now, mimimizing both sides over <span class="math inline">\(u\)</span> gives <span class="math display">\[ V^2_t(x) = V^1_t(x) + φ(x). \]</span></p>
+<p>This proves the induction step.  <span class="math inline">\(\Box\)</span></p>
+<h4 id="proof-necessity">Proof (necessity)</h4>
+<p>See <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999">1999</a>)</span>.</p>
+<h2 id="references">References</h2>
+<p>The above result is due to <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999">1999</a>)</span> who provided the result for infinite horizon models. However, in my opinion, it is conceptually simpler to start with the finite horizon model. For a discussion on practical considerations in using reward shaping in reinforcement learning, see <span class="citation" data-cites="Grzes2009">Grzes and Kudenko (<a href="#ref-Grzes2009">2009</a>)</span> and <span class="citation" data-cites="Devlin2014">Devlin (<a href="#ref-Devlin2014">2014</a>)</span>.</p>
+<hr />
+<div id="refs" class="references">
+<div id="ref-Devlin2014">
+<p><span class="smallcaps">Devlin, S.</span> 2014. Potential based reward shaping tutorial.. Available at: <a href="http://www-users.cs.york.ac.uk/~devlin/presentations/pbrs-tut.pdf">http://www-users.cs.york.ac.uk/~devlin/presentations/pbrs-tut.pdf</a>.</p>
+</div>
+<div id="ref-Grzes2009">
+<p><span class="smallcaps">Grzes, M. and Kudenko, D.</span> 2009. Theoretical and empirical analysis of reward shaping in reinforcement learning. <em>International conference on machine learning and applications</em>, 337–344. DOI: <a href="https://doi.org/10.1109/ICMLA.2009.33">10.1109/ICMLA.2009.33</a>.</p>
+</div>
+<div id="ref-Ng1999">
+<p><span class="smallcaps">Ng, A.Y., Harada, D., and Russell, S.</span> 1999. Policy invariance under reward transformations: Theory and application to reward shaping. <em>ICML</em>, 278–287. Available at: <a href="http://ftp.cs.berkeley.edu/~russell/papers/icml99-shaping.pdf">http://ftp.cs.berkeley.edu/~russell/papers/icml99-shaping.pdf</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/reward-shaping">reward shaping</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
