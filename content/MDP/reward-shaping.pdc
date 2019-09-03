@@ -30,64 +30,62 @@ Theorem #thm:reward-shaping
 
 :   The policy $g^1$ is equal to the policy $g^2$ for every choice of
     transition function $f$ and probability distribution $P_W$ if and only if
-    there exists a function $φ \colon \ALPHABET X \to \reals$, which is called
-    a _potential function_, such that:
+    there exists a sequence of functions $\{φ_t \colon \ALPHABET X \to
+    \reals\}_{t \ge 1}$, which are called _potential functions_, such that:
 
     1. For $t = T$,
-    $$ c^2_T(x) - c^1_T(x) = φ(x).  $$
+    $$ c^2_T(x) = c^1_T(x) - φ_T(x).  $$
 
     2. For $t \in \{1, \dots, T-1\}$, 
-    $$ c^2_t(x,u,x') - c^1_t(x,u,x') =  φ(x') - φ(x). $$
+    $$ c^2_t(x,u,x') = c^1_t(x,u,x') +  φ_{t+1}(x') - φ_t(x). $$
 ::: 
 
 Remark
 
-:   1. The cost can depend on time, but the potential function is time-invariant.
-
-    2. The sign of the potential function is irrelevant. So, we could also
+:   1. The sign of the potential function is irrelevant. So, we could also
        have written
-       $$ c^2_t(x,u,x') - c^1_t(x,u,x') =  φ(x) - φ(x'). $$
-
+       $$ c^2_t(x,u,x') = c^1_t(x,u,x') +  φ_t(x) - φ_{t+1}(x'). $$
 
     2. The result naturally extends to infinite horizon expected cost model
        (and is typically stated for such a model). In the infinite horizon
-       case, condition 2 needs to be replaced by
-       $$ c^2(x,u,x') - c^1(x,u,x') = β φ(x') - φ(x). $$
+       case, the potential function must be time-invariant and 
+       condition 2 needs to be replaced by
+       $$ c^2(x,u,x') = c^1(x,u,x') + β φ(x') - φ(x). $$
 
 
 #### Proof (sufficiency)
 
 Suppose conditions 1 and 2 in the statement of the theorem hold. That is,
-$$c^2_t(x,u,x') = c^1_t(x,u,x') - φ(x) + φ(x')
+$$c^2_t(x,u,x') = c^1_t(x,u,x') - φ_t(x) + φ_{t+1}(x')
 \quad\text{and}\quad
-c^2_T(x) = c^1_T(x) - φ(x). $$
+c^2_T(x) = c^1_T(x) - φ_T(x). $$
 
 Then, we claim that
 $$\begin{equation} \label{eq:claim}
-Q^2_t(x,u) = Q^1_t(x,u) - φ(x)
+Q^2_t(x,u) = Q^1_t(x,u) - φ_t(x)
 \quad
-V^2_t(x) = V^1_t(x) - φ(x).
+V^2_t(x) = V^1_t(x) - φ_t(x).
 \end{equation}$$
 
 We prove the result by backward induction. First note that
 $$
-  V^2_T(x) = c^2_T(x) = c^1_T(x) - φ(x) = V^1_T(x) - φ(x).
+  V^2_T(x) = c^2_T(x) = c^1_T(x) - φ_T(x) = V^1_T(x) - φ_T(x).
 $$
 This forms the basis of induction. Now suppose that \\eqref{eq:claim} holds for
 time $t+1$. Now consider
 $$\begin{align*}
 Q^2_t(x,u) &= \EXP[ c^2_t(x,u,X_{t+1}) + V^2_{t+1}(X_{t+1}) \mid X_t = x, U_t = u ]
 \\
-&\stackrel{(a)}= \EXP[ c^1_t(x,u,X_{t+1}) - φ(x) + φ(X_{t+1}) \\
-&\qquad + V^1_{t+1}(X_{t+1}) - φ(X_{t+1}) \mid X_t = x, U_t = u ] \\
-&= \EXP[ c^1_t(x,u,X_{t+1}) - φ(x) + V^1_{t+1}(X_{t+1}) \mid
+&\stackrel{(a)}= \EXP[ c^1_t(x,u,X_{t+1}) - φ_t(x) + φ_{t+1}(X_{t+1}) \\
+&\qquad + V^1_{t+1}(X_{t+1}) - φ_{t+1}(X_{t+1}) \mid X_t = x, U_t = u ] \\
+&= \EXP[ c^1_t(x,u,X_{t+1}) - φ_t(x) + V^1_{t+1}(X_{t+1}) \mid
 X_t = x, U_t = u] \\
 &= Q^1_t(x,u) - φ(x),
 \end{align*}$$
 where $(a)$ follows from property 2 and the induction hypothesis.
 
 Now, mimimizing both sides over $u$ gives 
-$$ V^2_t(x) = V^1_t(x) - φ(x). $$
+$$ V^2_t(x) = V^1_t(x) - φ_t(x). $$
 
 This proves the induction step. &nbsp;$\Box$
 
@@ -111,6 +109,22 @@ Additional Remarks
 #### Proof (necessity)
 
 See @Ng1999.
+
+## Exercises
+
+1. Suppose $g = (g_1, \dots, g_T)$ is any _Markov_ policy. Let $J^i_t(x;g)$,
+   $i \in \{1, 2\}$  denote the performance of policy $g$ in model
+   $M^i$ starting in state $x$ at time $t$ (see 
+   [Performance of Markov Strategies](../mdp-functional/#performance)). Show that
+
+   $$ J^2_t(x; g) = J^1_t(x; g) - \varphi(x). $$
+
+   Using this relationship, show that reward shaping is _robust_ in the
+   sense that near-optimal policies are preserved. If $g$ is near optimal in
+   $M^2$ in the sense that $| V^2_t(x) - J^2_t(x; g)| \le ε_t$ using potential
+   based shaping, then, $g$ will also be near optimal in the original model,
+   i.e., $|V^1_t(x) - J^1_t(x;g) | \le ε_t$.
+
 
 ## References
 

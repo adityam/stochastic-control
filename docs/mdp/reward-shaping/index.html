@@ -41,10 +41,10 @@
 <div class="highlight">
 <dl>
 <dt><span id="thm:reward-shaping" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
-<dd><p>The policy <span class="math inline">\(g^1\)</span> is equal to the policy <span class="math inline">\(g^2\)</span> for every choice of transition function <span class="math inline">\(f\)</span> and probability distribution <span class="math inline">\(P_W\)</span> if and only if there exists a function <span class="math inline">\(φ \colon \ALPHABET X \to \reals\)</span>, which is called a <em>potential function</em>, such that:</p>
+<dd><p>The policy <span class="math inline">\(g^1\)</span> is equal to the policy <span class="math inline">\(g^2\)</span> for every choice of transition function <span class="math inline">\(f\)</span> and probability distribution <span class="math inline">\(P_W\)</span> if and only if there exists a sequence of functions <span class="math inline">\(\{φ_t \colon \ALPHABET X \to \reals\}_{t \ge 1}\)</span>, which are called <em>potential functions</em>, such that:</p>
 <ol type="1">
-<li><p>For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ c^2_T(x) - c^1_T(x) = φ(x).  \]</span></p></li>
-<li><p>For <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, <span class="math display">\[ c^2_t(x,u,x&#39;) - c^1_t(x,u,x&#39;) =  φ(x&#39;) - φ(x). \]</span></p></li>
+<li><p>For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ c^2_T(x) = c^1_T(x) - φ_T(x).  \]</span></p></li>
+<li><p>For <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, <span class="math display">\[ c^2_t(x,u,x&#39;) = c^1_t(x,u,x&#39;) +  φ_{t+1}(x&#39;) - φ_t(x). \]</span></p></li>
 </ol>
 </dd>
 </dl>
@@ -52,33 +52,32 @@
 <dl>
 <dt>Remark</dt>
 <dd><ol type="1">
-<li><p>The cost can depend on time, but the potential function is time-invariant.</p></li>
-<li><p>The sign of the potential function is irrelevant. So, we could also have written <span class="math display">\[ c^2_t(x,u,x&#39;) - c^1_t(x,u,x&#39;) =  φ(x) - φ(x&#39;). \]</span></p></li>
-<li><p>The result naturally extends to infinite horizon expected cost model (and is typically stated for such a model). In the infinite horizon case, condition 2 needs to be replaced by <span class="math display">\[ c^2(x,u,x&#39;) - c^1(x,u,x&#39;) = β φ(x&#39;) - φ(x). \]</span></p></li>
+<li><p>The sign of the potential function is irrelevant. So, we could also have written <span class="math display">\[ c^2_t(x,u,x&#39;) = c^1_t(x,u,x&#39;) +  φ_t(x) - φ_{t+1}(x&#39;). \]</span></p></li>
+<li><p>The result naturally extends to infinite horizon expected cost model (and is typically stated for such a model). In the infinite horizon case, the potential function must be time-invariant and condition 2 needs to be replaced by <span class="math display">\[ c^2(x,u,x&#39;) = c^1(x,u,x&#39;) + β φ(x&#39;) - φ(x). \]</span></p></li>
 </ol>
 </dd>
 </dl>
 <h4 id="proof-sufficiency">Proof (sufficiency)</h4>
-<p>Suppose conditions 1 and 2 in the statement of the theorem hold. That is, <span class="math display">\[c^2_t(x,u,x&#39;) = c^1_t(x,u,x&#39;) - φ(x) + φ(x&#39;)
+<p>Suppose conditions 1 and 2 in the statement of the theorem hold. That is, <span class="math display">\[c^2_t(x,u,x&#39;) = c^1_t(x,u,x&#39;) - φ_t(x) + φ_{t+1}(x&#39;)
 \quad\text{and}\quad
-c^2_T(x) = c^1_T(x) - φ(x). \]</span></p>
+c^2_T(x) = c^1_T(x) - φ_T(x). \]</span></p>
 <p>Then, we claim that <span class="math display">\[\begin{equation} \label{eq:claim}
-Q^2_t(x,u) = Q^1_t(x,u) - φ(x)
+Q^2_t(x,u) = Q^1_t(x,u) - φ_t(x)
 \quad
-V^2_t(x) = V^1_t(x) - φ(x).
+V^2_t(x) = V^1_t(x) - φ_t(x).
 \end{equation}\]</span></p>
 <p>We prove the result by backward induction. First note that <span class="math display">\[
-  V^2_T(x) = c^2_T(x) = c^1_T(x) - φ(x) = V^1_T(x) - φ(x).
+  V^2_T(x) = c^2_T(x) = c^1_T(x) - φ_T(x) = V^1_T(x) - φ_T(x).
 \]</span> This forms the basis of induction. Now suppose that \eqref{eq:claim} holds for time <span class="math inline">\(t+1\)</span>. Now consider <span class="math display">\[\begin{align*}
 Q^2_t(x,u) &amp;= \EXP[ c^2_t(x,u,X_{t+1}) + V^2_{t+1}(X_{t+1}) \mid X_t = x, U_t = u ]
 \\
-&amp;\stackrel{(a)}= \EXP[ c^1_t(x,u,X_{t+1}) - φ(x) + φ(X_{t+1}) \\
-&amp;\qquad + V^1_{t+1}(X_{t+1}) - φ(X_{t+1}) \mid X_t = x, U_t = u ] \\
-&amp;= \EXP[ c^1_t(x,u,X_{t+1}) - φ(x) + V^1_{t+1}(X_{t+1}) \mid
+&amp;\stackrel{(a)}= \EXP[ c^1_t(x,u,X_{t+1}) - φ_t(x) + φ_{t+1}(X_{t+1}) \\
+&amp;\qquad + V^1_{t+1}(X_{t+1}) - φ_{t+1}(X_{t+1}) \mid X_t = x, U_t = u ] \\
+&amp;= \EXP[ c^1_t(x,u,X_{t+1}) - φ_t(x) + V^1_{t+1}(X_{t+1}) \mid
 X_t = x, U_t = u] \\
 &amp;= Q^1_t(x,u) - φ(x),
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from property 2 and the induction hypothesis.</p>
-<p>Now, mimimizing both sides over <span class="math inline">\(u\)</span> gives <span class="math display">\[ V^2_t(x) = V^1_t(x) - φ(x). \]</span></p>
+<p>Now, mimimizing both sides over <span class="math inline">\(u\)</span> gives <span class="math display">\[ V^2_t(x) = V^1_t(x) - φ_t(x). \]</span></p>
 <p>This proves the induction step.  <span class="math inline">\(\Box\)</span></p>
 <dl>
 <dt>Additional Remarks</dt>
@@ -90,6 +89,12 @@ X_t = x, U_t = u] \\
 </dl>
 <h4 id="proof-necessity">Proof (necessity)</h4>
 <p>See <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999">1999</a>)</span>.</p>
+<h2 id="exercises">Exercises</h2>
+<ol type="1">
+<li><p>Suppose <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> is any <em>Markov</em> policy. Let <span class="math inline">\(J^i_t(x;g)\)</span>, <span class="math inline">\(i \in \{1, 2\}\)</span> denote the performance of policy <span class="math inline">\(g\)</span> in model <span class="math inline">\(M^i\)</span> starting in state <span class="math inline">\(x\)</span> at time <span class="math inline">\(t\)</span> (see <a href="../mdp-functional/#performance">Performance of Markov Strategies</a>). Show that</p>
+<p><span class="math display">\[ J^2_t(x; g) = J^1_t(x; g) - \varphi(x). \]</span></p>
+<p>Using this relationship, show that reward shaping is <em>robust</em> in the sense that near-optimal policies are preserved. If <span class="math inline">\(g\)</span> is near optimal in <span class="math inline">\(M^2\)</span> in the sense that <span class="math inline">\(| V^2_t(x) - J^2_t(x; g)| \le ε_t\)</span> using potential based shaping, then, <span class="math inline">\(g\)</span> will also be near optimal in the original model, i.e., <span class="math inline">\(|V^1_t(x) - J^1_t(x;g) | \le ε_t\)</span>.</p></li>
+</ol>
 <h2 id="references">References</h2>
 <p>The above result is due to <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999">1999</a>)</span> who provided the result for infinite horizon models. However, in my opinion, it is conceptually simpler to start with the finite horizon model. For a discussion on practical considerations in using reward shaping in reinforcement learning, see <span class="citation" data-cites="Grzes2009">Grzes and Kudenko (<a href="#ref-Grzes2009">2009</a>)</span> and <span class="citation" data-cites="Devlin2014">Devlin (<a href="#ref-Devlin2014">2014</a>)</span>.</p>
 <hr />
