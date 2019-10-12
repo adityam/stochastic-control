@@ -1,0 +1,208 @@
+---
+title: "Prelim: Change of Measure"
+wieght: 100
+---
+
+## Change of measure of a single random variable.
+
+::: highlight :::
+Theorem #thm:change-of-measure
+
+:   Let $(\Omega, \mathcal F, P)$ be a probability space and $\Lambda$ be an
+    almost surely non-negative random variable such that $\EXP[\Lambda] = 1$. For
+    any $A \in \mathcal F$, define 
+    $$ P^\dagger(A) = \int_A \Lambda(\omega) dP(\omega). $$
+    Then, 
+
+    * $P^\dagger$ is a probability measure.
+    * For any random variable $X$, 
+      $$ \EXP^\dagger[X] = \EXP[ \Lambda X]. $$
+    * If $\Lambda$ is almost surely positive, then
+      $$ \EXP[X] = \EXP^\dagger \left[ \frac{X}{\Lambda} \right]. $$
+
+:::
+
+#### Proof
+
+By definition. $P^\dagger(\emptyset) = 0$ and $P^\dagger(\Omega) = \EXP[ \Lambda] =
+1$. Since $\Lambda$ is almost surely non-negative, $P^\dagger(A) \ge 0$. Hence,
+$P^\dagger$ is a probability measure. 
+
+The second and the third part follow from observing that
+$$ dP^\dagger(\omega) = \Lambda(\omega) dP(\omega). $$
+
+---
+
+Given two measures $\mu$ and $\nu$ on a measurable space $(\Omega, \mathcal F)$,
+we say that the measure $\mu$ is _absolutely continuous_ with respect to $\nu$
+(denoted by $\mu \ll \nu$) if for any $A \in \mathcal F$, 
+$$
+  \nu(A) = 0 \implies \mu(A) = 0.
+$$ 
+
+::: highlight :::
+Theorem #thm:Radon-Nikodym
+
+:   **(Radon-Nikodym).** Given two probability measures $P$ and $P^\dagger$ on a
+    measurable space, if $P^\dagger$ is absolutely continuous with respect to $P$,
+    then there exists an almost surely positive random variable $\Lambda$ such
+    that $\EXP[\Lambda] = 1$ and for any $A \in \mathcal F$,
+    $$
+      P^\dagger(A) = \int_A \Lambda(\omega) dP(\omega). 
+    $$
+    Such a $\Lambda$ is called the _Radon-Nikodym derivative_ of $P^\dagger$
+    with respect to $P$, and is written as
+    $$
+      \Lambda = \frac{ dP^\dagger } {dP}.
+    $$
+
+:::
+
+Remark
+
+:   * The Radon-Nikodym theorem provides the reverse property of
+      @thm:change-of-measure. Given two measures $μ \ll ν$,
+      $$
+        \int_{A} f dν = \int_A f \frac{dν}{dμ} dμ.
+      $$
+      Thus, in @thm:change-of-measure, we are constructing a new probaility measure
+      $P^\dagger$ such that $dP^\dagger/dP = Λ$. 
+
+    * The Radon-Nikodym Theorem is typically stated for $σ$-finite measures. 
+      The above statement is a specialization of Radon-Nikodym Theorem to
+      probability measures. 
+
+    * In statistical signal processing literature, the Radon-Nikodym
+      derivative is sometimes known as the likelihood ratio. 
+
+    * The density of a random variable is the Radon-Nikodym derivative with
+      respect to the Lebesgue measure. 
+
+    * The Radon-Nikodym derivative satisfies the product rule. If $μ \ll ν \ll
+      λ$, then
+      $$ 
+        \frac {dμ}{dλ} = \frac {dμ}{dν} \frac {dν}{dλ},
+        \quad λ~\text{a.s.}.
+      $$
+
+    * The Kullback-Leibler divergence between two probability measures $P$ and
+      $Q$ defined on $(\Omega, \mathcal F)$ may be written as
+      $$
+        D_{\text{KL}}( P \| Q) = \int_\Omega \log \left ( \frac {dP}{dQ} \right)
+        dP.
+      $$
+
+## Conditional expectation under change of measure
+
+::: highlight :::
+Theorem #thm:conditional-change-of-measure
+
+:   Consider two probability measures $P$ and $P^\dagger$ on $(Ω, \mathcal F)$ such
+    that $P^\dagger \ll P$. Let $Λ$ denote the Radon-Nikodym derivative of
+    $P^\dagger$ with respect to $P$ and $\mathcal G$ be any sub sigma-field of
+    $\mathcal F$. Then, for any random variable $X$
+    $$
+      \EXP^\dagger[ X | \mathcal G ] = 
+      \dfrac{ \EXP[ Λ X | \mathcal G ] } { \EXP [ Λ | \mathcal G ] },
+      \quad P^\dagger~\text{a.s.}
+    $$
+
+:::
+
+### Proof
+
+Let $G \in \mathcal G$. Then: 
+
+$$\begin{align*}
+  \int_G \EXP[ Λ X | \mathcal G] dP 
+  &\stackrel{(a)}= \int_G Λ X dP \\
+  &\stackrel{(b)}= \int_G X dP^\dagger \\
+  &\stackrel{(c)}= \int_G \EXP^\dagger[ X | \mathcal G] dP^\dagger \\
+  &\stackrel{(d)}= \int_G \EXP^\dagger[ X | \mathcal G] Λ dP \\
+  &\stackrel{(e)}= \int_G \EXP[ \EXP^\dagger[ X | \mathcal G]  Λ | \mathcal G] dP \\
+  &\stackrel{(f)}= \int_G \EXP^\dagger[ X | \mathcal G]  \EXP[ Λ | \mathcal G] dP \\
+\end{align*}$$
+where (a), (c), and (e) follow from the definition of conditional expectation, (b)
+and (d) follow from change of measures, and (f) follows because $\EXP^\dagger[
+X | \mathcal G]$ is $\mathcal G$-measurable. Thus,
+
+$$ \EXP[ Λ X | \mathcal G ] = \EXP^\dagger[ X | \mathcal G ] \EXP[ Λ | \mathcal G]. $$
+
+
+## Change of measure for a process
+
+Consider a probability space $(Ω, \mathcal F)$ and let $P$ and $P^\dagger$ be
+two probability measures on $(Ω, \mathcal F)$ such that $P^\dagger \ll P$. Let
+$Λ$ denote the Radon-Nikodym derivative of $P^\dagger$ with respect to
+$P$. 
+
+Let $\{\mathcal F_t\}_{t \ge 0}$ be a filtration on $(Ω, \mathcal F)$. 
+Then, we can define the _Radon-Nikodym derivative process_ 
+$$
+  Λ_t = \EXP[ Λ | \mathcal F_t ].
+$$
+
+::: highlight :::
+Theorem #thm:derivative-process
+
+:   * The Radon-Nikodym derivative process $\{Λ_t\}_{t \ge 0}$ is a martingale 
+      with respect to $\{\mathcal F_t\}_{t \ge 0}$, i.e., for any $s \le t$, 
+      $$ \EXP[ Λ_t | \mathcal F_s ] = Λ_s. $$
+  
+    * Let $X_t$ be an $\mathcal F_t$ measurable random variable. Then
+      $$ \EXP^\dagger[X_t] = \EXP[Λ X_t ] = \EXP[ Λ_t X_t ]. $$
+
+      Thus, $Λ_t$ may be viewed as $\dfrac {dP^\dagger}{dP} \Bigg|_{\mathcal
+      F_t}$.
+
+    * Let $X_t$ be an $\mathcal F_t$ measurable random varaible. Then for any
+      $s < t$,
+      $$ \EXP^\dagger[X_t | \mathcal F_s ] =
+         \dfrac{1}{Λ_s} \EXP[ Λ_t X_t | \mathcal F_s ] .
+      $$
+
+::: 
+
+An immediate implication of @thm:derivative-process is the following. 
+
+Corollary
+
+:   A process $\{X_t\}_{t \ge 0}$ is a $P^\dagger$-martingale with respect to
+    $\{\mathcal F_t\}_{t \ge 0}$ if and only if the process $\{ Λ_t X_t \}_{t
+    \ge 0}$ is a $P$-martingale.
+
+#### Proof
+
+The fact Radon-Nikodym derivate process is a martingale immediately follows
+from the towering property of conidtional expectation:
+
+$$
+\EXP[ Λ_t | \mathcal F_s ] = \EXP[ \EXP[ Λ | \mathcal F_t ] | \mathcal F_s ]
+= \EXP[ Λ | \mathcal F_s ] = Λ_s.
+$$
+
+By definition of Radon-Nikodym derivative, $\EXP^\dagger[X_t] = \EXP[Λ X_t]$.
+Now, by the towering property of conditional expectation, we have
+$$
+  \EXP[Λ X_t ] = \EXP[ \EXP[ Λ X_t | \mathcal F_t ] ] 
+  = \EXP[ X_t \EXP[ Λ | \mathcal F_t ] ] = \EXP [Λ_t X_t].
+$$
+This proves the second part.
+
+To prove the third part, @thm:conditional-change-of-measure implies that
+
+$$\begin{equation}
+\EXP^\dagger[ X_t | \mathcal F_s ] =
+   \frac{ \EXP[ Λ X_t | \mathcal F_s ]} { \EXP[ Λ | \mathcal F_s ] } =
+   \frac{ \EXP[ Λ X_t | \mathcal F_s ]} { Λ_s }.
+   \label{eq:step-1}
+\end{equation}$$
+
+Now, consider the numerator:
+
+$$
+\EXP[ Λ X_t | F_s ] = \EXP[ \EXP [ Λ X_t | \mathcal F_t ] | \mathcal F_s ] 
+= \EXP [ X_t \EXP[ Λ | \mathcal F_t ] ] = \EXP [ X_t Λ_t ] .
+$$
+Substituting this in \\eqref{eq:step-1} completes the proof of the third part.
+
