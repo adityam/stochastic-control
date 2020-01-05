@@ -5,9 +5,59 @@ categories:
   - stochastics
 tags:
   - stochastic optimization
+  - principle of irrelevant information
 ---
 
-Let's start with a simple stochastic optimization problem. Suppose $\ALPHABET
+Let's start with the simplest optimization problem. A decision maker has to
+choose an action $u \in \ALPHABET U$. Upon choosing action $u$, the decision
+maker incurs a cost $c(u)$. What action should the decision maker pick to
+minimize the cost? 
+
+Formally, the above optimization problem may be written as
+$$ \begin{equation} \label{eq:static-optimization}
+ \min_{u \in \ALPHABET U} c(u).
+\end{equation}$$
+
+When the _action space_ $\ALPHABET U$ is finite, say $\ALPHABET U = \{1,
+\dots, m\}$, solving the optimization problem \\eqref{eq:static-optimization} is straight-forward:
+enumerate the cost of all possible actions, i.e., enumerate the set 
+$C = \{ c(u) : u \in \ALPHABET U \}$ and find the smallest element. 
+
+When the action space $\ALPHABET U$ is continuous, say a compact subset of a
+Euclidean space, solving the optimization problem
+\\eqref{eq:static-optimization} is conceptually
+straight-forward only when the cost function $c$ satisfies some regularity
+conditions. For example, when $c$ is convex, the optimal action can be
+obtained for solving 
+$$ \dfrac {d c(u) }{ du } = 0. $$
+
+---
+
+Now we consider optimization problem with randomness. The simplest instance
+with randomness is as follows. A decision maker has to choose an action $u \in
+\ALPHABET U$. Upon choosing action $u$, the decision maker incurs a cost
+$c(u,W)$, where $W \in \ALPHABET W$ is a random variable with known
+probability distribution. We assume that the decision maker is _risk neutral_
+and, therefore, wants to minimize $\EXP[ c(u, W) ]$, where the expectation is
+with respect to the random variable $W$. 
+
+Formally, the above optimization problem may be written as
+$$\begin{equation} \label{eq:stochastic-optimization-1}
+  \min_{u \in \ALPHABET U} \EXP[ c(u, W) ]. 
+\end{equation}$$
+
+Define $J(u) = \EXP[ c(u, W) ]$. Then
+Problem \\eqref{eq:stochastic-optimization-1} is conceptually the same as
+Problem \\eqref{eq:static-optimization} with the cost function $J(u)$.
+Numerically, Problem \\eqref{eq:stochastic-optimization-1} is more
+difficult because computing $J(u)$ involves evaluating an expectation. 
+
+---
+
+In the stochastic optimization problems which we considered above, the
+decision maker had no information when it took a decision. In many situations,
+the decision maker has some information, which is captured by the following
+model. Suppose $\ALPHABET
 X$, $\ALPHABET U$, $\ALPHABET W$ are finite sets and let $X \in \ALPHABET X$
 and $W \in \ALPHABET W$ be random variables defined on a common probability
 space. A decision maker observes the realization of $X$ and chooses and
@@ -27,12 +77,24 @@ i.e., choose a _function_ $g$ to minimize the _functional_ $J(g)$.
 :::
 
 Problem \\ref{eq:basic} can be interpreted as follows. Before the system starts
-running, the decision maker wants to pick a rule $g$ to determine an action
-for each realization of his observation $X$. What rule should he pick to
+running, the decision maker wants to pick a policy $g$ to determine an action
+for each realization of his observation $X$. What policy should he pick to
 minimize the expected cost?
 
-At first glance, this appears to be a formidable optimization problem, but
-there is an alternative way of viewing the problem that simplifies it
+Since we assume $\ALPHABET X$ and $\ALPHABET U$ are finite sets, there are
+finite number of functions from $\ALPHABET X$ to $\ALPHABET U$. So, in
+principle, we can view is as an instance of
+Problem \\eqref{eq:static-optimization} and solve it as follows: for each
+policy $g$ compute $J(g)$ and then pick the policy $g$ with the smallest
+expected cost. 
+
+Such an _exhaustive search_ is not satisfying for two reasons. First, it has a
+high computational cost. There are $| \ALPHABET U |^{| \ALPHABET X |}$
+policies and, for each policy, we have to evaluate an expectation, which can
+be expensive. Second, the above enumeration procedure does not work when
+$\ALPHABET X$ or $\ALPHABET U$ are continuous sets.
+
+There is an alternative way of viewing the problem that simplifies it
 considerably. Instead of viewing the optimization problem before the system
 starts running, imagine that the decision maker waits until he sees the
 realization $x$ of $X$. He then asks what action $u$ should he take to
@@ -51,7 +113,7 @@ Now define
 $$ \begin{equation} \label{eq:cond}
   g^*(x) = \arg \min_{u \in \ALPHABET U} \EXP[ c(x,u, W) | X = x]
 \end{equation} $$
-where ties (in the minimization) are broken arbitarily. 
+where ties (in the minimization) are broken arbitrarily. 
 
 ::: proclaim :::
 **Basic fact.**
@@ -68,7 +130,7 @@ well defined; of course the cost $c$ also has to be measurable). However, it
 is not immediately obvious that $g^*$ defined in \\eqref{eq:cond} is measurable.
 Conditions that ensure this are known as _measurable selection theorems_. 
 
-## Proof
+#### Proof
 
 Let $g$ be any other decision rule. Then,
 $$ \begin{align*}
@@ -78,6 +140,53 @@ $$ \begin{align*}
 \end{align*} $$
 where $(a)$ and $(c)$ follow from the law of iterated expectations and $(b)$
 follows from the definition of $g^*$ in \\eqref{eq:cond}. 
+
+---
+
+In many scenarios, the decision maker may observe data which is irrelevant for
+evaluating performance. In such instances, the decision maker may ignore such
+information without affecting performance. Formally, we have the following
+result, which is known as **Blackwell's principle of irrelevant information**.
+
+::: highlight :::
+Theorem #thm:blackwell
+
+:   Let $\ALPHABET X$, $\ALPHABET Y$, and $\ALPHABET U$ be standard Borel
+    spaces and $X \in \ALPHABET X$ and $Y \in \ALPHABET Y$ be random variables
+    defined on a common probability space.
+    
+    A decision maker observes $(X,Y)$ and chooses $U$ to minimize
+    $\EXP[c(X,U)]$, where $c \colon \ALPHABET X \times \ALPHABET U \to \reals$
+    is a measurable function.
+
+    **Then, there is no loss of optimality in choosing $U$ only as a function
+    of $X$.**
+
+    Formally, there exists a $g^* \colon \ALPHABET X \to \ALPHABET U$ such
+    that for all $g \colon \ALPHABET X \times \ALPHABET Y \to \ALPHABET U$,
+    $$ \EXP[c(X, g^*(X))] \le \EXP[ c(X, g(X,Y)) ]. $$
+:::
+
+#### Proof
+
+We prove the result for the case when $\ALPHABET X$, $\ALPHABET Y$, $\ALPHABET
+U$ are finite valued. 
+
+Define $$g^*(x) = \arg \min_{u \in \ALPHABET U} c(x,u). $$
+Then, by construction, for any $x \in \ALPHABET X$ and $u \in \ALPHABET U$, we
+have that
+$$ c(x, g^*(x) ) \le c(x,u). $$
+Hence, for any $g \colon \ALPHABET X \times \ALPHABET Y \to \ALPHABET U$, and
+for any $x \in \ALPHABET X$ and $y \in \ALPHABET Y$, we have
+$$ \begin{equation} \label{eq:opt}
+  c(x, g^*(x)) \le c(x, g(x,y)). 
+\end{equation} $$
+The result follows by taking the expectation of both sides of \\eqref{eq:opt}. 
+
+The above proof doesn't work for general Borel spaces because $g^*$ defined
+above may not exist (inf vs min) or may not be measurable. See @Blackwell1964
+for a formal proof. 
+
 
 ## Exercise
 
@@ -104,3 +213,14 @@ follows from the definition of $g^*$ in \\eqref{eq:cond}.
 
    Find the policy $g \colon \ALPHABET X \to \ALPHABET U$ that minimizes
    $\EXP[ c(X, g(X), W) ]$. 
+
+2. TODO: Create an example which illustrates Blackwell's principle.
+
+## References
+
+Theorem @thm:blackwell is due to @Blackwell1964 in a short 2.5 page paper. A similar
+result was used by @Witsenhausen1979 to show the structure of optimal coding
+strategies in real-time communication. Also see the [blog post] by Maxim
+Ragisnsky.
+
+[blog post]: https://infostructuralist.wordpress.com/2010/11/08/deadly-ninja-weapons-blackwells-principle-of-irrelevant-information/
