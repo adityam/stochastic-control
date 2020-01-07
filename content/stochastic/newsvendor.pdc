@@ -1,0 +1,115 @@
+---
+title: "Example: The Newsvendor Problem"
+weight: 02
+categories: 
+  - stochastics
+tags:
+  - stochastic optimization
+draft: true
+---
+
+TL;DR *The newsvendor problem is a simple model of stochastic optimization
+problem where a decision has to be made when there is uncertainty about the
+outcome.*
+
+Each morning, a newsvendor has to decide how many newspapers to buy before
+knowing the demand during the day. The newsvendor purchases a newspaper at
+a cost of $\$a$ per newspaper and sells them at a cost of $\$b$ per newspaper,
+where $b > a$. Any unsold newspapers at the end of the day have no salvage
+value.
+
+Let $u$ denote the number of newspapers bought and $W$ denotes
+the demand. If $W < u$, then the newsvendor will sell $W$ newspapers and
+receive a total earnings of $bW - au$. If $W \ge u$, then the newsvendor will
+sell $u$ newspapers and receive a total earning of $bu - au$. Thus, the
+_reward_ is
+
+$$r(u, W) = \begin{cases}
+   bW - au, & \text{if } W < u, \\
+   bu - au, & \text{if } W \ge u. 
+\end{cases} $$
+
+---
+
+The problem above has discrete action and discrete demand. To build 
+intuition, we first consider the case where both the actions and demand are
+continuous. Let $f(w)$ denote the probability density of the demand and $F(w)$
+denote the cumulative probability density. Then, the expected reward is
+$$ \begin{equation} \label{eq:J}
+J(u) = \int_{0}^u [ bW - au ] f(w) dw + \int_{u}^\infty [ bu - au ] f(w) dw. 
+\end{equation}$$
+
+To find the optimal action, we compute the $u$ such that $dJ(u)/du = 0$. We
+first recall the Leibniz integral rule:
+$$ \dfrac{d}{dx} \left( \int_{a(x)}^{b(x)} f(x,t) dt \right)
+   = f(x, b(x)) \cdot \dfrac {d}{dx} b(x) 
+   - f(x, a(x)) \cdot \dfrac {d}{dx} a(x) 
+   + \int_{a(x)}^{b(x)} \dfrac{\partial}{\partial x} f(x,t) dt.
+$$
+
+Thus, the derivative of the first term of \\eqref{eq:J} is
+$$ [bu - au ] f(u) + \int_{0}^u [ -au ] f(w) dw 
+ = [bu - au ] f(u) - au F(u).
+$$
+
+Similarly, the derivative of the second term of \\eqref{eq:J} is
+$$ - [bu - au] f(u) + \int_{u}^{\infty} (b-a)f(w)dw 
+ = - [bu - au] f(u) + (b -a)[ 1 - F(u)].
+$$
+
+Combining the two, we get that
+$$ \dfrac{dJ(u)}{du} = - au F(u) + (b - a) [ 1 - F(u) ]. $$ 
+
+Equating this to $0$, we get
+$$ F(u) = \dfrac{ b - a }{ a }
+\quad\text{or}\quad
+u = F^{-1} \left( \dfrac{ b - a }{ a } \right).
+$$
+In the literature, the quantity $(b-a)/a$ is called the _critical fractile_.
+
+---
+
+Now, we come back to the problem with discrete actions and discrete demand.
+Suppose $W$ takes the values $\{ w_1, w_2, \dots, w_k \}$ (where $w_1 < w_2 <
+\cdots < w_k$) with probabilities $\{ p_1, p_2, \dots, p_k \}$. It is ease to
+see that in this case the action $u$ should be in the set $\{ w_1, w_2, \dots,
+w_k \}$. The expected reward for choice $w_i$ is
+$$ \begin{align*} J(d_i) &=
+\sum_{j < i} p_j [ b w_j - a w_i ] + \sum_{j \ge i} p_j [b w_i - a w_i]
+\\
+&= -a w_i + b \Bigl[ \sum_{j < i}  p_j w_j + \sum_{j \ge i} p_j w_i \Bigr].
+\end{align*}$$
+
+$$ \begin{align*}
+  J(w_{i+1}) - J(w_i) &= 
+  -a w_{i+1} + b \Bigl[ \sum_{j < i+1}  p_j w_j + \sum_{j \ge i+1} p_j w_{i+1} \Bigr]
+  \\
+  &\quad + a w_i - b \Bigl[ \sum_{j < i}  p_j w_j + \sum_{j \ge i} p_j w_i \Bigr]
+  \\
+  &= -a (w_{i+1} - w_i) + b \Bigl[ \sum_{j \ge i + 1} p_j ( w_{i+1} - w_i) \Bigr] 
+  \\
+  &= \big( - a + b [ 1 - P_i ] \big) (w_{i+1} - w_i),
+\end{align*}$$
+where $P_i$ is the cumulative probability mass function. Note that 
+$$ 
+P_i \le \dfrac{b-a}{a}
+\iff
+-a + b [ 1 - P_i ] \ge 0.
+$$
+Thus, for all $i$ such that $P_i \le (b-a)/a$, $J(w_{i+1}) \ge J(w_i)$. On the
+other hand, for all $i$ such that $P_i > (b-a)/a)$, $J(w_{i+1}) < J(w_i)$.
+Thus, the optimal amount to order is the largest $w_i$ such that $P_i \le
+(b-a)/a$. 
+
+Note that the structure of the optimal solution is the same for continuous and
+discrete demand distributions. 
+
+# References
+
+Perhaps the earliest model of the newsvendor problem appeared in
+@Edgeworth1888 in the context of a bank setting the level of cash reserves to
+cover demands from its customers. The solution to the basic model presented
+above and some of its variants was provided in @Morse1951; @Arrow1951;
+@Whitin1953. See @Porteus2008 for an accessible introduction. 
+
+
