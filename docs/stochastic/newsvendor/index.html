@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="stochastic optimization" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG,https://adityam.github.io/stochastic-control/js/mathjax-local.js">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Example: The Newsvendor Problem</h1>
+
+<p>TL;DR <em>The newsvendor problem is a simple model of stochastic optimization problem where a decision has to be made when there is uncertainty about the outcome.</em></p>
+<p>Each morning, a newsvendor has to decide how many newspapers to buy before knowing the demand during the day. The newsvendor purchases a newspaper at a cost of <span class="math inline">\(\$a\)</span> per newspaper and sells them at a cost of <span class="math inline">\(\$b\)</span> per newspaper, where <span class="math inline">\(b &gt; a\)</span>. Any unsold newspapers at the end of the day have no salvage value.</p>
+<p>Let <span class="math inline">\(u\)</span> denote the number of newspapers bought and <span class="math inline">\(W\)</span> denotes the demand. If <span class="math inline">\(W &lt; u\)</span>, then the newsvendor will sell <span class="math inline">\(W\)</span> newspapers and receive a total earnings of <span class="math inline">\(bW - au\)</span>. If <span class="math inline">\(W \ge u\)</span>, then the newsvendor will sell <span class="math inline">\(u\)</span> newspapers and receive a total earning of <span class="math inline">\(bu - au\)</span>. Thus, the <em>reward</em> is</p>
+<p><span class="math display">\[r(u, W) = \begin{cases}
+   bW - au, &amp; \text{if } W &lt; u, \\
+   bu - au, &amp; \text{if } W \ge u. 
+\end{cases} \]</span></p>
+<hr />
+<p>The problem above has discrete action and discrete demand. To build intuition, we first consider the case where both the actions and demand are continuous. Let <span class="math inline">\(f(w)\)</span> denote the probability density of the demand and <span class="math inline">\(F(w)\)</span> denote the cumulative probability density. Then, the expected reward is <span class="math display">\[ \begin{equation} \label{eq:J}
+J(u) = \int_{0}^u [ bW - au ] f(w) dw + \int_{u}^\infty [ bu - au ] f(w) dw. 
+\end{equation}\]</span></p>
+<p>To find the optimal action, we compute the <span class="math inline">\(u\)</span> such that <span class="math inline">\(dJ(u)/du = 0\)</span>. We first recall the Leibniz integral rule: <span class="math display">\[ \dfrac{d}{dx} \left( \int_{a(x)}^{b(x)} f(x,t) dt \right)
+   = f(x, b(x)) \cdot \dfrac {d}{dx} b(x) 
+   - f(x, a(x)) \cdot \dfrac {d}{dx} a(x) 
+   + \int_{a(x)}^{b(x)} \dfrac{\partial}{\partial x} f(x,t) dt.
+\]</span></p>
+<p>Thus, the derivative of the first term of \eqref{eq:J} is <span class="math display">\[ [bu - au ] f(u) + \int_{0}^u [ -au ] f(w) dw 
+ = [bu - au ] f(u) - au F(u).
+\]</span></p>
+<p>Similarly, the derivative of the second term of \eqref{eq:J} is <span class="math display">\[ - [bu - au] f(u) + \int_{u}^{\infty} (b-a)f(w)dw 
+ = - [bu - au] f(u) + (b -a)[ 1 - F(u)].
+\]</span></p>
+<p>Combining the two, we get that <span class="math display">\[ \dfrac{dJ(u)}{du} = - au F(u) + (b - a) [ 1 - F(u) ]. \]</span></p>
+<p>Equating this to <span class="math inline">\(0\)</span>, we get <span class="math display">\[ F(u) = \dfrac{ b - a }{ a }
+\quad\text{or}\quad
+u = F^{-1} \left( \dfrac{ b - a }{ a } \right).
+\]</span> In the literature, the quantity <span class="math inline">\((b-a)/a\)</span> is called the <em>critical fractile</em>.</p>
+<hr />
+<p>Now, we come back to the problem with discrete actions and discrete demand. Suppose <span class="math inline">\(W\)</span> takes the values <span class="math inline">\(\{ w_1, w_2, \dots, w_k \}\)</span> (where <span class="math inline">\(w_1 &lt; w_2 &lt; \cdots &lt; w_k\)</span>) with probabilities <span class="math inline">\(\{ p_1, p_2, \dots, p_k \}\)</span>. It is ease to see that in this case the action <span class="math inline">\(u\)</span> should be in the set <span class="math inline">\(\{ w_1, w_2, \dots, w_k \}\)</span>. The expected reward for choice <span class="math inline">\(w_i\)</span> is <span class="math display">\[ \begin{align*} J(d_i) &amp;=
+\sum_{j &lt; i} p_j [ b w_j - a w_i ] + \sum_{j \ge i} p_j [b w_i - a w_i]
+\\
+&amp;= -a w_i + b \Bigl[ \sum_{j &lt; i}  p_j w_j + \sum_{j \ge i} p_j w_i \Bigr].
+\end{align*}\]</span></p>
+<p><span class="math display">\[ \begin{align*}
+  J(w_{i+1}) - J(w_i) &amp;= 
+  -a w_{i+1} + b \Bigl[ \sum_{j &lt; i+1}  p_j w_j + \sum_{j \ge i+1} p_j w_{i+1} \Bigr]
+  \\
+  &amp;\quad + a w_i - b \Bigl[ \sum_{j &lt; i}  p_j w_j + \sum_{j \ge i} p_j w_i \Bigr]
+  \\
+  &amp;= -a (w_{i+1} - w_i) + b \Bigl[ \sum_{j \ge i + 1} p_j ( w_{i+1} - w_i) \Bigr] 
+  \\
+  &amp;= \big( - a + b [ 1 - P_i ] \big) (w_{i+1} - w_i),
+\end{align*}\]</span> where <span class="math inline">\(P_i\)</span> is the cumulative probability mass function. Note that <span class="math display">\[ 
+P_i \le \dfrac{b-a}{a}
+\iff
+-a + b [ 1 - P_i ] \ge 0.
+\]</span> Thus, for all <span class="math inline">\(i\)</span> such that <span class="math inline">\(P_i \le (b-a)/a\)</span>, <span class="math inline">\(J(w_{i+1}) \ge J(w_i)\)</span>. On the other hand, for all <span class="math inline">\(i\)</span> such that <span class="math inline">\(P_i &gt; (b-a)/a)\)</span>, <span class="math inline">\(J(w_{i+1}) &lt; J(w_i)\)</span>. Thus, the optimal amount to order is the largest <span class="math inline">\(w_i\)</span> such that <span class="math inline">\(P_i \le (b-a)/a\)</span>.</p>
+<p>Note that the structure of the optimal solution is the same for continuous and discrete demand distributions.</p>
+<h1 id="references">References</h1>
+<p>Perhaps the earliest model of the newsvendor problem appeared in <span class="citation" data-cites="Edgeworth1888">Edgeworth (<a href="#ref-Edgeworth1888">1888</a>)</span> in the context of a bank setting the level of cash reserves to cover demands from its customers. The solution to the basic model presented above and some of its variants was provided in <span class="citation" data-cites="Morse1951">P. and Kimball (<a href="#ref-Morse1951">1951</a>)</span>; <span class="citation" data-cites="Arrow1951">Arrow et al. (<a href="#ref-Arrow1951">1951</a>)</span>; <span class="citation" data-cites="Whitin1953">Whitin (<a href="#ref-Whitin1953">1953</a>)</span>. See <span class="citation" data-cites="Porteus2008">Porteus (<a href="#ref-Porteus2008">2008</a>)</span> for an accessible introduction.</p>
+<div id="refs" class="references">
+<div id="ref-Arrow1951">
+<p><span class="smallcaps">Arrow, K.J., Harris, T., and Marschak, J.</span> 1951. Optimal inventory policy. <em>Econometrica: Journal of the Econometric Society</em>, 250–272. DOI: <a href="https://doi.org/10.2307/1907830">10.2307/1907830</a>.</p>
+</div>
+<div id="ref-Edgeworth1888">
+<p><span class="smallcaps">Edgeworth, F.Y.</span> 1888. The mathematical theory of banking. <em>Journal of the Royal Statistical Society</em> <em>51</em>, 1, 113–127.</p>
+</div>
+<div id="ref-Morse1951">
+<p><span class="smallcaps">P., M. and Kimball, G.</span> 1951. <em>Methods of operations research</em>. Technology Press of MIT.</p>
+</div>
+<div id="ref-Porteus2008">
+<p><span class="smallcaps">Porteus, E.L.</span> 2008. Building intuition: Insights from basic operations management models and principles. In: D. Chhajed and T. Lowe, eds., Springer, 115–134.</p>
+</div>
+<div id="ref-Whitin1953">
+<p><span class="smallcaps">Whitin, S.</span> 1953. <em>The theory of inventory management</em>. Princeton University Press.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 07 Jan 2020 and
+ posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/stochastics">
+  Stochastics</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/stochastic-optimization">stochastic optimization</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
