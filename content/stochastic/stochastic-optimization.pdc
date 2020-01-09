@@ -19,7 +19,7 @@ $$ \begin{equation} \label{eq:static-optimization}
 \end{equation}$$
 
 When the _action space_ $\ALPHABET U$ is finite, say $\ALPHABET U = \{1,
-\dots, m\}$, solving the optimization problem \\eqref{eq:static-optimization} is straight-forward:
+\dots, m\}$, solving the optimization problem \\eqref{eq:static-optimization} is conceptually straight-forward:
 enumerate the cost of all possible actions, i.e., enumerate the set 
 $C = \{ c(u) : u \in \ALPHABET U \}$ and find the smallest element. 
 
@@ -33,11 +33,11 @@ $$ \dfrac {d c(u) }{ du } = 0. $$
 
 ---
 
-Now we consider optimization problem with randomness. The simplest instance
-with randomness is as follows. A decision maker has to choose an action $u \in
+Now consider a stochastic optimization problem. The simplest instance
+is as follows. A decision maker has to choose an action $u \in
 \ALPHABET U$. Upon choosing action $u$, the decision maker incurs a cost
 $c(u,W)$, where $W \in \ALPHABET W$ is a random variable with known
-probability distribution. We assume that the decision maker is _risk neutral_
+probability distribution. Assume that the decision maker is _risk neutral_
 and, therefore, wants to minimize $\EXP[ c(u, W) ]$, where the expectation is
 with respect to the random variable $W$. 
 
@@ -50,18 +50,19 @@ Define $J(u) = \EXP[ c(u, W) ]$. Then
 Problem \\eqref{eq:stochastic-optimization-1} is conceptually the same as
 Problem \\eqref{eq:static-optimization} with the cost function $J(u)$.
 Numerically, Problem \\eqref{eq:stochastic-optimization-1} is more
-difficult because computing $J(u)$ involves evaluating an expectation. 
+difficult because computing $J(u)$ involves evaluating an expectation, but we
+ignore the computational complexity for the time being. 
 
 ---
 
-In the stochastic optimization problems which we considered above, the
-decision maker had no information when it took a decision. In many situations,
-the decision maker has some information, which is captured by the following
-model. Suppose $\ALPHABET
-X$, $\ALPHABET U$, $\ALPHABET W$ are finite sets and let $X \in \ALPHABET X$
-and $W \in \ALPHABET W$ be random variables defined on a common probability
-space. A decision maker observes the realization of $X$ and chooses an
-action $U \in \ALPHABET U$ according to a _decison rule_ $g$, i.e.,
+In the stochastic optimization problems considered above, the
+decision maker does not observe any data before making a decision. In many
+situations, the decision maker does observe some data, which is captured by
+the following model. Suppose $\ALPHABET X$, $\ALPHABET U$, $\ALPHABET W$ are
+finite sets and let $X \in \ALPHABET X$ and $W \in \ALPHABET W$ be random
+variables defined on a common probability space. A decision maker observes the
+realization of $X$ and chooses an action $U \in \ALPHABET U$ according to a
+_decison rule_ $g$, i.e.,
 $$ U = g(X) $$
 and incurs a cost
 $$J(g) = \EXP[ c(X, g(X), W) ],$$
@@ -81,10 +82,10 @@ running, the decision maker wants to pick a policy $g$ to determine an action
 for each realization of his observation $X$. What policy should he pick to
 minimize the expected cost?
 
-Since we assume $\ALPHABET X$ and $\ALPHABET U$ are finite sets, there are
+Since $\ALPHABET X$ and $\ALPHABET U$ are assumed to be finite sets, there are
 finite number of functions from $\ALPHABET X$ to $\ALPHABET U$. So, in
-principle, we can view it as an instance of
-Problem \\eqref{eq:static-optimization} and solve it as follows: for each
+principle, Problem \\eqref{eq:basic} may be viewed 
+Problem \\eqref{eq:static-optimization} and solved as follows: for each
 policy $g$ compute $J(g)$ and then pick the policy $g$ with the smallest
 expected cost. 
 
@@ -98,16 +99,16 @@ There is an alternative way of viewing the problem that simplifies it
 considerably. Instead of viewing the optimization problem before the system
 starts running, imagine that the decision maker waits until he sees the
 realization $x$ of $X$. He then asks what action $u$ should he take to
-minimize the expected _conditional_ cost $\EXP[ c(x,u, W) | X = x]$, i.e., he
-considers the problem
+minimize the expected _conditional_ cost $Q(x,u) := \EXP[ c(x,u, W) | X = x]$,
+i.e., he considers the problem
 
 \begin{equation} \label{eq:cond-1}
   \min_{u \in \ALPHABET U} \EXP[ c(x,u,W) | X = x].
 \end{equation}
 
-Thus, we have reduced a functional optimization problem
-(Problem \\ref{eq:basic}) to a collection of parameter optimization problems
-(Problem \\ref{eq:cond-1}): one for each possible of $x$. 
+Thus, Problem \eqref{eq:basic}, which is a functional optimization problem,
+has been reduced to a collection of parameter optimization problems
+(Problem \\ref{eq:cond-1}), one for each possible of $x$. 
 
 Now define
 $$ \begin{equation} \label{eq:cond}
@@ -151,11 +152,11 @@ result, which is known as **Blackwell's principle of irrelevant information**.
 ::: highlight :::
 Theorem #thm:blackwell
 
-:   Let $\ALPHABET X$, $\ALPHABET Y$, $\ALPHABET W$, and $\ALPHABET U$ be standard Borel
-    spaces and $X \in \ALPHABET X$, $Y \in \ALPHABET Y$, $W \in \ALPHABET W$ be random variables
-    defined on a common probability space.
+:   Let $\ALPHABET X$, $\ALPHABET Y$, $\ALPHABET W$, and $\ALPHABET U$ be
+    standard Borel spaces and $X \in \ALPHABET X$, $Y \in \ALPHABET Y$, $W \in
+    \ALPHABET W$ be random variables defined on a common probability space.
     
-    A decision maker observes $(X,Y)$ and chooses $U$ to minimize
+    A decision maker observes $(X,Y)$ and chooses $U = g(X,Y)$ to minimize
     $\EXP[c(X,U,W)]$, where $c \colon \ALPHABET X \times \ALPHABET U \times
     \ALPHABET W \to \reals$ is a measurable function.
 
