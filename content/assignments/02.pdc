@@ -1,11 +1,34 @@
 ---
 title: Assignment 2
 marks: 10
-due: 26 Jan, 2018
-draft: true
+due: 21 Jan, 2020
 ---
 
-1.  **Monotonicity in time**. Suppose that the dynamics is time homogeneous
+1. **AM-GM inequality.**
+  Consider the problem of maximizing 
+  $$
+    V_t(a) = \max_{(u_1, \dots, u_t) \in \ALPHABET S_t(a)} u_1 ⋅ u_2 \cdots u_t
+  $$
+  where the region $\ALPHABET S_t(a)$ is determined by the conditions
+  $$
+    \sum_{i=1}^n u_i = a \quad \text{and} \quad u_i \ge 0.
+  $$
+
+    a. Prove that $V_t$ satisfies the following recursion
+       $$
+          V_t(a) = \max_{u \in [0,a]} x ⋅ V_{n- 1}(a - u), \quad n > 1
+       $$
+       with $V_1(a) = a$.
+
+    b. Show inductively that $V_t(a) = a^t/t^t$ and hence establish the
+        arithmetic-geometric mean inequality
+        $$
+          \left( \frac{x_1 + \cdots + x_t}{t} \right) \ge
+          ( x_1 \cdots  x_t)^{1/t}
+        $$
+
+
+2.  **Monotonicity in time**. Suppose that the dynamics is time homogeneous
     and so is the per-step cost $c_t(\cdot)$ 
     (except, possibly at the terminal time $t=T$). Suppose we
     have that $V_{T-1}(x) \le V_T(x)$ for all $x \in \ALPHABET S$. Then, show
@@ -18,28 +41,25 @@ draft: true
     $$ V_{t}(x) \ge V_{t+1}(x), \quad
        \text{for all $x \in \ALPHABET X$ and $t$}.$$
 
-2.  Prove the main result for [linear quadratic tracking][LQT] problem.
 
-3.  Consider a deterministic system with state $x_t \in \reals$ and action
-    $u_t \in \reals$. The dynamics are given by
-    $$ x_{t+1} = a x_t + b u_t $$
-    where $a, b \in \reals_{>0}$ are constants. The per-step cost is given by
-    $$c_t(x, u) = x^2 + λ u$$
-    where $λ \in \reals_{>0}$ is a constant. Note that the cost is linear in
-    $u$ (rather than quadratic). 
+3.  **Dynamic programming for maximizing tail probabilities.**
+    Consider a dynamical system that evolves as follows:
+    $$
+      X_{t+1} = f_t(X_t, U_t, W_t)
+    $$
+    where $\{X_1, W_1, \dots, W_T\}$ are independent random variables and the
+    control actions $U_t$ are chosen according to a history dependent policy 
+    $g = (g_1, \dots, g_T)$:
+    $$
+      U_t = g_t(X_{1:t}, U_{1:t-1}).
+    $$
+    Given a sequence of functions $h_t \colon \ALPHABET X \mapsto \reals$, the
+    cost of a policy $g$ is given by the probability that $h_t(X_t)$
+    exceeds a given threshold $α \in \reals$ at some time, i.e.,
+    $$
+      J(g) = \PR^{g}\left( \max_{0 \le t \le T} h_t(X_t) \ge α \right).
+    $$
 
-    The system operates for a finite horizon $T$ and the objective is to
-    minimize the total cost over the finite horizon.
+    Show that the above cost can be put in an additive form that would enable
+    us to use the theory developed in the class to tackle this setup.
 
-    a. Write the dynamic program for the above model.
-    
-    b. Compute the value function and the optimal control law at time $T$.
-
-    c. Compute the value function and the optimal control law at
-      time $T-1$.
-
-    d. Based on these, can you guess the value function and optimal policies
-       for all times $t < T-1$? Prove your guess using backward induction. 
-
-
-[LQT]: ../../theory/lqr/index.html#LQT
