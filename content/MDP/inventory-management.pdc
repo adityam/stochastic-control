@@ -67,8 +67,8 @@ Dynamic programming
   $$ Q_t(x, u) = p u + \EXP[ h(x + u - W_t) + V_{t+1}( x + u - W_t ) ]$$
   and
   $$ \begin{align*}
-    V_t(x) &= \min_{u \in \reals} Q_t(x,u) \\
-    g_t(x) &= \arg \min_{u \in \reals} Q_t(x,u) 
+    V_t(x) &= \min_{u \in \reals_{\ge 0}} Q_t(x,u) \\
+    g_t(x) &= \arg \min_{u \in \reals_{\ge 0}} Q_t(x,u) 
     \end{align*}
   $$
   Then the strategy $g = (g_1, \dots, g_T)$ is optimal. 
@@ -90,19 +90,13 @@ variable. The variable $Y_t$ is sometimes called the _post-decision state_.
 
 Now write the dynamic program in terms of the post-decision state as follows.
 Define
-$$ \tilde Q_t(y) = p y + H(y) + \tilde V_{t+1}(y) $$
-where
+$$ \bar Q(y) = \EXP[ h(y - W) + V_{t+1}(y-W) ].$$
+Then the value function and optimal policy at time $t$ can be written as:
 $$ \begin{align*}
-  H(y) &= \EXP[ a [ y - W]^+ + b[W - y]^+ ] \\
-  \tilde V_{t+1}(y) &= \EXP[ V_{t+1}(y - W) ]
-  \end{align*} 
-$$
-where $[x]^+$ denotes $\max(x, 0)$. Then,
-$$ \begin{align*}
-  V_t(x) &= \min_{y \in [x, \infty)} \tilde Q_t(y) - p x \\
-  g_t(x) &= \Bigl( \arg \min_{y \in [x, \infty)} \tilde Q_t(y) \Bigr) - p x \\
-  \end{align*}
-$$
+  V_t(x) &= \min_{u \in \reals_{\ge 0}} \bigl\{ pu + \bar Q(x + u) \bigr\}, \\
+  g_t(x) &= \arg \min_{u \in \reals_{\ge 0}} \bigl\{ pu + \bar Q(x + u) \bigr\}.
+\end{align*} $$
+
 
 The optimal policy is then characterized as follows.
 
@@ -110,12 +104,12 @@ The optimal policy is then characterized as follows.
 Theorem
 
 :   Define 
-    $$ S_t = \arg \min_{y \in \reals} \tilde Q_t(y). $$
+    $$ S_t = \arg \min_{y \in \reals} \bigl\{ p y + \bar Q(y) \bigr\} . $$
     Then, 
     \begin{equation} \label{eq:V}
     V_t(x) = \begin{cases}
-      \tilde Q_t(S_t) - p x, &\text{if } x \le S_t \\
-      \tilde Q_t(x)   - p x, & \text{otherwise }
+      \bar Q_t(S_t) + p (S_t - x), &\text{if } x \le S_t \\
+      \bar Q_t(x)   , & \text{otherwise }
     \end{cases} 
     \end{equation}
     and
@@ -124,7 +118,7 @@ Theorem
       0, & \text{otherwise }
     \end{cases} $$
 
-    Furthermore, for all $t$, $\tilde Q_t(y)$ and $V_t(x)$ are convex in $y$
+    Furthermore, for all $t$, $\bar Q_t(y)$ and $V_t(x)$ are convex in $y$
     and $x$, respectively. 
 :::
 
@@ -132,27 +126,31 @@ Theorem
 
 We first establish some preliminary results.
 
-1. $H(y)$ is convex in $y$.
+1. For any convex function $\theta \colon \reals \to \reals$, 
+   $\Theta(x) = \EXP[ \theta(x - W) ]$ is convex.
 
-     **Proof** Recall that $$ H(y) = \EXP[a [y - W]^+ + b [W - y]^+].$$ For
-     any realization of $W$, the term inside the expectation is convex in $y$.
-     The expectation w.r.t. $W$ is simply the sum of convex functions and is,
-     therefore, convex. 
+   **Proof** For any realization of $W$, $\theta(x - w)$ is convex in $x$.
+   The expectation w.r.t. $W$ is simply the sum of convex functions and is,
+   therefore, convex. 
 
-2. For any convex function $f \colon \reals \to \reals$, let $s = \arg \min_{y
-   \in \reals} f(y)$. Then
-   $$\arg \min_{y \in [x,\infty)} f(y) = \max(x, s)$$
+2. For any convex function $\theta \colon \reals \to \reals$, 
+   let $s =  \arg \min_{x \in \reals} \theta(x)$. Then,
+   $$\arg \min_{u \in \reals_{\ge 0}} \theta(x + u) = \begin{cases}
+   0, & \text{if } x > s, \\
+   s - x, & \text{if } x \le s
+   \end{cases}$$
    and
-   $$\min_{y \in [x, \infty)} f(y) = \begin{cases}
-    f(s), & \text{if } x \le s \\
-    f(x), & \text{if } x > s
+   $$\Theta(x) = \min_{u \in \reals_{\ge 0}} \theta(x+u) = \begin{cases}
+    \theta(x), & \text{if } x > s \\
+    \theta(s), & \text{if } x \le s
     \end{cases}$$
-    and $\min_{y \in [x, \infty)} f(y)$ is convex in $x$.
+    and $\Theta(x)$ is convex in $x$.
 
-     **Proof** If $s \in [x, \infty)$ (i.e., $s \ge x$), then the arg min is
-     $s$. If $s \not\in [x, \infty)$ (i.e., $s < x$), then $f$ is increasing
-     in the interval $(x, \infty)$ and the arg min in $x$. The result for
-     $\min_{y \in [x, \infty)} f(y)$ follows by substituting in the arg min.
+     If there were no constraint on $u$, then the minimizer will be $u = s -
+     x$. If $x \le s$, then $u = s -x \in \reals_{\ge 0}$ is the minimizer for
+     the constrained problem as well. On the other hand, if $x \ge s$, then
+     the function $\theta(x + u)$ is increasing as a function of $u$. Hence,
+     the minimizer for the constrained problem is $u = 0$. 
      See the figures below.
 
  <div class="flex">
@@ -213,37 +211,45 @@ We first establish some preliminary results.
     Plotly.plot(dom, data, layout, options);
   }
 
-  show_plot('function:f', state, Q, "$y$", "$f(y)$");
-  show_plot('function:g', state, Qmin, "$x$",  "$\\bar f(x) = \\displaystyle \\min_{y \\in [x, \\infty)} f(y)$");
+  show_plot('function:f', state, Q, "$x$", "$\\theta(x)$");
+  show_plot('function:g', state, Qmin, "$x$",  "$\\Theta(x) = \\displaystyle \\min_{u \\ge 0} \\theta(x+u)$");
 </script>
 
-
+Now to prove the result, we define 
+$$ \theta_t(y) = py + \bar Q_t(y). $$
+Then,
+$$ V_t(x) = \min_{u \in \reals_{\ge 0}} \bigl\{ p(x + u) + \bar Q_t(x + u)
+\bigr\} - p x 
+= \min_{u \in \reals_{\ge 0}} \theta_t(x+u) - p x.
+$$
 
 As usual, we prove the result by backward induction. For $t=T$, 
-$$\tilde Q_T(y) = p y + H(y),$$ 
-which is the sum of a linear and a convex function and is, therefore, convex.
-Furthermore, by fact 2 above,
-$$g_T(x) = \Bigl( \arg \min_{y \in [x, \infty)} Q_T(y) \Bigr)
-  - x = \max(x, S_T) - x = \max(0, S_T).$$
+$$\bar Q_T(y) = \EXP[ h(y - W) ] $$
+which is convex because $h(y)$ is convex. $\theta_T(y) = p y + Q_T(y)$ is the
+sum of a linear function and convex function and is, therefore, convex. 
+Then, by fact 2 above,
+$$g_T(x) = \arg \min_{u \in \reals_{\ge 0}} \theta_T(x+u) = \max(S_T - x, 0)
+$$
 and
-$$V_T(x) = \min_{y \in [x, \infty)} \tilde Q_T(y) - px = 
+$$V_T(x) = \min_{u \in \reals_{\ge 0}} \theta_T(x + u) - px = 
   \begin{cases}
-    \tilde Q_T(S_T) - px, & \text{if } x \le S_T \\
-    \tilde Q_T(x) - px, & \text{otherwise}.
+    \theta_T(x) - p x, & \text{if } x > S_T \\
+    \theta_T(S_T) - px, & \text{if } x \le S_T.
   \end{cases}
 $$
-Thus, $V_T$ and $g_T$ have the desired form. This forms the basis of
+Substituting $\theta_t(y) = p y + \bar Q_t(y)$, we get that both
+$V_T$ and $g_T$ have the desired form and $V_T$ is convex. This forms the basis of
 induction.
 
 Now assume that $V_{t+1}(x)$ is convex and of the form \\eqref{eq:V}. Now note
-that
-$$ Q_t(y) = py + H(y) + \EXP[ V_{t+1}(y - W) ]$$
-is convex. Hence, by fact 2 above,
-$$ g_t(x) = \max(x, S_t)$$
+that, by fact 1,
+$$ \bar Q_t(y) = \EXP[ h(y - W) + V_{t+1}(y - W) ]$$
+is convex. Hence, $\theta_t(y)$ is convex. Therefore, 
+by fact 2 above,
+$$ g_t(x) = \max(S_t - x, 0)$$
 and $V_t(x)$ is of the desired form and convex. 
 
 Thus, the result is holds by induction.
-
 
 
 ## References
