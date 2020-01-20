@@ -1,7 +1,7 @@
 using LinearAlgebra: dot, argmin
 
 # The state spaces
-X, Y, Y, W = 1:2, 1:2, 1:3, 1:3
+X, Y, U, W = 1:2, 1:2, 1:3, 1:3
 
 # The transition matrix is called Q in the
 # question. We call it P for convenience
