@@ -1,57 +1,110 @@
 ---
 title: Assignment 3
-due: 2 Feb, 2018
+due: 28 Jan, 2020
 marks: 10
-draft: true
+draft: false
 ---
 
-1. **Servince rate control**
+1. **Servince rate control in queueing systems**
 
-    Consider a queueing system. Jobs entering the system are buffered and
-    served in a first come first serve basis. During each epoch, a server
-    works on the jobs and the number of completed jobs depend on the service
-    rate. 
+    Consider a queueing system in which jobs arrive according to a i.i.d.
+    Bernoulli process $\{A_t\}_{t \ge 1}$, where $\PR(A_t = 1) = q$. The jobs
+    are queued in a buffer of size $n$. Let $X_t \in \{0, 1, \dots, n\}$
+    denote the number of jobs in the queue at time $t$. 
 
-    Let $X_t \in \integers_{\ge 0}$ denote the number of jobs at the beginning
-    of time $t$, $Y_t \in \integers_{\ge 0}$ denotes the number of jobs
-    completed during time $t$, and $W_t \in \integers_{\ge 0}$ denotes the
-    number of new jobs that arrive during time $t$. Then, the system dynamics
-    are
-
-    $$X_{t+1} = \min\{ [ X_t - Y_t ]^{+} + W_t, B \}$$
-    where $B$ is the size of the buffer. 
-
-    The number $Y_t$ of jobs completed is a Bernoulli random variable with
-    success probability 
-    that depends on the service rate $U_t \in \ALPHABET U = \{0, 1, \dots,
-    m\}$. When $U_t = u$, we denote the success probability by $p_u(\cdot)$,
-    i.e., 
-    $$\PR(Y_t = 1 | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t}) = p_{u_t}.$$
-    A controller observes the number of jobs and chooses the service
-    rate. 
+    At each time, if there are jobs in the queue, the server works on the job
+    at the head of the queue at service rate $U_t \in \{0, 1, \dots, m\}$ and
+    finishes the job with probability $p(u)$. Thus,
+    $$ P_{0y}(u) = 
+    \begin{cases}
+      1 - q,    & \text{if } y = 0 \\
+      q,  & \text{if } y = 1 \\
+      0,  & \text{otherwise}
+    \end{cases} $$
+    and for $x \not\in\{0, n\}$, 
+    $$ P_{xy}(u) = 
+    \begin{cases}
+      (1 - q) p(u), & \text{if } y = x - 1 \\
+      (1 - q)(1 - p(u)),    & \text{if } y = x \\
+      q(1-p(u)) + (1-q)p(u),  & \text{if } y = x + 1 \\
+      0,  & \text{otherwise}
+    \end{cases} $$
+    and for $x = n$
+    $$ P_{xy}(u) = 
+    \begin{cases}
+      (1 - q) p(u), & \text{if } y = x - 1 \\
+      1 - (1 - q)p(u),    & \text{if } y = x \\
+      0,  & \text{otherwise}
+    \end{cases} $$
 
     There are three components of the per-step reward. A reward of $R$ units
-    for every job that is completed, a holding cost of $h(x)$ for having $x$
-    jobs in the queue and a running cost of $c(u)$ for choosing rate $u$.
+    for every job that is completed, a holding cost of $h$ for every job that
+    is in the queue, and a running cost of $c(u)$ for choosing rate $u$.
     Thus,
 
-    $$r(x,u) = R \cdot \EXP[ \min\{x, Y_t\} \,|\, U_t = u ] - h(x) - c(u).$$
+    $$r(0,u) = - c(u)$$
+    and for $x \neq 0$
+    $$r(x,u) = p(u) R - h\cdot x - c(u). $$
 
-    Numerically solve the model when $T = 20$, $B = 8$, $m = 2$, $h(x) = 2x$,
-    $R=5$, $W_t \sim \text{Bernoulli}(0.6)$, the running cost is $c(0) = 0$,
-    $c(1) = 2$, $c(3) = 5$, and the service rate distribution $p_0 = 0.2$,
-    $p_1 = 0.5$, $p_2 = 0.8$.
+    Consider the above model with $n = 8$, $m = 3$, $q = 0.6$, $R = 6$, $h =
+    1$, $p = [0, 0.25, 0.5, 0.8]$, $c = [0, 1, 4, 12]$ and $T = 100$.
 
-    Show the value function and optimal policy For $t \in \{1, 10, 15, 20\}$,
-    show a table listing the optimal action for each state and a plot showing
-    the value functions as a function of state. Submit your code with your
-    solution.
+    a. Write code (in any programming language) for solving the dynamic
+       program. 
 
+    b. Plot the value function for $t \in \{1, 50, 75, 95 \}$ on the same
+       plot.
 
-2.  **Testing for submodularity**
+    c. Show the optimal policy for $t \in \{1, 50, 75, 95 \}$.
 
-    Suppose a function $f \colon \mathbb N \times \mathbb N \to \reals$
-    satisfies
-    $$ f(x+1, y+1)  - f(x+1, y) \le f(x, y+1) - f(x, y) $$
-    for all $x, y \in \mathbb N$. Then, show that $f$ is a submodular
-    function.
+Submit your code with your solution.
+
+2. **State transmission in Internet of Things**
+
+    Consider an IoT device which is observing an autoregressive process
+    $\{X_t\}_{t \ge 0}$, $X_t \in \reals$, which starts at $X_1 = 0$ and for
+    $t > 1$ evolves as 
+    $$ X_{t+1} = X_t + W_t $$
+    where $\{W_t\}_{t \ge 1}$ is an i.i.d. process with $W_t \sim {\cal
+    N}(0,1)$. 
+
+    The IoT device can either transmit its observation (denoted by $U_t = 1$)
+    or not (denoted by $U_t = 0$). Transmitting a packet has a cost $\lambda$
+    while not transmitting has no cost. 
+
+    When $U_t = 0$, the receiver estimates the state of the process as the
+    previously transmitted observation $Z_t$ and incurs a cost $(X_t -
+    Z_t)^2$. 
+
+    The above system can be modeled as an MDP with state $\{E_t \}_{t \ge 0}$,
+    where $E_t = X_t - Z_t$. It can be shown that the dynamics of $\{E_t\}_{t
+    \ge 1}$ are as follows:
+    $$ E_{t+1} = \begin{cases}
+        E_t + W_t, & \text{if } U_t = 0 \\
+        W_t, & \text{if } U_t = 1
+      \end{cases} $$
+
+    The per-step cost is given by
+    $$ c(e,u) = \lambda u + (1-u)e^2. $$
+
+    The objective of this exercise is to find the optimal policy for the above
+    problem using dynamic programming. 
+
+    The system has continuous state and discrete actions. We will convert it
+    into a discrete state MDP as follows:
+
+    * The state space is the set of real-numbers. We first truncate it into a
+      bounded interval $[-B, B]$. We assume that any transition which takes
+      the state to $(B,\infty)$ gets restricted to $B$ and any transition
+      which takes the state to $(-\infty,-B)$ gets restricted to $-B$.
+
+    * We then discretize the interval $[-B, B]$ into a grid of $2N + 1$
+      points and consider the center of each cell as the representivative
+      element of that cell.
+
+    * We follow the discretization procedure discussed in class to construct
+      the finite state transition matrix. 
+
+    * Solve the discrete time system for horizon $T = 4$. Plot the value
+      function for all times on the same plot.
+
