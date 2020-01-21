@@ -285,13 +285,43 @@ induction, is true for all time.
 
 ## Cost depends on next state
 
-## Exponential cost function
+In the basic model that we have considered above, we assumed that the per-step
+cost depends only on the current state and current actions. In some
+applications, such as the [inventory management](../inventory-management)
+model considered in class, it is more natural to have a cost function where
+the cost depends on the current state, current action, and the next state.
+Conceptually, such problems can be treated in the same way as the standard
+model.
 
-## Multiplicative cost
+In particular, suppose we have a per-step cost given by
+$c_t(X_t,U_t,X_{t+1})$, where the objective is to minimize
+$$ J(g) = \EXP\Bigl[ \sum_{t=1}^T c_t(X_t, U_t, X_{t+1}) \Bigr]. $$
+
+Define 
+$$ \tilde c_t(x, u) = \EXP[ c_t(x, u, X_{t+1}) | X_t = x, U_t = u ] 
+= \EXP[ c_t(x,u, f_t(x,u, W_t) ]. $$
+Then, by the towering property of conditional expectation, we can write
+
+$$ \begin{align*} 
+ J(g) &= \EXP\Bigl[ \sum_{t=1}^T \EXP[ c_t(X_t, U_t, X_{t+1}) | X_t, U_t] \Bigr] \\
+ &= \EXP\Bigl[ \sum_{t=1}^T \tilde c_t(X_t, U_t) \Bigr].
+\end{align*} $$
+
+Thus, we can equivalently consider this as our standard model with the
+per-step cost given by $\tilde c_t(X_t, U_t)$. We can write the recursive step
+of the dynamic program as follows:
+$$ Q_t(x,u) = \EXP[ c_t(x,u, X_{t+1}) + V_{t+1}(X_{t+1}) | X_t = x, U_t = u ].$$
+
+For numerically solving the dynamic program when the cost is time-homogeneous
+(i.e., does not depend on $t$), it is more efficient to compute $\tilde c$
+once and recuse that in the dynamic program recursion.
+
 
 ## Discounted cost
 
-TODO: Explain this.
+In some applications, it is common to consider a discounted expected cost given by
+$$ J(g) = \EXP\Bigl[ \sum_{t=1}^T \beta^{t-1} c_t(X_t, U_t) \Bigr] $$
+where $\beta \in (0,1)$ is called the discount factor.
 
 There are two interpretations of the discount factor $\beta$. The first
 interpretation is an economic interpretation to determine the _present value_
@@ -307,6 +337,39 @@ the day. Thus, the expected return for today is \$1 while the expected
 return for tomorrow is $(1-p)$ (which is the probability that the machine
 is still working tomorrow). In this case, the discount factor is defined
 as $(1-p)$. 
+
+The recursive step of the dynamic program for such models can be written as
+$$ Q_t(x,u) = c_t(x,u) + \beta \, \EXP[ V_{t+1}( X_{t+1}) | X_t = x, U_t = u ].$$
+
+## Multiplicative cost {#multiplicative-cost}
+
+So far, we have assumed that the cost is additive. The dynamic proramming
+decomposition also works for models with multiplicative cost. In particular,
+suppose that the performance of any policy is given by 
+$$ J(g) = \EXP\Bigl[ \prod_{t=1}^T c_t(X_t, U_t) \Bigr] $$
+where the per-step cost function is positive. Then, it can be shown that the
+optimal policy is given by the following dynamic program.
+
+::: highlight :::
+**Dynamic Program for multiplicative cost**
+Initialize $V_{T+1}(x) = 1$ and recursively compute
+$$ \begin{align*}
+ Q_t(x,u) &= c_t(x,u) \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u ], \\
+ V_t(x) &= \min_{u \in \ALPHABET U} Q_t(x,u).
+\end{align*} $$
+:::
+
+## Exponential cost function {#exponential-cost}
+
+A special class of multiplicative cost function is exponential of sum:
+$$J(g) = \EXP\Bigl[ \exp\Bigl( \theta \sum_{t=1}^T c_t(X_t, U_t) \Bigr) \Bigr]. $$
+
+When $\theta > 0$, the above captures risk-sensitive preferences and when
+$\theta < 0$, it corresponds to risk-seeking preferences. This is equivalent
+to a multiplicative cost
+$$J(g) = \EXP\Bigl[ \prod_{t=1}^T \exp( \theta \c_t(X_t, U_t)) \Bigr]. $$
+Therefore, the dynamic program for multiplicative cost is also applicable for
+this model.
 
 
 ## Optimal stopping {#optimal-stopping}
