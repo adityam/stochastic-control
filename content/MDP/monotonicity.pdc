@@ -183,3 +183,113 @@ conditions are satisfied:
 1.  For any $x \ge y$, $\ALPHABET U(x) \supseteq \ALPHABET U(y)$
 2.  For any $x \in \ALPHABET X$ and $u \in \ALPHABET U(x)$, $u' < a$ implies
     that $u' \in \ALPHABET U(x)$.
+
+---
+
+## Exercise
+
+1. Suppose the state space $\ALPHABET X$ is a symmetric subset of integers of
+   the form $\{-a, -a + 1, \dots, a-1, a\}$ and the action space $\ALPHABET U$
+   is discrete. Let $\ALPHABET X_{\ge 0}$ denote the set $\{0, \dots, a\}$.
+
+   Let $P(u)$ denote the controlled transition matrix and
+   $c_t(x,u)$ denote the per-step cost. To avoid ambiguity, we define the
+   optimal policy as
+   $$
+     g^*_t(x) = \begin{cases}
+        \max\bigl\{ v \in \arg\min_{u \in \ALPHABET U} Q_t(x,u) \bigr\}, 
+        & \text{if } x \ge 0 \\
+        \min\bigl\{ v \in \arg\min_{u \in \ALPHABET U} Q_t(x,u) \bigr\}, 
+        & \text{if } x < 0 
+    \end{cases}$$
+   The purpose of this exercise is to identify conditions under
+   which the value function and the optimal policy are even and
+   [quasi-convex](https://en.wikipedia.org/wiki/Quasiconvex_function). We do
+   so using the following steps. 
+
+
+
+    a. We say that the transition probability matrix $P(u)$ is even if for all
+       $x, y \in \ALPHABET X$, $P(y|x,u) = P(-y|-x,u)$. Prove the following
+       result.
+
+       ::: highlight :::
+       Suppose the MDP satisfies the following properties:
+       
+       (A1) For every $t$ and $u \in \ALPHABET U$, $c_t(x,u)$ is even
+            function of $x$.
+       
+       (A2) For every $u \in \ALPHABET U$, $P(u)$ is even.
+       
+       Then, for all $t$, $V_t$ and $g_t$ are even functions.
+       ::: 
+
+    b. Given any probability mass function $\pi$ on $\ALPHABET X$, define the
+      _folded_ probability mass function $\tilde \pi$ on $\ALPHABET X_{\ge 0}$ as
+       follows:
+       $$ \tilde \pi(x) = \begin{cases}
+            \pi(0), & \text{if } x = 0 \\
+            \pi(x) + \pi(-x), & \text{if } x > 0.
+          \end{cases} $$
+
+       For ease of notation, we use $\tilde \pi = \mathcal F \pi$ to denote this
+       folding operation. Note that an immediate consequence of the definition
+       is the following (you don't have to prove this).
+
+       ::: highlight :::
+       If $f \colon \ALPHABET X \to \reals$ is even, then for any probability
+       mass function $\pi$ on $\ALPHABET X$ and $\tilde \pi = \mathcal F \pi$,
+       we have
+       $$
+          \sum_{x \in \ALPHABET X} f(x) \pi(x) = 
+          \sum_{x \in \ALPHABET X_{\ge 0}} f(x) \tilde \pi(x). $$
+       :::
+       Thus, the expectation of the function $f \colon \ALPHABET X \to \reals$
+       with respect to the PMF $\pi$ is equal to the expectation of the
+       function $f \colon \ALPHABET X_{\ge 0} \to \reals$ with respect to the
+       PMF $\tilde \pi = \mathcal F \pi$. 
+
+       Now given any probability transition matrix $P$ on $\ALPHABET X$, we can define a
+       probability transition matrix $\tilde P$ on $\ALPHABET X_{\ge 0}$ as
+       follows: for any $x \in \ALPHABET X$, $\tilde P_x = \mathcal F P_x$,
+       where $P_x$ denotes the $x$-th row of $P$. For ease of notation, we use
+       $\tilde P = \mathcal F P$ to denote this relationship. 
+
+       Now prove the following:
+
+       ::: highlight :::
+       Given the MDP $(\ALPHABET X, \ALPHABET U, P, \{c_t\})$, define the
+       _folded_ MDP as $(\ALPHABET X_{\ge 0}, \ALPHABET U, \tilde P,
+       \{c_t\})$, where $\tilde P(u) = \mathcal F P(u)$ for all $u \in \ALPHABET
+       U$. Let $\tilde Q_t \colon \ALPHABET X_{\ge 0} \times \ALPHABET U \to
+       \reals$, $\tilde V_t \colon \ALPHABET X_{\ge 0} \to \reals$ and $\tilde
+       g_t^* \colon \ALPHABET X_{\ge 0} \to \ALPHABET U$ denote the
+       action-value function, value
+       function and the policy of the folded MDP. Then, if the original MDP
+       satisfies conditions (A1) and (A2) then, for any $x \in
+       \ALPHABET X$ and $u \in \ALPHABET U$, 
+       $$ Q_t(x,u) = \tilde Q_t(|x|, u),
+        \quad
+          V_t(x) = \tilde V_t(|x|), 
+        \quad
+          g_t^*(x) = \tilde g_t^*(|x|).
+       $$
+       ::: 
+
+     c. The result of the previous part implies that if the value function
+        $\tilde V_t$ and the policy $\tilde g^*_t$ are monotone increasing, then
+        the value function $V_t$ and the policy $g^*_t$ are even and
+        quasi-convex. This gives us a method to verify if the value function
+        and optimal policy are even and quasi-convex.
+
+        Now, recall the model of the Internet of Things presented in Q2 of 
+        [Assignment 3](../../assignments/03). The numerical experiments that
+        you did in Assignment 3 suggest that the value function and the
+        optimal policy are even and quasi-convex. Prove that this is indeed
+        the case. 
+
+      d. Now suppose the distribution of $W_t$ is not Gaussian but is some
+         general probability density $\varphi(\cdot)$ and the cost function is
+        $$ c(e,u) = \lambda u + (1 - u) d(e). $$
+        Find conditions on $\varphi$ and $d$ such that the value function and
+        optimal policy are even and quasi-convex. 

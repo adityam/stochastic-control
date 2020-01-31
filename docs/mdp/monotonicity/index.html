@@ -129,12 +129,57 @@
 <li>For any <span class="math inline">\(x \ge y\)</span>, <span class="math inline">\(\ALPHABET U(x) \supseteq \ALPHABET U(y)\)</span></li>
 <li>For any <span class="math inline">\(x \in \ALPHABET X\)</span> and <span class="math inline">\(u \in \ALPHABET U(x)\)</span>, <span class="math inline">\(u&#39; &lt; a\)</span> implies that <span class="math inline">\(u&#39; \in \ALPHABET U(x)\)</span>.</li>
 </ol>
+<hr />
+<h2 id="exercise">Exercise</h2>
+<ol type="1">
+<li><p>Suppose the state space <span class="math inline">\(\ALPHABET X\)</span> is a symmetric subset of integers of the form <span class="math inline">\(\{-a, -a + 1, \dots, a-1, a\}\)</span> and the action space <span class="math inline">\(\ALPHABET U\)</span> is discrete. Let <span class="math inline">\(\ALPHABET X_{\ge 0}\)</span> denote the set <span class="math inline">\(\{0, \dots, a\}\)</span>.</p>
+<p>Let <span class="math inline">\(P(u)\)</span> denote the controlled transition matrix and <span class="math inline">\(c_t(x,u)\)</span> denote the per-step cost. To avoid ambiguity, we define the optimal policy as <span class="math display">\[
+  g^*_t(x) = \begin{cases}
+     \max\bigl\{ v \in \arg\min_{u \in \ALPHABET U} Q_t(x,u) \bigr\}, 
+     &amp; \text{if } x \ge 0 \\
+     \min\bigl\{ v \in \arg\min_{u \in \ALPHABET U} Q_t(x,u) \bigr\}, 
+     &amp; \text{if } x &lt; 0 
+ \end{cases}\]</span> The purpose of this exercise is to identify conditions under which the value function and the optimal policy are even and <a href="https://en.wikipedia.org/wiki/Quasiconvex_function">quasi-convex</a>. We do so using the following steps.</p>
+<ol type="a">
+<li><p>We say that the transition probability matrix <span class="math inline">\(P(u)\)</span> is even if for all <span class="math inline">\(x, y \in \ALPHABET X\)</span>, <span class="math inline">\(P(y|x,u) = P(-y|-x,u)\)</span>. Prove the following result.</p>
+<div class="highlight">
+<p>Suppose the MDP satisfies the following properties:</p>
+<p>(A1) For every <span class="math inline">\(t\)</span> and <span class="math inline">\(u \in \ALPHABET U\)</span>, <span class="math inline">\(c_t(x,u)\)</span> is even function of <span class="math inline">\(x\)</span>.</p>
+<p>(A2) For every <span class="math inline">\(u \in \ALPHABET U\)</span>, <span class="math inline">\(P(u)\)</span> is even.</p>
+<p>Then, for all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t\)</span> and <span class="math inline">\(g_t\)</span> are even functions.</p>
+</div></li>
+<li><p>Given any probability mass function <span class="math inline">\(\pi\)</span> on <span class="math inline">\(\ALPHABET X\)</span>, define the <em>folded</em> probability mass function <span class="math inline">\(\tilde \pi\)</span> on <span class="math inline">\(\ALPHABET X_{\ge 0}\)</span> as follows: <span class="math display">\[ \tilde \pi(x) = \begin{cases}
+     \pi(0), &amp; \text{if } x = 0 \\
+     \pi(x) + \pi(-x), &amp; \text{if } x &gt; 0.
+   \end{cases} \]</span></p>
+<p>For ease of notation, we use <span class="math inline">\(\tilde \pi = \mathcal F \pi\)</span> to denote this folding operation. Note that an immediate consequence of the definition is the following (you don’t have to prove this).</p>
+<div class="highlight">
+<p>If <span class="math inline">\(f \colon \ALPHABET X \to \reals\)</span> is even, then for any probability mass function <span class="math inline">\(\pi\)</span> on <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\tilde \pi = \mathcal F \pi\)</span>, we have <span class="math display">\[
+   \sum_{x \in \ALPHABET X} f(x) \pi(x) = 
+   \sum_{x \in \ALPHABET X_{\ge 0}} f(x) \tilde \pi(x). \]</span></p>
+</div>
+<p>Thus, the expectation of the function <span class="math inline">\(f \colon \ALPHABET X \to \reals\)</span> with respect to the PMF <span class="math inline">\(\pi\)</span> is equal to the expectation of the function <span class="math inline">\(f \colon \ALPHABET X_{\ge 0} \to \reals\)</span> with respect to the PMF <span class="math inline">\(\tilde \pi = \mathcal F \pi\)</span>.</p>
+<p>Now given any probability transition matrix <span class="math inline">\(P\)</span> on <span class="math inline">\(\ALPHABET X\)</span>, we can define a probability transition matrix <span class="math inline">\(\tilde P\)</span> on <span class="math inline">\(\ALPHABET X_{\ge 0}\)</span> as follows: for any <span class="math inline">\(x \in \ALPHABET X\)</span>, <span class="math inline">\(\tilde P_x = \mathcal F P_x\)</span>, where <span class="math inline">\(P_x\)</span> denotes the <span class="math inline">\(x\)</span>-th row of <span class="math inline">\(P\)</span>. For ease of notation, we use <span class="math inline">\(\tilde P = \mathcal F P\)</span> to denote this relationship.</p>
+<p>Now prove the following:</p>
+<div class="highlight">
+<p>Given the MDP <span class="math inline">\((\ALPHABET X, \ALPHABET U, P, \{c_t\})\)</span>, define the <em>folded</em> MDP as <span class="math inline">\((\ALPHABET X_{\ge 0}, \ALPHABET U, \tilde P, \{c_t\})\)</span>, where <span class="math inline">\(\tilde P(u) = \mathcal F P(u)\)</span> for all <span class="math inline">\(u \in \ALPHABET U\)</span>. Let <span class="math inline">\(\tilde Q_t \colon \ALPHABET X_{\ge 0} \times \ALPHABET U \to \reals\)</span>, <span class="math inline">\(\tilde V_t \colon \ALPHABET X_{\ge 0} \to \reals\)</span> and <span class="math inline">\(\tilde g_t^* \colon \ALPHABET X_{\ge 0} \to \ALPHABET U\)</span> denote the action-value function, value function and the policy of the folded MDP. Then, if the original MDP satisfies conditions (A1) and (A2) then, for any <span class="math inline">\(x \in \ALPHABET X\)</span> and <span class="math inline">\(u \in \ALPHABET U\)</span>, <span class="math display">\[ Q_t(x,u) = \tilde Q_t(|x|, u),
+ \quad
+   V_t(x) = \tilde V_t(|x|), 
+ \quad
+   g_t^*(x) = \tilde g_t^*(|x|).
+\]</span></p>
+</div></li>
+<li><p>The result of the previous part implies that if the value function <span class="math inline">\(\tilde V_t\)</span> and the policy <span class="math inline">\(\tilde g^*_t\)</span> are monotone increasing, then the value function <span class="math inline">\(V_t\)</span> and the policy <span class="math inline">\(g^*_t\)</span> are even and quasi-convex. This gives us a method to verify if the value function and optimal policy are even and quasi-convex.</p>
+<p>Now, recall the model of the Internet of Things presented in Q2 of <a href="../../assignments/03">Assignment 3</a>. The numerical experiments that you did in Assignment 3 suggest that the value function and the optimal policy are even and quasi-convex. Prove that this is indeed the case.</p></li>
+<li><p>Now suppose the distribution of <span class="math inline">\(W_t\)</span> is not Gaussian but is some general probability density <span class="math inline">\(\varphi(\cdot)\)</span> and the cost function is <span class="math display">\[ c(e,u) = \lambda u + (1 - u) d(e). \]</span> Find conditions on <span class="math inline">\(\varphi\)</span> and <span class="math inline">\(d\)</span> such that the value function and optimal policy are even and quasi-convex.</p></li>
+</ol></li>
+</ol>
 
 
 <p class="categories">
 This entry 
 
- was last updated on 10 Oct 2019
+ was last updated on 28 Jan 2020
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">
