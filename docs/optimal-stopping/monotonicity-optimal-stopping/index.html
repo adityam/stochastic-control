@@ -36,7 +36,18 @@
 
 <h1>Theory: Optimality of threshold policies in optimal stopping</h1>
 
-<p>Consider an <a href="../../mdp/mdp-functional/#optimal-stopping">optimal stopping</a> problem and define the <em>benefit function</em> as the expected benefit<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> of delaying the stopping decision at time <span class="math inline">\(t\)</span>, i.e., <span class="math display">\[\begin{equation}\label{eq:B}
+<p>Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be a Markov chain. At each time <span class="math inline">\(t\)</span>, a decision maker observes the state <span class="math inline">\(X_t\)</span> of the Markov chain and decides whether to continue or stop the process. If the decision maker decides to continue, he incurs a <em>continuation cost</em> <span class="math inline">\(c_t(X_t)\)</span> and the state evolves. If the DM decides to stop, he incurs a <em>stopping cost</em> of <span class="math inline">\(s_t(X_t)\)</span> and the problem is terminated. The objective is to determine an optimal <em>stopping time</em> <span class="math inline">\(\tau\)</span> to minimize <span class="math display">\[J(\tau) := \EXP\bigg[ \sum_{t=1}^{\tau-1} c_t(X_t) + s_\tau(X_\tau)
+\bigg].\]</span></p>
+<p>Such problems are called <em>Optimal stopping problems</em>. These can be solved using dynamic programming as follows.</p>
+<p>Define the <em>cost-to-go function</em> of any stopping rule as <span class="math display">\[J_t(x; \tau) = \EXP\bigg[ \sum_{s = t}^{\tau - 1} c_{\tau}(X_t) +
+s_\tau(X_\tau) \,\bigg|\, \tau &gt; t \bigg]\]</span> and the <em>value function</em> as <span class="math display">\[V_t(x) = \inf_{\tau} J_t(x; \tau). \]</span> Then, it can be shown that the value functions satisfy the following recursion:</p>
+<div class="highlight">
+<p><strong>Dynamic Program for optimal stopping</strong> <span class="math display">\[ \begin{align*}
+V_T(x) &amp;= s_T(x) \\
+V_t(x) &amp;= \min\{ s_t(x), c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x].
+\end{align*}\]</span></p>
+</div>
+<p>Consider an optimal stopping problem and define the <em>benefit function</em> as the expected benefit<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> of delaying the stopping decision at time <span class="math inline">\(t\)</span>, i.e., <span class="math display">\[\begin{equation}\label{eq:B}
   B_t(x) = c_t(x) + \EXP[ V_{t+1}( X_{t+1}) | X_t = x] - s_t(x). 
 \end{equation}\]</span> Thus, it is optimal to stop whenever <span class="math inline">\(B_t(x) \ge 0\)</span>.</p>
 <p>Note that, we can write the value function in terms of the benefit function as follows: <span class="math display">\[\begin{align}
@@ -55,7 +66,7 @@
 <div class="highlight">
 <dl>
 <dt><span id="theorem:monotone-stopping" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
-<dd><p>Suppose the following conditions hold.</p>
+<dd><p>Suppose the state space is totally ordered and the following conditions hold.</p>
 <ol type="1">
 <li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(M_t(x)\)</span> is weakly increasing in <span class="math inline">\(x\)</span>.</li>
 <li><span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is stochastic monotone.</li>
@@ -64,6 +75,11 @@
 </dd>
 </dl>
 </div>
+<dl>
+<dt>Remark</dt>
+<dd><p>Let’s contrast the above result from the monotonicity of optimal policies in general MDPs. Here, in addition to stochastic monotonicity of the Markov chain, we only require the one-step look-ahead function to be monotone. There is no assumption on the submodularity of the cost.</p>
+</dd>
+</dl>
 <h4 id="proof">Proof</h4>
 <p>We first prove monotonicity of <span class="math inline">\(B_t(x)\)</span>. As usual, the proof is by backward induction. For <span class="math inline">\(t = T\)</span>, <span class="math inline">\(B_T(x) = M_T(x)\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(B_{t+1}(x)\)</span> is increasing in <span class="math inline">\(x\)</span> and consider the problem at time <span class="math inline">\(t\)</span>.</p>
 <p>Since <span class="math inline">\(B_{t+1}(x)\)</span> is increasing so is <span class="math inline">\([B_{t+1}(x)]^{-}\)</span>. Moreover, since <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math inline">\(\EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x]\)</span> is increasing in <span class="math inline">\(x\)</span>. Therefore, <span class="math display">\[ B_t(x) = M_t(x) + \EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x] \]</span> is increasing in <span class="math inline">\(x\)</span>. Thus, by induction, <span class="math inline">\(B_t(x)\)</span> is increasing in <span class="math inline">\(x\)</span> for all <span class="math inline">\(t\)</span>.</p>
