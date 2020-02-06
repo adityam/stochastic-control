@@ -62,10 +62,10 @@ end
 using PyPlot
 
 step(0:n, hcat(v[1], v[50], v[75], v[95]), where=:mid)
-legend(["v[1]", "v[50]", "v[75]", "v[95]"])
+legend(["v[1]", "v[50]", "v[75]", "v[95]"], loc="center left", bbox_to_anchor=(1,0.5)) 
 xlabel("State")
 title("Value function for different times")
-savefig("queueing.png")
+savefig("queueing.png", bbox_inches=:tight)
 
 
 @info "Optimal policy" [g[1], g[50], g[75], g[95]]

@@ -77,8 +77,8 @@ for t in T-1:-1:1
 end
 
 plot(X, hcat(V[1], V[2], V[3], V[4]))
-legend(["V[1]", "V[2]", "V[3]", "V[4]"])
+legend(["V[1]", "V[2]", "V[3]", "V[4]"], loc="center left", bbox_to_anchor=(1,0.5))
 xlabel("State")
 title("Value function for different times")
-savefig("iot.png")
+savefig("iot.png", bbox_inches=:tight)
 
