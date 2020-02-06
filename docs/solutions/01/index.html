@@ -42,6 +42,34 @@
 <p>This means that we need to compute <span class="math inline">\(P(W|X)\)</span>. However, we can avoid that step by observing that <span class="math display">\[P(W|X) = \dfrac{ P(X,W) }{ P(X) }.\]</span> Thus, <span class="math display">\[ Q(x,u) = \dfrac{1}{P(X)} \sum_{w \in \ALPHABET W} P(X = x, W = w)
 c(x,u,w).\]</span> The <span class="math inline">\(1/P(X)\)</span> term outside does not impact the arg min, so we can ignore that when computing the optimal policy.</p>
 <p>The code for computing the optimal policy is <a href="static.jl">available here</a>. Note that the code is written for ease of reading, not efficiency. It can be made more efficient by replace the for loops by matrix multiplication.</p>
+<div class="highlight">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> LinearAlgebra<span style="color:#f92672"></span><span style="color:#f92672">:</span> dot<span style="color:#f92672"></span>, argmin<span style="color:#f92672"></span>
+
+<span style="color:#75715e"># The state spaces</span>
+X<span style="color:#f92672"></span>, U<span style="color:#f92672"></span>, W<span style="color:#f92672"></span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">3</span>
+
+<span style="color:#75715e"># Probability transition matrix</span>
+P<span style="color:#f92672"></span> <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.25</span> <span style="color:#ae81ff">0.15</span> <span style="color:#ae81ff">0.05</span>; <span style="color:#ae81ff">0.30</span> <span style="color:#ae81ff">0.10</span> <span style="color:#ae81ff">0.15</span>]
+
+<span style="color:#75715e"># Cost function</span>
+C<span style="color:#f92672"></span> <span style="color:#f92672">=</span> zeros<span style="color:#f92672"></span>(length<span style="color:#f92672"></span>(X<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(U<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(W<span style="color:#f92672"></span>))
+C<span style="color:#f92672"></span>[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">3</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">1</span>; <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">1</span>];
+C<span style="color:#f92672"></span>[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">1</span>; <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">8</span>];
+C<span style="color:#f92672"></span>[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span>; <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">3</span>];
+
+Q<span style="color:#f92672"></span> <span style="color:#f92672">=</span> zeros<span style="color:#f92672"></span>(length<span style="color:#f92672"></span>(X<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(U<span style="color:#f92672"></span>));
+<span style="color:#66d9ef">for</span> x<span style="color:#f92672"></span> <span style="color:#66d9ef">in</span> X<span style="color:#f92672"></span>, u<span style="color:#f92672"></span> <span style="color:#66d9ef">in</span> U<span style="color:#f92672"></span>
+    Q<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,u<span style="color:#f92672"></span>] <span style="color:#f92672">=</span> dot<span style="color:#f92672"></span>(P<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,<span style="color:#f92672">:</span>],C<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,u<span style="color:#f92672"></span>,<span style="color:#f92672">:</span>])
+<span style="color:#66d9ef">end</span>
+
+g<span style="color:#f92672"></span> <span style="color:#f92672">=</span> zeros<span style="color:#f92672"></span>(<span style="color:#66d9ef">Int</span>, length<span style="color:#f92672"></span>(X<span style="color:#f92672"></span>));
+<span style="color:#66d9ef">for</span> x<span style="color:#f92672"></span> <span style="color:#66d9ef">in</span> X<span style="color:#f92672"></span>
+    <span style="color:#a6e22e">@views</span><span style="color:#f92672"></span> g<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>] <span style="color:#f92672">=</span> argmin<span style="color:#f92672"></span>(Q<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,<span style="color:#f92672">:</span>])
+<span style="color:#66d9ef">end</span>
+<span style="color:#a6e22e">@info</span><span style="color:#f92672"></span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">T</span><span style="color:#e6db74">h</span><span style="color:#e6db74">e</span><span style="color:#e6db74"> </span><span style="color:#e6db74">o</span><span style="color:#e6db74">p</span><span style="color:#e6db74">t</span><span style="color:#e6db74">i</span><span style="color:#e6db74">m</span><span style="color:#e6db74">a</span><span style="color:#e6db74">l</span><span style="color:#e6db74"> </span><span style="color:#e6db74">a</span><span style="color:#e6db74">c</span><span style="color:#e6db74">t</span><span style="color:#e6db74">i</span><span style="color:#e6db74">o</span><span style="color:#e6db74">n</span><span style="color:#e6db74">s</span><span style="color:#e6db74"> </span><span style="color:#e6db74">a</span><span style="color:#e6db74">r</span><span style="color:#e6db74">e</span><span style="color:#e6db74">&#34;</span> g<span style="color:#f92672"></span> 
+
+</code></pre>
+</div>
 <p>The optimal policy is as follows.</p>
 <pre><code>┌ Info: The optimal actions are
 │   g =
@@ -50,6 +78,40 @@ c(x,u,w).\]</span> The <span class="math inline">\(1/P(X)\)</span> term outside 
 └     2</code></pre>
 <h2 id="problem-2">Problem 2</h2>
 <p>We solve it in a manner similar to Problem 1. The code for computing the optimal policy is <a href="static-2.jl">available here</a>.</p>
+<div class="highlight">
+<pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> LinearAlgebra<span style="color:#f92672"></span><span style="color:#f92672">:</span> dot<span style="color:#f92672"></span>, argmin<span style="color:#f92672"></span>
+
+<span style="color:#75715e"># The state spaces</span>
+X<span style="color:#f92672"></span>, Y<span style="color:#f92672"></span>, U<span style="color:#f92672"></span>, W<span style="color:#f92672"></span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">3</span>
+
+<span style="color:#75715e"># The transition matrix is called Q in the</span>
+<span style="color:#75715e"># question. We call it P for convenience</span>
+
+P<span style="color:#f92672"></span> <span style="color:#f92672">=</span> zeros<span style="color:#f92672"></span>(length<span style="color:#f92672"></span>(X<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(W<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(Y<span style="color:#f92672"></span>));
+
+P<span style="color:#f92672"></span>[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.15</span> <span style="color:#ae81ff">0.1</span> <span style="color:#ae81ff">0.0</span>; <span style="color:#ae81ff">0.15</span> <span style="color:#ae81ff">0.05</span> <span style="color:#ae81ff">0.1</span>];
+P<span style="color:#f92672"></span>[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.1</span> <span style="color:#ae81ff">0.05</span> <span style="color:#ae81ff">0.05</span>; <span style="color:#ae81ff">0.15</span> <span style="color:#ae81ff">0.05</span> <span style="color:#ae81ff">0.05</span>];
+
+<span style="color:#75715e"># Cost</span>
+C<span style="color:#f92672"></span> <span style="color:#f92672">=</span> zeros<span style="color:#f92672"></span>(length<span style="color:#f92672"></span>(X<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(U<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(W<span style="color:#f92672"></span>));
+C<span style="color:#f92672"></span>[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">3</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">1</span>; <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">1</span>];
+C<span style="color:#f92672"></span>[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">1</span>; <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">8</span>];
+C<span style="color:#f92672"></span>[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span>; <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">3</span>];
+
+Q<span style="color:#f92672"></span> <span style="color:#f92672">=</span> zeros<span style="color:#f92672"></span>(length<span style="color:#f92672"></span>(X<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(Y<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(U<span style="color:#f92672"></span>));
+<span style="color:#66d9ef">for</span> x<span style="color:#f92672"></span> <span style="color:#66d9ef">in</span> X<span style="color:#f92672"></span>, y<span style="color:#f92672"></span> <span style="color:#66d9ef">in</span> Y<span style="color:#f92672"></span>, u<span style="color:#f92672"></span> <span style="color:#66d9ef">in</span> U<span style="color:#f92672"></span>
+    Q<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,y<span style="color:#f92672"></span>,u<span style="color:#f92672"></span>] <span style="color:#f92672">=</span> dot<span style="color:#f92672"></span>(P<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,<span style="color:#f92672">:</span>,y<span style="color:#f92672"></span>], C<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,u<span style="color:#f92672"></span>,<span style="color:#f92672">:</span>])
+<span style="color:#66d9ef">end</span>
+
+g<span style="color:#f92672"></span> <span style="color:#f92672">=</span> zeros<span style="color:#f92672"></span>(<span style="color:#66d9ef">Int</span>, length<span style="color:#f92672"></span>(X<span style="color:#f92672"></span>), length<span style="color:#f92672"></span>(Y<span style="color:#f92672"></span>));
+<span style="color:#66d9ef">for</span> x<span style="color:#f92672"></span> <span style="color:#66d9ef">in</span> X<span style="color:#f92672"></span>, y<span style="color:#f92672"></span> <span style="color:#66d9ef">in</span> Y<span style="color:#f92672"></span>
+    g<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,y<span style="color:#f92672"></span>] <span style="color:#f92672">=</span> argmin<span style="color:#f92672"></span>(Q<span style="color:#f92672"></span>[x<span style="color:#f92672"></span>,y<span style="color:#f92672"></span>,<span style="color:#f92672">:</span>])
+<span style="color:#66d9ef">end</span>
+
+<span style="color:#a6e22e">@info</span><span style="color:#f92672"></span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">T</span><span style="color:#e6db74">h</span><span style="color:#e6db74">e</span><span style="color:#e6db74"> </span><span style="color:#e6db74">o</span><span style="color:#e6db74">p</span><span style="color:#e6db74">t</span><span style="color:#e6db74">i</span><span style="color:#e6db74">m</span><span style="color:#e6db74">a</span><span style="color:#e6db74">l</span><span style="color:#e6db74"> </span><span style="color:#e6db74">a</span><span style="color:#e6db74">c</span><span style="color:#e6db74">t</span><span style="color:#e6db74">i</span><span style="color:#e6db74">o</span><span style="color:#e6db74">n</span><span style="color:#e6db74">s</span><span style="color:#e6db74"> </span><span style="color:#e6db74">a</span><span style="color:#e6db74">r</span><span style="color:#e6db74">e</span><span style="color:#e6db74">&#34;</span> g<span style="color:#f92672"></span> 
+
+</code></pre>
+</div>
 <p>The optimal policy is as follows.</p>
 <pre><code>┌ Info: The optimal actions are
 │   g =
