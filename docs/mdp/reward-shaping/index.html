@@ -44,7 +44,7 @@
 <dd><p>The policy <span class="math inline">\(g^1\)</span> is equal to the policy <span class="math inline">\(g^2\)</span> for every choice of transition function <span class="math inline">\(f\)</span> and probability distribution <span class="math inline">\(P_W\)</span> if and only if there exists a sequence of functions <span class="math inline">\(\{φ_t \colon \ALPHABET X \to \reals\}_{t \ge 1}\)</span>, which are called <em>potential functions</em>, such that:</p>
 <ol type="1">
 <li><p>For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ c^2_T(x) = c^1_T(x) - φ_T(x).  \]</span></p></li>
-<li><p>For <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, <span class="math display">\[ c^2_t(x,u,x&#39;) = c^1_t(x,u,x&#39;) +  φ_{t+1}(x&#39;) - φ_t(x). \]</span></p></li>
+<li><p>For <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, <span class="math display">\[ c^2_t(x,u,x_{+}) = c^1_t(x,u,x_{+}) +  φ_{t+1}(x_{+}) - φ_t(x). \]</span></p></li>
 </ol>
 </dd>
 </dl>
@@ -52,13 +52,13 @@
 <dl>
 <dt>Remark</dt>
 <dd><ol type="1">
-<li><p>The sign of the potential function is irrelevant. So, we could also have written <span class="math display">\[ c^2_t(x,u,x&#39;) = c^1_t(x,u,x&#39;) +  φ_t(x) - φ_{t+1}(x&#39;). \]</span></p></li>
-<li><p>The result naturally extends to infinite horizon expected cost model (and is typically stated for such a model). In the infinite horizon case, the potential function must be time-invariant and condition 2 needs to be replaced by <span class="math display">\[ c^2(x,u,x&#39;) = c^1(x,u,x&#39;) + β φ(x&#39;) - φ(x). \]</span></p></li>
+<li><p>The sign of the potential function is irrelevant. So, we could also have written <span class="math display">\[ c^2_t(x,u,x_{+}) = c^1_t(x,u,x_{+}) +  φ_t(x) - φ_{t+1}(x_{+}). \]</span></p></li>
+<li><p>The result naturally extends to infinite horizon expected cost model (and is typically stated for such a model). In the infinite horizon case, the potential function must be time-invariant and condition 2 needs to be replaced by <span class="math display">\[ c^2(x,u,x_{+}) = c^1(x,u,x_{+}) + β φ(x_{+}) - φ(x). \]</span></p></li>
 </ol>
 </dd>
 </dl>
 <h4 id="proof-sufficiency">Proof (sufficiency)</h4>
-<p>Suppose conditions 1 and 2 in the statement of the theorem hold. That is, <span class="math display">\[c^2_t(x,u,x&#39;) = c^1_t(x,u,x&#39;) - φ_t(x) + φ_{t+1}(x&#39;)
+<p>Suppose conditions 1 and 2 in the statement of the theorem hold. That is, <span class="math display">\[c^2_t(x,u,x_{+}) = c^1_t(x,u,x_{+}) - φ_t(x) + φ_{t+1}(x_{+})
 \quad\text{and}\quad
 c^2_T(x) = c^1_T(x) - φ_T(x). \]</span></p>
 <p>Then, we claim that <span class="math display">\[\begin{equation} \label{eq:claim}
@@ -83,12 +83,39 @@ X_t = x, U_t = u] \\
 <dt>Additional Remarks</dt>
 <dd><ol type="1">
 <li><p>The advantage function given by <span class="math display">\[ A_t(x,u) := Q_t(x,u) - V_t(x) \]</span> measures the relative cost of choosing action <span class="math inline">\(u\)</span> over the optimal action. An implication of the claim \eqref{eq:claim} used in the above proof is that reward shaping does not change the advantage function!</p></li>
-<li><p>In reinforcement learning in infinite horizon discounted cost setup, reward shaping refers to choosing a potential function <span class="math inline">\(φ\)</span> to change the cost function from <span class="math inline">\(c(x,u,x&#39;)\)</span> to <span class="math inline">\(\tilde c(x,u,x&#39;) = c(x,u,x&#39;) + β φ(x&#39;) - φ(x)\)</span> to speed up learning. One often chooses <span class="math inline">\(φ(x) = V(x)\)</span>. If we extend claim \eqref{eq:claim} to infinite horizon, then an implication of choosing <span class="math inline">\(φ(x) = V(x)\)</span> is that the value function of the modified cost <span class="math inline">\(\tilde c(x,u,x&#39;)\)</span> is zero!</p></li>
+<li><p>In reinforcement learning in infinite horizon discounted cost setup, reward shaping refers to choosing a potential function <span class="math inline">\(φ\)</span> to change the cost function from <span class="math inline">\(c(x,u,x_{+})\)</span> to <span class="math inline">\(\tilde c(x,u,x_{+}) = c(x,u,x_{+}) + β φ(x_{+}) - φ(x)\)</span> to speed up learning. One often chooses <span class="math inline">\(φ(x) = V(x)\)</span>. If we extend claim \eqref{eq:claim} to infinite horizon, then an implication of choosing <span class="math inline">\(φ(x) = V(x)\)</span> is that the value function of the modified cost <span class="math inline">\(\tilde c(x,u,x_{+})\)</span> is zero!</p></li>
 </ol>
 </dd>
 </dl>
 <h4 id="proof-necessity">Proof (necessity)</h4>
 <p>See <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999">1999</a>)</span>.</p>
+<h2 id="generalization-to-cost-models">Generalization to cost models</h2>
+<p>Now consider a finite horizon discounted cost problem, where the performance of a policy <span class="math inline">\(g\)</span> is given by <span class="math display">\[ 
+J(g) = \EXP\Bigl[ \sum_{t=1}^{T-1} \beta^{t-1} c_t(X_t, U_t) + \beta^T c_T(X_T)
+       \Bigr]. 
+\]</span></p>
+<p>As argued in <a href="../mdp-functional#discounted-cost">the introduction to discounted models</a>, the dynamic prgram for this case is given by</p>
+<p><span class="math display">\[ V_{T}(x) = c_T(x) \]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span class="math display">\[ \begin{align*}
+  Q_t(x,u) &amp;= c(x,u) + \beta \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u ], \\
+  V_t(x) &amp;= \min_{u \in \ALPHABET U} Q_t(x,u).
+\end{align*} \]</span></p>
+<p>For such models, we have the following.</p>
+<div class="highlight">
+<dl>
+<dt><span id="cor:discounted" class="pandoc-numbering-text cor"><strong>Corollary 1</strong></span></dt>
+<dd><p>For discounted cost models, the result of <a href="#thm:reward-shaping">Theorem 1</a> hold if condition 2 is replaced by</p>
+<ol start="2" type="1">
+<li><p>For <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>,</p>
+<p><span class="math display">\[ c^2_t(x,u,x_{+}) = c^1_t(x,u,x_{+}) + \beta \varphi_{t+1}(x_{+}) - \varphi_t(x). \]</span></p></li>
+</ol>
+</dd>
+</dl>
+</div>
+<dl>
+<dt>Remark</dt>
+<dd><p>If the cost function is time homogeneous, <a href="#cor:discounted">Corollary 1</a> extends naturally to infinite horizon models with a time-homogeneous potential function.</p>
+</dd>
+</dl>
 <h2 id="exercises">Exercises</h2>
 <ol type="1">
 <li><p>Suppose <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> is any <em>Markov</em> policy. Let <span class="math inline">\(J^i_t(x;g)\)</span>, <span class="math inline">\(i \in \{1, 2\}\)</span> denote the performance of policy <span class="math inline">\(g\)</span> in model <span class="math inline">\(M^i\)</span> starting in state <span class="math inline">\(x\)</span> at time <span class="math inline">\(t\)</span> (see <a href="../mdp-functional/#performance">Performance of Markov Strategies</a>). Show that</p>

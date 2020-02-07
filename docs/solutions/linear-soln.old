@@ -1,0 +1,154 @@
+## Problem 3
+
+a.  We start by writing the dynamic program for the above model.
+
+    $$V_{T+1}(x) = 0 $$
+    and for $t \in \{T, \dots, 1\}$
+    $$ \begin{align}
+      Q_t(x,u) &= x^2 + λ u + V_{t+1}(ax + bu) \\
+      V_t(x) &= \min_{u \in \reals} Q_t(x,u) 
+    \end{align}$$
+
+b.  Now we compute the value function and optimal policy at time $T$.
+
+    $Q_T(x,u) = x^2$. Thus, $V_T(x) = x^2$ and $g_T(x) = 0$.
+
+c.  Now we compute the value function and optimal policy at time $T-1$. 
+
+    $$\begin{align}
+           Q_{T-1}(x,u) &= x^2 + λu + (ax + bu)^2 \\
+           &= x^2 + λ u + a^2 x^2 + b^2 u^2 + 2abxu \\
+           &= b^2 u^2 + 2 \left( \frac λ{2b} + ax \right) (bu) + 
+              \left( \frac λ{2b} + ax \right)^2 
+              - \left( \frac λ{2b} + ax \right)^2 
+              + x^2 + a^2 x^2 \\
+           &= \left( bu + \frac λ{2b} + ax \right)^2 
+              + x^2 -  \frac{λax}{b} - \frac {λ^2}{4b^2} \\
+           &= \left( bu + \frac λ{2b} + ax \right)^2 
+              + \left(x - \frac {λa}{2b} \right)^2 
+              - \frac{λ^2 (1+a^2) }{4 b^2 }
+    \end{align}$$
+
+    Thus, 
+    $$
+     g_{T-1}(x) = - \frac{λ}{2b^2} - \frac ab x,
+     \quad\text{and}\quad
+     V_{T-1}(x) = \left( x - \frac {λa}{2b} \right)^2
+         - \frac{λ^2 (1+a^2) }{4 b^2 } 
+    $$
+
+    We can also test this using symbolic computation:
+
+    ```
+    julia> using SymPy
+    julia> x = symbols("x", real=true);
+    julia> u = symbols("u", real=true);
+    julia> a = symbols("a", real=true, positive=true);
+    julia> b = symbols("b", real=true, positive=true);
+    julia> λ = symbols("λ", real=true, positive=true);
+    julia> c(x,u) = x^2 + λ*u;
+    julia> f(x,y) = a*x + b*y;
+
+    julia> VT(x) = x^2;
+    julia> QT_1(x,u) = c(x,u) + VT(f(x,u));
+    julia> gT_1(x) = solve(diff(QT_1(x,u), u), u)[1];
+
+    julia> gT_1(x)
+     ⎛        λ⎞
+    -⎜a⋅b⋅x + ─⎟
+     ⎝        2⎠
+    ─────────────
+           2
+          b
+
+    julia> VT_1(x) = QT_1(x, gT_1(x) );
+
+    julia> VT_1(x)
+                          2
+         ⎛              λ⎞      ⎛        λ⎞
+         ⎜      a⋅b⋅x + ─⎟     λ⋅⎜a⋅b⋅x + ─⎟
+     2   ⎜              2⎟      ⎝        2⎠
+    x  + ⎜a⋅x - ─────────⎟  - ─────────────
+         ⎝          b    ⎠           2
+                                    b
+    julia> VT_1(x) - (x - λ*a/(2*b))^2 |> simplify
+      2 ⎛ 2    ⎞
+    -λ ⋅⎝a  + 1⎠
+    ─────────────
+            2
+         4⋅b
+    ```
+
+d.  Based on the above, we guess that for $t < T-1$, the value function is of
+    the form 
+    $$V_{t}(x) = \left(x - \frac{λa}{2b}\right)^2 - α_{t}$$
+    where we will determine $\alpha_t$.
+    
+    Assume that $V_{t+1}(x)$ is of the above form. Then,
+    $$\begin{align}
+       Q_t(x,u) &= x^2 + λ u + 
+          \left( ax + bu - \frac{λa}{2b} \right)^2 
+          - α_{t+1}
+          \\
+       &= x^2 + λu + a^2 x^2 + b^2 u^2 + 2abxu 
+          - \frac{λa^2}{b} x - λ a u 
+          + \frac{λ^2 a^2 }{4b^2} 
+          - α_{t+1} \\
+       &= b^2 u^2 + 2 \left( \frac {λ(1-a)}{2b} + ax\right) (bu) 
+          + \left( \frac {λ(1-a)}{2b} + ax \right)^2
+          \\
+       & \quad
+          - \left( \frac {λ(1-a)}{2b} + ax \right)^2
+          + x^2 + a^2 x^2 
+          - \frac{λa^2}{b} x 
+          + \frac{λ^2 a^2 }{4b^2} 
+          - α_{t+1} \\
+       &= \left( bu + \frac{λ(1-a)}{2b} + ax \right)^2 
+          + x^2 - ((1-a) + a)\frac{λax}{b} 
+          + \frac{λ^2 a^2}{4b^2}  - \frac{λ^2(1-a)^2 }{4b^2} 
+          - α_{t+1} \\
+       &= \left( bu + \frac{λ(1-a)}{2b} + ax \right)^2 
+          + \left(x - \frac{λa}{2b}\right)^2  
+          - \frac{λ^2(1-a)^2}{4b^2} - α_{t+1}\\
+       &= \left( bu + \frac{λ(1-a)}{2b} + ax \right)^2 
+          + \left(x - \frac{λa}{2b}\right)^2  
+          - α_t,
+    \end{align}$$
+    where $α_t =  \frac{λ^2(1-a)^2}{4b^2} + α_{t+1}$.
+
+    Thus, 
+    $$
+      g_t(x) = - \frac{λ(1-a)}{2b^2} - \frac{a}{b}x,
+      \quad\text{and}\quad
+      V_t(x) = \left(x - \frac{λa}{2b}\right)^2 - α_t
+    $$
+    Moreover, $α_{T-1} = \dfrac{λ^2(1+a^2)}{4b^2}$ and for $t \in \{T-2,
+    \dots, 1\}$, 
+    $$
+      α_t = \frac{λ^2 (1+a^2)}{4b^2} + (T - t - 1) \frac{λ^2(1-a)^2}{4b^2}.
+    $$
+
+    Again, we can verify the calculations using symbolic computation.
+    ```
+    julia> α = symbols("α", real=true)
+    julia> Vt1(x) = (x - λ*a/(2*b))^2 - α;
+    julia> Qt(x,u) = c(x,u) + Vt1(f(x,u));
+    julia> gt(x) = solve(diff(Qt(x,u), u), u)[1];
+
+    julia> gt(x)
+             λ⋅(a - 1)
+    -a⋅b⋅x + ─────────
+                 2
+    ──────────────────
+             2
+            b
+
+    julia> Vt(x) = Qt(x, gt(x));
+
+    julia> Vt(x) - (x - λ*a/2b)^2 + α |> factor
+      2        2
+    -λ ⋅(a - 1)
+    ─────────────
+            2
+         4⋅b
+    ```
