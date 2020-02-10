@@ -1,0 +1,108 @@
+---
+title: "Example: Inventory Management (revisited)"
+weight: 02
+categories:
+  - MDP
+tags:
+  - inventory management
+  - reward shaping
+  - structural results
+---
+
+TL;DR _One of the potential benefits of modeling a system as infinite horizon
+discounted cost MDP is that it can be simpler to identify an optimal policy.
+We illustrate this using the inventory management example_.
+
+Consider the model for [inventory management] and assume that it runs for an
+infinite horizon. We assume that the per-step cost is given by
+$$c(x,u,x_{+}) = p u + \beta h(x), $$
+where 
+$$ h(x) = \begin{cases}
+  ax, & \text{if $x \ge 0$} \\
+  -bx, & \text{if $x < 0$},
+\end{cases}$$
+where $a$ is the per-unit holding cost, $b$ is the per-unit shortage cost, and
+$p$ is the per-unit procurement cost. Note that in the per-step cost, we are
+assuming that the holding or shortage cost is dicounted because this cost is
+incurred at the end of the time period.  
+
+As a first step, we modify the per-step cost using [reward shaping]. In
+particular, we consider the following potential function
+
+$$\varphi(x) = h(x) + \frac1{\beta} p x - \frac{1}{1-\beta}p\mu,$$
+where $\mu = \EXP[W]$ is the expected number of arrivals at each time period. 
+
+Now consider a new cost function
+$$\begin{align*}
+  c'(x,u,x_{+}) &= c(x,u,x_{+}) + \varphi(x) - \beta \varphi(x_{+}) \\
+  &= pu + \beta h(x_{+}) + h(x) + \frac{1}{\beta} p x - \frac{1}{1-\beta} p \mu
+  - \beta h(x_{+}) - p x_{+} - \frac{\beta}{1-\beta} p \mu \\
+  &= h(x) + \frac{1-\beta}{\beta} px + p w - p \mu.
+\end{align*} $$
+Note that 
+$$ \EXP[ c'(x,u,X_{+}) | X = x, U = u ] = h(x) + \frac{1-\beta}{\beta} px 
+=: c^*(x). $$
+Thus, the optimal policy of the original model is the same as that in which
+the per-step cost is given by $c^*(x)$. 
+
+Recall that the optimal policy in the original model was a control limit
+policy. For the infinite horizon model, the threshold will become
+time-invariant. Thus, the optimal policy will be of the form
+$$
+  g(x) = \begin{cases}
+  s - x, & \text{if $x \le S$} \\
+  0, & \text{otherwise}.
+\end{cases}$$
+
+The infinite horizon dynamic programming with this modified cost is given by 
+$$ V(x) = \min_{u \in \reals_{\ge 0}} 
+   \bigl\{ c^*(x) + \beta \EXP[ V(x + u - W) ] \bigr\}. $$
+
+Using the structure of the optimal policy identified above, we have that
+$$ V(x) = c^*(x) + \beta \EXP[ V(s - W) ], \qquad x \le s. $$
+Let $\Theta(s)$ denote $\EXP[V(s+W)]$. Then, substituting $x = s - W$ in the
+above expression and taking expectations, we get
+$$\Theta(s) = \EXP[ c^*(s - W) ] + \beta \Theta(s).$$
+Thus, 
+$$ \Theta(s) = \frac{1}{\beta} \EXP[ c^*(s-W) ]. $$
+Consequently, we have the following:
+
+::: highlight :::
+Theorem #thm:inventory
+
+: The optimal threshold $s$ is given by the value of $s$ which minimizes
+$\EXP[ c^*(s-W) ]$. 
+
+::: 
+
+[Theorem #](#thm:inventory) provides a almost closed form characterization of
+the optimal policy.
+
+---
+
+## Exercises
+
+1. Suppose that the arrival process is exponential with rate $1/\mu$, i.e.,
+   the density of $W$ is given by $e^{-x/\mu}/\mu$. Show that the optimal
+   threshold is given by
+   $$ s = \mu \log \left[ \frac{ a + b} { a + p (1-\beta)/\beta} \right]. $$
+
+   _Hint_: Show that for exponential distribution
+   $$ \EXP[ (s-W)^+ ] = (s - \mu) + \mu e^{-s/\mu} $$
+   and
+   $$ \EXP[ (s-W)^- ] = - \mu e^{-s/\mu}. $$
+
+---
+
+## References
+
+The idea of using reward shaping to derive a closed form expression for
+inventory management is taken from @Whittle1982. It is interesting to note
+that @Whittle1982 uses the idea of reward shaping more than 17 years before
+the paper by @Ng1999 on reward shaping. 
+
+
+[inventory management]: ../../mdp/inventory-management
+[reward shaping]: ../../mdp/reward-shaping
+
+

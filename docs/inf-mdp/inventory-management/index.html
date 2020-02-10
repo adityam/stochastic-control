@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="inventory management,reward shaping,structural results" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG,https://adityam.github.io/stochastic-control/js/mathjax-local.js">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Example: Inventory Management (revisited)</h1>
+
+<p>TL;DR <em>One of the potential benefits of modeling a system as infinite horizon discounted cost MDP is that it can be simpler to identify an optimal policy. We illustrate this using the inventory management example</em>.</p>
+<p>Consider the model for <a href="../../mdp/inventory-management">inventory management</a> and assume that it runs for an infinite horizon. We assume that the per-step cost is given by <span class="math display">\[c(x,u,x_{+}) = p u + \beta h(x), \]</span> where <span class="math display">\[ h(x) = \begin{cases}
+  ax, &amp; \text{if $x \ge 0$} \\
+  -bx, &amp; \text{if $x &lt; 0$},
+\end{cases}\]</span> where <span class="math inline">\(a\)</span> is the per-unit holding cost, <span class="math inline">\(b\)</span> is the per-unit shortage cost, and <span class="math inline">\(p\)</span> is the per-unit procurement cost. Note that in the per-step cost, we are assuming that the holding or shortage cost is dicounted because this cost is incurred at the end of the time period.</p>
+<p>As a first step, we modify the per-step cost using <a href="../../mdp/reward-shaping">reward shaping</a>. In particular, we consider the following potential function</p>
+<p><span class="math display">\[\varphi(x) = h(x) + \frac1{\beta} p x - \frac{1}{1-\beta}p\mu,\]</span> where <span class="math inline">\(\mu = \EXP[W]\)</span> is the expected number of arrivals at each time period.</p>
+<p>Now consider a new cost function <span class="math display">\[\begin{align*}
+  c&#39;(x,u,x_{+}) &amp;= c(x,u,x_{+}) + \varphi(x) - \beta \varphi(x_{+}) \\
+  &amp;= pu + \beta h(x_{+}) + h(x) + \frac{1}{\beta} p x - \frac{1}{1-\beta} p \mu
+  - \beta h(x_{+}) - p x_{+} - \frac{\beta}{1-\beta} p \mu \\
+  &amp;= h(x) + \frac{1-\beta}{\beta} px + p w - p \mu.
+\end{align*} \]</span> Note that <span class="math display">\[ \EXP[ c&#39;(x,u,X_{+}) | X = x, U = u ] = h(x) + \frac{1-\beta}{\beta} px 
+=: c^*(x). \]</span> Thus, the optimal policy of the original model is the same as that in which the per-step cost is given by <span class="math inline">\(c^*(x)\)</span>.</p>
+<p>Recall that the optimal policy in the original model was a control limit policy. For the infinite horizon model, the threshold will become time-invariant. Thus, the optimal policy will be of the form <span class="math display">\[
+  g(x) = \begin{cases}
+  s - x, &amp; \text{if $x \le S$} \\
+  0, &amp; \text{otherwise}.
+\end{cases}\]</span></p>
+<p>The infinite horizon dynamic programming with this modified cost is given by <span class="math display">\[ V(x) = \min_{u \in \reals_{\ge 0}} 
+   \bigl\{ c^*(x) + \beta \EXP[ V(x + u - W) ] \bigr\}. \]</span></p>
+<p>Using the structure of the optimal policy identified above, we have that <span class="math display">\[ V(x) = c^*(x) + \beta \EXP[ V(s - W) ], \qquad x \le s. \]</span> Let <span class="math inline">\(\Theta(s)\)</span> denote <span class="math inline">\(\EXP[V(s+W)]\)</span>. Then, substituting <span class="math inline">\(x = s - W\)</span> in the above expression and taking expectations, we get <span class="math display">\[\Theta(s) = \EXP[ c^*(s - W) ] + \beta \Theta(s).\]</span> Thus, <span class="math display">\[ \Theta(s) = \frac{1}{\beta} \EXP[ c^*(s-W) ]. \]</span> Consequently, we have the following:</p>
+<div class="highlight">
+<dl>
+<dt>Theorem #thm:inventory</dt>
+<dd><p>The optimal threshold <span class="math inline">\(s\)</span> is given by the value of <span class="math inline">\(s\)</span> which minimizes <span class="math inline">\(\EXP[ c^*(s-W) ]\)</span>.</p>
+</dd>
+</dl>
+</div>
+<p><a href="#thm:inventory">Theorem #</a> provides a almost closed form characterization of the optimal policy.</p>
+<hr />
+<h2 id="exercises">Exercises</h2>
+<ol type="1">
+<li><p>Suppose that the arrival process is exponential with rate <span class="math inline">\(1/\mu\)</span>, i.e., the density of <span class="math inline">\(W\)</span> is given by <span class="math inline">\(e^{-x/\mu}/\mu\)</span>. Show that the optimal threshold is given by <span class="math display">\[ s = \mu \log \left[ \frac{ a + b} { a + p (1-\beta)/\beta} \right]. \]</span></p>
+<p><em>Hint</em>: Show that for exponential distribution <span class="math display">\[ \EXP[ (s-W)^+ ] = (s - \mu) + \mu e^{-s/\mu} \]</span> and <span class="math display">\[ \EXP[ (s-W)^- ] = - \mu e^{-s/\mu}. \]</span></p></li>
+</ol>
+<hr />
+<h2 id="references">References</h2>
+<p>The idea of using reward shaping to derive a closed form expression for inventory management is taken from <span class="citation" data-cites="Whittle1982">@Whittle1982</span>. It is interesting to note that <span class="citation" data-cites="Whittle1982">@Whittle1982</span> uses the idea of reward shaping more than 17 years before the paper by <span class="citation" data-cites="Ng1999">@Ng1999</span> on reward shaping.</p>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/inventory-management">inventory management</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/reward-shaping">reward shaping</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/structural-results">structural results</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
