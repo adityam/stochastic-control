@@ -37,26 +37,26 @@ Theorem #thm:reward-shaping
     $$ c^2_T(x) = c^1_T(x) - φ_T(x).  $$
 
     2. For $t \in \{1, \dots, T-1\}$, 
-    $$ c^2_t(x,u,x') = c^1_t(x,u,x') +  φ_{t+1}(x') - φ_t(x). $$
+    $$ c^2_t(x,u,x_{+}) = c^1_t(x,u,x_{+}) +  φ_{t+1}(x_{+}) - φ_t(x). $$
 ::: 
 
 Remark
 
 :   1. The sign of the potential function is irrelevant. So, we could also
        have written
-       $$ c^2_t(x,u,x') = c^1_t(x,u,x') +  φ_t(x) - φ_{t+1}(x'). $$
+       $$ c^2_t(x,u,x_{+}) = c^1_t(x,u,x_{+}) +  φ_t(x) - φ_{t+1}(x_{+}). $$
 
     2. The result naturally extends to infinite horizon expected cost model
        (and is typically stated for such a model). In the infinite horizon
        case, the potential function must be time-invariant and 
        condition 2 needs to be replaced by
-       $$ c^2(x,u,x') = c^1(x,u,x') + β φ(x') - φ(x). $$
+       $$ c^2(x,u,x_{+}) = c^1(x,u,x_{+}) + β φ(x_{+}) - φ(x). $$
 
 
 #### Proof (sufficiency)
 
 Suppose conditions 1 and 2 in the statement of the theorem hold. That is,
-$$c^2_t(x,u,x') = c^1_t(x,u,x') - φ_t(x) + φ_{t+1}(x')
+$$c^2_t(x,u,x_{+}) = c^1_t(x,u,x_{+}) - φ_t(x) + φ_{t+1}(x_{+})
 \quad\text{and}\quad
 c^2_T(x) = c^1_T(x) - φ_T(x). $$
 
@@ -99,16 +99,58 @@ Additional Remarks
 
     2. In reinforcement learning in infinite horizon discounted cost setup,
        reward shaping refers to choosing a potential function $φ$ to change
-       the cost function from $c(x,u,x')$ to $\tilde c(x,u,x') = c(x,u,x') + β
-       φ(x') - φ(x)$ to speed up learning. One often chooses $φ(x) = V(x)$. If
+       the cost function from $c(x,u,x_{+})$ to $\tilde c(x,u,x_{+}) = c(x,u,x_{+}) + β
+       φ(x_{+}) - φ(x)$ to speed up learning. One often chooses $φ(x) = V(x)$. If
        we extend claim \\eqref{eq:claim} to infinite horizon, then an
        implication of choosing $φ(x) = V(x)$ is that the value function of the
-       modified cost $\tilde c(x,u,x')$ is zero!
+       modified cost $\tilde c(x,u,x_{+})$ is zero!
 
 
 #### Proof (necessity)
 
 See @Ng1999.
+
+## Generalization to cost models
+
+Now consider a finite horizon discounted cost problem, where the performance
+of a policy $g$ is given by 
+$$ 
+J(g) = \EXP\Bigl[ \sum_{t=1}^{T-1} \beta^{t-1} c_t(X_t, U_t) + \beta^T c_T(X_T)
+       \Bigr]. 
+$$
+
+As argued in [the introduction to discounted models][discounted], the dynamic
+prgram for this case is given by 
+
+$$ V_{T}(x) = c_T(x) $$
+and for $t \in \{T-1, \dots, 1\}$:
+$$ \begin{align*}
+  Q_t(x,u) &= c(x,u) + \beta \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u ], \\
+  V_t(x) &= \min_{u \in \ALPHABET U} Q_t(x,u).
+\end{align*} $$
+
+[discounted]: ../mdp-functional#discounted-cost
+
+For such models, we have the following.
+
+::: highlight :::
+
+Corollary #cor:discounted
+
+:   For discounted cost models, the result of [Theorem #](#thm:reward-shaping)
+    hold if condition 2 is replaced by
+
+    2.  For $t \in \{1, \dots, T-1\}$,
+
+        $$ c^2_t(x,u,x_{+}) = c^1_t(x,u,x_{+}) + \beta \varphi_{t+1}(x_{+}) - \varphi_t(x). $$
+
+:::
+
+Remark
+
+:   If the cost function is time homogeneous, [Corollary #](#cor:discounted)
+    extends naturally to infinite horizon models with a time-homogeneous potential
+    function. 
 
 ## Exercises
 
