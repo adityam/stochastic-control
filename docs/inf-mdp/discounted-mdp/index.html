@@ -214,7 +214,7 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 <h4 id="value-iteration-algorithm-1">Value Iteration Algorithm</h4>
 <ol type="1">
 <li>Start with any <span class="math inline">\(V_0 \in \reals^n\)</span>.</li>
-<li>Compute <span class="math inline">\(V_{k+1} = \mathcal B V_k = \mathcal B_{g_k} V_k.\)</span></li>
+<li>Recursively compute <span class="math inline">\(V_{k+1} = \mathcal B V_k = \mathcal B_{g_k} V_k.\)</span></li>
 <li>Define <span class="math display">\[ \begin{align*}
    \underline δ_k &amp;= \frac{β}{1-β} \min_x \{ V_k(x) - V_{k-1}(x) \}, \\
    \bar δ_k &amp;=       \frac{β}{1-β} \max_x \{ V_k(x) - V_{k-1}(x) \}.
@@ -230,10 +230,12 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 <p>By construction, <span class="math display">\[ \begin{align*} 
    \mathcal B V_k - V_k &amp;= \mathcal B V_k - \mathcal B V_{k-1} \\ 
    &amp; \le \mathcal B_{g_{k-1}} V_k - \mathcal B_{g_{k-1}} V_{k-1}\\
-   &amp; \le β \EXP[ V_{k}(X_{+}) - V_{k-1}(X_+) | X, g_{k-1}(X) ] \\
+   &amp; \le β P_{g_{k-1}}[ V_k - V_{k-1} ] \\
    &amp;= (1-β) \bar δ_k.
-\end{align*} \]</span> Thus, by the previous proposition, we have <span class="math display">\[ V^* \le V_k + \bar δ_k \]</span> and <span class="math display">\[ V_{g_k} \le V_k + \bar δ_k. \]</span></p>
-<p>By a similar argument, we can show <span class="math display">\[ V^* \ge V_k + \underline δ_k\]</span> and <span class="math display">\[ V_{g_k} \ge V_k + \underline δ_k. \]</span></p>
+\end{align*} \]</span> Thus, by the previous proposition, we have <span class="math display">\[ V^* \le V_k + \bar δ_k.\]</span> Note that <span class="math inline">\(\mathcal B V_k = \mathcal B_{g_k} V_k\)</span>. So, we have also show that <span class="math inline">\(\mathcal B_{g_k} V_k - V_k \le (1-\beta) \bar \delta_k\)</span>. Thus, <span class="math display">\[ V_{g_k} \le V_k + \bar δ_k. \]</span></p>
+<p>By a similar argument, we can show <span class="math display">\[ V^* \ge V_k + \underline δ_k
+\quad\text{and}\quad
+ V_{g_k} \ge V_k + \underline δ_k. \]</span></p>
 <p>Now, by the triangle inequality <span class="math display">\[ \max\{ V_{g_k} - V^* \} \le 
    \max\{ V_{g_k} - V_k \} + \max\{ V_{k} - V^* \}
    \le \bar δ_k - \underline δ_k.
@@ -248,8 +250,8 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 <h1 id="policy-iteration-algorithm">Policy Iteration Algorithm</h1>
 <div class="highlight">
 <dl>
-<dt><span id="prop:PI" class="pandoc-numbering-text prop"><strong>Proposition 6</strong></span></dt>
-<dd><p>Suppose <span class="math inline">\(V_g\)</span> is the fixed point of <span class="math inline">\(\mathcal B_g\)</span> and <span class="math display">\[\mathcal B_{h} V_g = \mathcal B V_g. \]</span> Then, <span class="math display">\[V_{h}(x) \le V_g(x), \quad \forall x \in \ALPHABET X. \]</span> Moreover, if <span class="math inline">\(g\)</span> is not optimal, then at least one inequality is strict.</p>
+<dt><span id="lemma:PI" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
+<dd><p><strong>Policy Improvement</strong> Suppose <span class="math inline">\(V_g\)</span> is the fixed point of <span class="math inline">\(\mathcal B_g\)</span> and <span class="math display">\[\mathcal B_{h} V_g = \mathcal B V_g. \]</span> Then, <span class="math display">\[V_{h}(x) \le V_g(x), \quad \forall x \in \ALPHABET X. \]</span> Moreover, if <span class="math inline">\(g\)</span> is not optimal, then at least one inequality is strict.</p>
 </dd>
 </dl>
 </div>
@@ -257,6 +259,15 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 <p><span class="math display">\[ V_g = \mathcal B_g V_g \ge \mathcal B V_g = \mathcal B_{h} V_g.\]</span> Thus, <span class="math display">\[ V_g \ge V_{h}. \]</span></p>
 <p>Finally, suppose <span class="math inline">\(V_h = V_g\)</span>. Then, <span class="math display">\[ V_h = \mathcal B_h V_h = \mathcal B_h V_g = \mathcal B V_g = \mathcal B
 V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="math inline">\(V_g\)</span>) is the unique fixed point of <span class="math inline">\(\mathcal B\)</span>. Hence <span class="math inline">\(h\)</span> and <span class="math inline">\(g\)</span> are optimal.  <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<h4 id="policy-iteration-algorithm-1">Policy Iteration Algorithm</h4>
+<ol type="1">
+<li>Start with an abritrary policy <span class="math inline">\(g_0\)</span>. Compute <span class="math inline">\(V_0 = \mathcal B_{g_0} V_0\)</span>.</li>
+<li><p>Recursively compute a policy <span class="math inline">\(g_k\)</span> such that <span class="math display">\[\mathcal B V_{k-1} = \mathcal B_{g_k} V_{k-1}\]</span> and compute the performance of the policy using <span class="math display">\[ V_k = \mathcal B_{g_k} V_k.\]</span></p></li>
+<li><p>Stop if <span class="math inline">\(V_k = V_{k-1}\)</span> (or <span class="math inline">\(g_k = g_{k-1}\)</span>).</p></li>
+</ol>
+</div>
+<p>The policy improvement lemma (<a href="#lemma:PI">Lemma 1</a>) implies that <span class="math inline">\(V_{k-1} \ge V_k\)</span>. Since the state and action spaces are finite, there are only a finite number of policies. The value function improves at each step. So the process must converge in finite number of iterations. At convergence, <span class="math inline">\(V_k = V_{k-1}\)</span> and the policy improvement lemma implies that the corresponding policies <span class="math inline">\(g_k\)</span> or <span class="math inline">\(g_{k-1}\)</span> are optimal.</p>
 <hr />
 <h2 id="excercise">Excercise</h2>
 <ol type="1">
@@ -288,7 +299,7 @@ V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="
 <p class="categories">
 This entry 
 
- was last updated on 10 Feb 2020
+ was last updated on 11 Feb 2020
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">

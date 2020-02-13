@@ -322,7 +322,7 @@ $$ V + m/(1-β) \ge V^*. $$
 #### Value Iteration Algorithm
 
 1. Start with any $V_0 \in \reals^n$.
-2. Compute $V_{k+1} = \mathcal B V_k = \mathcal B_{g_k} V_k.$
+2. Recursively compute $V_{k+1} = \mathcal B V_k = \mathcal B_{g_k} V_k.$
 3. Define 
    $$ \begin{align*}
       \underline δ_k &= \frac{β}{1-β} \min_x \{ V_k(x) - V_{k-1}(x) \}, \\
@@ -343,18 +343,19 @@ By construction,
 $$ \begin{align*} 
    \mathcal B V_k - V_k &= \mathcal B V_k - \mathcal B V_{k-1} \\ 
    & \le \mathcal B_{g_{k-1}} V_k - \mathcal B_{g_{k-1}} V_{k-1}\\
-   & \le β \EXP[ V_{k}(X_{+}) - V_{k-1}(X_+) | X, g_{k-1}(X) ] \\
+   & \le β P_{g_{k-1}}[ V_k - V_{k-1} ] \\
    &= (1-β) \bar δ_k.
 \end{align*} $$
 Thus, by the previous proposition, we have
-$$ V^* \le V_k + \bar δ_k $$
-and
+$$ V^* \le V_k + \bar δ_k.$$
+Note that $\mathcal B V_k = \mathcal B_{g_k} V_k$. So, we have also show that
+$\mathcal B_{g_k} V_k - V_k \le (1-\beta) \bar \delta_k$. Thus,
 $$ V_{g_k} \le V_k + \bar δ_k. $$
 
 By a similar argument, we can show
-$$ V^* \ge V_k + \underline δ_k$$
-and 
-$$ V_{g_k} \ge V_k + \underline δ_k. $$
+$$ V^* \ge V_k + \underline δ_k
+\quad\text{and}\quad
+ V_{g_k} \ge V_k + \underline δ_k. $$
 
 Now, by the triangle inequality
 $$ \max\{ V_{g_k} - V^* \} \le 
@@ -380,9 +381,9 @@ $$ \NORM{ V_{g_k} - V^* } \ge \underline δ_k - \bar δ_k.
 
 
 ::: highlight :::
-Proposition #prop:PI
+Lemma #lemma:PI
 
-:   Suppose $V_g$ is the fixed point of $\mathcal B_g$ and
+:   **Policy Improvement** Suppose $V_g$ is the fixed point of $\mathcal B_g$ and
     $$\mathcal B_{h} V_g = \mathcal B V_g. $$
     Then,
     $$V_{h}(x) \le V_g(x), \quad \forall x \in \ALPHABET X. $$
@@ -401,6 +402,27 @@ V_h. $$
 Thus, $V_h$ (and $V_g$) is the unique fixed point of $\mathcal B$. Hence $h$
 and $g$ are optimal.
 &nbsp;$\Box$
+
+::: highlight :::
+
+#### Policy Iteration Algorithm
+
+1. Start with an abritrary policy $g_0$. Compute $V_0 = \mathcal B_{g_0} V_0$.
+2. Recursively compute a policy $g_k$ such that
+   $$\mathcal B V_{k-1} = \mathcal B_{g_k} V_{k-1}$$
+   and compute the performance of the policy using
+   $$ V_k = \mathcal B_{g_k} V_k.$$ 
+
+3. Stop if $V_k = V_{k-1}$ (or $g_k = g_{k-1}$). 
+
+:::
+
+The policy improvement lemma ([Lemma #](#lemma:PI)) implies that $V_{k-1} \ge
+V_k$. Since the state and action spaces are finite, there are only a finite
+number of policies. The value function improves at each step. So the process
+must converge in finite number of iterations. At convergence, $V_k = V_{k-1}$
+and the policy improvement lemma implies that the corresponding policies $g_k$
+or $g_{k-1}$ are optimal. 
 
 ---
 
