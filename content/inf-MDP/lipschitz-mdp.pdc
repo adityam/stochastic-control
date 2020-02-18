@@ -62,8 +62,11 @@ _Kantorovich distance_ between distributions $\mu$ and $\nu$ is defined as:
 $$ K(\mu,\nu) = \sup_{f : \| f\|_L \le 1 }
    \left| \int_{\ALPHABET X} f\, d\mu - \int_{\ALPHABET X} f\, d\nu \right|. $$
 
+The next two results follow immediately from the definition of Kantorovich
+distance.
+
 ::: highlight :::
-Proposition #prop:Kantorovich
+Lemma #lemma:Kantorovich
 
 :   For any Lipschitz function $f \colon (\ALPHABET X, d_X) \to (\reals,
     \lvert \cdot \rvert)$, and $μ,ν$ are probability measures on $(\ALPHABET X,
@@ -75,8 +78,258 @@ Proposition #prop:Kantorovich
 :::
 
 
----
+::: highlight :::
+Lemma #lemma:delta
+
+:   Let $(\ALPHABET X, d_X)$ be a metric space and for any $x,y \in \ALPHABET X$,
+    let $δ_x$ and $δ_y$ denote the Dirac delta distributions centered at $x$
+    and $y$. Then,
+    $$ K(δ_x, δ_y) = d_X(x,y). $$
+
+:::
+
+## Lipschitz MDPs
+
+Now consider an MDP where the state and action spaces are Metric spaces. We
+denote the corresponding metric by $d_X$ and $d_U$ respectively. For ease of
+exposition, we define a metric $d$ on $\ALPHABET X × \ALPHABET U$ by
+$$ d( (x_1, u_1), (x_2, u_2) ) = d_X(x_1, x_2) + d_U(u_1, u_2). $$
+
+We allow for randomized policies. Thus, given any state $x \in \ALPHABET X$,
+$g(\cdot | x)$ is a probability distribution on $\ALPHABET U$. We say that a
+(possibly) randomized policy $g$ has a Lipschitz constant of $L_g$ if for any
+$x_1, x_2 \in \ALPHABET X$,
+$$ K(g(\cdot| x_1), g(\cdot | x_2)) \le L_g d_X(x_1, x_2). $$
+
+Note that if $g$ is deterministic, then due to [Lemma #](#lemma:delta) the above relationship simplifies to
+$$ d_U(g(x_1), g(x_2)) \le L_g d_X(x_1, x_2). $$
+
+Definition #
+:   An MDP is $(L_c, L_p)$-Lipschitz if for all $x_1, x_2 \in \ALPHABET X$ and
+    $u_1, u_2 \in \ALPHABET U$, 
+    
+    * $| c(x_1, u_1) - c(x_2, u_2) | \le L_c\bigl( d_X(x_1, x_2) + d_U(u_1,
+      u_2) \bigr)$. 
+    * $K(p(\cdot | x_1, u_1), p(\cdot | x_2, u_2)) \le L_p\bigl( d_X(x_1, x_2)
+      + d_U(u_1, u_2) \bigr)$. 
+
+::: highlight :::
+
+Lemma #lemma:LV
+
+:   Let $Q \colon \ALPHABET X × \ALPHABET U \to \reals$ be any $L_Q$-Lipschitz
+    continuous and $g$ be a (possibly randomized) $L_g$-Lipschitz policy.
+    Define $$V_g(x) = \int Q(x, u) g(u | x) du.$$ Then, $V_g$ is $L_Q( 1 +
+    L_g)$-Lipschitz continuous.
+
+:::
+
+#### Proof
+
+We start my an observation about the model. Let $x, x_1, x_2 \in \ALPHABET X$.
+Then, 
+$$ \begin{align}
+  \left| \int Q(x, u) g(u | x_1) du - \int Q(x,u) g(u | x_2) du \right|
+  &\le L_Q K (g(\cdot | x_1), g(\cdot | x_2)) 
+  \notag \\
+  & \le L_Q L_g d_X(x_1, x_2),
+  \label{eq:LQ}
+  \end{align} 
+$$
+where the first inequality follows from [Lemma #](#lemma:Kantorovich) and the
+second follows from the definition of Lipschitz continuous policy. 
+
+Now for any $x_1, x_2 \in \ALPHABET X$, consider
+$$ \begin{align*}
+| V_g(x_1) - V_g(x_2) | &=
+\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_2) du \right|
+\\
+&\stackrel{(a)}\le 
+\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_1) du \right|
+\\
+& \quad + 
+\left| \int Q(x_2, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_2) du \right|
+\\
+&\stackrel{(b)}\le L_Q d_X(x_1, x_2) + L_Q L_g d_X(x_1, x_2)
+\\
+&= L_Q(1 + L_g) d_X(x_1, x_2). 
+\end{align*} $$
+where $(a)$ follows from the triangle inequality, the first term in $(b)$
+follows from the definition of Lipschitz continuity and the second term in
+$(b)$ follows \\eqref{eq:LQ}. &nbsp;$\Box$
+
+::: highlight :::
+
+Lemma #lemma:LV-opt
+
+:   For optimal update:
+    $$ L_{V^(n+1)} = L_c + β L_p L_{V^{(n)}}. $$
+
+::: 
+
+#### Proof 
+
+To be written.
+
+::: highlight :::
+
+Lemma #lemma:LQ
+
+:   Let $V \colon \ALPHABET X \to \reals$ be $L_V$-Lipschitz continuity.
+    Define
+    $$ Q(x,u) = c(x,u) + β \int V(y) p(y|x,u)dy. $$
+    Then $Q$ is $(L_c + β L_p L_V)$-Lipschitz continuous.
+:::
+
+#### Proof
+
+Consider,
+$$\begin{align*}
+ | Q(x_1, u_1) - Q(x_2, u_2) | &\stackrel{(a)}\le
+ | c(x_1, u_1) - c(x_2, u_2) | \\
+ & \quad + 
+ \beta \left|\int V(y) p(y|x_1, u_1) dy -
+             \int V(y) p(y|x_2, u_2) dy \right|
+  \\
+  &\stackrel{(b)}\le  L_c d( (x_1, u_1), (x_2, u_2) ) + 
+  \beta L_V L_p d( (x_1, u_1), (x_2, u_2) ),
+\end{align*}$$
+where $(a)$ follows from the triangle inequality and $(b)$ follows from 
+[Lemma #](#lemma:Kantorovich). Thus, $L_Q = L_c + β L_p L_V$.&nbsp;$\Box$
+
+
+::: highlight :::
+Lemma #lemma:LQ-update
+
+:  Consider a discounted infinite horizon MDP which is $(L_c, L_p)$-Lipschitz
+   and let $g$ be any randomized time-homogeneous policy which is
+   $L_g$-Lipschitz. Start with any initial $Q^{(0)}$ and then recursively define
+
+     * $V^{(n)}_g(x) = \int Q^{(n)}_g(x,u)g(u|x) du.$
+     * $\displaystyle Q^{(n+1)}_g(x,u) = c(x,u) + β \int V^{(n)}_g(y) p(y|x,u) dy.$
+
+    Then, then $Q^{(n)}_g$ is Lipschitz continuous and its Lipschitz constant
+    $L_{Q^{(n)}_g}$ satisfies the follwoing recursion:
+    $$ L_{Q^{(n+1)}_g} + L_r + \beta(1 + L_g)L_p L_{Q^{(n)}_g}. $$
+
+::: 
+
+#### Proof
+
+We prove the result by induction. Let $x_1, x_2 \in \ALPHABET X$ and $u_1, u_2
+\in \ALPHABET U$. For $n=1$, $Q^{(1)}_g(x,u) = c(x,u)$. Thus,
+$$ | Q^{(1)}_g(x_1, u_1) - Q^{(1)}_g(x_2, u_2) | 
+=  | c(x_1, u_1) - c(x_2, u_2) |. $$
+Thus, $Q^{(1)}_g$ is Lipschitz continuous with Lipschitz constant
+$L_{Q^{(1)}_g} = L_c$. Now suppose $Q^{(n)}_g$ is Lipschitz continuous with
+Lipschitz constant $L_{Q^{(n)}_g}$. Then, by [Lemma #](#lemma:LV), $V^{(n)}_g$
+is Lipschitz continuous with Lipschitz constant $L_{V^{(n)}_g} =
+L_{Q^{(n)}_g}(1 + L_g)$. Then, by [Lemma #](#lemma:LQ), $Q^{(n+1)}_g$ is
+Lipschitz continuous with Lipschitz constant 
+$$ L_{Q^{(n+1)}_g} = L_c + β L_{V^{(n)}_g} L_p 
+= L_c + β (1 + L_g) L_p L_{Q^{(n)}_g}.  \space\Box$$
+
+::: highlight :::
+Theorem #thm:Lipschitz
+
+:   Given any $(L_c, L_p)$-Lipschitz MDP and an $L_g$-Lipschitz (possibly
+    randomized) time-homogeneous policy $g$, if $\beta (1 + L_g) L_p < 1$,
+    then the infinite horizon $\beta$-discounted value-action function $Q_g$
+    is Lipschitz continuous with Lipschitz constant
+    $$ L_Q = \frac{L_c}{1 - β(1 + L_g) L_p}. $$
+:::
+
+Remark #
+
+: The restrictive assumption in the result is that $β(1 + L_g)L_p < 1$. For a
+  specific model, even when this assumption does not hold, it may be possible
+  to directly check if the $Q$-function is Lipschitz continuous. Such a direct
+  check often gives a better Lipschitz constant.
+
+#### Proof
+
+The proof consists of two steps. We first prove that if the sequence
+$L_{Q^{(n)}_g}$ defined in the previous Lemma converges, then it converges to
+the $L_Q$ value. Then, we show that this sequence is indeed convergent. 
+
+If the $L_{Q^{(n)}_g}$ sequence is convergent, then its limit $L_Q$ is the
+fixed point of the recurrence relationship introduced in 
+[Lemma #](#lemma:LQ-update), hence
+$$ L_Q = L_c + β(1 + L_g)L_p L_Q. $$
+Consequently, if the limit exists, it is necessarily equal to 
+$$ L_Q = \frac{L_c}{1 - β(1 + L_g) L_p}. $$
+
+Consider now the sequence of $L_n = L_{Q^{(n)}_g}$ values. For simplicity,
+write $α = β(1 + L_g)L_p$. Then, the sequence $\{L_n\}_{n \ge 1}$ is given by:
+$L_1 = L_c$ and for $n \ge 1$, 
+$$L_{n+1} = L_c + α L_n. $$
+Hence, 
+$$ L_n = L_c + α L_c + \dots + α^{n-1} L_c = \frac{1 - α^n}{1 - α} L_c. $$
+This sequence converges if $|α| < 1$. Since $α$ is non-negative, this is
+equivalent to $α < 1$, which is true by hypothesis. Hence $L_n$ is a
+convergent sequence. 
+
+## Influence Radius
+
+When the $Q$-function of an MDP is Lipschitz continuous, then the optimal
+action does not change too abruptly. More precisely, suppose an action $u$ is
+optimal at state $x$. Then, we can identify a hyperball $B(x, ρ(x))$ of radius
+$ρ(x)$ centered around $x$ such that $u$ is guaranteed to be the dominating
+action in $ρ(x)$. This radius $ρ(s)$ is called the _influence radius_. 
+
+Let $g$ denote the optimal policy, i.e., 
+$$ g(x) = \arg \min_{u \in \ALPHABET U} Q(x,u) $$
+and $h$ denote the second best action, i.e., 
+$$ h(x) = \arg \min_{u \in \ALPHABET U \setminus \{g(x)\}} Q(x,u). $$
+Define the _domination value_ of state $x$ to be
+$$ Δ(x) = Q(x, h(x)) - Q(x, g(x)). $$
+
+::: highlight :::
+
+Theorem #thm:influence
+
+:   For a Lipschitz continuous $Q$-function, the influence radius at state $x$
+    is given by
+    $$ ρ(x) = \frac{ Δ(x) }{ 2 L_Q }. $$
+
+:::
+
+Remark # 
+
+:   Combining [Theorem #](#thm:Lipschitz) and [Theorem #](#thm:influence)
+    implies that under the condition of [Theorem #](#thm:Lipschitz), the
+    influence radius at state $x$ is at least
+    $$ ρ(x) = Δ(x)(1 - β(1 + L_g)L_p)/2L_c. $$
+
+#### Proof
+
+The intuition behind the proof is the following. The value of the action
+$g(x)$ can only decrease by $L_Q ρ(x)$ in $B(x, ρ(x))$, while the value of the
+second best action $h(x)$ can only increase by $L_Q ρ(x)$. So, the shortest
+distance $ρ(x)$ from $x$ needed for an action $h(x)$ to "catch-up" with action $g(x)$
+should satisfy $2 L_Q ρ(x) = Δ(x)$ or $ρ(x) = Δ(x)/2L_Q$. 
+
+Formally, for any $x' \in B(x,ρ(x))$, $d_X(x,x') \le ρ(x)$. Thus, for any
+action $u \in \ALPHABET U$, 
+$$ | Q(x,u) - Q(x',u)| \le L_Q d_X(x,x') \le L_Q ρ(x). $$
+Equivalently, 
+$$ Q(x,u) - L_Q ρ(x) \le Q(x',u) \le Q(x,u) + L_Q ρ(x) $$
+which states that as $x'$ moves away from $x$, the value of $Q(x',u)$ remains
+within a symmetric bound that depends on the radius $ρ(x)$. Since this bound
+holds for all $u$, they also hold for $u = g(x)$. Thus,
+$$ Q(x, g(x)) - L_Q ρ(x) \le Q(x', g(x)) \le Q(x, g(x)) + L_Q ρ(x). $$
+
+Since $g(x)$ is the optimal action, for any other action $u \neq g(x)$, 
+$$ Q(x,g(x)) \le Q(x,u). $$ 
+Thus, the action $g(x)$ is optimal as long as the upper bound on $Q(x', g(x))$
+is lower than the lower bound on $Q(x',u)$, i.e.,
+$$ Q(x, g(x)) + L_Q ρ(x) \le Q(x,u) - L_Q ρ(x).  $$
+Thus, the maximum value of $ρ(x)$ is when the relationship holds with
+equality, i.e., 
+$$ ρ(x) = \frac{Q(x,u) - Q(x,g(x))}{2 L_Q} \ge \frac{Δ(x)}{2 L_Q}. \space\Box$$
+
+
 
 ## References
 
-The material in this section is taken from @Hinderer2005 and @Rachelson2010.
+The material in this section is taken from @Rachelson2010 and @Hinderer2005.

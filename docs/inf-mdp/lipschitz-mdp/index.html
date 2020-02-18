@@ -60,18 +60,146 @@
 </div>
 <p>Let <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\nu\)</span> be probability measures on <span class="math inline">\((\ALPHABET X, d_X)\)</span>. The <em>Kantorovich distance</em> between distributions <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\nu\)</span> is defined as: <span class="math display">\[ K(\mu,\nu) = \sup_{f : \| f\|_L \le 1 }
    \left| \int_{\ALPHABET X} f\, d\mu - \int_{\ALPHABET X} f\, d\nu \right|. \]</span></p>
+<p>The next two results follow immediately from the definition of Kantorovich distance.</p>
 <div class="highlight">
 <dl>
-<dt><span id="prop:Kantorovich" class="pandoc-numbering-text prop"><strong>Proposition 2</strong></span></dt>
+<dt><span id="lemma:Kantorovich" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
 <dd><p>For any Lipschitz function <span class="math inline">\(f \colon (\ALPHABET X, d_X) \to (\reals, \lvert \cdot \rvert)\)</span>, and <span class="math inline">\(μ,ν\)</span> are probability measures on <span class="math inline">\((\ALPHABET X, d_X)\)</span>, <span class="math display">\[ \left| 
   \int_{\ALPHABET X} f\, dμ - \int_{\ALPHABET X} f\, dν \right| \le
   \| f \|_L \cdot K(μ,ν). \]</span></p>
 </dd>
 </dl>
 </div>
-<hr />
+<div class="highlight">
+<dl>
+<dt><span id="lemma:delta" class="pandoc-numbering-text lemma"><strong>Lemma 2</strong></span></dt>
+<dd><p>Let <span class="math inline">\((\ALPHABET X, d_X)\)</span> be a metric space and for any <span class="math inline">\(x,y \in \ALPHABET X\)</span>, let <span class="math inline">\(δ_x\)</span> and <span class="math inline">\(δ_y\)</span> denote the Dirac delta distributions centered at <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. Then, <span class="math display">\[ K(δ_x, δ_y) = d_X(x,y). \]</span></p>
+</dd>
+</dl>
+</div>
+<h2 id="lipschitz-mdps">Lipschitz MDPs</h2>
+<p>Now consider an MDP where the state and action spaces are Metric spaces. We denote the corresponding metric by <span class="math inline">\(d_X\)</span> and <span class="math inline">\(d_U\)</span> respectively. For ease of exposition, we define a metric <span class="math inline">\(d\)</span> on <span class="math inline">\(\ALPHABET X × \ALPHABET U\)</span> by <span class="math display">\[ d( (x_1, u_1), (x_2, u_2) ) = d_X(x_1, x_2) + d_U(u_1, u_2). \]</span></p>
+<p>We allow for randomized policies. Thus, given any state <span class="math inline">\(x \in \ALPHABET X\)</span>, <span class="math inline">\(g(\cdot | x)\)</span> is a probability distribution on <span class="math inline">\(\ALPHABET U\)</span>. We say that a (possibly) randomized policy <span class="math inline">\(g\)</span> has a Lipschitz constant of <span class="math inline">\(L_g\)</span> if for any <span class="math inline">\(x_1, x_2 \in \ALPHABET X\)</span>, <span class="math display">\[ K(g(\cdot| x_1), g(\cdot | x_2)) \le L_g d_X(x_1, x_2). \]</span></p>
+<p>Note that if <span class="math inline">\(g\)</span> is deterministic, then due to <a href="#lemma:delta">Lemma 2</a> the above relationship simplifies to <span class="math display">\[ d_U(g(x_1), g(x_2)) \le L_g d_X(x_1, x_2). \]</span></p>
+<dl>
+<dt><span id="definition:1" class="pandoc-numbering-text definition"><strong>Definition 1</strong></span></dt>
+<dd><p>An MDP is <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz if for all <span class="math inline">\(x_1, x_2 \in \ALPHABET X\)</span> and <span class="math inline">\(u_1, u_2 \in \ALPHABET U\)</span>,</p>
+<ul>
+<li><span class="math inline">\(| c(x_1, u_1) - c(x_2, u_2) | \le L_c\bigl( d_X(x_1, x_2) + d_U(u_1, u_2) \bigr)\)</span>.</li>
+<li><span class="math inline">\(K(p(\cdot | x_1, u_1), p(\cdot | x_2, u_2)) \le L_p\bigl( d_X(x_1, x_2) + d_U(u_1, u_2) \bigr)\)</span>.</li>
+</ul>
+</dd>
+</dl>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:LV" class="pandoc-numbering-text lemma"><strong>Lemma 3</strong></span></dt>
+<dd><p>Let <span class="math inline">\(Q \colon \ALPHABET X × \ALPHABET U \to \reals\)</span> be any <span class="math inline">\(L_Q\)</span>-Lipschitz continuous and <span class="math inline">\(g\)</span> be a (possibly randomized) <span class="math inline">\(L_g\)</span>-Lipschitz policy. Define <span class="math display">\[V_g(x) = \int Q(x, u) g(u | x) du.\]</span> Then, <span class="math inline">\(V_g\)</span> is <span class="math inline">\(L_Q( 1 + L_g)\)</span>-Lipschitz continuous.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof">Proof</h4>
+<p>We start my an observation about the model. Let <span class="math inline">\(x, x_1, x_2 \in \ALPHABET X\)</span>. Then, <span class="math display">\[ \begin{align}
+  \left| \int Q(x, u) g(u | x_1) du - \int Q(x,u) g(u | x_2) du \right|
+  &amp;\le L_Q K (g(\cdot | x_1), g(\cdot | x_2)) 
+  \notag \\
+  &amp; \le L_Q L_g d_X(x_1, x_2),
+  \label{eq:LQ}
+  \end{align} 
+\]</span> where the first inequality follows from <a href="#lemma:Kantorovich">Lemma 1</a> and the second follows from the definition of Lipschitz continuous policy.</p>
+<p>Now for any <span class="math inline">\(x_1, x_2 \in \ALPHABET X\)</span>, consider <span class="math display">\[ \begin{align*}
+| V_g(x_1) - V_g(x_2) | &amp;=
+\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_2) du \right|
+\\
+&amp;\stackrel{(a)}\le 
+\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_1) du \right|
+\\
+&amp; \quad + 
+\left| \int Q(x_2, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_2) du \right|
+\\
+&amp;\stackrel{(b)}\le L_Q d_X(x_1, x_2) + L_Q L_g d_X(x_1, x_2)
+\\
+&amp;= L_Q(1 + L_g) d_X(x_1, x_2). 
+\end{align*} \]</span> where <span class="math inline">\((a)\)</span> follows from the triangle inequality, the first term in <span class="math inline">\((b)\)</span> follows from the definition of Lipschitz continuity and the second term in <span class="math inline">\((b)\)</span> follows \eqref{eq:LQ}.  <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:LV-opt" class="pandoc-numbering-text lemma"><strong>Lemma 4</strong></span></dt>
+<dd><p>For optimal update: <span class="math display">\[ L_{V^(n+1)} = L_c + β L_p L_{V^{(n)}}. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-1">Proof</h4>
+<p>To be written.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:LQ" class="pandoc-numbering-text lemma"><strong>Lemma 5</strong></span></dt>
+<dd><p>Let <span class="math inline">\(V \colon \ALPHABET X \to \reals\)</span> be <span class="math inline">\(L_V\)</span>-Lipschitz continuity. Define <span class="math display">\[ Q(x,u) = c(x,u) + β \int V(y) p(y|x,u)dy. \]</span> Then <span class="math inline">\(Q\)</span> is <span class="math inline">\((L_c + β L_p L_V)\)</span>-Lipschitz continuous.</p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-2">Proof</h4>
+<p>Consider, <span class="math display">\[\begin{align*}
+ | Q(x_1, u_1) - Q(x_2, u_2) | &amp;\stackrel{(a)}\le
+ | c(x_1, u_1) - c(x_2, u_2) | \\
+ &amp; \quad + 
+ \beta \left|\int V(y) p(y|x_1, u_1) dy -
+             \int V(y) p(y|x_2, u_2) dy \right|
+  \\
+  &amp;\stackrel{(b)}\le  L_c d( (x_1, u_1), (x_2, u_2) ) + 
+  \beta L_V L_p d( (x_1, u_1), (x_2, u_2) ),
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the triangle inequality and <span class="math inline">\((b)\)</span> follows from <a href="#lemma:Kantorovich">Lemma 1</a>. Thus, <span class="math inline">\(L_Q = L_c + β L_p L_V\)</span>. <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:LQ-update" class="pandoc-numbering-text lemma"><strong>Lemma 6</strong></span></dt>
+<dd><p>Consider a discounted infinite horizon MDP which is <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz and let <span class="math inline">\(g\)</span> be any randomized time-homogeneous policy which is <span class="math inline">\(L_g\)</span>-Lipschitz. Start with any initial <span class="math inline">\(Q^{(0)}\)</span> and then recursively define</p>
+<ul>
+<li><span class="math inline">\(V^{(n)}_g(x) = \int Q^{(n)}_g(x,u)g(u|x) du.\)</span></li>
+<li><span class="math inline">\(\displaystyle Q^{(n+1)}_g(x,u) = c(x,u) + β \int V^{(n)}_g(y) p(y|x,u) dy.\)</span></li>
+</ul>
+<p>Then, then <span class="math inline">\(Q^{(n)}_g\)</span> is Lipschitz continuous and its Lipschitz constant <span class="math inline">\(L_{Q^{(n)}_g}\)</span> satisfies the follwoing recursion: <span class="math display">\[ L_{Q^{(n+1)}_g} + L_r + \beta(1 + L_g)L_p L_{Q^{(n)}_g}. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 id="proof-3">Proof</h4>
+<p>We prove the result by induction. Let <span class="math inline">\(x_1, x_2 \in \ALPHABET X\)</span> and <span class="math inline">\(u_1, u_2 \in \ALPHABET U\)</span>. For <span class="math inline">\(n=1\)</span>, <span class="math inline">\(Q^{(1)}_g(x,u) = c(x,u)\)</span>. Thus, <span class="math display">\[ | Q^{(1)}_g(x_1, u_1) - Q^{(1)}_g(x_2, u_2) | 
+=  | c(x_1, u_1) - c(x_2, u_2) |. \]</span> Thus, <span class="math inline">\(Q^{(1)}_g\)</span> is Lipschitz continuous with Lipschitz constant <span class="math inline">\(L_{Q^{(1)}_g} = L_c\)</span>. Now suppose <span class="math inline">\(Q^{(n)}_g\)</span> is Lipschitz continuous with Lipschitz constant <span class="math inline">\(L_{Q^{(n)}_g}\)</span>. Then, by <a href="#lemma:LV">Lemma 3</a>, <span class="math inline">\(V^{(n)}_g\)</span> is Lipschitz continuous with Lipschitz constant <span class="math inline">\(L_{V^{(n)}_g} = L_{Q^{(n)}_g}(1 + L_g)\)</span>. Then, by <a href="#lemma:LQ">Lemma 5</a>, <span class="math inline">\(Q^{(n+1)}_g\)</span> is Lipschitz continuous with Lipschitz constant <span class="math display">\[ L_{Q^{(n+1)}_g} = L_c + β L_{V^{(n)}_g} L_p 
+= L_c + β (1 + L_g) L_p L_{Q^{(n)}_g}.  \space\Box\]</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:Lipschitz" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
+<dd><p>Given any <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz MDP and an <span class="math inline">\(L_g\)</span>-Lipschitz (possibly randomized) time-homogeneous policy <span class="math inline">\(g\)</span>, if <span class="math inline">\(\beta (1 + L_g) L_p &lt; 1\)</span>, then the infinite horizon <span class="math inline">\(\beta\)</span>-discounted value-action function <span class="math inline">\(Q_g\)</span> is Lipschitz continuous with Lipschitz constant <span class="math display">\[ L_Q = \frac{L_c}{1 - β(1 + L_g) L_p}. \]</span></p>
+</dd>
+</dl>
+</div>
+<dl>
+<dt><span id="remark:1" class="pandoc-numbering-text remark"><strong>Remark 1</strong></span></dt>
+<dd><p>The restrictive assumption in the result is that <span class="math inline">\(β(1 + L_g)L_p &lt; 1\)</span>. For a specific model, even when this assumption does not hold, it may be possible to directly check if the <span class="math inline">\(Q\)</span>-function is Lipschitz continuous. Such a direct check often gives a better Lipschitz constant.</p>
+</dd>
+</dl>
+<h4 id="proof-4">Proof</h4>
+<p>The proof consists of two steps. We first prove that if the sequence <span class="math inline">\(L_{Q^{(n)}_g}\)</span> defined in the previous Lemma converges, then it converges to the <span class="math inline">\(L_Q\)</span> value. Then, we show that this sequence is indeed convergent.</p>
+<p>If the <span class="math inline">\(L_{Q^{(n)}_g}\)</span> sequence is convergent, then its limit <span class="math inline">\(L_Q\)</span> is the fixed point of the recurrence relationship introduced in <a href="#lemma:LQ-update">Lemma 6</a>, hence <span class="math display">\[ L_Q = L_c + β(1 + L_g)L_p L_Q. \]</span> Consequently, if the limit exists, it is necessarily equal to <span class="math display">\[ L_Q = \frac{L_c}{1 - β(1 + L_g) L_p}. \]</span></p>
+<p>Consider now the sequence of <span class="math inline">\(L_n = L_{Q^{(n)}_g}\)</span> values. For simplicity, write <span class="math inline">\(α = β(1 + L_g)L_p\)</span>. Then, the sequence <span class="math inline">\(\{L_n\}_{n \ge 1}\)</span> is given by: <span class="math inline">\(L_1 = L_c\)</span> and for <span class="math inline">\(n \ge 1\)</span>, <span class="math display">\[L_{n+1} = L_c + α L_n. \]</span> Hence, <span class="math display">\[ L_n = L_c + α L_c + \dots + α^{n-1} L_c = \frac{1 - α^n}{1 - α} L_c. \]</span> This sequence converges if <span class="math inline">\(|α| &lt; 1\)</span>. Since <span class="math inline">\(α\)</span> is non-negative, this is equivalent to <span class="math inline">\(α &lt; 1\)</span>, which is true by hypothesis. Hence <span class="math inline">\(L_n\)</span> is a convergent sequence.</p>
+<h2 id="influence-radius">Influence Radius</h2>
+<p>When the <span class="math inline">\(Q\)</span>-function of an MDP is Lipschitz continuous, then the optimal action does not change too abruptly. More precisely, suppose an action <span class="math inline">\(u\)</span> is optimal at state <span class="math inline">\(x\)</span>. Then, we can identify a hyperball <span class="math inline">\(B(x, ρ(x))\)</span> of radius <span class="math inline">\(ρ(x)\)</span> centered around <span class="math inline">\(x\)</span> such that <span class="math inline">\(u\)</span> is guaranteed to be the dominating action in <span class="math inline">\(ρ(x)\)</span>. This radius <span class="math inline">\(ρ(s)\)</span> is called the <em>influence radius</em>.</p>
+<p>Let <span class="math inline">\(g\)</span> denote the optimal policy, i.e., <span class="math display">\[ g(x) = \arg \min_{u \in \ALPHABET U} Q(x,u) \]</span> and <span class="math inline">\(h\)</span> denote the second best action, i.e., <span class="math display">\[ h(x) = \arg \min_{u \in \ALPHABET U \setminus \{g(x)\}} Q(x,u). \]</span> Define the <em>domination value</em> of state <span class="math inline">\(x\)</span> to be <span class="math display">\[ Δ(x) = Q(x, h(x)) - Q(x, g(x)). \]</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:influence" class="pandoc-numbering-text thm"><strong>Theorem 2</strong></span></dt>
+<dd><p>For a Lipschitz continuous <span class="math inline">\(Q\)</span>-function, the influence radius at state <span class="math inline">\(x\)</span> is given by <span class="math display">\[ ρ(x) = \frac{ Δ(x) }{ 2 L_Q }. \]</span></p>
+</dd>
+</dl>
+</div>
+<dl>
+<dt><span id="remark:2" class="pandoc-numbering-text remark"><strong>Remark 2</strong></span></dt>
+<dd><p>Combining <a href="#thm:Lipschitz">Theorem 2</a> and <a href="#thm:influence">Theorem 2</a> implies that under the condition of <a href="#thm:Lipschitz">Theorem 2</a>, the influence radius at state <span class="math inline">\(x\)</span> is at least <span class="math display">\[ ρ(x) = Δ(x)(1 - β(1 + L_g)L_p)/2L_c. \]</span></p>
+</dd>
+</dl>
+<h4 id="proof-5">Proof</h4>
+<p>The intuition behind the proof is the following. The value of the action <span class="math inline">\(g(x)\)</span> can only decrease by <span class="math inline">\(L_Q ρ(x)\)</span> in <span class="math inline">\(B(x, ρ(x))\)</span>, while the value of the second best action <span class="math inline">\(h(x)\)</span> can only increase by <span class="math inline">\(L_Q ρ(x)\)</span>. So, the shortest distance <span class="math inline">\(ρ(x)\)</span> from <span class="math inline">\(x\)</span> needed for an action <span class="math inline">\(h(x)\)</span> to “catch-up” with action <span class="math inline">\(g(x)\)</span> should satisfy <span class="math inline">\(2 L_Q ρ(x) = Δ(x)\)</span> or <span class="math inline">\(ρ(x) = Δ(x)/2L_Q\)</span>.</p>
+<p>Formally, for any <span class="math inline">\(x&#39; \in B(x,ρ(x))\)</span>, <span class="math inline">\(d_X(x,x&#39;) \le ρ(x)\)</span>. Thus, for any action <span class="math inline">\(u \in \ALPHABET U\)</span>, <span class="math display">\[ | Q(x,u) - Q(x&#39;,u)| \le L_Q d_X(x,x&#39;) \le L_Q ρ(x). \]</span> Equivalently, <span class="math display">\[ Q(x,u) - L_Q ρ(x) \le Q(x&#39;,u) \le Q(x,u) + L_Q ρ(x) \]</span> which states that as <span class="math inline">\(x&#39;\)</span> moves away from <span class="math inline">\(x\)</span>, the value of <span class="math inline">\(Q(x&#39;,u)\)</span> remains within a symmetric bound that depends on the radius <span class="math inline">\(ρ(x)\)</span>. Since this bound holds for all <span class="math inline">\(u\)</span>, they also hold for <span class="math inline">\(u = g(x)\)</span>. Thus, <span class="math display">\[ Q(x, g(x)) - L_Q ρ(x) \le Q(x&#39;, g(x)) \le Q(x, g(x)) + L_Q ρ(x). \]</span></p>
+<p>Since <span class="math inline">\(g(x)\)</span> is the optimal action, for any other action <span class="math inline">\(u \neq g(x)\)</span>, <span class="math display">\[ Q(x,g(x)) \le Q(x,u). \]</span> Thus, the action <span class="math inline">\(g(x)\)</span> is optimal as long as the upper bound on <span class="math inline">\(Q(x&#39;, g(x))\)</span> is lower than the lower bound on <span class="math inline">\(Q(x&#39;,u)\)</span>, i.e., <span class="math display">\[ Q(x, g(x)) + L_Q ρ(x) \le Q(x,u) - L_Q ρ(x).  \]</span> Thus, the maximum value of <span class="math inline">\(ρ(x)\)</span> is when the relationship holds with equality, i.e., <span class="math display">\[ ρ(x) = \frac{Q(x,u) - Q(x,g(x))}{2 L_Q} \ge \frac{Δ(x)}{2 L_Q}. \space\Box\]</span></p>
 <h2 id="references">References</h2>
-<p>The material in this section is taken from <span class="citation" data-cites="Hinderer2005">Hinderer (<a href="#ref-Hinderer2005">2005</a>)</span> and <span class="citation" data-cites="Rachelson2010">Rachelson and Lagoudakis (<a href="#ref-Rachelson2010">2010</a>)</span>.</p>
+<p>The material in this section is taken from <span class="citation" data-cites="Rachelson2010">Rachelson and Lagoudakis (<a href="#ref-Rachelson2010">2010</a>)</span> and <span class="citation" data-cites="Hinderer2005">Hinderer (<a href="#ref-Hinderer2005">2005</a>)</span>.</p>
 <div id="refs" class="references">
 <div id="ref-Hinderer2005">
 <p><span class="smallcaps">Hinderer, K.</span> 2005. Lipschitz continuity of value functions in Markovian decision processes. <em>Mathematical Methods of Operations Research</em> <em>62</em>, 1, 3–22. DOI: <a href="https://doi.org/10.1007/s00186-005-0438-1">10.1007/s00186-005-0438-1</a>.</p>
