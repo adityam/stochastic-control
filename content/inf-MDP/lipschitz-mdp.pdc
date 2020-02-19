@@ -113,63 +113,10 @@ Definition #
     * $K(p(\cdot | x_1, u_1), p(\cdot | x_2, u_2)) \le L_p\bigl( d_X(x_1, x_2)
       + d_U(u_1, u_2) \bigr)$. 
 
-::: highlight :::
+### Lipschitz continuity of Bellman updates
 
-Lemma #lemma:LV
-
-:   Let $Q \colon \ALPHABET X × \ALPHABET U \to \reals$ be any $L_Q$-Lipschitz
-    continuous and $g$ be a (possibly randomized) $L_g$-Lipschitz policy.
-    Define $$V_g(x) = \int Q(x, u) g(u | x) du.$$ Then, $V_g$ is $L_Q( 1 +
-    L_g)$-Lipschitz continuous.
-
-:::
-
-#### Proof
-
-We start my an observation about the model. Let $x, x_1, x_2 \in \ALPHABET X$.
-Then, 
-$$ \begin{align}
-  \left| \int Q(x, u) g(u | x_1) du - \int Q(x,u) g(u | x_2) du \right|
-  &\le L_Q K (g(\cdot | x_1), g(\cdot | x_2)) 
-  \notag \\
-  & \le L_Q L_g d_X(x_1, x_2),
-  \label{eq:LQ}
-  \end{align} 
-$$
-where the first inequality follows from [Lemma #](#lemma:Kantorovich) and the
-second follows from the definition of Lipschitz continuous policy. 
-
-Now for any $x_1, x_2 \in \ALPHABET X$, consider
-$$ \begin{align*}
-| V_g(x_1) - V_g(x_2) | &=
-\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_2) du \right|
-\\
-&\stackrel{(a)}\le 
-\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_1) du \right|
-\\
-& \quad + 
-\left| \int Q(x_2, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_2) du \right|
-\\
-&\stackrel{(b)}\le L_Q d_X(x_1, x_2) + L_Q L_g d_X(x_1, x_2)
-\\
-&= L_Q(1 + L_g) d_X(x_1, x_2). 
-\end{align*} $$
-where $(a)$ follows from the triangle inequality, the first term in $(b)$
-follows from the definition of Lipschitz continuity and the second term in
-$(b)$ follows \\eqref{eq:LQ}. &nbsp;$\Box$
-
-::: highlight :::
-
-Lemma #lemma:LV-opt
-
-:   For optimal update:
-    $$ L_{V^(n+1)} = L_c + β L_p L_{V^{(n)}}. $$
-
-::: 
-
-#### Proof 
-
-To be written.
+We now prove a series of results for the Lipschitz continuity of Bellman
+updates. 
 
 ::: highlight :::
 
@@ -197,37 +144,180 @@ $$\begin{align*}
 where $(a)$ follows from the triangle inequality and $(b)$ follows from 
 [Lemma #](#lemma:Kantorovich). Thus, $L_Q = L_c + β L_p L_V$.&nbsp;$\Box$
 
+::: highlight :::
+
+Lemma #lemma:LV-opt
+
+:   Let $Q \colon \ALPHABET X × \ALPHABET U \to \reals$ be $L_Q$-Lipschitz
+    continuous. Define
+    $$V(x) = \min_{u \in \ALPHABET U} Q(x,u).$$
+    Then $V$ is $L_Q$-Lipschitz continuous. 
+
+::: 
+
+#### Proof
+
+Consider $x_1, x_2 \in \ALPHABET X$ and let $u_1$ and $u_2$ denote the
+corresponding optimal action. Then,
+$$ \begin{align*}
+V(x_1) - V(x_2) &= Q(x_1, u_1) - Q(x_2, u_2) \\
+&\stackrel{(a)}\le Q(x_1, u_2) - Q(x_2, u_2) \\
+&\stackrel{(b)}\le L_Q( d_X(x_1, x_2) + d_U(u_2, u_2) )\\
+&= L_Q d_X(x_1, x_2). 
+\end{align*} $$
+
+By symmetry, 
+$$ V(x_2) - V(x_1) \le L_Q d_X(x_2, x_1). $$
+Thus,
+$$ | V(x_1) - V(x_2) | \le L_Q d_X(x_1, x_2). $$
+Thus, $V$ is $L_Q$-Lipschitz continuous.&nbsp;$\Box$
+
+::: highlight :::
+
+Lemma #lemma:LV
+
+:   Let $Q \colon \ALPHABET X × \ALPHABET U \to \reals$ be $L_Q$-Lipschitz
+    continuous and $g$ be a (possibly randomized) $L_g$-Lipschitz policy.
+    Define $$V_g(x) = \int Q(x, u) g(u | x) du.$$ Then, $V_g$ is $L_Q( 1 +
+    L_g)$-Lipschitz continuous.
+
+:::
+
+#### Proof
+
+For any $x_1, x_2 \in \ALPHABET X$, consider
+$$ \begin{align}
+| V_g(x_1) - V_g(x_2) | &=
+\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_2) du \right|
+\notag \\
+&\stackrel{(a)}\le 
+\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_1) du \right|
+\notag \\
+& \quad + 
+\left| \int Q(x_2, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_2) du \right|
+\label{eq:split}
+\end{align} $$
+where $(a)$ follows from the triangle inequality. Now we consider both terms
+separately. 
+
+The first term of \\eqref{eq:split} simplifies as follows:
+$$\begin{align}
+\left| \int Q(x_1, u) g(u | x_1) du - \int Q(x_2, u) g(u | x_1) du \right|
+&\stackrel{(b)}\le
+\int \left|Q(x_1, u) - Q(x_2, u)\right| g(u | x_1) du \notag \\
+&\stackrel{(c)}\le 
+\int L_Q d_X(x_1, x_2) g(u | x_1) du \notag \\
+&= L_Q d_X(x_1, x_2), \label{eq:first}
+\end{align} $$
+where $(b)$ follows from the triangle inequality and $(c)$ follows from
+Lipschitz continuity of $Q$. 
+
+The second term of \\eqref{eq:split} simplifies as follows:
+$$ \begin{align}
+  \left| \int Q(x, u) g(u | x_1) du - \int Q(x,u) g(u | x_2) du \right|
+  &\stackrel{(d)}\le L_Q K (g(\cdot | x_1), g(\cdot | x_2)) 
+  \notag \\
+  &\stackrel{(e)}\le L_Q L_g d_X(x_1, x_2),
+  \label{eq:second}
+  \end{align} 
+$$
+where the $(d)$ inequality follows from [Lemma #](#lemma:Kantorovich) and
+$(e)$ follows from the definition of Lipschitz continuous policy. 
+
+Substituting \\eqref{eq:first} and \\eqref{eq:second} in \\eqref{eq:split}, we
+get
+$$ \begin{align*}
+| V_g(x_1) - V_g(x_2) | &\le L_Q d_X(x_1, x_2) + L_Q L_g d_X(x_1, x_2)
+\\
+&= L_Q(1 + L_g) d_X(x_1, x_2).
+\end{align*} $$
+Thus, $V$ is Lipschitz continuous with Lipschitz constant $L_Q(1 +
+L_g)$.&nbsp;$\Box$ 
+
+### Lipschitz continuity of Picard iteration
+
+::: highlight :::
+
+Lemma #lemma:V-iteration
+
+:   Consider a discounted infinite horizon MDP which is $(L_c, L_p)$-Lipschitz.
+    Start with $V^{(0)} = 0$ and recursively define
+
+    * $\displaystyle Q^{(n+1)}(x,u) = c(x,u) + β \int V^{(n)}(y) p(y|x,u) dy.$
+    * $\displaystyle V^{(n+1)}(x) = \min_{u \in \ALPHABET U} Q^{(n+1)}(x,u).$
+
+    Then, $V^{(n)}$ is Lipschitz continuous and its Lipschitz constant
+    $L_{V^{(n)}}$ satisfies the following recursion:
+    $$L_{V^{(n+1)}} = L_c + β L_p L_{V^{(n)}}.$$
+::: 
+
+#### Proof 
+
+We prove the result by induction. For $n=1$, $Q^{(1)}(x,u) = c(x,u)$, which is
+Lipschitz with Lipschitz constant $L_{Q^{(1)}} = L_c$. Then, by 
+[Lemma #](#lemma:LV-opt), $V^{(1)}$ is Lipschitz with Lipschitz constant
+$L_{V^{(1)}} = L_{Q^{(1)}} = L_c$. This forms the basis of induction. Now
+assume that $V^{(n)}$ is $L_{V^{(n)}}$-Lipschitz. Then, by 
+[Lemma #](#lemma:LQ), $Q^{(n+1)}$ is $(L_c + βL_p L_{V^{(n)}})$-Lipschitz.
+Therefore, by [Lemma #](#lemma:LV-opt), $V^{(n+1)}$ is Lipschitz with constant
+$$ L_{V^{(n+1)}} = L_c + β L_p L_{V^{(n)}}. \space\Box$$
 
 ::: highlight :::
 Lemma #lemma:LQ-update
 
 :  Consider a discounted infinite horizon MDP which is $(L_c, L_p)$-Lipschitz
    and let $g$ be any randomized time-homogeneous policy which is
-   $L_g$-Lipschitz. Start with any initial $Q^{(0)}$ and then recursively define
+   $L_g$-Lipschitz. Start with $V^{(0)} = 0$ and then recursively define
 
      * $V^{(n)}_g(x) = \int Q^{(n)}_g(x,u)g(u|x) du.$
      * $\displaystyle Q^{(n+1)}_g(x,u) = c(x,u) + β \int V^{(n)}_g(y) p(y|x,u) dy.$
 
     Then, then $Q^{(n)}_g$ is Lipschitz continuous and its Lipschitz constant
     $L_{Q^{(n)}_g}$ satisfies the follwoing recursion:
-    $$ L_{Q^{(n+1)}_g} + L_r + \beta(1 + L_g)L_p L_{Q^{(n)}_g}. $$
+    $$ L_{Q^{(n+1)}_g} + L_c + \beta(1 + L_g)L_p L_{Q^{(n)}_g}. $$
 
 ::: 
 
 #### Proof
 
-We prove the result by induction. Let $x_1, x_2 \in \ALPHABET X$ and $u_1, u_2
-\in \ALPHABET U$. For $n=1$, $Q^{(1)}_g(x,u) = c(x,u)$. Thus,
-$$ | Q^{(1)}_g(x_1, u_1) - Q^{(1)}_g(x_2, u_2) | 
-=  | c(x_1, u_1) - c(x_2, u_2) |. $$
-Thus, $Q^{(1)}_g$ is Lipschitz continuous with Lipschitz constant
-$L_{Q^{(1)}_g} = L_c$. Now suppose $Q^{(n)}_g$ is Lipschitz continuous with
-Lipschitz constant $L_{Q^{(n)}_g}$. Then, by [Lemma #](#lemma:LV), $V^{(n)}_g$
-is Lipschitz continuous with Lipschitz constant $L_{V^{(n)}_g} =
-L_{Q^{(n)}_g}(1 + L_g)$. Then, by [Lemma #](#lemma:LQ), $Q^{(n+1)}_g$ is
-Lipschitz continuous with Lipschitz constant 
-$$ L_{Q^{(n+1)}_g} = L_c + β L_{V^{(n)}_g} L_p 
-= L_c + β (1 + L_g) L_p L_{Q^{(n)}_g}.  \space\Box$$
+We prove the result by induction. For $n=1$, $Q^{(1)}_g(x,u) = c(x,u)$, which
+is Lipschitz with Lipschitz constant $L_{Q^{(1)}_g} = L_c$. This forms the
+basis of induction. Now assume that $Q^{(n)}_g$ is $L_{Q^{(n)}_g}$-Lipschitz.
+Then, by [Lemma #](#lemma:LV), $V^{(n)}_g$ is Lipschitz with Lipschitz
+constant $L_{V^{(n)}_g} = L_{Q^{(n)}_g}(1 + L_g)$ and by 
+[Lemma #](#lemma:LQ), $Q^{(n+1)}_g$ is Lipschitz with Lipschitz constant 
+$L_{Q^{(n+1)}_g} = L_c + βL_p L_{V^{(n)}_g}.$ Combining these two we get
+$$ L_{Q^{(n+1)}_g} + L_c + \beta(1 + L_g)L_p L_{Q^{(n)}_g}. $$
+
+::: highlight :::
+Theorem #thm:Lipschitz-opt
+
+:   Given any $(L_c, L_p)$-Lipschitz MDP, if $\beta L_p < 1$,
+    then the infinite horizon $\beta$-discounted value function $V$
+    is Lipschitz continuous with Lipschitz constant
+    $$ L_{V} = \frac{L_c}{1 - β L_p} $$
+    and the action-value function $Q$ is Lipschitz with Lipschitz constant
+    $$ L_Q = L_V = \frac{L_c}{1 - β L_p}. $$
+:::
+
+#### Proof
+
+Consider the sequence of $L_n = L_{V^{(n)}}$ values. For simplicity write $α =
+β L_p$. Then the sequence $\{L_n\}_{n \ge 1}$ is given by: $L_1 = L_c$ and for
+$n \ge 1$, 
+$$ L_{n+1} = L_c + α L_n. $$
+Hence,
+$$ L_n = L_c + α L_c + \dots + α^{n-1} L_c = \frac{1 - α^n}{1 - α} L_c. $$
+This sequence converges if $|α| < 1$. Since $α$ is non-negative, this is
+equivalent to $α < 1$, which is true by hypothesis. Hence $L_n$ is a
+convergent sequence. At convergence, the limit $L_V$ must satisfy the fixed
+point of the recursion relationship introduced in [Lemma #](#lemma:V-iteration),
+hence
+$$ L_V = L_c + β L_p L_V. $$
+Consequently, the limit is equal to
+$$ L_V = \frac{L_c}{1 - β L_p}. $$
+The Lipschitz constant of $Q$ follows from [Lemma #](#lemma:LQ). &nbsp;$\Box$
+
 
 ::: highlight :::
 Theorem #thm:Lipschitz
@@ -236,7 +326,10 @@ Theorem #thm:Lipschitz
     randomized) time-homogeneous policy $g$, if $\beta (1 + L_g) L_p < 1$,
     then the infinite horizon $\beta$-discounted value-action function $Q_g$
     is Lipschitz continuous with Lipschitz constant
-    $$ L_Q = \frac{L_c}{1 - β(1 + L_g) L_p}. $$
+    $$ L_{Q_g} = \frac{L_c}{1 - β(1 + L_g) L_p} $$
+    and the value function $V_g$ is Lipschitz with Lipschitz constant
+    $$ L_{V_g} = L_{Q_g}(1 + L_g) = 
+       \frac{L_c(1 + L_g)}{1 - β(1 + L_g) L_p}. $$
 :::
 
 Remark #
@@ -248,18 +341,7 @@ Remark #
 
 #### Proof
 
-The proof consists of two steps. We first prove that if the sequence
-$L_{Q^{(n)}_g}$ defined in the previous Lemma converges, then it converges to
-the $L_Q$ value. Then, we show that this sequence is indeed convergent. 
-
-If the $L_{Q^{(n)}_g}$ sequence is convergent, then its limit $L_Q$ is the
-fixed point of the recurrence relationship introduced in 
-[Lemma #](#lemma:LQ-update), hence
-$$ L_Q = L_c + β(1 + L_g)L_p L_Q. $$
-Consequently, if the limit exists, it is necessarily equal to 
-$$ L_Q = \frac{L_c}{1 - β(1 + L_g) L_p}. $$
-
-Consider now the sequence of $L_n = L_{Q^{(n)}_g}$ values. For simplicity,
+Consider the sequence of $L_n = L_{Q^{(n)}_g}$ values. For simplicity,
 write $α = β(1 + L_g)L_p$. Then, the sequence $\{L_n\}_{n \ge 1}$ is given by:
 $L_1 = L_c$ and for $n \ge 1$, 
 $$L_{n+1} = L_c + α L_n. $$
@@ -267,7 +349,14 @@ Hence,
 $$ L_n = L_c + α L_c + \dots + α^{n-1} L_c = \frac{1 - α^n}{1 - α} L_c. $$
 This sequence converges if $|α| < 1$. Since $α$ is non-negative, this is
 equivalent to $α < 1$, which is true by hypothesis. Hence $L_n$ is a
-convergent sequence. 
+convergent sequence. At convergence, the limit $L_{Q_g}$ must satisfy the
+fixed point of the recursion relationship introduced in
+[Lemma #](#lemma:LQ-update), hence
+$$ L_{Q_g} = L_c + β(1 + L_g)L_p L_{Q_g}. $$
+Consequently, the limit is equal to 
+$$ L_{Q_g} = \frac{L_c}{1 - β(1 + L_g) L_p}. $$
+
+The Lipschitz constant of $V_g$ follows from [Lemma #](#lemma:LV). 
 
 ## Influence Radius
 
