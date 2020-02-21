@@ -1,0 +1,201 @@
+---
+title: "State aggregation in MDPs"
+weight: 06
+categories:
+  - MDP
+tags:
+  - infinite horizon
+  - discounted cost
+  - Lipschitz continuity
+  - approximation bounds
+  - state aggregation
+---
+
+## State discretization
+
+Consider an MDP with continuous state space $\ALPHABET X$ and finite action
+space $\ALPHABET U$. We denote this MDP by $M = (\ALPHABET X, \ALPHABET U, c,
+p)$, where for simplicity we assume that the $p$ is the density of the
+transition kernel. 
+
+Since the state space is continuous, in general, we cannot compute the value
+functions exactly. The simplest way to proceed is to discretize the state
+space $\ALPHABET X$. In particular, let $\{\ALPHABET X_1, \dots \ALPHABET
+X_n\}$ denote a partition of $\ALPHABET X$ (i.e., $\bigcup_{i=1}^n \ALPHABET
+X_i = \ALPHABET X$ and for any $i \neq j$, $\ALPHABET X_i \cap \ALPHABET X_j =
+\emptyset$). Pick a representative point $x_i \in \ALPHABET X_i$ and consider
+the "grid" $\hat {\ALPHABET X} = \{x_1, \dots, x_n\}$ as the state space of
+the discretized MDP. We consider a finite state MDP $\hat M = (\hat {\ALPHABET
+X}, \ALPHABET U, \hat c, \hat P)$, where $\hat c$ is the restriction of $c$
+onto $\hat {\ALPHABET X}$, and $\hat P$ is given by $$\hat P(x_j | x_i, u) =
+\int_{\ALPHABET X_j} p(y | x_i, u) dy = p(\ALPHABET X_j | x_i, u). $$
+
+Let's consider infinite horizon discounted setup. Let $V \colon \ALPHABET X \to
+\reals$ and $g \colon \ALPHABET X \to \ALPHABET U$ be the value function of
+the original MDP $M$ and let $\hat W \colon \hat {\ALPHABET X} \to \reals$
+and $\hat h \colon \hat {\ALPHABET X} \to \ALPHABET U$ be the value function
+and policy of the discretized MDP $\hat M$. Define $W \colon \ALPHABET X \to
+\reals$ and $h \colon \ALPHABET X \to \reals$ to be piecewise constant
+extrapolation of $\hat W$ and $\hat h$ from $\hat {\ALPHABET X}$ to
+$\ALPHABET X$.
+
+Note that the policy $h$ is choosing the same action on all states in
+$\ALPHABET X_i$. 
+
+We are interested in two questions:
+
+1. What is the error if $W$ is used as an approximation for $V$?
+2. What is the error if the policy $h$ is used instead of
+   the optimal policy $g$? 
+
+We will answer these questions under the assumption that $M$ is a $(L_c,
+L_p)$-Lipschitz MDP. In particular, we make the following assumptions:
+
+Assumptions
+
+:   * $(\ALPHABET X, d_X)$ is a bounded metric space
+    * For every $u \in \ALPHABET U$, $c(\cdot, u)$ is $L_c$-Lipschitz.
+    * For every $u \in \ALPHABET U$, $p(\cdot | x, u)$ is $L_p$-Lipschitz
+      (with respect to the Kantorovich distance on probability measures). 
+
+Given any set $\ALPHABET S \subset \ALPHABET X$, the diameter
+$\text{diam}(\ALPHABET S)$ is defined as $\sup_{x,y \in \ALPHABET S}
+d_X(x,y)$. Since $d_X$ is assumed to be bounded, diameter of any subset of
+$\ALPHABET X$ is finite. Let $d := \max_{1 \le i \le n} \text{diam}(\ALPHABET
+X_i)$ denote the largest diameter of the grid cells $\ALPHABET X_i$. 
+
+Let $\mathcal B$ and $\hat {\mathcal B}$ denote the Bellman update
+operators for MDP $M$ and $\hat M$. 
+
+::: highlight :::
+
+Lemma #lem:update
+
+:    For any function $\hat w \colon \hat {\ALPHABET X} \to \reals$, let $w
+     \colon \ALPHABET X \to \reals$ be the piecewise constant extrapolation of
+     $\hat w$ from $\hat {\ALPHABET X}$ to $\ALPHABET X$. Then for any $x_i
+     \in \hat {\ALPHABET X}$, 
+     $$ [\hat {\mathcal B} \hat w](x_i) = [\mathcal B w](x_i).$$
+:::
+
+Remark
+
+:   The above result states that $\hat {\mathcal B} \hat w$ and $\mathcal B w$
+    agree on the grid points $\{x_1, \dots, x_n\}$.
+
+#### Proof
+
+Observe that
+$$\begin{align}
+  [\hat {\mathcal B} \hat w](x_i) &= \min_{u \in \ALPHABET U}
+  \Bigl\{ c(x_i, u) + β \sum_{j=1}^n \hat P(x_j | x_i, u) \hat w(x_j)\Bigr\} 
+  \notag \\
+  &= \min_{u \in \ALPHABET U} \Bigl\{
+      c(x_i, u) + β \sum_{j=1}^n p(\ALPHABET X_j | x_i, u) \hat w(x_j) \Bigr\}
+  \notag \\
+  &= \min_{u \in \ALPHABET U} \Bigl\{
+      c(x_i, u) + β \sum_{j=1}^n \int_{\ALPHABET X_j} p(y | x_i, u) w(y)dy \Bigr\}
+  \notag \\
+  &= \min_{u \in \ALPHABET U} \Bigl\{
+      c(x_i, u) + β \int_{\ALPHABET X} p(y | x_i, u) w(y)dy \Bigr\}
+  \notag \\
+  &= [\mathcal B w](x_i) \tag*{$\Box$}
+\end{align}$$
+
+::: highlight :::
+
+Lemma #lem:fixed
+
+:   For any grid point $\hat x_i \in \hat {\ALPHABET X}$, we have
+    $$ |V(x_i) - \hat W(x_i)| \le β \| V - W \|. $$
+
+:::
+
+#### Proof
+
+Note that $\hat W(x_i) = [\hat {\mathcal B} \hat W](x_i) = [\mathcal B
+W](x_i)$, where the last equality follows from [Lemma #](#lem:update). Thus,
+$$\begin{align}
+  |V(x_i) - \hat W(x_i)| &= | [\mathcal B V](x_i) - [\mathcal B W](x_i) | 
+  \notag \\
+  &\le \| \mathcal BV - \mathcal BW \| 
+  \notag \\
+  &\stackrel{(a)}\le β\| V - W\| \notag
+\end{align}$$
+where $(a)$ follows from the discounting property.&nbsp;$\Box$
+
+::: highlight :::
+Theorem #thm:infinite
+
+:   Suppose $\beta L_p < 1$. Then the value functions $V$ is Lipschitz
+    with Lipschitz constant $L_v = L_c/(1 - β L_p)$. Moreover,
+    $$
+      \| V - W \| \le \frac{L_v d}{1 - β} = \frac{ L_c d } { (1-β)(1 - βL_p)}.
+    $$
+
+:::
+
+#### Proof
+
+The Lipschitz continuity of $V$ follows the results for Lipschitz continuous
+MDPs. 
+
+Now, consider a state $x \in \ALPHABET X_i$. Then,
+$$\begin{align*}
+| V(x) - W(x) | &\le | V(x) - V(x_i)| + |V(x_i) - W(x)| \\
+&\le L_v d_X(x, x_i) + | V(x_i) - \hat W(x_i)| \\
+&\stackrel{(a)}\le L_v d + β\| V - W\|
+\end{align*}$$
+where (a) follows from [Lemma #](#lem:update). We get the result by
+rearranging terms.&nbsp;$\Box$
+
+## State compression (Latent space)
+
+::: highlight :::
+Lemma #lem:policy
+
+:   Suppose the value function $W$ is Lipschitz with Lipschitz constant $L_W$.
+    Then
+    $$ \| V_h(x) - W(x) \| \le \frac{L_c + β L_W L_p}{1 - β} d. $$
+:::
+
+#### Proof
+
+Consider a state $x \in \ALPHABET X_i$. Then,
+$$\begin{align}
+  |V_h(x) - W(x)| &= | V_h(x) - \hat W(x_i) | \notag \\
+  &\stackrel{(a)}\le |c(x, h(x)) - c(x_i, h(x_i))| + 
+  β \left| \int p(y | x, h(x)) V_h(y)dy - \int p(y| x_i, h(x_i)) W(y) dy \right|
+  \notag \\
+  &\stackrel{(b)}\le |c(x, h(x_i)) - c(x_i, h(x_i))| + 
+  β \left| \int p(y | x, h(x_i)) V_h(y)dy - \int p(y| x_i, h(x_i)) W(y) dy \right|
+  \label{eq:split}
+\end{align}$$
+where $(a)$ follows from triangle inequality and $(b)$ follows from the fact
+that $h(x) = h(x_i)$. Now, by Lipschitz continuity of $c$, we have
+$$\begin{equation}
+  |c(x, h(x_i)) - c(x_i, h(x_i))| \le L_c d_X(x_i, x) \le L_c d.
+  \label{eq:1st}
+\end{equation}$$
+Now, let's consider the second term of \\eqref{eq:split}
+$$\begin{align}
+  \hskip 2em & \hskip -2em
+  \left| \int p(y | x, h(x_i)) V_h(y)dy - \int p(y| x_i, h(x_i)) W(y) dy \right|
+  \notag \\
+  &\stackrel{(c)}\le 
+  \left| \int p(y | x, h(x_i)) V_h(y)dy - \int p(y| x, h(x_i)) W(y) dy \right|
+  \notag \\
+  &\quad + 
+  \left| \int p(y | x, h(x_i)) W(y)dy - \int p(y| x_i, h(x_i)) W(y) dy \right|
+  \notag \\
+  &\stackrel{(d)}\le \|V_h - W \| + L_p L_W d_X(x_i, x) \notag \\
+  &\le \|V_h - W \| + L_p L_W d
+  \label{eq:2nd}
+\end{align}$$
+where $(c)$ follows from triangle inequality and the first term of $(d)$
+follows from triangle inequality and the second term follows from Lipschitz
+continuity of $W$ and the definition of Kantorovich distance. We get the
+result by substituting \\eqref{eq:1st} and \\eqref{eq:2nd} in
+\\eqref{eq:split} and rearranging terms.&nbsp;$\Box$
+
+
