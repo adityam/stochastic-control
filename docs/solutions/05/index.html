@@ -34,16 +34,48 @@
 
 <h1>Assignment 5 (solution)</h1>
 
-<ol type="1">
-<li><p>To be written</p></li>
-<li><p>Let <span class="math inline">\(X_t\)</span> denote the maximum offer received so far. Then, <span class="math display">\[X_t = \max\{W_1, \dots, W_t\}\]</span> and <span class="math display">\[X_{t+1} = \max\{ X_t, W_{t+1} \}. \]</span> The above dynamics are monotone; in particular, if <span class="math inline">\(x &gt; y\)</span> then <span class="math display">\[ \max\{x, W\} \ge \max\{y, W\}. \]</span></p>
-<p>We model this problem as a reward maximization problem. The continuation reward <span class="math inline">\(c_t(x) = -c\)</span> and the stopping reward <span class="math inline">\(s_t(x) = x\)</span>. Thus, the one-step benefit function is <span class="math display">\[ \begin{align}
-M_t(x) &amp;= c_t(x) + \EXP[ s_{t+1}(\max\{ x, W \}) ] - s_t(x) \\
- &amp;= -c + \EXP[ \max\{x, W\} ] - x \\
- &amp;= -c + \EXP[ (W - x)+ ].
-\end{align}\]</span> Note that for any <span class="math inline">\(W\)</span>, <span class="math inline">\((W-x)^{+}\)</span> is a decreasing function of <span class="math inline">\(x\)</span>. Thus, <span class="math inline">\(\EXP[ (W-x)^+ ]\)</span> is a decreasing function of <span class="math inline">\(x\)</span>; hence so is <span class="math inline">\(M_t(x)\)</span>.</p>
-<p>Since we are looking at a reward maximization problem where <span class="math inline">\(M_t(x)\)</span> is weakly decreasing in <span class="math inline">\(x\)</span> and <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is monotone, from <a href="../../theory/monotonicity-optimal-stopping#monotone-stopping">the result on monotonicity of optimal stopping</a> that there exist thresholds <span class="math inline">\(\{λ_t\}_{t \ge 1}\)</span> such that it is optimal to stop at time <span class="math inline">\(t\)</span> iff <span class="math inline">\(X_t \ge λ_t\)</span>.</p></li>
+<h2 id="problem-1">Problem 1</h2>
+<ol type="a">
+<li><p>For the reward maximization case, the dynamic program is given as follows:</p>
+<p><span class="math display">\[V_T(x) = s_T(x)\]</span> and for <span class="math inline">\(t \in \{T-1,\dots, 1\}\)</span>, we have <span class="math display">\[V_t(x) = \max\{ s_t(x), c_t(x) + \EXP[V_{t+1}(X_{t+1} | X_t = x]. \]</span></p>
+<p>We define the benefit funciton as before. i.e., <span class="math display">\[B_t(x) = c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x] - s_t(x). \]</span> Then, it is optimal to stop whenever <span class="math inline">\(B_t(x) \le 0\)</span>.</p>
+<p>Now, we write the value function in terms of the benefit function as follows:</p>
+<p><span class="math display">\[\begin{align*} 
+ V_t(x) &amp;= \max\{ s_t(x), B_t(x) + s_t(x) \} \\
+ &amp;= s_t(x) + \max\{ B_t(x), 0 \} \\
+ &amp;= s_t(x) + [B_t(x)]^{+}
+ \end{align*}\]</span> where <span class="math inline">\([y]^{+}\)</span> is a short hand for <span class="math inline">\(\max\{y, 0\}\)</span>.</p>
+<p>Now, define the one-step look-ahead function as before: <span class="math display">\[ M_t(x) = c_t(x) + \EXP[ s_{t+1}(X_{t+1}) | X_t = x] - s_t(x). \]</span> Now we derive the relationship between the one-step look-ahead function and the benefit function: <span class="math display">\[ B_T(x) = M_T(x)$ \]</span> and for <span class="math inline">\(t \in \{T-1,\dots, 1\}\)</span>, we have <span class="math display">\[\begin{align*}
+   B_t(x) &amp;= c_t(x) + \EXP[V_{t+1}(X_{t+1}) | X_t = x] - s_t(x) \\
+   &amp;= c_t(x) + \EXP[ s_{t+1}(X_{t+1}) + [B_{t+1}(X_{t+1})]^+ | X_t = x] - s_t(x)
+   \\
+   &amp;= M_t(x) + \EXP[ [B_{t+1}(X_{t+1}]^- | X_t = x ].
+ \end{align*}\]</span></p></li>
+<li><p>The equivalent to Theorem 1 for reward maximization is the following:</p></li>
 </ol>
+<div class="highlight">
+<dl>
+<dt>Theorem</dt>
+<dd><p>Suppose the state space is totally ordered and the following conditions hold.</p>
+<ol type="1">
+<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(M_t(x)\)</span> is weakly decreasing in <span class="math inline">\(x\)</span>.</li>
+<li><span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is stochastic monotone.</li>
+</ol>
+<p>Then <span class="math inline">\(B_t(x)\)</span> is weakly decreasing in <span class="math inline">\(x\)</span> for all <span class="math inline">\(t\)</span> and there exists a sequence <span class="math inline">\(\{λ_t\}_{t \ge 1}\)</span> such that it is optimal to stop at time <span class="math inline">\(t\)</span> if and only if <span class="math inline">\(X_t \ge λ_t\)</span>.</p>
+</dd>
+</dl>
+</div>
+<p>As in the notes, we first prove the monotonicity of <span class="math inline">\(B_t(x)\)</span> by backward induction. Since <span class="math inline">\(B_T(x) = M_T(x)\)</span>, which is decreasing. This forms the basis of induction. Now assume that <span class="math inline">\(B_{t+1}(x)\)</span> is decreasing in <span class="math inline">\(x\)</span> and consider the problem at <span class="math inline">\(t\)</span>.</p>
+<p>Since <span class="math inline">\(B_{t+1}(x)\)</span> is decreasing so is <span class="math inline">\([B_{t+1}(x)]^{+}\)</span>. Moreover, since <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math inline">\(\EXP[B_{t+1}(X_{t+1})^{+} | X_t = x]\)</span> is decreasing in <span class="math inline">\(x\)</span>. Therefore, <span class="math display">\[ B_t(x) = M_t(x) + \EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x] \]</span> is decreasing in <span class="math inline">\(x\)</span>. Thus, by induction, <span class="math inline">\(B_t(x)\)</span> is decreasing in <span class="math inline">\(x\)</span> for all <span class="math inline">\(t\)</span>.</p>
+<p>Recall that it is optimal to stop iff <span class="math inline">\(B_t(x) \le 0\)</span>. Since <span class="math inline">\(B_t(x)\)</span> is decreasing in <span class="math inline">\(x\)</span>, the optimal decision is of the threshold type described in the Theorem.</p>
+<h2 id="problem-2">Problem 2</h2>
+<p>Let <span class="math inline">\(X_t\)</span> denote the maximum offer received so far. Then, <span class="math display">\[X_t = \max\{W_1, \dots, W_t\}\]</span> and <span class="math display">\[X_{t+1} = \max\{ X_t, W_{t+1} \}. \]</span> The above dynamics are monotone; in particular, if <span class="math inline">\(x &gt; y\)</span> then <span class="math display">\[ \max\{x, W\} \ge \max\{y, W\}. \]</span></p>
+<p>We model this problem as a reward maximization problem. The continuation reward <span class="math inline">\(c_t(x) = -c\)</span> and the stopping reward <span class="math inline">\(s_t(x) = x\)</span>. Thus, the one-step benefit function is <span class="math display">\[ \begin{align}
+  M_t(x) &amp;= c_t(x) + \EXP[ s_{t+1}(\max\{ x, W \}) ] - s_t(x) \\
+  &amp;= -c + \EXP[ \max\{x, W\} ] - x \\
+  &amp;= -c + \EXP[ (W - x)+ ].
+\end{align}\]</span> Note that for any <span class="math inline">\(W\)</span>, <span class="math inline">\((W-x)^{+}\)</span> is a decreasing function of <span class="math inline">\(x\)</span>. Thus, <span class="math inline">\(\EXP[ (W-x)^+ ]\)</span> is a decreasing function of <span class="math inline">\(x\)</span>; hence so is <span class="math inline">\(M_t(x)\)</span>.</p>
+<p>Since we are looking at a reward maximization problem where <span class="math inline">\(M_t(x)\)</span> is weakly decreasing in <span class="math inline">\(x\)</span> and <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is monotone, from <a href="../../theory/monotonicity-optimal-stopping#monotone-stopping">the result on monotonicity of optimal stopping</a> that there exist thresholds <span class="math inline">\(\{λ_t\}_{t \ge 1}\)</span> such that it is optimal to stop at time <span class="math inline">\(t\)</span> iff <span class="math inline">\(X_t \ge λ_t\)</span>.</p>
 
 
 <p class="categories">

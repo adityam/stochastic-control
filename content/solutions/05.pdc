@@ -2,29 +2,97 @@
 title: Assignment 5 (solution)
 ---
 
-1. To be written
+## Problem 1
 
-2. Let $X_t$ denote the maximum offer received so far. Then,
-   $$X_t = \max\{W_1, \dots, W_t\}$$
-   and
-   $$X_{t+1} = \max\{ X_t, W_{t+1} \}. $$
-   The above dynamics are monotone; in particular, if $x > y$ then 
-   $$ \max\{x, W\} \ge \max\{y, W\}. $$
+a. For the reward maximization case, the dynamic program is given as follows:
 
-   We model this problem as a reward maximization problem. The continuation
-   reward $c_t(x) = -c$ and the stopping reward $s_t(x) = x$. Thus, the
-   one-step benefit function is
-   $$ \begin{align}
-   M_t(x) &= c_t(x) + \EXP[ s_{t+1}(\max\{ x, W \}) ] - s_t(x) \\
-    &= -c + \EXP[ \max\{x, W\} ] - x \\
-    &= -c + \EXP[ (W - x)+ ].
-   \end{align}$$
-   Note that for any $W$, $(W-x)^{+}$ is a decreasing function of $x$. Thus,
-   $\EXP[ (W-x)^+ ]$ is a decreasing function of $x$; hence so is $M_t(x)$. 
+   $$V_T(x) = s_T(x)$$
+   and for $t \in \{T-1,\dots, 1\}$, we have
+   $$V_t(x) = \max\{ s_t(x), c_t(x) + \EXP[V_{t+1}(X_{t+1} | X_t = x]. $$
 
-   Since we are looking at a reward maximization problem where $M_t(x)$ is
-   weakly decreasing in $x$ and $\{X_t\}_{t \ge 1}$ is monotone, from 
-   [the result on monotonicity of optimal
-   stopping](../../theory/monotonicity-optimal-stopping#monotone-stopping)
-   that there exist thresholds $\{λ_t\}_{t \ge 1}$ such that it is optimal to
-   stop at time $t$ iff $X_t \ge λ_t$.
+   We define the benefit funciton as before. i.e., 
+   $$B_t(x) = c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x] - s_t(x). $$
+   Then, it is optimal to stop whenever $B_t(x) \le 0$. 
+
+   Now, we write the value function in terms of the benefit function as
+   follows:
+
+   $$\begin{align*} 
+    V_t(x) &= \max\{ s_t(x), B_t(x) + s_t(x) \} \\
+    &= s_t(x) + \max\{ B_t(x), 0 \} \\
+    &= s_t(x) + [B_t(x)]^{+}
+    \end{align*}$$
+    where $[y]^{+}$ is a short hand for $\max\{y, 0\}$. 
+
+    Now, define the one-step look-ahead function as before:
+    $$ M_t(x) = c_t(x) + \EXP[ s_{t+1}(X_{t+1}) | X_t = x] - s_t(x). $$
+    Now we derive the relationship between the one-step look-ahead function
+    and the benefit function:
+    $$ B_T(x) = M_T(x)$ $$
+    and for $t \in \{T-1,\dots, 1\}$, we have
+    $$\begin{align*}
+      B_t(x) &= c_t(x) + \EXP[V_{t+1}(X_{t+1}) | X_t = x] - s_t(x) \\
+      &= c_t(x) + \EXP[ s_{t+1}(X_{t+1}) + [B_{t+1}(X_{t+1})]^+ | X_t = x] - s_t(x)
+      \\
+      &= M_t(x) + \EXP[ [B_{t+1}(X_{t+1}]^- | X_t = x ].
+    \end{align*}$$
+
+b. The equivalent to Theorem 1 for reward maximization is the following:
+  
+::: highlight :::
+Theorem
+
+:   Suppose the state space is totally ordered and the following
+    conditions hold.
+
+      1. For all $t$, $M_t(x)$ is weakly decreasing in $x$.
+      2. $\{X_t\}_{t \ge 1}$ is stochastic monotone.
+
+    Then $B_t(x)$ is weakly decreasing in $x$ for all $t$ and there exists
+    a sequence $\{λ_t\}_{t \ge 1}$ such that it is optimal to stop at time
+    $t$ if and only if $X_t \ge λ_t$. 
+
+:::
+
+As in the notes, we first prove the monotonicity of $B_t(x)$ by backward
+induction. Since $B_T(x) = M_T(x)$, which is decreasing. This forms the basis
+of induction. Now assume that $B_{t+1}(x)$ is decreasing in $x$ and consider
+the problem at $t$.
+
+Since $B_{t+1}(x)$ is decreasing so is $[B_{t+1}(x)]^{+}$. Moreover, since
+$\{X_t\}_{t \ge 1}$ is stochastically monotone, $\EXP[B_{t+1}(X_{t+1})^{+} |
+X_t = x]$ is decreasing in $x$. Therefore,
+$$ B_t(x) = M_t(x) + \EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x] $$
+is decreasing in $x$. Thus, by induction, $B_t(x)$ is decreasing in $x$ for
+all $t$.
+
+Recall that it is optimal to stop iff $B_t(x) \le 0$. Since $B_t(x)$ is
+decreasing in $x$, the optimal decision is of the threshold type described in
+the Theorem. 
+
+
+## Problem 2
+Let $X_t$ denote the maximum offer received so far. Then,
+$$X_t = \max\{W_1, \dots, W_t\}$$
+and
+$$X_{t+1} = \max\{ X_t, W_{t+1} \}. $$
+The above dynamics are monotone; in particular, if $x > y$ then 
+$$ \max\{x, W\} \ge \max\{y, W\}. $$
+
+We model this problem as a reward maximization problem. The continuation
+reward $c_t(x) = -c$ and the stopping reward $s_t(x) = x$. Thus, the
+one-step benefit function is
+$$ \begin{align}
+  M_t(x) &= c_t(x) + \EXP[ s_{t+1}(\max\{ x, W \}) ] - s_t(x) \\
+  &= -c + \EXP[ \max\{x, W\} ] - x \\
+  &= -c + \EXP[ (W - x)+ ].
+\end{align}$$
+Note that for any $W$, $(W-x)^{+}$ is a decreasing function of $x$. Thus,
+$\EXP[ (W-x)^+ ]$ is a decreasing function of $x$; hence so is $M_t(x)$. 
+
+Since we are looking at a reward maximization problem where $M_t(x)$ is
+weakly decreasing in $x$ and $\{X_t\}_{t \ge 1}$ is monotone, from 
+[the result on monotonicity of optimal
+stopping](../../theory/monotonicity-optimal-stopping#monotone-stopping)
+that there exist thresholds $\{λ_t\}_{t \ge 1}$ such that it is optimal to
+stop at time $t$ iff $X_t \ge λ_t$.
