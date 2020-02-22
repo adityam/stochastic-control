@@ -35,94 +35,22 @@
 <h1>Assignment 4 (solution)</h1>
 
 <h2 id="problem-1">Problem 1</h2>
-<ol type="a">
-<li><p>This is an optimal stopping problem. Let <span class="math inline">\(X_t\)</span> denote the population at time <span class="math inline">\(t\)</span> and <span class="math inline">\(U_t \in \{0,1\}\)</span> deote the decision to stop (<span class="math inline">\(U_t = 0\)</span>) or not (<span class="math inline">\(U_t = 1\)</span>). If the hunter has not made a stopping decision, the dynamics of <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> are given by <span class="math display">\[
-  X_{t+1} = 
-  \begin{cases}
-    X_t, &amp; \text{with probability $1 - p(X_t)$} \\
-    X_t - 1, &amp; \text{with probability $p(X_t)$}
-  \end{cases}
-\]</span></p>
-<p>Thus, the transition probability matrix is <span class="math display">\[
-  P = \MATRIX{
-  1&amp; 0&amp; 0&amp; \ldots&amp; 0\\
-  p(1)&amp; 1 - p(1)&amp; 0&amp; \ldots&amp; 0\\
-  0&amp; p(2)&amp; 1 - p(2)&amp; \ldots&amp; 0\\
-  \ldots&amp; \ldots&amp; \ldots&amp; \ldots&amp; \ldots\\
-  0&amp; 0&amp; 0&amp; \ldots&amp; 1 - p(n) }
-\]</span></p>
-<p>The expected continuing reward at time <span class="math inline">\(t\)</span> is given by <span class="math display">\[
-  r_t(x) = -c + p(x).
-\]</span></p>
-<p>The stopping reward reward is <span class="math display">\[
-  s_t(x) = 0.
-\]</span></p>
-<p>Hence, the above system is a MDP and an optimal solution is given by the solution to the following dynamic program. <span class="math display">\[ \begin{align}
-   V_T(x) &amp;= \max\{0, -c + p(x)\} \\
-   V_t(x) 
-    &amp;= \max\{0, -c + p(x) + (1-p(x))V_{t+1}(x-1) + p(x)V_{t+1}(x) \}
-    \\
-\end{align} \]</span> In the above equations, the first term corresponds to <span class="math inline">\(u_t = 1\)</span> and the second to <span class="math inline">\(u_t = 0\)</span>.</p></li>
-<li><p>As stated in the hint, the result can be proved based on the following result.</p>
-<div class="highlight">
-<dl>
-<dt>Lemma</dt>
-<dd><p>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(x) = 0 \iff x \le λ\)</span>.</p>
-</dd>
-</dl>
+<p>I had a solution to this problem but the TA found a mistake in my solution. Having thought about it a bit, I realize that as stated the problem cannot be solved.</p>
+<p>Let me make an attempt to explain what led to the mistake and how it can be fixed. This requires some background knowledge of communication systems.</p>
+<p>As explained in the notes, the model is taken from <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span> but the result was proved by first principle in <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span>. There is one difference between the model in <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span> and the model presented in class. In <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span>, the channel is ordered such that the lowest channel state corresponds to the best channel quality. I have been working on a variation of this model on and off since 2010 (see <a href="http://cim.mcgill.ca/~adityam/projects/communication/conference/2020-wiopt.pdf">this recent conference submission</a> for the details of the model, if you are interested). For reasons that are too complicated to explain in a note, when I was started working on the model in 2010, I thought that indexing the channel by saying that the highest state is the best state simplified some of the proofs. So, when I started covering Berry’s model in class, I followed the same modeling assumption.</p>
+<p>Now, this change sounds innocuous, but there is a big caveat. The reason why we say that the channel is stochastically monotone is as follows. If the channel has two states, then typically <span class="math display">\[ \PR(\text{GOOD} | \text{GOOD}) \ge \PR(\text{GOOD} | \text{BAD}). \]</span> For the ordering chosen in <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span>, the channel is stochastically monotone. In the ordering that I picked, the channel is the reverse of stochastically monotone. This leads to some weirdness in the proof.</p>
+<p>Now, as I said, the proof in <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span> is from first principles. Each time I teach the course, I simplify the proof a little. This was the first time I realized that the old proof could be considerably simplified if I used the post-decision state model.</p>
+<p>Now, in <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span>, the monotonicity of the policy is proved under the assumption that <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is i.i.d. It is clear that under that assumption, the post-decision state value function just depends on the queue state <span class="math inline">\(y\)</span> and not on the channel state <span class="math inline">\(s\)</span>. So, we have <span class="math display">\[ V_t(x) = \min_{u \le x} \bigl\{ p(x)q(s) + Q_t(y-u) \bigr\} \]</span> and it is easy to see that for any fixed <span class="math inline">\(x\)</span>, <span class="math inline">\(g_t(x,s)\)</span> will be monotone in <span class="math inline">\(s\)</span>.</p>
+<p>Now, once I simplified the proof in terms of post-decision state, I believed that I could generalize Berry’s result to stochastically monotone <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span>. My proof seemed to go through and it was relatively simple, so I gave this as a homework assignment. My TA later found a mistake in the proof, so my argument does not go through.</p>
+<p>I believe that the reason for this is the innocuous looking change in the order of states. I’ll try to write the argument with the right ordering of <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> and post the results here.</p>
+<p>I know this is frustrating to get a homework problem which is unsolvable. The only silver lining here is that you get an insight of the fickle nature of getting proofs right. Many a times you think that you have the right proof, only to realize that one of your seemingly obvious looking steps was completely nonsensical.</p>
+<hr />
+<h2 id="references" class="unnumbered">References</h2>
+<div id="refs" class="references">
+<div id="ref-Berry2000">
+<p><span class="smallcaps">Berry, R.A.</span> 2000. Power and delay trade-offs in fading channels.. Available at: <a href="https://dspace.mit.edu/handle/1721.1/9290">https://dspace.mit.edu/handle/1721.1/9290</a>.</p>
 </div>
-<p>First observe that <span class="math inline">\(V_t(x) \ge 0\)</span> for all <span class="math inline">\(x\)</span> and <span class="math inline">\(t\)</span>. Then the above lemma implies that <span class="math inline">\(g_t(x) = \IND\{p(x) \ge x\}\)</span>, and hence, it is optimal to stop hunting when the current population falls below <span class="math inline">\(λ\)</span>.</p>
-<p>We prove the Lemma backward induction. For <span class="math inline">\(t=T\)</span>. <span class="math display">\[
-  V_T(x) = \max\{0, -c + p(x) \}.
-\]</span> Thus, <span class="math display">\[
-  V_T(x) = 0 \iff p(x) \le c \iff x \le λ.
-\]</span> This forms the basis of induction. Now assume that the lemma is true for <span class="math inline">\(t+1\)</span> and consider <span class="math inline">\(V_t(x)\)</span>. <span class="math display">\[
-  V_t(x) = 
-  \max\{0, -c + p(x) + (1-p(x))V_{t+1}(x-1) + p(x)V_{t+1}(x) \}
-\]</span></p>
-<p>If <span class="math inline">\(x \le λ\)</span>, then <span class="math inline">\(p(x) -c \le 0\)</span> and by the assertion of the induction hypothesis, <span class="math inline">\(V_{t+1}(x) = V_{t+1}({x-1}) = 0\)</span>.</p>
-<p>On the other hand, if <span class="math inline">\(x &gt; λ\)</span>, <span class="math inline">\(p(x) -c &gt; 0\)</span>, and since <span class="math inline">\(V_{t+1}(⋅) \ge 0\)</span>, we have that <span class="math inline">\(V_t(x) &gt; 0\)</span>.</p>
-<p>Thus, the assertion is true for <span class="math inline">\(t\)</span>, and, by the principle of induction, true for all values of <span class="math inline">\(t\)</span>.</p></li>
-</ol>
-<h2 id="problem-2">Problem 2</h2>
-<ol type="a">
-<li><p>This is an optmal stopping problem. The continuation reward is given by <span class="math inline">\(-c\)</span> while the stopping reward is given by <span class="math inline">\(r(x)\)</span>. Therefore, the dynamic program is given by <span class="math display">\[ \begin{align}
-  V_{T}(x) &amp;= r(x) \\
-  V_t(x)   &amp;= \max\{r(x), -c + \sum_{y \in \mathbb N} P_{xy}
-    V_{t+1}(y) \}
-\end{align} \]</span> In the above equation, the first term corresponds to stopping (<span class="math inline">\(u_t = 1\)</span>) and the second to continuing (<span class="math inline">\(u_t = 0\)</span>).</p></li>
-<li><p>From <a href="../../assignments/02">Assignment 2</a>, we know that to show monotonicity in time, we need to show <span class="math inline">\(V_{T-1}(x) \ge V_T(x)\)</span>. This follows immediately from the definition of <span class="math inline">\(V_{T-1}(x)\)</span>.</p></li>
-<li><p>For any <span class="math inline">\(t\)</span>, let <span class="math inline">\(x \in H_t\)</span>. Then, <span class="math display">\[
-   r(x) \ge 
-   -c + \sum_{y \in \mathbb N} P_{xy} V_{t+1}(y) 
-   \ge
-   -c + \sum_{y \in \mathbb N} P_{xy} V_{t+2}(y) 
-\]</span> where the first inequality follows because <span class="math inline">\(x \in H_t\)</span> and the second inequality follows from the monotonicity of the value function (in time).</p>
-<p>The second inequality implies that <span class="math inline">\(x \in H_{t+1}\)</span>. Thus, <span class="math inline">\(H_t \subseteq H_{t+1}\)</span>.</p>
-<p>Now, assume that <strong>(P1)</strong> is true. We claim that under <strong>(P1)</strong>, <span class="math inline">\(H_t = H_{T-1}\)</span> for all <span class="math inline">\(t\)</span>. To prove the claim, we proceed by backward induction.</p>
-<p>The result is trivially true for <span class="math inline">\(T-1\)</span>. This forms the basis of induction. Suppose that the result is true for <span class="math inline">\(t+1\)</span>, i.e., <span class="math display">\[
-  H_{t+1} = H_{t+1} = \cdots H_{T-1}
-\]</span> Moreover, for any <span class="math inline">\(x \in H_{T-1}\)</span>, <span class="math display">\[ \begin{align}
-   V_{t+1}(x) = r(x) &amp;\ge
-      -c + \sum_{y \in \mathbb N} P_{xy} V_{t+2}(y) 
-    \\
-  &amp;\stackrel {(a)}=
-      -c + \sum_{{y \in H_{T-1}}} P_{xy} V_{t+2}(y)
-    \\
-  &amp;\stackrel {(b)}=
-      -c + \sum_{{y \in H_{T-1}}} P_{xy} r(y)
-\end{align} \]</span> where <span class="math inline">\((a)\)</span> follows from property (P1) and <span class="math inline">\((b)\)</span> follows from the fact that for any <span class="math inline">\(y \in H_{T-1} = H_{t+1}\)</span>, it is optimal to exploit; therefore, <span class="math inline">\(V_{t+2}(y) = r(y)\)</span>.</p>
-<p>Now, consider <span class="math inline">\(x \in H_{T-1}\)</span>. <span class="math display">\[ \begin{align}
-  -c + \sum_{y \in \mathbb N} P_{xy} V_{t+1}(y) 
-  &amp;= -c + \sum_{y \in H_{T-1}} P_{xy} V_{t+1}(y) 
-  \\
-  &amp;\stackrel {(a)}=
-  -c + \sum_{y \in H_{T-1}} P_{xy} r(y) 
-  \\
-  &amp;\stackrel {(b)}\le r(x)
-\end{align} \]</span> where <span class="math inline">\((a)\)</span> follows from property (P1) and <span class="math inline">\((b)\)</span> follows from the previous equation. Thus, <span class="math inline">\(x \in H_t\)</span>. This implies that <span class="math inline">\(H_{T-1} \subseteq H_t\)</span>.</p>
-<p>We had already shown that <span class="math inline">\(H_t \subseteq H_{T-1}\)</span>. Thus, <span class="math inline">\(H_t = H_{T-1}\)</span>. This completes the proof of the claim.</p></li>
-</ol>
+</div>
 
 
 <p class="categories">
