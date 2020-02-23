@@ -72,43 +72,76 @@ A continuous and differentiable function on $\reals^2$ is submodular iff
 $$ \frac{ \partial^2 f(x,y) }{ \partial x \partial y } \le 0,
   \quad \forall x,y. 
 $$
+If the inequality is reversed, then the function is supermodular. 
 
 Submodularity is a useful property because it implies monotonicity of the arg
 min.
 
 ::: highlight :::
 
-Theorem
+Theorem #thm:submodular
 
 :   Let $\ALPHABET X$ be a partially ordered set,  $\ALPHABET Y$ be a
     totally ordered set, and $f \colon \ALPHABET X \times \ALPHABET Y \to \reals$
-    be a submodular function. Suppose that for all $x$, $\arg \min_{y \in
+    be a _submodular_ function. Suppose that for all $x$, $\arg \min_{y \in
     \ALPHABET Y} f(x,y)$ exists. Then,
     $$
       g(x) := \max \{ y^* \in \arg \min_{y \in \ALPHABET Y} f(x,y) \}
     $$
-    is weakly increasing in $x$.
+    is weakly _increasing_ in $x$.
 ::: 
 
 #### Proof
 Consider $x^+, x^- \in \ALPHABET X$ such that $x^+ \ge x^-$. Since $f$ is
-sumodular, for any $y \le g(x^-)$, we have
+submodular, for any $y \le g(x^-)$, we have
 $$\begin{equation}\label{eq:1}
   f(x^+, g(x^-)) - f(x^+, y) \le f(x^-, g(x^-)) - f(x^-, y) \le 0,
 \end{equation}$$
 where the last inequality follows because $g(x^-)$ is the arg min of $f(x^-,
-y)$. Eq. \\eqref{eq:1} implies that (for all $y \le g(x^-)$), 
+y)$. Eq. \\eqref{eq:1} implies that for all $y \le g(x^-)$, 
 $$ 
   f(x^+, g(x^-)) \le f(x^+, y).
 $$
-Thus, $g(x^+) \ge g(x^-)$. 
+Thus, $g(x^+) \ge g(x^-)$.&nbsp;$\Box$
+
+The analogue of [Theorem #](#thm:submodular) for supermodular functions is as
+follows. 
+
+::: highlight :::
+
+Theorem #thm:supermodular
+
+:   Let $\ALPHABET X$ be a partially ordered set,  $\ALPHABET Y$ be a
+    totally ordered set, and $f \colon \ALPHABET X \times \ALPHABET Y \to \reals$
+    be a _supermodular_ function. Suppose that for all $x$, $\arg \min_{y \in
+    \ALPHABET Y} f(x,y)$ exists. Then,
+    $$
+      g(x) := \min \{ y^* \in \arg \min_{y \in \ALPHABET Y} f(x,y) \}
+    $$
+    is weakly _decreasing_ in $x$.
+::: 
+
+#### Proof
+The proof is similar to [Theorem #](#thm:submodular).
+
+Consider $x^+, x^- \in \ALPHABET X$ such that $x^+ \ge x^-$. Since $f$ is
+supermodular, for any $y \ge g(x^-)$, we have
+$$\begin{equation}\label{eq:2}
+  f(x^+, y) - f(x^+, g(x^-)) \ge f(x^-, y) - f(x^-, g(x^-)) \ge 0,
+\end{equation}$$
+where the last inequality follows because $g(x^-)$ is the arg min of $f(x^-,
+y)$. Eq. \\eqref{eq:2} implies that for all $y \ge g(x^-)$, 
+$$ 
+  f(x^+, y) \ge f(x^+, g(x^-)).
+$$
+Thus, $g(x^+) \le g(x^-)$.&nbsp;$\Box$
 
 ---
 
 # Monotonicity of optimal policy
 
 ::: highlight :::
-Theorem
+Theorem #thm:increasing-policy
 
 :   Consider an MDP where the state space $\ALPHABET X$ and the action space
     $\ALPHABET U$ are totally ordered. Suppose that, in addition to (C1) and
@@ -132,7 +165,7 @@ $(x,u)$. Therefore, the arg min is increasing in $x$
 It is difficult to verify condition (C3). The following conditions
 are sufficient for (C3).
 
-Lemma
+Lemma #lem:sufficient
 
 :   Consider an MDP with totally ordered state and action spaces. Suppose
     
@@ -159,18 +192,86 @@ $$\sum_{x' \le y} \big[ P_{x^+ x'}(u^+) + P_{x^- x'}(u^-) \big]
   \sum_{x' \le y} \big[ P_{x^+ x'}(u^-) + P_{x^- x'}(u^+) \big]. $$
 which implies
 $$ \Pi(y) \ge M(y)$$
-where $\Pi$ and $M$ are the CDFs of $\pi$ and $\mu$. Thus, $\mu \succeq_s
-\pi$.
+where $\Pi$ and $M$ are the CDFs of $\pi$ and $\mu$. Thus, $\pi \preceq_s
+\mu$.
 
 Hence, for any weakly increasing function $v \colon \ALPHABET X \to \reals$,
 $$ \sum_{x' \in \ALPHABET X} \pi(x') v(x') \le 
    \sum_{x' \in \ALPHABET X} \mu(x') v(x').$$
 Or, equivalently, 
 $$H(x^+, u^+) + H(x^-, u^-) \le H(x^-, u^+) + H(x^+, u^-)$$
-where $H(x,u) = \EXP[ v(X_{t+1} | X_t = x, U_t = u]$. 
+where $H(x,u) = \EXP[ v(X_{t+1}) | X_t = x, U_t = u]$. 
 
 Therefore, $c_t(x,u) + H_t(x,u)$ is submodular in $(x,u)$. 
    
+---
+
+The analogue of [Theorem #](#thm:increasing-policy) for supermodular functions
+is as follows.
+
+::: highlight :::
+Theorem #thm:decreasing-policy
+
+:   Consider an MDP where the state space $\ALPHABET X$ and the action space
+    $\ALPHABET U$ are totally ordered. Suppose that, in addition to (C1) and
+    (C2), the following condition is satisfied.
+
+    C4. For any weakly increasing function $v$,
+    $$ c_t(x,u) + \EXP[ v(X_{t+1}) | X_t = x, U_t = u]$$
+    is supermodular in $(x,u)$.
+
+    Let $g^*_t(x) = \min\{ u^* \in \arg \min_{u \in \ALPHABET X} Q_t(x,u) \}$.
+    Then, $g^*(x)$ is weakly decreasing in $x$.
+:::
+
+#### Proof
+Conditions (C1) and (C2) imply that the value function $V_{t+1}(x)$ is weakly
+increasing. Therefore, condition (C4) implies that $Q_t(x,u)$ is supermodular in
+$(x,u)$. Therefore, the arg min is decreasing in $x$
+
+It is difficult to verify condition (C4). The following conditions
+are sufficient for (C4).
+
+Lemma #lem:sufficient-C4
+
+:   Consider an MDP with totally ordered state and action spaces. Suppose
+    
+    (a) $c_t(x,u)$ is supermodular in $(x,u)$.
+    (b) For all $y \in \ALPHABET X$, 
+        $S(y | x,u) = 1 - \sum_{x' \le y} P_{xx'}(u)$ is supermodular in $(x,y)$.
+
+    The condition (C4) of the previous theorem holds.
+
+#### Proof
+
+Consider $x^+, x^- \in \ALPHABET X$ and $u^+, u^- \in \ALPHABET U$ such that
+$x^+ > x^-$ and $u^+ > u^-$. Define
+
+$$\begin{align*}
+  \pi(x) &= \tfrac 12 P_{x^- x}(u^-) + \tfrac 12 P_{x^+ x}(u^+), \\
+  \mu(x) &= \tfrac 12 P_{x^- x}(u^+) + \tfrac 12 P_{x^+ x}(u^-).
+\end{align*}$$
+Since $S(y | x,u)$ is supermodular, we have
+$$ S(y | x^+, u^+) + S(y | x^-, u^-) \ge S(y | x^+, u^-) + S(y | x^-, u^+) $$
+or equivalently,
+$$\sum_{x' \le y} \big[ P_{x^+ x'}(u^+) + P_{x^- x'}(u^-) \big]
+  \le 
+  \sum_{x' \le y} \big[ P_{x^+ x'}(u^-) + P_{x^- x'}(u^+) \big]. $$
+which implies
+$$ \Pi(y) \le M(y)$$
+where $\Pi$ and $M$ are the CDFs of $\pi$ and $\mu$. Thus, $\pi \succeq_s
+\mu$.
+
+Hence, for any weakly increasing function $v \colon \ALPHABET X \to \reals$,
+$$ \sum_{x' \in \ALPHABET X} \pi(x') v(x') \ge 
+   \sum_{x' \in \ALPHABET X} \mu(x') v(x').$$
+Or, equivalently, 
+$$H(x^+, u^+) + H(x^-, u^-) \ge H(x^-, u^+) + H(x^+, u^-)$$
+where $H(x,u) = \EXP[ v(X_{t+1}) | X_t = x, U_t = u]$. 
+
+Therefore, $c_t(x,u) + H_t(x,u)$ is supermodular in $(x,u)$. 
+   
+
 ---
 
 ## Constraints on actions
