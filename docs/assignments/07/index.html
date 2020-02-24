@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG,https://adityam.github.io/stochastic-control/js/mathjax-local.js">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Assignment 7</h1>
+
+<ol type="1">
+<li>Exercise 1 of <a href="../../inf-mdp/lipschitz-mdp#exercises">notes on Lipschitz MDPs</a>.</li>
+</ol>
+<ol start="2" type="1">
+<li><p>The purpose of this exercise is to justify the truncation of the state space, as we did in in the example of state transmission in Internet of Things considered in <a href="../03">Assignment 3</a>. Consider the infinite horizon discounted cost version of that example.</p>
+<ol type="a">
+<li><p>In Exercise 1 of <a href="../../mdp/monotone-mdp#exercises">monotone MDPs</a>, we have already established that the optimal policy is even and quasi-convex. Since the action space is binary, this means that the optimal policy is of the form <span class="math display">\[ g(e) = \begin{cases}
+0, &amp; |e| \le k, \\
+1, &amp; |e| &gt; k.
+ \end{cases}. \]</span></p>
+<p>Our first step is to obtain a bound on <span class="math inline">\(k\)</span>. Let <span class="math inline">\(e_0 = \sqrt{λ/(1-β)}\)</span>. Argue that for any <span class="math inline">\(e \not\in [-e_0, e_0]\)</span>, the per-step cost of not-transmitting at the current time is greater than transmitting at each step in the future. Thus, at any <span class="math inline">\(e \not\in [-e_0, e_0]\)</span>, the optimal action is to transmit (i.e., <span class="math inline">\(u = 1\)</span>). Thus, the optimal threshold <span class="math inline">\(k \le e_0\)</span>.</p></li>
+<li><p>Now pick a <span class="math inline">\(B &gt; e_0\)</span> and let <span class="math inline">\(\bar p(e_{+} | e, u)\)</span> denote the truncation of <span class="math inline">\(p(e_{+} | e, u)\)</span> to the interval <span class="math inline">\([-B, B]\)</span> as descibed in <a href="../03">Assignment 3</a>.</p>
+<p>Now consider a family <span class="math inline">\(\mathcal F\)</span> of even and quasi-convex functions where for any <span class="math inline">\(v \in \mathcal F\)</span>, the function is constant in the interval <span class="math inline">\((-∞, -B] \cup [B, ∞)\)</span>. Show that for any <span class="math inline">\(v \in \mathcal F\)</span>,</p>
+<p><span class="math display">\[ \int_{-B}^B v(e_{+}) \bar p(e_{+} | e, u) de_{+} = 
+     \int_{-∞}^∞ v(e_{+})      p(e_{+} | e, u) de_{+}. \]</span></p></li>
+<li><p>Note that for any function <span class="math inline">\(\bar w \colon [-B, B] \to \reals\)</span>, can be considered an extension <span class="math inline">\(w \colon \reals \to \reals\)</span> as follows: <span class="math display">\[ w(e) = \begin{cases}
+     \bar w(-B), &amp; e \le -B \\
+     \bar w(e) , &amp; -B &lt; e &lt; B \\
+     \bar w(B) , &amp; B \le e.
+   \end{cases}\]</span></p>
+<p>Let <span class="math inline">\(\mathcal B\)</span> <span class="math inline">\(\bar {\mathcal B}\)</span> denote the Bellman update in the original and truncated model, respectively. Let <span class="math inline">\(\bar v\)</span> be any even and quasi-convex function on <span class="math inline">\([-B, B]\)</span> and <span class="math inline">\(v\)</span> be its extension to <span class="math inline">\(\reals\)</span>. Let <span class="math inline">\(\bar w = \bar{\mathcal B} \bar v\)</span> and let <span class="math inline">\(w\)</span> be the extension of <span class="math inline">\(\bar w\)</span> to <span class="math inline">\(\reals\)</span>. Then, show that <span class="math inline">\(w = \mathcal B v\)</span>.</p></li>
+<li><p>Now, argue that truncating the state to an interval <span class="math inline">\([-B, B]\)</span>, where <span class="math inline">\(B &gt; e_0\)</span> does not affect the search for an optimal policy.</p></li>
+</ol></li>
+<li><p>Consider a discounted cost infinite horizon MDP where <span class="math inline">\(\ALPHABET X = \reals\)</span>, <span class="math inline">\(\ALPHABET U = [-B, B]\)</span>. The dynamics are deterministic and are given by <span class="math display">\[ x_{t+1} = a x_t + b u_t, \]</span> where <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> are positive constants. The per-step cost is given by <span class="math display">\[c(x,u) = q |x| + r u^2, \]</span> where <span class="math inline">\(q\)</span> and <span class="math inline">\(r\)</span> are positive constants.</p>
+<p>Show that the above model is Lipschitz and find sufficient conditions on <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, <span class="math inline">\(c\)</span>, <span class="math inline">\(d\)</span>, under which the value function is Lipschitz and find an upper bound on the Lipschitz constant of the value function.</p></li>
+</ol>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 02 Jan 2020</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

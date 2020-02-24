@@ -1,54 +1,71 @@
 ---
 title: Assignment 7
 marks: 10
-due: 4 April, 2018
-draft: true
+due: 5 March, 2018
 ---
 
-1. A person is offered $N$ free plays to be distributed as he pleases between
-   two slot machines $A$ and $B$. Machine $A$ pays $\alpha$ dollars with known
-   probability $s$ and nothing with probability $(1-s)$. Machine $B$ pays
-   $\beta$ dollars with probability $p$ and nothing with probability $(1-p)$.
-   The person does not know $p$ but has an a priori probability distribution
-   function $f(p)$ for $p$. The problem is to find a playing policy that
-   maximizes expected profit.
+1. Exercise 1 of [notes on Lipschitz MDPs][lipschitz].
 
-     Suppose at the $t$-th time step, the person has played machine $B$, $m + n$
-     times, where $m$ denotes the number of successes and $n$ the number of
-     failures. Let $\xi(m,n)$ denote the probability that the next play of
-     machine $B$ will yield a success, that is,
-     $$\xi(m,n) = \frac {\int_{0}^1 p^{m+1} (1 - p)^n f(p) dp }
-                        {\int_{0}^1 p^m     (1 - p)^n f(p) dp }$$
-     Note that $\xi(m,n)$ can be precomputed for all values of $m$ and $n$. 
 
-     a. Show that $(m,n)$ is an information state for the above problem. 
-     b. Write down a dynamic program in terms of $(m,n)$. 
-     c. Find an optimal strategy for $T = 6$, $\alpha = \beta = 1$, $s = 0.6$,
-        $f(p) = 1$ for $0 \le p \le 1$. (For each time, you need to identify the
-        pairs $(m,n)$ where machine $B$ should be playerd.)
+[lipschitz]: ../../inf-mdp/lipschitz-mdp#exercises
 
-2. Consider the following modification of the sequential hypothesis testing
-   problem considered in class. As in the model discussed in class, there are
-   two hypothesis $h_0$ and $h_1$. The a priori probability that the hypothesis
-   is $h_0$ is $p$.
+2. The purpose of this exercise is to justify the truncation of the state
+   space, as we did in in the example of state transmission in Internet of
+   Things considered in [Assignment 3](../03). Consider the infinite
+   horizon discounted cost version of that example.
 
-      In contrast to the model discussed in class, there are $N$ sensors. If
-      sensor $m$ is used at time $t$ and the underlying hypothesis is $h_i$,
-      then the observation $Y_t$ is distrubted according to pdf (or pmf)
-      $f^m_j(y)$. The cost of using sensor $m$ is $c_m$. 
+   a. In Exercise 1 of [monotone MDPs](../../mdp/monotone-mdp#exercises), we
+   have already established that the optimal policy is even and quasi-convex.
+   Since the action space is binary, this means that the optimal policy is of
+   the form
+   $$ g(e) = \begin{cases}
+      0, & |e| \le k, \\
+      1, & |e| > k.
+    \end{cases}. $$
 
-      Whenever the decision maker takes a measurement, he picks a sensor $m$
-      uniformly at random from $\{1, \dots, N\}$ and observes $Y_t$ according to
-      the distribution $f^m_j(\cdot)$ and incurs a cost $c_m$. 
+      Our first step is to obtain a bound on $k$. Let $e_0 = \sqrt{λ/(1-β)}$.
+      Argue that for any $e \not\in [-e_0, e_0]$, the per-step cost of
+      not-transmitting at the current time is greater than transmitting at each
+      step in the future. Thus, at any $e \not\in [-e_0, e_0]$, the optimal
+      action is to transmit (i.e., $u = 1$). Thus, the optimal threshold $k
+      \le e_0$. 
 
-      The system continues for a finite time $T$. At each time $t < T$, the
-      decision maker has three options: stop and declare $h_0$, stop and declare
-      $h_1$, or continue to take another measurement. At time $T$, the continue
-      alternative is unavailable.
+   b. Now pick a $B > e_0$ and let $\bar p(e_{+} | e, u)$ denote the
+      truncation of $p(e_{+} | e, u)$ to the interval $[-B, B]$ as descibed in
+      [Assignment 3](../03). 
 
-      a. Formulate the above problem as a POMDP. Identify an information state
-         and write the dynamic programming decomposition for the problem.
+        Now consider a family $\mathcal F$ of even and quasi-convex functions
+        where for any $v \in \mathcal F$, the function is constant in the
+        interval $(-∞, -B] \cup [B, ∞)$. Show that for any $v \in \mathcal F$,
 
-      b. Show that the optimal control law has a threshold property, similar to
-         the threshold propertly for the model considered in class.
+        $$ \int_{-B}^B v(e_{+}) \bar p(e_{+} | e, u) de_{+} = 
+           \int_{-∞}^∞ v(e_{+})      p(e_{+} | e, u) de_{+}. $$
 
+    c. Note that for any function $\bar w \colon [-B, B] \to \reals$, can be
+       considered an extension $w \colon \reals \to \reals$ as follows: 
+       $$ w(e) = \begin{cases}
+            \bar w(-B), & e \le -B \\
+            \bar w(e) , & -B < e < B \\
+            \bar w(B) , & B \le e.
+          \end{cases}$$
+
+       Let $\mathcal B$ $\bar {\mathcal B}$ denote the Bellman update in the
+       original and truncated model, respectively. Let $\bar v$ be any
+       even and quasi-convex function on $[-B, B]$ and $v$ be its extension to
+       $\reals$. Let $\bar w = \bar{\mathcal B} \bar v$ and let $w$ be the
+       extension of $\bar w$ to $\reals$. Then, show that $w = \mathcal B v$. 
+
+    d. Now, argue that truncating the state to an interval $[-B, B]$, where $B
+       > e_0$ does not affect the search for an optimal policy. 
+
+3. Consider a discounted cost infinite horizon MDP where $\ALPHABET X =
+   \reals$, $\ALPHABET U = [-B, B]$. The dynamics are deterministic and are
+   given by
+   $$ x_{t+1} = a x_t + b u_t, $$
+   where $a$ and $b$ are positive constants. The per-step cost is given by
+   $$c(x,u) = q |x| + r u^2, $$
+   where $q$ and $r$ are positive constants. 
+
+     Show that the above model is Lipschitz and find sufficient conditions on
+     $a$, $b$, $c$, $d$, under which the value function is Lipschitz and find
+     an upper bound on the Lipschitz constant of the value function.
