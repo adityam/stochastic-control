@@ -165,15 +165,32 @@ Therefore, the optimal policy is increasing in $x$.&nbsp;$\Box$
 
 ### Monotonicity of optimal policy in channel state
 
-It is not possible to obtain the monotonicity of optimal policy in channel
-state in general. To see why this is difficult, let us impose a mild
-assumption on the arrival distribution.
+It is natural to expect that for a fixed $x$ the optimal policy is decreasing
+in $s$. However, it is not possible to obtain the monotonicity of optimal
+policy in channel state in general. To see why this is difficult, let us
+impose a mild assumption on the arrival distribution.
 
 Assump. #ass:Pw
 
 :   The packet arrival distribution is weakly decreasing, i.e., for any $v,w
     \in \integers_{\ge 0}$ such that $v \le w$, we have that $P_W(v) \ge
     P_W(w)$. 
+
+We first start with a slight generalization of stochastic monotonicity result.
+
+::: highlight :::
+
+Lemma #lem:littlewood
+
+:  Let $\{p_i\}_{i \ge 0}$ and $\{q_i\}_{i \ge 0}$ be real-valued non-negative
+sequences satisfying
+$$ \sum_{i \le j} p_i \le \sum_{i \le j} q_i, \quad \forall j.$$
+Then, for any increasing sequence $\{v_i\}_{i \ge 0}$, we have
+$$ \sum_{i = 0}^\infty p_i v_i \ge \sum_{i=0}^\infty q_i v_i. $$
+
+:::
+
+The proof is similar to the proof for stochastic monotonicity. 
 
 ::: highlight :::
 
@@ -191,11 +208,11 @@ Fix $y^+, y^- \in \integers_{\ge 0}$ and $s^+, s^- \in \ALPHABET S$ such that
 $y^+ > y^-$ and $s^+ > s^-$. Now, for any $y' \in \integers_{\ge 0}$ and $s'
 \in \ALPHABET S$ define
 $$\begin{align*}
-  π(y',s') = \tfrac12 P_W(y' - y^+)P_S(s'|s^+) + 
-             \tfrac12 P_W(y' - y^-)P_S(s'|s^-), 
+  π(y',s') = P_W(y' - y^+)P_S(s'|s^+) + 
+             P_W(y' - y^-)P_S(s'|s^-), 
              \\
-  μ(y',s') = \tfrac12 P_W(y' - y^-)P_S(s'|s^+) + 
-             \tfrac12 P_W(y' - y^+)P_S(s'|s^-).
+  μ(y',s') = P_W(y' - y^-)P_S(s'|s^+) + 
+             P_W(y' - y^+)P_S(s'|s^-).
 \end{align*}$$
 
 Since $P_S$ is stochastically monotone, we have that for any $σ \in \ALPHABET
@@ -207,10 +224,12 @@ $$ [P_W(y' - y^+) - P_W(y' - y^-)] \sum_{s'=1}^{σ} P_S(s'|s^+)
 \le [P_W(y' - y^+) - P_W(y' - y^-)]\sum_{s'=1}^{σ} P_S(s'|s^-). $$
 Rearranging terms, we get 
 $$ \sum_{s'=1}^σ π(y',s') \le \sum_{s'=1}^σ μ(y',s'). $$
-Thus, for any $y'$, $π(y',s') \succeq_s μ(y',s')$. 
+Thus, for any $y'$, the sequence $π(y',s')$ and $ν(y',s')$ satisfy the
+condition of [Lemma #](#lem:littlewood). 
 
 Now, in [Lemma #](#lem:increasing), we have established that for any $y'$,
-$V_{t+1}(y',s')$ is increasing in $s'$. Thus, 
+$V_{t+1}(y',s')$ is increasing in $s'$. Thus, from [Lemma #](#lem:littlewood),
+we have
 $$  \sum_{s' \in \ALPHABET S} π(y', s') V_{t+1}(y', s') 
 \ge \sum_{s' \in \ALPHABET S} μ(y', s') V_{t+1}(y', s'), $$
 Summing up over $y'$, we get
@@ -250,21 +269,6 @@ function $p(u)q(s)$ is increasing in both variables and therefore supermodular
 in $(u,s)$. Therefore, we cannot say anything specific about
 p(u)q(s) + H_t(x-u, s)$ which is a sum of submodular and supermodular
 functions.&nbsp;$\Box$
-
-
-Remark
-
-:   There is a minor annoyance with the result, which is part of the reason
-    why [Theorem #](#thm:monotone-queue) and [Theorem #](#thm:monotone-channel) 
-    are stated in terms of "_there is an optimal
-    policy_". For the monotonicity result of [Theorem #](#thm:monotone-queue)
-    to hold, the optimal policy has to be defined as 
-    $$ g^*_t(x,s) = \max \Big\{ u \in \arg \min_{0 \le u \le x} \cdots \Big\}. $$
-    However, for the monotonicity result of [Theorem #](#thm:monotone-channel)
-    to hold, the optimal policy has to be defined as 
-    $$ g^*_t(x,s) = \min \Big\{ u \in \arg \min_{0 \le u \le x} \cdots \Big\}. $$
-    Thus, we are not able to establish that the same optimal policy is
-    increasing in the queue length and decreasing in the channel state. 
 
 ---
 

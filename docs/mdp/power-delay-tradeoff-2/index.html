@@ -104,28 +104,37 @@
 <p>[ One can show this by finite difference, but for simplicity, we assume that <span class="math inline">\(H_t(y,s)\)</span> is twice differentiable. Then, <span class="math inline">\(\partial^2 H_t(x - u, s)/ \partial x \partial u \le 0\)</span> (by convexity of <span class="math inline">\(H_t\)</span>). ]</p>
 <p>Thus, for a fixed <span class="math inline">\(s\)</span>, <span class="math inline">\(p(u)q(s) + H_t(x-u, s)\)</span> is submodular in <span class="math inline">\((x,u)\)</span>. Therefore, the optimal policy is increasing in <span class="math inline">\(x\)</span>. <span class="math inline">\(\Box\)</span></p>
 <h3 id="monotonicity-of-optimal-policy-in-channel-state">Monotonicity of optimal policy in channel state</h3>
-<p>It is not possible to obtain the monotonicity of optimal policy in channel state in general. To see why this is difficult, let us impose a mild assumption on the arrival distribution.</p>
+<p>It is natural to expect that for a fixed <span class="math inline">\(x\)</span> the optimal policy is decreasing in <span class="math inline">\(s\)</span>. However, it is not possible to obtain the monotonicity of optimal policy in channel state in general. To see why this is difficult, let us impose a mild assumption on the arrival distribution.</p>
 <dl>
 <dt><span id="ass:Pw" class="pandoc-numbering-text ass"><strong>Assump. 1</strong></span></dt>
 <dd><p>The packet arrival distribution is weakly decreasing, i.e., for any <span class="math inline">\(v,w \in \integers_{\ge 0}\)</span> such that <span class="math inline">\(v \le w\)</span>, we have that <span class="math inline">\(P_W(v) \ge P_W(w)\)</span>.</p>
 </dd>
 </dl>
+<p>We first start with a slight generalization of stochastic monotonicity result.</p>
 <div class="highlight">
-<p><span id="lem:submodularity" class="pandoc-numbering-text lem"><strong>Lemma 3</strong></span></p>
+<dl>
+<dt><span id="lem:littlewood" class="pandoc-numbering-text lem"><strong>Lemma 3</strong></span></dt>
+<dd><p>Let <span class="math inline">\(\{p_i\}_{i \ge 0}\)</span> and <span class="math inline">\(\{q_i\}_{i \ge 0}\)</span> be real-valued non-negative sequences satisfying <span class="math display">\[ \sum_{i \le j} p_i \le \sum_{i \le j} q_i, \quad \forall j.\]</span> Then, for any increasing sequence <span class="math inline">\(\{v_i\}_{i \ge 0}\)</span>, we have <span class="math display">\[ \sum_{i = 0}^\infty p_i v_i \ge \sum_{i=0}^\infty q_i v_i. \]</span></p>
+</dd>
+</dl>
+</div>
+<p>The proof is similar to the proof for stochastic monotonicity.</p>
+<div class="highlight">
+<p><span id="lem:submodularity" class="pandoc-numbering-text lem"><strong>Lemma 4</strong></span></p>
 <p>Under <a href="#ass:Pw">Assump. 1</a>, for all <span class="math inline">\(t\)</span>, <span class="math inline">\(H_t(y,s)\)</span> is supermodular in <span class="math inline">\((y,s)\)</span>.</p>
 </div>
 <h4 id="proof-3">Proof</h4>
 <p>The idea of the proof is similar to <a href="../monotonicity/#lem:sufficient">Lemma 1</a> of the notes on monotone MDPs.</p>
 <p>Fix <span class="math inline">\(y^+, y^- \in \integers_{\ge 0}\)</span> and <span class="math inline">\(s^+, s^- \in \ALPHABET S\)</span> such that <span class="math inline">\(y^+ &gt; y^-\)</span> and <span class="math inline">\(s^+ &gt; s^-\)</span>. Now, for any <span class="math inline">\(y&#39; \in \integers_{\ge 0}\)</span> and <span class="math inline">\(s&#39; \in \ALPHABET S\)</span> define <span class="math display">\[\begin{align*}
-  π(y&#39;,s&#39;) = \tfrac12 P_W(y&#39; - y^+)P_S(s&#39;|s^+) + 
-             \tfrac12 P_W(y&#39; - y^-)P_S(s&#39;|s^-), 
+  π(y&#39;,s&#39;) = P_W(y&#39; - y^+)P_S(s&#39;|s^+) + 
+             P_W(y&#39; - y^-)P_S(s&#39;|s^-), 
              \\
-  μ(y&#39;,s&#39;) = \tfrac12 P_W(y&#39; - y^-)P_S(s&#39;|s^+) + 
-             \tfrac12 P_W(y&#39; - y^+)P_S(s&#39;|s^-).
+  μ(y&#39;,s&#39;) = P_W(y&#39; - y^-)P_S(s&#39;|s^+) + 
+             P_W(y&#39; - y^+)P_S(s&#39;|s^-).
 \end{align*}\]</span></p>
 <p>Since <span class="math inline">\(P_S\)</span> is stochastically monotone, we have that for any <span class="math inline">\(σ \in \ALPHABET S\)</span>, <span class="math display">\[ \sum_{s&#39;=1}^{σ} P_S(s&#39;|s^+) \le \sum_{s&#39;=1}^{σ} P_S(s&#39;|s^-). \]</span> Moreover, due to <a href="#ass:Pw">Assump. 1</a>, we have that <span class="math inline">\(P_W(y&#39; - y^-) \le P_W(y&#39; - y^+)\)</span>. Thus, <span class="math display">\[ [P_W(y&#39; - y^+) - P_W(y&#39; - y^-)] \sum_{s&#39;=1}^{σ} P_S(s&#39;|s^+) 
-\le [P_W(y&#39; - y^+) - P_W(y&#39; - y^-)]\sum_{s&#39;=1}^{σ} P_S(s&#39;|s^-). \]</span> Rearranging terms, we get <span class="math display">\[ \sum_{s&#39;=1}^σ π(y&#39;,s&#39;) \le \sum_{s&#39;=1}^σ μ(y&#39;,s&#39;). \]</span> Thus, for any <span class="math inline">\(y&#39;\)</span>, <span class="math inline">\(π(y&#39;,s&#39;) \succeq_s μ(y&#39;,s&#39;)\)</span>.</p>
-<p>Now, in <a href="#lem:increasing">Lemma 1</a>, we have established that for any <span class="math inline">\(y&#39;\)</span>, <span class="math inline">\(V_{t+1}(y&#39;,s&#39;)\)</span> is increasing in <span class="math inline">\(s&#39;\)</span>. Thus, <span class="math display">\[  \sum_{s&#39; \in \ALPHABET S} π(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;) 
+\le [P_W(y&#39; - y^+) - P_W(y&#39; - y^-)]\sum_{s&#39;=1}^{σ} P_S(s&#39;|s^-). \]</span> Rearranging terms, we get <span class="math display">\[ \sum_{s&#39;=1}^σ π(y&#39;,s&#39;) \le \sum_{s&#39;=1}^σ μ(y&#39;,s&#39;). \]</span> Thus, for any <span class="math inline">\(y&#39;\)</span>, the sequence <span class="math inline">\(π(y&#39;,s&#39;)\)</span> and <span class="math inline">\(ν(y&#39;,s&#39;)\)</span> satisfy the condition of <a href="#lem:littlewood">Lemma 3</a>.</p>
+<p>Now, in <a href="#lem:increasing">Lemma 1</a>, we have established that for any <span class="math inline">\(y&#39;\)</span>, <span class="math inline">\(V_{t+1}(y&#39;,s&#39;)\)</span> is increasing in <span class="math inline">\(s&#39;\)</span>. Thus, from <a href="#lem:littlewood">Lemma 3</a>, we have <span class="math display">\[  \sum_{s&#39; \in \ALPHABET S} π(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;) 
 \ge \sum_{s&#39; \in \ALPHABET S} μ(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;), \]</span> Summing up over <span class="math inline">\(y&#39;\)</span>, we get <span class="math display">\[  \sum_{y&#39; \in \integers_{\ge 0}} \sum_{s&#39; \in \ALPHABET S} π(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;) 
 \ge \sum_{y&#39; \in \integers_{\ge 0}} \sum_{s&#39; \in \ALPHABET S} μ(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;), \]</span> Or equivalently, <span class="math display">\[\begin{align*}
 \hskip 2em &amp; \hskip -2em
@@ -144,11 +153,6 @@
 </div>
 <h4 id="proof-4">Proof</h4>
 <p>Note that we have established that <span class="math inline">\(H_t(y,s)\)</span> is supermodular in <span class="math inline">\((y,s)\)</span>. Thus, for any fixed <span class="math inline">\(x\)</span>, <span class="math inline">\(H_t(x-u,s)\)</span> is submodular in <span class="math inline">\((u,s)\)</span>. Furthermore the function <span class="math inline">\(p(u)q(s)\)</span> is increasing in both variables and therefore supermodular in <span class="math inline">\((u,s)\)</span>. Therefore, we cannot say anything specific about p(u)q(s) + H_t(x-u, s)$ which is a sum of submodular and supermodular functions. <span class="math inline">\(\Box\)</span></p>
-<dl>
-<dt>Remark</dt>
-<dd><p>There is a minor annoyance with the result, which is part of the reason why <a href="#thm:monotone-queue">Theorem 1</a> and <a href="#thm:monotone-channel">Theorem 2</a> are stated in terms of “<em>there is an optimal policy</em>”. For the monotonicity result of <a href="#thm:monotone-queue">Theorem 1</a> to hold, the optimal policy has to be defined as <span class="math display">\[ g^*_t(x,s) = \max \Big\{ u \in \arg \min_{0 \le u \le x} \cdots \Big\}. \]</span> However, for the monotonicity result of <a href="#thm:monotone-channel">Theorem 2</a> to hold, the optimal policy has to be defined as <span class="math display">\[ g^*_t(x,s) = \min \Big\{ u \in \arg \min_{0 \le u \le x} \cdots \Big\}. \]</span> Thus, we are not able to establish that the same optimal policy is increasing in the queue length and decreasing in the channel state.</p>
-</dd>
-</dl>
 <hr />
 <h2 id="references">References</h2>
 <p>The mathematical model of power-delay trade-off is taken from <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000">2000</a>)</span>, where the monotonicty results were proved using first principles. More detailed characterization of the optimal transmission strategy when the average power or the average delay goes to zero are provided in <span class="citation" data-cites="Berry2002">Berry and Gallager (<a href="#ref-Berry2002">2002</a>)</span> and <span class="citation" data-cites="Berry2013">Berry (<a href="#ref-Berry2013">2013</a>)</span>. A related model is presented in <span class="citation" data-cites="Ding2016">Ding et al. (<a href="#ref-Ding2016">2016</a>)</span>.</p>
