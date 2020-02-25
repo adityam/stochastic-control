@@ -24,19 +24,20 @@ space $\ALPHABET X$. In particular, let $\{\ALPHABET X_1, \dots \ALPHABET
 X_n\}$ denote a partition of $\ALPHABET X$ (i.e., $\bigcup_{i=1}^n \ALPHABET
 X_i = \ALPHABET X$ and for any $i \neq j$, $\ALPHABET X_i \cap \ALPHABET X_j =
 \emptyset$). Pick a representative point $x_i \in \ALPHABET X_i$ and consider
-the "grid" $\hat {\ALPHABET X} = \{x_1, \dots, x_n\}$ as the state space of
-the discretized MDP. We consider a finite state MDP $\hat M = (\hat {\ALPHABET
-X}, \ALPHABET U, \hat c, \hat P)$, where $\hat c$ is the restriction of $c$
-onto $\hat {\ALPHABET X}$, and $\hat P$ is given by $$\hat P(x_j | x_i, u) =
+the "grid" $\bar {\ALPHABET X} = \{x_1, \dots, x_n\}$ as the state space of
+the discretized MDP. We consider a finite state MDP $\bar M = (\bar {\ALPHABET
+X}, \ALPHABET U, \bar c, \bar P)$, where $\bar c$ is the restriction of $c$
+onto $\bar {\ALPHABET X}$, and $\bar P$ is given by $$\bar P(x_j | x_i, u) =
 \int_{\ALPHABET X_j} p(y | x_i, u) dy = p(\ALPHABET X_j | x_i, u). $$
 
 Let's consider infinite horizon discounted setup. Let $V \colon \ALPHABET X \to
-\reals$ and $g \colon \ALPHABET X \to \ALPHABET U$ be the value function of
-the original MDP $M$ and let $\hat W \colon \hat {\ALPHABET X} \to \reals$
-and $\hat h \colon \hat {\ALPHABET X} \to \ALPHABET U$ be the value function
-and policy of the discretized MDP $\hat M$. Define $W \colon \ALPHABET X \to
+\reals$ and $g \colon \ALPHABET X \to \ALPHABET U$ be the value function and
+optimal policy of
+the original MDP $M$ and let $\bar W \colon \bar {\ALPHABET X} \to \reals$
+and $\bar h \colon \bar {\ALPHABET X} \to \ALPHABET U$ be the value function
+and optimal policy of the discretized MDP $\bar M$. Define $W \colon \ALPHABET X \to
 \reals$ and $h \colon \ALPHABET X \to \reals$ to be piecewise constant
-extrapolation of $\hat W$ and $\hat h$ from $\hat {\ALPHABET X}$ to
+extrapolation of $\bar W$ and $\bar h$ from $\bar {\ALPHABET X}$ to
 $\ALPHABET X$.
 
 Note that the policy $h$ is choosing the same action on all states in
@@ -51,7 +52,7 @@ We are interested in two questions:
 We will answer these questions under the assumption that $M$ is a $(L_c,
 L_p)$-Lipschitz MDP. In particular, we make the following assumptions:
 
-Assumptions
+Assumpt. #
 
 :   * $(\ALPHABET X, d_X)$ is a bounded metric space
     * For every $u \in \ALPHABET U$, $c(\cdot, u)$ is $L_c$-Lipschitz.
@@ -64,34 +65,34 @@ d_X(x,y)$. Since $d_X$ is assumed to be bounded, diameter of any subset of
 $\ALPHABET X$ is finite. Let $d := \max_{1 \le i \le n} \text{diam}(\ALPHABET
 X_i)$ denote the largest diameter of the grid cells $\ALPHABET X_i$. 
 
-Let $\mathcal B$ and $\hat {\mathcal B}$ denote the Bellman update
-operators for MDP $M$ and $\hat M$. 
+Let $\mathcal B$ and $\bar {\mathcal B}$ denote the Bellman update
+operators for MDP $M$ and $\bar M$. 
 
 ::: highlight :::
 
 Lemma #lem:update
 
-:    For any function $\hat w \colon \hat {\ALPHABET X} \to \reals$, let $w
+:    For any function $\bar w \colon \bar {\ALPHABET X} \to \reals$, let $w
      \colon \ALPHABET X \to \reals$ be the piecewise constant extrapolation of
-     $\hat w$ from $\hat {\ALPHABET X}$ to $\ALPHABET X$. Then for any $x_i
-     \in \hat {\ALPHABET X}$, 
-     $$ [\hat {\mathcal B} \hat w](x_i) = [\mathcal B w](x_i).$$
+     $\bar w$ from $\bar {\ALPHABET X}$ to $\ALPHABET X$. Then for any $x_i
+     \in \bar {\ALPHABET X}$, 
+     $$ [\bar {\mathcal B} \bar w](x_i) = [\mathcal B w](x_i).$$
 :::
 
 Remark
 
-:   The above result states that $\hat {\mathcal B} \hat w$ and $\mathcal B w$
+:   The above result states that $\bar {\mathcal B} \bar w$ and $\mathcal B w$
     agree on the grid points $\{x_1, \dots, x_n\}$.
 
 #### Proof
 
 Observe that
 $$\begin{align}
-  [\hat {\mathcal B} \hat w](x_i) &= \min_{u \in \ALPHABET U}
-  \Bigl\{ c(x_i, u) + β \sum_{j=1}^n \hat P(x_j | x_i, u) \hat w(x_j)\Bigr\} 
+  [\bar {\mathcal B} \bar w](x_i) &= \min_{u \in \ALPHABET U}
+  \Bigl\{ c(x_i, u) + β \sum_{j=1}^n \bar P(x_j | x_i, u) \bar w(x_j)\Bigr\} 
   \notag \\
   &= \min_{u \in \ALPHABET U} \Bigl\{
-      c(x_i, u) + β \sum_{j=1}^n p(\ALPHABET X_j | x_i, u) \hat w(x_j) \Bigr\}
+      c(x_i, u) + β \sum_{j=1}^n p(\ALPHABET X_j | x_i, u) \bar w(x_j) \Bigr\}
   \notag \\
   &= \min_{u \in \ALPHABET U} \Bigl\{
       c(x_i, u) + β \sum_{j=1}^n \int_{\ALPHABET X_j} p(y | x_i, u) w(y)dy \Bigr\}
@@ -106,17 +107,17 @@ $$\begin{align}
 
 Lemma #lem:fixed
 
-:   For any grid point $\hat x_i \in \hat {\ALPHABET X}$, we have
-    $$ |V(x_i) - \hat W(x_i)| \le β \| V - W \|. $$
+:   For any grid point $\bar x_i \in \bar {\ALPHABET X}$, we have
+    $$ |V(x_i) - \bar W(x_i)| \le β \| V - W \|. $$
 
 :::
 
 #### Proof
 
-Note that $\hat W(x_i) = [\hat {\mathcal B} \hat W](x_i) = [\mathcal B
+Note that $\bar W(x_i) = [\bar {\mathcal B} \bar W](x_i) = [\mathcal B
 W](x_i)$, where the last equality follows from [Lemma #](#lem:update). Thus,
 $$\begin{align}
-  |V(x_i) - \hat W(x_i)| &= | [\mathcal B V](x_i) - [\mathcal B W](x_i) | 
+  |V(x_i) - \bar W(x_i)| &= | [\mathcal B V](x_i) - [\mathcal B W](x_i) | 
   \notag \\
   &\le \| \mathcal BV - \mathcal BW \| 
   \notag \\
@@ -143,59 +144,202 @@ MDPs.
 Now, consider a state $x \in \ALPHABET X_i$. Then,
 $$\begin{align*}
 | V(x) - W(x) | &\le | V(x) - V(x_i)| + |V(x_i) - W(x)| \\
-&\le L_v d_X(x, x_i) + | V(x_i) - \hat W(x_i)| \\
+&\le L_v d_X(x, x_i) + | V(x_i) - \bar W(x_i)| \\
 &\stackrel{(a)}\le L_v d + β\| V - W\|
 \end{align*}$$
 where (a) follows from [Lemma #](#lem:update). We get the result by
 rearranging terms.&nbsp;$\Box$
 
-## State compression (Latent space)
+## State abstraction or compression (Latent space models)
+
+Let $M = (\ALPHABET X, \ALPHABET U, p, c)$ be an MDP with discrete or
+continuous state space. Let $(\bar {\ALPHABET X}, d_{\bar X})$ be a metric
+space. Consider a _compression_ or an _abstraction_ function $φ \colon
+\ALPHABET X \to \bar {\ALPHABET X}$. For any $x \in \ALPHABET X$, $φ(x)$ is
+the compressed or abstract state corresponding to the ground state $x$ and the
+inverse image $φ^{-1}(\bar x)$ with $\bar x \in \bar {\ALPHABET X}$ is the
+set of ground states that correspond to $\bar x$ under abstraction function
+$φ$.  Note that $\{ φ^{-1}(\bar x) \mid \bar x \in \bar {\ALPHABET X} \}$
+partitions the state space $\ALPHABET X$. 
+
+We want to define an abstract or compressed MDP $\bar M = (\bar {\ALPHABET X},
+\ALPHABET U, \bar p, \bar c)$. Unlike the situation with state quantization
+where $\bar {\ALPHABET X}$ was a subset of $\ALPHABET X$, here we have not
+imposed any relationship between $\bar {\ALPHABET X}$ and $\ALPHABET X$.
+Therefore, to define $\bar p$ and $\bar c$, we need a weighting function $α 
+\colon \ALPHABET X \to [0, 1]$, such that for each $\bar x \in \bar {\ALPHABET
+ X}$, $\int_{x \in φ^{-1}(\bar x)} α(x) = 1$. Then, for any $\bar x, \bar y
+ \in \bar{\ALPHABET  X}$, define
+ $$\bar c(\bar x, u) = \int_{x \in φ^{-1}(\bar x)} α(x)c(x,u)dx, \qquad
+ \bar p(\bar y | \bar x, u) = 
+ \int_{x \in φ^{-1}(\bar x)} α(x) \int_{y \in φ^{-1}(\bar y)}
+ p(y | x, u) dx dy. $$
+
+Now, as before, suppose $V \colon \ALPHABET X \to \reals$ and $g \colon
+\ALPHABET X \to \ALPHABET U$ are the value function and the optimal policy of
+the original MDP $M$ and $\bar W \colon \bar{\ALPHABET X} \to \reals$ and
+$\bar h \colon \bar {\ALPHABET X} \to \ALPHABET U$ be the value function and
+optimal policy of the abstract MDP $\bar M$. Define $W \colon \ALPHABET X \to
+\reals$ and $h \colon \ALPHABET X \to \ALPHABET U$ as $W = \bar W ∘ φ$ and $h
+= \bar h ∘ φ$. 
+
+We are interested in two questions:
+
+1. What is the error if $W$ is used as an approximation for $V$?
+2. What is the error if the policy $h$ is used instead of policy $g$?
+
+We will answer these questions under the assumption that $\bar M$ is a
+$(L_{\bar c}, L_{\bar p})$-Lipschitz. In particular, we will make the
+following assumptions:
+
+Assumpt. #
+
+:   * $(\bar {\ALPHABET X}, d_{\bar X})$ is a bounded metric space
+    * For every $u \in \ALPHABET U$, $\bar c(\cdot, u)$ is $L_{\bar c}$-Lipschitz.
+    * For every $u \in \ALPHABET U$, $\bar p(\cdot | \bar x, u)$ is $L_{\bar
+      p}$-Lipschitz (with respect to the Kantorovich distance on probability
+      measures). 
+
+Note that this is different than state quantization where we were assuming
+that the original MDP $M$ is Lipschitz. In this model, we haven't even assumed
+that the original state space is a metric space.
+
+For any $x \in \ALPHABET X$ and $\bar y \in \bar {\ALPHABET X}$, define
+$$ \hat p(\bar y | x, u) = \int_{y \in φ^{-1}(\bar y)} p(y| x, u) dy. $$
+Define
+$$\begin{align*}
+  L_c^∞ &= \sup_{x \in \ALPHABET X, u \in \ALPHABET U} \big| c(x,u) - \bar c(φ(x),
+u) \bigr|, \\
+ L_p^∞ &= \sup_{x \in \ALPHABET X, u \in \ALPHABET U} 
+ K(\hat p(⋅ | x, u), \bar p(⋅ | φ(x), u)).
+\end{align*}$$
 
 ::: highlight :::
 Lemma #lem:policy
 
-:   Suppose the value function $W$ is Lipschitz with Lipschitz constant $L_W$.
+:   Suppose the value function $\bar W$ is Lipschitz with Lipschitz constant $L_{\bar W}$.
     Then
-    $$ \| V_h(x) - W(x) \| \le \frac{L_c + β L_W L_p}{1 - β} d. $$
+    $$ \| V_h(x) - W(x) \| \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. $$
 :::
 
 #### Proof
 
-Consider a state $x \in \ALPHABET X_i$. Then,
+Consider a state $x \in \ALPHABET X$. Then,
 $$\begin{align}
-  |V_h(x) - W(x)| &= | V_h(x) - \hat W(x_i) | \notag \\
-  &\stackrel{(a)}\le |c(x, h(x)) - c(x_i, h(x_i))| + 
-  β \left| \int p(y | x, h(x)) V_h(y)dy - \int p(y| x_i, h(x_i)) W(y) dy \right|
-  \notag \\
-  &\stackrel{(b)}\le |c(x, h(x_i)) - c(x_i, h(x_i))| + 
-  β \left| \int p(y | x, h(x_i)) V_h(y)dy - \int p(y| x_i, h(x_i)) W(y) dy \right|
+  |V_h(x) &- W(x)| = | V_h(x) - \bar W_{\bar h}(φ(x)) | \notag \\
+  &\stackrel{(a)}\le |c(x, h(x)) - \bar c(φ(x), \bar h(φ(x))| \notag \\
+  & \quad + 
+  β \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy -
+  \int_{\bar {\ALPHABET X}} p(\bar y| φ(x), \bar h(φ(x)) ) \bar W(\bar y) d \bar y \right|
   \label{eq:split}
 \end{align}$$
-where $(a)$ follows from triangle inequality and $(b)$ follows from the fact
-that $h(x) = h(x_i)$. Now, by Lipschitz continuity of $c$, we have
-$$\begin{equation}
-  |c(x, h(x_i)) - c(x_i, h(x_i))| \le L_c d_X(x_i, x) \le L_c d.
-  \label{eq:1st}
-\end{equation}$$
+where $(a)$ follows from triangle inequality. Recall that $h(x) = \bar
+h(φ(x))$. Thus, the first term is bounded by $L_c^∞$. 
 Now, let's consider the second term of \\eqref{eq:split}
 $$\begin{align}
   \hskip 2em & \hskip -2em
-  \left| \int p(y | x, h(x_i)) V_h(y)dy - \int p(y| x_i, h(x_i)) W(y) dy \right|
+  \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy -
+  \int_{\bar {\ALPHABET X}} p(\bar y| φ(x), \bar h(φ(x)) ) \bar W(\bar y) d \bar y \right|
   \notag \\
-  &\stackrel{(c)}\le 
-  \left| \int p(y | x, h(x_i)) V_h(y)dy - \int p(y| x, h(x_i)) W(y) dy \right|
+  &\stackrel{(b)}\le 
+  \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy 
+  - \int_{\ALPHABET X} p(y| x, h(x)) W(y) dy \right|
   \notag \\
   &\quad + 
-  \left| \int p(y | x, h(x_i)) W(y)dy - \int p(y| x_i, h(x_i)) W(y) dy \right|
+  \left| \int_{\ALPHABET X} p(y | x, h(x)) W(y)dy 
+  - \int_{\bar {\ALPHABET X}} \bar p(\bar y| φ(x), \bar h(\bar φ(x))) \bar W(\bar y) d\bar y \right|
   \notag \\
-  &\stackrel{(d)}\le \|V_h - W \| + L_p L_W d_X(x_i, x) \notag \\
-  &\le \|V_h - W \| + L_p L_W d
+  &\stackrel{(c)}\le 
+  \int_{\ALPHABET X} p(y | x, h(x)) \left| V_h(y) - W(y) \right| dy
+  \notag \\
+  &\quad + 
+  \left| \int_{\bar {\ALPHABET X}} \int_{y \in φ^{-1}(y)} p(y | x, h(x)) \bar W(\bar y) d y d\bar y 
+  - \int_{\bar {\ALPHABET X}} \bar p(\bar y| φ(x), \bar h(\bar φ(x))) \bar W(\bar y) d\bar y \right|
+  \notag \\
+  &\le \|V_h - W \| + L_{\bar W} L_p^∞ 
   \label{eq:2nd}
 \end{align}$$
-where $(c)$ follows from triangle inequality and the first term of $(d)$
+where $(b)$ follows from triangle inequality and the first term of $(c)$
 follows from triangle inequality and the second term follows from Lipschitz
 continuity of $W$ and the definition of Kantorovich distance. We get the
-result by substituting \\eqref{eq:1st} and \\eqref{eq:2nd} in
+result by substituting \\eqref{eq:2nd} in
 \\eqref{eq:split} and rearranging terms.&nbsp;$\Box$
 
+::: highlight :::
 
+Lemma #lem:value
+
+:   Suppose the value function $\bar W$ is Lipschitz with Lipschitz constant
+    $L_{\bar W}$. Then,
+    $$ | V_h(x_1) - V_h(x_2) | \le L_{\bar W} d_{\bar X}(φ(x_1), φ(x_2))
+    + 2 \frac{L_c^∞ + β L_{\bar W} L_P^∞}{1 - β}. $$
+::: 
+
+### Proof
+From the triangle inequality, we have
+$$|V_h(x_1) - V_h(x_2) | \le
+  |V_h(x_1) - W(x_1)| + |V_h(x_2) - W(x_2)| + |W(x_1) - W(x_2)|. $$
+
+Now, the first two terms can be bounded using [Lemma #](#lem:policy). To bound
+the third term, note that $W(x) = \bar W(φ(x))$. Thus, the third term is
+bounded by $L_{\bar W}d_{\bar X}(φ(x_1), φ(x_2))$. Substituting these back in
+the above equation, give the bounds of the Lemma.&nbsp;$\Box$ 
+
+::: highlight :::
+
+Theorem #thm:value-diff
+
+:   Suppose the value function $\bar W$ is Lipschitz with Lipschitz constant
+    $L_{\bar W}$. Then, 
+    $$ | V(x) - W(x) | \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. $$
+:::
+
+#### Proof
+
+The proof idea is similar to [Lemma #](#lem:policy). However, unlike the proof
+of [Lemma #](#lem:policy), the policy used in value function $V$ is not the
+same as the policy used in the value function $W$. Nonetheless, we can exploit
+the fact that the policy used is optimal for the respective models to get
+bounds on the difference. In particular, 
+$$ V(x) - W(x) \le V_h(x) - W(x) \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 -
+β}.$$
+
+To bound the other direction, note that 
+$$\begin{align*} W(x) &- V(x) = \bar W(φ(x)) - V(x) \\
+&\le \bar c(φ(x), g(x)) + β\int_{\bar {\ALPHABET X}} \bar p(\bar y | φ(x), g(x)) d\bar y 
+\\
+&\quad 
+ - \left[ c(x, g(x)) + β\int_{\ALPHABET X} p(y | x, g(x)) dy \right]. 
+\end{align*}$$
+We can now follow steps similar to [Lemma #](#lem:policy) to show that the
+above difference is bounded by $\frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}$. 
+
+Combining the two inequalities above establishes the result.&nbsp;$\Box$
+
+::: highlight :::
+Theorem #thm:perf-diff
+
+:   Suppose the value function $\bar W$ is Lipschitz with Lipschitz constant
+    $L_{\bar W}$. Then,
+    $$ |V(x) - V_h(x)| \le  2\frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. $$
+:::
+
+#### Proof
+
+From triangle inequality, we have
+$$ |V(x) - V_h(x)| \le |V(x) - W(x)| + |V_h(x) - W(x)|. $$
+The result then follows from [Lemma #](#lem:policy) and 
+[Theorem #](#thm:value-diff).&nbsp;$\Box$
+
+## References
+
+The material on state quantization is taken from @Hinderer2005. These results
+first appeared in @Bertsekas1975. 
+
+The material on state abstraction is taken from @Gelada2019. Surprisingly,
+@Gelada2019 do not completely specify how to construct $\bar c$ and $\bar p$.
+The construction for these functions is taken from @Li2006. There has been a
+lot of interest in understanding approximation bounds for state compression.
+See the references in @Gelada2019. 
+
+---
