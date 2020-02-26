@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="infinite horizon,discounted cost,Linear programming,Constrained MDPs" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG,https://adityam.github.io/stochastic-control/js/mathjax-local.js">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Theory: Linear Programming Formulation and Constrained MDPs</h1>
+
+<p><em>Note</em>: Throughout this section, we assume that <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET U\)</span> are finite and <span class="math inline">\(|\ALPHABET X|= n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>.</p>
+<p>We know that if <span class="math inline">\(V \le \mathcal B V\)</span> then <span class="math inline">\(V \le V^* = \mathcal B V^*\)</span>. Thus, <span class="math inline">\(V^*\)</span> is the “largest” <span class="math inline">\(V\)</span> that satisfies the constraint <span class="math inline">\(V \le \mathcal B V\)</span>. This constaint can be written as a finite system of linear equations: <span class="math display">\[\begin{equation} \label{eq:constaints}
+V(x) \le c(x,u) + β\sum_{y \in \ALPHABET X} P(y|x,u) V(y), 
+\qquad x \in \ALPHABET X, u \in \ALPHABET U.
+\end{equation}\]</span> This observation provides the basis for a linear programming formulation of the discounted MDP.</p>
+<h3 id="primal-linear-program">Primal Linear Program</h3>
+<p>Choose a weight function <span class="math inline">\(\pi \colon \ALPHABET X \to \reals_{\ge 0}\)</span> such that <span class="math inline">\(\sum_{x \in \ALPHABET X} \pi(x) = 1\)</span>. This can be thought of as the distribution of the initial state. Then the primal LP correspoding to \eqref{eq:constaints} is <span class="math display">\[\begin{gather}
+  \max \sum_{x \in \ALPHABET X} \pi(x) V(x) \notag \\
+  \text{subject to}\quad
+  V(x) - \beta \sum_{y \in \ALPHABET X} P(y|x,u)V(y) \le c(x,u), 
+  \quad \forall x \in \ALPHABET X, u \in \ALPHABET U.
+  \label{eq:primal}
+\end{gather}\]</span></p>
+<h3 id="dual-linear-program">Dual Linear Program</h3>
+<p>Now consider the dual version of the primal LP \eqref{eq:primal}. We associate a positive dual variable <span class="math inline">\(\mu(x,u)\)</span> for each constaint consider the following linear program: <span class="math display">\[\begin{gather}
+  \min \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) c(x,u)
+  \notag \\
+  \text{subject to}\quad
+  \mu(x,u) - \beta\sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U}
+  P(x | y, u) \mu(x,u) = \pi(x), \quad \forall x \in \ALPHABET X, \notag \\
+  \mu(x,u) \ge 0, \quad \forall x \in \ALPHABET X, u \in \ALPHABET U. 
+  \label{eq:dual}
+\end{gather}\]</span></p>
+<p>The primal LP has <span class="math inline">\(n\)</span> variables (<span class="math inline">\(V(1), V(2), \dots, V(n)\)</span>) and <span class="math inline">\(n \times m\)</span> constraints, while the dual LP has <span class="math inline">\(n \times m\)</span> variables. So, in general, the dual is more efficient to solve.</p>
+<h3 id="basic-solution-and-stationary-policies">Basic solution and stationary policies</h3>
+<p>We state the following results without proof. See <span class="citation" data-cites="Puterman2014">Puterman (<a href="#ref-Puterman2014">2014</a> Sec 6.9)</span> for details.</p>
+<ol type="1">
+<li><p>Let <span class="math inline">\(g\)</span> be any possibly randomized history dependent policy. Define the <em>occupancy measure</em></p>
+<p><span class="math display">\[\mu_g(x,u) = \sum_{z \in \ALPHABET X} \pi(z) 
+ \sum_{t=1}^\infty \beta^{t-1} \PR^{g}(X_t = x, U_t = u \mid X_1 = z).\]</span></p>
+<p>Then, <span class="math inline">\(\mu_g\)</span> is a feasible solution to the dual LP \eqref{eq:dual}.</p></li>
+<li><p>Suppose <span class="math inline">\(\mu(x,u)\)</span> is a feasible solution to the dual LP. Then for each <span class="math inline">\(x \in \ALPHABET X\)</span> such that <span class="math inline">\(\sum_{u \in \ALPHABET U} \mu(x,a) &gt; 0\)</span>, define a stationary randomized policy <span class="math inline">\(h\)</span> by <span class="math display">\[\begin{equation} \label{eq:policy}
+h(u|x) h_\mu(u|x) = \frac{ \mu(x,u) } { \displaystyle \sum_{u \in \ALPHABET U} \mu(x,u) }. 
+\end{equation} \]</span> Then, <span class="math inline">\(\mu_h\)</span> is a feasible solution to the dual LP and <span class="math inline">\(\mu_h(x,u) = \mu(x,u)\)</span> for all <span class="math inline">\(x \in \ALPHABET X\)</span> and <span class="math inline">\(u \in \ALPHABET U\)</span>.</p></li>
+<li><p>A feasible solution of an LP is called a <em>basic feasible solution</em> if it cannot be expression as a nontrivial convex combination of other feasible solutions. A key property of a basic feasible solution is that when the LP has <span class="math inline">\(k\)</span> constraints, then all basic feasible soluitions have at most <span class="math inline">\(k\)</span> positive components. Using this, one can show that if <span class="math inline">\(\mu\)</span> is a basic feasible solution, then the policy <span class="math inline">\(h\)</span> given by \eqref{eq:policy} is a deterministic policy.</p></li>
+<li><p>Similarly, for any deterministic policy <span class="math inline">\(h\)</span>, the occupancy measure <span class="math inline">\(\mu_h\)</span> is a basic feasible solution to the dual LP.</p></li>
+<li><p>If <span class="math inline">\(\mu^*\)</span> is an <em>optimal</em> solution to the dual LP, then <span class="math inline">\(h_{\mu}\)</span> is an optimal policy.</p></li>
+<li><p>If <span class="math inline">\(\mu^*\)</span> is an <em>optimal basic</em> solution to the dual LP, then <span class="math inline">\(h_{\mu}\)</span> is a deterministic optimal policy.</p></li>
+<li><p>If <span class="math inline">\(h\)</span> is a possibly randomized optimal policy for the MDP, them <span class="math inline">\(\mu_h\)</span> is a optimal solution to the dual LP.</p></li>
+<li><p>If <span class="math inline">\(h\)</span> is a deterministic optimal policy for the MDP, then <span class="math inline">\(\mu_h\)</span> is a optimal basic solution to the dual LP.</p></li>
+<li><p>As long as <span class="math inline">\(\pi(x) &gt; 0\)</span> for all <span class="math inline">\(x\)</span>, the policy <span class="math inline">\(h_\mu\)</span> based of optimal solution the dual LP does not depend on <span class="math inline">\(\pi(x)\)</span>. This means that <span class="math inline">\(\pi(x)\)</span> need not sum to 1.</p></li>
+</ol>
+<p>There are various trade-offs between solving a DP using value iteration, policy iteration, and LP and we will not go into these trade-offs here. But one benefit of the LP formulation is that it is easy to add constraints, which we discuss next.</p>
+<h2 id="constrained-mdps">Constrained MDPs</h2>
+<p>Suppose, in addition to the per-step cost function <span class="math inline">\(c \colon \ALPHABET X \times \ALPHABET U \to \reals\)</span>, we have a per-step constraint function <span class="math inline">\(d \colon \ALPHABET X \times \ALPHABET U \to \reals\)</span> and we are interested in the following constrained optimization problems:</p>
+<p><span class="math display">\[\begin{gather*}
+\min \EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} c(X_t, U_t) \Bigr] \\
+\text{subject to}\quad
+\EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} d(X_t, U_t) \Bigr] \le D. 
+\end{gather*}\]</span></p>
+<p>The dual LP in this case is given by <span class="math display">\[\begin{gather}
+  \min \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) c(x,u)
+  \notag \\
+  \text{subject to}\quad
+  \mu(x,u) - \beta\sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U}
+  P(x | y, u) \mu(x,u) = \pi(x), \quad \forall x \in \ALPHABET X, \notag \\
+  \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) d(x,u) \le D \notag \\
+  \mu(x,u) \ge 0, \quad \forall x \in \ALPHABET X, u \in \ALPHABET U. 
+\end{gather}\]</span></p>
+<p>If we interpret <span class="math inline">\(\mu(x,u)\)</span> as the occupation measure of any policy, then this formulation follows immediately.</p>
+<hr />
+<h2 id="references">References</h2>
+<p>The material in this section is taken from <span class="citation" data-cites="Puterman2014">Puterman (<a href="#ref-Puterman2014">2014</a>)</span>.</p>
+<div id="refs" class="references">
+<div id="ref-Puterman2014">
+<p><span class="smallcaps">Puterman, M.L.</span> 2014. <em>Markov decision processes: Discrete stochastic dynamic programming</em>. John Wiley &amp; Sons. DOI: <a href="https://doi.org/10.1002/9780470316887">10.1002/9780470316887</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/infinite-horizon">infinite horizon</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/discounted-cost">discounted cost</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/linear-programming">linear programming</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/constrained-mdps">constrained mdps</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
