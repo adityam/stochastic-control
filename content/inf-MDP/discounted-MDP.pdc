@@ -1,5 +1,5 @@
 ---
-title: Infinite horizon discounted MDP
+title: "Theory: Infinite horizon discounted MDP"
 weight: 01
 categories:
   - MDP
@@ -10,6 +10,39 @@ tags:
   - value iteration
   - policy iteration
 ---
+
+A common way to approximate systems that run for a very large horizon
+is to assume that they run for an infinite horizon. There is an inherent
+homogeneity over time for infinite horizon system: the future depends only on the
+current state and not on the current time. Due to this homogeneity over time,
+we expect that the optimal policy should also be time-homogeneous. Therefore,
+the optimal policy for an infinite-horizon system should be easier to
+implement than the optimal policy for a finite horizon system, especially so
+when the horizon is large. This is one of the motivations for studying
+infinite horizon models. 
+
+The most common formulation for infinite horizon models is the discounted
+setup, where the cost function is assumed to be 
+$$ J(g) = \EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} c_t(X_t, U_t) \Bigr] $$
+where $\beta \in (0,1)$ is called the discount factor.
+
+There are two interpretations of the discount factor $\beta$. The first
+interpretation is an economic interpretation to determine the _present value_
+of a utility that will be received in the future. For example, suppose a
+decision maker is indifferent between receiving 1 dollar today or $x$ dollars
+tomorrow. This means that the decision maker discounts the future at a rate
+$1/x$, so $\beta = 1/x$.
+
+The second interpretation is that of an absorbing state. Suppose we
+are operating a machine that generates a value of \$1 each day. However,
+there is a probability $p$ that the machine will break down at the end of
+the day. Thus, the expected return for today is \$1 while the expected
+return for tomorrow is $(1-p)$ (which is the probability that the machine
+is still working tomorrow). In this case, the discount factor is defined
+as $(1-p)$. See @Shwartz2001 for a detailed discussion of this alternative.
+
+In the remainder of this section, we will study how to obtain a solution for
+such infinite horizon discounted cost models. 
 
 _Note_: Throughout this section, we assume that $\ALPHABET X$ and $\ALPHABET U$ are
 finite and $|\ALPHABET X|= n$ and $|\ALPHABET U| = m$. 
@@ -62,9 +95,7 @@ is an operator from $\reals^n$ to $\reals^n$
 given by
 $$ \mathcal B_g v = c_g + β P_g v.$$
 
----
-
-## Bellman operator 
+## Bellman operators
 
 Definition
 
@@ -314,9 +345,7 @@ Taking the limit as $k \to ∞$, we get
 $$ V + m/(1-β) \ge V^*. \Box$$
 
 
----
-
-# Value Iteration Algorithm
+## Value Iteration Algorithm
 
 ::: highlight :::
 
@@ -376,9 +405,7 @@ By a similar argument, we can show that
 $$ \NORM{ V_{g_k} - V^* } \ge \underline δ_k - \bar δ_k. 
 \qquad \Box$$
 
----
-
-# Policy Iteration Algorithm
+## Policy Iteration Algorithm
 
 
 ::: highlight :::
@@ -424,8 +451,6 @@ number of policies. The value function improves at each step. So the process
 must converge in finite number of iterations. At convergence, $V_k = V_{k-1}$
 and the policy improvement lemma implies that the corresponding policies $g_k$
 or $g_{k-1}$ are optimal. 
-
----
 
 ## Optimistic Policy Iteration
 

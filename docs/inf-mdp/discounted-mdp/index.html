@@ -34,8 +34,13 @@
 
 
 
-<h1>Infinite horizon discounted MDP</h1>
+<h1>Theory: Infinite horizon discounted MDP</h1>
 
+<p>A common way to approximate systems that run for a very large horizon is to assume that they run for an infinite horizon. There is an inherent homogeneity over time for infinite horizon system: the future depends only on the current state and not on the current time. Due to this homogeneity over time, we expect that the optimal policy should also be time-homogeneous. Therefore, the optimal policy for an infinite-horizon system should be easier to implement than the optimal policy for a finite horizon system, especially so when the horizon is large. This is one of the motivations for studying infinite horizon models.</p>
+<p>The most common formulation for infinite horizon models is the discounted setup, where the cost function is assumed to be <span class="math display">\[ J(g) = \EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} c_t(X_t, U_t) \Bigr] \]</span> where <span class="math inline">\(\beta \in (0,1)\)</span> is called the discount factor.</p>
+<p>There are two interpretations of the discount factor <span class="math inline">\(\beta\)</span>. The first interpretation is an economic interpretation to determine the <em>present value</em> of a utility that will be received in the future. For example, suppose a decision maker is indifferent between receiving 1 dollar today or <span class="math inline">\(x\)</span> dollars tomorrow. This means that the decision maker discounts the future at a rate <span class="math inline">\(1/x\)</span>, so <span class="math inline">\(\beta = 1/x\)</span>.</p>
+<p>The second interpretation is that of an absorbing state. Suppose we are operating a machine that generates a value of $1 each day. However, there is a probability <span class="math inline">\(p\)</span> that the machine will break down at the end of the day. Thus, the expected return for today is $1 while the expected return for tomorrow is <span class="math inline">\((1-p)\)</span> (which is the probability that the machine is still working tomorrow). In this case, the discount factor is defined as <span class="math inline">\((1-p)\)</span>. See <span class="citation" data-cites="Shwartz2001">Shwartz (<a href="#ref-Shwartz2001">2001</a>)</span> for a detailed discussion of this alternative.</p>
+<p>In the remainder of this section, we will study how to obtain a solution for such infinite horizon discounted cost models.</p>
 <p><em>Note</em>: Throughout this section, we assume that <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET U\)</span> are finite and <span class="math inline">\(|\ALPHABET X|= n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>.</p>
 <h2 id="performance-of-a-time-homogeneous-markov-policy">Performance of a time-homogeneous Markov policy</h2>
 <p>For any <span class="math inline">\(g \colon \ALPHABET X \to \ALPHABET U\)</span>, consider the time homogeneous policy <span class="math inline">\((g, g, \dots)\)</span>. For ease of notation, we denote this policy simply by <span class="math inline">\(g\)</span>. The expected discounted cost under this policy is given by <span class="math display">\[ V_g(x) = \EXP^g\bigg[ \sum_{t=1}^∞ β^{t-1} c(X_t, U_t) \biggm| X_1 = x
@@ -58,8 +63,7 @@ V_g &amp;= c_g + β P_g c_g + β^2 P_g^2 c_g + \cdots \\
 \end{align*} \]</span> which can be rewritten as <span class="math display">\[ (I - β P_g) V_g = c_g. \]</span></p>
 <p>The <a href="https://en.wikipedia.org/wiki/Spectral_radius">spectral radius</a> of <span class="math inline">\(ρ(β P_d)\)</span> is upper bounded by <span class="math inline">\(\lVert β P_d \rVert = β &lt; 1\)</span>. Therefore, the matrix <span class="math inline">\((I - β P_g)\)</span> has an inverse and by left multiplying both sides by <span class="math inline">\((I - β P_g)^{-1}\)</span>, we get <span class="math display">\[ V_g = (I - βP_g)^{-1} c_g. \]</span></p>
 <p>The equation <span class="math display">\[ V_g = c_g + β P_g V_g \]</span> is sometimes also written as <span class="math display">\[ V_g = \mathcal B_g V_g \]</span> where the operator <span class="math inline">\(\mathcal B_g\)</span>, which is called the <em>Bellman operator</em>, is an operator from <span class="math inline">\(\reals^n\)</span> to <span class="math inline">\(\reals^n\)</span> given by <span class="math display">\[ \mathcal B_g v = c_g + β P_g v.\]</span></p>
-<hr />
-<h2 id="bellman-operator">Bellman operator</h2>
+<h2 id="bellman-operators">Bellman operators</h2>
 <dl>
 <dt>Definition</dt>
 <dd><p>Define the <em>Bellman operator</em> <span class="math inline">\(\mathcal B : \reals^n \to \reals^n\)</span> as follows: for any <span class="math inline">\(v \in \reals^n\)</span> <span class="math display">\[ [\mathcal B v]_x = \min_{u \in \ALPHABET U}
@@ -208,8 +212,7 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 </div>
 <h4 id="proof-5">Proof</h4>
 <p>Again, we only prove the first part. The proof of the second part is the same. We have that <span class="math display">\[ V + m \ge \mathcal B V. \]</span> From discounting and monotonicity properties, we get <span class="math display">\[ \mathcal B V + β m \ge \mathcal B^2 V. \]</span> Again, from discounting and monotonitiy properties, we get <span class="math display">\[ \mathcal B^2 V + β^2 m \ge \mathcal B^3 V. \]</span> Continuing this way, we get <span class="math display">\[ \mathcal B^k V + β^k m \ge \mathcal B^{k+1} V. \]</span> Adding all the above equations, we get <span class="math display">\[ V + \sum_{\ell = 0}^k β^\ell m \ge \mathcal B^{k+1} V. \]</span> Taking the limit as <span class="math inline">\(k \to ∞\)</span>, we get <span class="math display">\[ V + m/(1-β) \ge V^*. \Box\]</span></p>
-<hr />
-<h1 id="value-iteration-algorithm">Value Iteration Algorithm</h1>
+<h2 id="value-iteration-algorithm">Value Iteration Algorithm</h2>
 <div class="highlight">
 <h4 id="value-iteration-algorithm-1">Value Iteration Algorithm</h4>
 <ol type="1">
@@ -246,8 +249,7 @@ v + β m.\]</span> Thus, <span class="math inline">\(\mathcal B_g\)</span> is di
 <p>Thus, <span class="math display">\[ \NORM{ V_{g_k} - V^* } \le \bar δ_k - \underline δ_k. \]</span></p>
 <p>By a similar argument, we can show that <span class="math display">\[ \NORM{ V_{g_k} - V^* } \ge \underline δ_k - \bar δ_k. 
 \qquad \Box\]</span></p>
-<hr />
-<h1 id="policy-iteration-algorithm">Policy Iteration Algorithm</h1>
+<h2 id="policy-iteration-algorithm">Policy Iteration Algorithm</h2>
 <div class="highlight">
 <dl>
 <dt><span id="lemma:PI" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
@@ -268,7 +270,6 @@ V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="
 </ol>
 </div>
 <p>The policy improvement lemma (<a href="#lemma:PI">Lemma 1</a>) implies that <span class="math inline">\(V_{k-1} \ge V_k\)</span>. Since the state and action spaces are finite, there are only a finite number of policies. The value function improves at each step. So the process must converge in finite number of iterations. At convergence, <span class="math inline">\(V_k = V_{k-1}\)</span> and the policy improvement lemma implies that the corresponding policies <span class="math inline">\(g_k\)</span> or <span class="math inline">\(g_{k-1}\)</span> are optimal.</p>
-<hr />
 <h2 id="optimistic-policy-iteration">Optimistic Policy Iteration</h2>
 <div class="highlight">
 <h4 id="optimistic-policy-iteration-algorithm">Optimistic Policy Iteration Algorithm</h4>
@@ -330,6 +331,9 @@ V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="
 </div>
 <div id="ref-Puterman2014">
 <p><span class="smallcaps">Puterman, M.L.</span> 2014. <em>Markov decision processes: Discrete stochastic dynamic programming</em>. John Wiley &amp; Sons. DOI: <a href="https://doi.org/10.1002/9780470316887">10.1002/9780470316887</a>.</p>
+</div>
+<div id="ref-Shwartz2001">
+<p><span class="smallcaps">Shwartz, A.</span> 2001. Death and discounting. <em>IEEE Transactions on Automatic Control</em> <em>46</em>, 4, 644–647. DOI: <a href="https://doi.org/10.1109/9.917668">10.1109/9.917668</a>.</p>
 </div>
 <div id="ref-Whittle1982">
 <p><span class="smallcaps">Whittle, P.</span> 1982. <em>Optimization over time: Dynamic programming and stochastic control. Vol. 1 and 2</em>. Wiley.</p>
