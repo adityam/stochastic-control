@@ -65,6 +65,15 @@
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the update equation for <span class="math inline">\(X_{t+1}\)</span> and <span class="math inline">\((b)\)</span> follows because the primitive random variables are independent. The expression in the right hand side of <span class="math inline">\((b)\)</span> does not depend on the control strategy <span class="math inline">\(g\)</span>.</p>
 <hr />
 <p>Let <span class="math inline">\(|\ALPHABET X| = n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>. The idea behind the matrix formulation of MDP is to think of <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> as a <em>controlled</em> Markov process and define the <span class="math inline">\(n \times n\)</span> tranistion matrices <span class="math inline">\(\{P(u)\}_{u \in \ALPHABET U}\)</span> as follows: <span class="math display">\[ P_{xy}(u) = \PR(X_{t+1} = y | X_t = x, U_t = u).\]</span></p>
+<dl>
+<dt>Example</dt>
+<dd><p><strong>Machine repair</strong>. Consider a machine which can be in one of <span class="math inline">\(n\)</span> states <span class="math inline">\(\ALPHABET X = \{1, \dots, n\}\)</span>, where state <span class="math inline">\(1\)</span> denotes the best state and state <span class="math inline">\(n\)</span> denotes the worse state.</p>
+<p>There are two actions <span class="math inline">\(\ALPHABET U = \{1, 2\}\)</span>, where <span class="math inline">\(u=1\)</span> means that the current machine is replaced by a brand new one (which starts in state <span class="math inline">\(1\)</span>) and <span class="math inline">\(u=2\)</span> means that the existing machine is used. When action <span class="math inline">\(u=2\)</span> is chosen, the machine state will either remain the same (with probability <span class="math inline">\(1  - θ\)</span>) or deteriorate by one unit (with probability <span class="math inline">\(θ\)</span>).</p>
+<p>For example, if <span class="math inline">\(n = 3\)</span>, then <span class="math display">\[ P(1) = \MATRIX{1 &amp; 0 &amp; 0\\ 1 &amp; 0 &amp; 0\\ 1 &amp; 0 &amp; 0},
+  \qquad
+  P(2) = \MATRIX{1-θ &amp;  θ &amp;  0\\ 0 &amp;  1-θ &amp; θ\\ 0 &amp;  0 &amp;  1}. \]</span></p>
+</dd>
+</dl>
 <p>Observe that <span class="math display">\[\EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
   = \sum_{y \in \ALPHABET X} V_{t+1}(y) \PR(X_{t+1} = y | X_t = x, U_t = u).
   \]</span> Now, if we think of <span class="math inline">\(V_t\)</span> as a <span class="math inline">\(n \times 1\)</span> column vector, then we can write <span class="math display">\[ \EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] = [ P(u)V_{t+1} ]_{x}, \]</span> or, equivalently, <span class="math display">\[ \MATRIX{ \EXP[V_{t+1}(X_{t+1}) | X_t = 1, U_t = u] \\ \vdots \\
@@ -72,12 +81,13 @@
     = P(u)V_{t+1}. \]</span></p>
 <p>Now, think of <span class="math inline">\(c_t\)</span> and <span class="math inline">\(Q_t\)</span> as <span class="math inline">\(n \times m\)</span> matrices. Then, we can write <span class="math display">\[ Q_t = c_t + \MATRIX { P(1)V_{t+1} &amp; \cdots &amp; P(n) V_{t+1} }. \]</span></p>
 <p>Define <span class="math inline">\(\bar P = \MATRIX{P(1) \\ \vdots \\ P(n)}\)</span>, then <span class="math display">\[ Q_t = c_t + \text{reshape}( \bar P \, V_{t+1}, n, m). \]</span> Hence, the key step of dynamic programming can be done using simple linear algebra and therefore implemented efficiently in any programming language.</p>
+<hr />
 
 
 <p class="categories">
 This entry 
 
- was last updated on 01 Mar 2020
+ was last updated on 06 Mar 2020
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">
