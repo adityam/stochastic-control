@@ -2,92 +2,123 @@
 title: Assignment 7 (solution)
 ---
 
-1. **Part a.** Let $Y_t \in \{0, 1\}$ denote the observation of the player
-   where $Y_t = 0$ means that the output was a failure and $Y_t = 1$ means
-   that the output was a success.  Let $I_t = \{Y_{1:t-1}, U_{1:t-1} \}$
-   denote all the information available to the player. 
-  
-   From the definition of $(M_t, N_t)$, the evolution of $(M_t, N_t)$ can be
-   written as
-   $$ (M_{t+1}, N_{t+1}) = 
-   \begin{cases}
-      (M_t, N_t), & U_t = A \\
-      (M_t + 1, N_t), & U_t = B, Y_t = 1 \\
-      (M_t , N_t + 1), & U_t = B, Y_t = 0 
-   \end{cases}$$
+### Problem 1
 
-   Furthermore, the probability of next observation is given as
-   $$\PR(Y_t = 1 | I_t, U_t) = 
-   \begin{cases}
-      s, & U_t = A \\
-      ξ(M_t, N_t), & U_t = B 
-   \end{cases}$$
+We are given Bernoulli measures $μ = a δ_x + (1-a) δ_y$ and $ν = b δ_x +
+(1-b)δ_y$. Now consider
+$$\begin{align*}
+  K(μ, ν) &= \sup_{ f \colon \| f \|_L \le 1 } \left|
+  \int_X f dμ - \int_X f dν \right| \\
+  &= \sup_{ f \colon \| f \|_L \le 1 } \left|
+  \int_X f(z)( a δ_x(z) + (1 - a) δ_y(z) ) dz
+  -
+  \int_X f(z)( b δ_x(z) + (1 - b) δ_y(z) ) dz
+  \right| \\
+  &= \sup_{ f \colon \| f \|_L \le 1 } \left|
+  a f(x) + (1-a) f(y) -
+  \big( b f(x) + (1-b) f(y) \big) \right| \\
+  &= \sup_{ f \colon \| f \|_L \le 1 } 
+  | a-b | | f(x) - f(y) | \\
+  &= |a - b |
+  \sup_{ f \colon \| f \|_L \le 1 } \left|
+   f(x) - f(y) \right |  \\
+  &= |a -b | d_X(x,y).
+\end{align*}$$
 
-   Combing the two, we can write
-   $$\begin{align}
-   \PR( (M_{t+1}, N_{t+1}) | I_t, U_t) &=
-   \begin{cases}
-      1, & \hbox{if } U_t = A \hbox{ and } (M_{t+1}, N_{t+1}) = (M_t, N_t) \\
-      ξ(M_t, N_t), & \hbox{if } U_t = B \hbox{ and } (M_{t+1}, N_{t+1}) = (M_t
-      + 1, N_t) \\
-      1 - ξ(M_t, N_t), & \hbox{if } U_t = B \hbox{ and } (M_{t+1}, N_{t+1}) =
-      (M_t, N_t + 1) 
-   \end{cases} \\
-   &= 
-   \PR( (M_{t+1}, N_{t+1}) | (M_t, N_t), U_t)
-   \end{align}$$
-   Thus, $(M_t, N_t)$ evolves in a controlled Markovian manner. 
+### Problem 2
 
-   Now, let's consider the per-step reward. 
-   $$R_t(Y_t, U_t) = 
-   \begin{cases}
-      α, Y_t = 1, U_t = A \\
-      β, Y_t = 1, U_t = B 
-   \end{cases}$$
+a. If $e \not\in [-e_0, e_0]$, that means that $|e| > e_0$. Thus, the cost of
+not transmitting in the current state is $e_0^2 = λ/(1-β)$. On the other hand,
+the cost of transmitting all the times in the future is
+$$\EXP\Bigl[ \sum_{t=1}^∞ β^t λ \Bigr] = \frac{λ}{1-β}. $$
 
-   Thus, 
-   $$\begin{align}
-   \EXP[ R_t(Y_t, U_t) | I_t, U_t ] &=
-   \begin{cases}
-      α s, & \hbox{if } U_t = A \\
-      β ξ(M_t, N_t), & \hbox{if } U_t = B
-   \end{cases} \\
-   &= \EXP[ R_t(Y_t, U_t) | (M_t, N_t), U_t ].
-   \end{align}$$
-   Thus, $(M_t, N_t)$ is a sufficient statistic for evaluating current reward.
+    Thus, the cost of not transmitting once is greater than the cost of
+    transmitting all the times in the future. Hence, not transmitting cannot be
+    optimal for any $e \not\in [-e_0, e_0]$. Therefore, the optimal threshold $k
+    \le e_0$. 
 
-   Therefore, $(M_t, N_t)$ satisfies the two properties of information states.
-   Hence, it is an information state. 
+b. Consider any $v \in \mathcal F$. Since $v$ is constant in $(-∞, -B] \cup
+[B, ∞)$, we have
+$$ \int_{-∞}^{-B} v(e_{+}) p(e_{+} | e, u) de_{+} = 
+    v(-B) P(-B | e, u) $$
+and
+$$ \int_{B}^{-∞} v(e_{+}) p(e_{+} | e, u) de_{+} = 
+    v(B) (1 - P(B | e, u)). $$
 
-   **Part b.** Based on the properties of the information state, we can write
-   the dynamic program as follows.
+    Thus, 
+    $$\begin{align*}
+     \int_{-∞}^∞ v(e_{+}) p(e_{+}|e, u)de_{+} &= 
+      v(-B) P(-B | e, u) + \int_{-B}^B v(e_{+}) p(e_{+}|e,u) de_{+} 
+      + v(B) (1 - P(B | e,u) \\
+    &= \int_{-B}^B v(e_{+}) \bar p(e_{+} | e, u)de_{+}. 
+    \end{align*}$$
 
-   $$V_{T+1}(m,n) = 0 $$
-   and for $t \in \{T, \dots, 1\}$, we have
-   $$\begin{align}
-      Q_t(m,n,A) &= α s + V_{t+1}(m,n) \\
-      Q_t(m,n,B) &= β ξ(m,n) + ξ(m,n) V_{t+1}(m+1, n) + (1 - ξ(m,n)) 
-      V_{t+1}(m, n+1) \\
-      V_t(m, n) &= \max\{ Q_t(m,n,A), Q_t(m,n,B) \}.
-   \end{align}$$
+c. Suppose $\bar v$ is an even and quasi-convex function on $[-B, B]$ and $v$
+be its extenstion to $\reals$. Let $\bar w = \bar{\mathcal B} \bar v$ and $w$
+be the extension of $\bar w$ to $\reals$. Then, we want to show that $w =
+\mathcal Bv$. 
 
-   **Part c.** First note that 
-   $$\int_0^1 p^m (1-p)^n dp = B(m+1, n+1)$$
-   where $B(m,n)$ is the [Beta function] which is given by 
-   $$B(m,n) = \frac{Γ(m) Γ(n)}{Γ(m+n)}$$
-   where $Γ(\cdot)$ is the [Gamma function]. Thus, for integer valued $m$ and
-   $n$, $Γ(m) = (m-1)!$ and $Γ(n) = (n-1)!$. Hence,
-   $$\int_0^1 p^m (1-p)^n dp = \frac{m! n!}{(m+n+1)!}$$.
-   Therefore, we have
-   $$\begin{align}
-     ξ(m,n) &= \frac{ (m+1)! n! }{ (m+n+2)! } 
-     \frac{ (m+n+1)!}{ m! n!} \\
-     &= \frac{ m + 1 } { m + n +2 }.
-   \end{align}$$
+    First consider an $e \in (-∞, -B]$. Since $B > e_0$, from part a, we know that
+    the optimal action at $e$ is to transmit. Thus, 
+    $$\begin{align*} \relax
+      [\mathcal B v](e) &= λ + \int_{-∞}^∞ v(e_{+}) φ(e_{+}) de_{+} \\
+      &= λ + \int_{-B}^B \bar φ(e_{+}) de_{+} \\
+      &= \bar w(-B).
+    \end{align*}$$
+    By a symmetric argument, we can show that for $e > B$
+    $$ [\mathcal B v](e) = \bar w(B). $$
 
-   See [this Jupyter notebook](../07-2/) for the code for numerically solving
-   the dynamic program. 
+    Now consider an $e \in [-B, B]$. Then,
+    $$\begin{align*}
+    [\mathcal B v](e) &= \min\{ λ + \int_{-∞}^∞ v(e_{+}) φ(e_{+}) d e_{+}, 
+    e^2 + \int_{-∞}^∞ v(e_{+}) p(e_{+} | e,0) de_{+} \} \\
+    &\stackrel{(a)}= \min\{ λ + \int_{-B}^B v(e_{+}) \bar φ(e_{+}) d e_{+}, 
+    e^2 + \int_{-B}^B v(e_{+}) \bar p(e_{+} | e,0) de_{+} \} \\
+    &\stackrel{(b)}= \min\{ λ + \int_{-B}^B \bar v(e_{+}) \bar φ(e_{+}) d e_{+}, 
+    e^2 + \int_{-B}^B \bar v(e_{+}) \bar p(e_{+} | e,0) de_{+} \} \\
+    &= [\bar {\mathcal B} \bar v](e).
+    \end{align*}$$
+    where $(a)$ follows from part a, $(b)$ follows from the fact that $v$ and
+    $\bar v$ are the same on $[-B, B]$. 
 
-[Beta function]: https://www.statlect.com/mathematical-tools/beta-function
-[Gamma function]: https://www.statlect.com/mathematical-tools/gamma-function
+d.  Suppose we start with any even and quasi-convex $\bar V_0$ and generate a
+sequence of value function $\bar V_k = \bar {\mathcal B} \bar V_{k-1}$ for the
+truncated model. Let $V_k$ be the extension of $\bar V_k$ to $\reals$. Part c
+implies that $\{V_k\}$ satisfies $V_k = \mathcal B V_k$. 
+
+    Thus, the value functions generated during value iteration for the
+    truncated model are the same as the truncation of the value functions
+    generated during value iteration for the original model. Thus, using the
+    truncated model does not affect the search for an optimal policy.
+
+### Problem 3
+
+First, we identify the Lipschitz constant for the per-step cost.
+$$\begin{align*}
+\left| c(x_1, u_1) - c(x_2, u_2) \right| &= 
+\left| q | x_1 | + r u_1^2 - q |x_2| - r u_2^2 \right| \\
+&\le  q| |x_1| - |x_2|| + r| u_1^2 - u_2^2 | \\
+&\stackrel{(a)}\le q | x_1 - x_2 | + r|u_1 + u_2| | u_1 - u_2 | \\
+&\le L_c ( |x_1 - x_2 | + |u_1 - u_2 |)
+\end{align*}$$
+where $L_c = \max\{q, 2rB \}$. 
+
+Note that in $(a)$ we are using $| |x_1| - |x_2| | \le | x_1 - x_2 |$. This
+can be established via the triangle inequality. 
+
+Next, we identify the Lipschitz constant for the dynamics. Since the dynamics
+is deterministic, we have
+$$\begin{align*}
+  K(p(⋅ | x_1, u_1), p(⋅|x_2, u_2)) &= d_X( ax_1 + bu_1 , a x_2 + bu_2) \\
+  &= | a(x_1 - x_2) + b(u_1 - u_2)| \\
+  &\le a | x_1 - x_2 | + b | u_1 - u_2| \\
+  &\le L_P( |x_1 - x_2| + b |u_1 - u_2| )
+\end{align*}$$
+where $L_p = \max\{a, b\}$.
+
+Thus, the MDP is $(L_c, L_p)$-Lipschitz, with $L_c$ and $L_p$ defined above.
+The sufficient condition for the value function to be Lipschitz is that $β L_p
+< 1$. Thus, $\max\{a, b\} < 1/β$. Under these conditions
+$$ L_V = \frac{L_c}{1 - β L_p} = 
+\frac{\max\{q, 2rB\}}{1 - β \max\{a, b\}}. $$
 

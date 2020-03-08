@@ -34,59 +34,73 @@
 
 <h1>Assignment 7 (solution)</h1>
 
-<ol type="1">
-<li><p><strong>Part a.</strong> Let <span class="math inline">\(Y_t \in \{0, 1\}\)</span> denote the observation of the player where <span class="math inline">\(Y_t = 0\)</span> means that the output was a failure and <span class="math inline">\(Y_t = 1\)</span> means that the output was a success. Let <span class="math inline">\(I_t = \{Y_{1:t-1}, U_{1:t-1} \}\)</span> denote all the information available to the player.</p>
-<p>From the definition of <span class="math inline">\((M_t, N_t)\)</span>, the evolution of <span class="math inline">\((M_t, N_t)\)</span> can be written as <span class="math display">\[ (M_{t+1}, N_{t+1}) = 
-\begin{cases}
-   (M_t, N_t), &amp; U_t = A \\
-   (M_t + 1, N_t), &amp; U_t = B, Y_t = 1 \\
-   (M_t , N_t + 1), &amp; U_t = B, Y_t = 0 
-\end{cases}\]</span></p>
-<p>Furthermore, the probability of next observation is given as <span class="math display">\[\PR(Y_t = 1 | I_t, U_t) = 
-\begin{cases}
-   s, &amp; U_t = A \\
-   ξ(M_t, N_t), &amp; U_t = B 
-\end{cases}\]</span></p>
-<p>Combing the two, we can write <span class="math display">\[\begin{align}
-\PR( (M_{t+1}, N_{t+1}) | I_t, U_t) &amp;=
-\begin{cases}
-   1, &amp; \hbox{if } U_t = A \hbox{ and } (M_{t+1}, N_{t+1}) = (M_t, N_t) \\
-   ξ(M_t, N_t), &amp; \hbox{if } U_t = B \hbox{ and } (M_{t+1}, N_{t+1}) = (M_t
-   + 1, N_t) \\
-   1 - ξ(M_t, N_t), &amp; \hbox{if } U_t = B \hbox{ and } (M_{t+1}, N_{t+1}) =
-   (M_t, N_t + 1) 
-\end{cases} \\
-&amp;= 
-\PR( (M_{t+1}, N_{t+1}) | (M_t, N_t), U_t)
-\end{align}\]</span> Thus, <span class="math inline">\((M_t, N_t)\)</span> evolves in a controlled Markovian manner.</p>
-<p>Now, let’s consider the per-step reward. <span class="math display">\[R_t(Y_t, U_t) = 
-\begin{cases}
-   α, Y_t = 1, U_t = A \\
-   β, Y_t = 1, U_t = B 
-\end{cases}\]</span></p>
-<p>Thus, <span class="math display">\[\begin{align}
-\EXP[ R_t(Y_t, U_t) | I_t, U_t ] &amp;=
-\begin{cases}
-   α s, &amp; \hbox{if } U_t = A \\
-   β ξ(M_t, N_t), &amp; \hbox{if } U_t = B
-\end{cases} \\
-&amp;= \EXP[ R_t(Y_t, U_t) | (M_t, N_t), U_t ].
-\end{align}\]</span> Thus, <span class="math inline">\((M_t, N_t)\)</span> is a sufficient statistic for evaluating current reward.</p>
-<p>Therefore, <span class="math inline">\((M_t, N_t)\)</span> satisfies the two properties of information states. Hence, it is an information state.</p>
-<p><strong>Part b.</strong> Based on the properties of the information state, we can write the dynamic program as follows.</p>
-<p><span class="math display">\[V_{T+1}(m,n) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, we have <span class="math display">\[\begin{align}
-   Q_t(m,n,A) &amp;= α s + V_{t+1}(m,n) \\
-   Q_t(m,n,B) &amp;= β ξ(m,n) + ξ(m,n) V_{t+1}(m+1, n) + (1 - ξ(m,n)) 
-   V_{t+1}(m, n+1) \\
-   V_t(m, n) &amp;= \max\{ Q_t(m,n,A), Q_t(m,n,B) \}.
-\end{align}\]</span></p>
-<p><strong>Part c.</strong> First note that <span class="math display">\[\int_0^1 p^m (1-p)^n dp = B(m+1, n+1)\]</span> where <span class="math inline">\(B(m,n)\)</span> is the <a href="https://www.statlect.com/mathematical-tools/beta-function">Beta function</a> which is given by <span class="math display">\[B(m,n) = \frac{Γ(m) Γ(n)}{Γ(m+n)}\]</span> where <span class="math inline">\(Γ(\cdot)\)</span> is the <a href="https://www.statlect.com/mathematical-tools/gamma-function">Gamma function</a>. Thus, for integer valued <span class="math inline">\(m\)</span> and <span class="math inline">\(n\)</span>, <span class="math inline">\(Γ(m) = (m-1)!\)</span> and <span class="math inline">\(Γ(n) = (n-1)!\)</span>. Hence, <span class="math display">\[\int_0^1 p^m (1-p)^n dp = \frac{m! n!}{(m+n+1)!}\]</span>. Therefore, we have <span class="math display">\[\begin{align}
-  ξ(m,n) &amp;= \frac{ (m+1)! n! }{ (m+n+2)! } 
-  \frac{ (m+n+1)!}{ m! n!} \\
-  &amp;= \frac{ m + 1 } { m + n +2 }.
-\end{align}\]</span></p>
-<p>See <a href="../07-2/">this Jupyter notebook</a> for the code for numerically solving the dynamic program.</p></li>
+<h3 id="problem-1">Problem 1</h3>
+<p>We are given Bernoulli measures <span class="math inline">\(μ = a δ_x + (1-a) δ_y\)</span> and <span class="math inline">\(ν = b δ_x + (1-b)δ_y\)</span>. Now consider <span class="math display">\[\begin{align*}
+  K(μ, ν) &amp;= \sup_{ f \colon \| f \|_L \le 1 } \left|
+  \int_X f dμ - \int_X f dν \right| \\
+  &amp;= \sup_{ f \colon \| f \|_L \le 1 } \left|
+  \int_X f(z)( a δ_x(z) + (1 - a) δ_y(z) ) dz
+  -
+  \int_X f(z)( b δ_x(z) + (1 - b) δ_y(z) ) dz
+  \right| \\
+  &amp;= \sup_{ f \colon \| f \|_L \le 1 } \left|
+  a f(x) + (1-a) f(y) -
+  \big( b f(x) + (1-b) f(y) \big) \right| \\
+  &amp;= \sup_{ f \colon \| f \|_L \le 1 } 
+  | a-b | | f(x) - f(y) | \\
+  &amp;= |a - b |
+  \sup_{ f \colon \| f \|_L \le 1 } \left|
+   f(x) - f(y) \right |  \\
+  &amp;= |a -b | d_X(x,y).
+\end{align*}\]</span></p>
+<h3 id="problem-2">Problem 2</h3>
+<ol type="a">
+<li><p>If <span class="math inline">\(e \not\in [-e_0, e_0]\)</span>, that means that <span class="math inline">\(|e| &gt; e_0\)</span>. Thus, the cost of not transmitting in the current state is <span class="math inline">\(e_0^2 = λ/(1-β)\)</span>. On the other hand, the cost of transmitting all the times in the future is <span class="math display">\[\EXP\Bigl[ \sum_{t=1}^∞ β^t λ \Bigr] = \frac{λ}{1-β}. \]</span></p>
+<p>Thus, the cost of not transmitting once is greater than the cost of transmitting all the times in the future. Hence, not transmitting cannot be optimal for any <span class="math inline">\(e \not\in [-e_0, e_0]\)</span>. Therefore, the optimal threshold <span class="math inline">\(k  \le e_0\)</span>.</p></li>
+<li><p>Consider any <span class="math inline">\(v \in \mathcal F\)</span>. Since <span class="math inline">\(v\)</span> is constant in <span class="math inline">\((-∞, -B] \cup [B, ∞)\)</span>, we have <span class="math display">\[ \int_{-∞}^{-B} v(e_{+}) p(e_{+} | e, u) de_{+} = 
+ v(-B) P(-B | e, u) \]</span> and <span class="math display">\[ \int_{B}^{-∞} v(e_{+}) p(e_{+} | e, u) de_{+} = 
+ v(B) (1 - P(B | e, u)). \]</span></p>
+<p>Thus, <span class="math display">\[\begin{align*}
+  \int_{-∞}^∞ v(e_{+}) p(e_{+}|e, u)de_{+} &amp;= 
+   v(-B) P(-B | e, u) + \int_{-B}^B v(e_{+}) p(e_{+}|e,u) de_{+} 
+   + v(B) (1 - P(B | e,u) \\
+ &amp;= \int_{-B}^B v(e_{+}) \bar p(e_{+} | e, u)de_{+}. 
+ \end{align*}\]</span></p></li>
+<li><p>Suppose <span class="math inline">\(\bar v\)</span> is an even and quasi-convex function on <span class="math inline">\([-B, B]\)</span> and <span class="math inline">\(v\)</span> be its extenstion to <span class="math inline">\(\reals\)</span>. Let <span class="math inline">\(\bar w = \bar{\mathcal B} \bar v\)</span> and <span class="math inline">\(w\)</span> be the extension of <span class="math inline">\(\bar w\)</span> to <span class="math inline">\(\reals\)</span>. Then, we want to show that <span class="math inline">\(w = \mathcal Bv\)</span>.</p>
+<p>First consider an <span class="math inline">\(e \in (-∞, -B]\)</span>. Since <span class="math inline">\(B &gt; e_0\)</span>, from part a, we know that the optimal action at <span class="math inline">\(e\)</span> is to transmit. Thus, <span class="math display">\[\begin{align*} \relax
+   [\mathcal B v](e) &amp;= λ + \int_{-∞}^∞ v(e_{+}) φ(e_{+}) de_{+} \\
+   &amp;= λ + \int_{-B}^B \bar φ(e_{+}) de_{+} \\
+   &amp;= \bar w(-B).
+ \end{align*}\]</span> By a symmetric argument, we can show that for <span class="math inline">\(e &gt; B\)</span> <span class="math display">\[ [\mathcal B v](e) = \bar w(B). \]</span></p>
+<p>Now consider an <span class="math inline">\(e \in [-B, B]\)</span>. Then, <span class="math display">\[\begin{align*}
+ [\mathcal B v](e) &amp;= \min\{ λ + \int_{-∞}^∞ v(e_{+}) φ(e_{+}) d e_{+}, 
+ e^2 + \int_{-∞}^∞ v(e_{+}) p(e_{+} | e,0) de_{+} \} \\
+ &amp;\stackrel{(a)}= \min\{ λ + \int_{-B}^B v(e_{+}) \bar φ(e_{+}) d e_{+}, 
+ e^2 + \int_{-B}^B v(e_{+}) \bar p(e_{+} | e,0) de_{+} \} \\
+ &amp;\stackrel{(b)}= \min\{ λ + \int_{-B}^B \bar v(e_{+}) \bar φ(e_{+}) d e_{+}, 
+ e^2 + \int_{-B}^B \bar v(e_{+}) \bar p(e_{+} | e,0) de_{+} \} \\
+ &amp;= [\bar {\mathcal B} \bar v](e).
+ \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from part a, <span class="math inline">\((b)\)</span> follows from the fact that <span class="math inline">\(v\)</span> and <span class="math inline">\(\bar v\)</span> are the same on <span class="math inline">\([-B, B]\)</span>.</p></li>
+<li><p>Suppose we start with any even and quasi-convex <span class="math inline">\(\bar V_0\)</span> and generate a sequence of value function <span class="math inline">\(\bar V_k = \bar {\mathcal B} \bar V_{k-1}\)</span> for the truncated model. Let <span class="math inline">\(V_k\)</span> be the extension of <span class="math inline">\(\bar V_k\)</span> to <span class="math inline">\(\reals\)</span>. Part c implies that <span class="math inline">\(\{V_k\}\)</span> satisfies <span class="math inline">\(V_k = \mathcal B V_k\)</span>.</p>
+<p>Thus, the value functions generated during value iteration for the truncated model are the same as the truncation of the value functions generated during value iteration for the original model. Thus, using the truncated model does not affect the search for an optimal policy.</p></li>
 </ol>
+<h3 id="problem-3">Problem 3</h3>
+<p>First, we identify the Lipschitz constant for the per-step cost. <span class="math display">\[\begin{align*}
+\left| c(x_1, u_1) - c(x_2, u_2) \right| &amp;= 
+\left| q | x_1 | + r u_1^2 - q |x_2| - r u_2^2 \right| \\
+&amp;\le  q| |x_1| - |x_2|| + r| u_1^2 - u_2^2 | \\
+&amp;\stackrel{(a)}\le q | x_1 - x_2 | + r|u_1 + u_2| | u_1 - u_2 | \\
+&amp;\le L_c ( |x_1 - x_2 | + |u_1 - u_2 |)
+\end{align*}\]</span> where <span class="math inline">\(L_c = \max\{q, 2rB \}\)</span>.</p>
+<p>Note that in <span class="math inline">\((a)\)</span> we are using <span class="math inline">\(| |x_1| - |x_2| | \le | x_1 - x_2 |\)</span>. This can be established via the triangle inequality.</p>
+<p>Next, we identify the Lipschitz constant for the dynamics. Since the dynamics is deterministic, we have <span class="math display">\[\begin{align*}
+  K(p(⋅ | x_1, u_1), p(⋅|x_2, u_2)) &amp;= d_X( ax_1 + bu_1 , a x_2 + bu_2) \\
+  &amp;= | a(x_1 - x_2) + b(u_1 - u_2)| \\
+  &amp;\le a | x_1 - x_2 | + b | u_1 - u_2| \\
+  &amp;\le L_P( |x_1 - x_2| + b |u_1 - u_2| )
+\end{align*}\]</span> where <span class="math inline">\(L_p = \max\{a, b\}\)</span>.</p>
+<p>Thus, the MDP is <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz, with <span class="math inline">\(L_c\)</span> and <span class="math inline">\(L_p\)</span> defined above. The sufficient condition for the value function to be Lipschitz is that <span class="math inline">\(β L_p &lt; 1\)</span>. Thus, <span class="math inline">\(\max\{a, b\} &lt; 1/β\)</span>. Under these conditions <span class="math display">\[ L_V = \frac{L_c}{1 - β L_p} = 
+\frac{\max\{q, 2rB\}}{1 - β \max\{a, b\}}. \]</span></p>
 
 
 <p class="categories">
