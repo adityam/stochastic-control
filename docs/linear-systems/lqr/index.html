@@ -39,12 +39,12 @@
 <p><em>Note: To be consistent with the notation used in linear systems, we denote the state and action by lowercase <span class="math inline">\(x\)</span> and <span class="math inline">\(u\)</span>, even for stochastic systems (unlike the notation used for other models where we use uppercase <span class="math inline">\(X\)</span> and <span class="math inline">\(U\)</span> for state and actions to emphasize the fact they are random variables).</em></p>
 <p>We start by considering a <em>determinisitc</em> linear system with state <span class="math inline">\(x_t \in \reals^n\)</span> and control actions <span class="math inline">\(u_t \in \reals^m\)</span> and dynamics <span class="math display">\[ x_{t+1} = A_t x_t + B_t u_t,\]</span> where <span class="math inline">\(A_t \in \reals^{n \times n}\)</span> and <span class="math inline">\(B_t \in \reals^{n \times m}\)</span> are known matrices. The objective is to choose the control actions to minimize the finite horizon cost given by <span class="math display">\[ \sum_{t=1}^{T-1} c_t(x_t, u_t) + c_T(x_T),\]</span> where <span class="math inline">\(c_t(x_t, u_t)\)</span> is the per-step cost and <span class="math inline">\(c_T(x_T)\)</span> is the terminal cost. Depending on the cost, such models can be classified as follows:</p>
 <ul>
-<li><p><strong>Regulation problem</strong> where the objective is to keep the state of the system close to origin. These are modeled by considering that there are sequence of <a href="../../appendix/positive-definite-matrix">positive semi-definite matrices</a> <span class="math inline">\(\{Q_t\}_{t=1}^{T-1}\)</span> and <a href="../../appendix/positive-definite-matrix">positive definite matrices</a> <span class="math inline">\(\{R_t\}_{t=1}^T\)</span> where <span class="math display">\[
+<li><p><strong>Regulation problem</strong> where the objective is to keep the state of the system close to origin. These are modeled by considering that there are sequence of [positive semi-definite matrices][PSD] <span class="math inline">\(\{Q_t\}_{t=1}^{T}\)</span> and <a href="../../appendix/positive-definite-matrix">positive definite matrices</a> <span class="math inline">\(\{R_t\}_{t=1}^{T-1}\)</span> where <span class="math display">\[
   c_t(x_t, u_t) = x_t^\TRANS Q_t x_t + u_t^\TRANS R_t u_t
   \quad\text{and}\quad
   c_T(x_T) = x_T^\TRANS Q_T x_T.
 \]</span> This is often referred to as the <em>Linear Quadratic Regulartor (LQR)</em>.</p></li>
-<li><p><strong>Tracking problem</strong> where it is assumed that the system has an output <span class="math inline">\(y_t = C_t x_t\)</span> and the objective is to keep the output of the system close to a pre-specified trajectory <span class="math inline">\(\{x^\circ_t\}_{t=1}^T\)</span>. These are modeled by considering the per-step cost as <span class="math display">\[ \begin{align*}
+<li><p><strong>Tracking problem</strong> where it is assumed that the system has an output <span class="math inline">\(y_t = C_t x_t\)</span> and the objective is to keep the output of the system close to a pre-specified trajectory <span class="math inline">\(\{y^\circ_t\}_{t=1}^T\)</span>. These are modeled by considering the per-step cost as <span class="math display">\[ \begin{align*}
   c_t(x_t, u_t) &amp;= (C_tx_t - y^\circ_t)^\TRANS Q_t (C_tx_t - y^\circ_t) + u_t^\TRANS R_t u_t
   \\
   \text{and}\quad
@@ -135,7 +135,7 @@ u_t^\TRANS R_t u_t\]</span> and the terminal cost is <span class="math display">
 </div>
 <p>The proof follows from backward induction and basic algebra and is left as an exercise.</p>
 <h2 id="stochastic-linear-quadratic-regulator">Stochastic linear quadratic regulator</h2>
-<p>Now consider a system with stochastic dynamics <span class="math display">\[ x_{t+1} = A_t x_t + B_t u_t + w_t \]</span> where <span class="math inline">\(\{w_1,\dots,w_T\}\)</span> are independent random variables with zero mean and finite variance given by <span class="math inline">\(\EXP[w_t^\TRANS w_t] = \Sigma^w_t\)</span>.</p>
+<p>Now consider a system with stochastic dynamics <span class="math display">\[ x_{t+1} = A_t x_t + B_t u_t + w_t \]</span> where <span class="math inline">\(\{x_1,w_1,\dots,w_T\}\)</span> are independent random variables with zero mean and finite variance given by <span class="math inline">\(\EXP[w_t^\TRANS w_t] = \Sigma^w_t\)</span>.</p>
 <div class="highlight">
 <dl>
 <dt><span id="thm:stochastic-lqr" class="pandoc-numbering-text thm"><strong>Theorem 3</strong></span></dt>
@@ -202,15 +202,15 @@ u_t \big] + x_T^\TRANS Q_T x_T \bigg]\]</span> may be written as <span class="ma
         x_{t+1} - x_t^\TRANS S_t x_t \big]}^{\text{Term 1}}
       \nonumber \\
       &amp; \quad + 
-      \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg].
+      \EXP\bigg[ x_1^\TRANS S_1 x_1 + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg].
       \label{eq:astrom-3}
 \end{align} \]</span></p>
 <p>Now, from the completion of squares lemma, we get that “Term 1” is equal to <span class="math display">\[ (u_t + K_t x_t)^\TRANS [R_t + B_t^\TRANS S_{t+1} B_t] (u_t + K_t x_t).\]</span> Substituting this back in \eqref{eq:astrom-3}, we get \eqref{eq:astrom}.  <span class="math inline">\(\Box\)</span></p>
 <hr />
 <p>Now we can prove <a href="#thm:stochastic-lqr" title="Theorem 3"><span class="pandoc-numbering-link thm">Theorem 3</span></a> using <a href="#prop:astrom" title="Prop. 1"><span class="pandoc-numbering-link prop">Prop. 1</span></a>. Note that the second term in \eqref{eq:astrom} does not depend on the choice of control actions <span class="math inline">\(u_t\)</span>. Thus, in order to minimimze the total expected cost, it suffices to minimize the first term of \eqref{eq:astrom}. Since <span class="math inline">\(R_t\)</span> is positive definite and <span class="math inline">\(S_{t+1}\)</span> is positive semi-definite, <span class="math inline">\(R_t + B_t^\TRANS S_{t+1} B_t\)</span> is positive definite. Thus, the first term of \eqref{eq:astrom} is sum of squares. Choosing $ u_t = -K_t x_t$ sets this term to its minimum value of <span class="math inline">\(0\)</span>. Hence, <span class="math inline">\(u_t = -K_t x_t\)</span> is the optimal control strategy.</p>
 <h2 id="references">References</h2>
-<p>The term <em>certainty equivalence</em> is due to <span class="citation" data-cites="Simon1956">Simon (<a href="#ref-Simon1956">1956</a>)</span>, who was looking at a static problem; a similar result had earlier been shown by <span class="citation" data-cites="Theil1954">Theil (<a href="#ref-Theil1954">1954</a>)</span>. A result which is essentially equivalent to the stochastic LQR problem is proved by <span class="citation" data-cites="Theil1957">Theil (<a href="#ref-Theil1957">1957</a>)</span>. The model for deterministic LQR is due to <span class="citation" data-cites="Kalman1960b">Kalman (<a href="#ref-Kalman1960b">1960</a>)</span>, who proved the result for continuous time systems.</p>
-<p>The alternative proof that does not use dynamic programming is due to <span class="citation" data-cites="Astrom1970">Aström (<a href="#ref-Astrom1970">1970</a>)</span>.</p>
+<p>The term <em>certainty equivalence</em> is due to <span class="citation" data-cites="Simon1956">Simon (<a href="#ref-Simon1956" role="doc-biblioref">1956</a>)</span>, who was looking at a static problem; a similar result had earlier been shown by <span class="citation" data-cites="Theil1954">Theil (<a href="#ref-Theil1954" role="doc-biblioref">1954</a>)</span>. A result which is essentially equivalent to the stochastic LQR problem is proved by <span class="citation" data-cites="Theil1957">Theil (<a href="#ref-Theil1957" role="doc-biblioref">1957</a>)</span>. The model for deterministic LQR is due to <span class="citation" data-cites="Kalman1960b">Kalman (<a href="#ref-Kalman1960b" role="doc-biblioref">1960</a>)</span>, who proved the result for continuous time systems.</p>
+<p>The alternative proof that does not use dynamic programming is due to <span class="citation" data-cites="Astrom1970">Aström (<a href="#ref-Astrom1970" role="doc-biblioref">1970</a>)</span>.</p>
 <!--
 Lemma
 
@@ -254,7 +254,7 @@ Thus, the optimal $u$ is given by \\eqref{eq:opt-schur} and the minimum value is
 ## Astrom's Proof
 
 -->
-<div id="refs" class="references">
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
 <div id="ref-Astrom1970">
 <p><span class="smallcaps">Aström, K.J.</span> 1970. <em>Introduction to stochastic control theory</em>. Dover.</p>
 </div>
@@ -262,7 +262,7 @@ Thus, the optimal $u$ is given by \\eqref{eq:opt-schur} and the minimum value is
 <p><span class="smallcaps">Kalman, R.E.</span> 1960. Contributions to the theory of optimal control. <em>Boletin de la Sociedad Matematica Mexicana</em> <em>5</em>, 102–119.</p>
 </div>
 <div id="ref-Simon1956">
-<p><span class="smallcaps">Simon, H.A.</span> 1956. Dynamic programming under uncertainty with a quadratic criterion function. <em>Econometrica</em>, 74–81. DOI: <a href="https://doi.org/10.2307/1905261">10.2307/1905261</a>.</p>
+<p><span class="smallcaps">Simon, H.A.</span> 1956. Dynamic programming under uncertainty with a quadratic criterion function. <em>Econometrica</em> <em>24</em>, 1, 74–81. DOI: <a href="https://doi.org/10.2307/1905261">10.2307/1905261</a>.</p>
 </div>
 <div id="ref-Theil1954">
 <p><span class="smallcaps">Theil, H.</span> 1954. Econometric models and welfare maximization. <em>Wirtschaftliches Archiv</em> <em>72</em>, 60–83. DOI: <a href="https://doi.org/10.1007/978-94-011-2410-2_1">10.1007/978-94-011-2410-2_1</a>.</p>
@@ -276,7 +276,7 @@ Thus, the optimal $u$ is given by \\eqref{eq:opt-schur} and the minimum value is
 <p class="categories">
 This entry 
 
- was last updated on 13 Feb 2020
+ was last updated on 17 Mar 2020
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">
