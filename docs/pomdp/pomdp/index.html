@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="POMDP,belief state" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG,https://adityam.github.io/stochastic-control/js/mathjax-local.js">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<h1>Theory: Basic model of a POMDP</h1>
+
+<p>So far, we have considered a setup where the decision maker perfectly observes the state of the system. In many applications, the decision maker may not directly observe the state of the system but only observe a noisy version of it. Such systems are modeled as partially observable Markov decision processes (POMDPs). We will describe the simplest model of POMDPs, which builds upon the <a href="../../mdp/mdp-functional">model of MDPs descibed earlier</a>.</p>
+<p>We assume that the system has a state <span class="math inline">\(X_t \in \ALPHABET X\)</span>, control input <span class="math inline">\(U_t \in \ALPHABET U\)</span>, and process noise <span class="math inline">\(W_t \in \ALPHABET W\)</span>. The state evolves as <span class="math display">\[\begin{equation} \label{eq:state}
+  X_{t+1} = f_t(X_t, U_t, W_t)
+\end{equation}\]</span> However, unlike the MDP setup, the assumption is that the decision maker does not observe <span class="math inline">\(X_t\)</span>; rather, the observation of the decision maker at time <span class="math inline">\(t\)</span> is given by <span class="math display">\[\begin{equation}
+  Y_t = h_t(X_t, N_t)
+\end{equation}\]</span> where <span class="math inline">\(Y_t \in \ALPHABET Y\)</span> is the observation and <span class="math inline">\(N_t \in \ALPHABET N\)</span> is called the observation noise. As in the case of MDPs, we assume that the <em>primitive random varaibles</em> <span class="math inline">\((X_1, W_1, \dots, W_T\)</span>, <span class="math inline">\(N_1, \dots, N_T)\)</span> are defined on a common probability space and are mutually independent. This assumption is critical for the results to go through.</p>
+<p>As in the case of MDPs, we assume that the controller can be as sophisticated as we want. It can analyze the entire history of observations and control actions to choose the current control action. Thus, the control action can be written as <span class="math display">\[
+  U_t = g_t(Y_{1:t}, U_{1:t-1}).
+\]</span></p>
+<p>At each time, the system incurs a cost <span class="math inline">\(c_t(X_t, U_t)\)</span> which depends on the current state and the current action. The system operates for a finite horizon <span class="math inline">\(T\)</span> and incurs a total cost <span class="math display">\[
+  \sum_{t=1}^T c_t(X_t, U_t).
+\]</span></p>
+<p>Given the above system model, we want to choose a <em>control strategy</em> <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> to minimize the expected total cost <span class="math display">\[
+  J(g) := \EXP\Bigl[ \sum_{t=1}^T c_t(X_t, U_t) \Bigr].
+\]</span> How should we proceed?</p>
+<p>Note that the only difference from the MDP model is decision maker observes <span class="math inline">\(Y_t\)</span> instead of <span class="math inline">\(X_t\)</span>. Apart from this, the other modeling assumptions are the same. So, the conceptual difficulties of the model are the same as that of MDPs:</p>
+<blockquote>
+<p>The data <span class="math inline">\((Y_{1:t}, U_{1:t-1})\)</span> available at the controller is increasing with time. Therefore, the number of possible control laws at time <span class="math inline">\(t\)</span> are increasing exponentially with time. How can we search for efficiently search for optimal control strategies?</p>
+</blockquote>
+<p>Recall that for MDPs, we first showed that there is no loss of optimality in restricting attention to Markov strategies. That structural result was instrumental in developing an efficient search algorithm (dynamic programming). So, what is the equivalent result for POMDPs?</p>
+<h2 id="history-dependent-dynamic-program">History dependent dynamic program</h2>
+<p>Our first step to develop an efficient dynamic programming decomposition is to simply ignore efficiency and develop <em>a</em> dynamic programming decomposition.</p>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/pomdp">
+  POMDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/pomdp">pomdp</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/belief-state">belief state</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
