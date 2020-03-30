@@ -24,7 +24,7 @@ evolves as
 However, unlike the MDP setup, the assumption is that the decision maker does
 not observe $X_t$; rather, the observation of the decision maker at time $t$
 is given by
-\begin{equation}
+\begin{equation} \label{eq:obs}
   Y_t = h_t(X_t, N_t)
 \end{equation}
 where $Y_t \in \ALPHABET Y$ is the observation and $N_t \in \ALPHABET N$ is
@@ -73,7 +73,120 @@ programming). So, what is the equivalent result for POMDPs?
 ## History dependent dynamic program
 
 Our first step to develop an efficient dynamic programming decomposition is to
-simply ignore efficiency and develop _a_ dynamic programming decomposition. 
+simply ignore efficiency and develop _a_ dynamic programming decomposition.
+We start by deriving a recursive formula to compute the performance of a
+generic history dependent strategy $g = (g_1, \dots, g_T)$. 
+
+
+### Performace of history-dependent strategies
+
+Let $H_t = (Y_{1:t}, U_{1:t-1})$ denote all the information available to the
+decision maker at time $t$. Thus, given any history dependent strategy $g$, we
+can write $U_t = g_t(H_t)$. Define _the cost-to-go functions_ as follows:
+$$
+  J_t(h_t; g) = \EXP^g\biggl[ \sum_{s=t}^T c_s(X_s, U_s) \biggm| H_t = h_t
+  \biggr].
+$$
+Note that $J_t(h_t; g)$ only depends on the future strategy $(g_t, \dots,
+g_T)$. These functions can be computed recursively as follows: 
+\begin{align*}
+  J_t(h_t; g) &= \EXP^g\biggl[ \sum_{s=t}^T c_s(H_s, g_s(H_s)) \biggm|
+    H_t = h_t \biggr] \\
+    &\stackrel{(a)}= \EXP^g \biggl[ c_t(h_t, g_t(h_t)) + \EXP^g\biggl[ 
+    \sum_{s=t+1}^T c_s(X_s, g_s(X_s)) \biggm| H_{t+1} \biggr] \biggm| 
+    H_t = h_t \biggr]  \\
+    &= \EXP^g[ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid H_t = h_t ],
+\end{align*}
+where $(a)$ follows from the towering property of conditional expectation and
+the fact that $H_t \subseteq H_{t+1}$. 
+
+Thus, we can use the following dynamic program to recursively compute the
+performance of a history-dependent strategy: $J_{T+1}(h_{T+1}) = 0$ and for $t
+\in \{T, \dots, 1\}$, 
+$$
+J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
+  H_t = h_t ].
+$$
+
+### History-dependent dynamic programming decomposition
+We can use the above recursive formulation for performance evaluation to
+derive a history-dependent dynamic program.
+
+::: highlight :::
+Theorem #history-dp
+
+:   Recursively define _value functions $\{V_t\}_{t = 1}^{T+1}$, where $V_t
+    \colon \ALPHABET H_t \to \reals$ as follows:
+    \begin{equation}
+      V_{T+1}(h_{T+1}) = 0 
+    \end{equation}
+    and for $t \in \{T, \dots, 1\}$: 
+    \begin{align}
+      Q_t(h_t, u_t) &= \EXP[ c_t(X_t, u_t) + V_{t+1}(H_{t+1}) \mid
+      H_t = h_t, U_t = u_t ] \\
+      V_t(h_t) &= \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t)
+    \end{align}
+    Then, a history-dependent policy $g$ is optimal if and only if it
+    satisfies
+    \begin{equation} \label{eq:history-verification}
+      g_t(h_t) \in \arg \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t).
+    \end{equation}
+:::
+
+The proof idea is similar to the proof for MDPs. Instead of proving the above
+result, we prove a related result.
+
+::: highlight :::
+Theorem #history-comparison
+
+:   **(The comparison principle)** For any history-dependent strategy $g$
+    $$ J_t(h_t; g) \ge V_t(h_t) $$
+    with equality at $t$ if and only if the _future straegy $g_{t:T}$
+    satisfies the verification step \\eqref{eq:history-verification}.
+::: 
+
+Note that the comparison principle immediately implies that the strategy
+obtained using dynamic program of @theorem:history-dp is optimal. The proof of
+the comparison principle is almost identical to the proof for MDPs.
+
+#### Proof of the comparison principle
+
+The proof proceeds by backward induction. Consider any history dependent
+policy $g = (g_1, \dots, g_T)$. For $t = T+1$, the comparison principle is
+satisfied by definition and this forms the basis of induction. We assume that
+the result holds for time $t+1$, which is the induction hypothesis. Then for
+time $t$, we have 
+\begin{align*}
+  V_t(h_t) &= \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t) \\
+  &\stackrel{(a)}= \min_{u_t \in \ALPHABET U}
+   \EXP^g[ c_t(X_t, g_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, U_t = g_t(h_t) ] 
+  \\
+  &\stackrel{(b)}\le 
+   \EXP^g[ c_t(X_t, g_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, U_t = g_t(h_t)] 
+  \\
+  &\stackrel{(c)}\le
+   \EXP^g[ c_t(X_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
+  H_t = h_t, U_t = g_t(h_t)] 
+  \\
+  &= J_t(h_t, g).
+\end{align*}
+where $(a)$ follows from the definition of the $Q$-function; $(b)$ follows
+from the definition of minimization; and $(c)$ follows from the induction
+hyothesis. We have the equality at step $(b)$ iff $g_t$ satisfies the
+verification step \\eqref{eq:history-verification} and have the equality in step $(c)$
+iff $g_{t+1:T}$ is optimal (this is part of the induction hypothesis). Thus,
+the result is true for time $t$ and, by the principle of induction, is true
+for all time. $\Box$
+
+
+---
+
+## References
+
+The discussion in this section is taken from @Subramanian2019.
+
 
 
 
