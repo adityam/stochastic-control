@@ -34,7 +34,7 @@
 
 
 
-<h1>Theory: Basic model of a POMDP</h1>
+<div class="h1-title">Theory: Basic model of a POMDP</div>
 
 <p>So far, we have considered a setup where the decision maker perfectly observes the state of the system. In many applications, the decision maker may not directly observe the state of the system but only observe a noisy version of it. Such systems are modeled as partially observable Markov decision processes (POMDPs). We will describe the simplest model of POMDPs, which builds upon the <a href="../../mdp/mdp-functional">model of MDPs descibed earlier</a>.</p>
 <p>We assume that the system has a state <span class="math inline">\(X_t \in \ALPHABET X\)</span>, control input <span class="math inline">\(U_t \in \ALPHABET U\)</span>, and process noise <span class="math inline">\(W_t \in \ALPHABET W\)</span>. The state evolves as <span class="math display">\[\begin{equation} \label{eq:state}
@@ -56,9 +56,9 @@
 <p>The data <span class="math inline">\((Y_{1:t}, U_{1:t-1})\)</span> available at the controller is increasing with time. Therefore, the number of possible control laws at time <span class="math inline">\(t\)</span> are increasing exponentially with time. How can we search for efficiently search for optimal control strategies?</p>
 </blockquote>
 <p>Recall that for MDPs, we first showed that there is no loss of optimality in restricting attention to Markov strategies. That structural result was instrumental in developing an efficient search algorithm (dynamic programming). So, what is the equivalent result for POMDPs?</p>
-<h2 id="history-dependent-dynamic-program">History dependent dynamic program</h2>
+<h1 data-number="1" id="history-dependent-dynamic-program"><span class="header-section-number">1</span> History dependent dynamic program</h1>
 <p>Our first step to develop an efficient dynamic programming decomposition is to simply ignore efficiency and develop <em>a</em> dynamic programming decomposition. We start by deriving a recursive formula to compute the performance of a generic history dependent strategy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span>.</p>
-<h3 id="performace-of-history-dependent-strategies">Performace of history-dependent strategies</h3>
+<h2 data-number="1.1" id="performace-of-history-dependent-strategies"><span class="header-section-number">1.1</span> Performace of history-dependent strategies</h2>
 <p>Let <span class="math inline">\(H_t = (Y_{1:t}, U_{1:t-1})\)</span> denote all the information available to the decision maker at time <span class="math inline">\(t\)</span>. Thus, given any history dependent strategy <span class="math inline">\(g\)</span>, we can write <span class="math inline">\(U_t = g_t(H_t)\)</span>. Define <em>the cost-to-go functions</em> as follows: <span class="math display">\[
   J_t(h_t; g) = \EXP^g\biggl[ \sum_{s=t}^T c_s(X_s, U_s) \biggm| H_t = h_t
   \biggr].
@@ -74,7 +74,7 @@
 J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
   H_t = h_t ].
 \]</span></p>
-<h3 id="history-dependent-dynamic-programming-decomposition">History-dependent dynamic programming decomposition</h3>
+<h2 data-number="1.2" id="history-dependent-dynamic-programming-decomposition"><span class="header-section-number">1.2</span> History-dependent dynamic programming decomposition</h2>
 <p>We can use the above recursive formulation for performance evaluation to derive a history-dependent dynamic program.</p>
 <div class="highlight">
 <dl>
@@ -100,7 +100,7 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
 </dl>
 </div>
 <p>Note that the comparison principle immediately implies that the strategy obtained using dynamic program of <a href="#theorem:history-dp" title="Theorem 1"><span class="pandoc-numbering-link theorem">Theorem 1</span></a> is optimal. The proof of the comparison principle is almost identical to the proof for MDPs.</p>
-<h4 id="proof-of-the-comparison-principle">Proof of the comparison principle</h4>
+<h4 class="unnumbered" data-number="" id="proof-of-the-comparison-principle">Proof of the comparison principle</h4>
 <p>The proof proceeds by backward induction. Consider any history dependent policy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span>. For <span class="math inline">\(t = T+1\)</span>, the comparison principle is satisfied by definition and this forms the basis of induction. We assume that the result holds for time <span class="math inline">\(t+1\)</span>, which is the induction hypothesis. Then for time <span class="math inline">\(t\)</span>, we have <span class="math display">\[\begin{align*}
   V_t(h_t) &amp;= \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t) \\
   &amp;\stackrel{(a)}= \min_{u_t \in \ALPHABET U}
@@ -117,12 +117,147 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
   \\
   &amp;= J_t(h_t, g).
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the definition of the <span class="math inline">\(Q\)</span>-function; <span class="math inline">\((b)\)</span> follows from the definition of minimization; and <span class="math inline">\((c)\)</span> follows from the induction hyothesis. We have the equality at step <span class="math inline">\((b)\)</span> iff <span class="math inline">\(g_t\)</span> satisfies the verification step \eqref{eq:history-verification} and have the equality in step <span class="math inline">\((c)\)</span> iff <span class="math inline">\(g_{t+1:T}\)</span> is optimal (this is part of the induction hypothesis). Thus, the result is true for time <span class="math inline">\(t\)</span> and, by the principle of induction, is true for all time. <span class="math inline">\(\Box\)</span></p>
+<h1 data-number="2" id="the-notion-of-an-information-state"><span class="header-section-number">2</span> The notion of an information state</h1>
+<p>Now that we have obtained a dynamic programming decomposition, let’s try to simplify it. To do so, we define the notion of an <em>information state</em>.</p>
+<p>A stochastic process <span class="math inline">\(\{Z_t\}_{t = 1}^T\)</span>, <span class="math inline">\(Z_t \in \ALPHABET Z\)</span>, is called an <em>information state</em> if <span class="math inline">\(Z_t\)</span> be a function of <span class="math inline">\(H_t\)</span> (which we denote by <span class="math inline">\(Z_t = φ_t(H_t)\)</span>) and satisfies the following two properties:</p>
+<p><strong>P1. Sufficient for performance evaluation</strong>, i.e., <span class="math display">\[ \EXP^g[ c_t(X_t, U_t) \mid H_t = h_t, U_t = u_t] 
+    =  \EXP[ c_t(X_t, U_t) \mid Z_t = φ_t(h_t), U_t = u_t ] \]</span></p>
+<p><strong>P2. Sufficient to predict itself</strong>, i.e., for any Borel measurable subset <span class="math inline">\(B\)</span> of <span class="math inline">\(\ALPHABET Z\)</span>, we have <span class="math display">\[ \PR^g(Z_{t+1} \in B \mid H_t = h_t, U_t = u_t) = 
+       \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), U_t = u_t).
+    \]</span></p>
+<p>Instead of (P2), the following sufficient conditions are easier to verify in some models:</p>
+<p><strong>P2a. Evolves in a state-like manner</strong>, i.e., there exist measurable functions <span class="math inline">\(\{ψ_t\}_{t=1}^T\)</span> such that <span class="math display">\[ Z_{t+1} = ψ_t(Z_t, Y_{t+1}, U_t). \]</span></p>
+<p><strong>P2b. Is sufficient for predicting future observations</strong>, i.e., for any Borel subset <span class="math inline">\(B\)</span> of <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math display">\[ \PR^g(Y_{t+1} \in B | H_t = h_t, U_t = u_t) = 
+        \PR(Y_{t+1} \in B | Z_t = φ_t(h_t), U_t = u_t). 
+     \]</span></p>
+<dl>
+<dt>Remark</dt>
+<dd><p>The right hand sides of (P1) and (P2) as well as (P2a) and (P2b) do not depend on the choice of the policy <span class="math inline">\(g\)</span>.</p>
+</dd>
+</dl>
+<div class="highlight">
+<dl>
+<dt><span id="proposition:info-state" class="pandoc-numbering-text proposition"><strong>Proposition 1</strong></span></dt>
+<dd><p>(P2a) and (P2b) imply (P2).</p>
+</dd>
+</dl>
+</div>
+<h3 data-number="2.0.1" id="proof"><span class="header-section-number">2.0.1</span> Proof</h3>
+<p>For any Borel measurable subset <span class="math inline">\(B\)</span> of <span class="math inline">\(\ALPHABET Z\)</span>, we have <span class="math display">\[\begin{align*}
+  \hskip 1em &amp; \hskip -1em 
+  \PR(Z_{t+1} \in B \mid H_t = h_t, U_t = u_t)  
+  \stackrel{(a)}= \sum_{y_{t+1} \in \ALPHABET Y} \PR(Y_t = y_t, Z_{t+1} \in B
+  \mid H_t = h_t, U_t = u_t ] 
+  \\
+  &amp;\stackrel{(b)}= \sum_{y_t \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_t, u_t) \}
+  \PR(Y_t = y_t \mid H_t = h_t, U_t = u_t) 
+  \\
+  &amp;\stackrel{(c)}= \sum_{y_t \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_t, u_t) \}
+  \PR(Y_t = y_t \mid Z_t = φ_t(h_t), U_t = u_t) 
+  \\
+  &amp;\stackrel{(d)}=
+  \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), U_t = u_t)  
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the law of total probability, <span class="math inline">\((b)\)</span> follows from (P2a), <span class="math inline">\((c)\)</span> follows from (P2b), and <span class="math inline">\((d)\)</span> from the law of total probability.</p>
 <hr />
-<h2 id="references">References</h2>
+<h2 data-number="2.1" id="examples-of-an-information-state"><span class="header-section-number">2.1</span> Examples of an information state</h2>
+<div class="highlight">
+<dl>
+<dt><span id="example:history" class="pandoc-numbering-text example"><strong>Example 1</strong></span></dt>
+<dd><p>The complete history <span class="math inline">\(H_t\)</span> is an information state.</p>
+</dd>
+</dl>
+</div>
+<p>To establish this result, we define the <em>belief state</em> <span class="math inline">\(π_t \in Δ(\ALPHABET X)\)</span> as follows: for any <span class="math inline">\(x \in \ALPHABET X\)</span> <span class="math display">\[ π_t(x) = \PR^g(X_t = x \mid H_t = h_t). \]</span> The belief state is a function of the history <span class="math inline">\(h_t\)</span>. When we want to explicitly show the dependence of <span class="math inline">\(π_t\)</span> on <span class="math inline">\(h_t\)</span>, we write it as <span class="math inline">\(π_t[h_t]\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:belief-independence" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
+<dd><p>The belief state <span class="math inline">\(π_t\)</span> does not depend on the policy <span class="math inline">\(g\)</span>.</p>
+</dd>
+</dl>
+</div>
+<p>This is an extremely important result which has wide-ranging implications in stochastic control. For a general discussion of this point, see <span class="citation" data-cites="Witsenhausen1975">Witsenhausen (<a href="#ref-Witsenhausen1975" role="doc-biblioref">1975</a>)</span>.</p>
+<h3 data-number="2.1.1" id="proof-of-lemmabelief-independence"><span class="header-section-number">2.1.1</span> Proof of <a href="#lemma:belief-independence" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a></h3>
+<p>From the law of total probability and Bayes rule, we have <span class="math display">\[\begin{equation} \label{eq:belief}
+  \PR(x_t | y_{1:t}, u_{1:t-1}) 
+  = \sum_{x_{1:t-1}} \PR(x_{1:t} | y_{1:t}, u_{1:t-1}) 
+  = \sum_{x_{1:t-1}}
+   \frac{\PR(x_{1:t}, y_{1:t}, u_{1:t-1})}
+   {\sum_{x&#39;_{1:t}} \PR(x&#39;_{1:t}, y_{1:t}, u_{1:t-1})}
+\end{equation}\]</span></p>
+<p>Now consider <span class="math display">\[\begin{align*}
+  \PR(x_{1:t}, y_{1:t}, u_{1:t-1}) &amp;=
+  \PR(x_1) \PR(y_1 | x_1) \IND\{ u_1 = g_1(y_1) \} \\
+  &amp; \times
+  \PR(x_2 | x_1, u_1) \PR(y_2 | x_2) \IND \{ u_2 = g_2(y_{1:2}, u_1)\} \\
+  &amp; \times \cdots \\
+  &amp; \times
+  \PR(x_{t-1} | x_{t-2}, u_{t-2}) \PR(y_{t-1} | x_{t-1}) \IND \{ u_{t-1} =
+  g_{t-1}(y_{1:t-1}, u_{1:t-2}) \} \\
+  &amp; \times
+  \PR(x_{t} | x_{t-1}, u_{t-1}) \PR(y_{t} | x_{t}).
+\end{align*}\]</span> Substitute the above expression in both the numerator and the denominator of \eqref{eq:belief}. Observe that the terms of the form <span class="math inline">\(\IND\{ u_s = g_s(y_{1:s}, u_{1:s-1})\)</span> are common to both the numerator and the denominator and cancel each other. Thus, <span class="math display">\[\begin{equation} \label{eq:belief-fn}
+  \PR(x_t | y_{1:t}, u_{1:t-1}) = \sum_{x_{1:t-1}}
+  \frac{ \prod_{s=1}^t \PR(x_s \mid x_{s-1}, u_{s-1}) \PR(y_s \mid x_s) }
+  { \sum_{x&#39;_{1:t}} \prod_{s=1}^t \PR(x&#39;_s \mid x&#39;_{s-1}, u_{s-1}) \PR(y_s \mid x&#39;_s) }.
+\end{equation}\]</span> None of the terms here depend on the policy <span class="math inline">\(g\)</span>. Hence, the belief state does not depend on the policy <span class="math inline">\(g\)</span>. <span class="math inline">\(\Box\)</span></p>
+<h4 class="unnumbered" data-number="" id="proof-of-examplehistory">Proof of <a href="#example:history" title="Example 1"><span class="pandoc-numbering-link example">Example 1</span></a></h4>
+<p>We will prove that <span class="math inline">\(Z_t = H_t\)</span> satisfies properties (P1), (P2a), and (P2b).</p>
+<p>P1. <span class="math inline">\(\displaystyle \EXP^g[ c_t(X_t, U_t) | H_t = h_t, U_t = u_t ] = \sum_{x_t \in \ALPHABET X} c_t(x_t, u_t) π_t[h_t](x_t)\)</span>.</p>
+<p>P2a. <span class="math inline">\(H_{t+1} = (H_t, Y_{t+1}, U_t)\)</span></p>
+<p>P2b. <span class="math inline">\(\displaystyle \PR^g(y_{t+1} | y_{1:t}, u_{1:t}) = \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR( x_{t+1} | x_t, u_t) \PR(x_t | y_{1:t}, u_{1:t})\)</span>. Note that in the last term <span class="math inline">\(\PR^g(x_t | y_{1:t}, u_{1:t})\)</span> we can drop <span class="math inline">\(u_t\)</span> from the conditioning because it is a function of <span class="math inline">\((y_{1:t}, u_{1:t-1})\)</span>. Thus, <span class="math display">\[ \PR^g(x_t | y_{1:t}, u_{1:t}) = \PR^g(x_t | y_{1:t}, u_{1:t-1}) =
+π_t[h_t](x_t).\]</span> Thus, <span class="math inline">\(\displaystyle \PR^g(y_{t+1} | y_{1:t}, u_{1:t}) = \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR( x_{t+1} | x_t, u_t) π_t[h_t](x_t)\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt><span id="example:belief" class="pandoc-numbering-text example"><strong>Example 2</strong></span></dt>
+<dd><p>The belief state <span class="math inline">\(π_t\)</span> is an information state.</p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-1">Proof</h4>
+<p>The belief state <span class="math inline">\(π_t\)</span> is a function of the history <span class="math inline">\(h_t\)</span>. (The exact form of this function is given by \eqref{eq:belief-fn}). In the proof of <a href="#example:history" title="Example 1"><span class="pandoc-numbering-link example">Example 1</span></a>, we have already shown that <span class="math inline">\(π_t\)</span> satisfies (P1) and (P2b). So, we only need to show that <span class="math inline">\(π_t\)</span> satisfies (P2a). This can be shown as follows, which is a standard result in non-linear filtering.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:belief-update" class="pandoc-numbering-text lemma"><strong>Lemma 2</strong></span></dt>
+<dd><p>The belief state <span class="math inline">\(π_t\)</span> updates in a state like manner. In particular, for any <span class="math inline">\(x_{t+1} \in \ALPHABET X\)</span>, we have <span class="math display">\[
+  π_{t+1}(x_{t+1}) = \sum_{x_t \in \ALPHABET X}
+  \frac{ \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
+   { \sum_{x&#39;_{t:t+1}} \PR(y_{t+1} | x&#39;_{t+1}) \PR(x&#39;_{t+1} | x&#39;_t, u_t) π_t(x&#39;_t) }.
+\]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-of-lemmabelief-update">Proof of <a href="#lemma:belief-update" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a></h4>
+<p>For any <span class="math inline">\(x_{t+1} \in \ALPHABET X\)</span>, consider</p>
+<p><span class="math display">\[\begin{align}
+π_{t+1}(x_{t+1}) &amp;= \PR(x_{t+1} | y_{1:t+1}, u_{1:t}) \notag \\
+&amp;= \sum_{x_t} \PR(x_{t:t+1} | y_{1:t+1}, u_{1:t}) \notag \\
+&amp;= \sum_{x_t} \frac{ \PR(x_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) }
+  {\sum_{x&#39;_{t:t+1}}\PR(x&#39;_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) }.
+\label{eq:update-1}
+\end{align}\]</span></p>
+<p>Now consider <span class="math display">\[\begin{align}
+\hskip 1em &amp; \hskip -1em 
+\PR(x_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) \notag \\
+&amp;= \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) 
+   \IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}
+   \PR(x_t | y_{1:t}, u_{1_t-1}) \notag \\
+&amp;= \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) 
+   \IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}
+   π_t(x_t). \label{eq:belief-2}
+\end{align}\]</span> Substitute the above expression in both the numerator and the denominator of \eqref{eq:update-1}. Observe that <span class="math inline">\(\IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}\)</span> is common to both the numerator and the denominator and cancels out. Thus, we get the result of the lemma. <span class="math inline">\(\Box\)</span></p>
+<dl>
+<dt>Remark</dt>
+<dd><p>Both the above information states are generic information states which work for all models. For specific models, it is possible to identify other information states as well. We will present an example of such an information state later.</p>
+</dd>
+</dl>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
 <p>The discussion in this section is taken from <span class="citation" data-cites="Subramanian2019">Subramanian and Mahajan (<a href="#ref-Subramanian2019" role="doc-biblioref">2019</a>)</span>.</p>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
 <div id="ref-Subramanian2019">
 <p><span class="smallcaps">Subramanian, J. and Mahajan, A.</span> 2019. Approximate information state for partially observed systems. <em>2019 IEEE 58th conference on decision and control (CDC)</em>, IEEE. DOI: <a href="https://doi.org/10.1109/cdc40024.2019.9029898">10.1109/cdc40024.2019.9029898</a>.</p>
+</div>
+<div id="ref-Witsenhausen1975">
+<p><span class="smallcaps">Witsenhausen, H.S.</span> 1975. On policy independence of conditional expectation. <em>Information and Control</em> <em>28</em>, 65–75.</p>
 </div>
 </div>
 
