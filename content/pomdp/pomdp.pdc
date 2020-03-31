@@ -399,6 +399,60 @@ Remark
   information states as well. We will present an example of such an information
   state later.
 
+# Information state based dynamic program
+
+The main feature of an information state is that one can always write a
+dynamic program based on an information state. 
+
+::: highlight :::
+
+Theorem #info-state
+
+: Let $\{Z_t\}_{t=1}^T$ be any information state, where $Z_t = φ_t(H_t)$.
+  Recursively define value functions $\{ \hat V_t \}_{t=1}^T$, where $\hat V_t
+  \colon \ALPHABET Z \to \reals$, as follows: 
+  $$ \hat V_{T+1}(z_{T+1}) = 0 $$
+  and for $t \in \{T, \dots, 1\}$: 
+  \begin{align}
+    \hat Q_t(z_t, u_t) &= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}(Z_{t+1}) \mid
+    Z_t = z_t, U_t = u_t] \\
+    \hat V_t(z_t) &= \min_{u_t \in \ALPHABET U} \hat Q_t(z_t, u_t).
+  \end{align}
+  Then, we have the following: for any $h_t$ and $u_t$,
+  \begin{equation} \label{eq:history-info}
+    Q_t(h_t, u_t) = \hat Q_t(φ_t(h_t), u_t)
+    \quad\text{and}\quad
+    V_t(h_t) = \hat V_t(φ_t(h_t)).
+  \end{equation}
+  Any stategy $\hat g = (\hat g_1, \dots, \hat g_T)$, where $\hat g_t \colon
+  \ALPHABET Z \to \ALPHABET U$, is optimal if and only if 
+  \begin{equation}\label{eq:info-verification}
+      \hat g_t(z_t) \in \arg\min_{u_t \in \ALPHABET U} \hat Q_t(z_t, u_t).
+  \end{equation}
+
+:::
+
+#### Proof {-}
+
+As usual, we prove the result by backward induction. By constuction,
+Eq. \\eqref{eq:history-info} is true at time $T+1$. This forms the basis of
+induction. Now assume that \\eqref{eq:history-info} is true at time $t+1$ and
+consider the system at time $t$. Then, 
+\begin{align*}
+Q_t(h_t, u_t) &= \EXP[ c_t(X_t, U_t) + V_{t+1}(H_{t+1}) | H_t = h_t, U_t = u_t
+] \\
+&\stackrel{(a)}= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | H_t =
+h_t, U_t = u_t ]  \\
+&\stackrel{(b)}= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | Z_t =
+φ_t(h_t), U_t = u_t ]  \\
+&\stackrel{(c)}= \hat Q_t(φ_t(h_t), u_t),
+\end{align*}
+where $(a)$ follows from the induction hypothesis, $(b)$ follows from the
+properties (P1) and (P2) of the information state, and $(c)$ follows from the
+definition of $\hat Q_t$. This shows that the action value functions are
+equal. By minimizing over the actions, we get that the value functions are
+also equal. $\Box$
+
 
 # References {-}
 

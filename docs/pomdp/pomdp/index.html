@@ -250,6 +250,35 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
 <dd><p>Both the above information states are generic information states which work for all models. For specific models, it is possible to identify other information states as well. We will present an example of such an information state later.</p>
 </dd>
 </dl>
+<h1 data-number="3" id="information-state-based-dynamic-program"><span class="header-section-number">3</span> Information state based dynamic program</h1>
+<p>The main feature of an information state is that one can always write a dynamic program based on an information state.</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:info-state" class="pandoc-numbering-text theorem"><strong>Theorem 3</strong></span></dt>
+<dd><p>Let <span class="math inline">\(\{Z_t\}_{t=1}^T\)</span> be any information state, where <span class="math inline">\(Z_t = φ_t(H_t)\)</span>. Recursively define value functions <span class="math inline">\(\{ \hat V_t \}_{t=1}^T\)</span>, where <span class="math inline">\(\hat V_t  \colon \ALPHABET Z \to \reals\)</span>, as follows: <span class="math display">\[ \hat V_{T+1}(z_{T+1}) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>: <span class="math display">\[\begin{align}
+\hat Q_t(z_t, u_t) &amp;= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}(Z_{t+1}) \mid
+Z_t = z_t, U_t = u_t] \\
+\hat V_t(z_t) &amp;= \min_{u_t \in \ALPHABET U} \hat Q_t(z_t, u_t).
+  \end{align}\]</span> Then, we have the following: for any <span class="math inline">\(h_t\)</span> and <span class="math inline">\(u_t\)</span>, <span class="math display">\[\begin{equation} \label{eq:history-info}
+Q_t(h_t, u_t) = \hat Q_t(φ_t(h_t), u_t)
+\quad\text{and}\quad
+V_t(h_t) = \hat V_t(φ_t(h_t)).
+  \end{equation}\]</span> Any stategy <span class="math inline">\(\hat g = (\hat g_1, \dots, \hat g_T)\)</span>, where <span class="math inline">\(\hat g_t \colon  \ALPHABET Z \to \ALPHABET U\)</span>, is optimal if and only if <span class="math display">\[\begin{equation}\label{eq:info-verification}
+  \hat g_t(z_t) \in \arg\min_{u_t \in \ALPHABET U} \hat Q_t(z_t, u_t).
+  \end{equation}\]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-2">Proof</h4>
+<p>As usual, we prove the result by backward induction. By constuction, Eq. \eqref{eq:history-info} is true at time <span class="math inline">\(T+1\)</span>. This forms the basis of induction. Now assume that \eqref{eq:history-info} is true at time <span class="math inline">\(t+1\)</span> and consider the system at time <span class="math inline">\(t\)</span>. Then, <span class="math display">\[\begin{align*}
+Q_t(h_t, u_t) &amp;= \EXP[ c_t(X_t, U_t) + V_{t+1}(H_{t+1}) | H_t = h_t, U_t = u_t
+] \\
+&amp;\stackrel{(a)}= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | H_t =
+h_t, U_t = u_t ]  \\
+&amp;\stackrel{(b)}= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | Z_t =
+φ_t(h_t), U_t = u_t ]  \\
+&amp;\stackrel{(c)}= \hat Q_t(φ_t(h_t), u_t),
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the induction hypothesis, <span class="math inline">\((b)\)</span> follows from the properties (P1) and (P2) of the information state, and <span class="math inline">\((c)\)</span> follows from the definition of <span class="math inline">\(\hat Q_t\)</span>. This shows that the action value functions are equal. By minimizing over the actions, we get that the value functions are also equal. <span class="math inline">\(\Box\)</span></p>
 <h1 class="unnumbered" data-number="" id="references">References</h1>
 <p>The discussion in this section is taken from <span class="citation" data-cites="Subramanian2019">Subramanian and Mahajan (<a href="#ref-Subramanian2019" role="doc-biblioref">2019</a>)</span>.</p>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
@@ -265,7 +294,7 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
 <p class="categories">
 This entry 
 
- was last updated on 30 Mar 2020
+ was last updated on 31 Mar 2020
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/pomdp">
