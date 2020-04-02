@@ -6,6 +6,8 @@ categories:
 tags:
   - POMDP
   - belief state
+scripts:
+  - plotly
 ---
 
 So far, we have considered a setup where the decision maker perfectly observes
@@ -396,8 +398,26 @@ Remark
 
 : Both the above information states are generic information states which work
   for all models. For specific models, it is possible to identify other
-  information states as well. We will present an example of such an information
-  state later.
+  information states as well. We present some examples of such an information
+  state below.
+
+
+::: highlight :::
+
+Example #mdp
+
+:   An MDP is a special case of a POMDP where $Y_t = X_t$. For an
+    MDP $Z_t = X_t$ is an information state.
+
+:::
+
+#### Proof {-}
+
+We will show that $Z_t = X_t$ satisfies (P1), (P2)
+
+(P1) is satisfied because the per-step cost is a function of the $(X_t, U_t)$.
+(P2) is equivalent to the control Markov property. $\Box$
+
 
 # Information state based dynamic program
 
@@ -453,12 +473,200 @@ definition of $\hat Q_t$. This shows that the action value functions are
 equal. By minimizing over the actions, we get that the value functions are
 also equal. $\Box$
 
+# Belief state based dynamic program 
+
+As shown in @example:belief, the belief state $π_t$ is an information state.
+Therefore, @theorem:info-state implies that we can write a dynamic program
+based on $π_t$. This is an important and commonly used formulation, so we
+study it separately and present some properties of the value functions. The
+belief state based dynamic program is given by: $V_{T+1}(π_{T+1}) = 0$ and for
+$t \in \{T, \dots, 1\}$, 
+$$
+  Q_t(π_t, u_t) = 
+  \EXP [ c_t(X_t, U_t) + V_{t+1}(Π_{t+1}) \mid Π_t = π_t, U_t = u_t ].
+$$
+and 
+$$ V_t(π_t) = \min_{u_t \in \ALPHABET U} Q_t(π_t, u_t). $$ 
+
+Define
+$$ \PR(y_{t+1} | π_t, u_t) = 
+   \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) π_t(x_t).
+$$
+Then, the belief update expression in @lemma:belief-update can be written as:
+$$
+  π_{t+1}(x_{t+1}) = 
+  \frac{ \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
+  { \PR(y_{t+1} | π_t, u_t) }.
+$$
+For ease of notation, we write this expression as $π_{t+1} = ψ(π_t,
+y_{t+1}, u_t)$.  
+\begin{align*}
+  Q_t(π_t, u_t) &= \sum_{x_t \in \ALPHABET X} c_t(x_t, u_t) \\
+  & \quad +  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
+  V_{t+1}( φ(π_t, y_{t+1}, u_t) ).
+\end{align*}
+
+A key property of the belief-state based value functions is the following.
+
+::: highlight :::
+Theorem #belief-PWLC
+
+:   The belief-state based value functions are piecewise linear and concave.
+
+:::
+
+#### Proof {-}
+
+As usual, we prove the result using backward induction. For any $u_T$,
+$$ Q_T(π_T, u_T) = \sum_{x_T \in \ALPHABET X} c_T(x_T, u_T) π_T(x_T) $$
+is linear in $π_T$. Therefore, 
+$$ V_T(π_T) = \min_{u_T \in \ALPHABET U} Q_T(π_T, u_T) $$
+is the minimum of a finite number of linear functions. Hence $V_T(π_T)$ is
+piecewise linear and concave. 
+
+ <div class="flex">
+   <div id="V_T" style="width:400px; height:250px;"></div>
+ </div>
+
+<script>
+  function interesect(alpha, beta) {
+    // y = (alpha[1] - alpha[0])x + alpha[0]
+    // y = (beta[1] - beta[0]) x + beta[0]
+    // => x = (alpha[0] - beta[0])/ (delta_beta - delta_alpha)
+    var delta_alpha = alpha[1] - alpha[0]
+    var delta_beta  = beta[1]  - beta[0]
+    var x = (alpha[0] - beta[0])/(delta_beta - delta_alpha)
+    var y = delta_alpha * x + alpha[0]
+    return [x, y]
+  }
+
+  var alpha = [ [1, 5], [5, 1], [3.5, 2] ]
+  var traces = new Array(alpha.length + 1)
+
+  for (let i = 0; i < alpha.length; i++) {
+     traces[i] = { 
+        x: [0, 1],
+        y: alpha[i],
+        mode: 'lines',
+        line : {
+          color : 'black',
+          width : 1
+        }
+     }
+  }
+
+  // The lowest line: computed manually
+  var p = interesect(alpha[0], alpha[2]) 
+  var q = interesect(alpha[1], alpha[2])
+
+  traces[alpha.length] = {
+    x: [0, p[0], q[0], 1],
+    y: [1, p[1], q[1], 1],
+    mode: 'lines',
+    line : {
+      color : 'red',
+      width : 2
+    }
+  }
+
+
+  var layout = {
+    paper_bgcolor: "#fffff8",
+    plot_bgcolor:  "#fffff8",
+    xaxis : {
+      title: "Belief state",
+      showgrid: true,
+      showline: true,
+      zeroline: false,
+      showticklabels: false,
+    },
+    yaxis : {
+      title: "",
+      showgrid: true,
+      showline: true,
+      zeroline: true,
+      showticklabels: false,
+      range: [-1, 5],
+    },
+    automargin: true,
+    margin: {
+      l : 15,
+      r : 15,
+      b : 15,
+      t : 15,
+      pad : 15
+    } ,
+    showlegend: false, 
+    hovermode: false,
+  };
+
+  Plotly.plot('V_T', traces, layout)
+
+</script>
+
+Now assume that $V_{t+1}(π_{t+1})$ is piecewise linear and concave (PWLC). Any
+PWLC funcation can be represented as a minimum of a finite number of
+hyperplanes. Therefore, we can find a finite set of vectors $\{ A_i
+\}_{i \in I}$ indexed by finite set $I$ such that
+$$
+  V_{t+1}(π) = \min_{i \in I} \langle A_i, π \rangle.
+$$
+
+We need to show that $V_t(π_t)$ is piecewise linear and concave (PWLC). We
+first show that $Q_t(π_t, u_t)$ is PWLC. For any fixed $u_t$, the first term
+$\sum_{x_t} c_t(x_t, u_t) π_t(x_t)$ is linear in $π_t$. Now consider the
+second term:
+\begin{align*}
+  \hskip 1em & \hskip -1em
+  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
+  V_{t+1}( φ(π_t, y_{t+1}, u_t) ) \\
+  &= 
+  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
+  \min_{i \in I} 
+  \left\langle A_i, 
+  \frac{ \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
+  { \PR(y_{t+1} | π_t, u_t) } \right\rangle \\
+  &=
+  \sum_{y_{t+1} \in \ALPHABET Y} 
+  \min_{i \in I} 
+  \Big\langle A_i, 
+   \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) 
+   \Big\rangle
+\end{align*}
+which is the sum of PWLC functions of $π_t$ and therefore PWLC in $π_t$. 
+
+Thus, $Q_t(π_t, u_t)$ is PWLC. Hence, $V_t(π_t)$ which is the pointwise
+minimum of PWLC functions is PWLC. Hence, the result holds due to principle of
+induction. $\Box$
+
+Remark
+
+:   Since the value function is PWLC, we can identify a finite index set
+    $I_t$, and a set of vectors $\{ A^i_t \}_{i \in I_t}$ such that
+    $$
+        V_t(π) = \min_{i \in I_t} \langle A^i_t, π \rangle.
+    $$
+    @Smallwood1973 presented a "one-pass" algorithm to recursively compute $I_t$ and 
+    $\{ A^i_t \}_{i \in I_t}$ which allows us to exactly compute the value
+    function. Various efficient refinements of these algorithms have been
+    presented in the literature, e.g., the linear-support algorithm
+    [@Cheng1988], the witness algorithm [@Cassandra1994], incremental pruning
+    [@Zhang1996; @Cassandra1997], duality based approach [@Zhang2009], and
+    others. See https://pomdp.org/ for an accessible introduction to these
+    algorithms. 
+
+# Exercises {-}
+
+1. Consider an MDP where the state space $\ALPHABET X$ is a symmetric subset
+   of integers of the form $\{-a, -a + 1, \dots, a -1 , a\}$ and the action
+   space $\ALPHABET U$ is discrete. Suppose the transition matrix $P(u)$ and
+   the cost function $c_t(x,u)$ satisfy properties (A1) and (A2) of Exercise 1
+   of [Monotone MDPs](../../mdp/monotonicity#exercises). Show that $Z_t =
+   |X_t|$ is an information state.
 
 # References {-}
 
 The discussion in this section is taken from @Subramanian2019.
-
-
 
 
 [MDP]: ../../mdp/mdp-functional
