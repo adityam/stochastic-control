@@ -1,0 +1,289 @@
+---
+title: "Example: Sequential hypothesis testing"
+weight: 05
+categories:
+  - POMDP
+tags:
+  - POMDP
+  - belief state
+  - hypothesis testing
+scripts:
+  - plotly
+---
+
+Consider a decision maker (DM) that makes a series of i.i.d. observations
+which may be distributed according to PDF $f_0$ or $f_1$. Let $Y_t$ denote the
+observaion at time $t$. The DM wants to differentiate between two hypothesis:
+\begin{gather*}
+  h_0 : Y_t \sim f_0 \\
+  h_1 : Y_t \sim f_1
+\end{gather*}
+Typically, we think of $h_0$ as the normal situation (or the null hypothesis)
+and $h_1$ as an anomaly. 
+For example, the hypothesis may be
+$$ h_0: Y_t \sim {\cal N}(0, σ^2) \quad h_1: Y_t \sim {\cal N}(μ, σ^2) $$
+or
+$$ h_0: Y_t \sim \text{Ber}(p) \quad h_1: Y_t \sim \text{Ber}(q). $$
+
+Let the random variable $H$ denote the value of the
+hypothesis. The a priori probability $\PR(H = h_0) = p$. 
+
+The system continues for a finite time $T$. At each $t < T$, the DM has three
+options: 
+
+* stop and declare $h_0$
+* stop and declare $h_1$
+* continue and take another measurement
+
+At the terminal time step $T$, the continuation option is not available. Each
+measurement has a cost $c$. When the DM takes a stopping action $ν$, it incurs
+a stopping cost $\ell(ν, H)$. 
+
+We typically assume $\ell(h_0, h_0) = \ell(h_1, h_1) = 0$. 
+The term $\ell(h_1, h_0)$ indicates that the DM declares an anomaly when
+everything is okay. This is called _false alarm penalty_. The term $\ell(h_0,
+h_1)$ indicates that DM declares everything is okay when there is an anomaly.
+This is called the _missed detection penalty_. 
+
+Let $τ$ denote the time when the DM stops. Then the total cost of running the
+system is $cτ + \ell(ν, H)$. The objective is to find the optimal stopping
+strategy that minimize the expected total cost. 
+
+# Dynamic programming decomposition 
+
+We use the belief-state as an information state to obtain a dynamic
+programming decomposition. Recall that the beief state is two-dimensional pdf
+where
+$$ π_t(h) = \PR(H = h | Y_{1:t}), \quad h \in \{h_0, h_1\}. $$
+
+Remarks
+
+:   * We are only conditioning on $Y_{1:t}$ and not adding $U_{1:t-1}$ in the
+      conditioning. This is because we are taking the standard approach used
+      in optimal stopping problems where we are only defining the state for
+      case when the stopping decision hasn't been taken so far and all
+      previous actions are continue. Taking a continue action does not effect
+      the observations. For this reason, we do not condition on $U_{1:t-1}$. 
+
+    * In class, I had exploited the fact that $\pi_t = [p_t, 1 - p_t]^T$ and
+      written a simplified DP in terms of $p_t$. In these notes, I don't make
+      this simplification so that we can see how these results will extend to
+      the case of non-binary hypothesis.
+
+The dynamic program for the above model is then given by
+$$
+  V_T(π_T) = \min\{ \EXP[ \ell(h_0, H) | Π_T = π_T], 
+                    \EXP[ \ell(h_1, H) | Π_T = π_T] \}
+$$
+and for $t \in \{T-1, \dots, 1\}$,
+$$ V_t(π_t) = \min \{ \EXP[ \ell(h_0, H) | Π_t = π_t], 
+                      \EXP[ \ell(h_1, H) | Π_t = π_t],
+                     c + \EXP[V_{t+1}(ψ(π_t, Y_{t+1})) | Π_t = π_t] \},
+$$
+where $ψ(π, y)$ denotes the standard non-linear filtering update (there is no
+dependence on $u$ here because there are no state dynamics in this model). 
+
+We introduce some notation to simplify the discussion. Define
+
+* $L_i(π) = \EXP[ \ell(h_i, H) | Π = π] 
+  = \sum_{h \in \{h_0, h_1\}} \ell(h_i, h) π(h)$. 
+* $W_t(π_t) = c + \EXP[V_{t+1}(ψ(π_t, Y_{t+1})) | Π_t = π_t]$. 
+
+Then, the above DP can be written as
+$$
+  V_T(π_T) = \min\{ L_0(π_T), L_1(π_T) \}
+$$
+and for $t \in \{T-1, \dots, 1\}$,
+$$ V_t(π_t) = \min \{ L_0(π_t), L_1(π_t), W_t(π_t) \}. $$
+
+# Structure of the optimal policy
+
+We start by establishing simple properties of the different functions defined
+above.
+
+::: highlight :::
+Lemma #concavity
+
+:   The above functions statisfy the following properties:
+
+    * $L_i(π)$ is linear in $π$.
+    * $V_t(π)$ and $W_t(π)$ is concave in $π$.
+    * $V_t(π)$ and $W_t(π)$  are increasing in $t$. 
+
+:::
+
+#### Proof {-}
+
+The linearity of $L_i(π)$ follows from definition. From the discussion on
+[POMDPs], we know that $V_{t+1}(π)$ is concave in $π$ and so is
+$\EXP[V_{t+1}(ψ(π, Y_{t+1})) | Π_t = π]$. Therefore $W_t(π)$ is concave
+in $π$. 
+
+Finally, by construction, we have that $V_{T-1}(π) \le V_T(π)$. The
+monotonicity in time then follows from Q2 of [Assignment
+2](../../assignments/02). Sincen $V_t$ is monotone in time, it implies that
+$W_t$ is also monotone. $\Box$
+
+Now define stopping sets $S_t(h) = \{ π \in Δ^2 : g_t(π) = h \}$ for $h \in
+\{h_0, h_1\}$. The key result is the following.
+
+[POMDPs]: ../pomdp/#theorem:belief-PWLC
+
+::: highlight :::
+Theorem #convex
+
+: For all $t$ and $h \in \{h_0, h_1\}$, the set $S_t(h)$ is convex. Moreover,
+  $S_t(h_i) \subseteq S_{t+1}(h_i)$. 
+
+:::
+
+#### Proof {-}
+
+Note that we can write $S_t(h) = A_t(h) \cap B_t(h)$, where
+$$ A_t(h_i) = \{ π \in Δ^2 : L_i(π)  \le L_j(π) \}
+   \quad\text{and}\quad
+   B_t(h_i) = \{ π \in Δ^2 : L_i(π) \le W_t(π)  \}. $$
+
+$A_t(h_i)$ is a the set of $π$ where one linear function of $π$ is less than
+or equal to another linear function of $π$. Therefore, $A_t(h_i)$ is a convex
+set. 
+
+Similarly, $B_t(h_i)$ is the set of $π$ where a linear function of $π$ is less
+than or equal to a concave function of $π$. Therefore $B_t(h_i)$ is also a
+convex set. 
+
+$S_t(h_i)$ is the intersection of two convex sets, and hence convex.
+
+The monotonicty of $S_t(h_i)$ in time follows from the monotonicity of $W_t$
+in time. $\Box$
+
+::: highlight :::
+
+Theorem #corner
+
+:   Suppose the stopping cost satisfy the following:
+    \begin{equation} \label{eq:cost-ass}
+    \ell(h_0, h_0) \le c \le \ell(h_0, h_1)
+      \quad\text{and}\quad
+      \ell(h_1, h_1) \le c \le \ell(h_1, h_0). 
+    \end{equation}
+    Then, $e_i \in S_t(h_i)$, where $e_i$ denotes the standard unit vector
+    (i.e., $e_0 = [1, 0]^T$ and $e_1 = [0, 1]^T$). 
+
+:::
+
+Remark
+
+:   The assumption on observation cost states that: (i) the cost of
+    observation is greater than the cost incurred when the DM chooses the
+    right hypothesis, and (ii) the cost of observation is less than the cost
+    incurred when the DM chooses the wrong hypothesis. Both these assumptions
+    are fairly natural. 
+
+#### Proof {-}
+      
+Note that $L_i(e_0) = \ell(h_i, h_0)$ and $L_i(e_1) = \ell(h_1, h_1)$.
+Moreover, by construction, $W_t(π) \ge c$. Thus, under the above assumption on
+the cost, 
+$$ L_0(e_0) = \ell(h_0, h_0) \le c \le W_t(e_0) $$
+and
+$$ L_0(e_0) = \ell(h_0, h_0) \le \ell(h_1, h_0) = L_1(e_0). $$
+Thus, $e_0 \in S_t(h_0)$. 
+
+By a symmetric argument, we can show that $e_1 \in S_t(h_1)$. $\Box$
+
+@theorem:convex and @theorem:corner imply that the optimal stopping regions
+are convex and include the "corner points" of the simplex. Note that although
+we formulated the problem for binary hypothesis, all the steps of the proof
+hold in general as well. 
+
+For binary hypothesis, we can present a more concerete characterizatin of the
+optimal policy. Note that the two-dimensional simplex is equivalent to the
+interval $[0,1]$. In particular, any $π = Δ^2$ is equal to $[p, 1-p]$, where
+$p \in [0,1]$. Now define:
+
+* $\displaystyle τ^0_t = \min\left\{ p \in [0, 1] :
+   g_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_0 
+  \right\}.$
+* $\displaystyle τ^1_t = \max\left\{ p \in [0, 1] :
+   g_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_1 
+  \right\}.$
+
+Then, by definition, the optimal policy has the following threshold property:
+
+::: highlight :::
+
+Proposition #threshold
+
+:   Let $\bar g_t(p) = g_t([p, 1-p]^T)$. Then, under \\eqref{eq:cost-ass}, 
+    $$ \bar g_t(p) = \begin{cases}
+       h_1, & \text{if } p \le τ^1_t \\
+       \mathsf{C}, & \text{if } τ^1_t < p < τ^0_t \\
+       h_0, & \text{if } τ^0_t \le p.
+      \end{cases} $$
+
+    Furthermore, the decision thresholds are monotone in time. In particular,
+    for all $t$,
+    $$ τ^1_t \le τ^1_{t+1} \le τ^0_{t+1} \le τ^0_t. $$
+
+:::
+
+The above property is simplies stated slighted in terms of the likelihood
+ratio. In particular, define $λ_t = π_t(0)/π_t(1) = p_t/(1 - p_t)$. Then, we
+have the following:
+
+::: highlight :::
+
+Proposition #likelihood
+
+:   Let $\hat g_t(λ) = g_t([λ/(1+λ), 1/(1+λ)]^T)$. Then, under \\eqref{eq:cost-ass}, 
+    $$ \hat g_t(λ) = \begin{cases}
+       h_1, & \text{if } λ \le τ^1_t/(1 - τ^1_t) \\
+       \mathsf{C}, & \text{if } τ^1_t/(1 - τ^1_t) < λ < τ^0_t/(1 - τ^0_t)_t \\
+       h_0, & \text{if } τ^0_t/(1 - τ^0_t)_t \le λ.
+      \end{cases} $$
+
+:::
+
+#### Proof {-}
+
+For any $a, b \in [0, 1]$, 
+$$ a \le b \iff \frac{a}{1-a} \le \frac{b}{1-b}. \qquad \Box $$
+
+The result of @proposition:likelihood is called the _sequential_ likelihood
+ratio test (or sequential probability ratio test) to contrast it with the
+standard [likelihood ratio test][LRT] in hypotehsis testing.
+
+# Infinite horizon setup
+
+Assume that $T = ∞$ so that the continuation alternative is always available.
+Then, we have the following.
+
+::: highlight :::
+
+Theorem #inf
+
+:   Under \\eqref{eq:cost-ass}, an optimal decision rule always exists, is
+    time-homogeneous, and is given by the solution of the following DP:
+    $$ V(π) = \min\{ L_0(π) , L_1(π) , W(π) \} $$
+    where
+    $$ W(π) = c + \int_{y} [ pf_0(y) + (1-p)f_1(y)] V(ψ(π,y)) dy. $$
+
+    Therefore, the optimal thresholds $τ^1$ and $τ^0$ are time-homogeneous. 
+
+:::
+
+#### Proof {-}
+
+The result follows from standard results on non-negative dynamic programming.
+We did not conver non-negative DP. Essentially it determines conditions under
+which undiscounted infinite horizon problems have a solution when the per-step
+cost is non-negative. 
+
+[LRT]: https://en.wikipedia.org/wiki/Likelihood-ratio_test
+
+# References {-}
+
+For more details on sequential hypothesis testing, incuding an approximate
+method to determine the thresholds, see @Wald1945. The model described above
+was first considered by @Arrow1949. See @DeGroot1970.

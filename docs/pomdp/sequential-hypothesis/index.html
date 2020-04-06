@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="POMDP,belief state,hypothesis testing" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://cdn.plot.ly/plotly-basic-latest.min.js">
+  </script><script type="text/javascript"
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_SVG,https://adityam.github.io/stochastic-control/js/mathjax-local.js">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Example: Sequential hypothesis testing</div>
+
+<p>Consider a decision maker (DM) that makes a series of i.i.d. observations which may be distributed according to PDF <span class="math inline">\(f_0\)</span> or <span class="math inline">\(f_1\)</span>. Let <span class="math inline">\(Y_t\)</span> denote the observaion at time <span class="math inline">\(t\)</span>. The DM wants to differentiate between two hypothesis: <span class="math display">\[\begin{gather*}
+  h_0 : Y_t \sim f_0 \\
+  h_1 : Y_t \sim f_1
+\end{gather*}\]</span> Typically, we think of <span class="math inline">\(h_0\)</span> as the normal situation (or the null hypothesis) and <span class="math inline">\(h_1\)</span> as an anomaly. For example, the hypothesis may be <span class="math display">\[ h_0: Y_t \sim {\cal N}(0, σ^2) \quad h_1: Y_t \sim {\cal N}(μ, σ^2) \]</span> or <span class="math display">\[ h_0: Y_t \sim \text{Ber}(p) \quad h_1: Y_t \sim \text{Ber}(q). \]</span></p>
+<p>Let the random variable <span class="math inline">\(H\)</span> denote the value of the hypothesis. The a priori probability <span class="math inline">\(\PR(H = h_0) = p\)</span>.</p>
+<p>The system continues for a finite time <span class="math inline">\(T\)</span>. At each <span class="math inline">\(t &lt; T\)</span>, the DM has three options:</p>
+<ul>
+<li>stop and declare <span class="math inline">\(h_0\)</span></li>
+<li>stop and declare <span class="math inline">\(h_1\)</span></li>
+<li>continue and take another measurement</li>
+</ul>
+<p>At the terminal time step <span class="math inline">\(T\)</span>, the continuation option is not available. Each measurement has a cost <span class="math inline">\(c\)</span>. When the DM takes a stopping action <span class="math inline">\(ν\)</span>, it incurs a stopping cost <span class="math inline">\(\ell(ν, H)\)</span>.</p>
+<p>We typically assume <span class="math inline">\(\ell(h_0, h_0) = \ell(h_1, h_1) = 0\)</span>. The term <span class="math inline">\(\ell(h_1, h_0)\)</span> indicates that the DM declares an anomaly when everything is okay. This is called <em>false alarm penalty</em>. The term <span class="math inline">\(\ell(h_0, h_1)\)</span> indicates that DM declares everything is okay when there is an anomaly. This is called the <em>missed detection penalty</em>.</p>
+<p>Let <span class="math inline">\(τ\)</span> denote the time when the DM stops. Then the total cost of running the system is <span class="math inline">\(cτ + \ell(ν, H)\)</span>. The objective is to find the optimal stopping strategy that minimize the expected total cost.</p>
+<h1 data-number="1" id="dynamic-programming-decomposition"><span class="header-section-number">1</span> Dynamic programming decomposition</h1>
+<p>We use the belief-state as an information state to obtain a dynamic programming decomposition. Recall that the beief state is two-dimensional pdf where <span class="math display">\[ π_t(h) = \PR(H = h | Y_{1:t}), \quad h \in \{h_0, h_1\}. \]</span></p>
+<dl>
+<dt>Remarks</dt>
+<dd><ul>
+<li><p>We are only conditioning on <span class="math inline">\(Y_{1:t}\)</span> and not adding <span class="math inline">\(U_{1:t-1}\)</span> in the conditioning. This is because we are taking the standard approach used in optimal stopping problems where we are only defining the state for case when the stopping decision hasn’t been taken so far and all previous actions are continue. Taking a continue action does not effect the observations. For this reason, we do not condition on <span class="math inline">\(U_{1:t-1}\)</span>.</p></li>
+<li><p>In class, I had exploited the fact that <span class="math inline">\(\pi_t = [p_t, 1 - p_t]^T\)</span> and written a simplified DP in terms of <span class="math inline">\(p_t\)</span>. In these notes, I don’t make this simplification so that we can see how these results will extend to the case of non-binary hypothesis.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The dynamic program for the above model is then given by <span class="math display">\[
+  V_T(π_T) = \min\{ \EXP[ \ell(h_0, H) | Π_T = π_T], 
+                    \EXP[ \ell(h_1, H) | Π_T = π_T] \}
+\]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>, <span class="math display">\[ V_t(π_t) = \min \{ \EXP[ \ell(h_0, H) | Π_t = π_t], 
+                      \EXP[ \ell(h_1, H) | Π_t = π_t],
+                     c + \EXP[V_{t+1}(ψ(π_t, Y_{t+1})) | Π_t = π_t] \},
+\]</span> where <span class="math inline">\(ψ(π, y)\)</span> denotes the standard non-linear filtering update (there is no dependence on <span class="math inline">\(u\)</span> here because there are no state dynamics in this model).</p>
+<p>We introduce some notation to simplify the discussion. Define</p>
+<ul>
+<li><span class="math inline">\(L_i(π) = \EXP[ \ell(h_i, H) | Π = π] = \sum_{h \in \{h_0, h_1\}} \ell(h_i, h) π(h)\)</span>.</li>
+<li><span class="math inline">\(W_t(π_t) = c + \EXP[V_{t+1}(ψ(π_t, Y_{t+1})) | Π_t = π_t]\)</span>.</li>
+</ul>
+<p>Then, the above DP can be written as <span class="math display">\[
+  V_T(π_T) = \min\{ L_0(π_T), L_1(π_T) \}
+\]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>, <span class="math display">\[ V_t(π_t) = \min \{ L_0(π_t), L_1(π_t), W_t(π_t) \}. \]</span></p>
+<h1 data-number="2" id="structure-of-the-optimal-policy"><span class="header-section-number">2</span> Structure of the optimal policy</h1>
+<p>We start by establishing simple properties of the different functions defined above.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:concavity" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
+<dd><p>The above functions statisfy the following properties:</p>
+<ul>
+<li><span class="math inline">\(L_i(π)\)</span> is linear in <span class="math inline">\(π\)</span>.</li>
+<li><span class="math inline">\(V_t(π)\)</span> and <span class="math inline">\(W_t(π)\)</span> is concave in <span class="math inline">\(π\)</span>.</li>
+<li><span class="math inline">\(V_t(π)\)</span> and <span class="math inline">\(W_t(π)\)</span> are increasing in <span class="math inline">\(t\)</span>.</li>
+</ul>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof">Proof</h4>
+<p>The linearity of <span class="math inline">\(L_i(π)\)</span> follows from definition. From the discussion on <a href="../pomdp/#theorem:belief-PWLC">POMDPs</a>, we know that <span class="math inline">\(V_{t+1}(π)\)</span> is concave in <span class="math inline">\(π\)</span> and so is <span class="math inline">\(\EXP[V_{t+1}(ψ(π, Y_{t+1})) | Π_t = π]\)</span>. Therefore <span class="math inline">\(W_t(π)\)</span> is concave in <span class="math inline">\(π\)</span>.</p>
+<p>Finally, by construction, we have that <span class="math inline">\(V_{T-1}(π) \le V_T(π)\)</span>. The monotonicity in time then follows from Q2 of <a href="../../assignments/02">Assignment 2</a>. Sincen <span class="math inline">\(V_t\)</span> is monotone in time, it implies that <span class="math inline">\(W_t\)</span> is also monotone. <span class="math inline">\(\Box\)</span></p>
+<p>Now define stopping sets <span class="math inline">\(S_t(h) = \{ π \in Δ^2 : g_t(π) = h \}\)</span> for <span class="math inline">\(h \in \{h_0, h_1\}\)</span>. The key result is the following.</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:convex" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
+<dd><p>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(h \in \{h_0, h_1\}\)</span>, the set <span class="math inline">\(S_t(h)\)</span> is convex. Moreover, <span class="math inline">\(S_t(h_i) \subseteq S_{t+1}(h_i)\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-1">Proof</h4>
+<p>Note that we can write <span class="math inline">\(S_t(h) = A_t(h) \cap B_t(h)\)</span>, where <span class="math display">\[ A_t(h_i) = \{ π \in Δ^2 : L_i(π)  \le L_j(π) \}
+   \quad\text{and}\quad
+   B_t(h_i) = \{ π \in Δ^2 : L_i(π) \le W_t(π)  \}. \]</span></p>
+<p><span class="math inline">\(A_t(h_i)\)</span> is a the set of <span class="math inline">\(π\)</span> where one linear function of <span class="math inline">\(π\)</span> is less than or equal to another linear function of <span class="math inline">\(π\)</span>. Therefore, <span class="math inline">\(A_t(h_i)\)</span> is a convex set.</p>
+<p>Similarly, <span class="math inline">\(B_t(h_i)\)</span> is the set of <span class="math inline">\(π\)</span> where a linear function of <span class="math inline">\(π\)</span> is less than or equal to a concave function of <span class="math inline">\(π\)</span>. Therefore <span class="math inline">\(B_t(h_i)\)</span> is also a convex set.</p>
+<p><span class="math inline">\(S_t(h_i)\)</span> is the intersection of two convex sets, and hence convex.</p>
+<p>The monotonicty of <span class="math inline">\(S_t(h_i)\)</span> in time follows from the monotonicity of <span class="math inline">\(W_t\)</span> in time. <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:corner" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
+<dd><p>Suppose the stopping cost satisfy the following: <span class="math display">\[\begin{equation} \label{eq:cost-ass}
+\ell(h_0, h_0) \le c \le \ell(h_0, h_1)
+  \quad\text{and}\quad
+  \ell(h_1, h_1) \le c \le \ell(h_1, h_0). 
+\end{equation}\]</span> Then, <span class="math inline">\(e_i \in S_t(h_i)\)</span>, where <span class="math inline">\(e_i\)</span> denotes the standard unit vector (i.e., <span class="math inline">\(e_0 = [1, 0]^T\)</span> and <span class="math inline">\(e_1 = [0, 1]^T\)</span>).</p>
+</dd>
+</dl>
+</div>
+<dl>
+<dt>Remark</dt>
+<dd><p>The assumption on observation cost states that: (i) the cost of observation is greater than the cost incurred when the DM chooses the right hypothesis, and (ii) the cost of observation is less than the cost incurred when the DM chooses the wrong hypothesis. Both these assumptions are fairly natural.</p>
+</dd>
+</dl>
+<h4 class="unnumbered" data-number="" id="proof-2">Proof</h4>
+<p>Note that <span class="math inline">\(L_i(e_0) = \ell(h_i, h_0)\)</span> and <span class="math inline">\(L_i(e_1) = \ell(h_1, h_1)\)</span>. Moreover, by construction, <span class="math inline">\(W_t(π) \ge c\)</span>. Thus, under the above assumption on the cost, <span class="math display">\[ L_0(e_0) = \ell(h_0, h_0) \le c \le W_t(e_0) \]</span> and <span class="math display">\[ L_0(e_0) = \ell(h_0, h_0) \le \ell(h_1, h_0) = L_1(e_0). \]</span> Thus, <span class="math inline">\(e_0 \in S_t(h_0)\)</span>.</p>
+<p>By a symmetric argument, we can show that <span class="math inline">\(e_1 \in S_t(h_1)\)</span>. <span class="math inline">\(\Box\)</span></p>
+<p><a href="#theorem:convex" title="Theorem 1"><span class="pandoc-numbering-link theorem">Theorem 1</span></a> and <a href="#theorem:corner" title="Theorem 2"><span class="pandoc-numbering-link theorem">Theorem 2</span></a> imply that the optimal stopping regions are convex and include the “corner points” of the simplex. Note that although we formulated the problem for binary hypothesis, all the steps of the proof hold in general as well.</p>
+<p>For binary hypothesis, we can present a more concerete characterizatin of the optimal policy. Note that the two-dimensional simplex is equivalent to the interval <span class="math inline">\([0,1]\)</span>. In particular, any <span class="math inline">\(π = Δ^2\)</span> is equal to <span class="math inline">\([p, 1-p]\)</span>, where <span class="math inline">\(p \in [0,1]\)</span>. Now define:</p>
+<ul>
+<li><span class="math inline">\(\displaystyle τ^0_t = \min\left\{ p \in [0, 1] :  g_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_0 \right\}.\)</span></li>
+<li><span class="math inline">\(\displaystyle τ^1_t = \max\left\{ p \in [0, 1] :  g_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_1 \right\}.\)</span></li>
+</ul>
+<p>Then, by definition, the optimal policy has the following threshold property:</p>
+<div class="highlight">
+<dl>
+<dt><span id="proposition:threshold" class="pandoc-numbering-text proposition"><strong>Proposition 1</strong></span></dt>
+<dd><p>Let <span class="math inline">\(\bar g_t(p) = g_t([p, 1-p]^T)\)</span>. Then, under \eqref{eq:cost-ass}, <span class="math display">\[ \bar g_t(p) = \begin{cases}
+   h_1, &amp; \text{if } p \le τ^1_t \\
+   \mathsf{C}, &amp; \text{if } τ^1_t &lt; p &lt; τ^0_t \\
+   h_0, &amp; \text{if } τ^0_t \le p.
+  \end{cases} \]</span></p>
+<p>Furthermore, the decision thresholds are monotone in time. In particular, for all <span class="math inline">\(t\)</span>, <span class="math display">\[ τ^1_t \le τ^1_{t+1} \le τ^0_{t+1} \le τ^0_t. \]</span></p>
+</dd>
+</dl>
+</div>
+<p>The above property is simplies stated slighted in terms of the likelihood ratio. In particular, define <span class="math inline">\(λ_t = π_t(0)/π_t(1) = p_t/(1 - p_t)\)</span>. Then, we have the following:</p>
+<div class="highlight">
+<dl>
+<dt><span id="proposition:likelihood" class="pandoc-numbering-text proposition"><strong>Proposition 2</strong></span></dt>
+<dd><p>Let <span class="math inline">\(\hat g_t(λ) = g_t([λ/(1+λ), 1/(1+λ)]^T)\)</span>. Then, under \eqref{eq:cost-ass}, <span class="math display">\[ \hat g_t(λ) = \begin{cases}
+   h_1, &amp; \text{if } λ \le τ^1_t/(1 - τ^1_t) \\
+   \mathsf{C}, &amp; \text{if } τ^1_t/(1 - τ^1_t) &lt; λ &lt; τ^0_t/(1 - τ^0_t)_t \\
+   h_0, &amp; \text{if } τ^0_t/(1 - τ^0_t)_t \le λ.
+  \end{cases} \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-3">Proof</h4>
+<p>For any <span class="math inline">\(a, b \in [0, 1]\)</span>, <span class="math display">\[ a \le b \iff \frac{a}{1-a} \le \frac{b}{1-b}. \qquad \Box \]</span></p>
+<p>The result of <a href="#proposition:likelihood" title="Proposition 2"><span class="pandoc-numbering-link proposition">Proposition 2</span></a> is called the <em>sequential</em> likelihood ratio test (or sequential probability ratio test) to contrast it with the standard <a href="https://en.wikipedia.org/wiki/Likelihood-ratio_test">likelihood ratio test</a> in hypotehsis testing.</p>
+<h1 data-number="3" id="infinite-horizon-setup"><span class="header-section-number">3</span> Infinite horizon setup</h1>
+<p>Assume that <span class="math inline">\(T = ∞\)</span> so that the continuation alternative is always available. Then, we have the following.</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:inf" class="pandoc-numbering-text theorem"><strong>Theorem 3</strong></span></dt>
+<dd><p>Under \eqref{eq:cost-ass}, an optimal decision rule always exists, is time-homogeneous, and is given by the solution of the following DP: <span class="math display">\[ V(π) = \min\{ L_0(π) , L_1(π) , W(π) \} \]</span> where <span class="math display">\[ W(π) = c + \int_{y} [ pf_0(y) + (1-p)f_1(y)] V(ψ(π,y)) dy. \]</span></p>
+<p>Therefore, the optimal thresholds <span class="math inline">\(τ^1\)</span> and <span class="math inline">\(τ^0\)</span> are time-homogeneous.</p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-4">Proof</h4>
+<p>The result follows from standard results on non-negative dynamic programming. We did not conver non-negative DP. Essentially it determines conditions under which undiscounted infinite horizon problems have a solution when the per-step cost is non-negative.</p>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>For more details on sequential hypothesis testing, incuding an approximate method to determine the thresholds, see <span class="citation" data-cites="Wald1945">Wald (<a href="#ref-Wald1945" role="doc-biblioref">1945</a>)</span>. The model described above was first considered by <span class="citation" data-cites="Arrow1949">Arrow et al. (<a href="#ref-Arrow1949" role="doc-biblioref">1949</a>)</span>. See <span class="citation" data-cites="DeGroot1970">DeGroot (<a href="#ref-DeGroot1970" role="doc-biblioref">1970</a>)</span>.</p>
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-Arrow1949">
+<p><span class="smallcaps">Arrow, K.J., Blackwell, D., and Girshick, M.A.</span> 1949. Bayes and minimax solutions of sequential decision problems. <em>Econometrica</em> <em>17</em>, 3/4, 213. DOI: <a href="https://doi.org/10.2307/1905525">10.2307/1905525</a>.</p>
+</div>
+<div id="ref-DeGroot1970">
+<p><span class="smallcaps">DeGroot, M.</span> 1970. <em>Optimal statistical decisions</em>. Wiley-Interscience, Hoboken, N.J.</p>
+</div>
+<div id="ref-Wald1945">
+<p><span class="smallcaps">Wald, A.</span> 1945. Sequential tests of statistical hypotheses. <em>The Annals of Mathematical Statistics</em> <em>16</em>, 2, 117–186. DOI: <a href="https://doi.org/10.1214/aoms/1177731118">10.1214/aoms/1177731118</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 06 Apr 2020
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/pomdp">
+  POMDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/pomdp">pomdp</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/belief-state">belief state</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/hypothesis-testing">hypothesis testing</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
