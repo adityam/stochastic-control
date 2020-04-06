@@ -202,10 +202,10 @@ optimal policy. Note that the two-dimensional simplex is equivalent to the
 interval $[0,1]$. In particular, any $π = Δ^2$ is equal to $[p, 1-p]$, where
 $p \in [0,1]$. Now define:
 
-* $\displaystyle τ^0_t = \min\left\{ p \in [0, 1] :
+* $\displaystyle b_t = \min\left\{ p \in [0, 1] :
    g_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_0 
   \right\}.$
-* $\displaystyle τ^1_t = \max\left\{ p \in [0, 1] :
+* $\displaystyle a_t = \max\left\{ p \in [0, 1] :
    g_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_1 
   \right\}.$
 
@@ -217,14 +217,14 @@ Proposition #threshold
 
 :   Let $\bar g_t(p) = g_t([p, 1-p]^T)$. Then, under \\eqref{eq:cost-ass}, 
     $$ \bar g_t(p) = \begin{cases}
-       h_1, & \text{if } p \le τ^1_t \\
-       \mathsf{C}, & \text{if } τ^1_t < p < τ^0_t \\
-       h_0, & \text{if } τ^0_t \le p.
+       h_1, & \text{if } p \le a_t \\
+       \mathsf{C}, & \text{if } a_t < p < b_t \\
+       h_0, & \text{if } b_t \le p.
       \end{cases} $$
 
     Furthermore, the decision thresholds are monotone in time. In particular,
     for all $t$,
-    $$ τ^1_t \le τ^1_{t+1} \le τ^0_{t+1} \le τ^0_t. $$
+    $$ a_t \le a_{t+1} \le b_{t+1} \le b_t. $$
 
 :::
 
@@ -238,9 +238,9 @@ Proposition #likelihood
 
 :   Let $\hat g_t(λ) = g_t([λ/(1+λ), 1/(1+λ)]^T)$. Then, under \\eqref{eq:cost-ass}, 
     $$ \hat g_t(λ) = \begin{cases}
-       h_1, & \text{if } λ \le τ^1_t/(1 - τ^1_t) \\
-       \mathsf{C}, & \text{if } τ^1_t/(1 - τ^1_t) < λ < τ^0_t/(1 - τ^0_t)_t \\
-       h_0, & \text{if } τ^0_t/(1 - τ^0_t)_t \le λ.
+       h_1, & \text{if } λ \le a_t/(1 - a_t) \\
+       \mathsf{C}, & \text{if } a_t/(1 - a_t) < λ < b_t/(1 - b_t)_t \\
+       h_0, & \text{if } b_t/(1 - b_t)_t \le λ.
       \end{cases} $$
 
 :::
@@ -251,8 +251,8 @@ For any $a, b \in [0, 1]$,
 $$ a \le b \iff \frac{a}{1-a} \le \frac{b}{1-b}. \qquad \Box $$
 
 The result of @proposition:likelihood is called the _sequential_ likelihood
-ratio test (or sequential probability ratio test) to contrast it with the
-standard [likelihood ratio test][LRT] in hypotehsis testing.
+ratio test (SLRT) or _sequential_ probability ratio test (SPRT) to contrast it
+with the standard [likelihood ratio test][LRT] in hypotehsis testing.
 
 # Infinite horizon setup
 
@@ -269,7 +269,7 @@ Theorem #inf
     where
     $$ W(π) = c + \int_{y} [ pf_0(y) + (1-p)f_1(y)] V(ψ(π,y)) dy. $$
 
-    Therefore, the optimal thresholds $τ^1$ and $τ^0$ are time-homogeneous. 
+    Therefore, the optimal thresholds $a$ and $b$ are time-homogeneous. 
 
 :::
 
@@ -282,8 +282,100 @@ cost is non-negative.
 
 [LRT]: https://en.wikipedia.org/wiki/Likelihood-ratio_test
 
+# Exercises {-} 
+
+1. Consider the following modification of the sequential hypothesis testing.
+   As in the model discussed above, there are two hypothesis $h_0$ and $h_1$.
+   The a priori probability that the hypothesis is $h_0$ is $p$.
+
+      In contrast to the model discussed above, there are $N$ sensors. If
+      the underlying hypothesis is $h_i$ and sensor $m$ is used at time $t$,
+      then the observation $Y_t$ is distrubted according to pdf (or pmf)
+      $f^m_j(y)$. The cost of using sensor $m$ is $c_m$. 
+
+      Whenever the decision maker takes a measurement, he picks a sensor $m$
+      uniformly at random from $\{1, \dots, N\}$ and observes $Y_t$ according to
+      the distribution $f^m_j(\cdot)$ and incurs a cost $c_m$. 
+
+      The system continues for a finite time $T$. At each time $t < T$, the
+      decision maker has three options: stop and declare $h_0$, stop and declare
+      $h_1$, or continue to take another measurement. At time $T$, the continue
+      alternative is unavailable.
+
+      a. Formulate the above problem as a POMDP. Identify an information state
+         and write the dynamic programming decomposition for the problem.
+
+      b. Show that the optimal control law has a threshold property, similar to
+         the threshold propertly for the model described above.
+
+2. In this exercise, we will derive an approximate method to compute the
+   performance of a given threshold based policy for infinite horizon
+   sequential hypothesis testing problem. Let
+   $$ θ_i(g,p) = \EXP^{g}[ τ | H = h_i] $$
+   denote the expected number of samples when using stopping
+   rule $g$ assuming that the true hypothesis is $h_i$. Note that for any
+   belief state based stopping rule, $θ_i$ depends on the initial belief $[p,
+   1-p]$. Furthermore, let 
+   $$ ξ_i(h_k ;g, p) = \PR^g(U_τ = h_k | H = h_i) $$
+   denote the probability that the stopping action is $h_k$ when using 
+   stopping rule $g$ assuming that the true hypothesis is $h_i$. 
+
+     a. Argue that the performance of any policy $g$ can be written as
+        \begin{align*}
+        V_g(p) &= p θ_0(g, p) + (1-p) θ_1(g,p) \\
+        & \quad + p \sum_{u \in \{h_0, h_1\}} \ell(u, h_0) ξ_0(u; g, p) \\
+        & \quad + (1-p) \sum_{u \in \{h_0, h_1\}} \ell(u, h_1) ξ_1(u; g, p).
+        \end{align*}
+        Thus, approximately computing $θ_i$ and $ξ_i$ gives an approximate
+        value of $V_g(p)$. 
+
+     b. Now assume that the policy $g$ is of a threshold form with thresholds
+        $a$ and $b$. To avoid trivial cases, we assume that $p \in (a,b)$. The
+        key idea to compute $θ_i$ and $ξ_i$ is that the evolution of $p_t =
+        \PR(H = h_t | Y_{1:t})$ is a Markov chain which starts at a state $p
+        \in (a,b)$ and stops the first time $p_t$ goes below $a$ or above $b$.
+        
+        Suppose we discretize the state space space $[0, 1]$ into $n+1$ grid
+        points $\ALPHABET S_n = \{0, \frac1n, \dots, 1\}$. Assume that $p$,
+        $a$, and $b$ lie on this discrete grid. Discreteize $p_t$ to the
+        closest grid point and let $P_i$ denote the transition matrix of the
+        discretized $p_t$ when the true hypothesis is $h_i$. Partition the
+        $P_i$ as
+        $$ \left[\begin{array}{c|c|c}
+            A_i & B_i & C_i \\
+            \hline
+            D_i & E_i & F_i \\
+            \hline
+            G_i & H_i & J_i 
+           \end{array}\right] $$
+        where the lines correspond to the index for $a$ and $b$. The
+        transition matrix of the absorbing Markov chain is given by 
+        $$ \hat P_i = \left[\begin{array}{c|c|c}
+            I & 0 & I \\
+            \hline
+            D_i & E_i & F_i \\
+            \hline
+            I & 0 & I 
+           \end{array}\right] $$
+        Now suppose $j$ is the index of $p$ in $\ALPHABET S_n$. Using
+        properties of absorbing Markov chains, show that
+
+        * $ξ_i(h_0; \langle a, b \rangle, p) \approx
+         [ (I - E_i)^{-1} F_i \mathbf{1} ]_j$
+        * $ξ_i(h_1; \langle a, b \rangle, p) \approx
+         [ (I - E_i)^{-1} D_i \mathbf{1} ]_j$
+        * $θ_i(\langle a, b \rangle, p) \approx
+         [ (I - E_i)^{-1} \mathbf{1} ]_j$
+
+
+
 # References {-}
 
 For more details on sequential hypothesis testing, incuding an approximate
-method to determine the thresholds, see @Wald1945. The model described above
+method to determine the thresholds, see @Wald1945. The optimal of sequential
+likelihood ratio test was proved in @Wald1948. The model described above
 was first considered by @Arrow1949. See @DeGroot1970.
+
+Execrise 1 is from @Bai2015. Exercise 2 is from @Woodall1983.
+
+---
