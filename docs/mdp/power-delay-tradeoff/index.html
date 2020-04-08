@@ -40,76 +40,129 @@
 <hr />
 <p>In a cell phone, higher layer applications such as voicecall, email, browsers, etc. generate data packets. These packets are buffered in a queue and the transmission protocol decides how many packets to transmit at each time depending the number of packets in the queue and the quality of the wireless channel.</p>
 <p>Let <span class="math inline">\(X_t \in \integers_{\ge 0}\)</span> denote the number of packets buffered at time <span class="math inline">\(t\)</span> and <span class="math inline">\(U_t \in \integers_{\ge 0}\)</span>, <span class="math inline">\(U_t \le X_t\)</span>, denote the number of packets transmitted at time <span class="math inline">\(t\)</span>. The remaining <span class="math inline">\(X_t - U_t\)</span> packets incur a delay penalty given by <span class="math inline">\(d(X_t - U_t)\)</span>, where <span class="math inline">\(d(\cdot)\)</span> is a <em>strictly</em> increasing and convex function where <span class="math inline">\(d(0) = 0\)</span>.</p>
+<dl>
+<dt>Remark</dt>
+<dd><p>A function <span class="math inline">\(f \colon \integers \to \reals\)</span> is called convex (or <span class="math inline">\(L^{\#}\)</span> convex) if for any <span class="math inline">\(x \in \integers\)</span>, <span class="math display">\[ f(x+1) + f(x-1) \ge 2 f(x), \]</span> or, equivalently, for any <span class="math inline">\(x, y \in \integers\)</span> <span class="math display">\[ f(x) + f(y) \ge 
+  f\Bigl(\Bigl\lfloor \frac{x-y}{2} \Bigr\rfloor\Bigr)
+  +
+  f\Bigl(\Bigl\lceil \frac{x-y}{2} \Bigr\rceil\Bigr).\]</span></p>
+</dd>
+</dl>
 <p>During time <span class="math inline">\(t\)</span>, <span class="math inline">\(W_t \in \integers_{\ge 0}\)</span> additional packets arrive and <span class="math display">\[ X_{t+1} = X_t - U_t + W_t.\]</span> We assume that <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is an i.i.d. process.</p>
-<p>The packets are transmitted over a wireless fading channel. Let <span class="math inline">\(S_t \in \ALPHABET S\)</span> denote the state of the fading channel. We assume that <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is a <a href="../../theory/stochastic-dominance#stochastic-monotonicity">stochastically monotone</a> Markov process that is independent of <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>.</p>
+<p>The packets are transmitted over a wireless fading channel. Let <span class="math inline">\(S_t \in \ALPHABET S\)</span> denote the state of the fading channel. We assume that the states are ordered such that a lower value of state denotes a better channel quality.</p>
+<p>If the channel has two states, say GOOD and BAD, we typically expect that <span class="math display">\[ \PR(\text{GOOD} \mid \text{GOOD}) \ge \PR(\text{GOOD} \mid \text{BAD}). \]</span> This means that the two state transition matrix is <a href="../../theory/stochastic-dominance#stochastic-monotonicity">stochastically monotone</a>. In general, we assume that <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is a <a href="../../theory/stochastic-dominance#stochastic-monotonicity">stochastically monotone</a> Markov process that is independent of <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>.</p>
 <p>The transmission protocol sets the transmit power such that the signal to noise ratio (SNR) at the receiver is above a desired threshold. It can be shown that for additive white Gaussian channels (AWGN), the transmitted power is of the form <span class="math display">\[p(U_t) q(S_t),\]</span> where</p>
 <ul>
 <li><span class="math inline">\(p(\cdot)\)</span> is a strictly increasing and convex function where <span class="math inline">\(p(0) = 0\)</span>;</li>
-<li><span class="math inline">\(q(\cdot)\)</span> is a strictly decreasing function.</li>
+<li><span class="math inline">\(q(\cdot)\)</span> is a strictly increasing function.</li>
 </ul>
 <p>The objective is to choose a transmission policy <span class="math inline">\(U_t = g_t(X_t, S_t)\)</span> to minimize the weighted sum of transmitted power and delay <span class="math display">\[ \EXP\bigg[ \sum_{t=1}^T \big[ p(U_t) q(S_t) + \lambda d(X_t - U_t) \big]
 \bigg],\]</span> where <span class="math inline">\(\lambda\)</span> may be viewed as a Lagrange multiplier corresponding to a constrained optimization problem.</p>
-<h2 data-number="0.1" id="dynamic-program"><span class="header-section-number">0.1</span> Dynamic program</h2>
+<h1 data-number="1" id="dynamic-program"><span class="header-section-number">1</span> Dynamic program</h1>
 <p>We can assume <span class="math inline">\(Y_t = X_t - U_t\)</span> as a post-decision state in the above model and write the dynamic program as follows:</p>
 <p><span class="math display">\[ V_{T+1}(x,s) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, <span class="math display">\[\begin{align*}
-  Q_t(y,s) &amp;= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
-  V_t(x,s) &amp;= \min_{u \le x} \big\{ p(u) q(s) + Q_t(x-u, s) \big\}
+  H_t(y,s) &amp;= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
+  V_t(x,s) &amp;= \min_{0 \le u \le x} \big\{ p(u) q(s) + H_t(x-u, s) \big\}
 \end{align*}\]</span></p>
+<h2 data-number="1.1" id="monotonicity-of-value-functions"><span class="header-section-number">1.1</span> Monotonicity of value functions</h2>
 <div class="highlight">
 <dl>
-<dt>Lemma</dt>
-<dd><p>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(x,s)\)</span> and <span class="math inline">\(Q_t(y,s)\)</span> are increasing in the first variable and decreasing in the second variable.</p>
+<dt><span id="lem:increasing" class="pandoc-numbering-text lem"><strong>Lemma 1</strong></span></dt>
+<dd><p>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(x,s)\)</span> and <span class="math inline">\(H_t(y,s)\)</span> are increasing in both variables.</p>
 </dd>
 </dl>
 </div>
-<h4 data-number="0.1.0.1" id="proof"><span class="header-section-number">0.1.0.1</span> Proof</h4>
+<h4 class="unnumbered" data-number="" id="proof">Proof</h4>
 <p>First note that the constraint set <span class="math inline">\(\ALPHABET U(x) = \{0, \dots, x\}\)</span> satisfies the conditions that generalize the result of monotonicity to constrained actions.</p>
-<p>We prove the two monotonicity properties by backward induction. First note that <span class="math inline">\(V_{T+1}(x,s)\)</span> is trivially monotone. This forms the basis of induction. Now suppose <span class="math inline">\(V_{t+1}(x,s)\)</span> is increasing in <span class="math inline">\(x\)</span> and decreasing in <span class="math inline">\(s\)</span>. Since <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math display">\[Q_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ]\]</span> is decreasing in <span class="math inline">\(s\)</span>. Moreover, since both <span class="math inline">\(d(y)\)</span> and <span class="math inline">\(V_{t+1}(y + w, s)\)</span> are increasing in <span class="math inline">\(y\)</span>, so is <span class="math inline">\(Q_t(y,s)\)</span>.</p>
-<p>Now, for every <span class="math inline">\(u\)</span>, <span class="math inline">\(p(u) q(s)\)</span> and <span class="math inline">\(Q_t(x-u, s)\)</span> is increasing in <span class="math inline">\(x\)</span> and decreasing in <span class="math inline">\(s\)</span>. So, the pointwise minima over <span class="math inline">\(u\)</span> is also increasing in <span class="math inline">\(x\)</span> and decreasing in <span class="math inline">\(s\)</span>.</p>
+<p>We prove the two monotonicity properties by backward induction. First note that <span class="math inline">\(V_{T+1}(x,s)\)</span> is trivially monotone. This forms the basis of induction. Now suppose <span class="math inline">\(V_{t+1}(x,s)\)</span> is increasing in <span class="math inline">\(x\)</span> and <span class="math inline">\(s\)</span>. Since <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math display">\[H_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ]\]</span> is increasing in <span class="math inline">\(s\)</span>. Moreover, since both <span class="math inline">\(d(y)\)</span> and <span class="math inline">\(V_{t+1}(y + w, s)\)</span> are increasing in <span class="math inline">\(y\)</span>, so is <span class="math inline">\(H_t(y,s)\)</span>.</p>
+<p>Now, for every <span class="math inline">\(u\)</span>, <span class="math inline">\(p(u) q(s)\)</span> and <span class="math inline">\(H_t(x-u, s)\)</span> is increasing in <span class="math inline">\(x\)</span> and <span class="math inline">\(s\)</span>. So, the pointwise minima over <span class="math inline">\(u\)</span> is also increasing in <span class="math inline">\(x\)</span> and <span class="math inline">\(s\)</span>.</p>
+<h2 data-number="1.2" id="convexity-of-value-functions"><span class="header-section-number">1.2</span> Convexity of value functions</h2>
 <div class="highlight">
 <dl>
-<dt>Lemma</dt>
-<dd><p>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(s\)</span>, <span class="math inline">\(V_t(x,s)\)</span> and <span class="math inline">\(Q_t(y,s)\)</span> are convex in the first variable.</p>
+<dt><span id="lem:convex" class="pandoc-numbering-text lem"><strong>Lemma 2</strong></span></dt>
+<dd><p>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(s\)</span>, <span class="math inline">\(V_t(x,s)\)</span> and <span class="math inline">\(H_t(y,s)\)</span> are convex in the first variable.</p>
 </dd>
 </dl>
 </div>
-<h4 data-number="0.1.0.2" id="proof-1"><span class="header-section-number">0.1.0.2</span> Proof</h4>
-<p>We proceed by backward induction. First note that <span class="math inline">\(V_{T+1}(x,s)\)</span> is trivially convex in <span class="math inline">\(x\)</span>. Now assume that <span class="math inline">\(V_{t+1}(x,s)\)</span> is convex in <span class="math inline">\(x\)</span>. Then, <span class="math inline">\(\EXP[V_{t+1}(y + W_t, S_{t+1}) | S_t = s]\)</span> is weighted sum of convex functions and is, therefore, convex in <span class="math inline">\(y\)</span>. Therefore, <span class="math inline">\(Q_t(y,s)\)</span> is a sum of two convex functions and, therefore, covnex in <span class="math inline">\(y\)</span>.</p>
-<p>We cannot directly show the convexity of <span class="math inline">\(V_t(x,s)\)</span> because the pointwise minimum of convex functions is not convex. So, we consider the following arguement. Fix <span class="math inline">\(s\)</span> and pick <span class="math inline">\(x &gt; 1\)</span>. Let <span class="math inline">\(\underline u = g^*_t(x-1,s)\)</span> and <span class="math inline">\(\bar u = g^*_t(x+1,s)\)</span>. Let <span class="math inline">\(\underline v = \lfloor (\underline u + \bar u)/2 \rfloor\)</span> and <span class="math inline">\(\bar v = \lceil (\underline u + \bar u)/2 \rceil\)</span>. Note that both <span class="math inline">\(\underline v\)</span> and <span class="math inline">\(\bar v\)</span> are feasible at <span class="math inline">\(x\)</span>. Then, <span class="math display">\[ \begin{align*}
+<h4 class="unnumbered" data-number="" id="proof-1">Proof</h4>
+<p>We proceed by backward induction. First note that <span class="math inline">\(V_{T+1}(x,s)\)</span> is trivially convex in <span class="math inline">\(x\)</span>. Now assume that <span class="math inline">\(V_{t+1}(x,s)\)</span> is convex in <span class="math inline">\(x\)</span>. Then, <span class="math inline">\(\EXP[V_{t+1}(y + W_t, S_{t+1}) | S_t = s]\)</span> is weighted sum of convex functions and is, therefore, convex in <span class="math inline">\(y\)</span>. Therefore, <span class="math inline">\(H_t(y,s)\)</span> is a sum of two convex functions and, therefore, convex in <span class="math inline">\(y\)</span>.</p>
+<p>We cannot directly show the convexity of <span class="math inline">\(V_t(x,s)\)</span> because the pointwise minimum of convex functions is not convex. So, we consider the following argument. Fix <span class="math inline">\(s\)</span> and pick <span class="math inline">\(x &gt; 1\)</span>. Let <span class="math inline">\(\underline u = g^*_t(x-1,s)\)</span> and <span class="math inline">\(\bar u = g^*_t(x+1,s)\)</span>. Let <span class="math inline">\(\underline v = \lfloor (\underline u + \bar u)/2 \rfloor\)</span> and <span class="math inline">\(\bar v = \lceil (\underline u + \bar u)/2 \rceil\)</span>. Note that both <span class="math inline">\(\underline v\)</span> and <span class="math inline">\(\bar v\)</span> are feasible at <span class="math inline">\(x\)</span>. Then, <span class="math display">\[ \begin{align*}
   \hskip 2em &amp; \hskip -2em
   V_t(x-1, s) + V_t(x+1, s)
   \\
   &amp;= 
-  [ p(\underline u) + p(\bar u) ] q(s) + Q_t(x - 1 - \underline u, s)
-  + Q_t(x + 1 - \bar u, s)
+  [ p(\underline u) + p(\bar u) ] q(s) + H_t(x - 1 - \underline u, s)
+  + H_t(x + 1 - \bar u, s)
   \\
   &amp;\stackrel{(a)}\ge [ p(\underline v) + p(\bar v)] q(s) + 
-    Q_t(x - \underline v, s) + Q_t(x - \bar v, s) \\
-  &amp;\ge 2 \min_{u \le x} \big\{ p(u) q(s) + Q_t(x-u, s) \\
+    H_t(x - \underline v, s) + H_t(x - \bar v, s) \\
+  &amp;\ge 2 \min_{u \le x} \big\{ p(u) q(s) + H_t(x-u, s) \\
   &amp;= 2 V_t(x,s),
-\end{align*} \]</span> where <span class="math inline">\((a)\)</span> follows from convexity of <span class="math inline">\(p(\cdot)\)</span> and <span class="math inline">\(Q_t(\cdot, s)\)</span>. Thus, <span class="math inline">\(V_t(x,s)\)</span> is convex in <span class="math inline">\(x\)</span>. This completes the induction step.</p>
+\end{align*} \]</span> where <span class="math inline">\((a)\)</span> follows from convexity of <span class="math inline">\(p(\cdot)\)</span> and <span class="math inline">\(H_t(\cdot, s)\)</span>. Thus, <span class="math inline">\(V_t(x,s)\)</span> is convex in <span class="math inline">\(x\)</span>. This completes the induction step. <span class="math inline">\(\Box\)</span></p>
+<h2 data-number="1.3" id="monotonicity-of-optimal-policy-in-queue-length"><span class="header-section-number">1.3</span> Monotonicity of optimal policy in queue length</h2>
 <div class="highlight">
 <dl>
-<dt>Theorem</dt>
-<dd><p>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(s\)</span>, the optimal strategy <span class="math inline">\(g^*_t(x,s)\)</span> is increasing in <span class="math inline">\(x\)</span>.</p>
+<dt><span id="thm:monotone-queue" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
+<dd><p>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(s\)</span>, there is an optimal strategy <span class="math inline">\(g^*_t(x,s)\)</span> which is increasing in <span class="math inline">\(x\)</span>.</p>
 </dd>
 </dl>
 </div>
-<h4 data-number="0.1.0.3" id="proof-2"><span class="header-section-number">0.1.0.3</span> Proof</h4>
-<p>In the previous lemma, we have shown that <span class="math inline">\(Q_t(y,s)\)</span> is convex in <span class="math inline">\(y\)</span>. Therefore, <span class="math inline">\(Q_t(x-u, s)\)</span> is submodular in <span class="math inline">\((x,u)\)</span>.</p>
-<p>[ One can show this by finite difference, but for simplicity, we assume that <span class="math inline">\(Q_t(y,s)\)</span> is twice differentiable. Then, <span class="math inline">\(\partial^2 Q_t(x - u, s)/ \partial x \partial u \le 0\)</span> (by convexity of <span class="math inline">\(Q_t\)</span>). ]</p>
-<p>Thus, for a fixed <span class="math inline">\(s\)</span>, <span class="math inline">\(p(u)q(s) + Q_t(x-u, s)\)</span> is submodular in <span class="math inline">\((x,u)\)</span>. Therefore, the optimal policy is increasing in <span class="math inline">\(x\)</span>.</p>
+<h4 class="unnumbered" data-number="" id="proof-2">Proof</h4>
+<p>In the previous lemma, we have shown that <span class="math inline">\(H_t(y,s)\)</span> is convex in <span class="math inline">\(y\)</span>. Therefore, <span class="math inline">\(H_t(x-u, s)\)</span> is submodular in <span class="math inline">\((x,u)\)</span>.</p>
+<p>[ One can show this by finite difference, but for simplicity, we assume that <span class="math inline">\(H_t(y,s)\)</span> is twice differentiable. Then, <span class="math inline">\(\partial^2 H_t(x - u, s)/ \partial x \partial u \le 0\)</span> (by convexity of <span class="math inline">\(H_t\)</span>). ]</p>
+<p>Thus, for a fixed <span class="math inline">\(s\)</span>, <span class="math inline">\(p(u)q(s) + H_t(x-u, s)\)</span> is submodular in <span class="math inline">\((x,u)\)</span>. Therefore, the optimal policy is increasing in <span class="math inline">\(x\)</span>. <span class="math inline">\(\Box\)</span></p>
+<h2 data-number="1.4" id="monotonicity-of-optimal-policy-in-channel-state"><span class="header-section-number">1.4</span> Monotonicity of optimal policy in channel state</h2>
+<p>It is natural to expect that for a fixed <span class="math inline">\(x\)</span> the optimal policy is decreasing in <span class="math inline">\(s\)</span>. However, it is not possible to obtain the monotonicity of optimal policy in channel state in general. To see why this is difficult, let us impose a mild assumption on the arrival distribution.</p>
+<dl>
+<dt><span id="ass:Pw" class="pandoc-numbering-text ass"><strong>Assump. 1</strong></span></dt>
+<dd><p>The packet arrival distribution is weakly decreasing, i.e., for any <span class="math inline">\(v,w \in \integers_{\ge 0}\)</span> such that <span class="math inline">\(v \le w\)</span>, we have that <span class="math inline">\(P_W(v) \ge P_W(w)\)</span>.</p>
+</dd>
+</dl>
+<p>We first start with a slight generalization of stochastic monotonicity result.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lem:littlewood" class="pandoc-numbering-text lem"><strong>Lemma 3</strong></span></dt>
+<dd><p>Let <span class="math inline">\(\{p_i\}_{i \ge 0}\)</span> and <span class="math inline">\(\{q_i\}_{i \ge 0}\)</span> be real-valued non-negative sequences satisfying <span class="math display">\[ \sum_{i \le j} p_i \le \sum_{i \le j} q_i, \quad \forall j.\]</span> Then, for any increasing sequence <span class="math inline">\(\{v_i\}_{i \ge 0}\)</span>, we have <span class="math display">\[ \sum_{i = 0}^\infty p_i v_i \ge \sum_{i=0}^\infty q_i v_i. \]</span></p>
+</dd>
+</dl>
+</div>
+<p>The proof is similar to the proof for stochastic monotonicity.</p>
+<div class="highlight">
+<p><span id="lem:submodularity" class="pandoc-numbering-text lem"><strong>Lemma 4</strong></span></p>
+<p>Under <a href="#ass:Pw">Assump. 1</a>, for all <span class="math inline">\(t\)</span>, <span class="math inline">\(H_t(y,s)\)</span> is supermodular in <span class="math inline">\((y,s)\)</span>.</p>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-3">Proof</h4>
+<p>The idea of the proof is similar to <a href="../monotonicity/#lem:sufficient">Lemma 1</a> of the notes on monotone MDPs.</p>
+<p>Fix <span class="math inline">\(y^+, y^- \in \integers_{\ge 0}\)</span> and <span class="math inline">\(s^+, s^- \in \ALPHABET S\)</span> such that <span class="math inline">\(y^+ &gt; y^-\)</span> and <span class="math inline">\(s^+ &gt; s^-\)</span>. Now, for any <span class="math inline">\(y&#39; \in \integers_{\ge 0}\)</span> and <span class="math inline">\(s&#39; \in \ALPHABET S\)</span> define <span class="math display">\[\begin{align*}
+  π(y&#39;,s&#39;) = P_W(y&#39; - y^+)P_S(s&#39;|s^+) + 
+             P_W(y&#39; - y^-)P_S(s&#39;|s^-), 
+             \\
+  μ(y&#39;,s&#39;) = P_W(y&#39; - y^-)P_S(s&#39;|s^+) + 
+             P_W(y&#39; - y^+)P_S(s&#39;|s^-).
+\end{align*}\]</span></p>
+<p>Since <span class="math inline">\(P_S\)</span> is stochastically monotone, we have that for any <span class="math inline">\(σ \in \ALPHABET S\)</span>, <span class="math display">\[ \sum_{s&#39;=1}^{σ} P_S(s&#39;|s^+) \le \sum_{s&#39;=1}^{σ} P_S(s&#39;|s^-). \]</span> Moreover, due to <a href="#ass:Pw">Assump. 1</a>, we have that <span class="math inline">\(P_W(y&#39; - y^-) \le P_W(y&#39; - y^+)\)</span>. Thus, <span class="math display">\[ [P_W(y&#39; - y^+) - P_W(y&#39; - y^-)] \sum_{s&#39;=1}^{σ} P_S(s&#39;|s^+) 
+\le [P_W(y&#39; - y^+) - P_W(y&#39; - y^-)]\sum_{s&#39;=1}^{σ} P_S(s&#39;|s^-). \]</span> Rearranging terms, we get <span class="math display">\[ \sum_{s&#39;=1}^σ π(y&#39;,s&#39;) \le \sum_{s&#39;=1}^σ μ(y&#39;,s&#39;). \]</span> Thus, for any <span class="math inline">\(y&#39;\)</span>, the sequence <span class="math inline">\(π(y&#39;,s&#39;)\)</span> and <span class="math inline">\(ν(y&#39;,s&#39;)\)</span> satisfy the condition of <a href="#lem:littlewood">Lemma 3</a>.</p>
+<p>Now, in <a href="#lem:increasing">Lemma 1</a>, we have established that for any <span class="math inline">\(y&#39;\)</span>, <span class="math inline">\(V_{t+1}(y&#39;,s&#39;)\)</span> is increasing in <span class="math inline">\(s&#39;\)</span>. Thus, from <a href="#lem:littlewood">Lemma 3</a>, we have <span class="math display">\[  \sum_{s&#39; \in \ALPHABET S} π(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;) 
+\ge \sum_{s&#39; \in \ALPHABET S} μ(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;), \]</span> Summing up over <span class="math inline">\(y&#39;\)</span>, we get <span class="math display">\[  \sum_{y&#39; \in \integers_{\ge 0}} \sum_{s&#39; \in \ALPHABET S} π(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;) 
+\ge \sum_{y&#39; \in \integers_{\ge 0}} \sum_{s&#39; \in \ALPHABET S} μ(y&#39;, s&#39;) V_{t+1}(y&#39;, s&#39;), \]</span> Or equivalently, <span class="math display">\[\begin{align*}
+\hskip 2em &amp; \hskip -2em
+\EXP[ V_{t+1}(y^+ + W, S_{t+1}) | S_t = s^+) ] 
++ 
+\EXP[ V_{t+1}(y^- + W, S_{t+1}) | S_t = s^-) ] 
+\\
+&amp; \ge 
+\EXP[ V_{t+1}(y^- + W, S_{t+1}) | S_t = s^+) ] 
++ 
+\EXP[ V_{t+1}(y^+ + W, S_{t+1}) | S_t = s^-) ] .
+\end{align*}\]</span> Thus, <span class="math inline">\(H_t(y,s)\)</span> is supermodular in <span class="math inline">\((y,s)\)</span>.</p>
+<div class="highlight">
+<p><span id="thm:monotone-channel" class="pandoc-numbering-text thm"><strong>Theorem 2</strong></span></p>
+<p>Under <a href="#ass:Pw">Assump. 1</a>, we cannot establish the monotonicity of <span class="math inline">\(g^*_t(x,s)\)</span> is <span class="math inline">\(s\)</span>.</p>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-4">Proof</h4>
+<p>Note that we have established that <span class="math inline">\(H_t(y,s)\)</span> is supermodular in <span class="math inline">\((y,s)\)</span>. Thus, for any fixed <span class="math inline">\(x\)</span>, <span class="math inline">\(H_t(x-u,s)\)</span> is submodular in <span class="math inline">\((u,s)\)</span>. Furthermore the function <span class="math inline">\(p(u)q(s)\)</span> is increasing in both variables and therefore supermodular in <span class="math inline">\((u,s)\)</span>. Therefore, we cannot say anything specific about p(u)q(s) + H_t(x-u, s)$ which is a sum of submodular and supermodular functions. <span class="math inline">\(\Box\)</span></p>
 <hr />
-<h2 data-number="0.2" id="exercises"><span class="header-section-number">0.2</span> Exercises</h2>
-<ol type="1">
-<li><p>The purpose of this exercise is to establish the monotonicity of the optimal policy in the channel state.</p>
-<ol type="a">
-<li>Show that for all <span class="math inline">\(t\)</span>, <span class="math inline">\(Q_t(y,s)\)</span> is submodular in <span class="math inline">\((y,s)\)</span>.</li>
-<li>Use the result of the previous part to show that for any fixed <span class="math inline">\(x\)</span>, <span class="math inline">\(g_t^*(x,s)\)</span> is increasing in <span class="math inline">\(s\)</span>.</li>
-</ol></li>
-</ol>
-<hr />
-<h2 data-number="0.3" id="references"><span class="header-section-number">0.3</span> References</h2>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
 <p>The mathematical model of power-delay trade-off is taken from <span class="citation" data-cites="Berry2000">Berry (<a href="#ref-Berry2000" role="doc-biblioref">2000</a>)</span>, where the monotonicty results were proved using first principles. More detailed characterization of the optimal transmission strategy when the average power or the average delay goes to zero are provided in <span class="citation" data-cites="Berry2002">Berry and Gallager (<a href="#ref-Berry2002" role="doc-biblioref">2002</a>)</span> and <span class="citation" data-cites="Berry2013">Berry (<a href="#ref-Berry2013" role="doc-biblioref">2013</a>)</span>. A related model is presented in <span class="citation" data-cites="Ding2016">Ding et al. (<a href="#ref-Ding2016" role="doc-biblioref">2016</a>)</span>.</p>
 <p>For a broader overview of power-delay trade offs in wireless communication, see <span class="citation" data-cites="Berry2012">Berry et al. (<a href="#ref-Berry2012" role="doc-biblioref">2012</a>)</span> and <span class="citation" data-cites="Yeh2012">Yeh (<a href="#ref-Yeh2012" role="doc-biblioref">2012</a>)</span>.</p>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">

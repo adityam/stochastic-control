@@ -1,6 +1,6 @@
 ---
 title: "Example: Power-delay trade-off in wireless communication"
-weight: 26
+weight: 27
 categories:
   - MDP
 tags:
@@ -29,14 +29,32 @@ packets transmitted at time $t$. The remaining $X_t - U_t$ packets incur a
 delay penalty given by $d(X_t - U_t)$, where $d(\cdot)$ is a _strictly_
 increasing and convex function where $d(0) = 0$. 
 
+Remark
+
+:  A function $f \colon \integers \to \reals$ is called convex (or $L^{\#}$
+convex) if for any $x \in \integers$,
+  $$ f(x+1) + f(x-1) \ge 2 f(x), $$
+  or, equivalently, for any $x, y \in \integers$
+  $$ f(x) + f(y) \ge 
+  f\Bigl(\Bigl\lfloor \frac{x-y}{2} \Bigr\rfloor\Bigr)
+  +
+  f\Bigl(\Bigl\lceil \frac{x-y}{2} \Bigr\rceil\Bigr).$$
+
 During time $t$, $W_t \in \integers_{\ge 0}$ additional packets arrive and 
 $$ X_{t+1} = X_t - U_t + W_t.$$
 We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d. process.
 
 The packets are transmitted over a wireless fading channel. Let $S_t \in
 \ALPHABET S$ denote the state of the fading channel. We assume that
-$\{S_t\}_{t \ge 1}$ is a [stochastically monotone][monotone] Markov process that is
-independent of $\{W_t\}_{t \ge 1}$.
+the states are ordered such that a lower value of state denotes a better
+channel quality. 
+
+If the channel has two states, say GOOD and BAD, we typically expect that 
+$$ \PR(\text{GOOD} \mid \text{GOOD}) \ge \PR(\text{GOOD} \mid \text{BAD}). $$
+This means that the two state transition matrix is [stochastically
+monotone][monotone]. In general, we assume that $\{S_t\}_{t \ge 1}$ is a
+[stochastically monotone][monotone] Markov process that is independent of
+$\{W_t\}_{t \ge 1}$.
 
 [monotone]: ../../theory/stochastic-dominance#stochastic-monotonicity
 
@@ -48,7 +66,7 @@ $$p(U_t) q(S_t),$$
 where 
 
 * $p(\cdot)$ is a strictly increasing and convex function where $p(0) = 0$;
-* $q(\cdot)$ is a strictly decreasing function.
+* $q(\cdot)$ is a strictly increasing function.
 
 The objective is to choose a transmission policy $U_t = g_t(X_t, S_t)$ to
 minimize the weighted sum of transmitted power and delay
@@ -57,7 +75,7 @@ $$ \EXP\bigg[ \sum_{t=1}^T \big[ p(U_t) q(S_t) + \lambda d(X_t - U_t) \big]
 where $\lambda$ may be viewed as a Lagrange multiplier corresponding to a
 constrained optimization problem. 
 
-## Dynamic program
+# Dynamic program
 
 We can assume $Y_t = X_t - U_t$ as a post-decision state in the above model
 and write the dynamic program as follows:
@@ -65,19 +83,20 @@ and write the dynamic program as follows:
 $$ V_{T+1}(x,s) = 0 $$
 and for $t \in \{T, \dots, 1\}$, 
 $$\begin{align*}
-  Q_t(y,s) &= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
-  V_t(x,s) &= \min_{u \le x} \big\{ p(u) q(s) + Q_t(x-u, s) \big\}
+  H_t(y,s) &= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
+  V_t(x,s) &= \min_{0 \le u \le x} \big\{ p(u) q(s) + H_t(x-u, s) \big\}
 \end{align*}$$
+
+## Monotonicity of value functions
 
 ::: highlight :::
 
-Lemma
+Lemma #lem:increasing
 
-:   For all $t$, $V_t(x,s)$ and $Q_t(y,s)$ are increasing in the first
-    variable and decreasing in the second variable. 
+:   For all $t$, $V_t(x,s)$ and $H_t(y,s)$ are increasing in both variables.
 :::
 
-#### Proof
+#### Proof {-}
 
 First note that the constraint set $\ALPHABET U(x) = \{0, \dots, x\}$
 satisfies the conditions that generalize the result of monotonicity to
@@ -85,34 +104,36 @@ constrained actions.
 
 We prove the two monotonicity properties by backward induction. First note
 that $V_{T+1}(x,s)$ is trivially monotone. This forms the basis of induction.
-Now suppose $V_{t+1}(x,s)$ is increasing in $x$ and decreasing in $s$. Since
+Now suppose $V_{t+1}(x,s)$ is increasing in $x$ and $s$. Since
 $\{S_t\}_{t \ge 1}$ is stochastically monotone, 
-$$Q_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ]$$
-is decreasing in $s$. Moreover, since both $d(y)$ and $V_{t+1}(y + w, s)$ are
-increasing in $y$, so is $Q_t(y,s)$.
+$$H_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ]$$
+is increasing in $s$. Moreover, since both $d(y)$ and $V_{t+1}(y + w, s)$ are
+increasing in $y$, so is $H_t(y,s)$.
 
-Now, for every $u$, $p(u) q(s)$ and $Q_t(x-u, s)$ is increasing in $x$ and
-decreasing in $s$. So, the pointwise minima over $u$ is also increasing in $x$
-and decreasing in $s$.
+Now, for every $u$, $p(u) q(s)$ and $H_t(x-u, s)$ is increasing in $x$ and
+ $s$. So, the pointwise minima over $u$ is also increasing in $x$
+and $s$.
+
+## Convexity of value functions
 
 ::: highlight :::
-Lemma
+Lemma #lem:convex
 
-:   For all $t$ and $s$, $V_t(x,s)$ and $Q_t(y,s)$ are convex in the first
+:   For all $t$ and $s$, $V_t(x,s)$ and $H_t(y,s)$ are convex in the first
     variable.
 :::
 
-#### Proof
+#### Proof {-}
 
 We proceed by backward induction. First note that $V_{T+1}(x,s)$ is trivially
 convex in $x$. Now assume that $V_{t+1}(x,s)$ is convex in $x$. Then,
 $\EXP[V_{t+1}(y + W_t, S_{t+1}) | S_t = s]$ is weighted sum of convex functions
-and is, therefore, convex in $y$. Therefore, $Q_t(y,s)$ is a sum of two convex
-functions and, therefore, covnex in $y$. 
+and is, therefore, convex in $y$. Therefore, $H_t(y,s)$ is a sum of two convex
+functions and, therefore, convex in $y$. 
 
 We cannot directly show the convexity of $V_t(x,s)$ because the pointwise
 minimum of convex functions is not convex. So, we consider the following
-arguement. Fix $s$ and pick $x > 1$. Let $\underline u = g^*_t(x-1,s)$ and
+argument. Fix $s$ and pick $x > 1$. Let $\underline u = g^*_t(x-1,s)$ and
 $\bar u = g^*_t(x+1,s)$. Let $\underline v = \lfloor (\underline u + \bar u)/2
 \rfloor$ and $\bar v = \lceil (\underline u + \bar u)/2
 \rceil$. Note that both $\underline v$ and $\bar v$ are feasible at $x$. Then,
@@ -121,51 +142,148 @@ $$ \begin{align*}
   V_t(x-1, s) + V_t(x+1, s)
   \\
   &= 
-  [ p(\underline u) + p(\bar u) ] q(s) + Q_t(x - 1 - \underline u, s)
-  + Q_t(x + 1 - \bar u, s)
+  [ p(\underline u) + p(\bar u) ] q(s) + H_t(x - 1 - \underline u, s)
+  + H_t(x + 1 - \bar u, s)
   \\
   &\stackrel{(a)}\ge [ p(\underline v) + p(\bar v)] q(s) + 
-    Q_t(x - \underline v, s) + Q_t(x - \bar v, s) \\
-  &\ge 2 \min_{u \le x} \big\{ p(u) q(s) + Q_t(x-u, s) \\
+    H_t(x - \underline v, s) + H_t(x - \bar v, s) \\
+  &\ge 2 \min_{u \le x} \big\{ p(u) q(s) + H_t(x-u, s) \\
   &= 2 V_t(x,s),
 \end{align*} $$
-where $(a)$ follows from convexity of $p(\cdot)$ and $Q_t(\cdot, s)$. Thus,
-$V_t(x,s)$ is convex in $x$. This completes the induction step. 
+where $(a)$ follows from convexity of $p(\cdot)$ and $H_t(\cdot, s)$. Thus,
+$V_t(x,s)$ is convex in $x$. This completes the induction step.&nbsp;$\Box$
+
+## Monotonicity of optimal policy in queue length
 
 ::: highlight :::
-Theorem
+Theorem #thm:monotone-queue
 
-:   For all $t$ and $s$, the optimal strategy $g^*_t(x,s)$ is increasing in
-    $x$.
+:   For all $t$ and $s$, there is an optimal strategy $g^*_t(x,s)$ which is
+    increasing in $x$.
 :::
 
-#### Proof
+#### Proof {-}
 
-In the previous lemma, we have shown that $Q_t(y,s)$ is convex
-in $y$. Therefore, $Q_t(x-u, s)$ is submodular in $(x,u)$. 
+In the previous lemma, we have shown that $H_t(y,s)$ is convex
+in $y$. Therefore, $H_t(x-u, s)$ is submodular in $(x,u)$. 
 
 [ One can show this by finite difference, but for simplicity, we assume that
-$Q_t(y,s)$ is twice differentiable. Then, $\partial^2 Q_t(x - u, s)/ \partial
-x \partial u \le 0$ (by convexity of $Q_t$). ]
+$H_t(y,s)$ is twice differentiable. Then, $\partial^2 H_t(x - u, s)/ \partial
+x \partial u \le 0$ (by convexity of $H_t$). ]
 
-Thus, for a fixed $s$, $p(u)q(s) + Q_t(x-u, s)$ is submodular in $(x,u)$.
-Therefore, the optimal policy is increasing in $x$. 
+Thus, for a fixed $s$, $p(u)q(s) + H_t(x-u, s)$ is submodular in $(x,u)$.
+Therefore, the optimal policy is increasing in $x$.&nbsp;$\Box$
+
+## Monotonicity of optimal policy in channel state
+
+It is natural to expect that for a fixed $x$ the optimal policy is decreasing
+in $s$. However, it is not possible to obtain the monotonicity of optimal
+policy in channel state in general. To see why this is difficult, let us
+impose a mild assumption on the arrival distribution.
+
+Assump. #ass:Pw
+
+:   The packet arrival distribution is weakly decreasing, i.e., for any $v,w
+    \in \integers_{\ge 0}$ such that $v \le w$, we have that $P_W(v) \ge
+    P_W(w)$. 
+
+We first start with a slight generalization of stochastic monotonicity result.
+
+::: highlight :::
+
+Lemma #lem:littlewood
+
+:  Let $\{p_i\}_{i \ge 0}$ and $\{q_i\}_{i \ge 0}$ be real-valued non-negative
+sequences satisfying
+$$ \sum_{i \le j} p_i \le \sum_{i \le j} q_i, \quad \forall j.$$
+Then, for any increasing sequence $\{v_i\}_{i \ge 0}$, we have
+$$ \sum_{i = 0}^\infty p_i v_i \ge \sum_{i=0}^\infty q_i v_i. $$
+
+:::
+
+The proof is similar to the proof for stochastic monotonicity. 
+
+::: highlight :::
+
+Lemma #lem:submodularity
+
+Under [Assump. #](#ass:Pw), for all $t$, $H_t(y,s)$ is supermodular in $(y,s)$. 
+
+:::
+
+#### Proof {-}
+
+The idea of the proof is similar to [Lemma 1] of the notes on monotone MDPs.
+
+Fix $y^+, y^- \in \integers_{\ge 0}$ and $s^+, s^- \in \ALPHABET S$ such that
+$y^+ > y^-$ and $s^+ > s^-$. Now, for any $y' \in \integers_{\ge 0}$ and $s'
+\in \ALPHABET S$ define
+$$\begin{align*}
+  π(y',s') = P_W(y' - y^+)P_S(s'|s^+) + 
+             P_W(y' - y^-)P_S(s'|s^-), 
+             \\
+  μ(y',s') = P_W(y' - y^-)P_S(s'|s^+) + 
+             P_W(y' - y^+)P_S(s'|s^-).
+\end{align*}$$
+
+Since $P_S$ is stochastically monotone, we have that for any $σ \in \ALPHABET
+S$, 
+$$ \sum_{s'=1}^{σ} P_S(s'|s^+) \le \sum_{s'=1}^{σ} P_S(s'|s^-). $$
+Moreover, due to [Assump. #](#ass:Pw), we have that $P_W(y' - y^-)
+\le P_W(y' - y^+)$. Thus, 
+$$ [P_W(y' - y^+) - P_W(y' - y^-)] \sum_{s'=1}^{σ} P_S(s'|s^+) 
+\le [P_W(y' - y^+) - P_W(y' - y^-)]\sum_{s'=1}^{σ} P_S(s'|s^-). $$
+Rearranging terms, we get 
+$$ \sum_{s'=1}^σ π(y',s') \le \sum_{s'=1}^σ μ(y',s'). $$
+Thus, for any $y'$, the sequence $π(y',s')$ and $ν(y',s')$ satisfy the
+condition of [Lemma #](#lem:littlewood). 
+
+Now, in [Lemma #](#lem:increasing), we have established that for any $y'$,
+$V_{t+1}(y',s')$ is increasing in $s'$. Thus, from [Lemma #](#lem:littlewood),
+we have
+$$  \sum_{s' \in \ALPHABET S} π(y', s') V_{t+1}(y', s') 
+\ge \sum_{s' \in \ALPHABET S} μ(y', s') V_{t+1}(y', s'), $$
+Summing up over $y'$, we get
+$$  \sum_{y' \in \integers_{\ge 0}} \sum_{s' \in \ALPHABET S} π(y', s') V_{t+1}(y', s') 
+\ge \sum_{y' \in \integers_{\ge 0}} \sum_{s' \in \ALPHABET S} μ(y', s') V_{t+1}(y', s'), $$
+Or equivalently, 
+$$\begin{align*}
+\hskip 2em & \hskip -2em
+\EXP[ V_{t+1}(y^+ + W, S_{t+1}) | S_t = s^+) ] 
++ 
+\EXP[ V_{t+1}(y^- + W, S_{t+1}) | S_t = s^-) ] 
+\\
+& \ge 
+\EXP[ V_{t+1}(y^- + W, S_{t+1}) | S_t = s^+) ] 
++ 
+\EXP[ V_{t+1}(y^+ + W, S_{t+1}) | S_t = s^-) ] .
+\end{align*}$$
+Thus, $H_t(y,s)$ is supermodular in $(y,s)$. 
+  
+
+[Lemma 1]: ../monotonicity/#lem:sufficient
+
+::: highlight :::
+
+Theorem #thm:monotone-channel
+
+Under [Assump. #](#ass:Pw), we cannot establish the monotonicity of 
+$g^*_t(x,s)$ is $s$.
+
+:::
+
+#### Proof {-}
+
+Note that we have established that $H_t(y,s)$ is supermodular in $(y,s)$. Thus,
+for any fixed $x$, $H_t(x-u,s)$ is submodular in $(u,s)$. Furthermore the
+function $p(u)q(s)$ is increasing in both variables and therefore supermodular
+in $(u,s)$. Therefore, we cannot say anything specific about
+p(u)q(s) + H_t(x-u, s)$ which is a sum of submodular and supermodular
+functions.&nbsp;$\Box$
 
 ---
 
-## Exercises
-
-1. The purpose of this exercise is to establish the monotonicity of the
-   optimal policy in the channel state.
-
-    a. Show that for all $t$, $Q_t(y,s)$ is submodular in $(y,s)$.
-    b. Use the result of the previous part to show that for any fixed $x$,
-    $g_t^*(x,s)$ is increasing in $s$.
-
-
----
-
-## References
+# References {-}
 
 The mathematical model of power-delay trade-off is taken from @Berry2000,
 where the monotonicty results were proved using first principles.
