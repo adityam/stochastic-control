@@ -145,8 +145,8 @@ function typeset(code) {
 }
 
 function showMatrix(){
-  var theta  = parseFloat(document.getElementById('theta').value);
-  var lambda = parseFloat(document.getElementById('lambda').value);
+  var theta  = document.getElementById('theta').valueAsNumber;
+  var lambda = document.getElementById('lambda').valueAsNumber;
 
   const P1 = math.matrix([ [1,0,0], [1,0,0], [1,0,0] ]);
   const P2 = math.matrix([ [1-theta, theta, 0], [0, 1-theta, theta], [0, 0, 1] ]);
@@ -154,13 +154,12 @@ function showMatrix(){
 
   const c  = math.matrix([[lambda, 0], [lambda, 1], [lambda, 5]]);
 
-  const n  = 3;
-  const m  = 2;
+  const [n, m] = c.size();
   const T  = 4;
   const V  = [];
   const g  = [];
 
-  V[T+1] = math.zeros(n,1)
+  V[T+1] = math.zeros(n)
   for (var t = T; t > 0; t--) {
     var Q = math.add(c, math.reshape( math.multiply(P, V[t+1]), [n,m] ))
             .toArray();
@@ -178,14 +177,14 @@ function showMatrix(){
           g[t][x] = "\\circ";
        }
     }
-    V[t] = math.matrix(V[t]).reshape([n,1]);
+    V[t] = math.matrix(V[t]);
   }
 
   function VtoTeX(matrix) {
       const arr = matrix.toArray(); // A col vector
-      return `\\MATRIX{ ${arr[0][0].toFixed(2)} \\\\ 
-                        ${arr[1][0].toFixed(2)} \\\\ 
-                        ${arr[2][0].toFixed(2)} }`
+      return `\\MATRIX{ ${arr[0].toFixed(2)} \\\\ 
+                        ${arr[1].toFixed(2)} \\\\ 
+                        ${arr[2].toFixed(2)} }`
   }
 
   function gtoTeX(arr) {
