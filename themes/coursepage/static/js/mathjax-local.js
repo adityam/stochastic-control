@@ -1,32 +1,34 @@
-MathJax.Hub.Config({
-  "HTML-CSS": { 
-      fonts: ["TeX"]
-  }, 
-tex2jax: {
-  inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-  displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-  processEscapes: true,
-},
-  TeX : {
-      equationNumbers : { autoNumber: "AMS" }, 
-      Macros : {
-        PR: "\\mathbb{P}",
-        EXP: "\\mathbb{E}",
-        IND: "\\mathbb{I}",
-        reals: "\\mathbb{R}",
-        integers: "\\mathbb{Z}",
-        TRANS: "\\intercal",
-        VEC: "\\operatorname{vec}",
-        TR:  "\\operatorname{Tr}",
-        // mathcal: "\\mathscr",
-        ALPHABET: ["\\mathcal{#1}", 1],
-        MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
-        NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
-        ABS: ["\\left\\lvert #1 \\right\\rvert", 1],
-      }
+window.MathJax = {
+  tex: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true,
+    tags: "ams",
+    macros: {
+      PR: "\\mathbb{P}",
+      EXP: "\\mathbb{E}",
+      IND: "\\mathbb{I}",
+      reals: "\\mathbb{R}",
+      integers: "\\mathbb{Z}",
+      TRANS: "\\intercal",
+      VEC: "\\operatorname{vec}",
+      TR: "\\operatorname{Tr}",   // mathcal: "\\mathscr",
+      ALPHABET: ["\\mathcal{#1}", 1],
+      MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+      NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+      ABS: ["\\left\\lvert #1 \\right\\rvert", 1]
+    },
+    autoload: {
+      color: [],
+      colorV2: ['color']
+    },
+    packages: {'[+]': ['noerrors']}
+  },
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  },
+  loader: {
+    load: ['[tex]/noerrors']
   }
-});
-
-MathJax.Hub.processSectionDelay=0; 
-
-MathJax.Ajax.loadComplete("https://adityam.github.io/stochastic-control/js/mathjax-local.js")
+};
