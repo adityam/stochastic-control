@@ -12,6 +12,8 @@
   
 
   <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.10.3/math.min.js">
+  </script><script type="text/javascript"
     src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
   </script>
   <script type="text/javascript" id="MathJax-script" defer
@@ -42,6 +44,7 @@
 <figure>
 <img src="/stochastic-control/banners/calculator.jpg" title="Shut up and compute" style="width:100.0%" alt="" /><figcaption>Image credit: https://pixabay.com/photos/accountant-accounting-adviser-1238598/</figcaption>
 </figure>
+<h1 data-number="1" id="mdps-as-controlled-markov-chains"><span class="header-section-number">1</span> MDPs as controlled Markov chains</h1>
 <p>In this section, we present a matrix formulation for finite state finite action MDPs, which is useful for computing the solutions numerically. Let’s start with <a href="../mdp-functional">the function model</a> described earlier and assume that <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET U\)</span> are finite sets and that the cost function and the probability distribution of <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are time-homogeneous. Then, the following is a fundamental property of MDPs:</p>
 <div class="highlight">
 <dl>
@@ -66,17 +69,8 @@
   &amp;=
   \PR(X_{t+1} = x_{t+1} | X_{t} = x_{t}, U_{t} = u_{t})
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the update equation for <span class="math inline">\(X_{t+1}\)</span> and <span class="math inline">\((b)\)</span> follows because the primitive random variables are independent. The expression in the right hand side of <span class="math inline">\((b)\)</span> does not depend on the control strategy <span class="math inline">\(g\)</span>.</p>
-<hr />
+<h1 data-number="2" id="matrix-formulation-of-an-mdp"><span class="header-section-number">2</span> Matrix formulation of an MDP</h1>
 <p>Let <span class="math inline">\(|\ALPHABET X| = n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>. The idea behind the matrix formulation of MDP is to think of <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> as a <em>controlled</em> Markov process and define the <span class="math inline">\(n \times n\)</span> tranistion matrices <span class="math inline">\(\{P(u)\}_{u \in \ALPHABET U}\)</span> as follows: <span class="math display">\[ P_{xy}(u) = \PR(X_{t+1} = y | X_t = x, U_t = u).\]</span></p>
-<dl>
-<dt>Example</dt>
-<dd><p><strong>Machine repair</strong>. Consider a machine which can be in one of <span class="math inline">\(n\)</span> states <span class="math inline">\(\ALPHABET X = \{1, \dots, n\}\)</span>, where state <span class="math inline">\(1\)</span> denotes the best state and state <span class="math inline">\(n\)</span> denotes the worse state.</p>
-<p>There are two actions <span class="math inline">\(\ALPHABET U = \{1, 2\}\)</span>, where <span class="math inline">\(u=1\)</span> means that the current machine is replaced by a brand new one (which starts in state <span class="math inline">\(1\)</span>) and <span class="math inline">\(u=2\)</span> means that the existing machine is used. When action <span class="math inline">\(u=2\)</span> is chosen, the machine state will either remain the same (with probability <span class="math inline">\(1  - θ\)</span>) or deteriorate by one unit (with probability <span class="math inline">\(θ\)</span>).</p>
-<p>For example, if <span class="math inline">\(n = 3\)</span>, then <span class="math display">\[ P(1) = \MATRIX{1 &amp; 0 &amp; 0\\ 1 &amp; 0 &amp; 0\\ 1 &amp; 0 &amp; 0},
-  \qquad
-  P(2) = \MATRIX{1-θ &amp;  θ &amp;  0\\ 0 &amp;  1-θ &amp; θ\\ 0 &amp;  0 &amp;  1}. \]</span></p>
-</dd>
-</dl>
 <p>Observe that <span class="math display">\[\EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
   = \sum_{y \in \ALPHABET X} V_{t+1}(y) \PR(X_{t+1} = y | X_t = x, U_t = u).
   \]</span> Now, if we think of <span class="math inline">\(V_t\)</span> as a <span class="math inline">\(n \times 1\)</span> column vector, then we can write <span class="math display">\[ \EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] = [ P(u)V_{t+1} ]_{x}, \]</span> or, equivalently, <span class="math display">\[ \MATRIX{ \EXP[V_{t+1}(X_{t+1}) | X_t = 1, U_t = u] \\ \vdots \\
@@ -84,7 +78,111 @@
     = P(u)V_{t+1}. \]</span></p>
 <p>Now, think of <span class="math inline">\(c_t\)</span> and <span class="math inline">\(Q_t\)</span> as <span class="math inline">\(n \times m\)</span> matrices. Then, we can write <span class="math display">\[ Q_t = c_t + \MATRIX { P(1)V_{t+1} &amp; \cdots &amp; P(n) V_{t+1} }. \]</span></p>
 <p>Define <span class="math inline">\(\bar P = \MATRIX{P(1) \\ \vdots \\ P(n)}\)</span>, then <span class="math display">\[ Q_t = c_t + \text{reshape}( \bar P \, V_{t+1}, n, m). \]</span> Hence, the key step of dynamic programming can be done using simple linear algebra and therefore implemented efficiently in any programming language.</p>
-<hr />
+<h1 data-number="3" id="an-example-machine-repair"><span class="header-section-number">3</span> An Example: Machine repair</h1>
+<p>Consider a machine which can be in one of <span class="math inline">\(n\)</span> states <span class="math inline">\(\ALPHABET X = \{1, \dots, n\}\)</span>, where state <span class="math inline">\(1\)</span> denotes the best state and state <span class="math inline">\(n\)</span> denotes the worse state.</p>
+<p>There are two actions <span class="math inline">\(\ALPHABET U = \{1, 2\}\)</span>, where <span class="math inline">\(u=1\)</span> means that the current machine is replaced by a brand new one (which starts in state <span class="math inline">\(1\)</span>) and <span class="math inline">\(u=2\)</span> means that the existing machine is used. When action <span class="math inline">\(u=2\)</span> is chosen, the machine state will either remain the same (with probability <span class="math inline">\(1 - θ\)</span>) or deteriorate by one unit (with probability <span class="math inline">\(θ\)</span>).</p>
+<p>For example, if <span class="math inline">\(n = 3\)</span>, then <span class="math display">\[ P(1) = \MATRIX{1 &amp; 0 &amp; 0\\ 1 &amp; 0 &amp; 0\\ 1 &amp; 0 &amp; 0},
+\qquad
+P(2) = \MATRIX{1-θ &amp;  θ &amp;  0\\ 0 &amp;  1-θ &amp; θ\\ 0 &amp;  0 &amp;  1}. \]</span></p>
+<p>Now suppose that the replace action <span class="math inline">\(u = 1\)</span> costs <span class="math inline">\(λ\)</span> unit (irrespective of the state) and the do nothing action <span class="math inline">\(u = 2\)</span> costs <span class="math inline">\(0\)</span> in state <span class="math inline">\(1\)</span>, <span class="math inline">\(1\)</span> in state <span class="math inline">\(2\)</span>, and <span class="math inline">\(5\)</span> in state <span class="math inline">\(3\)</span>. <span class="math display">\[ c = \MATRIX{λ &amp; 0 \\ λ &amp; 1 \\ λ &amp; 5 }. \]</span></p>
+Then, the value functions and optimal policy for <span class="math inline">\(T = 4\)</span> and specific values of <span class="math inline">\(θ\)</span> and <span class="math inline">\(λ\)</span> are shown below. For visualization we show the replace action by <span class="math inline">\(\bullet\)</span> and the do thing action by <span class="math inline">\(\circ\)</span>. You can play around with the parameters $θ = $ <input id="theta" 
+       type="number" step = 0.1
+       maxlength="3" size="2"
+       onkeyup="showMatrix()"
+       onchange="showMatrix()"
+       value="" /> and $λ = $ <input id="lambda" 
+       type="number" step = 1
+       maxlength="1" size="1"
+       onkeyup="showMatrix()"
+       onchange="showMatrix()"
+       value="" /> <button onClick="showMatrix()">Update</button>
+<p id="machine-repair">
+</p>
+<script>
+if (pagedata == undefined) { var pagedata = { } }
+
+pagedata.machineRepair = { theta : 0.3, lambda : 8 } 
+
+// Set initial values
+document.getElementById('theta').value  = pagedata.machineRepair.theta;
+document.getElementById('lambda').value = pagedata.machineRepair.lambda;
+
+let promise = Promise.resolve();  // Used to hold chain of typesetting calls
+
+function typeset(code) {
+  promise = promise.then(() => {code(); return MathJax.typesetPromise()})
+                   .catch((err) => console.log('Typeset failed: ' + err.message));
+  return promise;
+}
+
+function showMatrix(){
+  var theta  = parseFloat(document.getElementById('theta').value);
+  var lambda = parseFloat(document.getElementById('lambda').value);
+
+  const P1 = math.matrix([ [1,0,0], [1,0,0], [1,0,0] ]);
+  const P2 = math.matrix([ [1-theta, theta, 0], [0, 1-theta, theta], [0, 0, 1] ]);
+  const P  = math.concat(P1, P2, 0);
+
+  const c  = math.matrix([[lambda, 0], [lambda, 1], [lambda, 5]]);
+
+  const n  = 3;
+  const m  = 2;
+  const T  = 4;
+  const V  = [];
+  const g  = [];
+
+  V[T+1] = math.zeros(n,1)
+  for (var t = T; t > 0; t--) {
+    var Q = math.add(c, math.reshape( math.multiply(P, V[t+1]), [n,m] ))
+            .toArray();
+            
+    // There is no argmin function in the math.js library
+    // Since there are only two actions, we make the comparison by hand
+    g[t] = [];
+    V[t] = [];
+    for(var x = 0; x < n; x++) {
+       if(Q[x][0] < Q[x][1]) {
+          V[t][x] = Q[x][0];
+          g[t][x] = "\\bullet";
+       } else {
+          V[t][x] = Q[x][1];
+          g[t][x] = "\\circ";
+       }
+    }
+    V[t] = math.matrix(V[t]).reshape([n,1]);
+  }
+
+  function VtoTeX(matrix) {
+      const arr = matrix.toArray(); // A col vector
+      return `\\MATRIX{ ${arr[0][0].toFixed(2)} \\\\ 
+                        ${arr[1][0].toFixed(2)} \\\\ 
+                        ${arr[2][0].toFixed(2)} }`
+  }
+
+  function gtoTeX(arr) {
+      return `\\MATRIX{ ${arr[0]} \\\\ 
+                        ${arr[1]} \\\\ 
+                        ${arr[2]} }`
+  }
+
+  typeset(() => { 
+      const id = document.getElementById('machine-repair');
+      id.innerHTML = `$$\\begin{align*}
+        V_4 &= ${VtoTeX(V[4])}, &
+        V_3 &= ${VtoTeX(V[3])}, &
+        V_2 &= ${VtoTeX(V[2])}, &
+        V_1 &= ${VtoTeX(V[1])}. \\\\
+        g_4 &= ${gtoTeX(g[4])}, &
+        g_3 &= ${gtoTeX(g[3])}, &
+        g_2 &= ${gtoTeX(g[2])}, &
+        g_1 &= ${gtoTeX(g[1])}. \\\\
+       \\end{align*}$$`
+      return id;
+  })
+}
+
+showMatrix()
+</script>
 
 
 <p class="categories">
