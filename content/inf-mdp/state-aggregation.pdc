@@ -162,18 +162,43 @@ set of ground states that correspond to $\bar x$ under abstraction function
 $φ$.  Note that $\{ φ^{-1}(\bar x) \mid \bar x \in \bar {\ALPHABET X} \}$
 partitions the state space $\ALPHABET X$. 
 
+<figure style="float:right;">
+  <img src="latent-space.png"
+       alt="Example of latent space embedding"
+       title="Latent space embedding" 
+       width="120" />
+  <figcaption>Example of latent space embedding</figcaption>
+</figure>
+
+For example, suppose $\ALPHABET X = [0,1]^2$ and $\bar {\ALPHABET X} = [0, 2]$
+with $φ(x_1, x_2) = x_1 + x_2$. Then $φ^{-1}(\bar x) = \{ (x_1, x_2) \in [0,
+1]^2 : x_1 + x_2 = \bar x \}$ which is a staight line as shown in the figure
+on the right.
+
+
 We want to define an abstract or compressed MDP $\bar M = (\bar {\ALPHABET X},
 \ALPHABET U, \bar p, \bar c)$. Unlike the situation with state quantization
 where $\bar {\ALPHABET X}$ was a subset of $\ALPHABET X$, here we have not
 imposed any relationship between $\bar {\ALPHABET X}$ and $\ALPHABET X$.
 Therefore, to define $\bar p$ and $\bar c$, we need a weighting function $α 
 \colon \ALPHABET X \to [0, 1]$, such that for each $\bar x \in \bar {\ALPHABET
- X}$, $\int_{x \in φ^{-1}(\bar x)} α(x) = 1$. Then, for any $\bar x, \bar y
+ X}$, $\int_{x \in φ^{-1}(\bar x)} α(x) dx = 1$. Then, for any $\bar x, \bar y
  \in \bar{\ALPHABET  X}$, define
  $$\bar c(\bar x, u) = \int_{x \in φ^{-1}(\bar x)} α(x)c(x,u)dx, \qquad
  \bar p(\bar y | \bar x, u) = 
  \int_{x \in φ^{-1}(\bar x)} α(x) \int_{y \in φ^{-1}(\bar y)}
  p(y | x, u) dx dy. $$
+
+For example, in the example above, we need to choose a weight function $α :
+[0, 1]^2 \to [0, 1]$ such that for any set $A(\bar x) = \{ (x_1, x_2) \in [0,
+1]^2 : x_1 + x_2 = 1\}$, we have that $\int_{A} α(x) dx = 1$. One way to
+obtain such a weight function is to pick a probability density $μ$ over
+$\ALPHABET X$ and pick $α(x)$ in $φ^{-1}(\bar x)$ as the corresponding
+conditional density given $φ(x) = \bar x$. Then $\bar c(\bar x, u)$ may be
+viewed as the conditional cost $\EXP_μ[ c(X, u) | φ(X) = \bar x]$ and $\bar
+p(\bar y | \bar x, u)$ may be viewed as $\EXP_μ[ p(\{ Y \in \ALPHABET X : φ(Y)
+= \bar y \} | X, u) | φ(X) = x]$. If $\ALPHABET X$ is compact, then the
+simplest option is to pick $μ$ as the uniform density over $\ALPHABET X$.  
 
 Now, as before, suppose $V \colon \ALPHABET X \to \reals$ and $g \colon
 \ALPHABET X \to \ALPHABET U$ are the value function and the optimal policy of
