@@ -10,6 +10,7 @@ window.MathJax = {
       IND: "\\mathbb{I}",
       reals: "\\mathbb{R}",
       integers: "\\mathbb{Z}",
+      BLANK: "\\mathfrak{E}",
       TRANS: "\\intercal",
       VEC: "\\operatorname{vec}",
       TR: "\\operatorname{Tr}",   // mathcal: "\\mathscr",

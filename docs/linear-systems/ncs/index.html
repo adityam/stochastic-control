@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Linear systems,Riccati equation,LQR" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Simplest model of a network controlled systems</div>
+
+<p>Networked control systems (NCS) refer to systems where there a communication network between different components of the control system. In this section, we consider the simplest setup of a NCS where there is a communication channel between the sensor and the controller. There are multiple ways to model the communication channel and we choose the simplest model—the communication channel is an i.i.d. packet drop channel. The details will be explained later.</p>
+<p>Consider a linear system with state <span class="math inline">\(x_t \in \reals^n\)</span> and control action <span class="math inline">\(u_t \in \reals^n\)</span> where the initial state <span class="math inline">\(x_1\)</span> has zero mean and finite variance <span class="math inline">\(Σ^x_1\)</span>. The system dynamics are given by <span class="math display">\[ x_{t+1} = A_t x_t + B_t u_t + w_t, \]</span> where <span class="math inline">\(A_t \in \reals^{n×n}\)</span> and <span class="math inline">\(B_t \in \reals^{n×m}\)</span> are known matrices and <span class="math inline">\(\{w_t\}_{t\ge 1}\)</span> is <span class="math inline">\(\reals^n\)</span>-valued i.i.d. noise process with zero mean and finite variance <span class="math inline">\(\Sigma^w\)</span>. We make the standard assumption that the primitve random variables <span class="math inline">\(\{x_1, w_1, \dots, w_T\}\)</span> are independent.</p>
+<p>The key modeling assumption of a NCS is that the controller is not co-located with the plant. Rather, it is remotely located and connected to the plant over an i.i.d. packet-drop communication channel. In particular, there is a sensor, co-located with the plant, which observes the state of the plant and sends it to the remotely located controller over the packet-drop channel, which may be thought of as an ON-OFF channel. We use the variable <span class="math inline">\(γ_t \in \{0, 1\}\)</span> to denote the state of the channel, where <span class="math inline">\(γ_t = 0\)</span> denotes that the channel is OFF (which means that any transmitted packet is dropped) and <span class="math inline">\(γ_t = 1\)</span> denotes that the channel is ON (which means that any transmitted packet is delieved). We assume that <span class="math inline">\(\{γ_1, \dots, γ_T \}\)</span> is an i.i.d. Bernoulli process with success probability <span class="math inline">\(\PR(γ_t = 1) = 1-p\)</span>.</p>
+<p>Let <span class="math inline">\(y_t \in \reals^n \cup \{\BLANK\}\)</span> denote the observation of the receiver, where <span class="math inline">\(\BLANK\)</span> denotes the event that the transmitted packet was dropped. Then, we have that <span class="math display">\[ y_t = \begin{cases}
+    x_t, &amp; \text{if } γ_t = 1, \\
+    \BLANK, &amp; \text{if } γ_t = 0. 
+\end{cases}\]</span></p>
+<p>The controller generates a control action <span class="math inline">\(u_t\)</span> using all the information <span class="math inline">\(I_t = \{y_{1:t}, u_{1:t-1}\}\)</span> available to it at time <span class="math inline">\(t\)</span>. Thus, <span class="math display">\[ u_t = g_t(I_t), \]</span> where <span class="math inline">\(g = (g_1, \dots, g_{T-1})\)</span> is called a control strategy. We consider the optimal regulation problem where the objective is to minimize the finite horizon cost given by <span class="math display">\[\begin{equation} \label{eq:cost}
+  J(g) = \EXP^{g} \Bigl[ \sum_{t=1}^{T-1} \bigl[ x_t^\TRANS Q_t x_t + u_t^\TRANS
+  R_t u_t \bigr] + x_T^\TRANS Q_T x_T \Bigr],
+\end{equation} \]</span> where <span class="math inline">\(\{Q_t\}_{t=1}^T\)</span> are <a href="../../appendix/positive-definite-matrix">positive semi-definite matrices</a> and <span class="math inline">\(\{R_t\}_{t=1}^{T-1}\)</span> are <a href="../../appendix/positive-definite-matrix">positive definite matrices</a>.</p>
+<p>Given the system dynamics, the noise statistics, and the channel statistics, we are interested in choosing a control strategy <span class="math inline">\(g\)</span>, which minimizes the total expected cost <span class="math inline">\(J(g)\)</span> given by \eqref{eq:cost}.</p>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/ncs">
+  NCS</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/linear-systems">linear systems</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/riccati-equation">riccati equation</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/lqr">lqr</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
