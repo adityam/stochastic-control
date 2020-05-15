@@ -56,11 +56,29 @@
   R_t u_t \bigr] + x_T^\TRANS Q_T x_T \Bigr],
 \end{equation} \]</span> where <span class="math inline">\(\{Q_t\}_{t=1}^T\)</span> are <a href="../../appendix/positive-definite-matrix">positive semi-definite matrices</a> and <span class="math inline">\(\{R_t\}_{t=1}^{T-1}\)</span> are <a href="../../appendix/positive-definite-matrix">positive definite matrices</a>.</p>
 <p>Given the system dynamics, the noise statistics, and the channel statistics, we are interested in choosing a control strategy <span class="math inline">\(g\)</span>, which minimizes the total expected cost <span class="math inline">\(J(g)\)</span> given by \eqref{eq:cost}.</p>
+<h1 data-number="1" id="completion-of-squares-argument"><span class="header-section-number">1</span> Completion of squares argument</h1>
+<p>Although it is possible to obtain a solution to the above model using a dynamic programming approach, we will follow the completion of squares based approach introduced in <a href="../lqr#astrom">the notes of LQR</a>.</p>
+<p>Using Prop. 1 of <a href="../lqr#astrom">LQR</a>, the total cost of any strategy <span class="math inline">\(g\)</span> may be written as follows: <span class="math display">\[ \begin{align}
+    J(g) = &amp; \EXP\bigg[ \sum_{t=1}^{T-1} (u_t + K_t x_t)^\TRANS [R_t + B_t^\TRANS
+    S_{t+1}B_t] (u_t + K_t x_t) \bigg] \nonumber \\
+    &amp; \quad + 
+    \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg], \label{eq:astrom}
+\end{align}\]</span> where the <em>gain matrices</em> <span class="math inline">\(\{K_t\}_{t\ge 1}\)</span> are given by: <span class="math display">\[ K_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} \Lambda_t \]</span> where <span class="math display">\[ \Lambda_t = B_t^\TRANS S_{t+1} A_t \]</span> and <span class="math inline">\(\{S_t\}_{t=1}^T\)</span> are determined by the solution of the <em>backward Riccati equation</em>: <span class="math inline">\(S_T = Q_T\)</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span class="math display">\[\begin{equation}\label{eq:riccati}
+  S_t = A_t^\TRANS S_{t+1} A_t + Q_t - 
+  \Lambda_t^\TRANS [ R_t + B_t^\TRANS S_{t+1} B_t ] ^{-1} \Lambda_t.
+\end{equation}\]</span></p>
+<dl>
+<dt>Remark</dt>
+<dd><p>The matrices <span class="math inline">\(\{K_t\}_{t=1}^T\)</span> and <span class="math inline">\(\{S_t\}_{t=1}^T\)</span> are the same as in the basic LQR model.</p>
+</dd>
+</dl>
+<p>Now, as in the solution to the LQR problem, we note that the second term of \eqref{eq:astrom} is a function of the primitive random variables and does not depend on the choice of the control strategy <span class="math inline">\(g\)</span>. Thus, in order to minimize the total expected cost, it sufficies to minimize the first term of \eqref{eq:astrom}. However, unlike the case in LQR with perfect state observation, we cannot simply choose <span class="math inline">\(u_t = -K_t x_t\)</span> because the state <span class="math inline">\(x_t\)</span> is not known to the observer at all time instances. In the next section, we use orthogonal projects to minimize the first term of \eqref{eq:astrom}.</p>
 
 
 <p class="categories">
 This entry 
 
+ was last updated on 15 May 2020
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/ncs">
