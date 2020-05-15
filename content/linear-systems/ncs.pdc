@@ -144,4 +144,148 @@ To be written $\Box$
 An implication of @lemma:static is that we can replace conditioning on $I_t$
 by conditioning on $I^s_t$ in any conditional probability expression. 
 
+# Orthogonal projection
+
+To simplify the first term of \\eqref{eq:astrom}, define 
+$$ \hat x_t = \EXP[ x_t | I_t ]$$
+as the conditional estimate of the state given the observations at the
+controller and define
+$$ \tilde x_t = x_t - \hat x_t$$
+as the corresponding estimation error. 
+
+Then, these have the following properties.
+
+::: highlight :::
+
+Lemma #properties
+
+:   For any control strategy $g$, we have
+
+    1. $\tilde x_t$ is control-free and may be written just in terms of the
+       primitive random variables.
+    
+    Furthermore, for any matrix $M$ of appropriate dimensions:
+
+    2. $\EXP[\hat x_t^\TRANS M \tilde x_t ] = 0$.
+    3. $\EXP[ u_t^\TRANS M \tilde x_t ] = 0$.
+
+:::
+
+#### Proof {-}
+
+To prove part 1, we note that
+\begin{align}
+  \tilde x_t &= x_t - \EXP[x_t | I_t ] \notag \\
+  &\stackrel{(a)}= x^g_t + x^s_t - \EXP[ x^g_t + x^s_t | I_t] \notag \\
+  &\stackrel{(b)}= x^s_t - \EXP[x^s_t | I_t ] \notag \\
+  &\stackrel{(c)}= x^s_t - \EXP[x^s_t | I^s_t ] \label{eq:tilde-x}
+\end{align}
+where $(a)$ follows from state splitting, $(b)$ follows from the fact that
+$x^g_t$ is a function of $u_{1:t-1}$ which is a part of
+$I_t$, and $(c)$ follows from @lemma:static. Part 1 then follows by observing
+that \\eqref{eq:tilde-x} depends only on primitive random variables. 
+
+To prove parts 2 and 3, let $z_t$ be a function of $I_t$ and $M$ be a matrix of
+appropriate dimensions. Then,
+\begin{align}
+  \EXP[z_t^\TRANS M \tilde x_t] 
+  &\stackrel{(d)}= \EXP[ \EXP[ z_t^\TRANS M \tilde x_t | I_t ] ] 
+  \notag \\
+  &\stackrel{(e)}= \EXP[ z_t^\TRANS M \EXP[ \tilde x_t | I_t ] ] \notag \\
+  &\stackrel{(f)}= 0.
+\end{align}
+where $(d)$ follows from the smoothing property of conditional expectation,
+$(e)$ follows from the fact that $z_t$ is a function of $I_t$, and $(f)$
+follows from the fact that $\EXP[\tilde x_t | I_t] = 0$ by construction.
+
+Part 2 follows from observing that $\hat x_t$ is a function of $I_t$. Part 3
+follows from observing that $u_t$ is a function of $I_t$. $\Box$ 
+
+::: highlight :::
+
+Lemma #simplify
+
+:   For any control strategy $g$, the first term of \\eqref{eq:astrom} may be
+    written as
+    \begin{align}
+      & \EXP^{g}\Bigl[ \sum_{t=1}^{T-1} (u_t + L_t \hat x_t)^\TRANS
+      [R_t + B_t^\TRANS S_{t+1} B_t](u_t + L_t \hat x_t) ] \notag \\
+      &\quad + 
+      \EXP\Bigl[ \sum_{t=1}^{T-1} (L_t \tilde x_t)^\TRANS
+      [R_t + B_t^\TRANS S_{t+1} B_t](L_t \tilde x_t) ] \label{eq:simple}
+    \end{align}
+
+:::
+
+#### Proof {-}
+
+@lemma:properties implies that for any matrix $M$ of appropriate dimensions,
+$$ \EXP[ (u_t + L_t x_t)^\TRANS M (u_t + L_t x_t) =
+\EXP[ (u_t + L_t \hat x_t)^\TRANS M (u_t + L_t \hat x_t) ] +
+\EXP[ (L_t \tilde x_t)^\TRANS M (L_t \tilde x_t) ], $$
+where the cross-terms are zero due to parts 2 and 3 of @lemma:properties. The
+result of the Lemma follows by repeatedly using the above property at each
+time step. 
+
+# Main Result
+
+::: highlight :::
+
+Theorem #main
+
+:   The optimal control strategy for the networked control system discussed in
+    this section is given by
+    $$\begin{equation} \label{eq:optimal}
+      u_t = - L_t \hat x_t.
+    \end{equation}$$
+    Furthermore, the state estimate $\hat x_t$ evolves as 
+    $$\hat x_{t+1} = \begin{cases}
+      x_{t+1}, & \text{if } γ_{t+1} = 1, \\
+      A_t \hat x_t + B_t u_t, & \text{ if } γ_{t+1} = 0. 
+    \end{cases}$$.
+
+:::
+
+#### Proof {-}
+
+The proof of the structure of the optimal controller follows by combining
+various properties descibed above. In particular, we have shown that for any
+any control strategy $g$, the total cost can be written as \\eqref{eq:astrom},
+where the second term depends just on the primitive random variables.
+Moreover, the first term of \\eqref{eq:astrom} can be written
+as \\eqref{eq:simple}, where (by @lemma:properties, part 1) the second term is
+control free and depends just on the primitive random variables. Therefore,
+it suffices to minimize the first term of \\eqref{eq:simple} to minimizing
+$J(g)$. By assumption, $S_T = Q_T$ is positive semi-definite. It can be
+recursively shown that $S_t$ is also positive definite. Therefore, the first
+term of \\eqref{eq:simple} is greater than or equal to zero, with equality if
+and only if the strategy is given by \\eqref{eq:optimal}. Since the
+policy \\eqref{eq:optimal} achieves the minimal value of the cost, it is
+optimal. 
+
+We show the strucutre of the update of the state estimate separately for each
+value of $γ_t$. When $γ_{t+1} = 1$, we have that $y_{t+1} = x_{t+1}$. Thus,
+$\hat x_{t+1} = x_{t+1}$. When $γ_{t+1} = 0$, 
+\begin{align*}
+  \hat x_{t+1} &= \EXP[ x_{t+1} | I_{t+1} ] \\
+  &= \EXP[ A_t x_t + B_t u_t + w_t | y_{1:t}, u_{1:t}, y_{t+1} = \BLANK ]  \\
+  &\stackrel{(a)}= A_t \EXP[ x_t | y_{1:t}, u_{1:t}, y_{t+1} = \BLANK ] + B_t u_t 
+\end{align*}
+where $(a)$ follows from observing that $w_t$ is a zero mean random
+variable which is independent of $(w_{1:t-1}, γ_{1:t})$. 
+
+Now observe that the event $\{y_{t+1} = \BLANK\}$ is equivalent to the event
+$\{γ_{t+1} = 0\}$. So, we can remove it from the conditioning because $x_t$ is
+a function of $(x_1, w_{1:t-1}, γ_{1:t-1})$ which are independent of
+$γ_{t+1}$. Furthermore, we can remove $u_t$ from the conditioning because it
+is a function of the remaining variables. Thus,
+$$ \EXP[ x_t | y_{1:t}, u_{1:t}, y_{t+1} = \BLANK ] = 
+   \EXP[ x_t | y_{1:t}, u_{1:t-1} ] = \hat x_t. $$
+Substituting this in the above formula, we get the update equation for the
+state estimate. $\Box$ 
+
+---
+
+**TODO**: Discuss the implications of the result. Compare with certainty
+equivalence and dual effect. 
 
