@@ -1,0 +1,68 @@
+---
+title: "Simplest model of a network controlled systems"
+weight: 11
+categories:
+  - NCS
+tags:
+  - Linear systems
+  - Riccati equation
+  - LQR
+---
+
+Networked control systems (NCS) refer to systems where there a communication network
+between different components of the control system. In this section, we
+consider the simplest setup of a NCS where there is a communication channel
+between the sensor and the controller. There are multiple ways to model the
+communication channel and we choose the simplest model---the communication
+channel is an i.i.d.\ packet drop channel. The details will be explained
+later. 
+
+Consider a linear system with state $x_t \in \reals^n$ and control action $u_t
+\in \reals^n$ where the initial state $x_1$ has zero mean and finite variance
+$Σ^x_1$. The system dynamics are given by
+$$ x_{t+1} = A_t x_t + B_t u_t + w_t, $$
+where $A_t \in \reals^{n×n}$ and $B_t \in \reals^{n×m}$ are known matrices and
+$\{w_t\}_{t\ge 1}$ is $\reals^n$-valued i.i.d.\ noise process with zero mean
+and finite variance $\Sigma^w$. We make the standard assumption that the
+primitve random variables $\{x_1, w_1, \dots, w_T\}$ are independent. 
+
+The key modeling assumption of a NCS is that the controller is not co-located
+with the plant. Rather, it is remotely located and connected to the plant over
+an i.i.d. packet-drop communication channel. In particular, there is a sensor,
+co-located with the plant, which observes the state of the plant and sends it
+to the remotely located controller over the packet-drop channel, which may be
+thought of as an ON-OFF channel. We use the variable $γ_t \in \{0, 1\}$ to
+denote the state of the channel, where $γ_t = 0$ denotes that the channel is
+OFF (which means that any transmitted packet is dropped) and $γ_t = 1$ denotes
+that the channel is ON (which means that any transmitted packet is delieved).
+We assume that $\{γ_1, \dots, γ_T \}$ is an i.i.d. Bernoulli process with
+success probability $\PR(γ_t = 1) = 1-p$. 
+
+Let $y_t \in \reals^n \cup \{\BLANK\}$ denote the observation of the receiver,
+where $\BLANK$ denotes the event that the transmitted packet was dropped.
+Then, we have that 
+$$ y_t = \begin{cases}
+    x_t, & \text{if } γ_t = 1, \\
+    \BLANK, & \text{if } γ_t = 0. 
+\end{cases}$$
+
+The controller generates a control action $u_t$ using all the information $I_t
+= \{y_{1:t}, u_{1:t-1}\}$ available to it at time $t$. Thus,
+$$ u_t = g_t(I_t), $$
+where $g = (g_1, \dots, g_{T-1})$ is called a control strategy. We consider
+the optimal regulation problem where the objective is to minimize the finite
+horizon cost given by 
+$$\begin{equation} \label{eq:cost}
+  J(g) = \EXP^{g} \Bigl[ \sum_{t=1}^{T-1} \bigl[ x_t^\TRANS Q_t x_t + u_t^\TRANS
+  R_t u_t \bigr] + x_T^\TRANS Q_T x_T \Bigr],
+\end{equation} $$
+where $\{Q_t\}_{t=1}^T$ are [positive semi-definite matrices][PSD]
+and $\{R_t\}_{t=1}^{T-1}$ are [positive definite matrices][PSD].
+
+[PSD]: ../../appendix/positive-definite-matrix 
+
+Given the system dynamics, the noise statistics, and the channel statistics,
+we are interested in choosing a control strategy $g$, which minimizes the
+total expected cost $J(g)$ given by \\eqref{eq:cost}.
+
+
