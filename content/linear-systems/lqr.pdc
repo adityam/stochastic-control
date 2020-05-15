@@ -63,10 +63,10 @@ Theorem #thm:lqr
     \end{equation}$$
     and the optimal control action is
     $$\begin{equation}\label{eq:gt}
-      u_t = - K_t x_t
+      u_t = - L_t x_t
     \end{equation}$$
-    where the _gain matrices_ $\{K_t\}_{t\ge 1}$ are given by:
-    $$ K_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} \Lambda_t $$
+    where the _gain matrices_ $\{L_t\}_{t\ge 1}$ are given by:
+    $$ L_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} \Lambda_t $$
     where
     $$ \Lambda_t = B_t^\TRANS S_{t+1} A_t $$
     and $\{S_t\}_{t \ge 1}$ are determined by the _backward Riccati difference
@@ -101,12 +101,12 @@ Lemma
     $$\begin{align*}
       &u^\TRANS R u + (Ax + Bu)^\TRANS S (Ax + Bu) 
       \\ &\qquad = 
-     (u + K x)^\TRANS [R + B^\TRANS S B] (u + Kx) + x^\TRANS L x
+     (u + L x)^\TRANS [R + B^\TRANS S B] (u + Kx) + x^\TRANS L x
      \end{align*}$$
     where 
 
     *   $L = A^\TRANS S A - \Lambda^\TRANS[R + B^\TRANS S B]^{-1} \Lambda_t$
-    *   $K = [R + B^\TRANS S B]^{-1} \Lambda$
+    *   $L = [R + B^\TRANS S B]^{-1} \Lambda$
     *   $\Lambda = B^\TRANS S A$
 
 :::
@@ -121,9 +121,9 @@ $$ \begin{align*}
 & \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS B^\TRANS S A x 
   + x^\TRANS A^\TRANS S A x \\
 & \quad = u^\TRANS [R + B^\TRANS S B] u + 2 u^\TRANS B^\TRANS S A x 
-  + x^\TRANS K^\TRANS [R + B^\TRANS S B] K x + x^\TRANS L x \\
+  + x^\TRANS L^\TRANS [R + B^\TRANS S B] L x + x^\TRANS L x \\
 & \quad = 
-  (u + K x)^\TRANS [R + B^\TRANS S B] (u + Kx) + x^\TRANS L x.
+  (u + L x)^\TRANS [R + B^\TRANS S B] (u + Kx) + x^\TRANS L x.
 \end{align*} $$
 
 #### Proof of dynamic programming decomposition {-}
@@ -140,15 +140,15 @@ $$\begin{align*}
   &\stackrel{(a)}= \min_{u \in \reals^m} \Big\{
   x^\TRANS Q_t x + u^\TRANS R_t u + (Ax + Bu)^\TRANS S_{t+1} (Ax + Bu) \Big\} \\
   &\stackrel{(b)}= \min_{u \in \reals^m} \Big\{
-  x^\TRANS Q_t x + (u + K_t x)^\TRANS [B_t^\TRANS S_{t+1} B_t + R_t] (u+ K_tx)
+  x^\TRANS Q_t x + (u + L_t x)^\TRANS [B_t^\TRANS S_{t+1} B_t + R_t] (u+ L_tx)
   + x^\TRANS L_t x \Big\}
   \\
   &\stackrel{(c)}=x^\TRANS (Q_t + L_t) x
 \end{align*}$$
 where $(a)$ follows from the induction hypothesis, $(b)$ follows from
-completion of squares lemma with $K_t$ and $L_t$ defined similar to the lemma,
+completion of squares lemma with $L_t$ and $L_t$ defined similar to the lemma,
 and $(c)$ follows from minimizing over $u$, where the minima is achieved by
-choosing $u = -K_t x$. This proves the induction step.
+choosing $u = -L_t x$. This proves the induction step.
 
 # Linear quadratic tracking {#LQT}
 
@@ -166,15 +166,15 @@ Theorem #thm:lqt
 :   The value function at time $t$ is
     $$ V_t(x) = x^\TRANS S_t x - 2 x^\TRANS r_t + ρ_t $$
     and the optimal control action is 
-    $$ u_t = - K_t x_t + K^\circ_t r_{t+1}$$
+    $$ u_t = - L_t x_t + L^\circ_t r_{t+1}$$
     where
-    $\{S_t\}_{t=1}^T$ and $\{K_t\}_{t=1}^T$ follow the same recursions as
-    before. The gain matrices $\{K^\circ_t\}$ are given by
-    $$ K^\circ_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS $$
+    $\{S_t\}_{t=1}^T$ and $\{L_t\}_{t=1}^T$ follow the same recursions as
+    before. The gain matrices $\{L^\circ_t\}$ are given by
+    $$ L^\circ_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} B_t^\TRANS $$
     and the correction terms $\{r_t\}$ are given by 
     $$ \begin{align*}
       r_T &= Q_T x^\circ_T \\
-      r_t &= [A_t - B_t K_t]^\TRANS r_{t+1} + Q_t x^\circ_t
+      r_t &= [A_t - B_t L_t]^\TRANS r_{t+1} + Q_t x^\circ_t
     \end{align*} $$
     and the tracking error $\{ρ_t\}_{t=1}^T$ is given by
     $$ \begin{align*}
@@ -207,9 +207,9 @@ Theorem #thm:stochastic-lqr
     \end{equation}$$
     and the optimal control action is
     $$\begin{equation}\label{eq:gt-s}
-      u_t = - K_t x_t
+      u_t = - L_t x_t
     \end{equation}$$
-    where the matrices $\{K_t\}_{t\ge 1}$ and $\{S_t\}_{t \ge 1}$ follow 
+    where the matrices $\{L_t\}_{t\ge 1}$ and $\{S_t\}_{t \ge 1}$ follow 
     _the same recursion_ as before and the sequence $\{α_t\}_{t=1}^T$ is
     computed in a backward manner as follows: $α_T = 0$ and 
     $$α_t = α_{t+1} + \TR(Σ^w_t S_{t+1}) = \sum_{τ=t+1}^{T-1} \TR(Σ^w_t S_{t+1}).$$
@@ -266,12 +266,12 @@ Prop. #prop:astrom
     u_t \big] + x_T^\TRANS Q_T x_T \bigg]$$
     may be written as
     $$ \begin{align}
-        & \EXP\bigg[ \sum_{t=1}^{T-1} (u_t + K_t x_t)^\TRANS [R_t + B_t^\TRANS
-        S_{t+1}B_t] (u_t + K_t x_t) \bigg] \nonumber \\
+        & \EXP\bigg[ \sum_{t=1}^{T-1} (u_t + L_t x_t)^\TRANS [R_t + B_t^\TRANS
+        S_{t+1}B_t] (u_t + L_t x_t) \bigg] \nonumber \\
         & \quad + 
         \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg], \label{eq:astrom}
     \end{align}$$
-    where the matrices $\{K_t\}_{t\ge 1}$ and $\{S_t\}_{t \ge 1}$ follow are
+    where the matrices $\{L_t\}_{t\ge 1}$ and $\{S_t\}_{t \ge 1}$ follow are
     given as in @thm:lqr.
 :::
 
@@ -307,7 +307,7 @@ $$ \begin{align}
 \end{align} $$
 
 Now, from the completion of squares lemma, we get that "Term 1" is equal to
-$$ (u_t + K_t x_t)^\TRANS [R_t + B_t^\TRANS S_{t+1} B_t] (u_t + K_t x_t).$$
+$$ (u_t + L_t x_t)^\TRANS [R_t + B_t^\TRANS S_{t+1} B_t] (u_t + L_t x_t).$$
 Substituting this back in \\eqref{eq:astrom-3}, we get \\eqref{eq:astrom}.
 &nbsp;$\Box$
 
@@ -319,8 +319,8 @@ Thus, in order to minimimze the total expected cost, it suffices to minimize
 the first term of \\eqref{eq:astrom}. Since $R_t$ is positive definite and
 $S_{t+1}$ is positive semi-definite, $R_t + B_t^\TRANS S_{t+1} B_t$ is
 positive definite. Thus, the first term of \\eqref{eq:astrom} is sum of squares.
-Choosing $ u_t = -K_t x_t$
-sets this term to its minimum value of $0$. Hence, $u_t = -K_t x_t$ is the
+Choosing $ u_t = -L_t x_t$
+sets this term to its minimum value of $0$. Hence, $u_t = -L_t x_t$ is the
 optimal control strategy.
 
 # References {-}
