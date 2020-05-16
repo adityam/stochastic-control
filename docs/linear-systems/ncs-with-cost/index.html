@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Linear systems,Riccati equation,LQR,communication" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Network controlled systems with communication cost</div>
+
+<p>In this section, we extend the model of a <a href="../ncs">simple NCS</a> to one where there a cost associated with sending data from the sensor to the controller. This cost may be due to considerations of transmit power at the sensor or it may be a viewed as a Lagrange multiplier if multiple sensors are sharing the same communication channel with limited bandwidth.</p>
+<p>As before, we consider a linear system with state <span class="math inline">\(x_t \in \reals^n\)</span> and control action <span class="math inline">\(u_t \in \reals^n\)</span> where the initial state <span class="math inline">\(x_1\)</span> has zero mean and finite variance <span class="math inline">\(Σ^x_1\)</span>. The system dynamics are given by <span class="math display">\[ x_{t+1} = A_t x_t + B_t u_t + w_t, \]</span> where <span class="math inline">\(A_t \in \reals^{n×n}\)</span> and <span class="math inline">\(B_t \in \reals^{n×m}\)</span> are known matrices and <span class="math inline">\(\{w_t\}_{t\ge 1}\)</span> is <span class="math inline">\(\reals^n\)</span>-valued i.i.d. noise process with zero mean and finite variance <span class="math inline">\(\Sigma^w\)</span>. We make the standard assumption that the primitve random variables <span class="math inline">\(\{x_1, w_1, \dots, w_T\}\)</span> are independent.</p>
+<p>There is a sensor which is co-located with the plant. The key modeling assumption of this model is that the sensor decides whether or not to transmit to the controller. Let <span class="math inline">\(δ_t \in \{0, 1\}\)</span> denote the decision of the sensor, where <span class="math inline">\(δ_t = 0\)</span> denotes that the sensor decides not to transmit and <span class="math inline">\(δ_t = 1\)</span> denotes that the sensor decides to transmit.</p>
+<p>As before, we assume that there is a i.i.d. packet-drop communication channel between the sensor and the controller. The packet-drop channel may be thought of as an ON-OFF channel. We use the variable <span class="math inline">\(γ_t \in \{0, 1\}\)</span> to denote the state of the channel, where <span class="math inline">\(γ_t = 0\)</span> denotes that the channel is OFF (which means that any transmitted packet is dropped) and <span class="math inline">\(γ_t = 1\)</span> denotes that the channel is ON (which means that any transmitted packet is delieved). We assume that <span class="math inline">\(\{γ_1, \dots, γ_T \}\)</span> is an i.i.d. Bernoulli process with success probability <span class="math inline">\(\PR(γ_t = 1) = 1-p\)</span>. We assume that the transmission over the packet-drop channel takes place using a TCP-like protocol, so the sensor gets an ACK (acknowledgment) or NACK (negative acknowledgment) to indicate whether the controller received the packet.</p>
+<p>Let <span class="math inline">\(y_t \in \reals^n \cup \{\BLANK\}\)</span> denote the observation of the receiver, where <span class="math inline">\(\BLANK\)</span> denotes the event that the transmitted packet was dropped. Then, we have that <span class="math display">\[ y_t = \begin{cases}
+    x_t, &amp; \text{if } δ_t γ_t = 1, \\
+    \BLANK, &amp; \text{if } δ_t γ_t = 0. 
+\end{cases}\]</span> For ease of notation, we use <span class="math inline">\(z_t = δ_t γ_t \in \{0, 1\}\)</span> to denote event whether the controller received a packet or not.</p>
+<p>Let <span class="math inline">\(I^δ_t\)</span> and <span class="math inline">\(I^u_t\)</span> denote the information available to the sensor and the controller respectively. We assume that <span class="math display">\[\begin{align*}
+  I^δ_t &amp;= \{ x_{1:t}, δ_{1:t-1}, z_{1:t-1} \}, \\
+  I^u_t &amp;= \{ y_{1_t}, u_{1:t-1} \}.
+\end{align*}\]</span> Thus, the sensor knows the history <span class="math inline">\(x_{1:t}\)</span> of its past observations, the history <span class="math inline">\(δ_{1:t-1}\)</span> of its past decisions and the history <span class="math inline">\(z_{1:t-1}\)</span> of the ACK/NACK received from the controller. The controller knows the history <span class="math inline">\(y_{1:t}\)</span> of the past channel outputs and the history <span class="math inline">\(u_{1:t-1}\)</span> of its past control actions.</p>
+<p>The sensor generates the transmit decision <span class="math inline">\(δ_t\)</span> using the information <span class="math inline">\(I^δ_t\)</span> and the controller generates a control action <span class="math inline">\(u_t\)</span> using the information <span class="math inline">\(I^u_t\)</span>. Thus, <span class="math display">\[ δ_t = f_t(I^δ_t)
+   \quad\text{and}\quad
+   u_t = g_t(I^u_t), \]</span> where <span class="math inline">\(f = (f_1, \dots, f_T)\)</span> is called the transmission strategy and <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> is called the control strategy.</p>
+<p>It is helpful to work with an expaneded information structure at the sensor. In particular, note that the sensor can infer <span class="math inline">\(y_{1:t-1}\)</span> from <span class="math inline">\(x_{1:t-1}\)</span> and <span class="math inline">\(z_{1:t-1}\)</span> and can recursively infer <span class="math inline">\(u_{1:t-1}\)</span> from <span class="math inline">\(y_{1:t-1}\)</span>. So, in the sequel, we assume that the information available at the sensor is given by <span class="math display">\[ I^δ_t = \{ x_{1:t}, δ_{1:t-1}, z_{1:t-1}, y_{1:t-1}, u_{1:t-1}\}. \]</span></p>
+<p>There are two costs at each time. A communication cost <span class="math inline">\(λ δ_t\)</span>, where <span class="math inline">\(λ\)</span> denotes the cost of transmitting a packet and a regulation cost <span class="math inline">\(x_t^\TRANS Q_t x_t + u_t^\TRANS R_t u_t\)</span>, where <span class="math inline">\(Q_t\)</span> is a positive semi-definite matrix and <span class="math inline">\(R_t\)</span> is a postitive definite matrix. Thus, the performance of any strategy <span class="math inline">\((f,g)\)</span> is given by <span class="math display">\[\begin{equation} \label{eq:cost}
+  J(f, g) = \EXP^{f,g} \Bigl[ \sum_{t=1}^{T-1} \bigl[ λδ_t + x_t^\TRANS Q_t x_t 
+  + u_t^\TRANS R_t u_t \bigr] + x_T^\TRANS Q_T x_T \Bigr].
+\end{equation} \]</span></p>
+<p>Given the system dynamics, the noise statistics, and the channel statistics, we are interested in choosing a decision strategy <span class="math inline">\((f,g)\)</span> to minimize the total expected cost <span class="math inline">\(J(f,g)\)</span> given by \eqref{eq:cost}.</p>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/ncs">
+  NCS</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/linear-systems">linear systems</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/riccati-equation">riccati equation</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/lqr">lqr</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/communication">communication</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
