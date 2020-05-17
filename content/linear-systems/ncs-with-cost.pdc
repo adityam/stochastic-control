@@ -25,7 +25,7 @@ $$ x_{t+1} = A_t x_t + B_t u_t + w_t, $$
 where $A_t \in \reals^{n×n}$ and $B_t \in \reals^{n×m}$ are known matrices and
 $\{w_t\}_{t\ge 1}$ is $\reals^n$-valued i.i.d.\ noise process with zero mean
 and finite variance $\Sigma^w$. We make the standard assumption that the
-primitve random variables $\{x_1, w_1, \dots, w_T\}$ are independent. 
+primitive random variables $\{x_1, w_1, \dots, w_T\}$ are independent. 
 
 There is a sensor which is co-located with the plant. The key modeling
 assumption of this model is that the sensor decides whether or not to transmit
@@ -76,7 +76,7 @@ $$ δ_t = f_t(I^δ_t)
 where $f = (f_1, \dots, f_T)$ is called the transmission strategy and $g =
 (g_1, \dots, g_T)$ is called the control strategy. 
 
-It is helpful to work with an expaneded information structure at the sensor.
+It is helpful to work with an expanded information structure at the sensor.
 In particular, note that the sensor can infer $y_{1:t-1}$ from $x_{1:t-1}$ and
 $z_{1:t-1}$ and can recursively infer $u_{1:t-1}$ from $y_{1:t-1}$. So, in the
 sequel, we assume that the information available at the sensor is given by
@@ -209,7 +209,7 @@ primitive decisions. Thus, $\{z_1, \dots, z_T\}$, where $z_t = δ_t
 # Orthogonal projection
 
 To simplify the first term of \\eqref{eq:astrom}, define 
-$$ \hat x_t = \EXP[ x_t | I_t ]$$
+$$ \hat x_t = \EXP[ x_t | I^u_t ]$$
 as the conditional estimate of the state given the observations at the
 controller and define
 $$ \tilde x_t = x_t - \hat x_t$$
@@ -223,8 +223,8 @@ Lemma #properties
 
 :   For any control strategy $g$, we have
 
-    1. $\tilde x_t$ is control-free and may be written just in terms of the
-       primitive random variables.
+    1. $\tilde x_t = x^s_t - \EXP[ x^s_t | I^{u,s}_t] $ is control-free and
+       can be written just in terms of the primitive random variables.
     
     Furthermore, for any matrix $M$ of appropriate dimensions:
 
@@ -237,31 +237,31 @@ Lemma #properties
 
 To prove part 1, we note that
 \begin{align}
-  \tilde x_t &= x_t - \EXP[x_t | I_t ] \notag \\
-  &\stackrel{(a)}= x^g_t + x^s_t - \EXP[ x^g_t + x^s_t | I_t] \notag \\
-  &\stackrel{(b)}= x^s_t - \EXP[x^s_t | I_t ] \notag \\
-  &\stackrel{(c)}= x^s_t - \EXP[x^s_t | I^s_t ] \label{eq:tilde-x}
+  \tilde x_t &= x_t - \EXP[x_t | I^u_t ] \notag \\
+  &\stackrel{(a)}= x^g_t + x^s_t - \EXP[ x^g_t + x^s_t | I^u_t] \notag \\
+  &\stackrel{(b)}= x^s_t - \EXP[x^s_t | I^u_t ] \notag \\
+  &\stackrel{(c)}= x^s_t - \EXP[x^s_t | I^{u,s}_t ] \label{eq:tilde-x}
 \end{align}
 where $(a)$ follows from state splitting, $(b)$ follows from the fact that
 $x^g_t$ is a function of $u_{1:t-1}$ which is a part of
-$I_t$, and $(c)$ follows from @lemma:static. Part 1 then follows by observing
+$I^u_t$, and $(c)$ follows from @lemma:static. Part 1 then follows by observing
 that \\eqref{eq:tilde-x} depends only on primitive random variables. 
 
-To prove parts 2 and 3, let $z_t$ be a function of $I_t$ and $M$ be a matrix of
+To prove parts 2 and 3, let $z_t$ be a function of $I^u_t$ and $M$ be a matrix of
 appropriate dimensions. Then,
 \begin{align}
   \EXP[z_t^\TRANS M \tilde x_t] 
-  &\stackrel{(d)}= \EXP[ \EXP[ z_t^\TRANS M \tilde x_t | I_t ] ] 
+  &\stackrel{(d)}= \EXP[ \EXP[ z_t^\TRANS M \tilde x_t | I^u_t ] ] 
   \notag \\
-  &\stackrel{(e)}= \EXP[ z_t^\TRANS M \EXP[ \tilde x_t | I_t ] ] \notag \\
+  &\stackrel{(e)}= \EXP[ z_t^\TRANS M \EXP[ \tilde x_t | I^u_t ] ] \notag \\
   &\stackrel{(f)}= 0.
 \end{align}
 where $(d)$ follows from the smoothing property of conditional expectation,
-$(e)$ follows from the fact that $z_t$ is a function of $I_t$, and $(f)$
-follows from the fact that $\EXP[\tilde x_t | I_t] = 0$ by construction.
+$(e)$ follows from the fact that $z_t$ is a function of $I^u_t$, and $(f)$
+follows from the fact that $\EXP[\tilde x_t | I^u_t] = 0$ by construction.
 
-Part 2 follows from observing that $\hat x_t$ is a function of $I_t$. Part 3
-follows from observing that $u_t$ is a function of $I_t$. $\Box$ 
+Part 2 follows from observing that $\hat x_t$ is a function of $I^u_t$. Part 3
+follows from observing that $u_t$ is a function of $I^u_t$. $\Box$ 
 
 ::: highlight :::
 
@@ -301,18 +301,15 @@ Theorem #main
     $$\begin{equation} \label{eq:optimal}
       u_t = - L_t \hat x_t.
     \end{equation}$$
-    Furthermore, the state estimate $\hat x_t$ evolves as 
-    $$\hat x_{t+1} = \begin{cases}
-      x_{t+1}, & \text{if } z_{t+1} = 1, \\
-      A_t \hat x_t + B_t u_t, & \text{ if } z_{t+1} = 0. 
-    \end{cases}$$.
+    Furthermore, the state estimate $\hat x_t$ is given by 
+    $$\hat x_{t} = x^g_t + \EXP[ x^s_t | I^{u,s}_t]$$
 
 :::
 
 #### Proof {-}
 
 The proof of the structure of the optimal controller follows by combining
-various properties descibed above. In particular, we have shown that for any
+various properties described above. In particular, we have shown that for any
 any control strategy $g$, the total cost can be written as \\eqref{eq:astrom},
 where the second term depends just on the primitive random variables.
 Moreover, the first term of \\eqref{eq:astrom} can be written
@@ -326,31 +323,35 @@ and only if the strategy is given by \\eqref{eq:optimal}. Since the
 policy \\eqref{eq:optimal} achieves the minimal value of the cost, it is
 optimal. 
 
-We show the strucutre of the update of the state estimate separately for each
-value of $γ_t$. When $γ_{t+1} = 1$, we have that $y_{t+1} = x_{t+1}$. Thus,
-$\hat x_{t+1} = x_{t+1}$. When $γ_{t+1} = 0$, 
+We now show the structure of the state estimate. Note that
 \begin{align*}
-  \hat x_{t+1} &= \EXP[ x_{t+1} | I_{t+1} ] \\
-  &= \EXP[ A_t x_t + B_t u_t + w_t | y_{1:t}, u_{1:t}, y_{t+1} = \BLANK ]  \\
-  &\stackrel{(a)}= A_t \EXP[ x_t | y_{1:t}, u_{1:t}, y_{t+1} = \BLANK ] + B_t u_t 
+  \hat x_{t} &= \EXP[ x_{t} | I^{u}_{t} ] = \EXP[ x^g_t + x^s_t | I^u_t ] \\
+  &\stackrel{(a)}= x^g_t + \EXP[ x^s_t | I^u_t ] \\
+  &\stackrel{(b)}= x^g_t + \EXP[ x^s_t | I^{u,s}_t ] 
 \end{align*}
-where $(a)$ follows from observing that $w_t$ is a zero mean random
-variable which is independent of $(w_{1:t-1}, γ_{1:t})$. 
-
-Now observe that the event $\{z_{t+1} = \BLANK\}$ is equivalent to the event
-$\{γ_{t+1} = 0\}$. 
-
-**CHECK** So, we can remove it from the conditioning because $x_t$ is
-a function of $(x_1, w_{1:t-1}, γ_{1:t-1})$ which are independent of
-$γ_{t+1}$. Furthermore, we can remove $u_t$ from the conditioning because it
-is a function of the remaining variables. Thus,
-$$ \EXP[ x_t | y_{1:t}, u_{1:t}, y_{t+1} = \BLANK ] = 
-   \EXP[ x_t | y_{1:t}, u_{1:t-1} ] = \hat x_t. $$
-Substituting this in the above formula, we get the update equation for the
-state estimate. $\Box$ 
+where $(a)$ follows from the fact that $x^g_t$ is a function of $u_{1:t-1}$
+which is a part of $I^u_t$ and $(b)$ follows from @lemma:static. $\Box$
 
 ---
 
-**TODO**: Discuss the implications of the result. Compare with certainty
-equivalence and dual effect. And separation of estimation and control.
-
+Note that unlike the [previous model of NCS][NCS], in the current model, we
+cannot identify the update rule for the state estimator in closed form. This
+is because the state estimator will depend on the transmission strategy.
+However, the problem of choosing the best transmission strategy is _separate_
+from that of choosing the control strategy. We have shown that for any given
+transmission strategy $\tilde f$, if we choose the best response strategy at
+the controller, the performance is given by 
+\begin{align}
+ J^*(\tilde f) &= 
+      \EXP\Bigl[ \sum_{t=1}^{T-1} (L_t \tilde x_t)^\TRANS
+      [R_t + B_t^\TRANS S_{t+1} B_t](L_t \tilde x_t) \Bigr] \notag \\
+    & \quad + 
+    \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg], 
+\end{align}
+where $\tilde x_t = x^s_t - \EXP[ x^s_t | I^{u,s}_t]$. Note that the second
+term of the above expression depends only on the primitive random variable.
+Thus, to find the optimal transmission strategy, we need to minimize the first
+term, which is a purely communication/estimation problem known as remote state
+estimation in the literature. The optimal solution to the remote state
+estimation problem for the case of scalar state is derived in
+LipsaMartins2012.
