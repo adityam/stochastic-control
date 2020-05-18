@@ -60,7 +60,7 @@
 <p>At the terminal time step <span class="math inline">\(T\)</span>, the continuation option is not available. Each measurement has a cost <span class="math inline">\(c\)</span>. When the DM takes a stopping action <span class="math inline">\(ν\)</span>, it incurs a stopping cost <span class="math inline">\(\ell(ν, H)\)</span>.</p>
 <p>We typically assume <span class="math inline">\(\ell(h_0, h_0) = \ell(h_1, h_1) = 0\)</span>. The term <span class="math inline">\(\ell(h_1, h_0)\)</span> indicates that the DM declares an anomaly when everything is okay. This is called <em>false alarm penalty</em>. The term <span class="math inline">\(\ell(h_0, h_1)\)</span> indicates that DM declares everything is okay when there is an anomaly. This is called the <em>missed detection penalty</em>.</p>
 <p>Let <span class="math inline">\(τ\)</span> denote the time when the DM stops. Then the total cost of running the system is <span class="math inline">\(cτ + \ell(ν, H)\)</span>. The objective is to find the optimal stopping strategy that minimize the expected total cost.</p>
-<h1 data-number="1" id="dynamic-programming-decomposition"><span class="header-section-number">1</span> Dynamic programming decomposition</h1>
+<h1 id="dynamic-programming-decomposition">Dynamic programming decomposition</h1>
 <p>We use the belief-state as an information state to obtain a dynamic programming decomposition. Recall that the beief state is two-dimensional pdf where <span class="math display">\[ π_t(h) = \PR(H = h | Y_{1:t}), \quad h \in \{h_0, h_1\}. \]</span></p>
 <dl>
 <dt>Remarks</dt>
@@ -85,11 +85,11 @@
 <p>Then, the above DP can be written as <span class="math display">\[
   V_T(π_T) = \min\{ L_0(π_T), L_1(π_T) \}
 \]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>, <span class="math display">\[ V_t(π_t) = \min \{ L_0(π_t), L_1(π_t), W_t(π_t) \}. \]</span></p>
-<h1 data-number="2" id="structure-of-the-optimal-policy"><span class="header-section-number">2</span> Structure of the optimal policy</h1>
+<h1 id="structure-of-the-optimal-policy">Structure of the optimal policy</h1>
 <p>We start by establishing simple properties of the different functions defined above.</p>
 <div class="highlight">
 <dl>
-<dt><span id="lemma:concavity" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
+<dt>Lemma #concavity</dt>
 <dd><p>The above functions statisfy the following properties:</p>
 <ul>
 <li><span class="math inline">\(L_i(π)\)</span> is linear in <span class="math inline">\(π\)</span>.</li>
@@ -108,13 +108,13 @@
 Shape of the value functions
 </figcaption>
 </figure>
-<h4 class="unnumbered" data-number="" id="proof">Proof</h4>
+<h4 class="unnumbered" id="proof">Proof</h4>
 <p>The linearity of <span class="math inline">\(L_i(π)\)</span> follows from definition. From the discussion on <a href="../pomdp/#theorem:belief-PWLC">POMDPs</a>, we know that <span class="math inline">\(V_{t+1}(π)\)</span> is concave in <span class="math inline">\(π\)</span> and so is <span class="math inline">\(\EXP[V_{t+1}(ψ(π, Y_{t+1})) | Π_t = π]\)</span>. Therefore <span class="math inline">\(W_t(π)\)</span> is concave in <span class="math inline">\(π\)</span>.</p>
 <p>Finally, by construction, we have that <span class="math inline">\(V_{T-1}(π) \le V_T(π)\)</span>. The monotonicity in time then follows from Q2 of <a href="../../assignments/02">Assignment 2</a>. Sincen <span class="math inline">\(V_t\)</span> is monotone in time, it implies that <span class="math inline">\(W_t\)</span> is also monotone. <span class="math inline">\(\Box\)</span></p>
 <p>Now define stopping sets <span class="math inline">\(S_t(h) = \{ π \in Δ^2 : g_t(π) = h \}\)</span> for <span class="math inline">\(h \in \{h_0, h_1\}\)</span>. The key result is the following.</p>
 <div class="highlight">
 <dl>
-<dt><span id="theorem:convex" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
+<dt>Theorem #convex</dt>
 <dd><p>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(h \in \{h_0, h_1\}\)</span>, the set <span class="math inline">\(S_t(h)\)</span> is convex. Moreover, <span class="math inline">\(S_t(h_i) \subseteq S_{t+1}(h_i)\)</span>.</p>
 </dd>
 </dl>
@@ -128,7 +128,7 @@ Shape of the value functions
 Stopping sets
 </figcaption>
 </figure>
-<h4 class="unnumbered" data-number="" id="proof-1">Proof</h4>
+<h4 class="unnumbered" id="proof-1">Proof</h4>
 <p>Note that we can write <span class="math inline">\(S_t(h) = A_t(h) \cap B_t(h)\)</span>, where <span class="math display">\[ A_t(h_i) = \{ π \in Δ^2 : L_i(π)  \le L_j(π) \}
    \quad\text{and}\quad
    B_t(h_i) = \{ π \in Δ^2 : L_i(π) \le W_t(π)  \}. \]</span></p>
@@ -138,7 +138,7 @@ Stopping sets
 <p>The monotonicty of <span class="math inline">\(S_t(h_i)\)</span> in time follows from the monotonicity of <span class="math inline">\(W_t\)</span> in time. <span class="math inline">\(\Box\)</span></p>
 <div class="highlight">
 <dl>
-<dt><span id="theorem:corner" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
+<dt>Theorem #corner</dt>
 <dd><p>Suppose the stopping cost satisfy the following: <span class="math display">\[\begin{equation} \label{eq:cost-ass}
 \ell(h_0, h_0) \le c \le \ell(h_0, h_1)
   \quad\text{and}\quad
@@ -152,10 +152,10 @@ Stopping sets
 <dd><p>The assumption on observation cost states that: (i) the cost of observation is greater than the cost incurred when the DM chooses the right hypothesis, and (ii) the cost of observation is less than the cost incurred when the DM chooses the wrong hypothesis. Both these assumptions are fairly natural.</p>
 </dd>
 </dl>
-<h4 class="unnumbered" data-number="" id="proof-2">Proof</h4>
+<h4 class="unnumbered" id="proof-2">Proof</h4>
 <p>Note that <span class="math inline">\(L_i(e_0) = \ell(h_i, h_0)\)</span> and <span class="math inline">\(L_i(e_1) = \ell(h_1, h_1)\)</span>. Moreover, by construction, <span class="math inline">\(W_t(π) \ge c\)</span>. Thus, under the above assumption on the cost, <span class="math display">\[ L_0(e_0) = \ell(h_0, h_0) \le c \le W_t(e_0) \]</span> and <span class="math display">\[ L_0(e_0) = \ell(h_0, h_0) \le \ell(h_1, h_0) = L_1(e_0). \]</span> Thus, <span class="math inline">\(e_0 \in S_t(h_0)\)</span>.</p>
 <p>By a symmetric argument, we can show that <span class="math inline">\(e_1 \in S_t(h_1)\)</span>. <span class="math inline">\(\Box\)</span></p>
-<p><a href="#theorem:convex" title="Theorem 1"><span class="pandoc-numbering-link theorem">Theorem 1</span></a> and <a href="#theorem:corner" title="Theorem 2"><span class="pandoc-numbering-link theorem">Theorem 2</span></a> imply that the optimal stopping regions are convex and include the “corner points” of the simplex. Note that although we formulated the problem for binary hypothesis, all the steps of the proof hold in general as well.</p>
+<p><span class="citation" data-cites="theorem:convex">@theorem:convex</span> and <span class="citation" data-cites="theorem:corner">@theorem:corner</span> imply that the optimal stopping regions are convex and include the “corner points” of the simplex. Note that although we formulated the problem for binary hypothesis, all the steps of the proof hold in general as well.</p>
 <figure>
 <img src="general-stopping.png" 
        title="Stopping regions"
@@ -173,7 +173,7 @@ Stopping regions for multiple hypothesis
 <p>Then, by definition, the optimal policy has the following threshold property:</p>
 <div class="highlight">
 <dl>
-<dt><span id="proposition:threshold" class="pandoc-numbering-text proposition"><strong>Proposition 1</strong></span></dt>
+<dt>Proposition #threshold</dt>
 <dd><p>Let <span class="math inline">\(\bar g_t(p) = g_t([p, 1-p]^T)\)</span>. Then, under \eqref{eq:cost-ass}, <span class="math display">\[ \bar g_t(p) = \begin{cases}
    h_1, &amp; \text{if } p \le a_t \\
    \mathsf{C}, &amp; \text{if } a_t &lt; p &lt; b_t \\
@@ -186,7 +186,7 @@ Stopping regions for multiple hypothesis
 <p>The above property is simplies stated slighted in terms of the likelihood ratio. In particular, define <span class="math inline">\(λ_t = π_t(0)/π_t(1) = p_t/(1 - p_t)\)</span>. Then, we have the following:</p>
 <div class="highlight">
 <dl>
-<dt><span id="proposition:likelihood" class="pandoc-numbering-text proposition"><strong>Proposition 2</strong></span></dt>
+<dt>Proposition #likelihood</dt>
 <dd><p>Let <span class="math inline">\(\hat g_t(λ) = g_t([λ/(1+λ), 1/(1+λ)]^T)\)</span>. Then, under \eqref{eq:cost-ass}, <span class="math display">\[ \hat g_t(λ) = \begin{cases}
    h_1, &amp; \text{if } λ \le a_t/(1 - a_t) \\
    \mathsf{C}, &amp; \text{if } a_t/(1 - a_t) &lt; λ &lt; b_t/(1 - b_t)_t \\
@@ -195,22 +195,22 @@ Stopping regions for multiple hypothesis
 </dd>
 </dl>
 </div>
-<h4 class="unnumbered" data-number="" id="proof-3">Proof</h4>
+<h4 class="unnumbered" id="proof-3">Proof</h4>
 <p>For any <span class="math inline">\(a, b \in [0, 1]\)</span>, <span class="math display">\[ a \le b \iff \frac{a}{1-a} \le \frac{b}{1-b}. \qquad \Box \]</span></p>
-<p>The result of <a href="#proposition:likelihood" title="Proposition 2"><span class="pandoc-numbering-link proposition">Proposition 2</span></a> is called the <em>sequential</em> likelihood ratio test (SLRT) or <em>sequential</em> probability ratio test (SPRT) to contrast it with the standard <a href="https://en.wikipedia.org/wiki/Likelihood-ratio_test">likelihood ratio test</a> in hypotehsis testing.</p>
-<h1 data-number="3" id="infinite-horizon-setup"><span class="header-section-number">3</span> Infinite horizon setup</h1>
+<p>The result of <span class="citation" data-cites="proposition:likelihood">@proposition:likelihood</span> is called the <em>sequential</em> likelihood ratio test (SLRT) or <em>sequential</em> probability ratio test (SPRT) to contrast it with the standard <a href="https://en.wikipedia.org/wiki/Likelihood-ratio_test">likelihood ratio test</a> in hypotehsis testing.</p>
+<h1 id="infinite-horizon-setup">Infinite horizon setup</h1>
 <p>Assume that <span class="math inline">\(T = ∞\)</span> so that the continuation alternative is always available. Then, we have the following.</p>
 <div class="highlight">
 <dl>
-<dt><span id="theorem:inf" class="pandoc-numbering-text theorem"><strong>Theorem 3</strong></span></dt>
+<dt>Theorem #inf</dt>
 <dd><p>Under \eqref{eq:cost-ass}, an optimal decision rule always exists, is time-homogeneous, and is given by the solution of the following DP: <span class="math display">\[ V(π) = \min\{ L_0(π) , L_1(π) , W(π) \} \]</span> where <span class="math display">\[ W(π) = c + \int_{y} [ pf_0(y) + (1-p)f_1(y)] V(ψ(π,y)) dy. \]</span></p>
 <p>Therefore, the optimal thresholds <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> are time-homogeneous.</p>
 </dd>
 </dl>
 </div>
-<h4 class="unnumbered" data-number="" id="proof-4">Proof</h4>
+<h4 class="unnumbered" id="proof-4">Proof</h4>
 <p>The result follows from standard results on non-negative dynamic programming. We did not conver non-negative DP. Essentially it determines conditions under which undiscounted infinite horizon problems have a solution when the per-step cost is non-negative.</p>
-<h1 class="unnumbered" data-number="" id="exercises">Exercises</h1>
+<h1 class="unnumbered" id="exercises">Exercises</h1>
 <ol type="1">
 <li><p>Consider the following modification of the sequential hypothesis testing. As in the model discussed above, there are two hypothesis <span class="math inline">\(h_0\)</span> and <span class="math inline">\(h_1\)</span>. The a priori probability that the hypothesis is <span class="math inline">\(h_0\)</span> is <span class="math inline">\(p\)</span>.</p>
 <p>In contrast to the model discussed above, there are <span class="math inline">\(N\)</span> sensors. If the underlying hypothesis is <span class="math inline">\(h_i\)</span> and sensor <span class="math inline">\(m\)</span> is used at time <span class="math inline">\(t\)</span>, then the observation <span class="math inline">\(Y_t\)</span> is distrubted according to pdf (or pmf) <span class="math inline">\(f^m_j(y)\)</span>. The cost of using sensor <span class="math inline">\(m\)</span> is <span class="math inline">\(c_m\)</span>.</p>
@@ -257,30 +257,10 @@ V_g(p) &amp;= c [ p θ_0(g, p) + (1-p) θ_1(g,p) ] \\
 </ul></li>
 </ol></li>
 </ol>
-<h1 class="unnumbered" data-number="" id="references">References</h1>
-<p>For more details on sequential hypothesis testing, incuding an approximate method to determine the thresholds, see <span class="citation" data-cites="Wald1945">Wald (<a href="#ref-Wald1945" role="doc-biblioref">1945</a>)</span>. The optimal of sequential likelihood ratio test was proved in <span class="citation" data-cites="Wald1948">Wald and Wolfowitz (<a href="#ref-Wald1948" role="doc-biblioref">1948</a>)</span>. The model described above was first considered by <span class="citation" data-cites="Arrow1949">Arrow et al. (<a href="#ref-Arrow1949" role="doc-biblioref">1949</a>)</span>. See <span class="citation" data-cites="DeGroot1970">DeGroot (<a href="#ref-DeGroot1970" role="doc-biblioref">1970</a>)</span>.</p>
-<p>Execrise 1 is from <span class="citation" data-cites="Bai2015">Bai et al. (<a href="#ref-Bai2015" role="doc-biblioref">2015</a>)</span>. Exercise 2 is from <span class="citation" data-cites="Woodall1983">Woodall and Reynolds (<a href="#ref-Woodall1983" role="doc-biblioref">1983</a>)</span>.</p>
+<h1 class="unnumbered" id="references">References</h1>
+<p>For more details on sequential hypothesis testing, incuding an approximate method to determine the thresholds, see <span class="citation" data-cites="Wald1945">@Wald1945</span>. The optimal of sequential likelihood ratio test was proved in <span class="citation" data-cites="Wald1948">@Wald1948</span>. The model described above was first considered by <span class="citation" data-cites="Arrow1949">@Arrow1949</span>. See <span class="citation" data-cites="DeGroot1970">@DeGroot1970</span>.</p>
+<p>Execrise 1 is from <span class="citation" data-cites="Bai2015">@Bai2015</span>. Exercise 2 is from <span class="citation" data-cites="Woodall1983">@Woodall1983</span>.</p>
 <hr />
-<div id="refs" class="references hanging-indent" role="doc-bibliography">
-<div id="ref-Arrow1949">
-<p><span class="smallcaps">Arrow, K.J., Blackwell, D., and Girshick, M.A.</span> 1949. Bayes and minimax solutions of sequential decision problems. <em>Econometrica</em> <em>17</em>, 3/4, 213. DOI: <a href="https://doi.org/10.2307/1905525">10.2307/1905525</a>.</p>
-</div>
-<div id="ref-Bai2015">
-<p><span class="smallcaps">Bai, C.-Z., Katewa, V., Gupta, V., and Huang, Y.-F.</span> 2015. A stochastic sensor selection scheme for sequential hypothesis testing with multiple sensors. <em>IEEE transactions on signal processing</em> <em>63</em>, 14, 3687–3699.</p>
-</div>
-<div id="ref-DeGroot1970">
-<p><span class="smallcaps">DeGroot, M.</span> 1970. <em>Optimal statistical decisions</em>. Wiley-Interscience, Hoboken, N.J.</p>
-</div>
-<div id="ref-Wald1945">
-<p><span class="smallcaps">Wald, A.</span> 1945. Sequential tests of statistical hypotheses. <em>The Annals of Mathematical Statistics</em> <em>16</em>, 2, 117–186. DOI: <a href="https://doi.org/10.1214/aoms/1177731118">10.1214/aoms/1177731118</a>.</p>
-</div>
-<div id="ref-Wald1948">
-<p><span class="smallcaps">Wald, A. and Wolfowitz, J.</span> 1948. Optimum character of the sequential probability ratio test. <em>The Annals of Mathematical Statistics</em> <em>19</em>, 3, 326–339. DOI: <a href="https://doi.org/10.1214/aoms/1177730197">10.1214/aoms/1177730197</a>.</p>
-</div>
-<div id="ref-Woodall1983">
-<p><span class="smallcaps">Woodall, W.H. and Reynolds, M.R.</span> 1983. A discrete markov chain representation of the sequential probability ratio test. <em>Communications in Statistics. Part C: Sequential Analysis</em> <em>2</em>, 1, 27–44. DOI: <a href="https://doi.org/10.1080/07474948308836025">10.1080/07474948308836025</a>.</p>
-</div>
-</div>
 
 
 <p class="categories">
