@@ -1,6 +1,6 @@
 ---
-title: Partially observed Linear Quadratic Regulation
-weight: 11
+title: Partially observed linear quadratic regulator
+weight: 05
 categories:
   - POMDP
 tags:
@@ -9,6 +9,252 @@ tags:
   - Riccati equation
   - LQR
   - LQG
-draft: true
 ---
 
+Consider a stochastic linear system as in the case of [LQR]. The system
+has state $x_t \in \reals^n$ and actions $u_t \in \reals^m$. The initial state
+$x_1$ has zero mean and finite variance $\Sigma^x_1$. The system dynamics are
+given by
+$$ x_{t+1} = A_t x_t + B_t u_t + w_t, $$
+where $A_t \in \reals^{n×n}$ and $B_t \in \reals^{n×m}$ are known matrices and
+$\{w_t\}_{t \ge 1}$ is $\reals^n$-valued i.i.d. noise process with zero mean
+and finite variance $\Sigma^w$. We make the standard assumption that the
+primitive random variables $\{x_1, w_1, \dots, w_T\}$ are independent. 
+
+[LQR]: ../lqr
+
+Now unlike the [LQR] model, the controller does not have perfect observation
+of the state, rather observes the state with noise. In particular, the
+observation $y_t \in \reals^{p}$ is given by 
+$$ y_t = C_t x_t + v_t, $$
+where $C_t \in \reals^{p×n}$ is a known matrix and $\{v_t\}_{t \ge 1}$ is
+$\reals^p$-valued i.i.d. noise process with zero mean and finite variance
+$\Sigma^v$. We assume that $\{v_t\}_{t \ge 1}$ is independent of $\{x_1, w_1,
+\dots, w_T\}$. 
+
+The controller generates the control action $u_t$ using all the information
+$I_t = \{y_{1:t}, u_{1:t-1}\}$ available to it at time $t$. Thus,
+$$ u_t = g_t(I_t), $$
+where $g = (g_1, \dots, g_{T-1})$ is called a control strategy. We consider
+the optimal regulation problem where the objective is to minimize the finite
+horizon cost given by 
+$$\begin{equation} \label{eq:cost}
+  J(g) = \EXP^{g} \Bigl[ \sum_{t=1}^{T-1} \bigl[ x_t^\TRANS Q_t x_t + u_t^\TRANS
+  R_t u_t \bigr] + x_T^\TRANS Q_T x_T \Bigr],
+\end{equation} $$
+where $\{Q_t\}_{t=1}^T$ are [positive semi-definite matrices][PSD]
+and $\{R_t\}_{t=1}^{T-1}$ are [positive definite matrices][PSD].
+
+[PSD]: ../../appendix/positive-definite-matrix 
+
+Given the system dynamics and the noise statistics, we are interested in
+choosing a control strategy $g$ to minimize the total expected cost $J(g)$
+given by \\eqref{eq:cost}. 
+
+Remark
+
+:   In the standard textbook treatment of this material, it is assumed that
+    the process noise $\{w_t\}_{t \ge 1}$ and the observation noise
+    $\{v_t\}_{t \ge 1}$ are Gaussian. We do not make this assumption. 
+
+      It can be shown that when the noise is Gaussian, the belief state is
+      also Gaussian and one can work with the conditional mean as an
+      information state leading to a simpler dynamic program.
+
+In this section, we will follow the completion of squares based approach
+introduced in [the notes on LQR][LQR].
+
+# Completion of squares argument
+
+Using Prop. 1 of [LQR], the total cost of any strategy $g$ may be written as
+follows:
+$$ \begin{align}
+    J(g) = & \EXP\bigg[ \sum_{t=1}^{T-1} (u_t + L_t x_t)^\TRANS [R_t + B_t^\TRANS
+    S_{t+1}B_t] (u_t + L_t x_t) \bigg] \nonumber \\
+    & \quad + 
+    \EXP\bigg[ x_1^\TRANS S_1 x_t + \sum_{t=1}^{T-1} w_t S_{t+1} w_t \bigg], \label{eq:astrom}
+\end{align}$$
+where the _gain matrices_ $\{L_t\}_{t\ge 1}$ are given by:
+$$ L_t = [R_t + B_t^\TRANS S_{t+1} B_t]^{-1} \Lambda_t $$
+where
+$$ \Lambda_t = B_t^\TRANS S_{t+1} A_t $$
+and $\{S_t\}_{t=1}^T$ are determined by the solution of the _backward Riccati
+equation_: $S_T = Q_T$ and for $t \in \{T-1, \dots, 1\}$:
+$$\begin{equation}\label{eq:riccati}
+  S_t = A_t^\TRANS S_{t+1} A_t + Q_t - 
+  \Lambda_t^\TRANS [ R_t + B_t^\TRANS S_{t+1} B_t ] ^{-1} \Lambda_t.
+\end{equation}$$
+
+Remark
+
+:   The matrices $\{L_t\}_{t=1}^T$ and $\{S_t\}_{t=1}^T$ are the same as in the
+basic LQR model.
+
+Now, as in the solution to the LQR problem, we note that the second term
+of \\eqref{eq:astrom} is a function of the primitive random variables and does
+not depend on the choice of the control strategy $g$. Thus, in order to
+minimize the total expected cost, it suffices to minimize the first term
+of \\eqref{eq:astrom}. However, unlike the case in LQR with perfect state
+observation, we cannot simply choose $u_t = -L_t x_t$ because the state $x_t$
+is not known to the observer. In the next section, we
+use state splitting and orthogonal projection to minimize the first term
+of \\eqref{eq:astrom}.
+
+# State splitting and static reduction
+
+We split the state $x_t$ into two components: $x_t = x^g_t + x^s_t$, where 
+\begin{align*}
+  x^g_1 &=0, & x^s_1 &= x_1, \\
+  x^g_{t+1} &= A_t x^g_t + B_t u_t, &
+  x^s_{t+1} &= A_t x^s_t + w_t.
+\end{align*}
+We refer to $x^g_t$ and $x^s_t$ as the controlled and control-free components
+of the state, respectively. Now, define controlled and control-free components
+$(y^g_t, y^s_t)$ of the observation as follows:
+$$y^g_t = C_t x^g_t
+\quad\text{and}\quad
+y^s_t = C_t x^s_t + v_t. $$
+
+Define $I^s_t = \{y^s_{1:t}\}$.
+
+::: highlight :::
+
+Lemma #static
+
+:   **(Static reduction)** For any control strategy $g$, the information sets
+$I_t$ and $I^s_t$ generate the same sigma algebra. Equivalently, $I_t$ and
+$I^s_t$ are functions of each other.
+
+:::
+
+#### Proof {-}
+
+To be written $\Box$
+
+
+An implication of @lemma:static is that we can replace conditioning on $I_t$
+by conditioning on $I^s_t$ in any conditional probability expression. 
+
+# Orthogonal projection
+
+To simplify the first term of \\eqref{eq:astrom}, define 
+$$ \hat x_t = \EXP[ x_t | I_t ]$$
+as the conditional estimate of the state given the observations at the
+controller and define
+$$ \tilde x_t = x_t - \hat x_t$$
+as the corresponding estimation error. 
+
+Then, these have the following properties.
+
+::: highlight :::
+
+Lemma #properties
+
+:   For any control strategy $g$, we have
+
+    1. $\tilde x_t = x^s_t - \EXP[x^s_t | I^s_t]$ is control-free and may be
+       written just in terms of the primitive random variables.
+    
+    Furthermore, for any matrix $M$ of appropriate dimensions:
+
+    2. $\EXP[\hat x_t^\TRANS M \tilde x_t ] = 0$.
+    3. $\EXP[ u_t^\TRANS M \tilde x_t ] = 0$.
+
+:::
+
+#### Proof {-}
+
+To prove part 1, we note that
+\begin{align}
+  \tilde x_t &= x_t - \EXP[x_t | I_t ] \notag \\
+  &\stackrel{(a)}= x^g_t + x^s_t - \EXP[ x^g_t + x^s_t | I_t] \notag \\
+  &\stackrel{(b)}= x^s_t - \EXP[x^s_t | I_t ] \notag \\
+  &\stackrel{(c)}= x^s_t - \EXP[x^s_t | I^s_t ] \label{eq:tilde-x}
+\end{align}
+where $(a)$ follows from state splitting, $(b)$ follows from the fact that
+$x^g_t$ is a function of $u_{1:t-1}$ which is a part of
+$I_t$, and $(c)$ follows from @lemma:static. Part 1 then follows by observing
+that \\eqref{eq:tilde-x} depends only on primitive random variables. 
+
+To prove parts 2 and 3, let $ξ_t$ be a function of $I_t$ and $M$ be a matrix of
+appropriate dimensions. Then,
+\begin{align}
+  \EXP[ξ_t^\TRANS M \tilde x_t] 
+  &\stackrel{(d)}= \EXP[ \EXP[ ξ_t^\TRANS M \tilde x_t | I_t ] ] 
+  \notag \\
+  &\stackrel{(e)}= \EXP[ ξ_t^\TRANS M \EXP[ \tilde x_t | I_t ] ] \notag \\
+  &\stackrel{(f)}= 0.
+\end{align}
+where $(d)$ follows from the smoothing property of conditional expectation,
+$(e)$ follows from the fact that $ξ_t$ is a function of $I_t$, and $(f)$
+follows from the fact that $\EXP[\tilde x_t | I_t] = 0$ by construction.
+
+Part 2 follows from observing that $\hat x_t$ is a function of $I_t$. Part 3
+follows from observing that $u_t$ is a function of $I_t$. $\Box$ 
+
+::: highlight :::
+
+Lemma #simplify
+
+:   For any control strategy $g$, the first term of \\eqref{eq:astrom} may be
+    written as
+    \begin{align}
+      & \EXP^{g}\Bigl[ \sum_{t=1}^{T-1} (u_t + L_t \hat x_t)^\TRANS
+      [R_t + B_t^\TRANS S_{t+1} B_t](u_t + L_t \hat x_t) ] \notag \\
+      &\quad + 
+      \EXP\Bigl[ \sum_{t=1}^{T-1} (L_t \tilde x_t)^\TRANS
+      [R_t + B_t^\TRANS S_{t+1} B_t](L_t \tilde x_t) ] \label{eq:simple}
+    \end{align}
+
+:::
+
+#### Proof {-}
+
+@lemma:properties implies that for any matrix $M$ of appropriate dimensions,
+$$ \EXP[ (u_t + L_t x_t)^\TRANS M (u_t + L_t x_t) =
+\EXP[ (u_t + L_t \hat x_t)^\TRANS M (u_t + L_t \hat x_t) ] +
+\EXP[ (L_t \tilde x_t)^\TRANS M (L_t \tilde x_t) ], $$
+where the cross-terms are zero due to parts 2 and 3 of @lemma:properties. The
+result of the Lemma follows by repeatedly using the above property at each
+time step. 
+
+# Main Result
+
+::: highlight :::
+
+Theorem #main
+
+:   The optimal control strategy for the networked control system discussed in
+    this section is given by
+    $$\begin{equation} \label{eq:optimal}
+      u_t = - L_t \hat x_t.
+    \end{equation}$$
+
+    Furthermore, the state estimate $\hat x_t$ is the mean of the conditional
+    density $p(x_t | I_t)$, which can be updated using the standard non-linear
+    filtering equation:
+    
+    **TODO**: Write the filtering equation.
+
+:::
+
+#### Proof {-}
+
+The proof of the structure of the optimal controller follows by combining
+various properties described above. In particular, we have shown that for any
+any control strategy $g$, the total cost can be written as \\eqref{eq:astrom},
+where the second term depends just on the primitive random variables.
+Moreover, the first term of \\eqref{eq:astrom} can be written
+as \\eqref{eq:simple}, where (by @lemma:properties, part 1) the second term is
+control free and depends just on the primitive random variables. Therefore,
+it suffices to minimize the first term of \\eqref{eq:simple} to minimizing
+$J(g)$. By assumption, $S_T = Q_T$ is positive semi-definite. It can be
+recursively shown that $S_t$ is also positive definite. Therefore, the first
+term of \\eqref{eq:simple} is greater than or equal to zero, with equality if
+and only if the strategy is given by \\eqref{eq:optimal}. Since the
+policy \\eqref{eq:optimal} achieves the minimal value of the cost, it is
+optimal. 
+
+TODO: Proof of the filtering equation.
+
+<!-- Maybe add the notes on the best linear strategy -->
