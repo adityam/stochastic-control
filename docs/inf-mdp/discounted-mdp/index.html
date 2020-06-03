@@ -44,6 +44,7 @@
 
 <div class="h1-title">Theory: Infinite horizon discounted MDP</div>
 
+pandoc-citeproc: reference Howard1960 not found
 <p>A common way to approximate systems that run for a very large horizon is to assume that they run for an infinite horizon. There is an inherent homogeneity over time for infinite horizon system: the future depends only on the current state and not on the current time. Due to this homogeneity over time, we expect that the optimal policy should also be time-homogeneous. Therefore, the optimal policy for an infinite-horizon system should be easier to implement than the optimal policy for a finite horizon system, especially so when the horizon is large. This is one of the motivations for studying infinite horizon models.</p>
 <p>The most common formulation for infinite horizon models is the discounted setup, where the cost function is assumed to be <span class="math display">\[ J(g) = \EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} c_t(X_t, U_t) \Bigr] \]</span> where <span class="math inline">\(\beta \in (0,1)\)</span> is called the discount factor.</p>
 <p>There are two interpretations of the discount factor <span class="math inline">\(\beta\)</span>. The first interpretation is an economic interpretation to determine the <em>present value</em> of a utility that will be received in the future. For example, suppose a decision maker is indifferent between receiving 1 dollar today or <span class="math inline">\(x\)</span> dollars tomorrow. This means that the decision maker discounts the future at a rate <span class="math inline">\(1/x\)</span>, so <span class="math inline">\(\beta = 1/x\)</span>.</p>
@@ -287,6 +288,24 @@ V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="
 </ol>
 </section>
 <p>The policy improvement lemma (<a href="#lemma:PI" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a>) implies that <span class="math inline">\(V_{k-1} \ge V_k\)</span>. Since the state and action spaces are finite, there are only a finite number of policies. The value function improves at each step. So the process must converge in finite number of iterations. At convergence, <span class="math inline">\(V_k = V_{k-1}\)</span> and the policy improvement lemma implies that the corresponding policies <span class="math inline">\(g_k\)</span> or <span class="math inline">\(g_{k-1}\)</span> are optimal.</p>
+<h2 data-number="6.1" id="policy-iteration-as-newton-raphson-algoritm"><span class="header-section-number">6.1</span> Policy iteration as Newton-Raphson algoritm</h2>
+<!-- Taken from Pg 58 of Whittle, Optimal Control: Basics and Beyond -->
+<p>Recall that the main idea behind Newton-Raphson is as follows. Suppose we want to solve a fixed point equation <span class="math inline">\(V = \mathcal B V\)</span> and we have an approximate solution <span class="math inline">\(V_k\)</span>. Then we can search for an improved soluiton <span class="math inline">\(V_{k+1} = V_k + Δ_k\)</span> by setting <span class="math display">\[\begin{equation} \label{eq:NR}
+V_k + Δ_k = \mathcal{B}( V_k + Δ_k ), 
+\end{equation} \]</span> expanding the right-hand side as far as first-order terms in <span class="math inline">\(Δ_k\)</span> and solving the consequent linear equation for <span class="math inline">\(Δ_k\)</span>.</p>
+<p>Now, let’s try to apply this idea to find the fixed point of the Bellman equation. Suppose we have identified a guess <span class="math inline">\(V_k\)</span> and <span class="math inline">\(\mathcal B V_k = \mathcal B_{g_{k+1}} V_k\)</span>. Because the choice of control action <span class="math inline">\(u\)</span> is optimization out in <span class="math inline">\(\mathcal B\)</span>, the varation of <span class="math inline">\(u\)</span> induced by the variation <span class="math inline">\(Δ_k\)</span> of <span class="math inline">\(V_k\)</span> has no first-order effect on the value of <span class="math inline">\(\mathcal B(V_k + Δ_k)\)</span>. Therefore, <span class="math display">\[
+  \mathcal{B}(V_k + Δ_k) = \mathcal B_{g_{k+1}}(V_k + Δ_k) + o(Δ_k).
+\]</span> It follows that the linearized version of~\eqref{eq:NR} is just <span class="math display">\[ 
+  V_{k+1} = \mathcal B_{g_{k+1}} V_{k+1}.
+\]</span> That is, <span class="math inline">\(V_{k+1}\)</span> is just the value function for the policy <span class="math inline">\(g_{k+1}\)</span>, where <span class="math inline">\(g_{k+1}\)</span> was deduced from the value function <span class="math inline">\(V_k\)</span> exactly by the policy improvement procedure. Therefore, we can conclude the following.</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:NR" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
+<dd><p>The policy improvement algorithm is equivalent to the application of Newton-Raphson algorithm to the fixed point equation <span class="math inline">\(V = \mathcal B V\)</span> of dynamic programming.</p>
+</dd>
+</dl>
+</div>
+<p>The equivalence between policy iteration and Newton-Raphson partily explains why policy iteration approaches converge in few iterations.</p>
 <h1 data-number="7" id="optimistic-policy-iteration"><span class="header-section-number">7</span> Optimistic Policy Iteration</h1>
 <section id="optimistic-policy-iteration-algorithm" class="unnumbered highlight" data-number="">
 <h4 class="unnumbered" data-number="">Optimistic Policy Iteration Algorithm</h4>
@@ -340,8 +359,11 @@ V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="
 <li><span class="math display">\[ \| V_g - V^* \| \le \frac{2\beta}{1 - \beta} \| V - V^* \|. \]</span></li>
 </ol></li>
 </ol>
+<!-- TODO: Add the example of policy improvement for the harvesting example
+from Page 61 of Whittle, Optimal Control: Basics and Beyond -->
 <h1 class="unnumbered" data-number="" id="references">References</h1>
 <p>The material included here is referenced from different sources. Perhaps the best sources to study this material are the books by <span class="citation" data-cites="Puterman2014">Puterman (<a href="#ref-Puterman2014" role="doc-biblioref">2014</a>)</span>, <span class="citation" data-cites="Whittle1982">Whittle (<a href="#ref-Whittle1982" role="doc-biblioref">1982</a>)</span>, and <span class="citation" data-cites="Bertsekas:book">Bertsekas (<a href="#ref-Bertsekas:book" role="doc-biblioref">2011</a>)</span>.</p>
+<p>The techniques for value iteration and policy improvement were formalized by <span class="citation" data-cites="Howard1960">(<span class="citeproc-not-found" data-reference-id="Howard1960"><strong>???</strong></span>)</span>. The equivalence of policy improvement and the Newton-Raphson algorithm was demonstrated in the LQ case by <span class="citation" data-cites="Whittle1988a">Whittle and Komarova (<a href="#ref-Whittle1988a" role="doc-biblioref">1988</a>)</span>, for which it holds in a tighter sense.</p>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
 <div id="ref-Bertsekas:book">
 <p><span class="smallcaps">Bertsekas, D.P.</span> 2011. <em>Dynamic programming and optimal control</em>. Athena Scientific. Available at: <a href="http://www.athenasc.com/dpbook.html">http://www.athenasc.com/dpbook.html</a>.</p>
@@ -354,6 +376,9 @@ V_h. \]</span> Thus, <span class="math inline">\(V_h\)</span> (and <span class="
 </div>
 <div id="ref-Whittle1982">
 <p><span class="smallcaps">Whittle, P.</span> 1982. <em>Optimization over time: Dynamic programming and stochastic control. Vol. 1 and 2</em>. Wiley.</p>
+</div>
+<div id="ref-Whittle1988a">
+<p><span class="smallcaps">Whittle, P. and Komarova, N.</span> 1988. Policy improvement and the newton-raphson algorithm. <em>Probability in the Engineering and Informational Sciences</em> <em>2</em>, 2, 249–255. DOI: <a href="https://doi.org/10.1017/s0269964800000760">10.1017/s0269964800000760</a>.</p>
 </div>
 </div>
 <section class="footnotes" role="doc-endnotes">

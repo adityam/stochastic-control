@@ -1,0 +1,125 @@
+---
+title: Infinite horizon Linear Quadratic Regulation (LQR)
+weight: 02
+categories:
+  - MDP
+tags:
+  - Linear systems
+  - Riccati equation
+  - LQR
+  - Optimal tracking
+  - infinite horizon
+---
+
+# Preliminaries
+
+We first start with some properties of deterministic time-homogeous linear system:
+$$\begin{equation} \label{eq:simple} x_{t+1} = A x_{t-1}. \end{equation}$$
+The solution to this system is given by $x_t = A^t x_0$. It obviously has an
+equilibrium point of $x = 0$. This will be the _unique_ equilibrium point if
+$A$ is non-singular, when the only solution of $x = Ax$ is $x = 0$. Suppose
+this is true. One may now ask whether this equilibrium is _stable_ in that
+$x_t \to 0$ with increasing $t$ for any $x_0$.
+
+::: highlight :::
+
+Theorem #stable
+
+: The equilibrium of the system \\eqref{eq:simple} is stable if and only if
+  all the eigenvalues of the matrix $A$ have modulus strictly less than unity.
+
+:::
+
+#### Proof {-}
+
+Let $λ$ be the eigenvalue of maximum modulus and let $v$ be the corresponding
+eigenvalue. Then, if we start from $x_0 = v$, the sequence $A^t x_0$ grows as
+$λ^t v$. For this sequence to be stable, it is necessary that $|λ| < 1$. 
+
+On the other hand, no sequence $A^t x_0$ grows faster than $t^{n-1} |λ|^t$
+(explain why), so $|λ| < 1$ is also sufficient for stability. $\Box$ 
+
+A matrix $A$ with the above property is called _stable matrix_ (in the
+discrete-time sense). Note that if the equilibrium at zero is stable then it
+is necessarily unique; if it is not unique then it cannot be stable. 
+
+The eigenvalues and eigenvectors of $A$ are important in determining the
+'modes' of the system. Suppose $A$ has full spectral representation $A = P Λ
+P^{-1}$, where $Λ$ is the diagonal matrix of distinct eigenvalues $λ_i$ and
+the columns of $P$ (rows of $P^{-1}$) are ther corresponding right (left)
+eigenvectors. Then, by adoption of a new state vector $\tilde x = P x$, one
+can write \\eqref{eq:simple} as $n$ decoupled scalar equations $\tilde x_{i,t+1}
+= λ_i x_{i,t}$. An oscillatory mode will corespond to a pair of complex
+conjugate eigenvalues. 
+
+The typical case for which a complete diagonalization cannot be achieved is
+that in which $A$ takes the form
+$$ A = \MATRIX{ λ & μ \\ 0 & λ} $$
+for non-zero $μ$. One can imagine that two population groups both reproduce at
+a net rate $λ$, but that group 2 also generates members of group 1 at rate
+$μ$. There is a double eigenvalue of $A$ and $λ$, but 
+$$ A^t = λ^{t-1} \MATRIX{ λ & t μ \\ 0 & λ }, 
+\quad 
+e^{At} = e^{λt} \MATRIX{ 1 & μ t \\ 0 & 1 }. $$
+
+One can regard this as a situation in which a mode of the transient response
+$e^{λt}$ (in continuous time) is driven by a signal of th esame type; the
+effect is to produce an output proportional to $t e^{λt}$. If there are $n$
+such stage of driving then the response of the last stage is proportional to
+$t^n e^{λt}$. In the case when $λ$ is purely imaginary (say $jω$), this
+corresponds to the familiar phenomenon of resonance of response to an input of
+the same frequency $ω$. 
+
+## The Cayley-Hamilton Theorem
+
+::: highlight :::
+
+Theorem #Cayley-Hamilton
+
+:   Let $A$ be an $n × n$ matrix. Then the first $n$ powers $I$, $A$, $A^2$,
+    \dots, $A^{n-1}$ constitute a basis for all the powers of $A^r$ of $A$, in
+    that scalar coefficients $c_{rj}$ exist such that
+    \begin{equation} \label{eq:CH}
+      A^r = \sum_{j=0}^{n-1} c_{rj} A^j, 
+      \qquad r \in \integers.
+    \end{equation}
+
+:::
+
+It is important that the coefficients are scalar, so that each element of
+$A^r$ has the same representation in terms of the corresponding elements of
+$I$, $A$, \dots, $A^{n-1}$. 
+
+#### Proof {-}
+
+Define the generating function
+
+$$ Φ(z) = \sum_{j=0}^∞ (Az)^j = (I - Az)^{-1} $$
+where $z$ is a scalar; this series will be convergent if $|z|$ is smaller than
+the reciprocal of the largest eigenvalue of $A$. Writing the inverse as the
+adjugate divided by the determinant we have then
+\begin{equation} \label{eq:adj}
+  |I - Az| Φ(z) = \text{adj}(I - Az).
+\end{equation}
+Now $|I - Az|$ is a polynomial with scalar coefficients $a_j$:
+$$ |I - A z| = \sum_{j=0}^n a_j z^j, $$
+say, and elements of $\text{adj}(I - Az)$ are polynomials in $z$ of degree
+less than $n$. Evaluating the coefficient of $z^r$ on both sides
+of \\eqref{eq:adj} we thus deduce that 
+\begin{equation} \label{eq:adj2}
+  \sum_{j=0}^n a_j A^{r-j} = 0, \qquad r \ge n.
+\end{equation}
+
+Relation \\eqref{eq:adj2} constitutes a recursion for the powers of $A$ with
+scalar coefficients $a_j$. It can be solved for $r \ge n$ in the
+form \\eqref{eq:CH}. $\Box$
+
+The Cayley-Hamilton theorem is sometimes expressed verbally as 'a square
+matrix obeys its own characteristic equation', the characteristic equation
+being the equation $\sum_{j=0}^n a_j λ^{n-j} = 0$ for the eigenvalues $λ$. 
+
+# Controllability and Observability
+
+To be written. Explain $r$-controllability and $r$-observability and their
+relationships in terms of the controllability and observability matrices. 
+

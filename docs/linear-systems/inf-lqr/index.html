@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Linear systems,Riccati equation,LQR,Optimal tracking,infinite horizon" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Infinite horizon Linear Quadratic Regulation (LQR)</div>
+
+<h1 data-number="1" id="preliminaries"><span class="header-section-number">1</span> Preliminaries</h1>
+<p>We first start with some properties of deterministic time-homogeous linear system: <span class="math display">\[\begin{equation} \label{eq:simple} x_{t+1} = A x_{t-1}. \end{equation}\]</span> The solution to this system is given by <span class="math inline">\(x_t = A^t x_0\)</span>. It obviously has an equilibrium point of <span class="math inline">\(x = 0\)</span>. This will be the <em>unique</em> equilibrium point if <span class="math inline">\(A\)</span> is non-singular, when the only solution of <span class="math inline">\(x = Ax\)</span> is <span class="math inline">\(x = 0\)</span>. Suppose this is true. One may now ask whether this equilibrium is <em>stable</em> in that <span class="math inline">\(x_t \to 0\)</span> with increasing <span class="math inline">\(t\)</span> for any <span class="math inline">\(x_0\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:stable" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
+<dd><p>The equilibrium of the system \eqref{eq:simple} is stable if and only if all the eigenvalues of the matrix <span class="math inline">\(A\)</span> have modulus strictly less than unity.</p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof">Proof</h4>
+<p>Let <span class="math inline">\(λ\)</span> be the eigenvalue of maximum modulus and let <span class="math inline">\(v\)</span> be the corresponding eigenvalue. Then, if we start from <span class="math inline">\(x_0 = v\)</span>, the sequence <span class="math inline">\(A^t x_0\)</span> grows as <span class="math inline">\(λ^t v\)</span>. For this sequence to be stable, it is necessary that <span class="math inline">\(|λ| &lt; 1\)</span>.</p>
+<p>On the other hand, no sequence <span class="math inline">\(A^t x_0\)</span> grows faster than <span class="math inline">\(t^{n-1} |λ|^t\)</span> (explain why), so <span class="math inline">\(|λ| &lt; 1\)</span> is also sufficient for stability. <span class="math inline">\(\Box\)</span></p>
+<p>A matrix <span class="math inline">\(A\)</span> with the above property is called <em>stable matrix</em> (in the discrete-time sense). Note that if the equilibrium at zero is stable then it is necessarily unique; if it is not unique then it cannot be stable.</p>
+<p>The eigenvalues and eigenvectors of <span class="math inline">\(A\)</span> are important in determining the ‘modes’ of the system. Suppose <span class="math inline">\(A\)</span> has full spectral representation <span class="math inline">\(A = P Λ P^{-1}\)</span>, where <span class="math inline">\(Λ\)</span> is the diagonal matrix of distinct eigenvalues <span class="math inline">\(λ_i\)</span> and the columns of <span class="math inline">\(P\)</span> (rows of <span class="math inline">\(P^{-1}\)</span>) are ther corresponding right (left) eigenvectors. Then, by adoption of a new state vector <span class="math inline">\(\tilde x = P x\)</span>, one can write \eqref{eq:simple} as <span class="math inline">\(n\)</span> decoupled scalar equations <span class="math inline">\(\tilde x_{i,t+1} = λ_i x_{i,t}\)</span>. An oscillatory mode will corespond to a pair of complex conjugate eigenvalues.</p>
+<p>The typical case for which a complete diagonalization cannot be achieved is that in which <span class="math inline">\(A\)</span> takes the form <span class="math display">\[ A = \MATRIX{ λ &amp; μ \\ 0 &amp; λ} \]</span> for non-zero <span class="math inline">\(μ\)</span>. One can imagine that two population groups both reproduce at a net rate <span class="math inline">\(λ\)</span>, but that group 2 also generates members of group 1 at rate <span class="math inline">\(μ\)</span>. There is a double eigenvalue of <span class="math inline">\(A\)</span> and <span class="math inline">\(λ\)</span>, but <span class="math display">\[ A^t = λ^{t-1} \MATRIX{ λ &amp; t μ \\ 0 &amp; λ }, 
+\quad 
+e^{At} = e^{λt} \MATRIX{ 1 &amp; μ t \\ 0 &amp; 1 }. \]</span></p>
+<p>One can regard this as a situation in which a mode of the transient response <span class="math inline">\(e^{λt}\)</span> (in continuous time) is driven by a signal of th esame type; the effect is to produce an output proportional to <span class="math inline">\(t e^{λt}\)</span>. If there are <span class="math inline">\(n\)</span> such stage of driving then the response of the last stage is proportional to <span class="math inline">\(t^n e^{λt}\)</span>. In the case when <span class="math inline">\(λ\)</span> is purely imaginary (say <span class="math inline">\(jω\)</span>), this corresponds to the familiar phenomenon of resonance of response to an input of the same frequency <span class="math inline">\(ω\)</span>.</p>
+<h2 data-number="1.1" id="the-cayley-hamilton-theorem"><span class="header-section-number">1.1</span> The Cayley-Hamilton Theorem</h2>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:Cayley-Hamilton" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
+<dd><p>Let <span class="math inline">\(A\)</span> be an <span class="math inline">\(n × n\)</span> matrix. Then the first <span class="math inline">\(n\)</span> powers <span class="math inline">\(I\)</span>, <span class="math inline">\(A\)</span>, <span class="math inline">\(A^2\)</span>, , <span class="math inline">\(A^{n-1}\)</span> constitute a basis for all the powers of <span class="math inline">\(A^r\)</span> of <span class="math inline">\(A\)</span>, in that scalar coefficients <span class="math inline">\(c_{rj}\)</span> exist such that <span class="math display">\[\begin{equation} \label{eq:CH}
+  A^r = \sum_{j=0}^{n-1} c_{rj} A^j, 
+  \qquad r \in \integers.
+\end{equation}\]</span></p>
+</dd>
+</dl>
+</div>
+<p>It is important that the coefficients are scalar, so that each element of <span class="math inline">\(A^r\)</span> has the same representation in terms of the corresponding elements of <span class="math inline">\(I\)</span>, <span class="math inline">\(A\)</span>, , <span class="math inline">\(A^{n-1}\)</span>.</p>
+<h4 class="unnumbered" data-number="" id="proof-1">Proof</h4>
+<p>Define the generating function</p>
+<p><span class="math display">\[ Φ(z) = \sum_{j=0}^∞ (Az)^j = (I - Az)^{-1} \]</span> where <span class="math inline">\(z\)</span> is a scalar; this series will be convergent if <span class="math inline">\(|z|\)</span> is smaller than the reciprocal of the largest eigenvalue of <span class="math inline">\(A\)</span>. Writing the inverse as the adjugate divided by the determinant we have then <span class="math display">\[\begin{equation} \label{eq:adj}
+  |I - Az| Φ(z) = \text{adj}(I - Az).
+\end{equation}\]</span> Now <span class="math inline">\(|I - Az|\)</span> is a polynomial with scalar coefficients <span class="math inline">\(a_j\)</span>: <span class="math display">\[ |I - A z| = \sum_{j=0}^n a_j z^j, \]</span> say, and elements of <span class="math inline">\(\text{adj}(I - Az)\)</span> are polynomials in <span class="math inline">\(z\)</span> of degree less than <span class="math inline">\(n\)</span>. Evaluating the coefficient of <span class="math inline">\(z^r\)</span> on both sides of \eqref{eq:adj} we thus deduce that <span class="math display">\[\begin{equation} \label{eq:adj2}
+  \sum_{j=0}^n a_j A^{r-j} = 0, \qquad r \ge n.
+\end{equation}\]</span></p>
+<p>Relation \eqref{eq:adj2} constitutes a recursion for the powers of <span class="math inline">\(A\)</span> with scalar coefficients <span class="math inline">\(a_j\)</span>. It can be solved for <span class="math inline">\(r \ge n\)</span> in the form \eqref{eq:CH}. <span class="math inline">\(\Box\)</span></p>
+<p>The Cayley-Hamilton theorem is sometimes expressed verbally as ‘a square matrix obeys its own characteristic equation’, the characteristic equation being the equation <span class="math inline">\(\sum_{j=0}^n a_j λ^{n-j} = 0\)</span> for the eigenvalues <span class="math inline">\(λ\)</span>.</p>
+<h1 data-number="2" id="controllability-and-observability"><span class="header-section-number">2</span> Controllability and Observability</h1>
+<p>To be written. Explain <span class="math inline">\(r\)</span>-controllability and <span class="math inline">\(r\)</span>-observability and their relationships in terms of the controllability and observability matrices.</p>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/linear-systems">linear systems</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/riccati-equation">riccati equation</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/lqr">lqr</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/optimal-tracking">optimal tracking</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/infinite-horizon">infinite horizon</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
