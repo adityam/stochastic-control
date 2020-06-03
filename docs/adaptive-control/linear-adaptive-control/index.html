@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Linear systems,Adaptive control,LQR" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Adaptive control of linear systems</div>
+
+<p>We start with a simple example to illustrate that it is possible to control a linear system with unknown dymamics. Consider a scalar linear system <span class="math display">\[ x_{t+1} = a x_t + b u_t + w_t \]</span> where <span class="math inline">\(x_t, u_t, w_t \in \reals\)</span> and <span class="math inline">\(\{w_t\}_{t \ge 1}\)</span> is an i.i.d. process with zero mean and variance <span class="math inline">\(σ^2\)</span>. Suppse the per-step cost is <span class="math inline">\(c(x_t, u_t) = x_t^2\)</span> and our objective is to minimize the long-term average cost <span class="math display">\[ 
+  \lim_{T \to ∞} \frac{1}{T} \EXP\Bigl[ \sum_{t=1}^T x_t^2 \Bigr].
+\]</span> This is perhaps the simplest instance of an <a href="../../linear-systems/lqr">LQR</a> problem. It is easy to verify that the solution of the discrete-time algebric Riccati equation is given by <span class="math inline">\(S = 1\)</span> and therefore the optimal control action is <span class="math display">\[
+  u_t = - \frac{a}{b} x_t.
+\]</span></p>
+<p>Now suppose the parameters <span class="math inline">\(θ = \VEC(a,b)\)</span> are unknown. Suppose we use linear least squares estimates to identify <span class="math inline">\(θ\)</span>. Let <span class="math inline">\(z_t\)</span> denote <span class="math inline">\(\VEC(x_t, u_t)\)</span>. Note that we can write <span class="math display">\[ x_{t+1} = z_t^\TRANS θ + w_t. \]</span></p>
+<p>Combining oberrvations until time <span class="math inline">\(t\)</span>, we have <span class="math display">\[ \MATRIX{x_2 \\ \vdots \\ x_{t}} = 
+   \MATRIX{z_1^\TRANS \\ \vdots \\ z_{t-1}^\TRANS } θ + 
+   \MATRIX{w_1 \\ \vdots \\ w_{t-1}} \]</span> which may be written in vector form as <span class="math display">\[ X_t = Z_t θ + W_t, \]</span> where <span class="math display">\[ 
+ X_t = \MATRIX{x_2 \\ \vdots \\ x_{t}}, \quad
+ Z_t = \MATRIX{z_1^\TRANS \\ \vdots \\ z_{t-1}^\TRANS }, \quad
+ W_t = \MATRIX{w_1 \\ \vdots \\ w_{t-1}}. \]</span></p>
+<p>Thus, the linear least squares estimator of <span class="math inline">\(θ\)</span> is given by <span class="math display">\[ \hat θ_t = (Z_t^\TRANS Z_t)^{-1} Z_t^\TRANS X_t
+    = \bigl[ \sum_{τ = 1}^{t-1} z_τ z_τ^\TRANS \bigr]^{-1}
+              \sum_{τ=1}^{t-1} z_τ x_{τ+1}. \]</span></p>
+<p>The linear least squares estimate can be written in recursive form as: <span class="math inline">\(x_0 = 0\)</span>, <span class="math inline">\(\Sigma_0 = 1\)</span>, and for <span class="math inline">\(t \ge 0\)</span>: <span class="math display">\[\begin{align*}
+  \hat θ_{t+1} &amp;= \hat θ_t + 
+  \frac{ \Sigma_t( x_{t+1} - z_t^\TRANS \hat θ_t) }{1 + z_t^\TRANS \Sigma_t z_t },
+  \\
+  \Sigma_{t+1} &amp;= \Sigma_t - 
+  \frac{ \Sigma_t z_t z_t^\TRANS \Sigma_t }{ 1 + z_t^\TRANS \Sigma_t z_t }.
+\end{align*}\]</span></p>
+<p>Note that it can also be shown that the covariance <span class="math inline">\(\Sigma_t\)</span> satisfies the recusion <span class="math display">\[ 
+  \Sigma_{t+1}^{-1} = \Sigma_t^{-1} + z_t z_t^\TRANS.
+\]</span></p>
+<p>Now, let <span class="math inline">\(\hat θ_t = (\hat a_t, \hat b_t)\)</span>. The certainty equivalent control law is given by <span class="math display">\[
+  u_t = - \frac{\hat a_t}{\hat b_t} x_t.
+\]</span></p>
+<p>It can be shown that the sequence <span class="math inline">\(\{ \hat a_t/ \hat b_t\}_{t \ge 1}\)</span> converges to <span class="math inline">\(a/b\)</span>, so asymptotically we will use the right control law, even though <span class="math inline">\(\hat θ_t\)</span> does not converge to <span class="math inline">\(θ\)</span>.</p>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/rl">
+  RL</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/linear-systems">linear systems</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/adaptive-control">adaptive control</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/lqr">lqr</a>.</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+

@@ -1,0 +1,81 @@
+---
+title: Adaptive control of linear systems
+weight: 01
+categories:
+  - RL
+tags:
+  - Linear systems
+  - Adaptive control
+  - LQR
+---
+
+We start with a simple example to illustrate that it is possible to control
+a linear system with unknown dymamics. Consider a scalar linear system
+$$ x_{t+1} = a x_t + b u_t + w_t $$
+where $x_t, u_t, w_t \in \reals$ and $\{w_t\}_{t \ge 1}$ is an i.i.d.\ process
+with zero mean and variance $σ^2$. Suppse the per-step cost is $c(x_t, u_t) =
+x_t^2$ and our objective is to minimize the long-term average cost
+$$ 
+  \lim_{T \to ∞} \frac{1}{T} \EXP\Bigl[ \sum_{t=1}^T x_t^2 \Bigr].
+$$
+This is perhaps the simplest instance of an [LQR] problem. It is easy to
+verify that the solution of the discrete-time algebric Riccati equation is
+given by $S = 1$ and therefore the optimal control action is
+$$
+  u_t = - \frac{a}{b} x_t.
+$$
+
+Now suppose the parameters $θ = \VEC(a,b)$ are unknown. Suppose we use
+linear least squares estimates to identify $θ$. Let $z_t$ denote $\VEC(x_t, u_t)$.
+Note that we can write
+$$ x_{t+1} = z_t^\TRANS θ + w_t. $$ 
+
+Combining oberrvations until time $t$, we have
+$$ \MATRIX{x_2 \\ \vdots \\ x_{t}} = 
+   \MATRIX{z_1^\TRANS \\ \vdots \\ z_{t-1}^\TRANS } θ + 
+   \MATRIX{w_1 \\ \vdots \\ w_{t-1}} $$
+which may be written in vector form as
+$$ X_t = Z_t θ + W_t, $$
+where 
+$$ 
+ X_t = \MATRIX{x_2 \\ \vdots \\ x_{t}}, \quad
+ Z_t = \MATRIX{z_1^\TRANS \\ \vdots \\ z_{t-1}^\TRANS }, \quad
+ W_t = \MATRIX{w_1 \\ \vdots \\ w_{t-1}}. $$
+  
+
+
+Thus, the linear least squares estimator of $θ$ is given by
+$$ \hat θ_t = (Z_t^\TRANS Z_t)^{-1} Z_t^\TRANS X_t
+    = \bigl[ \sum_{τ = 1}^{t-1} z_τ z_τ^\TRANS \bigr]^{-1}
+              \sum_{τ=1}^{t-1} z_τ x_{τ+1}. $$
+
+The linear least squares estimate can be written in recursive form as: $x_0 =
+0$, $\Sigma_0 = 1$, and for $t \ge 0$:
+\begin{align*}
+  \hat θ_{t+1} &= \hat θ_t + 
+  \frac{ \Sigma_t( x_{t+1} - z_t^\TRANS \hat θ_t) }{1 + z_t^\TRANS \Sigma_t z_t },
+  \\
+  \Sigma_{t+1} &= \Sigma_t - 
+  \frac{ \Sigma_t z_t z_t^\TRANS \Sigma_t }{ 1 + z_t^\TRANS \Sigma_t z_t }.
+\end{align*}
+
+Note that it can also be shown that the covariance $\Sigma_t$ satisfies the
+recusion
+$$ 
+  \Sigma_{t+1}^{-1} = \Sigma_t^{-1} + z_t z_t^\TRANS.
+$$
+
+Now, let $\hat θ_t = (\hat a_t, \hat b_t)$. The certainty equivalent control
+law is given by 
+$$
+  u_t = - \frac{\hat a_t}{\hat b_t} x_t.
+$$
+
+It can be shown that the sequence $\{ \hat a_t/ \hat b_t\}_{t \ge 1}$
+converges to $a/b$, so asymptotically we will use the right control law, even
+though $\hat θ_t$ does not converge to $θ$.
+
+
+[LQR]: ../../linear-systems/lqr
+
+
