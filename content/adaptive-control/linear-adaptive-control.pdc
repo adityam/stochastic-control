@@ -78,9 +78,10 @@ $$
   u_t = - \frac{\hat a_t}{\hat b_t} x_t.
 $$
 
-It can be shown that the sequence $\{ \hat a_t/ \hat b_t\}_{t \ge 1}$
-converges to $a/b$, so asymptotically we will use the right control law, even
-though $\hat θ_t$ does not converge to $θ$.
+It can be shown that under some conditions on the parameters of the model, the
+sequence $\{ \hat a_t/ \hat b_t\}_{t \ge 1}$ converges to $a/b$, so
+asymptotically we will use the right control law, even though $\hat θ_t$ does
+not converge to $θ$.
 
 Let's run a simple simulation to test this. Suppose $a = $ 
 <input id="ex1a"
@@ -118,7 +119,7 @@ another sample path by clicking
 <script>
 if (pagedata == undefined) { var pagedata = { } }
 
-pagedata.adaptiveControl = { a : 1.1, b : 1, σ : 1, T : 1000 }
+pagedata.adaptiveControl = { a : 0.8, b : 1, σ : 1, T : 1000 }
 
 // Set initial values
 document.getElementById('ex1a').value = pagedata.adaptiveControl.a;
@@ -180,14 +181,6 @@ function ex1Plot() {
   var b = document.getElementById('ex1b').valueAsNumber;
   var σ = document.getElementById('ex1σ').valueAsNumber;
 
-  var x = 0;
-  var u = 0;
-  var w = 0;
-
-  var z = math.zeros(2);
-  var θ = math.matrix([0, 1]); // Cannot start with b = 0!
-  var Σ = math.ones(2,2);
-
   var time = Array(T);
   var cost = Array(T);
   var avg  = Array(T);
@@ -197,56 +190,72 @@ function ex1Plot() {
 
   var gain  = Array(T);
 
+  var done = false;
+  var attempts = 0;
 
-  for (var t = 0; t < T; t++) {
-    time[t] = t;
-    if(t == 0) {
-      cost[t] = x*x;
-    } else {
-      cost[t] = cost[t-1] + x*x;
+  do {
+    attempts++;
+
+    var x = 0;
+    var u = 0;
+    var w = 0;
+
+    var z = math.zeros(2);
+    var θ = math.matrix([0, 1]); // Cannot start with b = 0!
+    var Σ = math.ones(2,2);
+
+    for (var t = 0; t < T; t++) {
+      if(isNaN(x)) {
+         break; // Something went wrong. Restart
+      }
+
+      time[t] = t;
+      if(t == 0) {
+        cost[t] = x*x;
+      } else {
+        cost[t] = cost[t-1] + x*x;
+      }
+      avg[t] = cost[t]/t;
+
+      // math.js has weird syntax to index element
+      hat_a = math.subset(θ, math.index(0));
+      hat_b = math.subset(θ, math.index(1));
+
+      gain[t] = hat_a/hat_b;
+
+      u = - gain[t]*x;
+      w = stream.normal(0, σ);
+      z = math.matrix([x, u]);
+
+      if(t == T - 1) {
+        done = true;
+      } else {
+        
+        x = a*x + b*u + w;
+
+        // θ = Θ + Σ*z*(x - z'*θ)/(1 + z'*Σ*z)
+        var normalize = 1 +  math.chain(z)
+                                 .transpose()
+                                 .multiply(Σ)
+                                 .multiply(z)
+                                 .squeeze()
+                                 .done();
+
+        var innovation = x - math.dot(z,θ);
+
+        θ = math.add(θ, math.chain(Σ).multiply(z).multiply(innovation/normalize).done());
+        Σ = math.subtract(Σ, math.chain(Σ).multiply(z).multiply(math.transpose(z)).multiply(Σ).done());
+
+        // Renormalize hat_b to 1. Else we have multiplication and division by
+        // large numbers
+        // θ = math.divide(θ,hat_b);
+        // Σ = math.divide(Σ, hat_b*hat_b);
+
+
+      }
     }
-    avg[t] = cost[t]/t;
-
-    // math.js has weird syntax to index element
-    hat_a = math.subset(θ, math.index(0));
-    hat_b = math.subset(θ, math.index(1));
-
-    gain[t] = hat_a/hat_b;
-
-    u = - gain[t]*x;
-    w = stream.normal(0, σ);
-    z = math.matrix([x, u]);
-    
-    x = a*x + b*u + w;
-
-    // θ = Θ + Σ*z*(x - z'*θ)/(1 + z'*Σ*z)
-    var normalize = 1 +  math.chain(z)
-                             .transpose()
-                             .multiply(Σ)
-                             .multiply(z)
-                             .squeeze()
-                             .done();
-
-    var innovation = x - math.dot(z,θ);
-
-    θ = math.add(θ, math.chain(Σ).multiply(z).multiply(innovation/normalize).done());
-    Σ = math.subtract(Σ, math.chain(Σ).multiply(z).multiply(math.transpose(z)).multiply(Σ).done());
-
-    // Clamp the values of θ and Σ
-    function clamp(val) {
-        if (val >= 100) {
-          console.log("Unstanble learning: clamping parameters")
-          val = 100;
-        } else if (val <= -100) {
-          console.log("Unstanble learning: clamping parameters")
-          val = -100;
-        }
-        return val;
-    }
-    math.map(θ, clamp)
-    math.map(Σ, clamp)
-
-  }
+  } while ( !done && attempts < 10 ) 
+  console.log(attempts)
 
   show_plot('ex1:cost', time, avg, "Time", "Average cost");
   show_plot('ex1:parameters', time, gain, "Time", "Controller gain");
