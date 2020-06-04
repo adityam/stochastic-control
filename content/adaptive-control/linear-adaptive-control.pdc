@@ -7,6 +7,10 @@ tags:
   - Linear systems
   - Adaptive control
   - LQR
+scripts:
+  - math
+  - plotly
+  - random
 ---
 
 We start with a simple example to illustrate that it is possible to control
@@ -22,8 +26,11 @@ This is perhaps the simplest instance of an [LQR] problem. It is easy to
 verify that the solution of the discrete-time algebric Riccati equation is
 given by $S = 1$ and therefore the optimal control action is
 $$
-  u_t = - \frac{a}{b} x_t.
+  u_t = - \frac{a}{b} x_t
 $$
+and the optimal average cost is $1$.
+
+[LQR]: ../../linear-systems/lqr
 
 Now suppose the parameters $θ = \VEC(a,b)$ are unknown. Suppose we use
 linear least squares estimates to identify $θ$. Let $z_t$ denote $\VEC(x_t, u_t)$.
@@ -53,7 +60,7 @@ The linear least squares estimate can be written in recursive form as: $x_0 =
 0$, $\Sigma_0 = 1$, and for $t \ge 0$:
 \begin{align*}
   \hat θ_{t+1} &= \hat θ_t + 
-  \frac{ \Sigma_t( x_{t+1} - z_t^\TRANS \hat θ_t) }{1 + z_t^\TRANS \Sigma_t z_t },
+  \frac{ \Sigma_t z_t ( x_{t+1} - z_t^\TRANS \hat θ_t) }{1 + z_t^\TRANS \Sigma_t z_t },
   \\
   \Sigma_{t+1} &= \Sigma_t - 
   \frac{ \Sigma_t z_t z_t^\TRANS \Sigma_t }{ 1 + z_t^\TRANS \Sigma_t z_t }.
@@ -75,7 +82,179 @@ It can be shown that the sequence $\{ \hat a_t/ \hat b_t\}_{t \ge 1}$
 converges to $a/b$, so asymptotically we will use the right control law, even
 though $\hat θ_t$ does not converge to $θ$.
 
+Let's run a simple simulation to test this. Suppose $a = $ 
+<input id="ex1a"
+       type="number"    step = 0.1
+       maxlength = "3"  size = "2"
+       min = "-10"      max  = "10"
+       onkeyup  = "ex1Plot()"
+       onchange = "ex1Plot()"
+       value = "" />,
+$b = $
+<input id="ex1b"
+       type="number"    step = 0.1
+       maxlength = "3"  size = "2"
+       min = "-10"      max  = "10"
+       onkeyup  = "ex1Plot()"
+       onchange = "ex1Plot()"
+       value = "" />,
+and $σ = $
+<input id="ex1σ"
+       type="number"    step = 0.1
+       maxlength = "3"  size = "2"
+       min = "0"      max  = "10"
+       onkeyup  = "ex1Plot()"
+       onchange = "ex1Plot()"
+       value = "" />. 
+The resulting plot for a single sample path is shown below. You can generate
+another sample path by clicking
+<button onClick="ex1Plot()">Re-run</button>
 
-[LQR]: ../../linear-systems/lqr
+<div class="flex">
+  <div id="ex1:cost" style="width:800px; height:250px;"></div>
+  <div id="ex1:parameters" style="width:800px; height:250px;"></div>
+</div>
+
+<script>
+if (pagedata == undefined) { var pagedata = { } }
+
+pagedata.adaptiveControl = { a : 1.1, b : 1, σ : 1, T : 1000 }
+
+// Set initial values
+document.getElementById('ex1a').value = pagedata.adaptiveControl.a;
+document.getElementById('ex1b').value = pagedata.adaptiveControl.b;
+document.getElementById('ex1σ').value = pagedata.adaptiveControl.σ;
+
+function show_plot(dom, x, y, xtitle, ytitle) {
+  var data = [{
+      x : x,
+      y : y,
+      line : {
+        shape : "spline",
+      }, 
+      mode : "lines" , 
+  }];
+
+  var layout = { 
+      paper_bgcolor: "#fffff8",
+      plot_bgcolor:  "#fffff8",
+      xaxis : {
+        title: xtitle,
+        showgrid: true,
+        showline: true,
+        zeroline: false,
+        showticklabels: true,
+      },
+      yaxis : {
+        title: ytitle,
+        showgrid: true,
+        showline: true,
+        zeroline: false,
+        showticklabels: true,
+      },
+      automargin: true,
+      margin: {
+        l : 75,
+        r : 15,
+        b : 75,
+        t : 15,
+        pad : 15
+      } ,
+      hovermode: false,
+  };
+
+  var options = {
+      staticPlot: true,
+      displayModeBar: false,
+  };
+
+  Plotly.newPlot(dom, data, layout, options);
+}
+
+function ex1Plot() { 
+  var T = pagedata.adaptiveControl.T ; 
+
+  var stream = new Random();
+
+  var a = document.getElementById('ex1a').valueAsNumber;
+  var b = document.getElementById('ex1b').valueAsNumber;
+  var σ = document.getElementById('ex1σ').valueAsNumber;
+
+  var x = 0;
+  var u = 0;
+  var w = 0;
+
+  var z = math.zeros(2);
+  var θ = math.matrix([0, 1]); // Cannot start with b = 0!
+  var Σ = math.ones(2,2);
+
+  var time = Array(T);
+  var cost = Array(T);
+  var avg  = Array(T);
+
+  var hat_a = Array(T);
+  var hat_b = Array(T); 
+
+  var gain  = Array(T);
+
+
+  for (var t = 0; t < T; t++) {
+    time[t] = t;
+    if(t == 0) {
+      cost[t] = x*x;
+    } else {
+      cost[t] = cost[t-1] + x*x;
+    }
+    avg[t] = cost[t]/t;
+
+    // math.js has weird syntax to index element
+    hat_a = math.subset(θ, math.index(0));
+    hat_b = math.subset(θ, math.index(1));
+
+    gain[t] = hat_a/hat_b;
+
+    u = - gain[t]*x;
+    w = stream.normal(0, σ);
+    z = math.matrix([x, u]);
+    
+    x = a*x + b*u + w;
+
+    // θ = Θ + Σ*z*(x - z'*θ)/(1 + z'*Σ*z)
+    var normalize = 1 +  math.chain(z)
+                             .transpose()
+                             .multiply(Σ)
+                             .multiply(z)
+                             .squeeze()
+                             .done();
+
+    var innovation = x - math.dot(z,θ);
+
+    θ = math.add(θ, math.chain(Σ).multiply(z).multiply(innovation/normalize).done());
+    Σ = math.subtract(Σ, math.chain(Σ).multiply(z).multiply(math.transpose(z)).multiply(Σ).done());
+
+    // Clamp the values of θ and Σ
+    function clamp(val) {
+        if (val >= 100) {
+          console.log("Unstanble learning: clamping parameters")
+          val = 100;
+        } else if (val <= -100) {
+          console.log("Unstanble learning: clamping parameters")
+          val = -100;
+        }
+        return val;
+    }
+    math.map(θ, clamp)
+    math.map(Σ, clamp)
+
+  }
+
+  show_plot('ex1:cost', time, avg, "Time", "Average cost");
+  show_plot('ex1:parameters', time, gain, "Time", "Controller gain");
+}
+
+ex1Plot()
+
+
+</script>
 
 
