@@ -43,7 +43,7 @@ $$
   A_θ^\TRANS S_θ^\TRANS B_θ[ R + B_θ^\TRANS S_θ B_θ]^{-1}
   B_θ^\TRANS S_θ A_θ
 $$
-and the corresponding optimal performance is $J_θ = \TR(S_θ\Sigma)$.
+and the corresponding optimal performance is $J_θ = \TR(S_θΣ)$.
 
 But what do we do if the system model is unknown? In this section, we overview
 the basic ideas for adaptive control (or reinforcement learning).
@@ -108,19 +108,19 @@ $$ \hat θ_t = (Z_t^\TRANS Z_t)^{-1} Z_t^\TRANS X_t
 
 The linear least squares estimate can be written in recursive form as: $\hat
 θ_0 =
-\VEC(0, 1)$, $\Sigma_0 = I$, and for $t \ge 0$:
+\VEC(0, 1)$, $Σ_0 = I$, and for $t \ge 0$:
 \begin{align*}
   \hat θ_{t+1} &= \hat θ_t + 
-  \frac{ \Sigma_t z_t ( x_{t+1} - z_t^\TRANS \hat θ_t) }{1 + z_t^\TRANS \Sigma_t z_t },
+  \frac{ Σ_t z_t ( x_{t+1} - z_t^\TRANS \hat θ_t) }{σ^2 + z_t^\TRANS Σ_t z_t },
   \\
-  \Sigma_{t+1} &= \Sigma_t - 
-  \frac{ \Sigma_t z_t z_t^\TRANS \Sigma_t }{ 1 + z_t^\TRANS \Sigma_t z_t }.
+  Σ_{t+1} &= Σ_t - 
+  \frac{ Σ_t z_t z_t^\TRANS Σ_t }{ σ^2 + z_t^\TRANS Σ_t z_t }.
 \end{align*}
 
-Note that it can also be shown that the covariance $\Sigma_t$ satisfies the
+Note that it can also be shown that the covariance $Σ_t$ satisfies the
 recusion
 $$ 
-  \Sigma_{t+1}^{-1} = \Sigma_t^{-1} + z_t z_t^\TRANS.
+  Σ_{t+1}^{-1} = Σ_t^{-1} + z_t z_t^\TRANS.
 $$
 
 Now, let $\hat θ_t = (\hat a_t, \hat b_t)$. The certainty equivalent control
@@ -233,6 +233,7 @@ function ex1Plot() {
 
   parser1.set('a' , a)
   parser1.set('b' , b)
+  parser1.set('σ' , σ)
   
   var time = Array(T);
   var cost = Array(T);
@@ -268,7 +269,7 @@ function ex1Plot() {
 
       parser1.evaluate('z = [x, u]')
       parser1.evaluate('x = a*x + b*u + w')
-      parser1.evaluate("normalize = 1 + z'*Σ*z")
+      parser1.evaluate("normalize = σ^2 + z'*Σ*z")
 
       parser1.evaluate("θ = θ + Σ*z*(x - z'*θ)/normalize")
       parser1.evaluate("Σ = Σ - Σ*z*z'*Σ/normalize")
@@ -389,7 +390,25 @@ problem with Gaussian observations. From standard results in Kalman filtering,
 we know that the posterior $π_t(dθ) = \PR( θ \in dθ | z_{1:t})$ is Gaussian,
 say ${\cal N}(θ_t, Σ_t)$, where $(θ_t, Σ_t)$ satisfy the recursion 
 
-**TODO**
+\begin{align*}
+  θ_{t+1} &= θ_t + \frac{ Σ_t z_t (x_{t+1} - z_t^\TRANS θ_t }
+  { σ^2 + z_t^\TRANS Σ_t z_t } \\
+  Σ_{t+1} &= Σ_t - \frac{ Σ_t z_t z_t^\TRANS Σ_t }{ σ^2 + z_t^\TRANS Σ_t z_t }.
+\end{align*}
+
+Note that the update above is identical to the update for the recursive least
+squares estimates. Then, at time $t$, we sample
+$$
+  \tilde θ_t \sim {\cal N}(θ_t, Σ_t).
+$$
+Now, let $\tilde θ_t = (\tilde a_t, \tilde b_t)$. Then, the Thompson sampling
+control law is given by 
+$$
+  u_t = - \frac{\tilde a_t}{\tilde b_t} x_t.
+$$
+It can be shown that under some conditions on the parameters of the model, the
+posterior $θ_t$ converges to a $θ^*$ such that $L_{θ^*} = L_{θ}$ and the
+covariance $Σ_t$ converges to $0$. 
 
 Let's run a simple simulation to test this. Suppose $a = $ 
 <input id="ex2a"
@@ -445,6 +464,7 @@ function ex2Plot() {
 
   parser2.set('a' , a)
   parser2.set('b' , b)
+  parser2.set('σ' , σ)
   
   var time = Array(T);
   var cost = Array(T);
@@ -488,7 +508,7 @@ function ex2Plot() {
 
       parser2.evaluate('z = [x, u]')
       parser2.evaluate('x = a*x + b*u + w')
-      parser2.evaluate("normalize = 1 + z'*Σ*z")
+      parser2.evaluate("normalize = σ^2 + z'*Σ*z")
 
       parser2.evaluate("θ = θ + Σ*z*(x - z'*θ)/normalize")
       parser2.evaluate("Σ = Σ - Σ*z*z'*Σ/normalize")

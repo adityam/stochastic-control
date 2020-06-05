@@ -61,7 +61,7 @@
   S_θ = A_θ^\TRANS S_θ A_θ + Q -
   A_θ^\TRANS S_θ^\TRANS B_θ[ R + B_θ^\TRANS S_θ B_θ]^{-1}
   B_θ^\TRANS S_θ A_θ
-\]</span> and the corresponding optimal performance is <span class="math inline">\(J_θ = \TR(S_θ\Sigma)\)</span>.</p>
+\]</span> and the corresponding optimal performance is <span class="math inline">\(J_θ = \TR(S_θΣ)\)</span>.</p>
 <p>But what do we do if the system model is unknown? In this section, we overview the basic ideas for adaptive control (or reinforcement learning).</p>
 <h1 data-number="1" id="certainty-equivalence"><span class="header-section-number">1</span> Certainty equivalence</h1>
 <p>The simplest idea in adaptive control is <strong>certainty equivalence</strong>: at each time generate an estimate <span class="math inline">\(\hat θ_t\)</span> the unknown parameters <span class="math inline">\(θ\)</span> of the model based on the observed data and use the controller <span class="math display">\[
@@ -84,15 +84,15 @@
 <p>Thus, the linear least squares estimator of <span class="math inline">\(θ\)</span> is given by <span class="math display">\[ \hat θ_t = (Z_t^\TRANS Z_t)^{-1} Z_t^\TRANS X_t
     = \bigl[ \sum_{τ = 1}^{t-1} z_τ z_τ^\TRANS \bigr]^{-1}
               \sum_{τ=1}^{t-1} z_τ x_{τ+1}. \]</span></p>
-<p>The linear least squares estimate can be written in recursive form as: <span class="math inline">\(\hat θ_0 = \VEC(0, 1)\)</span>, <span class="math inline">\(\Sigma_0 = I\)</span>, and for <span class="math inline">\(t \ge 0\)</span>: <span class="math display">\[\begin{align*}
+<p>The linear least squares estimate can be written in recursive form as: <span class="math inline">\(\hat θ_0 = \VEC(0, 1)\)</span>, <span class="math inline">\(Σ_0 = I\)</span>, and for <span class="math inline">\(t \ge 0\)</span>: <span class="math display">\[\begin{align*}
   \hat θ_{t+1} &amp;= \hat θ_t + 
-  \frac{ \Sigma_t z_t ( x_{t+1} - z_t^\TRANS \hat θ_t) }{1 + z_t^\TRANS \Sigma_t z_t },
+  \frac{ Σ_t z_t ( x_{t+1} - z_t^\TRANS \hat θ_t) }{σ^2 + z_t^\TRANS Σ_t z_t },
   \\
-  \Sigma_{t+1} &amp;= \Sigma_t - 
-  \frac{ \Sigma_t z_t z_t^\TRANS \Sigma_t }{ 1 + z_t^\TRANS \Sigma_t z_t }.
+  Σ_{t+1} &amp;= Σ_t - 
+  \frac{ Σ_t z_t z_t^\TRANS Σ_t }{ σ^2 + z_t^\TRANS Σ_t z_t }.
 \end{align*}\]</span></p>
-<p>Note that it can also be shown that the covariance <span class="math inline">\(\Sigma_t\)</span> satisfies the recusion <span class="math display">\[ 
-  \Sigma_{t+1}^{-1} = \Sigma_t^{-1} + z_t z_t^\TRANS.
+<p>Note that it can also be shown that the covariance <span class="math inline">\(Σ_t\)</span> satisfies the recusion <span class="math display">\[ 
+  Σ_{t+1}^{-1} = Σ_t^{-1} + z_t z_t^\TRANS.
 \]</span></p>
 <p>Now, let <span class="math inline">\(\hat θ_t = (\hat a_t, \hat b_t)\)</span>. The certainty equivalent control law is given by <span class="math display">\[
   u_t = - \frac{\hat a_t}{\hat b_t} x_t.
@@ -191,6 +191,7 @@ function ex1Plot() {
 
   parser1.set('a' , a)
   parser1.set('b' , b)
+  parser1.set('σ' , σ)
   
   var time = Array(T);
   var cost = Array(T);
@@ -226,7 +227,7 @@ function ex1Plot() {
 
       parser1.evaluate('z = [x, u]')
       parser1.evaluate('x = a*x + b*u + w')
-      parser1.evaluate("normalize = 1 + z'*Σ*z")
+      parser1.evaluate("normalize = σ^2 + z'*Σ*z")
 
       parser1.evaluate("θ = θ + Σ*z*(x - z'*θ)/normalize")
       parser1.evaluate("Σ = Σ - Σ*z*z'*Σ/normalize")
@@ -277,7 +278,16 @@ function ex1Plot() {
   \lim_{T \to ∞} \frac{1}{T} \EXP\Bigl[ \sum_{t=1}^T x_t^2 \Bigr].
 \]</span> As we have seen before, if we knew the model parameters, the optimal control law in this case is <span class="math display">\[ u_t = -\frac{a}{b} x_t. \]</span></p>
 <p>Now suppose we had an initial prior <span class="math inline">\(π_0 \sim {\cal N}(θ_0, Σ_0)\)</span> over <span class="math inline">\(θ\)</span>. where <span class="math inline">\(θ_0 = \VEC(0,1)\)</span> and <span class="math inline">\(Σ_0 = I\)</span>. Let <span class="math inline">\(z_t\)</span> denote <span class="math inline">\(\VEC(x_t, u_t)\)</span>. As before, we can write <span class="math display">\[ x_{t+1} = z_t^\TRANS θ + w_t. \]</span> Thus, at each time we get a noisy observation of the unknown parameter <span class="math inline">\(θ\)</span> though the “observation channel” <span class="math inline">\(z_t^\TRANS\)</span>. This is the standard estimation problem with Gaussian observations. From standard results in Kalman filtering, we know that the posterior <span class="math inline">\(π_t(dθ) = \PR( θ \in dθ | z_{1:t})\)</span> is Gaussian, say <span class="math inline">\({\cal N}(θ_t, Σ_t)\)</span>, where <span class="math inline">\((θ_t, Σ_t)\)</span> satisfy the recursion</p>
-<p><strong>TODO</strong></p>
+<p><span class="math display">\[\begin{align*}
+  θ_{t+1} &amp;= θ_t + \frac{ Σ_t z_t (x_{t+1} - z_t^\TRANS θ_t }
+  { σ^2 + z_t^\TRANS Σ_t z_t } \\
+  Σ_{t+1} &amp;= Σ_t - \frac{ Σ_t z_t z_t^\TRANS Σ_t }{ σ^2 + z_t^\TRANS Σ_t z_t }.
+\end{align*}\]</span></p>
+<p>Note that the update above is identical to the update for the recursive least squares estimates. Then, at time <span class="math inline">\(t\)</span>, we sample <span class="math display">\[
+  \tilde θ_t \sim {\cal N}(θ_t, Σ_t).
+\]</span> Now, let <span class="math inline">\(\tilde θ_t = (\tilde a_t, \tilde b_t)\)</span>. Then, the Thompson sampling control law is given by <span class="math display">\[
+  u_t = - \frac{\tilde a_t}{\tilde b_t} x_t.
+\]</span> It can be shown that under some conditions on the parameters of the model, the posterior <span class="math inline">\(θ_t\)</span> converges to a <span class="math inline">\(θ^*\)</span> such that <span class="math inline">\(L_{θ^*} = L_{θ}\)</span> and the covariance <span class="math inline">\(Σ_t\)</span> converges to <span class="math inline">\(0\)</span>.</p>
 <p>Let’s run a simple simulation to test this. Suppose $a = $ <input id="ex2a"
        type="number"    step = 0.1
        maxlength = "3"  size = "2"
@@ -326,6 +336,7 @@ function ex2Plot() {
 
   parser2.set('a' , a)
   parser2.set('b' , b)
+  parser2.set('σ' , σ)
   
   var time = Array(T);
   var cost = Array(T);
@@ -369,7 +380,7 @@ function ex2Plot() {
 
       parser2.evaluate('z = [x, u]')
       parser2.evaluate('x = a*x + b*u + w')
-      parser2.evaluate("normalize = 1 + z'*Σ*z")
+      parser2.evaluate("normalize = σ^2 + z'*Σ*z")
 
       parser2.evaluate("θ = θ + Σ*z*(x - z'*θ)/normalize")
       parser2.evaluate("Σ = Σ - Σ*z*z'*Σ/normalize")
