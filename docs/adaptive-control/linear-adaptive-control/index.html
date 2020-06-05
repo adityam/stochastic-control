@@ -47,14 +47,35 @@
 
 
 
-<div class="h1-title">Adaptive control of linear systems</div>
+<div class="h1-title">Overview of adaptive control of linear systems</div>
 
+pandoc-citeproc: reference Kumar1983 not found
+<p>Adaptive control is a umbrella term which is often used to describe algorithms which are able to control an unknown system (i.e., a system with unknown dynamics). In this section, we focus on adaptive control of linear systems. The simplest setup is as follows.</p>
+<p>Consider a standard linear quadratic regulator where the dynamics are <span class="math display">\[ 
+  x_{t+1} = A_θ x_t + B_θ u_t + w_t
+\]</span> where the matrices <span class="math inline">\(A_θ\)</span> and <span class="math inline">\(B_θ\)</span> are parameterized by a parameter <span class="math inline">\(θ\)</span> which takes values in a set <span class="math inline">\(Θ\)</span>. The per-step cost is <span class="math inline">\(c(x_t, u_t) = x_t^\TRANS Q x_t + u_t^\TRANS R u_t\)</span>. For simplicity, we assume that the <span class="math inline">\(Q\)</span> and <span class="math inline">\(R\)</span> matrices are known but all we know about the <span class="math inline">\(A_θ\)</span> and <span class="math inline">\(B_θ\)</span> matrices is that <span class="math inline">\(θ\)</span> lies in the set <span class="math inline">\(Θ\)</span>. The objective is the design a controller which will minimize the long term average cost <span class="math display">\[
+  \lim_{T \to ∞} \frac{1}{T}
+  \EXP\Bigl[
+    \sum_{t=1}^T \bigl[ x_t^\TRANS Q x_t + u_t^\TRANS R u_t \bigr]
+  \Bigr].
+\]</span> Had we known <span class="math inline">\(A_θ\)</span> and <span class="math inline">\(B_θ\)</span>, we know that the optimal controller is given by <span class="math display">\[ u_t = - L_θ x_t \]</span> where <span class="math inline">\(L_θ = [R + B_θ^\TRANS S_θ B_θ]^{-1} B_θ^\TRANS S_θ A_θ\)</span> and <span class="math inline">\(S_θ\)</span> is the solution to the discrete-time algebric Riccati equation: <span class="math display">\[
+  S_θ = A_θ^\TRANS S_θ A_θ + Q -
+  A_θ^\TRANS S_θ^\TRANS B_θ[ R + B_θ^\TRANS S_θ B_θ]^{-1}
+  B_θ^\TRANS S_θ A_θ.
+\]</span></p>
+<p>But what do we do if the system model is unknown? In this section, we overview the basic ideas for adaptive control (or reinforcement learning).</p>
+<h1 data-number="1" id="certainty-equivalence"><span class="header-section-number">1</span> Certainty equivalence</h1>
+<p>The simplest idea in adaptive control is <strong>certainty equivalence</strong>: at each time generate an estimate <span class="math inline">\(\hat θ_t\)</span> the unknown parameters <span class="math inline">\(θ\)</span> of the model based on the observed data and use the controller <span class="math display">\[
+  u_t = -L_{\hat θ_t} x_t.
+\]</span></p>
+<p>The idea is that if <span class="math inline">\(\hat θ_t\)</span> converges to <span class="math inline">\(θ\)</span> (or more weakly <span class="math inline">\(L_{\hat θ_t}\)</span> converges to <span class="math inline">\(L_θ\)</span>, then the performance of the certainty equivalence controller will converge to the optimal performance.</p>
+<h2 data-number="1.1" id="simple-example"><span class="header-section-number">1.1</span> Simple example:</h2>
 <p>We start with a simple example to illustrate that it is possible to control a linear system with unknown dymamics. Consider a scalar linear system <span class="math display">\[ x_{t+1} = a x_t + b u_t + w_t \]</span> where <span class="math inline">\(x_t, u_t, w_t \in \reals\)</span> and <span class="math inline">\(\{w_t\}_{t \ge 1}\)</span> is an i.i.d. process with zero mean and variance <span class="math inline">\(σ^2\)</span>. Suppse the per-step cost is <span class="math inline">\(c(x_t, u_t) = x_t^2\)</span> and our objective is to minimize the long-term average cost <span class="math display">\[ 
   \lim_{T \to ∞} \frac{1}{T} \EXP\Bigl[ \sum_{t=1}^T x_t^2 \Bigr].
-\]</span> This is perhaps the simplest instance of an <a href="../../linear-systems/lqr">LQR</a> problem. It is easy to verify that the solution of the discrete-time algebric Riccati equation is given by <span class="math inline">\(S = 1\)</span> and therefore the optimal control action is <span class="math display">\[
+\]</span> It is easy to verify that the solution of the discrete-time algebric Riccati equation is given by <span class="math inline">\(S = 1\)</span> and therefore the optimal control action is <span class="math display">\[
   u_t = - \frac{a}{b} x_t
-\]</span> and the optimal average cost is <span class="math inline">\(1\)</span>.</p>
-<p>Now suppose the parameters <span class="math inline">\(θ = \VEC(a,b)\)</span> are unknown. Suppose we use linear least squares estimates to identify <span class="math inline">\(θ\)</span>. Let <span class="math inline">\(z_t\)</span> denote <span class="math inline">\(\VEC(x_t, u_t)\)</span>. Note that we can write <span class="math display">\[ x_{t+1} = z_t^\TRANS θ + w_t. \]</span></p>
+\]</span> and the optimal average cost is <span class="math inline">\(σ^2\)</span>.</p>
+<p>Now suppose the parameters <span class="math inline">\(θ = \VEC(a,b)\)</span> are unknown. We assume that <span class="math inline">\(θ \in \reals^2\)</span>. Suppose we use linear least squares estimates to identify <span class="math inline">\(θ\)</span>. Let <span class="math inline">\(z_t\)</span> denote <span class="math inline">\(\VEC(x_t, u_t)\)</span>. Note that we can write <span class="math display">\[ x_{t+1} = z_t^\TRANS θ + w_t. \]</span></p>
 <p>Combining oberrvations until time <span class="math inline">\(t\)</span>, we have <span class="math display">\[ \MATRIX{x_2 \\ \vdots \\ x_{t}} = 
    \MATRIX{z_1^\TRANS \\ \vdots \\ z_{t-1}^\TRANS } θ + 
    \MATRIX{w_1 \\ \vdots \\ w_{t-1}} \]</span> which may be written in vector form as <span class="math display">\[ X_t = Z_t θ + W_t, \]</span> where <span class="math display">\[ 
@@ -64,7 +85,7 @@
 <p>Thus, the linear least squares estimator of <span class="math inline">\(θ\)</span> is given by <span class="math display">\[ \hat θ_t = (Z_t^\TRANS Z_t)^{-1} Z_t^\TRANS X_t
     = \bigl[ \sum_{τ = 1}^{t-1} z_τ z_τ^\TRANS \bigr]^{-1}
               \sum_{τ=1}^{t-1} z_τ x_{τ+1}. \]</span></p>
-<p>The linear least squares estimate can be written in recursive form as: <span class="math inline">\(x_0 = 0\)</span>, <span class="math inline">\(\Sigma_0 = 1\)</span>, and for <span class="math inline">\(t \ge 0\)</span>: <span class="math display">\[\begin{align*}
+<p>The linear least squares estimate can be written in recursive form as: <span class="math inline">\(x_0 = 0\)</span>, <span class="math inline">\(\Sigma_0 = I\)</span>, and for <span class="math inline">\(t \ge 0\)</span>: <span class="math display">\[\begin{align*}
   \hat θ_{t+1} &amp;= \hat θ_t + 
   \frac{ \Sigma_t z_t ( x_{t+1} - z_t^\TRANS \hat θ_t) }{1 + z_t^\TRANS \Sigma_t z_t },
   \\
@@ -82,20 +103,17 @@
        type="number"    step = 0.1
        maxlength = "3"  size = "2"
        min = "-10"      max  = "10"
-       onkeyup  = "ex1Plot()"
-       onchange = "ex1Plot()"
+       onchange  = "ex1Plot()"
        value = "" />, $b = $ <input id="ex1b"
        type="number"    step = 0.1
        maxlength = "3"  size = "2"
        min = "-10"      max  = "10"
-       onkeyup  = "ex1Plot()"
-       onchange = "ex1Plot()"
+       onchange  = "ex1Plot()"
        value = "" />, and $σ = $ <input id="ex1σ"
        type="number"    step = 0.1
        maxlength = "3"  size = "2"
        min = "0"      max  = "10"
-       onkeyup  = "ex1Plot()"
-       onchange = "ex1Plot()"
+       onchange  = "ex1Plot()"
        value = "" />. The resulting plot for a single sample path is shown below. You can generate another sample path by clicking <button onClick="ex1Plot()">Re-run</button></p>
 <div class="flex">
 <div id="ex1:cost" style="width:800px; height:250px;">
@@ -106,9 +124,11 @@
 </div>
 </div>
 <script>
+parser = math.parser()
+
 if (pagedata == undefined) { var pagedata = { } }
 
-pagedata.adaptiveControl = { a : 0.8, b : 1, σ : 1, T : 1000 }
+pagedata.adaptiveControl = { a : 0.8, b : 1, σ : 1, T : 500 }
 
 // Set initial values
 document.getElementById('ex1a').value = pagedata.adaptiveControl.a;
@@ -170,6 +190,9 @@ function ex1Plot() {
   var b = document.getElementById('ex1b').valueAsNumber;
   var σ = document.getElementById('ex1σ').valueAsNumber;
 
+  parser.evaluate('a = ' + a)
+  parser.evaluate('b = ' + b)
+  
   var time = Array(T);
   var cost = Array(T);
   var avg  = Array(T);
@@ -180,71 +203,51 @@ function ex1Plot() {
   var gain  = Array(T);
 
   var done = false;
-  var attempts = 0;
 
-  do {
-    attempts++;
+  var x = 0;
 
-    var x = 0;
-    var u = 0;
-    var w = 0;
-
-    var z = math.zeros(2);
-    var θ = math.matrix([0, 1]); // Cannot start with b = 0!
-    var Σ = math.ones(2,2);
+    parser.evaluate('x = 0')
+    parser.evaluate('u = 0')
+    parser.evaluate('w = 0')
+    parser.evaluate('z = zeros(2)')
+    parser.evaluate('θ = [0, 1]')
+    parser.evaluate('Σ = identity(2)')
 
     for (var t = 0; t < T; t++) {
-      if(isNaN(x)) {
-         break; // Something went wrong. Restart
-      }
 
+      x = parser.evaluate('x')
+      
       time[t] = t;
       if(t == 0) {
         cost[t] = x*x;
       } else {
         cost[t] = cost[t-1] + x*x;
       }
-      avg[t] = cost[t]/t;
+      avg[t] = cost[t]/(t+1);
 
       // math.js has weird syntax to index element
-      hat_a = math.subset(θ, math.index(0));
-      hat_b = math.subset(θ, math.index(1));
+      hat_a = parser.evaluate('θ[1]')
+      hat_b = parser.evaluate('θ[2]');
 
       gain[t] = hat_a/hat_b;
 
-      u = - gain[t]*x;
-      w = stream.normal(0, σ);
-      z = math.matrix([x, u]);
+      parser.evaluate('u = -θ[1]/θ[2] * x')
+      parser.evaluate('w = ' + stream.normal(0, σ))
 
       if(t == T - 1) {
         done = true;
       } else {
         
-        x = a*x + b*u + w;
+        parser.evaluate('z = [x, u]')
+        parser.evaluate('x = a*x + b*u + w')
+        parser.evaluate("normalize = 1 + z'*Σ*z")
 
         // θ = Θ + Σ*z*(x - z'*θ)/(1 + z'*Σ*z)
-        var normalize = 1 +  math.chain(z)
-                                 .transpose()
-                                 .multiply(Σ)
-                                 .multiply(z)
-                                 .squeeze()
-                                 .done();
-
-        var innovation = x - math.dot(z,θ);
-
-        θ = math.add(θ, math.chain(Σ).multiply(z).multiply(innovation/normalize).done());
-        Σ = math.subtract(Σ, math.chain(Σ).multiply(z).multiply(math.transpose(z)).multiply(Σ).done());
-
-        // Renormalize hat_b to 1. Else we have multiplication and division by
-        // large numbers
-        // θ = math.divide(θ,hat_b);
-        // Σ = math.divide(Σ, hat_b*hat_b);
-
+        parser.evaluate("θ = θ + Σ*z*(x - z'*θ)/normalize")
+        parser.evaluate("Σ = Σ - Σ*z*z'*Σ/normalize")
 
       }
     }
-  } while ( !done && attempts < 10 ) 
-  console.log(attempts)
 
   show_plot('ex1:cost', time, avg, "Time", "Average cost");
   show_plot('ex1:parameters', time, gain, "Time", "Controller gain");
@@ -252,14 +255,43 @@ function ex1Plot() {
 
 ex1Plot()
 
-
 </script>
+<h2 data-number="1.2" id="certainty-equivalence-can-fail"><span class="header-section-number">1.2</span> Certainty equivalence can fail</h2>
+<p>Now, we present a simple example to show that certainty equivalence can fail. Again, consider the simple scalar example from before <span class="math display">\[ x_{t+1} = a x_t + b u_t + w_t \]</span> where <span class="math inline">\(x_t, u_t, w_t \in \reals\)</span> and <span class="math inline">\(\{w_t\}_{t \ge 1}\)</span> is an i.i.d. process with zero mean and variance <span class="math inline">\(σ^2\)</span>. The per-step cost is <span class="math inline">\(c(x_t, u_t) = x_t^2 + 2 u_t^2\)</span>. So, our objective is to minimize the long-term average cost <span class="math display">\[
+  \lim_{T \to ∞} \frac{1}{T} \EXP\Bigl[ \sum_{t=1}^T x_t^2 + 2 u_t^2 \Bigr].
+\]</span> As before, the optimal controller is <span class="math display">\[ u_t = - \frac{a}{b} x_t \]</span> and the optimal average cost is <span class="math inline">\(σ^2\)</span>.</p>
+<p>Now suppose that <span class="math inline">\(θ = (a,b)\)</span> are unknown but we know that <span class="math inline">\(θ\)</span> lies in the set <span class="math inline">\(Θ = \{ (0, -1), (1, 1) \}\)</span>. Thus, the optimal control law is <span class="math display">\[
+  u_t = \begin{cases} 
+    0, &amp; \text{if } (a, b) = (0, -1), \\
+    -\tfrac12 x_t, &amp; \text{if } (a, b) = (1, 1).
+  \end{cases}
+\]</span></p>
+<p>Suppose, as before, we use a certainty equivalence control law where we estimate the parameters <span class="math inline">\(θ\)</span> using least-squares (or equivalently, in this case, a maximum-likelihood) estimate based on the observed data up to time <span class="math inline">\(t\)</span>. The least-squares estimate is <span class="math display">\[
+  \hat θ_t = \begin{cases}
+    (0, -1), &amp; \text{if } \sum_{τ=1}^{t-1} (x_{τ+1} + u_τ)^2 
+    \le \sum_{τ=1}^{t-1}(x_{τ+1} - x_τ - u_τ)^2, \\
+    (1, 1), &amp; \text{otherwise}.
+  \end{cases}
+\]</span></p>
+<p>Now suppose at some point of time, the estimate is <span class="math inline">\((1,1)\)</span>. Which means that <span class="math display">\[
+    \sum_{τ=1}^{t-1} (x_{τ+1} + u_τ)^2 
+    &gt; \sum_{τ=1}^{t-1}(x_{τ+1} - x_τ - u_τ)^2, 
+\]</span> and by using the certainty equivalence controller, we chose <span class="math inline">\(u_t = -\tfrac12 x_t\)</span>. This implies that <span class="math display">\[ (x_{t+1} + u_t)^2 = (x_{t+1} - x_t - u_t)^2. \]</span> Thus, at time <span class="math inline">\(t+1\)</span>, we will have <span class="math display">\[
+    \sum_{τ=1}^{t} (x_{τ+1} + u_τ)^2 
+    &gt; \sum_{τ=1}^{t}(x_{τ+1} - x_τ - u_τ)^2 
+\]</span> and, therefore, the estimate <span class="math inline">\(\hat θ_{t+1} = (1,1)\)</span>. Repeating the above argument at time <span class="math inline">\(t+1\)</span>, we get that if at <em>any</em> time the parameters <span class="math inline">\(θ\)</span> are estimated to be <span class="math inline">\((1,1)\)</span>, then the parameter estimates will thereafter remain <em>unchanged</em> and the adaptive control law will “stick” at <span class="math inline">\(u_τ = -\tfrac12 x_τ\)</span> for all <span class="math inline">\(τ \ge t\)</span>. This is clearly undesirable if the true value of the parameters is <span class="math inline">\((0, -1)\)</span>.</p>
+<p>To see that this can indeed happen with positive probability, suppose that <span class="math inline">\((a,b) = (0, -1)\)</span> is indeed the true system and we start initially with <span class="math inline">\(x_1 = 1\)</span> and <span class="math inline">\(u_1 = 0\)</span>. Then, <span class="math display">\[ \PR( (x_2 + u_1)^2 &gt; (x_2 - x_1 - u_1)^2 ) =
+   \PR( w_1^2 &gt; (w_1 - 1)^2 ) = \PR(w_1 &gt; \tfrac12).
+\]</span> Since <span class="math inline">\(w_1 \sim {\cal N}(0,1)\)</span>, the event <span class="math inline">\(\{ w_1 &gt; \tfrac12\}\)</span> occurs with probability <span class="math inline">\(0.31\)</span> and the adaptive control law will “stick” with probability <em>at least</em> 0.31 at the <em>non-optimal</em> (cost = 2 versus cost = 1) control law.</p>
+<p>To circumvent “sticking” to the bad controller, we need to make sure that a condition known as “persistent excitation” is satisfied, which ensures that there is sufficient exploration. More on that later.</p>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>The material for <a href="#certainty-equivalence-can-fail">the example that certainty equivalence can fail</a> is taken from <span class="citation" data-cites="Kumar1983">(<span class="citeproc-not-found" data-reference-id="Kumar1983"><strong>???</strong></span>)</span>.</p>
 
 
 <p class="categories">
 This entry 
 
- was last updated on 04 Jun 2020
+ was last updated on 05 Jun 2020
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/rl">
