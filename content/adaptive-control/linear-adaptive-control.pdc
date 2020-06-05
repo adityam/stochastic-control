@@ -41,8 +41,9 @@ the solution to the discrete-time algebric Riccati equation:
 $$
   S_θ = A_θ^\TRANS S_θ A_θ + Q -
   A_θ^\TRANS S_θ^\TRANS B_θ[ R + B_θ^\TRANS S_θ B_θ]^{-1}
-  B_θ^\TRANS S_θ A_θ.
+  B_θ^\TRANS S_θ A_θ
 $$
+and the corresponding optimal performance is $J_θ = \TR(S_θ\Sigma)$.
 
 But what do we do if the system model is unknown? In this section, we overview
 the basic ideas for adaptive control (or reinforcement learning).
@@ -60,9 +61,9 @@ The idea is that if $\hat θ_t$ converges to $θ$ (or more weakly $L_{\hat θ_t}
 converges to $L_θ$, then the performance of the certainty equivalence
 controller will converge to the optimal performance. 
 
-## Simple example:
+## A simple example
 
-We start with a simple example to illustrate that it is possible to control
+We present a simple example to illustrate that it is possible to control
 a linear system with unknown dymamics. Consider a scalar linear system
 $$ x_{t+1} = a x_t + b u_t + w_t $$
 where $x_t, u_t, w_t \in \reals$ and $\{w_t\}_{t \ge 1}$ is an i.i.d.\ process
@@ -105,8 +106,9 @@ $$ \hat θ_t = (Z_t^\TRANS Z_t)^{-1} Z_t^\TRANS X_t
     = \bigl[ \sum_{τ = 1}^{t-1} z_τ z_τ^\TRANS \bigr]^{-1}
               \sum_{τ=1}^{t-1} z_τ x_{τ+1}. $$
 
-The linear least squares estimate can be written in recursive form as: $x_0 =
-0$, $\Sigma_0 = I$, and for $t \ge 0$:
+The linear least squares estimate can be written in recursive form as: $\hat
+θ_0 =
+\VEC(0, 1)$, $\Sigma_0 = I$, and for $t \ge 0$:
 \begin{align*}
   \hat θ_{t+1} &= \hat θ_t + 
   \frac{ \Sigma_t z_t ( x_{t+1} - z_t^\TRANS \hat θ_t) }{1 + z_t^\TRANS \Sigma_t z_t },
@@ -163,7 +165,7 @@ another sample path by clicking
 </div>
 
 <script>
-parser = math.parser()
+parser1 = math.parser()
 
 if (pagedata == undefined) { var pagedata = { } }
 
@@ -229,8 +231,8 @@ function ex1Plot() {
   var b = document.getElementById('ex1b').valueAsNumber;
   var σ = document.getElementById('ex1σ').valueAsNumber;
 
-  parser.evaluate('a = ' + a)
-  parser.evaluate('b = ' + b)
+  parser1.set('a' , a)
+  parser1.set('b' , b)
   
   var time = Array(T);
   var cost = Array(T);
@@ -241,20 +243,15 @@ function ex1Plot() {
 
   var gain  = Array(T);
 
-  var done = false;
-
   var x = 0;
 
-    parser.evaluate('x = 0')
-    parser.evaluate('u = 0')
-    parser.evaluate('w = 0')
-    parser.evaluate('z = zeros(2)')
-    parser.evaluate('θ = [0, 1]')
-    parser.evaluate('Σ = identity(2)')
+  parser1.evaluate('x = 0; u = 0; w = 0')
+  parser1.evaluate('z = zeros(2); θ = [0, 1]; Σ = identity(2)')
+
 
     for (var t = 0; t < T; t++) {
 
-      x = parser.evaluate('x')
+      x = parser1.get('x')
       
       time[t] = t;
       if(t == 0) {
@@ -264,35 +261,25 @@ function ex1Plot() {
       }
       avg[t] = cost[t]/(t+1);
 
-      // math.js has weird syntax to index element
-      hat_a = parser.evaluate('θ[1]')
-      hat_b = parser.evaluate('θ[2]');
+      gain[t] = parser1.evaluate('θ[1]/θ[2]')
 
-      gain[t] = hat_a/hat_b;
+      parser1.evaluate('u = -θ[1]/θ[2] * x')
+      parser1.set('w', stream.normal(0, σ))
 
-      parser.evaluate('u = -θ[1]/θ[2] * x')
-      parser.evaluate('w = ' + stream.normal(0, σ))
+      parser1.evaluate('z = [x, u]')
+      parser1.evaluate('x = a*x + b*u + w')
+      parser1.evaluate("normalize = 1 + z'*Σ*z")
 
-      if(t == T - 1) {
-        done = true;
-      } else {
-        
-        parser.evaluate('z = [x, u]')
-        parser.evaluate('x = a*x + b*u + w')
-        parser.evaluate("normalize = 1 + z'*Σ*z")
+      parser1.evaluate("θ = θ + Σ*z*(x - z'*θ)/normalize")
+      parser1.evaluate("Σ = Σ - Σ*z*z'*Σ/normalize")
 
-        // θ = Θ + Σ*z*(x - z'*θ)/(1 + z'*Σ*z)
-        parser.evaluate("θ = θ + Σ*z*(x - z'*θ)/normalize")
-        parser.evaluate("Σ = Σ - Σ*z*z'*Σ/normalize")
-
-      }
     }
 
   show_plot('ex1:cost', time, avg, "Time", "Average cost");
   show_plot('ex1:parameters', time, gain, "Time", "Controller gain");
 }
 
-ex1Plot()
+(async () => { await ex1Plot() })();
 
 </script>
 
@@ -307,12 +294,11 @@ u_t^2$. So, our objective is to minimize the long-term average cost
 $$
   \lim_{T \to ∞} \frac{1}{T} \EXP\Bigl[ \sum_{t=1}^T x_t^2 + 2 u_t^2 \Bigr].
 $$
-As before, the optimal controller is 
-$$ u_t = - \frac{a}{b} x_t $$
-and the optimal average cost is $σ^2$.
 
 Now suppose that $θ = (a,b)$ are unknown but we know that $θ$ lies in the set
-$Θ = \{ (0, -1), (1, 1) \}$. Thus, the optimal control law is
+$Θ = \{ (0, -1), (1, 1) \}$. When $(a,b) = (0, -1)$, $S = 1$ and the optimal
+control law is $u_t = 0$. When $(a,b) = (1,1)$, $S = 2$ and the optimal control
+law is $u_t = -\tfrac 12 x_t)$. Thus, the optimal control law is
 $$
   u_t = \begin{cases} 
     0, & \text{if } (a, b) = (0, -1), \\
@@ -365,6 +351,159 @@ _at least_ 0.31 at the _non-optimal_ (cost = 2 versus cost = 1) control law.
 To circumvent "sticking" to the bad controller, we need to make sure that a
 condition known as "persistent excitation" is satisfied, which ensures that
 there is sufficient exploration. More on that later.
+
+# Thompson sampling
+
+One of the oldest and simplest algorithms to ensure sufficient exploration is
+Thompson sampling, which is Bayesian approach that relies on a very simple
+idea. Maintain a posterior belief $π_t$ over the parameter $θ$. At time $t$,
+sample a value $\tilde θ_t$ from the posterior $π_t$ and choose the control law 
+$$ 
+  u_t = - L_{\tilde θ_t} x_t.
+$$
+The intuition behind the approach is that if we take enough samples, $π_t$
+will converge to a dirac delta distribution centered at the true $θ$ and
+therefore $θ_t$ will be the same as $θ$. 
+
+## A simple example
+
+We present a simple example to illustrate how Thompson sampling works. As
+before, let's consider a scalar system 
+$$ x_{t+1} = a x_t + b u_t + w_t $$
+where $x_t, u_t, w_t \in \reals$ and $\{w_t\}_{t \ge 1}$ is an i.i.d.\ process
+with zero mean and variance $σ^2$. The per-step cost is $c(x_t, u_t) = x_t^2$ and our objective is to minimize the long-term average cost
+$$
+  \lim_{T \to ∞} \frac{1}{T} \EXP\Bigl[ \sum_{t=1}^T x_t^2 \Bigr].
+$$
+As we have seen before, if we knew the model parameters, the optimal control
+law in this case is 
+$$ u_t = -\frac{a}{b} x_t. $$
+
+Now suppose we had an initial prior $π_0 \sim {\cal N}(θ_0, Σ_0)$ over $θ$.
+where $θ_0 = \VEC(0,1)$ and $Σ_0 = I$. Let $z_t$ denote $\VEC(x_t, u_t)$. As
+before, we can write
+$$ x_{t+1} = z_t^\TRANS θ + w_t. $$ 
+Thus, at each time we get a noisy observation of the unknown parameter $θ$ though
+the "observation channel" $z_t^\TRANS$. This is the standard estimation
+problem with Gaussian observations. From standard results in Kalman filtering,
+we know that the posterior $π_t(dθ) = \PR( θ \in dθ | z_{1:t})$ is Gaussian,
+say ${\cal N}(θ_t, Σ_t)$, where $(θ_t, Σ_t)$ satisfy the recursion 
+
+**TODO**
+
+Let's run a simple simulation to test this. Suppose $a = $ 
+<input id="ex2a"
+       type="number"    step = 0.1
+       maxlength = "3"  size = "2"
+       min = "-10"      max  = "10"
+       onchange  = "ex2Plot()"
+       value = "" />,
+$b = $
+<input id="ex2b"
+       type="number"    step = 0.1
+       maxlength = "3"  size = "2"
+       min = "-10"      max  = "10"
+       onchange  = "ex2Plot()"
+       value = "" />,
+and $σ = $
+<input id="ex2σ"
+       type="number"    step = 0.1
+       maxlength = "3"  size = "2"
+       min = "0"      max  = "10"
+       onchange  = "ex2Plot()"
+       value = "" />. 
+The resulting plot for a single sample path is shown below. You can generate
+another sample path by clicking
+<button onClick="ex2Plot()">Re-run</button>
+
+<div class="flex">
+  <div id="ex2:cost" style="width:800px; height:250px;"></div>
+  <div id="ex2:parameters" style="width:800px; height:250px;"></div>
+</div>
+
+<script>
+parser2 = math.parser()
+
+if (pagedata == undefined) { var pagedata = { } }
+
+pagedata.thompsonSampling = { a : 0.8, b : 1, σ : 1, T : 500 }
+
+// Set initial values
+document.getElementById('ex2a').value = pagedata.thompsonSampling.a;
+document.getElementById('ex2b').value = pagedata.thompsonSampling.b;
+document.getElementById('ex2σ').value = pagedata.thompsonSampling.σ;
+
+function ex2Plot() { 
+  var T = pagedata.thompsonSampling.T ; 
+
+  var stream = new Random();
+  var thompson = new Random();
+
+  var a = document.getElementById('ex2a').valueAsNumber;
+  var b = document.getElementById('ex2b').valueAsNumber;
+  var σ = document.getElementById('ex2σ').valueAsNumber;
+
+  parser2.set('a' , a)
+  parser2.set('b' , b)
+  
+  var time = Array(T);
+  var cost = Array(T);
+  var avg  = Array(T);
+
+  var hat_a = Array(T);
+  var hat_b = Array(T); 
+
+  var gain  = Array(T);
+
+  var x = 0;
+
+  parser2.evaluate('x = 0; u = 0; w = 0')
+  parser2.evaluate('z = zeros(2); θ = [0, 1]; Σ = identity(2)')
+
+
+    for (var t = 0; t < T; t++) {
+
+      x = parser2.get('x')
+      
+      time[t] = t;
+      if(t == 0) {
+        cost[t] = x*x;
+      } else {
+        cost[t] = cost[t-1] + x*x;
+      }
+      avg[t] = cost[t]/(t+1);
+
+      parser2.set('N1', thompson.normal(0,1))
+      parser2.set('N2', thompson.normal(0,1))
+      parser2.evaluate('W = [N1, N2]')
+      parser2.evaluate('E = eigs(Σ)')
+      parser2.evaluate('Λ = [sqrt(E.values[1]), 0; 0, sqrt(E.values[2])]')
+      parser2.evaluate('V = E.vectors')
+      parser2.evaluate("θ_hat = θ + W'*Λ*V")
+
+      gain[t] = parser2.evaluate('θ_hat[1]/θ_hat[2]')
+
+      parser2.evaluate('u = -θ_hat[1]/θ_hat[2] * x')
+      parser2.set('w', stream.normal(0, σ))
+
+      parser2.evaluate('z = [x, u]')
+      parser2.evaluate('x = a*x + b*u + w')
+      parser2.evaluate("normalize = 1 + z'*Σ*z")
+
+      parser2.evaluate("θ = θ + Σ*z*(x - z'*θ)/normalize")
+      parser2.evaluate("Σ = Σ - Σ*z*z'*Σ/normalize")
+
+    }
+
+  show_plot('ex2:cost', time, avg, "Time", "Average cost");
+  show_plot('ex2:parameters', time, gain, "Time", "Controller gain");
+}
+
+(async () => { await ex2Plot() })();
+
+</script>
+
+
 
 # References {-}
 
