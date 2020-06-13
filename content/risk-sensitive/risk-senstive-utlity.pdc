@@ -1,0 +1,215 @@
+---
+title: "Preliminary: Risk Sensitive Utility"
+weight: 01
+category:
+  - MDP
+tags:
+  - risk sensitive
+---
+
+Risk sensitivity is relative to the idea of _utility_. The value of a sum of
+money $x$ to a decision maker may not be proportional to $x$ itself but may be
+some general increasing function $\mathsf{U}(x)$, known as the _utility
+function_. For example, in the example on [optimal gambling] considered
+earlier, we had assumed that the utility for wealth $x$ is $\log x$.
+If a decision maker has utility function $\mathsf{U}$, then the value of a random
+outcome $X$ will be defined by the _expected utility_ $\EXP[\mathsf{U}(X)]$. 
+
+[optimal gambling]: ../../mdp/optimal-gambling
+[exercise]: ../../mdp/optimal-gambling#exercises
+
+If the function $\mathsf{U}$ is concave, then by Jensen's inequality implies
+that $\EXP[\mathsf{U}(X)] < \mathsf{U}( \EXP[X] )$. That is, for a given
+expected return, the individual always perfers a _certain_ return. In this
+case the decision maker is said to be _risk averse_. On the other hand, if the
+function $\mathsf{U}$ is convex, the reverse inequality holds and the decision
+maker is said to be _risk seeking_. In the transitional case when $\mathsf{U}$
+is linear, the decision maker is said to be _risk neutral_. 
+
+Risk sensitivity has immediate implications. For example, consider the problem
+of gambling problem described in Exercise 3 of the notes on [optimal
+gambling][exercise]. A gambler can bet on $n$ mutually exclusive outcomes with
+different success probabilities $(p_1, \dots, p_n)$. A risk seeking gambler
+will concentrate his bet on the single most attractive investment, whereas a
+risk averse gabler (as was the case in the exercise with $\mathsf{U} = \log$)
+will spread his bet on multiple outcomes, thus trading peak return for assured
+returns.
+
+An alternative view is to say that the risk-seeking decision-maker is optimistic,
+since he implicit assumes that uncertainties will turn out to his advantage.
+On the other hand, the risk-averse decision-maker is pessimistic and implicit
+assumes that the uncertainties will turn out to his disadvantage. 
+
+In general, we can phrase decision problems either in terms of maximizing
+rewards or, in some cases, minimizing cost. For cost minimization problems,
+instead of talking in terms of the utility $\mathsf{U}(x)$ or a return $x$, we
+will talk in terms of the _disutility_ $\mathsf{L}(x)$ of the cost $x$. The
+usual connection is that $\mathsf{L}(x) = - \mathsf{U}(-x)$, so concave
+$\mathsf{L}$ corresponds to risk-seeking behavior and convex $\mathsf{L}$
+corresponds to risk-averse behavior.
+
+It is also helpful sometimes to invert the transformation $\mathsf{L}$ after
+having taken the expectation, so that the return to a cost scale. Thus,
+$$
+  γ = \mathsf{L}^{-1}( \EXP[ \mathsf{L}(Z) ] )
+$$
+is the fixed cost which is equivalent to uncertain cost $Z$. This is sometimes
+called the _certainty equivalent_ cost, but that phrase is already
+overloaded, so I will avoid using it and instead use the term _effective_
+cost. 
+
+One disutility function that is of special interest is the exponential
+function $\mathsf{L}(x) = \exp(-\theta x)$, where the parameter $-θ$ measures
+the degree and nature of risk-sensitivity. The exponential function is always
+convex, but one wishes to maximize or minimize $\exp(-θ x)$ according to
+whether $θ$ is positive or negative. Equivalently, we can state that the
+decision maker wants to minimize the effective cost
+$$
+  γ =  -\frac{1}{θ} \log \EXP[ \exp(-θ X) ]
+$$
+irrespective of the sign of $θ$. When $θ > 0$, the decision maker is risk seeking
+and when $θ < 0$, the decision maker is risk sensitive.
+
+For small values of $θ$, the effective cost is approximately
+$$ γ \approx \EXP[Z] - \tfrac{1}{2}θ \text{var}(Z) $$
+which approximately decouples expectation and variability. 
+
+Remark
+
+: In the financial mathematics literature, the exponential disutility function is
+call [entropic risk measure][wiki]. You need to be careful if you are
+comparing the results presented in these notes with those in financial
+mathematics, because they consider reward maximization problems, and therefore
+work with the exponential _utility_ function $\mathsf{U}(x) = -
+\mathsf{L}(-x)$ and at the same time parameterize the cost by $-Θ$ instead of
+$Θ$. Therefore, the effective return is defined as
+$$
+  γ = \frac{1}{θ} \log \EXP[ \exp(- θ X) ].
+$$
+where $Θ > 0$ corresponds to risk aversion.
+
+[wiki]: https://en.wikipedia.org/wiki/Entropic_risk_measure 
+
+# A simple LQG example
+
+Suppose $x \in \reals$ is the distance of an object from its desired position
+and the application of a control $u \in \reals$ will bring it to $x - u$.
+Suppose the cost of this maneuver is
+$$
+  C =  \tfrac{1}{2}[ R u^2 + S (x-u)^2] .
+$$
+
+Here, the two terms represent the cost of control and the final displacement
+from the desired position. Elementary calculus shows that the optimal value of
+$u$ and the minimum cost are
+$$
+  u = \frac{S x}{S + R },
+  \qquad
+  V(x) = \frac{1}{2} \cdot \frac{RS x^2}{S + R}.
+$$
+
+Now suppose there is noise so that $x- u$ is replaced by $x - u + w$. We'll
+assume that $w \sim {\cal N}(0, Σ)$. The cost then becomes
+$$
+  C =  R u^2 + S (x-u + w)^2 .
+$$
+
+In the risk neutral case, the optimal control is same as earlier and the
+minimum cost $V(x)$ simply increases by $\frac12 SΣ$. This a special case of a
+general phenomenon known as _certainty equivalence_. See the notes of [linear
+quadratic regulator][LQR] for details.
+
+Now consider a risk-sensitive version of the problem, in which $u$ is chosen
+to minimize 
+$$
+  C_θ = -\frac{1}{θ} \log \EXP[ \exp(-θ C) ].
+$$
+
+In the risk-averse case (i.e., $θ < 0$), minimizing $C_θ$ is equivalent to
+minimizing
+$$ \begin{equation} \label{eq:cost}
+\EXP[ \exp(-θ C)] =
+\int \exp\Bigl( -\frac{θ}{2} \Bigl( Ru^2 + S(x-u+w)^2 + \frac{w^2}{θΣ}\Bigr)\Bigr) dw.
+\end{equation} $$
+Let us write the right hand side as $\int \exp(- \frac{1}{2} θQ((x,u), w) dw$.
+Note that
+$$
+  \frac{∂^2 Q((x,u), w)}{∂w^2} = S + \frac{1}{θΣ}.
+$$
+Therefore, $Q$ is negative definite in $w$ if 
+$S + 1/θΣ < 0$, or equivalently (recall $θ < 0$), 
+$$\begin{equation} \label{eq:critical}
+  θΣS + 1 > 0 
+  \iff
+   - \frac{1}{SΣ} < θ < 0.
+\end{equation} $$
+For now, we assume that $θΣS + 1 > 0$ and we will return to what happens when
+$θΣS + 1 =0$ later. 
+
+Since $Q$ is negative definite in $w$ (and $θ < 0$),
+$\frac{1}{2}θQ((x,u),w))$ is positive definite in $w$. Therefore, by using
+Lemma 1 of the notes of [LEQG], we know that
+$$ \begin{equation} \label{eq:simplify}
+  \int\exp\Bigl( -\frac{θ}{2} Q((x,u),w) \Bigr) dw
+  = \sqrt{\frac{2π (1 + θΣS)}{Σ}}
+  \exp\Bigl( - \frac{θ}{2} \max_{w}Q((x,u),w) \Bigr).
+\end{equation} $$
+Now, the maximizing
+value of $w$ is $-\frac{θΣS}{1 + θΣS}(x-u)$ and therefore we get
+$$
+  \max_{w} Q((x,u), w) = R u^2 + \frac{S}{1+θΣS}(x-u)^2 
+$$
+
+Substituting this base in \\eqref{eq:simplify} and then in \\eqref{eq:cost},
+we get
+$$
+  \EXP[\exp(- θC)] 
+  = \sqrt{\frac{2π (1 + θΣS)}{Σ}}
+  \exp\Bigl(- \frac{θ}{2}\Bigl(R u^2 + \frac{S}{1 +
+  θΣS}(x-u)^2\Bigr).
+$$
+
+Now, minimizing $\EXP[\exp(-θC)]$ is same as minimizing the term in coefficient
+of $θ/2$ (recall $θ$ is negative), which is minimized by
+$$
+  u = \frac{Sx}{S + R + θΣSR}.
+$$
+The corresponding minimum value of effective cost is
+$$
+  V_θ(x) =
+  \frac{1}{2} \cdot \frac{RS x^2}{R + S + θΣSR}
+  - \frac{1}{2θ} \log\frac{2π (1 + θΣS)}{Σ}.
+$$
+
+Note that both the expression for control action and the value become infinity
+as $θ$ decreases through the critical value:
+$$
+  θ_{\text{crit}} = - \frac{1}{Σ}\left( \frac{1}{S} + \frac{1}{R} \right)
+$$
+First note that for $Θ > Θ_{\text{crit}}$, the constraint \\eqref{eq:critical}
+is automatically satisfied. The value $θ = θ_{\text{crit}}$ marks a point at
+which the decision maker is so pessimistic that his apprehension of
+uncertainties completely overrides the assurances given by known statistical
+behavior. This is called _neurotic breakdown_. There is a corresponding
+optimistic extreme, _euphoria_, if the cost function contains quadratic
+_reward_ terms. 
+
+Remark
+
+: Whittle calls the term $Q((x,u),w)$ as the _stress_. Note that in the above
+calculations, we choose $u$ to minimize the stress and choose $w$ to maximize
+the stress. It is as though there is an another agent, the "phantom other",
+who exerts the control $w$ at the same time as the optimizer exerts the
+control $u$. When $θ$ is negative, then the phantom other is opposing the
+optimizer and trying to maximize the stress. (Note that the minimizing value of
+$w$ is $-\frac{θΣS}{1 + θΣS}(x-u)$, which can also be written as $-θΣRu$). So,
+what started out as a one-person control problem has turned into a two-person
+game. 
+
+
+[LQR]: ../../linear-systems/lqr
+[LEQG]: ../leqg
+
+# References {-}
+
+The material in this section is taken from @Whittle2002.
