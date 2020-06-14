@@ -67,13 +67,13 @@ convex, but one wishes to maximize or minimize $\exp(-θ x)$ according to
 whether $θ$ is positive or negative. Equivalently, we can state that the
 decision maker wants to minimize the effective cost
 $$
-  γ =  -\frac{1}{θ} \log \EXP[ \exp(-θ X) ]
+  γ =   \frac{1}{θ} \log \EXP[ \exp( θ X) ]
 $$
-irrespective of the sign of $θ$. When $θ > 0$, the decision maker is risk seeking
-and when $θ < 0$, the decision maker is risk sensitive.
+irrespective of the sign of $θ$. When $θ < 0$, the decision maker is risk seeking
+and when $θ > 0$, the decision maker is risk sensitive.
 
 For small values of $θ$, the effective cost is approximately
-$$ γ \approx \EXP[Z] - \tfrac{1}{2}θ \text{var}(Z) $$
+$$ γ \approx \EXP[Z] + \tfrac{1}{2}θ \text{var}(Z) $$
 which approximately decouples expectation and variability. 
 
 Remark
@@ -81,10 +81,8 @@ Remark
 : In the financial mathematics literature, the exponential disutility function is
 call [entropic risk measure][wiki]. You need to be careful if you are
 comparing the results presented in these notes with those in financial
-mathematics, because they consider reward maximization problems, and therefore
-work with the exponential _utility_ function $\mathsf{U}(x) = -
-\mathsf{L}(-x)$ and at the same time parameterize the cost by $-Θ$ instead of
-$Θ$. Therefore, the effective return is defined as
+mathematics, because they consider reward maximization problems. 
+Therefore, the effective return is defined as
 $$
   γ = \frac{1}{θ} \log \EXP[ \exp(- θ X) ].
 $$
@@ -124,71 +122,71 @@ quadratic regulator][LQR] for details.
 Now consider a risk-sensitive version of the problem, in which $u$ is chosen
 to minimize 
 $$
-  C_θ = -\frac{1}{θ} \log \EXP[ \exp(-θ C) ].
+  C_θ =  \frac{1}{θ} \log \EXP[ \exp(θ C) ].
 $$
 
-In the risk-averse case (i.e., $θ < 0$), minimizing $C_θ$ is equivalent to
+In the risk-averse case (i.e., $θ > 0$), minimizing $C_θ$ is equivalent to
 minimizing
 $$ \begin{equation} \label{eq:cost}
-\EXP[ \exp(-θ C)] =
-\int \exp\Bigl( -\frac{θ}{2} \Bigl( Ru^2 + S(x-u+w)^2 + \frac{w^2}{θΣ}\Bigr)\Bigr) dw.
+\EXP[ \exp(θ C)] =
+\int \exp\Bigl( \frac{θ}{2} \Bigl( Ru^2 + S(x-u+w)^2 - \frac{w^2}{θΣ}\Bigr)\Bigr) dw.
 \end{equation} $$
-Let us write the right hand side as $\int \exp(- \frac{1}{2} θQ((x,u), w) dw$.
+Let us write the right hand side as $\int \exp(\frac{1}{2} θQ((x,u), w) dw$.
 Note that
 $$
-  \frac{∂^2 Q((x,u), w)}{∂w^2} = S + \frac{1}{θΣ}.
+  \frac{∂^2 Q((x,u), w)}{∂w^2} = S - \frac{1}{θΣ}.
 $$
 Therefore, $Q$ is negative definite in $w$ if 
-$S + 1/θΣ < 0$, or equivalently (recall $θ < 0$), 
+$S - 1/θΣ < 0$, or equivalently (recall $θ > 0$), 
 $$\begin{equation} \label{eq:critical}
-  θΣS + 1 > 0 
+  θΣS - 1 < 0 
   \iff
-   - \frac{1}{SΣ} < θ < 0.
+   0 < θ < \frac{1}{SΣ}.
 \end{equation} $$
-For now, we assume that $θΣS + 1 > 0$ and we will return to what happens when
-$θΣS + 1 =0$ later. 
+For now, we assume that $θΣS < 1$ and we will return to what happens when
+$θΣS = 1$ later. 
 
-Since $Q$ is negative definite in $w$ (and $θ < 0$),
-$\frac{1}{2}θQ((x,u),w))$ is positive definite in $w$. Therefore, by using
+Since $Q$ is negative definite in $w$ (and $θ > 0$),
+$-\frac{1}{2}θQ((x,u),w))$ is positive definite in $w$. Therefore, by using
 Lemma 1 of the notes of [LEQG], we know that
 $$ \begin{equation} \label{eq:simplify}
-  \int\exp\Bigl( -\frac{θ}{2} Q((x,u),w) \Bigr) dw
-  = \sqrt{\frac{2π (1 + θΣS)}{Σ}}
-  \exp\Bigl( - \frac{θ}{2} \max_{w}Q((x,u),w) \Bigr).
+  \int\exp\Bigl( \frac{θ}{2} Q((x,u),w) \Bigr) dw
+  = \sqrt{\frac{2π (1 - θΣS)}{Σ}}
+  \exp\Bigl( \frac{θ}{2} \max_{w}Q((x,u),w) \Bigr).
 \end{equation} $$
 Now, the maximizing
-value of $w$ is $-\frac{θΣS}{1 + θΣS}(x-u)$ and therefore we get
+value of $w$ is $-\frac{θΣS}{1 - θΣS}(x-u)$ and therefore we get
 $$
-  \max_{w} Q((x,u), w) = R u^2 + \frac{S}{1+θΣS}(x-u)^2 
+  \max_{w} Q((x,u), w) = R u^2 + \frac{S}{1-θΣS}(x-u)^2 
 $$
 
 Substituting this base in \\eqref{eq:simplify} and then in \\eqref{eq:cost},
 we get
 $$
-  \EXP[\exp(- θC)] 
-  = \sqrt{\frac{2π (1 + θΣS)}{Σ}}
-  \exp\Bigl(- \frac{θ}{2}\Bigl(R u^2 + \frac{S}{1 +
+  \EXP[\exp(θC)] 
+  = \sqrt{\frac{2π (1 - θΣS)}{Σ}}
+  \exp\Bigl(\frac{θ}{2}\Bigl(R u^2 + \frac{S}{1 -
   θΣS}(x-u)^2\Bigr).
 $$
 
 Now, minimizing $\EXP[\exp(-θC)]$ is same as minimizing the term in coefficient
-of $θ/2$ (recall $θ$ is negative), which is minimized by
+of $θ/2$ (recall $θ$ is positive), which is minimized by
 $$
-  u = \frac{Sx}{S + R + θΣSR}.
+  u = \frac{Sx}{S + R - θΣSR}.
 $$
 The corresponding minimum value of effective cost is
 $$
   V_θ(x) =
-  \frac{1}{2} \cdot \frac{RS x^2}{R + S + θΣSR}
-  - \frac{1}{2θ} \log\frac{2π (1 + θΣS)}{Σ}.
+  \frac{1}{2} \cdot \frac{RS x^2}{R + S - θΣSR}
+  + \frac{1}{2θ} \log\frac{2π (1 - θΣS)}{Σ}.
 $$
 
 Note that both the expression for control action and the value become infinity
-as $θ$ decreases through the critical value:
+as $θ$ increases through the critical value:
 $$
-  θ_{\text{crit}} = - \frac{1}{Σ}\left( \frac{1}{S} + \frac{1}{R} \right)
+  θ_{\text{crit}} =  \frac{1}{Σ}\left( \frac{1}{S} + \frac{1}{R} \right)
 $$
-First note that for $Θ > Θ_{\text{crit}}$, the constraint \\eqref{eq:critical}
+First note that for $Θ < Θ_{\text{crit}}$, the constraint \\eqref{eq:critical}
 is automatically satisfied. The value $θ = θ_{\text{crit}}$ marks a point at
 which the decision maker is so pessimistic that his apprehension of
 uncertainties completely overrides the assurances given by known statistical
@@ -204,9 +202,12 @@ the stress. It is as though there is an another agent, the "phantom other",
 who exerts the control $w$ at the same time as the optimizer exerts the
 control $u$. When $θ$ is negative, then the phantom other is opposing the
 optimizer and trying to maximize the stress. (Note that the minimizing value of
-$w$ is $-\frac{θΣS}{1 + θΣS}(x-u)$, which can also be written as $-θΣRu$). So,
+$w$ is $-\frac{θΣS}{1 - θΣS}(x-u)$, which can also be written as $θΣRu$). So,
 what started out as a one-person control problem has turned into a two-person
 game. 
+
+<!-- TODO: Add something on worst case performance from Basar's book and
+compare it with neurotic breakdown -->
 
 
 [LQR]: ../../linear-systems/lqr
