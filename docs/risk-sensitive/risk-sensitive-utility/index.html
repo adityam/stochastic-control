@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="stochastic optimization,utility function,leqg" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Prelim: Risk Sensitive Utility</div>
+
+<p>Risk sensitivity is relative to the idea of <em>utility</em>. The value of a sum of money <span class="math inline">\(z\)</span> to a decision maker may not be proportional to <span class="math inline">\(z\)</span> itself but may be some general increasing function <span class="math inline">\(\mathsf{U}(z)\)</span>, known as the <em>utility function</em>. For example, in the example on <a href="../../mdp/optimal-gambling">optimal gambling</a> considered earlier, we had assumed that the utility for wealth <span class="math inline">\(z\)</span> is <span class="math inline">\(\log z\)</span>. If a decision maker has utility function <span class="math inline">\(\mathsf{U}\)</span>, then the value of a random outcome <span class="math inline">\(Z\)</span> will be defined by the <em>expected utility</em> <span class="math inline">\(\EXP[\mathsf{U}(Z)]\)</span>.</p>
+<p>If the function <span class="math inline">\(\mathsf{U}\)</span> is concave, then by Jensen’s inequality implies that <span class="math inline">\(\EXP[\mathsf{U}(Z)] &lt; \mathsf{U}( \EXP[Z] )\)</span>. That is, for a given expected return, the individual always prefers a <em>certain</em> return. In this case the decision maker is said to be <em>risk averse</em>. On the other hand, if the function <span class="math inline">\(\mathsf{U}\)</span> is convex, the reverse inequality holds and the decision maker is said to be <em>risk seeking</em>. In the transitional case when <span class="math inline">\(\mathsf{U}\)</span> is linear, the decision maker is said to be <em>risk neutral</em>.</p>
+<p>Risk sensitivity has immediate implications. For example, consider the problem of gambling problem described in Exercise 3 of the notes on <a href="../../mdp/optimal-gambling#exercises">optimal gambling</a>. A gambler can bet on <span class="math inline">\(n\)</span> mutually exclusive outcomes with different success probabilities <span class="math inline">\((p_1, \dots, p_n)\)</span>. A risk seeking gambler will concentrate his bet on the single most attractive investment, whereas a risk averse gabler (as was the case in the exercise with <span class="math inline">\(\mathsf{U} = \log\)</span>) will spread his bet on multiple outcomes, thus trading peak return for assured returns.</p>
+<p>An alternative view is to say that the risk-seeking decision-maker is optimistic, since he implicit assumes that uncertainties will turn out to his advantage. On the other hand, the risk-averse decision-maker is pessimistic and implicit assumes that the uncertainties will turn out to his disadvantage.</p>
+<p>In general, we can phrase decision problems either in terms of maximizing rewards or, in some cases, minimizing cost. For cost minimization problems, instead of talking in terms of the utility <span class="math inline">\(\mathsf{U}(z)\)</span> or a return <span class="math inline">\(z\)</span>, we will talk in terms of the <em>disutility</em> <span class="math inline">\(\mathsf{L}(z)\)</span> of the cost <span class="math inline">\(z\)</span>. The usual connection is that <span class="math inline">\(\mathsf{L}(z) = - \mathsf{U}(-z)\)</span>, so concave <span class="math inline">\(\mathsf{L}\)</span> corresponds to risk-seeking behavior and convex <span class="math inline">\(\mathsf{L}\)</span> corresponds to risk-averse behavior.</p>
+<p>It is also helpful sometimes to invert the transformation <span class="math inline">\(\mathsf{L}\)</span> after having taken the expectation, so that the return to a cost scale. Thus, <span class="math display">\[
+  γ = \mathsf{L}^{-1}( \EXP[ \mathsf{L}(Z) ] )
+\]</span> is the fixed cost which is equivalent to uncertain cost <span class="math inline">\(Z\)</span>. This is sometimes called the <em>certainty equivalent</em> cost, but that phrase is already overloaded, so I will avoid using it and instead use the term <em>effective</em> cost.</p>
+<p>One disutility function that is of special interest is the exponential function <span class="math inline">\(\mathsf{L}(z) = \exp(\theta z)\)</span>, where the parameter <span class="math inline">\(θ\)</span> measures the degree and nature of risk-sensitivity. The exponential function is always convex, but one wishes to maximize or minimize <span class="math inline">\(\exp(θ z)\)</span> according to whether <span class="math inline">\(θ\)</span> is positive or negative. Equivalently, we can state that the decision maker wants to minimize the effective cost <span class="math display">\[
+  γ =   \frac{1}{θ} \log \EXP[ \exp( θ Z) ]
+\]</span> irrespective of the sign of <span class="math inline">\(θ\)</span>. When <span class="math inline">\(θ &lt; 0\)</span>, the decision maker is risk seeking and when <span class="math inline">\(θ &gt; 0\)</span>, the decision maker is risk averse.</p>
+<p>The exponential disutility has a constant cost elasticity: if the outcomes <span class="math inline">\(Z\)</span> all increase by an amount <span class="math inline">\(Δ\)</span>, then the effective cost also increases by <span class="math inline">\(Δ\)</span>. The only utility functions which satisfy the constant cost elasticity are linear and exponential.</p>
+<p>For small values of <span class="math inline">\(θ\)</span>, the effective cost is approximately <span class="math display">\[ γ \approx \EXP[Z] + \tfrac{1}{2}θ \text{var}(Z) \]</span> which approximately decouples expectation and variability.</p>
+<dl>
+<dt>Remark</dt>
+<dd><p>In the financial mathematics literature, the exponential disutility function is call <a href="https://en.wikipedia.org/wiki/Entropic_risk_measure">entropic risk measure</a>. You need to be careful if you are comparing the results presented in these notes with those in financial mathematics, because they consider reward maximization problems. Therefore, the effective return is defined as <span class="math display">\[
+  γ = \frac{1}{θ} \log \EXP[ \exp(- θ Z) ].
+\]</span> where <span class="math inline">\(Θ &gt; 0\)</span> corresponds to risk aversion.</p>
+</dd>
+</dl>
+<h1 data-number="1" id="a-simple-lqg-example"><span class="header-section-number">1</span> A simple LQG example</h1>
+<p>Suppose <span class="math inline">\(x \in \reals\)</span> is the distance of an object from its desired position and the application of a control <span class="math inline">\(u \in \reals\)</span> will bring it to <span class="math inline">\(x - u\)</span>. Suppose the cost of this maneuver is <span class="math display">\[
+  C =  \tfrac{1}{2}[ R u^2 + S (x-u)^2] .
+\]</span></p>
+<p>Here, the two terms represent the cost of control and the final displacement from the desired position. Elementary calculus shows that the optimal value of <span class="math inline">\(u\)</span> and the minimum cost are <span class="math display">\[
+  u = \frac{S x}{S + R },
+  \qquad
+  V(x) = \frac{1}{2} \cdot \frac{RS x^2}{S + R}.
+\]</span></p>
+<p>Now suppose there is noise so that <span class="math inline">\(x- u\)</span> is replaced by <span class="math inline">\(x - u + w\)</span>. We’ll assume that <span class="math inline">\(w \sim {\cal N}(0, Σ)\)</span>. The cost then becomes <span class="math display">\[
+  C =  R u^2 + S (x-u + w)^2 .
+\]</span></p>
+<p>In the risk neutral case, the optimal control is same as earlier and the minimum cost <span class="math inline">\(V(x)\)</span> simply increases by <span class="math inline">\(\frac12 SΣ\)</span>. This a special case of a general phenomenon known as <em>certainty equivalence</em>. See the notes of <a href="../../linear-systems/lqr">linear quadratic regulator</a> for details.</p>
+<p>Now consider a risk-sensitive version of the problem, in which <span class="math inline">\(u\)</span> is chosen to minimize <span class="math display">\[
+  C_θ =  \frac{1}{θ} \log \EXP[ \exp(θ C) ].
+\]</span></p>
+<p>In the risk-averse case (i.e., <span class="math inline">\(θ &gt; 0\)</span>), minimizing <span class="math inline">\(C_θ\)</span> is equivalent to minimizing <span class="math display">\[ \begin{equation} \label{eq:cost}
+\EXP[ \exp(θ C)] =
+\int \exp\Bigl( \frac{θ}{2} \Bigl( Ru^2 + S(x-u+w)^2 - \frac{w^2}{θΣ}\Bigr)\Bigr) dw.
+\end{equation} \]</span> Let us write the right hand side as <span class="math inline">\(\int \exp(\frac{1}{2} θQ((x,u), w) dw\)</span>. Note that <span class="math display">\[
+  \frac{∂^2 Q((x,u), w)}{∂w^2} = S - \frac{1}{θΣ}.
+\]</span> Therefore, <span class="math inline">\(Q\)</span> is negative definite in <span class="math inline">\(w\)</span> if <span class="math inline">\(S - 1/θΣ &lt; 0\)</span>, or equivalently (recall <span class="math inline">\(θ &gt; 0\)</span>), <span class="math display">\[\begin{equation} \label{eq:critical}
+  θΣS - 1 &lt; 0 
+  \iff
+   0 &lt; θ &lt; \frac{1}{SΣ}.
+\end{equation} \]</span> For now, we assume that <span class="math inline">\(θΣS &lt; 1\)</span> and we will return to what happens when <span class="math inline">\(θΣS = 1\)</span> later.</p>
+<p>Since <span class="math inline">\(Q\)</span> is negative definite in <span class="math inline">\(w\)</span> (and <span class="math inline">\(θ &gt; 0\)</span>), <span class="math inline">\(-\frac{1}{2}θQ((x,u),w))\)</span> is positive definite in <span class="math inline">\(w\)</span>. Therefore, by using Lemma 1 of the notes of <a href="../leqg">LEQG</a>, we know that <span class="math display">\[ \begin{equation} \label{eq:simplify}
+  \int\exp\Bigl( \frac{θ}{2} Q((x,u),w) \Bigr) dw
+  = \sqrt{\frac{2π (1 - θΣS)}{Σ}}
+  \exp\Bigl( \frac{θ}{2} \max_{w}Q((x,u),w) \Bigr).
+\end{equation} \]</span> Now, the maximizing value of <span class="math inline">\(w\)</span> is <span class="math inline">\(-\frac{θΣS}{1 - θΣS}(x-u)\)</span> and therefore we get <span class="math display">\[
+  \max_{w} Q((x,u), w) = R u^2 + \frac{S}{1-θΣS}(x-u)^2 
+\]</span></p>
+<p>Substituting this base in \eqref{eq:simplify} and then in \eqref{eq:cost}, we get <span class="math display">\[
+  \EXP[\exp(θC)] 
+  = \sqrt{\frac{2π (1 - θΣS)}{Σ}}
+  \exp\Bigl(\frac{θ}{2}\Bigl(R u^2 + \frac{S}{1 -
+  θΣS}(x-u)^2\Bigr).
+\]</span></p>
+<p>Now, minimizing <span class="math inline">\(\EXP[\exp(θC)]\)</span> is same as minimizing the term in coefficient of <span class="math inline">\(θ/2\)</span> (recall <span class="math inline">\(θ\)</span> is positive), which is minimized by <span class="math display">\[
+  u = \frac{Sx}{S + R - θΣSR}.
+\]</span> The corresponding minimum value of effective cost is <span class="math display">\[
+  V_θ(x) =
+  \frac{1}{2} \cdot \frac{RS x^2}{R + S - θΣSR}
+  + \frac{1}{2θ} \log\frac{2π (1 - θΣS)}{Σ}.
+\]</span></p>
+<p>Note that both the expression for control action and the value become infinity as <span class="math inline">\(θ\)</span> increases through the critical value: <span class="math display">\[
+  θ_{\text{crit}} =  \frac{1}{Σ}\left( \frac{1}{S} + \frac{1}{R} \right)
+\]</span> First note that for <span class="math inline">\(Θ &lt; Θ_{\text{crit}}\)</span>, the constraint \eqref{eq:critical} is automatically satisfied. The value <span class="math inline">\(θ = θ_{\text{crit}}\)</span> marks a point at which the decision maker is so pessimistic that his apprehension of uncertainties completely overrides the assurances given by known statistical behavior. This is called <em>neurotic breakdown</em>. There is a corresponding optimistic extreme, <em>euphoria</em>, if the cost function contains quadratic <em>reward</em> terms.</p>
+<dl>
+<dt>Remark</dt>
+<dd><p>Whittle calls the term <span class="math inline">\(Q((x,u),w)\)</span> as the <em>stress</em>. Note that in the above calculations, we choose <span class="math inline">\(u\)</span> to minimize the stress and choose <span class="math inline">\(w\)</span> to maximize the stress. It is as though there is an another agent, the “phantom other”, who exerts the control <span class="math inline">\(w\)</span> at the same time as the optimizer exerts the control <span class="math inline">\(u\)</span>. When <span class="math inline">\(θ\)</span> is negative, then the phantom other is opposing the optimizer and trying to maximize the stress. (Note that the minimizing value of <span class="math inline">\(w\)</span> is <span class="math inline">\(-\frac{θΣS}{1 - θΣS}(x-u)\)</span>, which can also be written as <span class="math inline">\(θΣRu\)</span>). So, what started out as a one-person control problem has turned into a two-person game.</p>
+</dd>
+</dl>
+<!-- TODO: Add something on worst case performance from Basar's book and
+compare it with neurotic breakdown -->
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>The material in this section is taken from <span class="citation" data-cites="Whittle2002">Whittle (<a href="#ref-Whittle2002" role="doc-biblioref">2002</a>)</span>.</p>
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-Whittle2002">
+<p><span class="smallcaps">Whittle, P.</span> 2002. Risk sensitivity, A strangely pervasive concept. <em>Macroeconomic Dynamics</em> <em>6</em>, 1, 5–18. DOI: <a href="https://doi.org/10.1017/s1365100502027025">10.1017/s1365100502027025</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 15 Jun 2020</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
