@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="risk sensitive,dynamic programming" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Theory: Risk Sensitive MDP</div>
+
+<h1 data-number="1" id="finite-horizon-setup"><span class="header-section-number">1</span> Finite horizon setup</h1>
+<p>Consider the <a href="../../mdp/mdp-matrix">matrix formulation</a> of an MDP with state space <span class="math inline">\(\ALPHABET X\)</span>, action space <span class="math inline">\(\ALPHABET U\)</span>, per-step cost <span class="math inline">\(c \colon \ALPHABET X × \ALPHABET U \to \reals\)</span>, and controlled transition matrix <span class="math inline">\(P\)</span>. However, instead of the risk neutral optimization criteria that we consider <a href="../../mdp/mdp-matrix">previously</a>, we consider a <a href="../risk-sensitive-utility">risk-sensitive objective</a>. In particular, the performance of any (possibly non-Markovian) strategy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> is given by <span class="math display">\[
+  \bar J_θ(g) = \frac{1}{θ} \log \EXP\Bigl[ \exp\Bigl(
+    θ \sum_{t=1}^T c(X_t, U_t) 
+  \Bigr) \Bigr].
+\]</span></p>
+<p>Recall that this is the effective cost for <a href="../risk-sensitive-utility">an exponential disutility function</a>. Note that <span class="math inline">\(J_θ(g) = \exp(θ \bar J(g))\)</span> may be viewed as a multiplicative cost. Based on the argument for <a href="../../mdp/mdp-functional/#multiplicative-cost">multiplicative cost</a>, we can write the dynamic program for <span class="math inline">\(J_θ(g)\)</span> as follows.</p>
+<div class="proclaim">
+<p><strong>Dynamic program.</strong> Initialize <span class="math inline">\(V_{T+1}(x) = 1\)</span> and recursively compute</p>
+<p><span class="math display">\[ \begin{align}
+    Q_t(x,u) &amp;= \exp(θ c(x,u)) \sum_{y \in \ALPHABET X} P_{xy}(u) V_{t+1}(y),
+    \label{eq:DP-1}\\
+    V_t(x) &amp;= \min_{u \in \ALPHABET X} Q_t(x,u).
+    \label{eq:DP-2}
+    \end{align} \]</span></p>
+<p>Or, equivalently, working with the effective cost value function:</p>
+<p><span class="math display">\[ \begin{align}
+    Q_t(x,u) &amp;= \exp(θ c(x,u)) \sum_{y \in \ALPHABET X} P_{xy}(u) 
+    \exp(θ \bar V_{t+1}(y)),
+    \\
+    \bar V_t(x) &amp;= \frac{1}{θ} \log \bigl( \min_{u \in \ALPHABET X} Q_t(x,u) \bigr).
+    \end{align} \]</span></p>
+</div>
+<p>The dynamic program of \eqref{eq:DP-1}–\eqref{eq:DP-2} can be made to resemble the standard dynamic program by defining the <em>disutility matrix</em> <span class="math display">\[
+    D_{xy}(u) = \exp(θ c(x,u)) P_{xy}(u).
+\]</span> Note that the elements of <span class="math inline">\(D\)</span> are non-negative. The expression \eqref{eq:DP-1} can then be written in “standard” form: <span class="math display">\[
+  Q_{t+1}(x) = \sum_{y \in \ALPHABET X} D_{xy}(u) V_{t+1}(y).
+\]</span></p>
+<h1 data-number="2" id="infinite-horizon-average-cost-setup"><span class="header-section-number">2</span> Infinite horizon average cost setup</h1>
+<p>The objective for infinite-horizon average cost setup is to minimize: <span class="math display">\[
+  J^* = \inf_{g} \limsup_{T \to ∞}
+  \frac{1}{θT} \EXP \Bigl[ \exp\Bigl( 
+  θ \sum_{t=1}^T c(X_t, U_t) 
+  \Bigr) \Bigr].
+\]</span></p>
+<p>When the matrix <span class="math inline">\(P(u)\)</span> is irreducible and aperiodic for each <span class="math inline">\(u\)</span>, the dynamic program for average cost MDP can be written as follows:</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:avg" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
+<dd><p>Suppose there exist constant <span class="math inline">\(J\)</span> and a bounded function <span class="math inline">\(v \colon \ALPHABET  X \to \reals\)</span> such that <span class="math display">\[ \begin{equation} \label{eq:avg}
+\exp(θ (J + v(x))) = 
+\min_{u \in \ALPHABET U}
+ \sum_{y \in \ALPHABET X} P_{xy}(u) \exp( θ( c(x, u) + v(y)))
+  \end{equation} \]</span> Furthermore, let <span class="math inline">\(g^* \colon \ALPHABET X \to \ALPHABET U\)</span> denote the policy that achieves the arg min in the right hand side. Then, <span class="math inline">\(J\)</span> is the optimal performance and the time-homogeneous policy <span class="math inline">\(g^*\)</span> achieves that performance.</p>
+</dd>
+</dl>
+</div>
+<p>The dynamic program of \eqref{eq:avg} can be written in an alternative form using a Legendre-type transformation and the duality relationship between relative entropy function and the logarithmic moment generating function.</p>
+<p>Let <span class="math inline">\(Δ(\ALPHABET X)\)</span> denote the set of probability vectors on <span class="math inline">\(\ALPHABET X\)</span>. Then, for any <span class="math inline">\(ν \in Δ(\ALPHABET X)\)</span>, the relative entropy <span class="math inline">\(I(\cdot \| ν) \colon Δ(\ALPHABET X) \to \reals \cup \{+∞\}\)</span> is by given by <span class="math display">\[
+  I(μ \| ν) = \begin{cases}
+    \sum_{x \in \ALPHABET X} \log(λ(x)) μ(x), 
+    &amp; \text{if } μ \ll ν, \\
+    +∞, &amp; \text{otherwise}.
+  \end{cases} \]</span> where <span class="math display">\[ λ(x) = \begin{cases} 
+  \frac{μ(x)}{ν(x)}, &amp; \text{if } ν(x) \neq 0, \\
+  1, &amp; \text{otherwise}. 
+\end{cases}\]</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:Legendre" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
+<dd><p>Let <span class="math inline">\(w \colon \ALPHABET X \to \reals\)</span> be a bounded function and <span class="math inline">\(ν \in Δ(\ALPHABET X)\)</span>. Then, <span class="math display">\[
+  \log \sum_{x \in \ALPHABET X} ν(x) \exp( w(x)) = 
+  \sup_{μ \in Δ(\ALPHABET X)} \Bigl\{
+     \sum_{x \in \ALPHABET X}  μ(x) w(x) - 
+    I(μ \| ν)
+  \Bigr\},
+\]</span> where the supremum is attained at the unique probability measure <span class="math inline">\(μ^*\)</span> given by <span class="math display">\[
+  μ^*(x) = \frac{e^{θv(x)}}{\int e^{θv(x)}ν(x) dx} ν(x).
+\]</span></p>
+</dd>
+</dl>
+</div>
+<p>Using <a href="#lemma:Legendre" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a>, the dynamic program of \eqref{eq:avg} can be written as <span class="math display">\[
+  J + v(x) = \min_{u \in \ALPHABET U} \sup_{μ \in Δ(\ALPHABET X)}
+  \Bigl\{
+    c(x,u) + \sum_{y \in \ALPHABET X} μ(y) v(y) - \frac{1}{θ}
+    I(μ \| P(\cdot | x, u) ) 
+  \Bigr\}.
+\]</span> This equation corresponds to the Issacs equation associated with a stochastic dynamic game with average cost-per unit time criterion.</p>
+<h1 data-number="3" id="infinite-horizon-discounted-cost-setup"><span class="header-section-number">3</span> Infinite horizon discounted cost setup</h1>
+<p><span class="citation" data-cites="Whittle2002">Whittle (<a href="#ref-Whittle2002" role="doc-biblioref">2002</a>)</span> has a discussion on why discounted cost setup for risk-sensitive MDP is tricky and the solution depends on the interpretation of discounting.</p>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>The basic risk-sensitive MDP was first considered in <span class="citation" data-cites="Howard1972">Howard and Matheson (<a href="#ref-Howard1972" role="doc-biblioref">1972</a>)</span>. See <span class="citation" data-cites="Howard1972">Howard and Matheson (<a href="#ref-Howard1972" role="doc-biblioref">1972</a>)</span> for a policy iteration algorithm. It is also mentioned that a version of this result is presented in Bellman’s book. See <span class="citation" data-cites="HernandezHernandez1996">Hernandez-Hernández and Marcus (<a href="#ref-HernandezHernandez1996" role="doc-biblioref">1996</a>)</span> and <span class="citation" data-cites="HernandezHernandez1999">Hernández-Hernández (<a href="#ref-HernandezHernandez1999" role="doc-biblioref">1999</a>)</span> for a detailed treatment of the average cost case.</p>
+<hr />
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-HernandezHernandez1996">
+<p><span class="smallcaps">Hernandez-Hernández, D. and Marcus, S.I.</span> 1996. Risk sensitive control of markov processes in countable state space. <em>Systems &amp; Control Letters</em> <em>29</em>, 3, 147–155. DOI: <a href="https://doi.org/10.1016/s0167-6911(96)00051-5">10.1016/s0167-6911(96)00051-5</a>.</p>
+</div>
+<div id="ref-HernandezHernandez1999">
+<p><span class="smallcaps">Hernández-Hernández, D.</span> 1999. Existence of risk-sensitive optimal stationary policies for controlled markov processes. <em>Applied Mathematics and Optimization</em> <em>40</em>, 3, 273–285. DOI: <a href="https://doi.org/10.1007/s002459900126">10.1007/s002459900126</a>.</p>
+</div>
+<div id="ref-Howard1972">
+<p><span class="smallcaps">Howard, R.A. and Matheson, J.E.</span> 1972. Risk-sensitive markov decision processes. <em>Management Science</em> <em>18</em>, 7, 356–369. DOI: <a href="https://doi.org/10.1287/mnsc.18.7.356">10.1287/mnsc.18.7.356</a>.</p>
+</div>
+<div id="ref-Whittle2002">
+<p><span class="smallcaps">Whittle, P.</span> 2002. Risk sensitivity, A strangely pervasive concept. <em>Macroeconomic Dynamics</em> <em>6</em>, 1, 5–18. DOI: <a href="https://doi.org/10.1017/s1365100502027025">10.1017/s1365100502027025</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 15 Jun 2020</p>
+
+
+
+      <script type="text/javascript">
+      
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-6887174-4']);
+            _gaq.push(['_trackPageview']);
+            (function() {
+                var ga   = document.createElement('script');
+                ga.type  = 'text/javascript';
+                ga.async = true;
+                ga.src   = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+              })();
+      
+      </script>
+    </div>
+  </body>
+</html>
+
+
