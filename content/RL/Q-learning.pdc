@@ -1,0 +1,224 @@
+---
+title: "Theory: Q-learning"
+weight: 02
+category:
+  - RL
+tags:
+  - reinforcement learning
+  - Q-learning
+  - stochastic approximation
+draft: true
+---
+
+Consider an MDP with finite state space $\ALPHABET X$ and action space
+$\ALPHABET U$, where $|\ALPHABET X| = n$ and $|\ALPHABET U| = m$. Recall the
+[value iteration algorithm][VI] for infinite horizon MDPs. We start with an
+arbitrary initial $V_0$ and then recursively compute $V_{k+1} = \mathcal B
+V_k$. We first observe that the value iteration can be written in terms of the
+$Q$-function rather than the value function as follows: start with an
+arbitrary initial $Q_0$ and the recursively compute
+$$ \begin{equation} \label{eq:Q}
+  Q_{k+1}(x,u) = c(x,u) + β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w \in
+  \ALPHABET U} Q_k(y,w),
+  \qquad x \in \ALPHABET X, u \in \ALPHABET U, k \ge 0
+\end{equation} $$
+
+Suppose that the transition probabilities are unknown, but we have access to a
+simulator which can be used the sample the next state for any current state
+and action. Then, one can compute the fixed point of \\eqref{eq:Q} using a
+stochastic approximation variant known as **Q-learning**. 
+
+# Simple Q-learning algorithm
+
+Let $Ψ$ denote the simulator, where we use the notation $X_{+} \sim Ψ(x,u)$
+to denote that the next state $X_{+}$ is sampled using the simulator with the
+current state input $x$ and action $u$. Now, consider the following stochastic
+approximation algorithm:
+$$\begin{equation} \label{eq:QL}
+Q_{k+1}(x,u) = Q_k(x,u) + α_k\bigl[
+  c(x,u) + β \min_{w \in \ALPHABET U} Q_k(Ψ(x,u), w)  - Q_k(x,u) \bigr]
+\end{equation} $$
+$x \in \ALPHABET X$, $u \in \ALPHABET U$, 
+where $Ψ(x,u)$ is an independently sampled next state from the simulator.
+Note that in the above equation we are assuming that we update the $Q$
+function for all values of state action pairs $(x,u)$ at each iteration. 
+
+The iteration \\eqref{eq:QL} may be viewed as a [stochastic approximation][SA]
+algorithm where $θ_k = Q_k \in \reals^{n×m}$ and $f \colon \reals^{n×m} \to
+\reals^{n×m}$ given by $f(Q) = [ f_{xu}(Q) ]$ where
+$$
+  f_{xu}(Q) = c(x,u) + β \sum_{y \in \ALPHABET X}
+  P_{xy}(u) \min_{w \in \ALPHABET U} Q(y,w) - Q(x,u). 
+$$
+
+Define the martingale $\{W_k\}_{k \ge 0}$ by $W_{k+1} = [W_{k+1}]_{xu}$, where
+$$
+  [W_{k+1}]_{xu} = β \Bigl(
+    \min_{w} Q_n(Ψ(x,u), w) - \sum_{y \in \ALPHABET Y} P_{xy}(u)
+    \min_{w} Q_n(y, w) \Bigr), 
+  \quad x \in \ALPHABET X, u \in \ALPHABET  U.
+$$
+
+Then iteration \\eqref{eq:QL} may be viewed as the standard stochastic
+approximation algorithm where
+$$
+  Q_{k+1} = Q_k + α_k[ f(Q_k) + W_{k+1} ].
+$$
+
+To check that Q-learning converge, we need to check the convergence conditions
+of [stochastic approximation][SA]. Since we sample $Ψ$ independently at each
+  step, the noise $\{W_k\}$ is a martingale difference sequence which has
+  bounded variance due to fact that the per-step cost is bounded.
+Thus, we show that Q-learning converges, we
+need to check the asymptotic stability properties of the ODE:
+$$ \begin{equation} \label{eq:Q-ODE}
+  \dot Q(t) = f(Q(t))
+\end{equation} $$
+and 
+$$ \begin{equation} \label{eq:Q-ODE-inf}
+  \dot Q(t) = f_∞(Q(t))
+\end{equation} $$
+where $f_∞(Q)$ is given by $f_∞(Q) = [f_∞(Q)]_{xu}$ with
+$$
+  [f_∞(Q)]_{xu} = 
+  β \sum_{y \in \ALPHABET X}
+  P_{xy}(u) \min_{w \in \ALPHABET U} Q(y,w) - Q(x,u),
+  \quad x \in \ALPHABET X, u \in \ALPHABET  U.
+$$
+
+We will use the following general property to prove the global asymptotic
+stability of \\eqref{eq:Q-ODE} and \\eqref{eq:Q-ODE-inf}.
+
+::: highlight :::
+
+Lemma #ODE
+
+:  Let $T \colon \reals^d \to \reals^d$ to be sup-norm contraction. Then the
+   ODE
+   $$
+      \dot θ(t) = T(θ(t)) - θ(t)
+   $$
+   has a unique equilibrium point which is global asymptotically stable.
+
+:::
+
+This is proved in @Borkar1997 .
+
+
+Define the operator $F(Q) = [F_{xu}(Q)]$ by
+$$ \begin{equation} \label{eq:F}
+  F_{xu}(Q) = c(x,u) + β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w} Q(y,w),
+\end{equation} $$
+which may be thought as an analogue of the Bellman operator for the
+$Q$-function. Similarly define $F_∞(Q) = [F_{∞}(Q)]_{xu}$ by
+$$
+  [F_∞(Q)]_{xu} = β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w} Q(y,w),
+$$
+
+Then, we have have that 
+$$
+  f(Q) = F(Q) - Q
+  \quad\text{and}\quad
+  f_∞(Q) = F_∞(Q) - Q
+$$
+where both $F$ and $F_∞$ are sup-norm contractions. (It is immediate from
+definition that $F_∞$ is a sup-norm contraction. $F(Q) = c + F_∞(Q)$ is
+therefore also a sup-norm contraction). Therefore, @lemma:ODE implies that
+both ODEs \\eqref{eq:Q-ODE} and \\eqref{eq:Q-ODE-inf} have unique global
+asymptotically stable equilibrium points. Moreover, $f_∞(0) = 0$. Therefore
+origin is the unique equilibrium point of \\eqref{eq:Q-ODE-inf}. Therefore, we
+satisfy the conditions of [stochastic approximation][SA]. Hence, if the step
+sizes $\{α_k\}_{k \ge 0}$ satisfy either conditions (TS) or (BS), then
+Q-learning converges in the appropriate sense as described in the notes on
+[stochastic approximation][SA]. 
+
+# A single trajectory Q-learning algorithm
+
+The algorithm presented in the previous section assumed that we update the
+$Q$-function for all state action pairs at each time. A more practical
+variation is the following. Let $g$ be some random policy such that 
+$$ \PR(U_k = u | X_k = x) > 0 $$
+for all state-action pairs $(x,u)$. Let $\{x_k, u_k, c_k\}_{k \ge 0}$ denote the
+sequence of states, actions, and costs obtained when executing the policy $g$.
+Then, the "on-trajectory" variation of \\eqref{eq:QL} is the following:
+$$ \begin{equation} \label{eq:Q-traj}
+  Q_{k+1}(x_k, u_k) = Q_k(x_k, u_k) + α_k(x_k, u_k)\bigl[
+  c_k + β \min_{w \in \ALPHABET W}Q_k(x_{t+1}, w) - Q_k(x_k, u_k) \bigr].
+\end{equation} $$
+This means that, at the $(t+1)$-th update, only the component $(x_k, u_k)$ is
+updated. 
+
+The convergence analysis of this algorithm relies on the following result from
+stochastic approximation (see [@Jaakkola1994])
+
+::: highlight :::
+
+Lemma #Jaakkola
+
+: A $\reals^d$ valued stochastic process $\{Δ_k\}_{k \ge 0}$ given by 
+  $$  \begin{equation} \label{eq:DT}
+    Δ_{k+1}(i) = Δ_k(i) + α_k(i) (W_k(i) - Δ_k(i)), \quad i \in \{1, \dots
+  d\}, 
+  \end{equation} $$
+  converges to zero almost surely under the following assumptions:
+
+    * $0 \le α_k(i) \le 1$, $\sum_{k} α_k(i) = ∞$, and $\sum_{k} α_k^2(i) <
+      ∞$, for all $i \in \{1, \dots, d\}$. 
+    * Let $\mathcal F_k$ denote the increasing family of $σ$-fields
+      $$ \mathcal F_k = σ(Δ_{1:k}, W_{1:k}), \quad k \ge 0. $$ 
+      Then, for some norm $\| ⋅ \|$ and for all $i \in \{1, \dots, d\}$,
+      $$
+         \| \EXP[ W_k(i) | \mathcal F_k] \| \le β \| Δ_k \|, \quad
+         \text{where } β \in (0, 1)
+      $$
+      and
+      $$ \text{var}( W_k(i) | \mathcal F_k) \le C_0(1 + \| Δ_k \|)^2, 
+        \quad \text{where $C$ is some constant}.
+      $$
+
+
+:::
+
+To apply the above result, define the stochastic process $\{Δ_k\}_{k \ge 1}$
+where $Δ_k \in \reals^{n×m}$ and is given by
+$$ Δ_k(x,u) = Q_k(x,u) - Q^*(x,u) $$
+where $Q^*$ is the optimal $Q$-function. Then the iteration \\eqref{eq:Q-traj}
+is of the form \\eqref{eq:DT} where
+$$
+  W_k(x_k,u_k) = c_k + β \min_{w \in \ALPHABET U}Q_k(x_{k+1}, w) - Q^*(x_k,
+  u_k).
+$$
+Now, note that
+$$
+  \EXP[ W_k(x_k, u_k) ] = (F Q_k)(x_k, u_k) - Q^*(x_k,u_k) = 
+  (F Q)(x_k,u_k) - (F Q^*)(x_k,u_k),
+$$
+where the operator $F$ is defined in \\eqref{eq:F} and we have used the fact
+that $Q^* = FQ^*$. From the contraction property of $F$, we get that
+$$
+  \EXP[ W_k(x_k, u_k) ] \le β \| Q_k - Q^* \|_∞ = β \| Δ_k \|_∞. 
+$$
+
+Finally, 
+\begin{align*}
+  \text{var}[ W_k(x) | \mathcal F_k ] &=
+  \EX{[ c_k + β \min_{w \in \ALPHABET U} Q_{t}(x_{t+1}, w) - (HQ_k)(x_k,u_k)
+  )^2 | \mathcal F_k ] \\
+  &= var( c_k +  β \min_{w \in \ALPHABET U} Q_{t}(x_{t+1}, w) | \mathcal F_k]
+\end{align*}
+which is bounded because of the fact that $c$ (and therefore $Q$) are bounded. 
+Then, the iteration \\eqref{eq:Q-traj} satisfies the properties of
+@lemma:Jaakkola. Therefore $Δ_k \to 0$ or, equivalently, $Q_k \to Q^*$, almost
+surely. 
+
+# References {-}
+
+The Q-learning algorithm is due to @Watkins1992. The proof here is from
+@Borkar2000. Also see @Tsitsiklis1994 for a asynchronous version of Q-learning
+algorithm.
+
+
+
+
+[VI]: ../../inf-mdp/discounted-mdp/#value-iteration-algorithm
+[SA]: ../stochastic-approximation

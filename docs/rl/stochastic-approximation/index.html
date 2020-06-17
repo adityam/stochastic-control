@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="reinforcement learning,stochastic approximation" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Prelim: Stochastic approximation</div>
+
+<p>Suppose we have a function <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> is such that the equation <span class="math display">\[ f(θ) = 0 \]</span> has a unique root <span class="math inline">\(θ = θ^*\)</span>. There are many methods for determining the value of <span class="math inline">\(θ\)</span> by successive approximation where start with an initial guess <span class="math inline">\(θ_0\)</span> and then recursively obtain a new value <span class="math inline">\(θ_{k+1}\)</span> as a function of the previously obtained <span class="math inline">\(θ_0, \dots, θ_{k}\)</span>, the values <span class="math inline">\(f(θ_1), \dots, f(θ_{k})\)</span>, and possibly those of the derivatives <span class="math inline">\(f&#39;(θ_0), \dots, f&#39;(θ_{k})\)</span>, etc. If <span class="math display">\[
+  \lim_{k \to ∞} θ_k = θ^*,
+\]</span> irrespective of the initial condition <span class="math inline">\(θ_0\)</span>, then the successive approximation method is effective.</p>
+<p>In many applications, the function <span class="math inline">\(f\)</span> may be unknown so it is not possible to obtain the value <span class="math inline">\(f(θ)\)</span>, but it may be possible to conduct an experiment to get the value of <span class="math inline">\(f(θ)\)</span> with noise. Stochastic approximation refers to recursive algorithms of the form <span class="math display">\[ \begin{equation} \label{eq:SA}
+  θ_{k+1} = θ_k + α_k[ f(x_k) + W_{k+1} ], \quad k \ge 0
+\end{equation} \]</span> where <span class="math inline">\(\{α_k\}_{k \ge 0}\)</span> is a sequence of positive numbers and the noise <span class="math inline">\(\{W_k\}_{k \ge 0}\)</span> is uncorrelated with zero mean.</p>
+<p>The key idea behind stochastic approximation is that under appropriate conditions, the iteration \eqref{eq:SA} almost surely converges to the equilibrium point of the ODE <span class="math display">\[ \begin{equation} \label{eq:ODE}
+  \dot θ(t) = f(θ(t))
+\end{equation} \]</span> with initial conditions <span class="math inline">\(θ(0) = θ_1\)</span>.</p>
+<p>In this section, we summarize these conditions (without proofs).</p>
+<p>Suppose the following conditions are satisfied:</p>
+<ol type="1">
+<li><p><strong>Conditions on the function <span class="math inline">\(f\)</span></strong>:</p>
+<ol type="a">
+<li><p>The map <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> is <a href="../../inf-mdp/lipschitz-mdp/#lipschitz-continuous-function">Lipschitz</a>: <span class="math inline">\(\| f(θ_1) - f(θ_2) \| \le L \| θ_1 - θ_2 \|\)</span> for some <span class="math inline">\(L \in (0, ∞)\)</span>.</p></li>
+<li><p>For any <span class="math inline">\(r \in \reals_{&gt; 0}\)</span>, define <span class="math inline">\(f_r(θ) = f(rθ)/r\)</span>. There exists a function <span class="math inline">\(f_∞ \colon \reals^d \to \reals^d\)</span> such that <span class="math display">\[
+ \lim_{r \to ∞} h_r(θ) = h_∞(θ), \quad \forall θ \in \reals^d.
+   \]</span></p></li>
+<li><p>Origin is the asymptotically stable equilibrium of the ODE <span class="math display">\[
+   \dot x(t) = f_∞(x(t)).
+\]</span></p></li>
+</ol></li>
+<li><p><strong>Condition on the noise <span class="math inline">\(\{W_k\}_{k \ge 0}\)</span></strong>:</p>
+<ol type="a">
+<li><p><span class="math inline">\(\{W_k\}_{k \ge 0}\)</span> is a martingale difference sequence with respect to the increasing family of <span class="math inline">\(σ\)</span>-fields <span class="math display">\[ \mathcal F_k = σ(θ_{1:k}, W_{1:k}). \]</span> That is, <span class="math display">\[ \EXP[ W_k | \mathcal F_k ] = 0, \text{ a.s.}, \quad k \ge 0. \]</span></p></li>
+<li><p>Furthermore, <span class="math inline">\(\{W_k\}_{k \ge 0}\)</span> are square integrable with <span class="math display">\[ \EXP[ \| W_{k+1}\|^2 | \mathcal F_k ] \le C_0(1 + \|θ_k\|^2)
+\text{ a.s.}, \quad k \ge 0\]</span> for some constant <span class="math inline">\(C_0 \ge 0\)</span> and any initial condition <span class="math inline">\(θ_0\)</span>.</p></li>
+</ol></li>
+<li><p><strong>Condition on the step size <span class="math inline">\(\{α_k\}_{k \ge 0}\)</span></strong>:</p>
+<p>The sequence <span class="math inline">\(\{α_k\}_{k \ge 0}\)</span> is deterministic and assumed to satisfy one of the two following conditions:</p>
+<ol type="a">
+<li><p><strong>Tapering step sizes (TS)</strong>: <span class="math inline">\(α_k \in (0, 1)\)</span>, and <span class="math display">\[ \sum_{k=1}^∞ α_k = ∞, \qquad
+    \sum_{k=1}^∞ α_k^2 &lt; ∞. \]</span></p></li>
+<li><p><strong>Bounded step sizes (BS)</strong>: For some constants <span class="math inline">\(\underline α, \bar α \in (0, 1)\)</span>, we have <span class="math display">\[ \underline α \le α_k \le \bar α, \quad k \ge 0. \]</span></p></li>
+</ol></li>
+</ol>
+<p>Then, we have the following results. The first is under the (TS) condition on the step sizes.</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:TS" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
+<dd><p>Assume conditions (1), (2), and (TS) hold. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
+<ul>
+<li><p>Asymptotic stability: <span class="math display">\[
+   \sup_{k} \| θ_k \| &lt; ∞, \text{ a.s.}.
+\]</span></p></li>
+<li><p>Convergence: If the ODE \eqref{eq:ODE} has a <em>unique</em> globally asymptotically stable equilibrium point <span class="math inline">\(θ^*\)</span>. Then, <span class="math display">\[
+   \lim_{k \to ∞} θ_k = θ^*, \text{ a.s.}
+\]</span></p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<p>The second is under the (BS) conditions on the step sizes.</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:BS" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
+<dd><p>Assume conditions (1), (2), and (BS) hold. In addition, the ODE \eqref{eq:ODE} has a unique globally asymptotically stable equilibrium point <span class="math inline">\(θ^*\)</span>. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
+<ul>
+<li><p>Asymptotic stability: There exists a <span class="math inline">\(α^* &gt; 0\)</span> and <span class="math inline">\(C_1 &lt; ∞\)</span> such that for<br />
+all <span class="math inline">\(\bar α \in (0, α^*)\)</span> and <span class="math inline">\(θ_0 \in \reals^d\)</span>, <span class="math display">\[
+   \limsup_{n \to ∞} \EXP[ \| θ_k\|^2 ] \le C_1.
+\]</span></p></li>
+<li><p>Convergence in probability: For <span class="math inline">\(\bar α \le α^*\)</span> and any <span class="math inline">\(ε &gt; 0\)</span>, there exists a <span class="math inline">\(b_1 = b_1(ε) &lt; ∞\)</span> such that <span class="math display">\[
+  \limsup_{n \to ∞} \PR( \| θ_k - θ^* \| \ge ε ) \le b_1 \bar α.
+\]</span></p></li>
+<li><p>Mean square convergence: If <span class="math inline">\(θ^*\)</span> is <em>exponentially</em> asymptotically stable equilibrium point of the ODE \eqref{eq:ODE}, then there exists a <span class="math inline">\(b_2 &lt; ∞\)</span> such that for every initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, <span class="math display">\[
+  \limsup_{n \to ∞} \EXP[ \| θ_k - θ^*\|^2 ] \le b_2 \bar α. 
+\]</span></p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>The stochastic approximation algorithm was introduced by <span class="citation" data-cites="Robbins1951">Robbins and Monro (<a href="#ref-Robbins1951" role="doc-biblioref">1951</a>)</span>. The results presented above are from <span class="citation" data-cites="Borkar2000">Borkar and Meyn (<a href="#ref-Borkar2000" role="doc-biblioref">2000</a>)</span>, which also provides rates of convergence of stochastic approximation under stronger assumptions.</p>
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-Borkar2000">
+<p><span class="smallcaps">Borkar, V.S. and Meyn, S.P.</span> 2000. The o.d.e. Method for convergence of stochastic approximation and reinforcement learning. <em>SIAM Journal on Control and Optimization</em> <em>38</em>, 2, 447–469. DOI: <a href="https://doi.org/10.1137/s0363012997331639">10.1137/s0363012997331639</a>.</p>
+</div>
+<div id="ref-Robbins1951">
+<p><span class="smallcaps">Robbins, H. and Monro, S.</span> 1951. A stochastic approximation method. <em>The Annals of Mathematical Statistics</em> <em>22</em>, 3, 400–407. DOI: <a href="https://doi.org/10.1214/aoms/1177729586">10.1214/aoms/1177729586</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+

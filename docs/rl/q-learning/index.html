@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="reinforcement learning,Q-learning,stochastic approximation" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Theory: Q-learning</div>
+
+<p>Consider an MDP with finite state space <span class="math inline">\(\ALPHABET X\)</span> and action space <span class="math inline">\(\ALPHABET U\)</span>, where <span class="math inline">\(|\ALPHABET X| = n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>. Recall the <a href="../../inf-mdp/discounted-mdp/#value-iteration-algorithm">value iteration algorithm</a> for infinite horizon MDPs. We start with an arbitrary initial <span class="math inline">\(V_0\)</span> and then recursively compute <span class="math inline">\(V_{k+1} = \mathcal B V_k\)</span>. We first observe that the value iteration can be written in terms of the <span class="math inline">\(Q\)</span>-function rather than the value function as follows: start with an arbitrary initial <span class="math inline">\(Q_0\)</span> and the recursively compute <span class="math display">\[ \begin{equation} \label{eq:Q}
+  Q_{k+1}(x,u) = c(x,u) + β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w \in
+  \ALPHABET U} Q_k(y,w),
+  \qquad x \in \ALPHABET X, u \in \ALPHABET U, k \ge 0
+\end{equation} \]</span></p>
+<p>Suppose that the transition probabilities are unknown, but we have access to a simulator which can be used the sample the next state for any current state and action. Then, one can compute the fixed point of \eqref{eq:Q} using a stochastic approximation variant known as <strong>Q-learning</strong>.</p>
+<h1 data-number="1" id="simple-q-learning-algorithm"><span class="header-section-number">1</span> Simple Q-learning algorithm</h1>
+<p>Let <span class="math inline">\(Ψ\)</span> denote the simulator, where we use the notation <span class="math inline">\(X_{+} \sim Ψ(x,u)\)</span> to denote that the next state <span class="math inline">\(X_{+}\)</span> is sampled using the simulator with the current state input <span class="math inline">\(x\)</span> and action <span class="math inline">\(u\)</span>. Now, consider the following stochastic approximation algorithm: <span class="math display">\[\begin{equation} \label{eq:QL}
+Q_{k+1}(x,u) = Q_k(x,u) + α_k\bigl[
+  c(x,u) + β \min_{w \in \ALPHABET U} Q_k(Ψ(x,u), w)  - Q_k(x,u) \bigr]
+\end{equation} \]</span> <span class="math inline">\(x \in \ALPHABET X\)</span>, <span class="math inline">\(u \in \ALPHABET U\)</span>, where <span class="math inline">\(Ψ(x,u)\)</span> is an independently sampled next state from the simulator. Note that in the above equation we are assuming that we update the <span class="math inline">\(Q\)</span> function for all values of state action pairs <span class="math inline">\((x,u)\)</span> at each iteration.</p>
+<p>The iteration \eqref{eq:QL} may be viewed as a <a href="../stochastic-approximation">stochastic approximation</a> algorithm where <span class="math inline">\(θ_k = Q_k \in \reals^{n×m}\)</span> and <span class="math inline">\(f \colon \reals^{n×m} \to \reals^{n×m}\)</span> given by <span class="math inline">\(f(Q) = [ f_{xu}(Q) ]\)</span> where <span class="math display">\[
+  f_{xu}(Q) = c(x,u) + β \sum_{y \in \ALPHABET X}
+  P_{xy}(u) \min_{w \in \ALPHABET U} Q(y,w) - Q(x,u). 
+\]</span></p>
+<p>Define the martingale <span class="math inline">\(\{W_k\}_{k \ge 0}\)</span> by <span class="math inline">\(W_{k+1} = [W_{k+1}]_{xu}\)</span>, where <span class="math display">\[
+  [W_{k+1}]_{xu} = β \Bigl(
+    \min_{w} Q_n(Ψ(x,u), w) - \sum_{y \in \ALPHABET Y} P_{xy}(u)
+    \min_{w} Q_n(y, w) \Bigr), 
+  \quad x \in \ALPHABET X, u \in \ALPHABET  U.
+\]</span></p>
+<p>Then iteration \eqref{eq:QL} may be viewed as the standard stochastic approximation algorithm where <span class="math display">\[
+  Q_{k+1} = Q_k + α_k[ f(Q_k) + W_{k+1} ].
+\]</span></p>
+<p>To check that Q-learning converge, we need to check the convergence conditions of <a href="../stochastic-approximation">stochastic approximation</a>. Since we sample <span class="math inline">\(Ψ\)</span> independently at each step, the noise <span class="math inline">\(\{W_k\}\)</span> is a martingale difference sequence which has bounded variance due to fact that the per-step cost is bounded. Thus, we show that Q-learning converges, we need to check the asymptotic stability properties of the ODE: <span class="math display">\[ \begin{equation} \label{eq:Q-ODE}
+  \dot Q(t) = f(Q(t))
+\end{equation} \]</span> and <span class="math display">\[ \begin{equation} \label{eq:Q-ODE-inf}
+  \dot Q(t) = f_∞(Q(t))
+\end{equation} \]</span> where <span class="math inline">\(f_∞(Q)\)</span> is given by <span class="math inline">\(f_∞(Q) = [f_∞(Q)]_{xu}\)</span> with <span class="math display">\[
+  [f_∞(Q)]_{xu} = 
+  β \sum_{y \in \ALPHABET X}
+  P_{xy}(u) \min_{w \in \ALPHABET U} Q(y,w) - Q(x,u),
+  \quad x \in \ALPHABET X, u \in \ALPHABET  U.
+\]</span></p>
+<p>We will use the following general property to prove the global asymptotic stability of \eqref{eq:Q-ODE} and \eqref{eq:Q-ODE-inf}.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:ODE" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
+<dd><p>Let <span class="math inline">\(T \colon \reals^d \to \reals^d\)</span> to be sup-norm contraction. Then the ODE <span class="math display">\[
+  \dot θ(t) = T(θ(t)) - θ(t)
+   \]</span> has a unique equilibrium point which is global asymptotically stable.</p>
+</dd>
+</dl>
+</div>
+<p>This is proved in <span class="citation" data-cites="Borkar1997">Borkar and Soumyanatha (<a href="#ref-Borkar1997" role="doc-biblioref">1997</a>)</span> .</p>
+<p>Define the operator <span class="math inline">\(F(Q) = [F_{xu}(Q)]\)</span> by <span class="math display">\[ \begin{equation} \label{eq:F}
+  F_{xu}(Q) = c(x,u) + β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w} Q(y,w),
+\end{equation} \]</span> which may be thought as an analogue of the Bellman operator for the <span class="math inline">\(Q\)</span>-function. Similarly define <span class="math inline">\(F_∞(Q) = [F_{∞}(Q)]_{xu}\)</span> by <span class="math display">\[
+  [F_∞(Q)]_{xu} = β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w} Q(y,w),
+\]</span></p>
+<p>Then, we have have that <span class="math display">\[
+  f(Q) = F(Q) - Q
+  \quad\text{and}\quad
+  f_∞(Q) = F_∞(Q) - Q
+\]</span> where both <span class="math inline">\(F\)</span> and <span class="math inline">\(F_∞\)</span> are sup-norm contractions. (It is immediate from definition that <span class="math inline">\(F_∞\)</span> is a sup-norm contraction. <span class="math inline">\(F(Q) = c + F_∞(Q)\)</span> is therefore also a sup-norm contraction). Therefore, <a href="#lemma:ODE" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a> implies that both ODEs \eqref{eq:Q-ODE} and \eqref{eq:Q-ODE-inf} have unique global asymptotically stable equilibrium points. Moreover, <span class="math inline">\(f_∞(0) = 0\)</span>. Therefore origin is the unique equilibrium point of \eqref{eq:Q-ODE-inf}. Therefore, we satisfy the conditions of <a href="../stochastic-approximation">stochastic approximation</a>. Hence, if the step sizes <span class="math inline">\(\{α_k\}_{k \ge 0}\)</span> satisfy either conditions (TS) or (BS), then Q-learning converges in the appropriate sense as described in the notes on <a href="../stochastic-approximation">stochastic approximation</a>.</p>
+<h1 data-number="2" id="a-single-trajectory-q-learning-algorithm"><span class="header-section-number">2</span> A single trajectory Q-learning algorithm</h1>
+<p>The algorithm presented in the previous section assumed that we update the <span class="math inline">\(Q\)</span>-function for all state action pairs at each time. A more practical variation is the following. Let <span class="math inline">\(g\)</span> be some random policy such that <span class="math display">\[ \PR(U_k = u | X_k = x) &gt; 0 \]</span> for all state-action pairs <span class="math inline">\((x,u)\)</span>. Let <span class="math inline">\(\{x_k, u_k, c_k\}_{k \ge 0}\)</span> denote the sequence of states, actions, and costs obtained when executing the policy <span class="math inline">\(g\)</span>. Then, the “on-trajectory” variation of \eqref{eq:QL} is the following: <span class="math display">\[ \begin{equation} \label{eq:Q-traj}
+  Q_{k+1}(x_k, u_k) = Q_k(x_k, u_k) + α_k(x_k, u_k)\bigl[
+  c_k + β \min_{w \in \ALPHABET W}Q_k(x_{t+1}, w) - Q_k(x_k, u_k) \bigr].
+\end{equation} \]</span> This means that, at the <span class="math inline">\((t+1)\)</span>-th update, only the component <span class="math inline">\((x_k, u_k)\)</span> is updated.</p>
+<p>The convergence analysis of this algorithm relies on the following result from stochastic approximation (see <span class="citation" data-cites="Jaakkola1994">(Jaakkola et al. <a href="#ref-Jaakkola1994" role="doc-biblioref">1994</a>)</span>)</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:Jaakkola" class="pandoc-numbering-text lemma"><strong>Lemma 2</strong></span></dt>
+<dd><p>A <span class="math inline">\(\reals^d\)</span> valued stochastic process <span class="math inline">\(\{Δ_k\}_{k \ge 0}\)</span> given by <span class="math display">\[  \begin{equation} \label{eq:DT}
+Δ_{k+1}(i) = Δ_k(i) + α_k(i) (W_k(i) - Δ_k(i)), \quad i \in \{1, \dots
+  d\}, 
+  \end{equation} \]</span> converges to zero almost surely under the following assumptions:</p>
+<ul>
+<li><span class="math inline">\(0 \le α_k(i) \le 1\)</span>, <span class="math inline">\(\sum_{k} α_k(i) = ∞\)</span>, and <span class="math inline">\(\sum_{k} α_k^2(i) &lt; ∞\)</span>, for all <span class="math inline">\(i \in \{1, \dots, d\}\)</span>.</li>
+<li>Let <span class="math inline">\(\mathcal F_k\)</span> denote the increasing family of <span class="math inline">\(σ\)</span>-fields <span class="math display">\[ \mathcal F_k = σ(Δ_{1:k}, W_{1:k}), \quad k \ge 0. \]</span> Then, for some norm <span class="math inline">\(\| ⋅ \|\)</span> and for all <span class="math inline">\(i \in \{1, \dots, d\}\)</span>, <span class="math display">\[
+   \| \EXP[ W_k(i) | \mathcal F_k] \| \le β \| Δ_k \|, \quad
+   \text{where } β \in (0, 1)
+\]</span> and <span class="math display">\[ \text{var}( W_k(i) | \mathcal F_k) \le C_0(1 + \| Δ_k \|)^2, 
+  \quad \text{where $C$ is some constant}.
+\]</span></li>
+</ul>
+</dd>
+</dl>
+</div>
+<p>To apply the above result, define the stochastic process <span class="math inline">\(\{Δ_k\}_{k \ge 1}\)</span> where <span class="math inline">\(Δ_k \in \reals^{n×m}\)</span> and is given by <span class="math display">\[ Δ_k(x,u) = Q_k(x,u) - Q^*(x,u) \]</span> where <span class="math inline">\(Q^*\)</span> is the optimal <span class="math inline">\(Q\)</span>-function. Then the iteration \eqref{eq:Q-traj} is of the form \eqref{eq:DT} where <span class="math display">\[
+  W_k(x_k,u_k) = c_k + β \min_{w \in \ALPHABET U}Q_k(x_{k+1}, w) - Q^*(x_k,
+  u_k).
+\]</span> Now, note that <span class="math display">\[
+  \EXP[ W_k(x_k, u_k) ] = (F Q_k)(x_k, u_k) - Q^*(x_k,u_k) = 
+  (F Q)(x_k,u_k) - (F Q^*)(x_k,u_k),
+\]</span> where the operator <span class="math inline">\(F\)</span> is defined in \eqref{eq:F} and we have used the fact that <span class="math inline">\(Q^* = FQ^*\)</span>. From the contraction property of <span class="math inline">\(F\)</span>, we get that <span class="math display">\[
+  \EXP[ W_k(x_k, u_k) ] \le β \| Q_k - Q^* \|_∞ = β \| Δ_k \|_∞. 
+\]</span></p>
+<p>Finally, <span class="math display">\[\begin{align*}
+  \text{var}[ W_k(x) | \mathcal F_k ] &amp;=
+  \EX{[ c_k + β \min_{w \in \ALPHABET U} Q_{t}(x_{t+1}, w) - (HQ_k)(x_k,u_k)
+  )^2 | \mathcal F_k ] \\
+  &amp;= var( c_k +  β \min_{w \in \ALPHABET U} Q_{t}(x_{t+1}, w) | \mathcal F_k]
+\end{align*}\]</span> which is bounded because of the fact that <span class="math inline">\(c\)</span> (and therefore <span class="math inline">\(Q\)</span>) are bounded. Then, the iteration \eqref{eq:Q-traj} satisfies the properties of <a href="#lemma:Jaakkola" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a>. Therefore <span class="math inline">\(Δ_k \to 0\)</span> or, equivalently, <span class="math inline">\(Q_k \to Q^*\)</span>, almost surely.</p>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>The Q-learning algorithm is due to <span class="citation" data-cites="Watkins1992">Watkins and Dayan (<a href="#ref-Watkins1992" role="doc-biblioref">1992</a>)</span>. The proof here is from <span class="citation" data-cites="Borkar2000">Borkar and Meyn (<a href="#ref-Borkar2000" role="doc-biblioref">2000</a>)</span>. Also see <span class="citation" data-cites="Tsitsiklis1994">Tsitsiklis (<a href="#ref-Tsitsiklis1994" role="doc-biblioref">1994</a>)</span> for a asynchronous version of Q-learning algorithm.</p>
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-Borkar2000">
+<p><span class="smallcaps">Borkar, V.S. and Meyn, S.P.</span> 2000. The o.d.e. Method for convergence of stochastic approximation and reinforcement learning. <em>SIAM Journal on Control and Optimization</em> <em>38</em>, 2, 447–469. DOI: <a href="https://doi.org/10.1137/s0363012997331639">10.1137/s0363012997331639</a>.</p>
+</div>
+<div id="ref-Borkar1997">
+<p><span class="smallcaps">Borkar, V.S. and Soumyanatha, K.</span> 1997. An analog scheme for fixed point computation. I. Theory. <em>IEEE Transactions on Circuits and Systems I: Fundamental Theory and Applications</em> <em>44</em>, 4, 351–355. DOI: <a href="https://doi.org/10.1109/81.563625">10.1109/81.563625</a>.</p>
+</div>
+<div id="ref-Jaakkola1994">
+<p><span class="smallcaps">Jaakkola, T., Jordan, M.I., and Singh, S.P.</span> 1994. On the convergence of stochastic iterative dynamic programming algorithms. <em>Neural Computation</em> <em>6</em>, 6, 1185–1201. DOI: <a href="https://doi.org/10.1162/neco.1994.6.6.1185">10.1162/neco.1994.6.6.1185</a>.</p>
+</div>
+<div id="ref-Tsitsiklis1994">
+<p><span class="smallcaps">Tsitsiklis, J.N.</span> 1994. Asynchronous stochastic approximation and q-learning. <em>Machine Learning</em> <em>16</em>, 3, 185–202. DOI: <a href="https://doi.org/10.1007/bf00993306">10.1007/bf00993306</a>.</p>
+</div>
+<div id="ref-Watkins1992">
+<p><span class="smallcaps">Watkins, C.J.C.H. and Dayan, P.</span> 1992. Q-learning. <em>Machine Learning</em> <em>8</em>, 3-4, 279–292. DOI: <a href="https://doi.org/10.1007/bf00992698">10.1007/bf00992698</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+

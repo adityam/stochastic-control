@@ -1,0 +1,154 @@
+---
+title: "Prelim: Stochastic approximation"
+weight: 01
+category:
+  - stochastics
+tags:
+  - reinforcement learning
+  - stochastic approximation
+---
+
+Suppose we have a function $f \colon \reals^d \to \reals^d$ is such that the
+equation
+$$ f(θ) = 0 $$
+has a unique root $θ = θ^*$. There are many methods for determining the value of
+$θ$ by successive approximation where start with an initial guess $θ_0$ and
+then recursively obtain a new value $θ_{k+1}$ as a function of the previously
+obtained $θ_0, \dots, θ_{k}$, the values $f(θ_1), \dots, f(θ_{k})$, and
+possibly those of the derivatives $f'(θ_0), \dots, f'(θ_{k})$, etc. If 
+$$
+  \lim_{k \to ∞} θ_k = θ^*,
+$$
+irrespective of the initial condition $θ_0$, then the successive approximation
+method is effective. 
+
+In many applications, the function $f$ may be unknown so it is not possible to
+obtain the value $f(θ)$, but it may be possible to conduct an experiment to
+get the value of $f(θ)$ with noise. Stochastic approximation refers to
+recursive algorithms of the form
+$$ \begin{equation} \label{eq:SA}
+  θ_{k+1} = θ_k + α_k[ f(x_k) + W_{k+1} ], \quad k \ge 0
+\end{equation} $$
+where $\{α_k\}_{k \ge 0}$ is a sequence of positive numbers and the noise
+$\{W_k\}_{k \ge 0}$ is uncorrelated with zero mean. 
+
+The key idea behind stochastic approximation is that under appropriate
+conditions, the iteration \\eqref{eq:SA} almost surely converges to the
+equilibrium point of the ODE
+$$ \begin{equation} \label{eq:ODE}
+  \dot θ(t) = f(θ(t))
+\end{equation} $$
+with initial conditions $θ(0) = θ_1$.
+
+In this section, we summarize these conditions (without proofs). 
+
+
+
+
+Suppose the following conditions are satisfied:
+
+1. **Conditions on the function $f$**:
+
+    a. The map $f \colon \reals^d \to \reals^d$ is [Lipschitz]: $\| f(θ_1)
+       - f(θ_2) \| \le L \| θ_1 - θ_2 \|$ for some $L \in (0, ∞)$.
+
+    b. For any $r \in \reals_{> 0}$, define $f_r(θ) = f(rθ)/r$. There exists
+      a function $f_∞ \colon \reals^d \to \reals^d$ such that
+      $$
+        \lim_{r \to ∞} h_r(θ) = h_∞(θ), \quad \forall θ \in \reals^d.
+      $$
+
+    c. Origin is the asymptotically stable equilibrium of the ODE
+       $$
+          \dot x(t) = f_∞(x(t)).
+       $$
+
+2. **Condition on the noise $\{W_k\}_{k \ge 0}$**:
+
+    a. $\{W_k\}_{k \ge 0}$ is a martingale difference sequence with respect
+      to the increasing family of $σ$-fields 
+      $$ \mathcal F_k = σ(θ_{1:k}, W_{1:k}). $$
+      That is,
+      $$ \EXP[ W_k | \mathcal F_k ] = 0, \text{ a.s.}, \quad k \ge 0. $$
+
+    b. Furthermore, $\{W_k\}_{k \ge 0}$ are square integrable with
+       $$ \EXP[ \| W_{k+1}\|^2 | \mathcal F_k ] \le C_0(1 + \|θ_k\|^2)
+       \text{ a.s.}, \quad k \ge 0$$
+       for some constant $C_0 \ge 0$ and any initial condition $θ_0$.
+
+3. **Condition on the step size $\{α_k\}_{k \ge 0}$**:
+
+    The sequence $\{α_k\}_{k \ge 0}$ is deterministic and assumed to satisfy
+    one of the two following conditions:
+
+    a. **Tapering step sizes (TS)**: $α_k \in (0, 1)$, and 
+        $$ \sum_{k=1}^∞ α_k = ∞, \qquad
+           \sum_{k=1}^∞ α_k^2 < ∞. $$
+
+    b. **Bounded step sizes (BS)**: For some constants $\underline α, \bar α
+       \in (0, 1)$, we have
+        $$ \underline α \le α_k \le \bar α, \quad k \ge 0. $$
+
+
+Then, we have the following results. The first is under the (TS) condition on
+the step sizes.
+
+::: highlight :::
+
+Theorem #TS
+
+:  Assume conditions (1), (2), and (TS) hold. Then for any initial condition
+   $θ_0 \in \reals^d$, we have:
+
+     * Asymptotic stability:
+       $$
+          \sup_{k} \| θ_k \| < ∞, \text{ a.s.}.
+       $$
+
+     * Convergence: If the ODE \\eqref{eq:ODE} has a _unique_ globally
+       asymptotically stable equilibrium point $θ^*$. Then, 
+       $$
+          \lim_{k \to ∞} θ_k = θ^*, \text{ a.s.}
+       $$
+
+:::
+
+The second is under the (BS) conditions on the step sizes. 
+
+::: highlight :::
+
+Theorem #BS
+
+:  Assume conditions (1), (2), and (BS) hold. In addition, the ODE
+   \\eqref{eq:ODE} has a unique globally asymptotically stable equilibrium point
+   $θ^*$. Then for any initial condition $θ_0 \in \reals^d$, we have:
+
+     * Asymptotic stability: There exists a $α^* > 0$ and $C_1 < ∞$ such that for   
+       all $\bar α \in (0, α^*)$ and $θ_0 \in \reals^d$, 
+       $$
+          \limsup_{n \to ∞} \EXP[ \| θ_k\|^2 ] \le C_1.
+       $$
+
+      * Convergence in probability: For $\bar α \le α^*$ and any $ε > 0$, there
+        exists a $b_1 = b_1(ε) < ∞$ such that
+        $$
+          \limsup_{n \to ∞} \PR( \| θ_k - θ^* \| \ge ε ) \le b_1 \bar α.
+        $$
+
+      * Mean square convergence: If $θ^*$ is _exponentially_ asymptotically
+        stable equilibrium point of the ODE \\eqref{eq:ODE}, then there exists
+        a $b_2 < ∞$ such that for every initial condition $θ_0 \in \reals^d$, 
+        $$
+          \limsup_{n \to ∞} \EXP[ \| θ_k - θ^*\|^2 ] \le b_2 \bar α. 
+        $$
+
+:::
+
+[Lipschitz]: ../../inf-mdp/lipschitz-mdp/#lipschitz-continuous-function
+
+
+# References {-}
+
+The stochastic approximation algorithm was introduced by @Robbins1951. The
+results presented above are from @Borkar2000, which also provides rates of
+convergence of stochastic approximation under stronger assumptions. 
