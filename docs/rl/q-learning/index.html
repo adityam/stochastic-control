@@ -56,7 +56,7 @@
 <p>Suppose that the transition probabilities are unknown, but we have access to a simulator which can be used the sample the next state for any current state and action. Then, one can compute the fixed point of \eqref{eq:Q} using a stochastic approximation variant known as <strong>Q-learning</strong>.</p>
 <h1 data-number="1" id="simple-q-learning-algorithm"><span class="header-section-number">1</span> Simple Q-learning algorithm</h1>
 <p>Let <span class="math inline">\(Ψ\)</span> denote the simulator, where we use the notation <span class="math inline">\(X_{+} \sim Ψ(x,u)\)</span> to denote that the next state <span class="math inline">\(X_{+}\)</span> is sampled using the simulator with the current state input <span class="math inline">\(x\)</span> and action <span class="math inline">\(u\)</span>. Now, consider the following stochastic approximation algorithm: <span class="math display">\[\begin{equation} \label{eq:QL}
-Q_{k+1}(x,u) = Q_k(x,u) + α_k\bigl[
+Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
   c(x,u) + β \min_{w \in \ALPHABET U} Q_k(Ψ(x,u), w)  - Q_k(x,u) \bigr]
 \end{equation} \]</span> <span class="math inline">\(x \in \ALPHABET X\)</span>, <span class="math inline">\(u \in \ALPHABET U\)</span>, where <span class="math inline">\(Ψ(x,u)\)</span> is an independently sampled next state from the simulator. Note that in the above equation we are assuming that we update the <span class="math inline">\(Q\)</span> function for all values of state action pairs <span class="math inline">\((x,u)\)</span> at each iteration.</p>
 <p>The iteration \eqref{eq:QL} may be viewed as a <a href="../stochastic-approximation">stochastic approximation</a> algorithm where <span class="math inline">\(θ_k = Q_k \in \reals^{n×m}\)</span> and <span class="math inline">\(f \colon \reals^{n×m} \to \reals^{n×m}\)</span> given by <span class="math inline">\(f(Q) = [ f_{xu}(Q) ]\)</span> where <span class="math display">\[
@@ -70,7 +70,7 @@ Q_{k+1}(x,u) = Q_k(x,u) + α_k\bigl[
   \quad x \in \ALPHABET X, u \in \ALPHABET  U.
 \]</span></p>
 <p>Then iteration \eqref{eq:QL} may be viewed as the standard stochastic approximation algorithm where <span class="math display">\[
-  Q_{k+1} = Q_k + α_k[ f(Q_k) + W_{k+1} ].
+  Q_{k+1} = Q_k + a_k[ f(Q_k) + W_{k+1} ].
 \]</span></p>
 <p>To check that Q-learning converge, we need to check the convergence conditions of <a href="../stochastic-approximation">stochastic approximation</a>. Since we sample <span class="math inline">\(Ψ\)</span> independently at each step, the noise <span class="math inline">\(\{W_k\}\)</span> is a martingale difference sequence which has bounded variance due to fact that the per-step cost is bounded. Thus, we show that Q-learning converges, we need to check the asymptotic stability properties of the ODE: <span class="math display">\[ \begin{equation} \label{eq:Q-ODE}
   \dot Q(t) = f(Q(t))
@@ -102,11 +102,11 @@ Q_{k+1}(x,u) = Q_k(x,u) + α_k\bigl[
   f(Q) = F(Q) - Q
   \quad\text{and}\quad
   f_∞(Q) = F_∞(Q) - Q
-\]</span> where both <span class="math inline">\(F\)</span> and <span class="math inline">\(F_∞\)</span> are sup-norm contractions. (It is immediate from definition that <span class="math inline">\(F_∞\)</span> is a sup-norm contraction. <span class="math inline">\(F(Q) = c + F_∞(Q)\)</span> is therefore also a sup-norm contraction). Therefore, <a href="#lemma:ODE" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a> implies that both ODEs \eqref{eq:Q-ODE} and \eqref{eq:Q-ODE-inf} have unique global asymptotically stable equilibrium points. Moreover, <span class="math inline">\(f_∞(0) = 0\)</span>. Therefore origin is the unique equilibrium point of \eqref{eq:Q-ODE-inf}. Therefore, we satisfy the conditions of <a href="../stochastic-approximation">stochastic approximation</a>. Hence, if the step sizes <span class="math inline">\(\{α_k\}_{k \ge 0}\)</span> satisfy either conditions (TS) or (BS), then Q-learning converges in the appropriate sense as described in the notes on <a href="../stochastic-approximation">stochastic approximation</a>.</p>
+\]</span> where both <span class="math inline">\(F\)</span> and <span class="math inline">\(F_∞\)</span> are sup-norm contractions. (It is immediate from definition that <span class="math inline">\(F_∞\)</span> is a sup-norm contraction. <span class="math inline">\(F(Q) = c + F_∞(Q)\)</span> is therefore also a sup-norm contraction). Therefore, <a href="#lemma:ODE" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a> implies that both ODEs \eqref{eq:Q-ODE} and \eqref{eq:Q-ODE-inf} have unique global asymptotically stable equilibrium points. Moreover, <span class="math inline">\(f_∞(0) = 0\)</span>. Therefore origin is the unique equilibrium point of \eqref{eq:Q-ODE-inf}. Therefore, we satisfy the conditions of <a href="../stochastic-approximation">stochastic approximation</a>. Hence, if the step sizes <span class="math inline">\(\{a_k\}_{k \ge 0}\)</span> satisfy either conditions (TS) or (BS), then Q-learning converges in the appropriate sense as described in the notes on <a href="../stochastic-approximation">stochastic approximation</a>.</p>
 <h1 data-number="2" id="a-single-trajectory-q-learning-algorithm"><span class="header-section-number">2</span> A single trajectory Q-learning algorithm</h1>
 <p>The previous version of Q-learning algorithm assumes that we have access to a simulator which samples the output for different choices of state-action pairs. In some applications, such a simulator is not available. Rather, one has to learn simply by interacting with the environment. The next variant of Q-learning does that. This variant is an <em>off-policy</em> learning algorithm, which means that the learner is following a behavioral property (which needs to be sufficiently exploring) while learning the optimal policy (on the side).</p>
 <p>The algorithm presented in the previous section assumed that we update the <span class="math inline">\(Q\)</span>-function for all state action pairs at each time. A more practical variation is the following. Let <span class="math inline">\(g\)</span> be some random policy such that <span class="math display">\[ \PR(U_k = u | X_k = x) &gt; 0 \]</span> for all state-action pairs <span class="math inline">\((x,u)\)</span>. Let <span class="math inline">\(\{x_k, u_k, c_k\}_{k \ge 0}\)</span> denote the sequence of states, actions, and costs obtained when executing the policy <span class="math inline">\(g\)</span>. Then, the “on-trajectory” variation of \eqref{eq:QL} is the following: <span class="math display">\[ \begin{equation} \label{eq:Q-traj}
-  Q_{k+1}(x_k, u_k) = Q_k(x_k, u_k) + α_k(x_k, u_k)\bigl[
+  Q_{k+1}(x_k, u_k) = Q_k(x_k, u_k) + a_k(x_k, u_k)\bigl[
   c_k + β \min_{w \in \ALPHABET W}Q_k(x_{t+1}, w) - Q_k(x_k, u_k) \bigr].
 \end{equation} \]</span> This means that, at the <span class="math inline">\((t+1)\)</span>-th update, only the component <span class="math inline">\((x_k, u_k)\)</span> is updated.</p>
 <p>The convergence analysis of this algorithm relies on the following result from stochastic approximation (see <span class="citation" data-cites="Jaakkola1994">(Jaakkola et al. <a href="#ref-Jaakkola1994" role="doc-biblioref">1994</a>)</span>)</p>
@@ -114,11 +114,11 @@ Q_{k+1}(x,u) = Q_k(x,u) + α_k\bigl[
 <dl>
 <dt><span id="lemma:Jaakkola" class="pandoc-numbering-text lemma"><strong>Lemma 2</strong></span></dt>
 <dd><p>A <span class="math inline">\(\reals^d\)</span> valued stochastic process <span class="math inline">\(\{Δ_k\}_{k \ge 0}\)</span> given by <span class="math display">\[  \begin{equation} \label{eq:DT}
-Δ_{k+1}(i) = Δ_k(i) + α_k(i) (W_k(i) - Δ_k(i)), \quad i \in \{1, \dots
+Δ_{k+1}(i) = Δ_k(i) + a_k(i) (W_k(i) - Δ_k(i)), \quad i \in \{1, \dots
   d\}, 
   \end{equation} \]</span> converges to zero almost surely under the following assumptions:</p>
 <ul>
-<li><span class="math inline">\(0 \le α_k(i) \le 1\)</span>, <span class="math inline">\(\sum_{k} α_k(i) = ∞\)</span>, and <span class="math inline">\(\sum_{k} α_k^2(i) &lt; ∞\)</span>, for all <span class="math inline">\(i \in \{1, \dots, d\}\)</span>.</li>
+<li><span class="math inline">\(0 \le a_k(i) \le 1\)</span>, <span class="math inline">\(\sum_{k} a_k(i) = ∞\)</span>, and <span class="math inline">\(\sum_{k} a_k^2(i) &lt; ∞\)</span>, for all <span class="math inline">\(i \in \{1, \dots, d\}\)</span>.</li>
 <li>Let <span class="math inline">\(\mathcal F_k\)</span> denote the increasing family of <span class="math inline">\(σ\)</span>-fields <span class="math display">\[ \mathcal F_k = σ(Δ_{1:k}, W_{1:k}), \quad k \ge 0. \]</span> Then, for some norm <span class="math inline">\(\| ⋅ \|\)</span> and for all <span class="math inline">\(i \in \{1, \dots, d\}\)</span>, <span class="math display">\[
    \| \EXP[ W_k(i) | \mathcal F_k] \| \le β \| Δ_k \|, \quad
    \text{where } β \in (0, 1)
@@ -168,7 +168,7 @@ Q_{k+1}(x,u) = Q_k(x,u) + α_k\bigl[
 <p class="categories">
 This entry 
 
- was last updated on 17 Jun 2020</p>
+ was last updated on 18 Jun 2020</p>
 
 
 
