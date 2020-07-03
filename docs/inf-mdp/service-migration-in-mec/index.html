@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="mobile edge computing,structural results" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Example: Service Migration in Mobile Edge Computing</div>
+
+<p>TL;DR <em>Another benefit of infinite horizon models is that it is possible to prove structural properties of the optimal policy which might not hold for a finite horizon model. We illustrate this using a model for serive migration in mobile edge computing.</em></p>
+<p>There are many mobile applications which consist of a front-end component running on a mobile device and a back-end component running on a cloud, where the cloud provides additional data processing and computing resources. Examples include real-time video processing, social networking, video games, etc. In such applications, communicating with the backend server causes delay which can cause poor quality of service. This delay can be reduced by moving the computational server closer to the user giving rise to a architecture which is called <em>mobile edge computing (MEC)</em>. In an MEC, multiple edge servers are distributed across the networks which provide cloud services to the user. Ideally, a mobile user should be connected to the closest edge server. However, as the mobile user moves, the closest edge server may change. Moving the tasks from one server to another incur a setup cost. In this section, we study a stylized model of MEC from the point of view of the service provider who has to decide how to trade-off between the delay and migration cost in mobile edge computing.</p>
+<p>We assume that the network is a two-dimensional topology <span class="math inline">\(\ALPHABET X\)</span> with a distance metric <span class="math inline">\(\| \cdot \|\)</span>. The metric may either correspond to Eucledian distance or may depend on the network topology.</p>
+<p>Let <span class="math inline">\(X_t \in \ALPHABET X\)</span> denote the location of a mobile user at time <span class="math inline">\(t\)</span>. The user moves in <span class="math inline">\(\ALPHABET X\)</span> according to a Markovian motion model. There are a finite set <span class="math inline">\(\ALPHABET S\)</span> of mobile edge servers. Let <span class="math inline">\(S_t \in \ALPHABET S\)</span> denote the server to which the user is connected at time <span class="math inline">\(t\)</span>. The state of the system is given by the tuple <span class="math inline">\((X_t, S_t)\)</span>.</p>
+<p>At the beginning of each time slot, the MEC controller has the following control options:</p>
+<ul>
+<li><p>Migrate the service from server <span class="math inline">\(S_t\)</span> to some other server <span class="math inline">\(U_t \in \ALPHABET S\)</span>. This incurs a migration cost of <span class="math inline">\(b(\|S_t - U_t \|)\)</span>, where <span class="math inline">\(b(⋅)\)</span> is a weakly increasing function with <span class="math inline">\(b(0) = 0\)</span>. Furthermore, we assume that <span class="math inline">\(b \circ \| ⋅ \|\)</span> satisfies the triangle inequality, i.e., for any <span class="math inline">\(x, y, z \in \ALPHABET X\)</span>, <span class="math inline">\(b(\|x - y\|) + b(\|y - z \|) \ge b(\|x - z \|)\)</span>. Once the migration is complete, the state of the system is <span class="math inline">\((X_t, U_t)\)</span></p></li>
+<li><p>Do not migrate the service, which can be indicated by <span class="math inline">\(U_t = S_t\)</span>, in which case the migration cost is <span class="math inline">\(b(0) = 0\)</span>.</p></li>
+</ul>
+<p>In addition to migration, there is a data <em>transmission cost</em> incurred by the user for connecting to the currently active server. The transmission cost is related to the distance between the user and the server (after possible migration). The data transmission cost is given by <span class="math inline">\(c(\| X_t - U_t \|)\)</span>, where <span class="math inline">\(c(⋅)\)</span> is a weakyl increasing function with <span class="math inline">\(c(0) = 0\)</span>.</p>
+<p>We assume that the system runs for an infinite horizon. The objective is to choose a time-homogeneous control policy <span class="math inline">\(g \colon \ALPHABET X × \ALPHABET S \to \ALPHABET S\)</span> to minimize the infinite horizon discounted cost given by <span class="math display">\[
+  J(g) = \EXP^g \Bigl[ \sum_{t=1}^∞ β^{t-1} 
+  \bigl( b(\| S_t - U_t\|) + c( \| X_t - U_t \|) \bigr) \Bigr],
+\]</span> where <span class="math inline">\(β \in (0,1)\)</span> is the discount factor.</p>
+<p>From the standard results in Markov decision theory, we know that the optimal policy is given by the unique fixed point of the following fixed-point equation:</p>
+<p><span class="math display">\[V(x,s) = \min_{u \in \ALPHABET S} 
+\bigl\{ b(\|s - u\|) + c(\|u - x\|) + β \sum_{y \in \ALPHABET X}
+  P_{xy} V(y, u) \bigr\}.
+\]</span></p>
+<h1 data-number="1" id="structure-of-the-optimal-policy"><span class="header-section-number">1</span> Structure of the optimal policy</h1>
+<p>We provide a basic characterization of the optimal policy.</p>
+<div class="highlight">
+<dl>
+<dt><span id="prop:structure" class="pandoc-numbering-text prop"><strong>Prop. 1</strong></span></dt>
+<dd><p>Let <span class="math inline">\(g^*\)</span> denote the optimal policy. Then for any <span class="math inline">\((x,s) \in \ALPHABET X × \ALPHABET S\)</span>, we have <span class="math display">\[ \| x - g^*(x,s) \| \le \| x - s \|. \]</span></p>
+</dd>
+</dl>
+</div>
+<p><a href="#prop:structure" title="Prop. 1"><span class="pandoc-numbering-link prop">Prop. 1</span></a> states that the optimal policy always migrates the user to a server which is closer than the one already serving the user.</p>
+<h4 class="unnumbered" data-number="" id="proof">Proof</h4>
+<p>We prove the result using an interchange argument. Suppose we are given a serive migration policy <span class="math inline">\(g\)</span> such that the serive is migrated to a location farther away from the user, i.e., <span class="math inline">\(\|x - u\| &gt; \| x - s \|\)</span>. We will show that for an arbitrary sample path of the user locations <span class="math inline">\(\{ x_t\}_{t \ge 1}\)</span>, we can find a (possibly history dependent) policy <span class="math inline">\(h\)</span> that does not migrate to locations further away from the user in any time slot and performs no worse than policy <span class="math inline">\(g\)</span>.</p>
+<p>Given a arbitrary sample path of user locations <span class="math inline">\(\{x_t\}_{t \ge 1}\)</span> let <span class="math inline">\(t_0\)</span> denote the <em>first</em> timeslot in which the serive is migrated to somewhere farther away from the user when following policy <span class="math inline">\(g\)</span>. The state of <span class="math inline">\(t_0\)</span> is <span class="math inline">\((x_{t_0}, s_{t_0})\)</span> and the policy <span class="math inline">\(g\)</span> moves the service to server <span class="math inline">\(u_{t_0} = g(x_{t_0}, s_{t_0})\)</span>, where <span class="math inline">\(\|x_{t_0} - u_{t_0}\| &gt; \| x_{t_0} - s_{t_0} \|\)</span>. Let <span class="math inline">\(\{u^g_t\}_{t \ge t_0}\)</span> denote the subsequent locations of the server (after migration) under policy <span class="math inline">\(g\)</span>.</p>
+<p>Now, we define a policy <span class="math inline">\(h\)</span> such that the following conditions are satisfied for the given sample path <span class="math inline">\(\{x_t\}_{t \ge 1}\)</span> of the user locations as follows. The policy <span class="math inline">\(h\)</span> chooses the same migration actions as policy <span class="math inline">\(g\)</span> in timeslots <span class="math inline">\(t &lt; t_0\)</span>.</p>
+<p>Now, suppose <span class="math display">\[\begin{equation} \label{eq:1}
+  \| x_{t} - s^g_{t_0} \| \le \| x_{t} - u^g_{t} \|, \quad \forall t &gt; t_0.
+\end{equation}\]</span> Then, the policy <span class="math inline">\(h\)</span> does not choose any migrations from time <span class="math inline">\(t_0\)</span> onwards. Hence, <span class="math inline">\(u^h_t = s^g_{t_0}\)</span> for all <span class="math inline">\(t \ge t_0\)</span>. Note that from time <span class="math inline">\(t_0\)</span> onwards, policy <span class="math inline">\(h\)</span> doesn’t incur any migration cost and always incurs a transmission cost which is less than <span class="math inline">\(g\)</span>. Hence, policy <span class="math inline">\(h\)</span> performs at least as well as policy <span class="math inline">\(g\)</span>.</p>
+<p>Now suppose \eqref{eq:1} does not hold. Then define <span class="math inline">\(t_m\)</span> to be the <em>first</em> timeslot after <span class="math inline">\(t_0\)</span> such that <span class="math display">\[
+  \| x_{t_m} - s^g_{t_0} \| &gt; \| x_{t_m} - u^g_{t_m} \|.
+\]</span></p>
+<p>Now, we define policy <span class="math inline">\(h\)</span> as a policy which does not specify any migrations for time <span class="math inline">\(t \in [t_0, t_m - 1]\)</span>, migrates to location <span class="math inline">\(s^g_{t_m}\)</span> at timeslot <span class="math inline">\(t_m\)</span>, and follows policy <span class="math inline">\(g\)</span> from <span class="math inline">\(t_m\)</span> onwards.</p>
+<p>Note that policies <span class="math inline">\(g\)</span> and <span class="math inline">\(h\)</span> agree on <span class="math inline">\([1, t_0 -1]\)</span> and <span class="math inline">\([t_m + 1, ∞)\)</span>. In the interval <span class="math inline">\([t_0, t_m]\)</span>, <span class="math display">\[
+  \| x_{t} - u^h_t \| \le \| x_t - u^g_t \|.
+\]</span> Thus, the transmission cost of policy <span class="math inline">\(h\)</span> is no more than the transmission cost of policy <span class="math inline">\(g\)</span>.</p>
+<p>Now, the migration cost incurred by policy <span class="math inline">\(g\)</span> in the interval <span class="math inline">\([t_0, t_m]\)</span> can be lower bounded by the migration cost incurred by policy <span class="math inline">\(h\)</span> as follows: <span class="math display">\[\begin{align*}
+  \hskip 2em &amp; \hskip -2em
+  β^{t_0 - 1}  b(\| s^g_{t_0} - u^g_{t_0} \|) + 
+  β^{t_0 } b(\| u^g_{t_0} - u^g_{t_0 + 1} \|) + \cdots  + 
+  β^{t_m - 1} b(\| u^g_{t_m -1} - u^g_{t_m} \|) \\
+  &amp;\le
+  β^{t_m - 1}\bigl[ 
+    b(\| s^g_{t_0} - u^g_{t_0} \|) + 
+   b(\| u^g_{t_0} - u^g_{t_0 + 1} \|) + \cdots  + 
+   b(\| u^g_{t_m -1} - u^g_{t_m} \|)  \bigr]
+  \\
+  &amp;\le
+  β^{t_m - 1} b(\| s^g_{t_0} - u^g_{t_m} \|). 
+\end{align*}\]</span></p>
+<p>Hence, policy <span class="math inline">\(h\)</span> performs at least as wel as policy <span class="math inline">\(g\)</span>. The above procedure can be repeated so that all the migation actions to a location farther away from the user can be removed without increasing the overall cost. </p>
+<p>Note that the policy <span class="math inline">\(h\)</span> constructed above is a history dependent policy. From the result for <a href="../discounted-mdp">infinite horizon MDP</a>, we know that a history dependent policy cannot outperform Markovian policies. Therefore, there exists a Markovian policy that does not migrate to a location farther away from the user, which does not perform worse than <span class="math inline">\(g\)</span>. <span class="math inline">\(\Box\)</span></p>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>The model and results presented here are taken from <span class="citation" data-cites="Wang2019">Wang et al. (<a href="#ref-Wang2019" role="doc-biblioref">2019</a>)</span>.</p>
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-Wang2019">
+<p><span class="smallcaps">Wang, S., Urgaonkar, R., Zafer, M., He, T., Chan, K., and Leung, K.K.</span> 2019. Dynamic service migration in mobile edge computing based on Markov decision process. <em>IEEE/ACM Transactions on Networking</em> <em>27</em>, 3, 1272–1288. DOI: <a href="https://doi.org/10.1109/tnet.2019.2916577">10.1109/tnet.2019.2916577</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 03 Jul 2020
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/mobile-edge-computing">mobile edge computing</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/structural-results">structural results</a>.</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
