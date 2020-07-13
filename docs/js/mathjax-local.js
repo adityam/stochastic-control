@@ -22,7 +22,7 @@ window.MathJax = {
       ABS: ["\\left\\lvert #1 \\right\\rvert", 1]
     },
     autoload: {
-      color: [],
+      color: ['color'],
     },
   },
   options: {

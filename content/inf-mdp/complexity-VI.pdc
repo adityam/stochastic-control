@@ -221,21 +221,20 @@ cost. Thus, the case with $γ = 0$ is trivial. So, in the rest of the analysis,
 we assume that $γ \in (0, 1)$.
 
 
-Suppose $Δ_1 > 0$ (else
-we obtained an optimal policy at iteration 1). Define:
-$$\begin{equation}\label{eq:K*}
-  K^*(β) = \max \left\{ \left\lceil
-  \frac{ \log \frac{(1-β) ε γ}{Δ_1} } {\log(βγ)}
-  \right\rceil
-  ,1 \right\}.
-\end{equation}$$
-
 ::: highlight :::
 
 Theorem #VI-bound
 
-: For any $ε > 0$, value iteration finds an $ε$-optimal policy in no more than
-  $K^*(β)$ iterations. In addition, each iteration uses at most $O(nM)$
+: Start with an abritrary $V_0$. If $Δ_1 = 0$, then we obtain an optimal
+  policy in iteration 1. Otherwise, for
+  any $ε > 0$, value iteration finds an $ε$-optimal policy in no more than
+  $K^*(β)$ iterations, where
+  $$\begin{equation}\label{eq:K*}
+    K^*(β) =  \left\lceil
+    \frac{ \log \frac{(1-β) ε γ}{Δ_1} } {\log(βγ)}
+    \right\rceil.
+  \end{equation}$$
+  In addition, each iteration uses at most $O(nM)$
   operations.
 
 :::
@@ -267,6 +266,57 @@ $$
 $$
 which requies $O(nM)$ operations. 
        
+## The bound may be exact
+
+We now present an example (due to @Feinberg2020) to show that the bound in
+@theorem:VI-bound may be exact. Consider an MDP with $\ALPHABET X = \{1, 2,
+3\}$, $\ALPHABET U = \{1,2 \}$, with $\ALPHABET U(1) = \{1, 2\}$ and
+$\ALPHABET U(2) = \ALPHABET U(3) = \{1\}$. The per-step transitions are
+$$
+  P(1) = \MATRIX{0 & 0 & 1 \\ 0 & 1 & 0 \\ 0 & 0 & 1 },
+  \quad\text{and}\quad
+  P(2) = \MATRIX{0 & 1 & 0 \\ * & * & * \\ * & * & *},
+$$
+where $*$ indicates that the corresponding action is infeasible. The _reward_
+matrix is
+$$
+  r = \MATRIX{1 & 0 \\ 1 & * \\ -1 & *}.
+$$
+
+Suppose we start with an initial $V_0 = \VEC(1, 2, -2)$. Then elementary
+calculations show that 
+$$
+  V_k = \MATRIX{ β^k \\ β^k \\ -β^k} + 
+  \MATRIX{ \sum_{\ell = {\color{red} 1}}^{k} α^\ell \\
+           \sum_{\ell = 0}^{k} α^\ell \\
+           \sum_{\ell = 0}^{k} α^\ell }.
+$$
+Thus,
+$$
+  V_k - V_{k-1} = \MATRIX{ 
+  2 β^k - β^{k-1} \\
+  2 β^k - β^{k-1} \\
+  - 2 β^k + β^{k-1} }.
+$$
+Hence, 
+$$
+\SPAN(V_k - V_{k-1}) = 2β^{k-1} |2β - 1| = β^{k-1} \SPAN(V_1 - V_0).
+$$
+
+Thus, for this model, the expression \\eqref{eq:K*} is exact.
+
+Remark #rem:non-monotone
+
+:   The exact number of iterations need not be monotone in $β$! In the above
+    example, let $ε = 0.02$, then 
+    $$
+      K^*(0.24) = 3, \quad
+      K^*(0.47) = 4, \quad
+      K^*(0.48) = 3.
+    $$
+
+    Thus, the number of iterations is not monotone in $β$.
+
 
 # References {-}
 

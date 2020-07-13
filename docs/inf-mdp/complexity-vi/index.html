@@ -164,16 +164,14 @@
 \end{align*}\]</span> By applying <a href="#prop:span-matrix" title="Prop. 1"><span class="pandoc-numbering-link prop">Prop. 1</span></a>, we get <span class="math display">\[ \SPAN(\mathcal B V_1 - \mathcal B V_2) \le βγ_{\bar P} \SPAN(V_1 - V_2), \]</span> where <span class="math inline">\(γ_{\bar P}\)</span> is given by \eqref{eq:span-matrix} with <span class="math inline">\(\bar P = \ROWS(P_{g_2}, P_{g_1})\)</span>. The result follows by noting that <span class="math inline">\(γ_{\bar P}\)</span> is at most <span class="math inline">\(γ\)</span>. <span class="math inline">\(\Box\)</span></p>
 <h1 data-number="2" id="computational-complexity-of-value-iteration"><span class="header-section-number">2</span> Computational complexity of value iteration</h1>
 <p>Note that <span class="math inline">\(γ \in [0, 1]\)</span>. We will first rule out the case <span class="math inline">\(γ = 0\)</span>. If <span class="math inline">\(γ = 0\)</span>, then <span class="math inline">\(P(z | x, u) = P(z | y, w)\)</span> for all <span class="math inline">\(x, y, z \in \ALPHABET X\)</span> and <span class="math inline">\(u \in \ALPHABET U(x)\)</span> and <span class="math inline">\(w \in \ALPHABET U(y)\)</span>, which implies that all deterministic policies have the same transition probabilities. Therefore, a deterministic policy <span class="math inline">\(g\)</span> is optimal if and only if it minimize the one-step cost. Thus, the case with <span class="math inline">\(γ = 0\)</span> is trivial. So, in the rest of the analysis, we assume that <span class="math inline">\(γ \in (0, 1)\)</span>.</p>
-<p>Suppose <span class="math inline">\(Δ_1 &gt; 0\)</span> (else we obtained an optimal policy at iteration 1). Define: <span class="math display">\[\begin{equation}\label{eq:K*}
-  K^*(β) = \max \left\{ \left\lceil
-  \frac{ \log \frac{(1-β) ε γ}{Δ_1} } {\log(βγ)}
-  \right\rceil
-  ,1 \right\}.
-\end{equation}\]</span></p>
 <div class="highlight">
 <dl>
 <dt><span id="theorem:VI-bound" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
-<dd><p>For any <span class="math inline">\(ε &gt; 0\)</span>, value iteration finds an <span class="math inline">\(ε\)</span>-optimal policy in no more than <span class="math inline">\(K^*(β)\)</span> iterations. In addition, each iteration uses at most <span class="math inline">\(O(nM)\)</span> operations.</p>
+<dd><p>Start with an abritrary <span class="math inline">\(V_0\)</span>. If <span class="math inline">\(Δ_1 = 0\)</span>, then we obtain an optimal policy in iteration 1. Otherwise, for any <span class="math inline">\(ε &gt; 0\)</span>, value iteration finds an <span class="math inline">\(ε\)</span>-optimal policy in no more than <span class="math inline">\(K^*(β)\)</span> iterations, where <span class="math display">\[\begin{equation}\label{eq:K*}
+K^*(β) =  \left\lceil
+\frac{ \log \frac{(1-β) ε γ}{Δ_1} } {\log(βγ)}
+\right\rceil.
+  \end{equation}\]</span> In addition, each iteration uses at most <span class="math inline">\(O(nM)\)</span> operations.</p>
 </dd>
 </dl>
 </div>
@@ -186,6 +184,38 @@
   γ&#39; = 1 - \sum_{z \in \ALPHABET X} \min_{x \in \ALPHABET X, u \in \ALPHABET U}
    P(z | x,u)
 \]</span> which requies <span class="math inline">\(O(nM)\)</span> operations.</p>
+</dd>
+</dl>
+<h2 data-number="2.1" id="the-bound-may-be-exact"><span class="header-section-number">2.1</span> The bound may be exact</h2>
+<p>We now present an example (due to <span class="citation" data-cites="Feinberg2020">Feinberg and He (<a href="#ref-Feinberg2020" role="doc-biblioref">2020</a>)</span>) to show that the bound in <a href="#theorem:VI-bound" title="Theorem 2"><span class="pandoc-numbering-link theorem">Theorem 2</span></a> may be exact. Consider an MDP with <span class="math inline">\(\ALPHABET X = \{1, 2, 3\}\)</span>, <span class="math inline">\(\ALPHABET U = \{1,2 \}\)</span>, with <span class="math inline">\(\ALPHABET U(1) = \{1, 2\}\)</span> and <span class="math inline">\(\ALPHABET U(2) = \ALPHABET U(3) = \{1\}\)</span>. The per-step transitions are <span class="math display">\[
+  P(1) = \MATRIX{0 &amp; 0 &amp; 1 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 },
+  \quad\text{and}\quad
+  P(2) = \MATRIX{0 &amp; 1 &amp; 0 \\ * &amp; * &amp; * \\ * &amp; * &amp; *},
+\]</span> where <span class="math inline">\(*\)</span> indicates that the corresponding action is infeasible. The <em>reward</em> matrix is <span class="math display">\[
+  r = \MATRIX{1 &amp; 0 \\ 1 &amp; * \\ -1 &amp; *}.
+\]</span></p>
+<p>Suppose we start with an initial <span class="math inline">\(V_0 = \VEC(1, 2, -2)\)</span>. Then elementary calculations show that <span class="math display">\[
+  V_k = \MATRIX{ β^k \\ β^k \\ -β^k} + 
+  \MATRIX{ \sum_{\ell = {\color{red} 1}}^{k} α^\ell \\
+           \sum_{\ell = 0}^{k} α^\ell \\
+           \sum_{\ell = 0}^{k} α^\ell }.
+\]</span> Thus, <span class="math display">\[
+  V_k - V_{k-1} = \MATRIX{ 
+  2 β^k - β^{k-1} \\
+  2 β^k - β^{k-1} \\
+  - 2 β^k + β^{k-1} }.
+\]</span> Hence, <span class="math display">\[
+\SPAN(V_k - V_{k-1}) = 2β^{k-1} |2β - 1| = β^{k-1} \SPAN(V_1 - V_0).
+\]</span></p>
+<p>Thus, for this model, the expression \eqref{eq:K*} is exact.</p>
+<dl>
+<dt><span id="rem:non-monotone" class="pandoc-numbering-text rem"><strong>Remark 3</strong></span></dt>
+<dd><p>The exact number of iterations need not be monotone in <span class="math inline">\(β\)</span>! In the above example, let <span class="math inline">\(ε = 0.02\)</span>, then <span class="math display">\[
+  K^*(0.24) = 3, \quad
+  K^*(0.47) = 4, \quad
+  K^*(0.48) = 3.
+\]</span></p>
+<p>Thus, the number of iterations is not monotone in <span class="math inline">\(β\)</span>.</p>
 </dd>
 </dl>
 <h1 class="unnumbered" data-number="" id="references">References</h1>
@@ -203,7 +233,7 @@
 <p class="categories">
 This entry 
 
- was last updated on 07 Jul 2020
+ was last updated on 09 Jul 2020
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">
