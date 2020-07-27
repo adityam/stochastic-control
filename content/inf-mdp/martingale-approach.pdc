@@ -1,0 +1,80 @@
+---
+title: "Theory: A Martingale Principle of Optimal Control"
+weight: 09
+categories:
+  - MDP
+tags:
+  - infinite horizon
+  - discounted cost
+  - martingales
+---
+
+Consider a discounted cost MDP (with bounded rewards) and fix a Markov policy
+$g \colon \ALPHABET X \to \reals$. Suppose for a bounded function $Φ \colon
+\ALPHABET X \to \reals$, we define a process $\{M_t\}_{t \ge 1}$ starting at
+$M_1 = 0$ and its increments $ΔM_t = M_{t+1} - M_t$ given by
+$$ 
+  ΔM_t = c(X_t, g(X_t)) + β Φ(X_{t+1}) - Φ(X_t).
+$$
+
+::: highlight :::
+
+Proposition
+
+:  If $\{M_t\}_{t\ge1}$ is a submartingale for all policies $g$ and, for some
+   policy $g^*$, $\{M_t\}_{t \ge 1}$ is a martingale, then $g^*$ is an optimal
+   policy and $Φ(x) = V^{g^*}(x) = V(x)$. 
+
+:::
+
+#### Proof {-} 
+
+Let $\{\mathcal{F}_t\}_{t \ge 1}$ denote the natural filtration of the
+process. 
+
+As a first step, we define a new process $\{M^β_t\}_{\ge 1}$ where
+
+$$ M^β_t = \sum_{s=1}^{t-1} β^{s-1} ΔM_s. $$
+
+Note that
+
+$$\begin{align*}
+  \EXP[ M^β_{t+1} \mid \mathcal{F}_t ] &=
+  \sum_{s=1}^{t-1} β^{s-1} ΔM_s 
+  + β^t \EXP[ M_{t+1} \mid \mathcal{F}_t ] - β^t M_t. 
+  \\
+  &= M^β_t + β^t \EXP[ M_{t+1} \mid \mathcal{F}_t ] - β^t M_t.
+\end{align*}$$
+
+Thus, if $\{M_t\}_{t \ge 1}$ is a martingale or submartingale or supermartingale,
+then so is $\{M^β_t\}_{t \ge 1}$. 
+
+Now, we assume that $\{M_t\}_{t \ge 1}$ is a submatrignale for all policies.
+Then, as argued above, so is $\{M^β_t\}_{t \ge 1}$. Therefore,
+
+$$ 0 = M^β_1 \le  \EXP[ M^β_t | \mathcal{F}_1 ] = 
+\EXP\biggl[ \sum_{s=1}^{t-1} β^{s-1} c(X_s, g(X_s)) + β^{t} Φ(X_{t+1}) - Φ(X_1)
+\biggm| X_1 = x \biggr]. $$
+
+Rearranging terms and letting $t \to ∞$, we get that for any policy $g$
+$$ 
+  Φ(x) \le \EXP\biggl[ \sum_{s=1}^∞ β^{s-1} c(X_s, g(X_s)) \biggm| X_1 = x
+  \biggr],
+$$
+where the inequality holds with equality of $\{ M^β_t \}_{t \ge 1}$ is a
+martingale for some policy $g^*$. Thus, we get that
+
+$$ Φ(x) = V^{g^*}(x) \le V^g(x). $$
+
+Hence, the policy $g^*$ is optimal.
+
+
+<!--
+  Material taken from pg 38 of https://appliedprobability.files.wordpress.com/2020/05/stochastic_control_2020_may.pdf
+-->
+
+# References {-}
+
+See @Davis1979 for a historical review of martingale methods for stochastic control.
+
+

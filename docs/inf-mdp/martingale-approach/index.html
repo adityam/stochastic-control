@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="infinite horizon,discounted cost,martingales" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Theory: A Martingale Principle of Optimal Control</div>
+
+<p>Consider a discounted cost MDP (with bounded rewards) and fix a Markov policy <span class="math inline">\(g \colon \ALPHABET X \to \reals\)</span>. Suppose for a bounded function <span class="math inline">\(Φ \colon \ALPHABET X \to \reals\)</span>, we define a process <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> starting at <span class="math inline">\(M_1 = 0\)</span> and its increments <span class="math inline">\(ΔM_t = M_{t+1} - M_t\)</span> given by <span class="math display">\[ 
+  ΔM_t = c(X_t, g(X_t)) + β Φ(X_{t+1}) - Φ(X_t).
+\]</span></p>
+<div class="highlight">
+<dl>
+<dt>Proposition</dt>
+<dd><p>If <span class="math inline">\(\{M_t\}_{t\ge1}\)</span> is a submartingale for all policies <span class="math inline">\(g\)</span> and, for some policy <span class="math inline">\(g^*\)</span>, <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> is a martingale, then <span class="math inline">\(g^*\)</span> is an optimal policy and <span class="math inline">\(Φ(x) = V^{g^*}(x) = V(x)\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof">Proof</h4>
+<p>Let <span class="math inline">\(\{\mathcal{F}_t\}_{t \ge 1}\)</span> denote the natural filtration of the process.</p>
+<p>As a first step, we define a new process <span class="math inline">\(\{M^β_t\}_{\ge 1}\)</span> where</p>
+<p><span class="math display">\[ M^β_t = \sum_{s=1}^{t-1} β^{s-1} ΔM_s. \]</span></p>
+<p>Note that</p>
+<p><span class="math display">\[\begin{align*}
+  \EXP[ M^β_{t+1} \mid \mathcal{F}_t ] &amp;=
+  \sum_{s=1}^{t-1} β^{s-1} ΔM_s 
+  + β^t \EXP[ M_{t+1} \mid \mathcal{F}_t ] - β^t M_t. 
+  \\
+  &amp;= M^β_t + β^t \EXP[ M_{t+1} \mid \mathcal{F}_t ] - β^t M_t.
+\end{align*}\]</span></p>
+<p>Thus, if <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> is a martingale or submartingale or supermartingale, then so is <span class="math inline">\(\{M^β_t\}_{t \ge 1}\)</span>.</p>
+<p>Now, we assume that <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> is a submatrignale for all policies. Then, as argued above, so is <span class="math inline">\(\{M^β_t\}_{t \ge 1}\)</span>. Therefore,</p>
+<p><span class="math display">\[ 0 = M^β_1 \le  \EXP[ M^β_t | \mathcal{F}_1 ] = 
+\EXP\biggl[ \sum_{s=1}^{t-1} β^{s-1} c(X_s, g(X_s)) + β^{t} Φ(X_{t+1}) - Φ(X_1)
+\biggm| X_1 = x \biggr]. \]</span></p>
+<p>Rearranging terms and letting <span class="math inline">\(t \to ∞\)</span>, we get that for any policy <span class="math inline">\(g\)</span> <span class="math display">\[ 
+  Φ(x) \le \EXP\biggl[ \sum_{s=1}^∞ β^{s-1} c(X_s, g(X_s)) \biggm| X_1 = x
+  \biggr],
+\]</span> where the inequality holds with equality of <span class="math inline">\(\{ M^β_t \}_{t \ge 1}\)</span> is a martingale for some policy <span class="math inline">\(g^*\)</span>. Thus, we get that</p>
+<p><span class="math display">\[ Φ(x) = V^{g^*}(x) \le V^g(x). \]</span></p>
+<p>Hence, the policy <span class="math inline">\(g^*\)</span> is optimal.</p>
+<!--
+  Material taken from pg 38 of https://appliedprobability.files.wordpress.com/2020/05/stochastic_control_2020_may.pdf
+-->
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>See <span class="citation" data-cites="Davis1979">Davis (<a href="#ref-Davis1979" role="doc-biblioref">1979</a>)</span> for a historical review of martingale methods for stochastic control.</p>
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-Davis1979">
+<p><span class="smallcaps">Davis, M.H.A.</span> 1979. Martingale methods in stochastic control. In: <em>Stochastic control theory and stochastic differential systems</em>. Springer-Verlag, 85–117. DOI: <a href="https://doi.org/10.1007/bfb0009377">10.1007/bfb0009377</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 27 Jul 2020
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/infinite-horizon">infinite horizon</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/discounted-cost">discounted cost</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/martingales">martingales</a>.</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
