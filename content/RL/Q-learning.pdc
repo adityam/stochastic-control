@@ -92,16 +92,67 @@ stability of \\eqref{eq:Q-ODE} and \\eqref{eq:Q-ODE-inf}.
 
 Lemma #ODE
 
-:  Let $T \colon \reals^d \to \reals^d$ to be sup-norm contraction. Then the
+:  Let $T \colon \reals^d \to \reals^d$ to be $p$-norm contraction. Then the
    ODE
    $$
       \dot θ(t) = T(θ(t)) - θ(t)
    $$
    has a unique equilibrium point which is global asymptotically stable.
 
+     In particular, suppose $θ^*$ is the unique fixed poit of $T$. Then $L(θ) =
+     \| θ - θ^* \|_{p}$ is a Lyapunov function and $θ(t) \to θ^*$.
+
 :::
 
-This is proved in @Borkar1997 .
+This was originally proved in @Borkar1997 . 
+
+#### Proof {-} 
+
+Let $\text{sgn}(θ)$ denote the sign function that is $+1$ is $θ > 0$, $0$ if
+$θ = 0$, and $-1$ is $θ < 0$. Assume that $1 \le p < ∞$. By the chain rule
+
+$$\begin{align*}
+  \frac{dL(θ)}{dt} &= \sum_{i=1}^d \frac{∂L}{∂θ_i} \frac{dθ_i}{dt} \\
+  &= \biggl[ \sum_{j = 1}^d | θ_i - θ^*_i |^p \biggr]^{(1-p)/p}
+  \sum_{i=1}^d \text{sign}(θ_i - θ^*_i) | θ_i - θ^*_i |^{1-p} 
+  \bigl( T_i(θ) - θ_i \bigr)
+\end{align*}$$
+Note that the term outside the summation is $\|θ - θ^*\|_{p}^{1-p}$ and we can
+write $T_i(θ) - θ_i$ as $T_i(θ) - T_i(θ^*) - (θ_i - θ^*_i)$ (because $T(θ^*) =
+θ^*$. Making these substitutions in the above equation, we get
+$$
+  \frac{dL(θ)}{dt} = \| θ - θ^*\|_p^{1-p} \biggl[
+  \sum_{i=1}^d \text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigl( T_i(θ) - T_i(θ^*) \bigr) - \| θ - θ^* \|_{p}
+$$
+By Holder's inequality 
+\begin{align*}
+  \sum_{i=1}^d & \text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigl( T_i(θ) - T_i(θ^*) \bigr) - \| θ - θ^* \|_{p}
+  \\
+  &\le 
+  \biggl[ \sum_{i=1}^d \bigl(\text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigr)^{p/(p-1)} \biggr]^{(p-1)/p}
+  \biggl[ \sum_{i=1}^d \bigl( T_i(θ) - T_i(θ^*) \bigr)^p \biggr]^{1/p}
+  \\
+  &= \| θ - θ^* \|_{[}^{p-1}\, \| T(θ) - T(θ^*) \|_{p}.
+\end{align*}
+Subsituting this in the previous equation, we get
+$$ \frac{dL(θ)}{dt} \le \| T(θ) - T(θ^*)\|_p - \| θ - θ^* \|_{p}. $$
+
+Note that we can subsitute $p=∞$ in the above expression because $\|z\|_p \to
+\|z \|_{∞}$ uniformly on compact sets. Since $T$ is a $p$-norm contraction, 
+$$ \| T(θ) - T(θ^*) \|_{p} \le β \| θ - θ^* \|_{p}. $$
+Substituting this in the previous equation, we get
+$$
+  \frac{dL(θ)}{dt} \le 
+  \le - (1-β) \| θ(t) - θ^* \|_p = -(1-β) L(θ).
+$$
+Thus, $L(θ) \to 0$ (or equivalently, $\| θ(t) - θ^* \|_{p} \to 0$ as $t \to
+∞$. $\Box$
+
+---
+
 
 
 Define the operator $F(Q) = [F_{xu}(Q)]$ by
