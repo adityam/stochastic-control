@@ -35,33 +35,56 @@ Definition
 
 ## Remarks on positive definite matrices
 
-1. A symmetric matrix is positive definite (respt. postive semi-definite) if
+1. By making particular choices of $x$ in the definition of positive definite
+   matrix, we have that for a positive definite matrix $M$, 
+
+   * $M_{ii} > 0$ for all $i$
+   * $M_{ij} < \sqrt{M_{ii} M_{jj}}$ for all $i \neq j$.
+
+   However, satisfying these inequalities is not sufficient for positive
+   definiteness. 
+
+2. A symmetric matrix is positive definite (respt. postive semi-definite) if
    and only if all of its eigenvalues are positive (respt. non-negative).
 
-2. The set of positive semi-definite matrices forms a convex cone. 
+3. Therefore, a sufficient condition for a symmetric matrix to be positive
+   definite is that all diagonal elements are positive and the matrix is
+   diagonally dominant, i.e., $M_{ii} > \sum_{j \neq i} | M_{ij}|$ for all
+   $i$.
 
-3. Positive definiteness introduces a partial order on the convex cone of
+4. If $M$ is symmetric positive definite, then so is $M^{-1}$.
+
+5. If $M$ is symmetric positive definite, then $M$ has a unique symmetric positive
+   definite square root $R$ (i.e., $RR = M$).
+
+6. If $M$ is symmetric positive definite, then $M$ has a unique Cholesky
+   factorization $M = T^\TRANS T$, where $T$ is upper triangular with positive
+   diagonal elements. 
+
+4. The set of positive semi-definite matrices forms a convex cone. 
+
+5. Positive definiteness introduces a partial order on the convex cone of
    positive semi-definite matrices. In particular, we say that for two
    positive semi-definite matrices $M$ and $N$ of the same dimension, $M
    \succeq N$ if $M - N$ is positive semi-definite. For this reason, often $M
    \succ 0$ and $M \succeq 0$ is used a short-hand to denote that $M$ is
    positive definite and positive semi-definite.
 
-4. Let $M$ is a symmetric square matrix. Let 
+6. Let $M$ is a symmetric square matrix. Let 
    $$ λ_1(M) \ge λ_2(M) \ge \dots \ge λ_n(M) $$
    denote the ordered (real) eigenvalues of $M$. Then
-   $$ λ_1(M)I \succeq M \succeq λ_n(M). $$
+   $$ λ_1(M)I \succeq M \succeq λ_n(M)I. $$
 
-5. If $M \succeq N$, then
+7. If $M \succeq N$, then
    $$ λ_k(M) \ge λ_k(N), \quad k \in \{1, \dots, n\}. $$
 
-6. If $M \succeq N \succ 0$, then
+8. If $M \succeq N \succ 0$, then
    $$ N^{-1} \succeq M^{-1} \succ 0. $$
 
-7. If $M \succeq N$ are $n × n$ matrices and $T$ is a $m × n$ matrix, then
+9. If $M \succeq N$ are $n × n$ matrices and $T$ is a $m × n$ matrix, then
    $$ T^\TRANS M T \succeq T^\TRANS N T. $$
 
-8. If $M, N$ are $n×$ positive semi-definite matrices, then
+10. If $M, N$ are $n×$ positive semi-definite matrices, then
    $$ \sum_{i=1}^k λ_i(M) λ_{n-i+1}(N) \le
       \sum_{i=1}^k λ_i(MN) \le
       \sum_{i=1}^k λ_i(M)λ_i(N), 
@@ -70,11 +93,74 @@ Definition
    Note that this property does not require $M - N$ to be positive or negative
    semi-definite. 
 
-9. If $M \succ 0$ and $T$  are square matrices of the same size, then
+11. If $M \succ 0$ and $T$  are square matrices of the same size, then
    $$ TMT + M^{-1} \succeq 2T. $$
+
+## A useful relationships.
+
+Symmetric block matrices of the form
+
+$$ C = \MATRIX{ A & X \\ X^\TRANS B } $$
+
+often appear in applications. If $A$ is non-singular, we can write
+
+$$
+\MATRIX{A & X \\ X^\TRANS B } = 
+\MATRIX{I & 0 \\ X^\TRANS A^{-1} & I}
+\MATRIX{A & 0 \\ 0 & B - X^\TRANS A^{-1} X }
+\MATRIX{I & A^{-1} X \\ 0 & I }
+$$
+which shows that $C$ is congruent to a block diagonal matrix, which is
+positive definite when its diagonal blocks are postive definite. Therefore,
+$C$ is positive definite if and only if both $A$ and $B - X^\TRANS A^{-1} X$
+are positive definite. The matrix $B = X^\TRANS A^{-1} X$ is called the Shur
+complement of $A$ in $C$. 
+
+## Determinant bounds
+
+::: highlight :::
+
+**Fischer's inequality.** Suppose $A$ and $C$ are positive semidefinite matrix
+and 
+$$ M = \MATRIX{A & B \\ B^\TRANS & C}. $$
+Then
+$$ \det(M) \le \det(A) \det(C). $$
+
+:::
+
+Recursive application of Fischer's inequality gives the Hadamard's inequality
+for a symmetric positive definite matrix:
+$$ \det(A) \le A_{11} A_{22} \cdots A_{nn}, $$
+with equality if and only if $A$ is diagonal. 
+
+::: highlight :::
+
+Prop. #prop:ratio
+
+:   If $M \succ N \succ 0$ are $n × n$ matrices and $T$ is a $m × n$
+    matrix, then
+    $$ \sup_{ T \neq 0} \frac{ \| T^\TRANS M T \| }{ \| T^\TRANS N T \|} 
+       \le \frac{ \det(M) }{ \det(N) }, $$
+    where for any matrix $M$, 
+    $$
+      \| M \| = \sup_{x \neq 0} \frac{ \| M x \|_2 }{ \|x\|_2 }
+    $$
+    is the $2$-norm of the matrix.
+::: 
+
+@prop:ratio is taken from @Abbasi-Yadkori2011.
 
 # References {-}
 
 The properties of positive definite matrices are stated in any book
 on the theory of matrices. See for example @Marshall2011.
 
+Historically, a matrix used as a test matrix for testing positive definiteness
+was the Wilson matrix
+$$ W = \MATRIX{5 & 7 & 6 & 5 \\ 7 & 10 & 8 & 7 \\ 6 & 8 & 10 & 9 \\ 5 & 7 & 9
+& 10}. $$
+For a nice overview of Wilson matrix, see this [blog post][blog].
+
+[blog]: https://blogs.mathworks.com/cleve/2018/08/20/reviving-wilsons-matrix/
+
+--- 
