@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Singular value decomposition</div>
+
+<p>Recall that if <span class="math inline">\(A\)</span> is a symmetric <span class="math inline">\(n × n\)</span> matrix, then <span class="math inline">\(A\)</span> has real eigenvalues <span class="math inline">\(λ_1, \dots, λ_n\)</span> (possibly repeated) and <span class="math inline">\(\reals^n\)</span> has an orthonormal basis <span class="math inline">\(v_1, \dots, v_n\)</span>, where each <span class="math inline">\(v_i\)</span> is an eigenvector of <span class="math inline">\(A\)</span> with eigenvalue <span class="math inline">\(λ_i\)</span>. Then, <span class="math display">\[ A = V D V^{-1} \]</span> where <span class="math inline">\(V\)</span> is the matrix whose columns are <span class="math inline">\(v_1, \dots, v_n\)</span> and <span class="math inline">\(D\)</span> is a diagonal matrix whose diagonals are <span class="math inline">\(λ_1, \dots, λ_n\)</span>. Since the vectors <span class="math inline">\(v_1, \dots, v_n\)</span> are orthonormal, the matrix <span class="math inline">\(V\)</span> is orthonormal, i.e., <span class="math inline">\(V^\TRANS V = I\)</span>, so we can alternatively write the above equation as <span class="math display">\[ A = V D V^\TRANS.\]</span></p>
+<p>The singular value decomposition (SVD) is a generalization of this where <span class="math inline">\(A\)</span> is a <span class="math inline">\(n × d\)</span> matrix, which does not have to be symmetric or even square.</p>
+<h1 data-number="1" id="singular-values"><span class="header-section-number">1</span> Singular values</h1>
+<p>Let <span class="math inline">\(A\)</span> be a <span class="math inline">\(n × d\)</span> matrix. Consider the matrix <span class="math inline">\(A^\TRANS A\)</span>. This is a symmetric <span class="math inline">\(d × d\)</span> matrix, so its eigenvalues are real. Let <span class="math inline">\(\{ λ_1, \dots, λ_d \}\)</span> denote the eigenvalues of <span class="math inline">\(A^\TRANS A\)</span>, with repetitions. Order then so that <span class="math inline">\(λ_1 \ge λ_2 \ge \dots \ge λ_d \ge 0\)</span>. Let <span class="math inline">\(σ_i = \sqrt{λ_i}\)</span>, so that <span class="math inline">\(σ_1 \ge σ_2 \ge \dots σ_d \ge 0\)</span>. These numbers are called the <strong>singular values</strong> of <span class="math inline">\(A\)</span>.</p>
+<h2 data-number="1.1" id="properties-of-singular-values"><span class="header-section-number">1.1</span> Properties of singular values</h2>
+<ol type="1">
+<li><p>The number of non-zero singular values of <span class="math inline">\(A\)</span> equals to the rank of <span class="math inline">\(A\)</span>. In particular, if <span class="math inline">\(A\)</span> is <span class="math inline">\(n × d\)</span> where <span class="math inline">\(n &lt; d\)</span>, then <span class="math inline">\(A\)</span> has at most <span class="math inline">\(n\)</span> nonzero singular values.</p></li>
+<li><p>It can be shown that</p>
+<p><span class="math display">\[ σ_1 = \max_{\|x\| = 1}  \| A x \| . \]</span></p>
+<p>Let <span class="math inline">\(v_1\)</span> denote the arg-max of the above optimization. <span class="math inline">\(v_1\)</span> is called the first singular vector of <span class="math inline">\(A\)</span>. Then,</p>
+<p><span class="math display">\[ σ_2 = \max_{ x \perp v_1, \|x \| = 1}  \| A x\|. \]</span></p>
+<p>Let <span class="math inline">\(v_2\)</span> denote the arg-max of the above optimization. <span class="math inline">\(v_2\)</span> is called the second singular vector of <span class="math inline">\(A\)</span>, and so on.</p></li>
+<li><p>Let <span class="math inline">\(A\)</span> be a <span class="math inline">\(n × d\)</span> matrix and <span class="math inline">\(v_1, \dots, v_r\)</span> be the singular vectors, where <span class="math inline">\(r = \text{rank}(A)\)</span>. Then for any <span class="math inline">\(k \in \{1, \dots, r\}\)</span>, let <span class="math inline">\(V_k\)</span> be the subspace spanned by <span class="math inline">\(\{v_1, \dots, v_k\}\)</span>. Then, <span class="math inline">\(V_k\)</span> is the best <span class="math inline">\(k\)</span>-dimensional subspace for <span class="math inline">\(A\)</span>.</p></li>
+<li><p>For any matrix <span class="math inline">\(A\)</span>, <span class="math display">\[ \sum_{i =1}^r σ_i^2(A) = \| A \|_{F}^2 
+   := \sum_{j,k} a_{jk}^2. \]</span></p></li>
+<li><p>Any vector <span class="math inline">\(v\)</span> can be written as a linear combination of <span class="math inline">\(v_1, \dots, v_r\)</span> and a vector perpendicular to <span class="math inline">\(V_r\)</span> (defined above). Now, <span class="math inline">\(Av\)</span> can be written as the same linear combination of <span class="math inline">\(Av_1, Av_2, \dots, Av_r\)</span>. So, <span class="math inline">\(Av_1, \dots, Av_r\)</span> form a fundamental set of vectors associated with <span class="math inline">\(A\)</span>. We normalize them to length one by <span class="math display">\[ u_i = \frac{1}{σ_i(A)} A v_i. \]</span> The vectors <span class="math inline">\(u_1, \dots, u_r\)</span> are called the <em>left singular vectors</em> of <span class="math inline">\(A\)</span>. The <span class="math inline">\(v_i\)</span> are called the <em>right singular vectors</em>.</p></li>
+<li><p>Both the left and the right singular vectors are orthogonal.</p></li>
+</ol>
+<div class="highlight">
+<p><strong>Singular value decomposition.</strong> For any matrix <span class="math inline">\(A\)</span>, <span class="math display">\[ A = \sum_{i=1}^r σ_i u_i v_i^\TRANS \]</span> where <span class="math inline">\(u_i\)</span> and <span class="math inline">\(v_i\)</span> are the left and right singular vectors, and <span class="math inline">\(σ_i\)</span> are the singular values.</p>
+<p>In matrix notation: <span class="math display">\[ A = U D V^\TRANS \]</span> where the columns of <span class="math inline">\(U\)</span> and <span class="math inline">\(V\)</span> consist of the left and right singular vectors, respectively, and <span class="math inline">\(D\)</span> is a diagonal matrix whose diagonal entries are the singular values of <span class="math inline">\(A\)</span>.</p>
+</div>
+<p>If <span class="math inline">\(A\)</span> is a positive definite square matrix, then the SVD and the eigen-decomposition coincide.</p>
+<h1 data-number="2" id="best-rank-k-approximations"><span class="header-section-number">2</span> Best rank-<span class="math inline">\(K\)</span> approximations</h1>
+<p>There are two important matrix norms, the Frobenius norm which is defined as <span class="math display">\[ 
+  \| A \|_{F} = \sqrt{ \sum_{i,j} a_{ij}^2 }
+\]</span> and the <span class="math inline">\(2\)</span>-norm defined as <span class="math display">\[
+  \| A \|_2 = \max_{\|x \| = 1} \| A x \|
+\]</span></p>
+<p>Note that the Frobenius norm is equal to the square root of the sum of squares of the singular values and the <span class="math inline">\(2\)</span>-norm is the largest singular value.</p>
+<p>Let <span class="math inline">\(A\)</span> be an <span class="math inline">\(n × d\)</span> matrix and think of <span class="math inline">\(A\)</span> as the <span class="math inline">\(n\)</span> points in <span class="math inline">\(d\)</span>-dimensional space. The Frobenius norm of <span class="math inline">\(A\)</span> is the square root of the sum of squared distance of the points to the origin. The 2-norm is the square root of the sum of squared distances to the origin along the direction that maximizes this quantity.</p>
+<p>Let <span class="math display">\[ A = \sum_{i = 1}^r σ_i u_i v_i^\TRANS \]</span> be the SVD of <span class="math inline">\(A\)</span>. For <span class="math inline">\(k \in \{1, \dots, r\}\)</span>, let <span class="math display">\[ A_k = \sum_{i=1}^k σ_i u_i v_i^\TRANS \]</span> be the sum truncated after <span class="math inline">\(k\)</span> terms.</p>
+<div class="highlight">
+<p><strong>Proposition.</strong> <span class="math inline">\(A_k\)</span> is the best rank <span class="math inline">\(k\)</span> approximation to <span class="math inline">\(A\)</span>, when the error is measured in either the 2-norm or the Frobenius norm.</p>
+</div>
+<p>This result is established by showing the following properties:</p>
+<ol type="1">
+<li><p>The rows of <span class="math inline">\(A_k\)</span> are the projections of the rows of <span class="math inline">\(A\)</span> onto the subspace <span class="math inline">\(V_k\)</span> spanned by the first <span class="math inline">\(k\)</span> right singular vectors of <span class="math inline">\(A\)</span>.</p></li>
+<li><p>For any matrix <span class="math inline">\(B\)</span> of rank at most <span class="math inline">\(k\)</span> <span class="math display">\[ \| A - A_k \|_{F} \le \|A - B \|_{F}. \]</span></p></li>
+<li><p><span class="math inline">\(\| A - A_k\|_2^2 = σ_{k+1}^2.\)</span></p></li>
+<li><p>For any matrix <span class="math inline">\(B\)</span> of rank at most <span class="math inline">\(k\)</span> <span class="math display">\[ \| A - A_k \|_{2} \le \|A - B \|_{2}. \]</span></p></li>
+</ol>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<p>Nice reference for an intuitive explanation of SVD: https://www.cs.cmu.edu/~venkatg/teaching/CStheory-infoage/book-chapter-4.pdf</p>
+
+
+<p class="categories">
+This entry 
+</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
