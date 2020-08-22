@@ -164,6 +164,11 @@ $$ \EXP[ \exp(sX) ] \le \exp( \tfrac12 s^2 σ^2),
 
 :::
 
+The reason the parameter $σ^2$ is called a variance proxy is because by a
+straight forward application of Taylor series expansion and comparing
+coefficients, it can be shown that $\text{var}(X) \le σ^2$. See
+@Rivasplata2012 for a proof.
+
 This definition can be generalized to random vectors and matrices. A random
 vector $X \in \reals^d$ is said the be _sub-Gaussian_ with variance proxy
 $σ^2$ if $\EXP[X] = 0$ and for any unit vector $u \in \reals^d$, $u^\TRANS X$
@@ -174,12 +179,43 @@ _sub-Gaussian_ with variance proxy $σ^2$ if $\EXP[X] = 0$ and for any unit
 vectors $u \in \reals^{d_1}$ and $v \in \reals^{d_2}$, $u^\TRANS X v$ is 
 sub-Gaussian with variance proxy $σ^2$. 
 
+We will use the phrase "$σ$-sub-Gaussian" as a short form of "sub-Gaussian
+with variance proxy $σ^2$".
 One typically writes $X \sim \text{subG}(σ^2)$ to denote a random variable
 with sub-Gaussian distribution with variance proxy $σ^2$. (Strictly speaking,
 this notation is a bit ambiguous since $\text{subG}(σ^2)$ is a class of
 distributions rather than a single distribution.)
 
-## Properties of sub-Gaussian random variables
+## Examples of sub-Gaussian distributions
+
+1. If $X$ be a Rademacher random variable, i.e., $X$ takes the values $\pm 1$
+   with probability $1/2$. Then, 
+   $$ \EXP[ \exp(sX) ] = \frac12 e^{-s} + \frac12 e^s = \cosh s \le 
+   \exp(\tfrac12 s^2), $$
+   so $X$ is 
+
+2. If $X$ is uniformly distributed over $[-a, a]$. Then, for any $s \neq 0$, 
+   $$ \EXP[ \exp(s X) ] = \frac{1}{2as}[ e^{as} - e^{-as} ]
+      = \sum_{n=0}^∞ \frac{(as)^{2n}}{(2n+1)!}. $$
+   Using the inequality $(2n+1)! \ge n!2^n$, we get that $X$ is
+   $a$-sub-Gaussian.
+
+3. It can be shown that (see @Rivasplata2012 ) if $X$ is a random variable
+   with $\EXP[X] = 0$ and $|X| < 1$ a.s., then
+   $$ \EXP[ \exp(sX) ] \le \cosh s, \quad \forall s \in \reals. $$
+   Therefore, $X$ is 1-sub-Gaussian.
+
+4. An immediate corollary of the previous example is that if $X$ is a random
+   variable with $\EXP[X] = 0$ and $|X| \le b$ a.s., then $X$ is
+   $b$-sub-Gaussian.
+
+5. If $X$ is $σ^2$ sub-Gaussian, then for any $α \in \reals$, $α X$ is
+   $|α|σ$-sub-Gaussian.
+
+6. If $X_1$ and $X_2$ are $σ_1$ and $σ_2$-sub-Gaussian, then $X_1 + X_2$
+   is $σ_1 + σ_2$-sub-Gaussian.
+
+## Characterization of sub-Gaussian random variables
 
 Sub-Gaussian random variables satisfy a concentration result similar to Mills
 inequality.
@@ -188,7 +224,7 @@ inequality.
 
 Lemma #tail
 
-:  Let $X \in \reals$ be sub-Gaussian with variance proxy $σ^2$. Then,
+:  Let $X \in \reals$ be $σ$-sub-Gaussian. Then,
   for any $t > 0$, 
   $$\begin{equation}\label{eq:sG-tail-bounds}
   \PR(X > t) \le \exp\biggl( - \frac{t^2}{2σ^2} \biggr)
@@ -279,9 +315,8 @@ and apply the result of @lemma:moment. See @MIT18.S997 for details.
 
 Theorem #subG-vector
 
-: Let $X = (X_1, \dots, X_n)$ be a vector of independent sub-Gaussian random
-  variables with variance proxy $σ^2$. Then, the random vector $X$ is
-  sub-Gaussian with variance proxy $σ^2$. 
+: Let $X = (X_1, \dots, X_n)$ be a vector of independent $σ$-sub-Gaussian random
+  variables. Then, the random vector $X$ is $σ$-sub-Gaussian. 
 
 :::
 
@@ -305,8 +340,8 @@ variables. In particular, we have the following general result.
 ::: highlight :::
 Theorem #maximal
 
-: Let $X_i \in \reals$ be sub-Gaussian random variables (not necessarily
-  independent) with variance proxy $σ^2$. Then, 
+: Let $X_i \in \reals$ be $σ$-sub-Gaussian random variables (not necessarily
+  independent). Then, 
   $$
     \EXP\Bigl[ \max_{1 \le i \le n} X_i \Bigr] \le σ \sqrt{2 \log n}
   \quad\text{and}\quad
@@ -335,8 +370,8 @@ Theorem #polytope
 
 :  Let $\mathsf{P}$ be a polytope with $n$ vertices $v^{(1)}, \dots, v^{(n)} \in
    \reals^d$ and let $X \in \reals^d$ be a random variable such that $[
-   v^{(i)} ]^\TRANS X$, $i \in \{1, \dots, n\}$ are sub-Gaussian random
-   variables with variance proxy $σ^2$. Then, 
+   v^{(i)} ]^\TRANS X$, $i \in \{1, \dots, n\}$ are $σ$-sub-Gaussian random
+   variables. Then, 
   $$
     \EXP\Bigl[ \max_{θ \in \mathsf{P}} θ^\TRANS X \Bigr] \le σ \sqrt{2 \log n}
   \quad\text{and}\quad
@@ -359,8 +394,7 @@ Theorem #polytope
 
 Theorem #ball
 
-: Let $X \in \reals^d$ be a sub-Gaussian random variable with variance proxy
-  $σ^2$.  Then,
+: Let $X \in \reals^d$ be a $σ$-sub-Gaussian random variable. Then,
   $$ \EXP[ \max_{ \| θ \| \le 1 } θ^\TRANS X ] = 
      \EXP[ \max_{ \| θ \| \le 1 } | θ^\TRANS X | ] \le 4σ \sqrt{d}.
   $$
