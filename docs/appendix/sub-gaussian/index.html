@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2020
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Sub-Gaussian random variables</div>
+
+<h1 data-number="1" id="prelim-concentration-inequality-of-sum-of-gaussian-random-variables"><span class="header-section-number">1</span> Prelim: Concentration inequality of sum of Gaussian random variables</h1>
+<p>Let <span class="math inline">\(\phi(\cdot)\)</span> denote the density of <span class="math inline">\(\mathcal{N}(0,1)\)</span> Gaussian random variable: <span class="math display">\[ \phi(x) = \frac{1}{\sqrt{2π}} \exp\biggl( - \frac{x^2}{2} \biggr). \]</span></p>
+<p>Note that if <span class="math inline">\(X \sim \mathcal{N}(μ,σ^2)\)</span>, then the density of <span class="math inline">\(X\)</span> is <span class="math display">\[
+\frac{1}{σ}\phi\biggl( \frac{x-μ}{σ} \biggr) 
+= \frac{1}{\sqrt{2π}\,σ} \exp\biggl( - \frac{(x-μ)^2}{2 σ^2} \biggr). \]</span></p>
+<p>The tails of Gaussian random variables decay fast which can be quantified using the following inequality.</p>
+<div class="highlight">
+<p><strong>Mills inequality.</strong> If <span class="math inline">\(X \sim \mathcal{N}(0, 1)\)</span>, then for any <span class="math inline">\(t &gt; 0\)</span>, <span class="math display">\[ \PR( |X| &gt; t ) \le \frac{2\phi(t)}{t}  \]</span></p>
+<p>More generally, if <span class="math inline">\(X \sim \mathcal{N}(0, σ^2)\)</span>, then for any <span class="math inline">\(t &gt; 0\)</span>, <span class="math display">\[ \PR( |X| &gt; t ) \le 2\frac{σ}{t} \phi\biggl(\frac{t}{σ}\biggr) =
+ \sqrt{\frac{2}{π} } \frac{σ}{t} 
+  \exp\biggl( - \frac{t^2}{2σ^2} \biggr). \]</span></p>
+</div>
+<dl>
+<dt>Remark</dt>
+<dd><p>In the communication theory literature, this bound is sometimes known as the bound on the <a href="https://en.wikipedia.org/wiki/Error_function">erfc</a> or <a href="https://en.wikipedia.org/wiki/Q-function"><span class="math inline">\(Q\)</span> function</a>.</p>
+</dd>
+</dl>
+<h4 class="unnumbered" data-number="" id="proof">Proof</h4>
+<p>We’ll first prove the result for unit variance random variable. Note that <span class="math inline">\(X\)</span> is symmetric around origin. Therefore, <span class="math display">\[ \PR(|X| &gt; t) = 2\PR(X &gt; t). \]</span></p>
+<p>Now, by using an idea similar to the proof of Markov’s inequality, we have <span class="math display">\[\begin{align*}
+t \cdot \PR( |X| &gt; t) &amp;= t \int_{t}^∞ \phi(x) dx  \\
+&amp; \le \int_{t}^∞ x \phi(x) dx \\
+&amp; = \int_{t}^∞ \frac{1}{\sqrt{2π}} x \exp\biggl( - \frac{x^2}{2} \biggr) dx \\
+&amp;= \frac{1}{\sqrt{2π}} \int_{t}^∞ - \frac{∂}{∂x} \exp\biggl( -\frac{x^2}{2}
+\biggr) dx \\
+&amp; = \frac{1}{\sqrt{2π}} \exp\biggl( - \frac{t^2}{2} \biggr)
+\end{align*}\]</span></p>
+<p>The proof for the general case follows by observing that <span class="math display">\[
+\PR(|X| &gt; t) = \PR\biggl( \biggl| \frac{X}{σ} \biggr| &gt; \frac{t}{σ} \biggr)
+\]</span> where <span class="math inline">\(X/σ \sim \mathcal{N}(0,1)\)</span>. <span class="math inline">\(\Box\)</span></p>
+<p>The fact that a Gaussian random variable has tails that decay to zero exponentially fast can be be seen in the moment generating function: <span class="math display">\[
+  M(s) = \EXP[ \exp(sX) ] = \exp\bigl( sμ + \tfrac12 s^2 σ^2\bigr).
+\]</span></p>
+<p>A useful application of Mills inequality is the following concentration inequality.</p>
+<div class="highlight">
+<p><strong>Concentration inequality.</strong> Let <span class="math inline">\(X_i \sim \mathcal{N}(0, σ^2)\)</span> (not necessarily independent). Then, for any <span class="math inline">\(t &gt; 0\)</span>, <span class="math display">\[
+  \PR\Bigl( \max_{1 \le i \le n} |X_i| &gt; t\Bigr) \le 
+  2n \frac{σ}{t} \phi\biggl( \frac{t}{σ} \biggr). 
+\]</span></p>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-1">Proof</h4>
+<p>This follows immediately from Mills inequality and the union bound. <span class="math inline">\(\Box\)</span></p>
+<p>Another useful result is the following:</p>
+<div class="highlight">
+<p><strong>Max of Gaussian random variables.</strong></p>
+<p>Let <span class="math inline">\(X_i \sim \mathcal{N}(0,σ^2)\)</span> (not necessarily independent). Then, <span class="math display">\[
+  \EXP\Bigl[ \max_{1 \le i \le n} X_i \Bigr] \le σ \sqrt{2 \log n}
+\]</span> and <span class="math display">\[
+  \EXP\Bigl[ \max_{1 \le i \le n} |X_i| \Bigr] \le σ \sqrt{2 \log 2n}.
+\]</span></p>
+</div>
+<p>See <a href="http://www.gautamkamath.com/writings/gaussian_max.pdf">these notes</a> for a lower bound with the same rate!</p>
+<h4 class="unnumbered" data-number="" id="proof-2">Proof</h4>
+<p>We prove the first inequality. The second follows by considering <span class="math inline">\(2n\)</span> random variables <span class="math inline">\(X_1, \dots, X_n\)</span>, <span class="math inline">\(-X_1, \dots, -X_n\)</span>.</p>
+<p>For any <span class="math inline">\(s &gt; 0\)</span>, <span class="math display">\[\begin{align*}
+\EXP\Bigl[ \max_{1 \le i \le n} X_i \Bigr] &amp;=
+\frac{1}{s} 
+\EXP\Bigl[ \log \Bigl( \exp\Bigl( s \max_{1 \le i \le n} X_i \Bigr) \Bigr) \Bigr]
+\\
+&amp;\stackrel{(a)}\le
+\frac{1}{s} 
+\log \Bigl( \EXP\Bigl[ \exp\Bigl( s \max_{1 \le i \le n} X_i \Bigr) \Bigr] \Bigr)
+\\
+&amp;\stackrel{(b)}=
+\frac{1}{s} 
+\log \Bigl( \EXP\Bigl[ \max_{1 \le i \le n} \exp( s X_i ) \Bigr] \Bigr)
+\\
+&amp;\stackrel{(c)}\le
+\frac{1}{s} 
+\log \Bigl(\sum_{i=1}^n \EXP\bigl[ \exp( s X_i ) \bigr] \Bigr)
+\\
+&amp;\stackrel{(d)}=
+\log \Bigl( \sum_{i=1}^n\exp\Bigl( \frac{s^2 σ^2}{2} \Bigr) \Bigr) 
+\\
+&amp;= \frac{\log n}{s} + \frac{s^2 σ^2}{2}
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from Jensen’s inequality, <span class="math inline">\((b)\)</span> follows from monotonicity of <span class="math inline">\(\exp(\cdot)\)</span>, <span class="math inline">\((c)\)</span> follows from definition of max, <span class="math inline">\((d)\)</span> follows from the definition of moment generating function of Gaussian random variables. We get the result by setting <span class="math inline">\(s = \sqrt{2 \log n}/σ\)</span> (which minimizes the upper bound). <span class="math inline">\(\Box\)</span></p>
+<dl>
+<dt>Remark</dt>
+<dd><p>We have stated and proved these inequalities for real-valued random variables. But a version of them continue to hold for vector valued Gaussian variables as well. For a complete treatment, see <span class="citation" data-cites="Picard2007">Picard (<a href="#ref-Picard2007" role="doc-biblioref">2007</a>)</span>.</p>
+</dd>
+</dl>
+<h1 data-number="2" id="sub-gaussian-random-variables"><span class="header-section-number">2</span> Sub-Gaussian random variables</h1>
+<p>It turns out that the concentration inequalities of the form above continue to hold for more general distributions than the Gaussian. In particular, consider the bound on the max of Gaussian random variables that we established above. The only step which depends on the assumption that the random variables <span class="math inline">\(X_i\)</span> were Gaussian in step <span class="math inline">\((d)\)</span>. Thus, as long as <span class="math inline">\(\EXP[ \exp(s X_i) ] \le \exp(\tfrac12 s^2 σ^2)\)</span>, the result will continue to hold! This motivates the definition of sub-Gaussian random variables.</p>
+<div class="highlight">
+<p><strong>Sub-Gaussian random variable.</strong> A random variable <span class="math inline">\(X \in \reals\)</span> is said to be <em>sub-Gaussian</em> with variance proxy <span class="math inline">\(σ^2\)</span> if <span class="math inline">\(\EXP[X] = 0\)</span> and its moment generating function satisfies <span class="math display">\[ \EXP[ \exp(sX) ] \le \exp( \tfrac12 s^2 σ^2),
+\quad \forall s \in \reals. \]</span></p>
+</div>
+<p>This definition can be generalized to random vectors and matrices. A random vector <span class="math inline">\(X \in \reals^d\)</span> is said the be <em>sub-Gaussian</em> with variance proxy <span class="math inline">\(σ^2\)</span> if <span class="math inline">\(\EXP[X] = 0\)</span> and for any unit vector <span class="math inline">\(u \in \reals^d\)</span>, <span class="math inline">\(u^\TRANS X\)</span> is sub-Gaussian with variance proxy <span class="math inline">\(σ^2\)</span>.</p>
+<p>Similarly, a random matrix <span class="math inline">\(X \in \reals^{d_1 × d_2}\)</span> is said to be <em>sub-Gaussian</em> with variance proxy <span class="math inline">\(σ^2\)</span> if <span class="math inline">\(\EXP[X] = 0\)</span> and for any unit vectors <span class="math inline">\(u \in \reals^{d_1}\)</span> and <span class="math inline">\(v \in \reals^{d_2}\)</span>, <span class="math inline">\(u^\TRANS X v\)</span> is sub-Gaussian with variance proxy <span class="math inline">\(σ^2\)</span>.</p>
+<p>One typically writes <span class="math inline">\(X \sim \text{subG}(σ^2)\)</span> to denote a random variable with sub-Gaussian distribution with variance proxy <span class="math inline">\(σ^2\)</span>. (Strictly speaking, this notation is a bit ambiguous since <span class="math inline">\(\text{subG}(σ^2)\)</span> is a class of distributions rather than a single distribution.)</p>
+<h2 data-number="2.1" id="properties-of-sub-gaussian-random-variables"><span class="header-section-number">2.1</span> Properties of sub-Gaussian random variables</h2>
+<p>Sub-Gaussian random variables satisfy a concentration result similar to Mills inequality.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:tail" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
+<dd><p>Let <span class="math inline">\(X \in \reals\)</span> be sub-Gaussian with variance proxy <span class="math inline">\(σ^2\)</span>. Then, for any <span class="math inline">\(t &gt; 0\)</span>, <span class="math display">\[\begin{equation}\label{eq:sG-tail-bounds}
+  \PR(X &gt; t) \le \exp\biggl( - \frac{t^2}{2σ^2} \biggr)
+  \quad\text{and}\quad
+  \PR(X &lt; t) \le \exp\biggl( - \frac{t^2}{2σ^2} \biggr)
+  \end{equation}\]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-3">Proof</h4>
+<p>This follows from Chernoff’s bound and the definition of sub-Gaussianity. In particular, for any <span class="math inline">\(s &gt; 0\)</span> <span class="math display">\[
+\PR(X &gt; t) = \PR(\exp(sX) &gt; \exp(st)) \le \frac{ \EXP[\exp(sX) ]} { \exp(st) }
+\le \exp\biggl( \frac{s^2 σ^2}{2} - st \biggr).
+\]</span> Now, to find the tightest possible bound, we minimize the above bound with respect to <span class="math inline">\(s\)</span>, which is attained at <span class="math inline">\(s = t/σ^2\)</span>. Substituting this in the above bound, we get the first inequality. The second inequality follows from a similar argument. <span class="math inline">\(\Box\)</span></p>
+<p>Recall that the moments of <span class="math inline">\(Z \sim \mathcal{N}(0,σ^2)\)</span> are given by <span class="math display">\[
+  \EXP[ |Z|^k ] = \frac{1}{\sqrt{π}} (2σ^2)^{k/2} Γ\biggl(\frac{k+1}{2}\biggr),
+\]</span> where <span class="math inline">\(Γ(\cdot)\)</span> denotes the <a href="https://en.wikipedia.org/wiki/Gamma_function">Gamma function</a>. The next result shows that the tail bounds \eqref{eq:sG-tail-bounds} are sufficient to show that the absolute moments of <span class="math inline">\(X \sim \text{subG}(σ^2)\)</span> can be bounded by those of <span class="math inline">\(Z \sim \mathcal{N}(0,σ^2)\)</span> up to multiplicative constants.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:moment" class="pandoc-numbering-text lemma"><strong>Lemma 2</strong></span></dt>
+<dd><p>Let <span class="math inline">\(X\)</span> be a random variable such that <span class="math display">\[ \PR( |X| &gt; t) \le 2 \exp\biggl(- \frac{t^2}{2σ^2} \biggr),\]</span> then for any positive integer <span class="math inline">\(k \ge 1\)</span>, <span class="math display">\[ \EXP[ |X|^k ] \le (2σ^2)^{k/2} k Γ(k/2). \]</span></p>
+</dd>
+</dl>
+</div>
+<p>Note that for the special case of <span class="math inline">\(k=1\)</span>, the above bound implies <span class="math inline">\(\EXP[ |X| ] \le σ \sqrt{2π}\)</span> and for <span class="math inline">\(k=2\)</span>, <span class="math inline">\(\EXP[|X|^2] \le 4σ^2\)</span>.</p>
+<h4 class="unnumbered" data-number="" id="proof-4">Proof</h4>
+<p>This is a simple application of the tail bound. <span class="math display">\[\begin{align*}
+\EXP[ |X|^k ] &amp;= \int_{0}^∞ \PR( |X|^k &gt; t ) dt \\
+&amp;= \int_{0}^∞ \PR( |X| &gt; t^{1/k}) dt \\
+&amp;\le 2 \int_{0}^∞ \exp\biggl( - \frac{t^{2/k}}{2σ^2} \biggr) dt \\
+&amp;= (2σ^2)^{k/2} k \int_{0}^∞ e^{-u} u^{k/2 - 1} du, 
+\qquad u = \frac{t^{2/k}}{2σ^2} \\
+&amp;= (2σ^2)^{k/2}k Γ(k/2).
+\end{align*}\]</span></p>
+<p>The result for <span class="math inline">\(k=1\)</span> follows from <span class="math inline">\(Γ(1/2) = \sqrt{π/2}\)</span>. <span class="math inline">\(\Box\)</span></p>
+<p>Using moments, we can bound the moment generating function in terms of the tail bounds.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lemma:mgf" class="pandoc-numbering-text lemma"><strong>Lemma 3</strong></span></dt>
+<dd><p>Let <span class="math inline">\(X\)</span> be a random variable such that <span class="math display">\[ \PR( |X| &gt; t) \le 2 \exp\biggl(- \frac{t^2}{2σ^2} \biggr)\]</span> then, <span class="math display">\[\EXP[ \exp(sX) ] \le \exp(4 s^2 σ^2). \]</span></p>
+</dd>
+</dl>
+</div>
+<p>For this reason, sometimes it is stated that <span class="math inline">\(X \sim \text{subG}(s^2)\)</span> when it satisfies the tail bound \eqref{eq:sG-tail-bounds}.</p>
+<p>The proof follows from the following Taylor series bound on the exponential function. <span class="math display">\[ 
+\exp(sX) \le 1 + \sum_{k=2}^∞ \frac{s |X|^k}{k!}
+\]</span> and apply the result of <a href="#lemma:moment" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a>. See <span class="citation" data-cites="MIT18.S997">Rigollet (<a href="#ref-MIT18.S997" role="doc-biblioref">2015</a>)</span> for details.</p>
+<h2 data-number="2.2" id="properties-of-sub-gaussian-random-vectors"><span class="header-section-number">2.2</span> Properties of sub-Gaussian random vectors</h2>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:subG-vector" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
+<dd><p>Let <span class="math inline">\(X = (X_1, \dots, X_n)\)</span> be a vector of independent sub-Gaussian random variables with variance proxy <span class="math inline">\(σ^2\)</span>. Then, the random vector <span class="math inline">\(X\)</span> is sub-Gaussian with variance proxy <span class="math inline">\(σ^2\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" data-number="" id="proof-5">Proof</h4>
+<p>For any unit vector <span class="math inline">\(u \in \reals^n\)</span>, and any <span class="math inline">\(s \in \reals\)</span> <span class="math display">\[\begin{align*}
+\EXP[ \exp( s u^\TRANS X) ] &amp;= \prod_{i=1}^n \EXP[ \exp(s u_i X_i) ] \\
+&amp;\le \prod_{i=1}^n \exp\bigl( \tfrac{1}{2} s^2 u_i^2 σ^2 \bigr) \\
+&amp;= \exp\bigl( \tfrac{1}{2} s^2 \| u \|^2 σ^2 \bigr) \\
+&amp;= \exp\bigl( \tfrac{1}{2} s^2 σ^2 \bigr). \tag*{$\Box$}
+\end{align*}\]</span></p>
+<h2 data-number="2.3" id="maximal-inequalities"><span class="header-section-number">2.3</span> Maximal inequalities</h2>
+<p>As we explained in the motivation for the definition of sub-Gaussian random variables, the definition implies that sub-Gaussian random variables will satisfy the concentration and maximal inequalities for Gaussian random variables. In particular, we have the following general result.</p>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:maximal" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
+<dd><p>Let <span class="math inline">\(X_i \in \reals\)</span> be sub-Gaussian random variables (not necessarily independent) with variance proxy <span class="math inline">\(σ^2\)</span>. Then, <span class="math display">\[
+\EXP\Bigl[ \max_{1 \le i \le n} X_i \Bigr] \le σ \sqrt{2 \log n}
+  \quad\text{and}\quad
+\EXP\Bigl[ \max_{1 \le i \le n} |X_i| \Bigr] \le σ \sqrt{2 \log 2n}.
+  \]</span> Moreover, for any <span class="math inline">\(t &gt; 0\)</span>, <span class="math display">\[
+\PR\Bigl( \max_{1 \le i \le n} X_i &gt; t\Bigr) \le 
+n \exp\biggl( -\frac{t^2}{2σ^2} \biggr)
+  \quad\text{and}\quad
+\PR\Bigl( \max_{1 \le i \le n} |X_i| &gt; t\Bigr) \le 
+2n \exp\biggl( -\frac{t^2}{2σ^2} \biggr).
+  \]</span></p>
+</dd>
+</dl>
+</div>
+<p>The proof is exactly the same as the Gaussian case!</p>
+<p>Now we state two generalizations without proof. See <span class="citation" data-cites="MIT18.S997">Rigollet (<a href="#ref-MIT18.S997" role="doc-biblioref">2015</a>)</span> for proof.</p>
+<h3 class="unnumbered" data-number="" id="maximum-over-a-convex-polytope">Maximum over a convex polytope</h3>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:polytope" class="pandoc-numbering-text theorem"><strong>Theorem 3</strong></span></dt>
+<dd><p>Let <span class="math inline">\(\mathsf{P}\)</span> be a polytope with <span class="math inline">\(n\)</span> vertices <span class="math inline">\(v^{(1)}, \dots, v^{(n)} \in  \reals^d\)</span> and let <span class="math inline">\(X \in \reals^d\)</span> be a random variable such that <span class="math inline">\([  v^{(i)} ]^\TRANS X\)</span>, <span class="math inline">\(i \in \{1, \dots, n\}\)</span> are sub-Gaussian random variables with variance proxy <span class="math inline">\(σ^2\)</span>. Then, <span class="math display">\[
+\EXP\Bigl[ \max_{θ \in \mathsf{P}} θ^\TRANS X \Bigr] \le σ \sqrt{2 \log n}
+  \quad\text{and}\quad
+\EXP\Bigl[ \max_{θ \in \mathsf{P}} | θ^\TRANS X | \Bigr] \le σ \sqrt{2 \log 2n}.
+  \]</span> Moreover, for any <span class="math inline">\(t &gt; 0\)</span>, <span class="math display">\[
+\PR\Bigl(  \max_{θ \in \mathsf{P}} θ^\TRANS X &gt; t\Bigr) \le 
+n \exp\biggl( -\frac{t^2}{2σ^2} \biggr)
+  \quad\text{and}\quad
+\PR\Bigl(  \max_{θ \in \mathsf{P}} |θ^\TRANS X| &gt; t\Bigr) \le 
+2n \exp\biggl( -\frac{t^2}{2σ^2} \biggr).
+  \]</span></p>
+</dd>
+</dl>
+</div>
+<h3 class="unnumbered" data-number="" id="maximum-over-the-ell_2-ball">Maximum over the <span class="math inline">\(\ell_2\)</span> ball</h3>
+<div class="highlight">
+<dl>
+<dt><span id="theorem:ball" class="pandoc-numbering-text theorem"><strong>Theorem 4</strong></span></dt>
+<dd><p>Let <span class="math inline">\(X \in \reals^d\)</span> be a sub-Gaussian random variable with variance proxy <span class="math inline">\(σ^2\)</span>. Then, <span class="math display">\[ \EXP[ \max_{ \| θ \| \le 1 } θ^\TRANS X ] = 
+ \EXP[ \max_{ \| θ \| \le 1 } | θ^\TRANS X | ] \le 4σ \sqrt{d}.
+  \]</span> Moreover, for any <span class="math inline">\(t &gt; 0\)</span> <span class="math display">\[ \PR( \max_{ \| θ \| \le 1 } θ^\TRANS X &gt; t) = 
+ \PR( \max_{ \| θ \| \le 1 } | θ^\TRANS X | &gt; t ) \le 
+6^d \exp\biggl(- \frac{t^2}{8σ^2} \biggr).
+  \]</span></p>
+</dd>
+</dl>
+</div>
+<dl>
+<dt>Remark</dt>
+<dd><p>For any <span class="math inline">\(δ &gt; 0\)</span>, take <span class="math inline">\(t = σ\sqrt{8d \log 6} + 2σ\sqrt{2 \log(1/δ)}\)</span>, we obtain that with probability less than <span class="math inline">\(1-δ\)</span>, it holds that <span class="math display">\[
+\max_{\|θ\| \le 1} θ^\TRANS X 
+=
+\max_{\|θ\| \le 1} | θ^\TRANS X |
+\le 4σ\sqrt{d} + 2σ \sqrt{2\log(1/δ)}.
+   \]</span></p>
+</dd>
+</dl>
+<h1 class="unnumbered" data-number="" id="references">References</h1>
+<div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-Picard2007">
+<p><span class="smallcaps">Picard, J.</span> 2007. <em>Concentration inequalities and model selection</em>. Springer Berlin Heidelberg. DOI: <a href="https://doi.org/10.1007/978-3-540-48503-2">10.1007/978-3-540-48503-2</a>.</p>
+</div>
+<div id="ref-MIT18.S997">
+<p><span class="smallcaps">Rigollet, P.</span> 2015. High-dimensional statistics.. Available at: <a href="https://ocw.mit.edu/courses/mathematics/18-s997-high-dimensional-statistics-spring-2015/lecture-notes/">https://ocw.mit.edu/courses/mathematics/18-s997-high-dimensional-statistics-spring-2015/lecture-notes/</a>.</p>
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
