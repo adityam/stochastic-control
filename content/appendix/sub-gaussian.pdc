@@ -209,11 +209,15 @@ distributions rather than a single distribution.)
    variable with $\EXP[X] = 0$ and $|X| \le b$ a.s., then $X$ is
    $b$-sub-Gaussian.
 
-5. If $X$ is $σ^2$ sub-Gaussian, then for any $α \in \reals$, $α X$ is
+5. By a similar arguement, we can show that if $X$ is a zero mean random
+   variable supported on some interval $[a,b]$, then $X$ is $(b-a)/2$
+   sub-Gaussian.
+
+6. If $X$ is $σ^2$ sub-Gaussian, then for any $α \in \reals$, $α X$ is
    $|α|σ$-sub-Gaussian.
 
-6. If $X_1$ and $X_2$ are $σ_1$ and $σ_2$-sub-Gaussian, then $X_1 + X_2$
-   is $σ_1 + σ_2$-sub-Gaussian.
+7. If $X_1$ and $X_2$ are $σ_1$ and $σ_2$-sub-Gaussian, then $X_1 + X_2$
+   is $\sqrt{σ_1^2 + σ_2^2}$-sub-Gaussian.
 
 ## Characterization of sub-Gaussian random variables
 
@@ -330,6 +334,79 @@ $$\begin{align*}
 &= \exp\bigl( \tfrac{1}{2} s^2 σ^2 \bigr). \tag*{$\Box$}
 \end{align*}$$
 
+## Concentration inequalities
+
+Recall that if $X_1$ and $X_2$ and $σ_1$ and $σ_2$-sub-Gaussian, then $X_1 +
+X_2$ is sub-Gaussian with variance proxy $σ_1^2 + σ_2^2$. An immediate
+implication of this property is the following:
+
+::: highlight :::
+
+**Hoeffding inequality.** Suppose that variables $X_i$, $i \in \{1,\dots,n\}$,
+are independent and $X_i$ has mean $μ_i$ and $σ_i$-sub-Gaussian. Then, for all
+$t > 0$, we have
+
+$$ \PR\biggl( \sum_{i=1}^n( X_i - μ_i) \ge t \biggr)
+   \le \exp\biggl( - \frac{t^2}{2 \sum_{i=1}^n σ_i^2 } \biggr).
+$$
+
+:::
+
+The Hoeffding inequality is often stated for the special case of bounded
+random variables. In particular, if $X_i \in [a,b]$, then we know that $X_i$
+is sub-Gaussian with parameter $σ = (b-a)/2$, so we obtain the bound
+$$ \PR\biggl( \sum_{i=1}^n( X_i - μ_i) \ge t \biggr)
+   \le \exp\biggl( - \frac{2t^2}{\sum_{i=1}^n n(b-a)^2 } \biggr).
+$$
+
+The Hoeffding inequality can be generalized to Martingales. Recall that a
+sequence $\{ (D_i, \mathcal F_i)\}_{i \ge 1}$ is called a _martingale
+difference sequence_ is for all $i \ge 1$, $D_i$ is $\mathcal{F}_i$
+measurable, 
+$$ \EXP[ |D_i| ] < ∞ \quad\text{and}\quad
+   \EXP[ D_{i+1} \mid \mathcal{F}_i ] = 0. $$
+
+::: highlight :::
+**Asuma-Hoeffding Inequality.**
+  Let $\{ (D_i, \mathcal{F}_i)\}_{i \ge 1}$ be a martingale difference
+  sequence and suppose that $|D_i| \le b_i$ almost surely for all $i \ge 1$.
+  Then for all $t \ge 0$
+  $$ \PR\biggl( \biggl| \sum_{i=1}^n D_i \biggr| \ge t \biggr)
+     \le 2 \exp\biggl( - \frac{t^2}{2 \sum_{i=1}^n b_i^2 } \biggr). 
+  $$
+:::
+
+#### Proof {-}
+
+Since $|D_i| \le b_i$, $D_i$ is $b_i$-subGaussian. Using the smoothing
+property of conditional expectation, we have
+$$\begin{align}
+\EXP\biggl[ \exp\biggl( s \biggl( \sum_{i=1}^n D_i \biggr) \biggr) \biggl]
+&= 
+\EXP\biggl[ \exp\biggl( s \biggl( \sum_{i=1}^{n-1} D_i \biggr) \biggr) \biggl]
+\,
+\EXP\bigl[ \exp\bigl( s D_n \bigr) \bigm| \mathcal{F}_{n-1} \bigl]
+\notag \\
+&\le 
+\EXP\biggl[ \exp\biggl( s \biggl( \sum_{i=1}^{n-1} D_i \biggr) \biggr) \biggl]
+\, \exp\bigl( \tfrac12 s^2 b_n^2 \bigr),
+\end{align}$$
+where the inequality followed from $D_n$ being $b_n$-subGaussian. Iterating
+backwards this way, we get 
+$$ \PR\biggl(  \sum_{i=1}^n D_i  \ge t \biggr)
+   \le  \exp\biggl( - \frac{t^2}{2 \sum_{i=1}^n b_i^2 } \biggr). 
+$$
+By a symmetric argument, we can show that
+$$ \PR\biggl(  \sum_{i=1}^n D_i  \le -t \biggr)
+   \le  \exp\biggl( - \frac{t^2}{2 \sum_{i=1}^n b_i^2 } \biggr). 
+$$
+Conbining these two, we get the stated result. $\Box$
+
+Note that we can easily generalize the above inequality to the case when $D_k
+\in [a_i, b_i]$ because in that case $D_k$ will be $(b_i - a_i)/2$
+sub-Gaussian.
+
+
 ## Maximal inequalities
 
 As we explained in the motivation for the definition of sub-Gaussian random
@@ -416,6 +493,39 @@ Remark
     \max_{\|θ\| \le 1} | θ^\TRANS X |
     \le 4σ\sqrt{d} + 2σ \sqrt{2\log(1/δ)}.
    $$
+
+## Lipschitz functions of Gaussian variables.
+
+Recall that a function $f \colon \reals^d \to \reals$ is $L$-Lipschitz with
+respect to the Eucledian norm if
+$$
+  | f(x) - f(y) | \le L \| x - y \|_2,
+  \quad \forall x, y \in \reals^d.
+$$
+
+The following results shows that any Lipschitz function of a Gaussian random
+variable is $L$-sub-Gaussian.
+
+::: highlight :::
+
+Theorem #lipschitz
+
+: Let $X = (X_1, \dots, X_n)$ be a vector of i.i.d.\ standard Gaussian random
+  variables and let $f \colon \reals^n \to \reals$ be $L$-Lipschitz with
+  respect to the Euclidean norm. Then, the variable $f(X) - \EXP[ f(X) ]$ is
+  $L$-sub-Gaussian and therefore
+  $$
+    \PR\bigl[ \bigl| f(X) - \EXP[f(X)] \bigr| \ge t \bigr] 
+    \le 2 \exp\biggl(- \frac{t^2}{2L^2} \biggr).
+  $$
+
+:::
+
+This result is remarkable because it guarantees that any $L$-Lipschitz
+function of a standard Gaussian random vector, irrespective of the dimension,
+exhibits concetration like a scalar Gaussian variable with variance $L^2$.
+
+For a proof, see Chapter 2 of @Wainwright2019.
 
 # References {-}
 
