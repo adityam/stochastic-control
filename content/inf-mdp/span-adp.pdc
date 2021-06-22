@@ -1,0 +1,215 @@
+---
+title: "Working: Span norm bounds for approximate dynamic programming"
+weight: 22
+categories:
+  - MDP
+tags:
+  - infinite horizon
+  - discounted cost
+  - approximation bounds
+  - ADP
+draft: true
+---
+
+# Approximate value iteration
+
+Recall that from Theorem 1 on [notes on computational complexity of value
+iteration][CC], we know that
+
+$$ \SPAN(\mathcal B V) \le βγ \SPAN(V). $$
+
+Similarly, we can show that
+$$ \SPAN(\mathcal B_g V) \le βγ_g \SPAN(V), $$
+where $γ_g$ is the ergodicity coefficient of $P_g$. 
+
+::: highlight :::
+
+Prop. #prop:bounds
+
+:   For any $V \in \reals^n$
+    
+    * $\displaystyle
+         \SPAN(V^* - V) \le \frac1{1 - βγ} \SPAN(\mathcal B V - V)$
+    * $\displaystyle
+         \SPAN(V_g - V) \le \frac1{1 - βγ_{g}} \SPAN(\mathcal B_g V - V)$
+
+:::
+
+#### Proof {-}
+
+We prove the first part. The second part follows from a similar argument. 
+
+Note that
+$$\SPAN(\mathcal B^2 V - \mathcal B V) \le βγ \SPAN(\mathcal B V - V). $$
+Continuing this way, we can show that
+$$\SPAN(\mathcal B^{k+1} V - \mathcal B^k V) \le (βγ)^k \SPAN(\mathcal B V - V). $$
+Now, by triangle inequality, we have
+\begin{align*}
+\SPAN(\mathcal B^{k+1} V - V) &\le \SPAN(\mathcal B^{k+1} V - \mathcal B^k V) +
+\cdots + \SPAN(\mathcal B V - V) \\
+&\le \bigl[ (βγ)^k + (βγ)^{k-1} + \dots + 1 \bigr] \SPAN(\mathcal B V - V). 
+\end{align*}
+Taking the limit as $k \to ∞$, we get the result. $\Box$
+
+::: highlight :::
+
+Theorem #thm:VI
+
+:   Generate $\{V_k\}_{k \ge 0}$ and $\{g_k\}_{k \ge 0}$ such that
+    $$  
+        \SPAN(V_{k+1} - \mathcal B V_k) \le δ
+        \quad\text{and}\quad
+        \SPAN(\mathcal B_{g_k} V_k - \mathcal B V_k) \le ε
+    $$
+    Then,
+
+    1. $\displaystyle
+       \lim_{k \to ∞} \SPAN(V_k - V^*) \le \frac{δ}{(1-βγ)}.$
+
+    2. $\displaystyle
+       \lim_{k \to ∞} \SPAN(V_{g_k} - V^*) \le \frac{ε}{1-βγ} +
+       \frac{2βδ}{(1-βγ)^2}.$
+
+
+:::
+
+
+#### Proof {-}
+
+To prove the first result, we know from triangle inequality that
+\begin{align*}
+\SPAN(V_k - \mathcal B^k V_0) &\le
+\SPAN(V_k - \mathcal B V_{k-1}) +
+\SPAN(\mathcal B V_{k-1} - \mathcal B^2 V_{k-1}) + \dots +
+\SPAN(\mathcal B^{k-1} V_1 - \mathcal B^k V_0)
+\\
+&\le δ + βγδ + \dots + (βγ)^{k-1} δ
+= \left( \frac{1 - (βγ)^k}{1 - β} \right) δ.
+\end{align*}
+where the inequality follows from @prop:bounds. Taking the limit as $k \to ∞$
+gives us the first result.
+
+Now, to prove the second part, we again use the triangle inequality:
+\begin{align*}
+\SPAN( \mathcal B_{g_k} V^* - V^* ) &\le
+\SPAN( \mathcal B_{g_k} V^* - \mathcal B_{g_k} V_k) + 
+\SPAN( \mathcal B_{g_k} V_k - \mathcal B V_k ) + 
+\SPAN( \mathcal B V_k - V^* )
+\\
+&\le 
+β \SPAN(V^* - V_k) + ε + β \SPAN(V_k - V^*) 
+\\
+&= ε + 2β \SPAN(V^* - V_k) =: m_k.
+\end{align*}
+
+From @prop:bounds, we get that
+$$
+  \SPAN(V_{g_k} - V^*) \le \frac{m_k}{1-β γ_{g_k}} 
+  \le \frac{m_k}{1 - βγ},
+$$
+where we have used the fact that $γ_g \le γ$. Taking the limit as $k \to ∞$
+and using the result of the first part, we get the result of the second part. 
+
+# Approximate policy iteration
+
+#### Proof {-}
+
+By triangle inequality,
+$$ 
+\SPAN(\mathcal B_h V_g - \mathcal B V) \le
+\SPAN(\mathcal B_h V_g - \mathcal B_h V) + 
+\SPAN(\mathcal B_h V - \mathcal B V)
+\le βγδ + ε.
+$$
+
+Again by triangle inequality,
+$$
+\SPAN(\mathcal B_h V_g - \mathcal B V_g) \le
+\SPAN(\mathcal B_h V_g - \mathcal B V) + \SPAN(\mathcal B V - \mathcal B V_g)
+\le (ε + βγδ) + βγδ = ε + 2βγδ.
+$$
+
+# Error due to using approximate Q-function
+
+Consider a action-value function $Q$. Let $g$ be the optimal policy
+corresponding to $Q$, i.e., $g(x) \in \arg \min Q(x,u)$. Let $V(x) = Q(x,
+g(x))$. Define $A(x,u) = Q(x,u) - Q(x,g(x))$ as the advantage function. 
+
+
+
+::: highlight :::
+
+Prop. #approx
+
+:   Let $V_g$ denote the performance of policy $g$. Then,
+
+    $$
+        \| V_g - V^* \| \le \frac{ 2 \| Q - Q^* \| }{1 - β}\mathbb{1}.
+    $$
+    where $\SPAN(Q - Q^*) = \max_{u \in \ALPHABET X}\SPAN(Q(\cdot, u) -
+    Q^*(\cdot, u))$. 
+
+:::
+
+#### Proof {-}
+
+For ease of notation, for any $V \in \reals^n$, we write $\SPAN(V(x))$ to mean
+$\SPAN(V)$. In particular, $\SPAN(Q(x,g(x))$ means span of the vector $W(x) =
+Q(x, g(x))$. 
+
+\begin{align}
+  \SPAN(V_g - V^*) &= \SPAN( \mathcal B_g V_g - \mathcal B V^*)
+  \notag\\
+  &\le \SPAN( \mathcal B_g V_g - \mathcal B_g V^*) +
+  \SPAN(\mathcal B_g V^* - \mathcal B V^*)
+  \label{eq:B1}
+\end{align}
+
+The first term of \\eqref{eq:B1} can be bound as
+\begin{equation}
+  \SPAN(\mathcal B_g V_g - \mathcal B_g V^*) \le 
+  β γ \SPAN(V_g - V^*)
+\end{equation}
+
+Now consider
+
+TODO: Complete this
+
+---
+
+\begin{equation}
+  \SPAN(V_g(x) - V^*(x)) \le \SPAN(V_g(x) - Q^*(x,g(x))) + \SPAN(Q^*(x,g(x)) - V^*(x))
+  \label{eq:diff}
+\end{equation}
+
+Now observe that first term can be bound as:
+\begin{equation}\label{eq:bound-1}
+  \SPAN(V_g(x) - Q^*(x,g(x)))
+  = β \SPAN( P(g(x))[ V - V^*]) 
+  \le β γ \SPAN(V - V^*)
+\end{equation}
+where $γ$ is the ergodicity coefficient of $P$ and the bound follows from [Prop. 1][P1] of [notes on computational complexity of VI][CC].
+
+[P1]: ../../inf-mdp/complexity-vi/#prop:span-matrix
+[CC]: ../../inf-mdp/complexity-vi
+
+The second term of \\eqref{eq:diff} can be bound as follows. From
+the triangle inequality, we have
+\begin{align}
+  \SPAN(Q^*(x,g(x)) - Q^*(x,g^*(x))) &\le
+   \SPAN(Q^*(x,g(x)) - Q(x, g(x))) + \SPAN(Q(x,g(x)) - Q(x, g^*(x)) \notag \\
+   &\quad + \SPAN(Q(x, g^*(x)) - Q^*(x, g^*(x)))
+   \label{eq:bound-2}
+\end{align}
+Now note that
+$$
+\SPAN(Q^*(x,g(x)) - Q(x,g(x))) = β \SPAN( P(g(x))[ V^* - V_{g_{Q}}]) 
+\le β γ \SPAN(V^* - V_{g_{Q}}).
+$$
+Moreover,
+
+
+Furthermore,
+$$
+\SPAN(Q(x, g^*(x)) - Q^*(x,g^*(x))) = β \SPAN( P(g^*(x))[ 
+$$
