@@ -9,27 +9,27 @@ tags:
 ---
 
 Let's start with the simplest optimization problem. A decision maker has to
-choose an action $u \in \ALPHABET U$. Upon choosing the action $u$, the decision
-maker incurs a cost $c(u)$. What action should the decision maker pick to
+choose an action $a \in \ALPHABET A$. Upon choosing the action $a$, the decision
+maker incurs a cost $c(a)$. What action should the decision maker pick to
 minimize the cost? 
 
 Formally, the above optimization problem may be written as
 $$ \begin{equation} \label{eq:basic}
- \min_{u \in \ALPHABET U} c(u).
+ \min_{a \in \ALPHABET A} c(a).
 \end{equation}$$
 
-When the _action space_ $\ALPHABET U$ is finite, say $\ALPHABET U = \{1,
+When the _action space_ $\ALPHABET A$ is finite, say $\ALPHABET A = \{1,
 \dots, m\}$, solving the optimization problem \\eqref{eq:basic} is conceptually straight-forward:
 enumerate the cost of all possible actions, i.e., enumerate the set 
-$C = \{ c(u) : u \in \ALPHABET U \}$ and find the smallest element. 
+$C = \{ c(a) : a \in \ALPHABET A \}$ and find the smallest element. 
 
-When the action space $\ALPHABET U$ is continuous, say a compact subset of a
+When the action space $\ALPHABET A$ is continuous, say a compact subset of a
 Euclidean space, solving the optimization problem
 \\eqref{eq:basic} is conceptually
 straight-forward only when the cost function $c$ satisfies some regularity
 conditions. For example, when $c$ is convex, the optimal action can be
 obtained for solving 
-$$ \dfrac {d c(u) }{ du } = 0. $$
+$$ \dfrac {d c(a) }{ da } = 0. $$
 
 In the absence of appropriate regularity conditions, it is not possible to
 solve an optimization problem over continuous action spaces.
@@ -37,22 +37,22 @@ solve an optimization problem over continuous action spaces.
 ---
 
 Now consider the simplest stochastic optimization problem. A decision maker
-has to choose an action $u \in \ALPHABET U$. Upon choosing the action $u$, the
-decision maker incurs a cost $c(u,W)$, where $W \in \ALPHABET W$ is a random
+has to choose an action $a \in \ALPHABET A$. Upon choosing the action $a$, the
+decision maker incurs a cost $c(a,W)$, where $W \in \ALPHABET W$ is a random
 variable with known probability distribution. Assume that the decision maker
-is _risk neutral_ and, therefore, wants to minimize $\EXP[ c(u, W) ]$, where
+is _risk neutral_ and, therefore, wants to minimize $\EXP[ c(a, W) ]$, where
 the expectation is with respect to the random variable $W$. 
 
 Formally, the above optimization problem may be written as
 $$\begin{equation} \label{eq:stochastic}
-  \min_{u \in \ALPHABET U} \EXP[ c(u, W) ]. 
+  \min_{a \in \ALPHABET A} \EXP[ c(a, W) ]. 
 \end{equation}$$
 
-Define $J(u) = \EXP[ c(u, W) ]$. Then
+Define $J(a) = \EXP[ c(a, W) ]$. Then
 Problem \\eqref{eq:stochastic} is conceptually the same as
-Problem \\eqref{eq:basic} with the cost function $J(u)$.
+Problem \\eqref{eq:basic} with the cost function $J(a)$.
 Numerically, Problem \\eqref{eq:stochastic} is more
-difficult because computing $J(u)$ involves evaluating an expectation, but we
+difficult because computing $J(a)$ involves evaluating an expectation, but we
 ignore the computational complexity for the time being. 
 
 ---
@@ -60,87 +60,87 @@ ignore the computational complexity for the time being.
 In the stochastic optimization problems considered above, the
 decision maker does not observe any data before making a decision. In many
 situations, the decision maker does observe some data, which is captured by
-the following model. Suppose a decision maker observes a random variable $X
-\in \ALPHABET X$ and then chooses an action $U \in \ALPHABET U$ as a function
-of his observation according to a _decision rule_ $g$, i.e.,
-$$ U = g(X). $$
+the following model. Suppose a decision maker observes a random variable $S
+\in \ALPHABET S$ and then chooses an action $A \in \ALPHABET A$ as a function
+of his observation according to a _decision rule_ $π$, i.e.,
+$$ A = π(S). $$
 
-Upon choosing the action $U$, the decision maker incurs a cost $c(X,U,W)$,
+Upon choosing the action $A$, the decision maker incurs a cost $c(S,A,W)$,
 where $W \in \ALPHABET W$ is a random variable. We assume that the _primitive
-random variables_ $(X,W)$ are defined on a common probability space and have a
+random variables_ $(S,W)$ are defined on a common probability space and have a
 known joint distribution. Assume that the decision maker is risk neutral and,
-therefore, wants to minimize $\EXP[ c(X, g(X), W)]$, 
+therefore, wants to minimize $\EXP[ c(S, π(S), W)]$, 
 where the expectation is taken with respect to the joint probability
-distribution of $(X,W)$. 
+distribution of $(S,W)$. 
 
 Formally, the above optimization problem may be written as
 $$\begin{equation} \label{eq:obs}
-  \min_{g \colon \ALPHABET X \to \ALPHABET U} \EXP[ c(X, g(X), W) ].
+  \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
 \end{equation}$$
 
-Define $J(g) = \EXP[ c(X, g(X), W) ]$. Then, Problem \\eqref{eq:obs} is
+Define $J(π) = \EXP[ c(S, π(S), W) ]$. Then, Problem \\eqref{eq:obs} is
 conceptually the same as Problem \\eqref{eq:basic} with one difference: In
-Problem \\eqref{eq:basic}, the minimization is over a parameter $u$, while in
-Problem \\eqref{eq:obs}, the minimization is over a function $g$. 
+Problem \\eqref{eq:basic}, the minimization is over a parameter $a$, while in
+Problem \\eqref{eq:obs}, the minimization is over a function $π$. 
 
-When $\ALPHABET X$ and $\ALPHABET U$ are finite sets, the optimal policy can
+When $\ALPHABET S$ and $\ALPHABET A$ are finite sets, the optimal policy can
 be obtained by an exhaustive search over all policies as follows: for each
-policy $g$ compute the performance $J(g)$ and then pick the policy $g$ with
+policy $π$ compute the performance $J(π)$ and then pick the policy $π$ with
 the smallest expected cost. 
 
 Such an exhaustive search is not satisfying for two reasons. First, it has a
-high computational cost. There are $| \ALPHABET U |^{| \ALPHABET X |}$
+high computational cost. There are $| \ALPHABET A |^{| \ALPHABET S |}$
 policies and, for each policy, we have to evaluate an expectation, which can
 be expensive. Second, the above enumeration procedure does not work when
-$\ALPHABET X$ or $\ALPHABET U$ are continuous sets.
+$\ALPHABET S$ or $\ALPHABET A$ are continuous sets.
 
 There is an alternative way of viewing the problem that simplifies it
 considerably. Instead of viewing the optimization problem before the system
 starts running, imagine that the decision maker waits until he sees the
-realization $x$ of $X$. He then asks what action $u$ should he take to
-minimize the expected _conditional_ cost $Q(x,u) := \EXP[ c(x,u, W) | X = x]$,
+realization $s$ of $S$. He then asks what action $a$ should he take to
+minimize the expected _conditional_ cost $Q(s,a) := \EXP[ c(s,a, W) | S = s]$,
 i.e., he considers the problem
 
 \begin{equation} \label{eq:cond-1}
-  \min_{u \in \ALPHABET U} \EXP[ c(x,u,W) | X = x], \quad
-  \forall x \in \ALPHABET X.
+  \min_{a \in \ALPHABET A} \EXP[ c(s,a,W) | S = s], \quad
+  \forall s \in \ALPHABET S.
 \end{equation}
 
 Thus, Problem \\eqref{eq:basic}, which is a functional optimization problem,
 has been reduced to a collection of parameter optimization problems
-(Problem \\eqref{eq:cond-1}), one for each possible of $x$. 
+(Problem \\eqref{eq:cond-1}), one for each possible of $s$. 
 
 Now define
 $$ \begin{equation} \label{eq:cond}
-  g^*(x) = \arg \min_{u \in \ALPHABET U} \EXP[ c(x,u, W) | X = x]
+  π^*(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
 \end{equation} $$
 where ties (in the minimization) are broken arbitrarily. 
 
 ::: proclaim :::
 **Basic fact.**
-The decision rule $g^*$ defined in \\eqref{eq:cond} is optimal for Problem \\ref{eq:basic}.
+The decision rule $π^*$ defined in \\eqref{eq:cond} is optimal for Problem \\ref{eq:basic}.
 :::
 
 Remark
 
-:   We restricted the proof finite $\ALPHABET X$, $\ALPHABET U$,
+:   We restricted the proof finite $\ALPHABET S$, $\ALPHABET A$,
 $\ALPHABET W$. This is to avoid any measurability issues. If
-$\ALPHABET X$ and $\ALPHABET U$ are continuous sets, we need to restrict to
-_measurable_ $g$ in Problem \\ref{eq:basic} (otherwise the expectation is not
+$\ALPHABET S$ and $\ALPHABET A$ are continuous sets, we need to restrict to
+_measurable_ $π$ in Problem \\ref{eq:basic} (otherwise the expectation is not
 well defined; of course the cost $c$ also has to be measurable). However, it
-is not immediately obvious that $g^*$ defined in \\eqref{eq:cond} is measurable.
+is not immediately obvious that $π^*$ defined in \\eqref{eq:cond} is measurable.
 Conditions that ensure this are known as _measurable selection theorems_. 
 
 #### Proof {-}
 
-Let $g$ be any other decision rule. Then,
+Let $π$ be any other decision rule. Then,
 $$ \begin{align*}
-  \EXP[ c(X, g(X), W) ] &\stackrel{(a)}= \EXP[ \EXP[c(X, g(X), W) | X ] ] \\
-  &\stackrel{(b)}\ge \EXP[\EXP[ c(X, g^*(X), W) | X ] ] \\
-  &\stackrel{(c)}= \EXP[ c(X, g^*(X), W) ],
+  \EXP[ c(S, π(S), W) ] &\stackrel{(a)}= \EXP[ \EXP[c(S, π(S), W) | S ] ] \\
+  &\stackrel{(b)}\ge \EXP[\EXP[ c(S, π^*(S), W) | S ] ] \\
+  &\stackrel{(c)}= \EXP[ c(S, π^*(S), W) ],
 \end{align*} $$
 where $(a)$ and $(c)$ follow from the law of iterated expectations and $(b)$
-follows from the definition of $g^*$ in \\eqref{eq:cond}. 
+follows from the definition of $π^*$ in \\eqref{eq:cond}. 
 
 ---
 
@@ -152,56 +152,56 @@ result, which is known as **Blackwell's principle of irrelevant information**.
 ::: highlight :::
 Theorem #thm:blackwell
 
-:   Let $\ALPHABET X$, $\ALPHABET Y$, $\ALPHABET W$, and $\ALPHABET U$ be
-    standard Borel spaces and $X \in \ALPHABET X$, $Y \in \ALPHABET Y$, $W \in
+:   Let $\ALPHABET S$, $\ALPHABET Y$, $\ALPHABET W$, and $\ALPHABET A$ be
+    standard Borel spaces and $S \in \ALPHABET S$, $Y \in \ALPHABET Y$, $W \in
     \ALPHABET W$ be random variables defined on a common probability space.
     
-    A decision maker observes $(X,Y)$ and chooses $U = g(X,Y)$ to minimize
-    $\EXP[c(X,U,W)]$, where $c \colon \ALPHABET X \times \ALPHABET U \times
+    A decision maker observes $(S,Y)$ and chooses $A = π(S,Y)$ to minimize
+    $\EXP[c(S,A,W)]$, where $c \colon \ALPHABET S \times \ALPHABET A \times
     \ALPHABET W \to \reals$ is a measurable function.
 
-    **Then, if $W$ is conditionally independent of $Y$ given $X$, then
-    there is no loss of optimality in choosing $U$ only as a function
-    of $X$.**
+    **Then, if $W$ is conditionally independent of $Y$ given $S$, then
+    there is no loss of optimality in choosing $A$ only as a function
+    of $S$.**
 
-    Formally, there exists a $g^* \colon \ALPHABET X \to \ALPHABET U$ such
-    that for all $g \colon \ALPHABET X \times \ALPHABET Y \to \ALPHABET U$,
-    $$ \EXP[c(X, g^*(X), W)] \le \EXP[ c(X, g(X,Y), W) ]. $$
+    Formally, there exists a $π^* \colon \ALPHABET S \to \ALPHABET A$ such
+    that for all $π \colon \ALPHABET S \times \ALPHABET Y \to \ALPHABET A$,
+    $$ \EXP[c(S, π^*(S), W)] \le \EXP[ c(S, π(S,Y), W) ]. $$
 :::
 
 #### Proof {-}
 
-We prove the result for the case when $\ALPHABET X$, $\ALPHABET Y$, $\ALPHABET
-W$, $\ALPHABET U$ are finite. 
+We prove the result for the case when $\ALPHABET S$, $\ALPHABET Y$, $\ALPHABET
+W$, $\ALPHABET A$ are finite. 
 
-Define $$g^*(x) = \arg \min_{u \in \ALPHABET U} \EXP[ c(x,u, W) | X = x]. $$
-Then, by construction, for any $x \in \ALPHABET X$ and $u \in \ALPHABET U$, we
+Define $$π^*(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]. $$
+Then, by construction, for any $s \in \ALPHABET S$ and $a \in \ALPHABET A$, we
 have that
-$$ \EXP[ c(x, g^*(x), W ) | X = x]  \le \EXP[ c(x,u,W) | X = x]. $$
-Hence, for any $g \colon \ALPHABET X \times \ALPHABET Y \to \ALPHABET U$, and
-for any $x \in \ALPHABET X$ and $y \in \ALPHABET Y$, we have
+$$ \EXP[ c(s, π^*(s), W ) | S = s]  \le \EXP[ c(s,a,W) | S = s]. $$
+Hence, for any $π \colon \ALPHABET S \times \ALPHABET Y \to \ALPHABET A$, and
+for any $s \in \ALPHABET S$ and $y \in \ALPHABET Y$, we have
 $$ \begin{equation} \label{eq:opt}
-  \EXP[ c(x, g^*(x), W) | X = x] \le \EXP[ c(x, g(x,y),W) | X = x]. 
+  \EXP[ c(s, π^*(s), W) | S = s] \le \EXP[ c(s, π(s,y),W) | S = s]. 
 \end{equation} $$
 The result follows by taking the expectation of both sides of \\eqref{eq:opt}. 
 
-The above proof doesn't work for general Borel spaces because $g^*$ defined
+The above proof doesn't work for general Borel spaces because $π^*$ defined
 above may not exist (inf vs min) or may not be measurable. See @Blackwell1964
 for a formal proof. 
 
 
 # Exercises {-}
 
-1. Suppose $\ALPHABET X = \{1, 2 \}$, $\ALPHABET U = \{1, 2, 3\}$, and $\ALPHABET
-   W = \{1, 2, 3\}$. Let $(X,W)$ be random variables taking values in
-   $\ALPHABET X × \ALPHABET W$ with joint distribution $P$ shown below.
+1. Suppose $\ALPHABET S = \{1, 2 \}$, $\ALPHABET A = \{1, 2, 3\}$, and $\ALPHABET
+   W = \{1, 2, 3\}$. Let $(S,W)$ be random variables taking values in
+   $\ALPHABET S × \ALPHABET W$ with joint distribution $P$ shown below.
     
    $$ P = \MATRIX{ 0.25 & 0.15 & 0.05  \\ 0.30 & 0.10 & 0.15 } $$
 
-   Here the row corresponds to the value of $x$ and the column corresponds to
-   the value of $w$. For example $\PR(X=2, W=1) = P_{21} = 0.30$. 
+   Here the row corresponds to the value of $s$ and the column corresponds to
+   the value of $w$. For example $\PR(S=2, W=1) = P_{21} = 0.30$. 
 
-   The cost function $c \colon \ALPHABET X \times \ALPHABET U \times \ALPHABET
+   The cost function $c \colon \ALPHABET S \times \ALPHABET A \times \ALPHABET
    W \to \reals$ is shown below
 
    $$
@@ -210,30 +210,30 @@ for a formal proof.
     c(\cdot,\cdot,3) = \MATRIX{1 & 2 & 2 \\ 4 & 1 & 3 }.
    $$
 
-   Here the row corresponds to the value of $x$ and the column corresponds to
-   the value of $u$. For example $c(x=1,u=2,w=1) = 5$. 
+   Here the row corresponds to the value of $s$ and the column corresponds to
+   the value of $a$. For example $c(s=1,a=2,w=1) = 5$. 
 
-   Find the policy $g \colon \ALPHABET X \to \ALPHABET U$ that minimizes
-   $\EXP[ c(X, g(X), W) ]$. 
+   Find the policy $π \colon \ALPHABET S \to \ALPHABET A$ that minimizes
+   $\EXP[ c(S, π(S), W) ]$. 
 
-2. Suppose $\ALPHABET X = \{1, 2\}$, $\ALPHABET Y = \{1, 2\}$, $\ALPHABET U =
-   \{1, 2, 3\}$, and $\ALPHABET W = \{1, 2, 3\}$. Let $(X,Y,W)$ be random
-   variables taking values in $\ALPHABET X × \ALPHABET Y × \ALPHABET W$, with
+2. Suppose $\ALPHABET S = \{1, 2\}$, $\ALPHABET Y = \{1, 2\}$, $\ALPHABET A =
+   \{1, 2, 3\}$, and $\ALPHABET W = \{1, 2, 3\}$. Let $(S,Y,W)$ be random
+   variables taking values in $\ALPHABET S × \ALPHABET Y × \ALPHABET W$, with
    joint distribution $Q$ shown below.
    $$
     Q_{Y = 1} = \MATRIX{0.15 & 0.10 & 0.00 \\ 0.15 & 0.05 & 0.10}
     \qquad
     Q_{Y = 2} = \MATRIX{0.10 & 0.05 & 0.05 \\ 0.15 & 0.05 & 0.05}
    $$
-   For a fixed value of $y$, the row corresponds to the value of $x$ and the
-   column corresponds to the value of $w$. For example $\PR(X = 1, Y = 1, W =
+   For a fixed value of $y$, the row corresponds to the value of $s$ and the
+   column corresponds to the value of $w$. For example $\PR(S = 1, Y = 1, W =
    3) = 0$.
 
-   The cost function $c \colon \ALPHABET X × \ALPHABET U × \ALPHABET W \to
+   The cost function $c \colon \ALPHABET S × \ALPHABET A × \ALPHABET W \to
    \reals$ is the same as the previous exercise. 
 
-   a. Find the policy $g \colon \ALPHABET X × \ALPHABET Y \to \ALPHABET U$
-      that  minimizes $\EXP[c(X, g(X,Y), W)]$. 
+   a. Find the policy $π \colon \ALPHABET S × \ALPHABET Y \to \ALPHABET A$
+      that  minimizes $\EXP[c(S, π(S,Y), W)]$. 
 
    b. Compare the solution with the solution of the previous exercise in view
       of Blackwell's principle of irrelevant information. Clearly
@@ -243,14 +243,14 @@ for a formal proof.
 3.  Suppose we are monitoring the pollution level of a river. Suppose the
     serious pollution of the river, if it occurs, can only be due to a
     catastrophic failure of a factory upstream. There are then two "pollution
-    states' that this failure has not occured or it has. We denote them by $X
-    = 0$ or $X = 1$, respectively. Let $[p, 1-p]$ denote the prior probability
-    mass function of $X$. Suppose we take a measurement $y$ where the
-    probabiity density of the observation $y$ conditional on the value of $x$
-    is $f_x(y)$. Suppose that there are two actions: to raise an alarm or not.
-    The cost of raising the alarm is $C_0$ if the state $X$ is $0$ or zero if
-    the state $X$ is $1$; the cost of not raising the alarm is zero if the
-    state $X$ is $0$ or $C_1$ if the state $X$ is $1$. 
+    states' that this failure has not occured or it has. We denote them by $S
+    = 0$ or $S = 1$, respectively. Let $[p, 1-p]$ denote the prior probability
+    mass function of $S$. Suppose we take a measurement $y$ where the
+    probabiity density of the observation $y$ conditional on the value of $s$
+    is $f_s(y)$. Suppose that there are two actions: to raise an alarm or not.
+    The cost of raising the alarm is $C_0$ if the state $S$ is $0$ or zero if
+    the state $S$ is $1$; the cost of not raising the alarm is zero if the
+    state $S$ is $0$ or $C_1$ if the state $S$ is $1$. 
 
     Show that one should raise the alarm if
     $$ p f_0(y) C_0 < (1 - p) f_1(y) C_1. $$
