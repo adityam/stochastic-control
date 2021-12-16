@@ -12,7 +12,7 @@
   
 
   <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
-    src="https://cdn.plot.ly/plotly-basic-latest.min.js">
+    src="https://www.geogebra.org/apps/deployggb.js">
   </script><script type="text/javascript"
     src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
   </script>
@@ -34,7 +34,7 @@
 <div class="title">
   <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
   <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
-      Winter 2020
+      Winter 2022
   </h2>
   <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
 	&nbsp;<small><small>|</small></small>&nbsp;
@@ -57,19 +57,19 @@
 <hr />
 <p>Imagine a retail store that stockpiles products in its warehouse to meet random demand. Suppose the store procures new stocks at the end of each day (and that there is no lead time and stocks are available next morning). Let</p>
 <ul>
-<li><span class="math inline">\(X_t \in \reals\)</span> denote the amount of stock at the beginning of day <span class="math inline">\(t\)</span>,</li>
-<li><span class="math inline">\(U_t \in \reals_{\ge 0}\)</span> denote the stock ordered (and immediately delivered) at the beginning of day <span class="math inline">\(t\)</span>, and</li>
+<li><span class="math inline">\(S_t \in \reals\)</span> denote the amount of stock at the beginning of day <span class="math inline">\(t\)</span>,</li>
+<li><span class="math inline">\(A_t \in \reals_{\ge 0}\)</span> denote the stock ordered (and immediately delivered) at the beginning of day <span class="math inline">\(t\)</span>, and</li>
 <li><span class="math inline">\(W_t \in \reals_{\ge 0}\)</span> denote the demand during day <span class="math inline">\(t\)</span>.</li>
 </ul>
 <p>The random variables <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are i.i.d. with known probability distribution.</p>
-<p>Excess demand is backlogged and filled when new inventory becomes available. Thus, the stock evolves according to <span class="math display">\[X_{t+1} = X_t + U_t - W_t,\]</span> where negative stock denotes backlogged demand.</p>
+<p>Excess demand is backlogged and filled when new inventory becomes available. Thus, the stock evolves according to <span class="math display">\[S_{t+1} = S_t + A_t - W_t,\]</span> where negative stock denotes backlogged demand.</p>
 <p>The cost incurred during day <span class="math inline">\(t\)</span> consists of two components:</p>
 <ul>
-<li><p>A procurement cost of <span class="math inline">\(p\, U_t\)</span>, where <span class="math inline">\(p\)</span> is the cost per unit.</p></li>
-<li><p>At the end of the day, if the stock <span class="math inline">\(X_{t+1}\)</span> is positive, then there is a holding cost of <span class="math inline">\(a X_{t+1}\)</span> for storing excess inventory; if <span class="math inline">\(X_{t+1}\)</span> is negative, then a shortage cost of <span class="math inline">\(-bX_{t+1}\)</span> for unfilled demand.</p>
-<p>We denote this cost by <span class="math inline">\(h(X_{t+1})\)</span>, where <span class="math display">\[ h(x) = \begin{cases} 
-     ax, &amp; \text{if } x \ge 0 \\
-    -bx, &amp; \text{if } x &lt; 0
+<li><p>A procurement cost of <span class="math inline">\(p A_t\)</span>, where <span class="math inline">\(p\)</span> is the cost per unit.</p></li>
+<li><p>At the end of the day, if the stock <span class="math inline">\(S_{t+1}\)</span> is positive, then there is a holding cost of <span class="math inline">\(c_h S_{t+1}\)</span> for storing excess inventory; if <span class="math inline">\(S_{t+1}\)</span> is negative, then a shortage cost of <span class="math inline">\(-c_s S_{t+1}\)</span> for unfilled demand.</p>
+<p>We denote this cost by <span class="math inline">\(h(S_{t+1})\)</span>, where <span class="math display">\[ h(s) = \begin{cases} 
+     c_h s, &amp; \text{if } s \ge 0 \\
+    -c_s s, &amp; \text{if } s &lt; 0
   \end{cases}\]</span></p></li>
 </ul>
 <h1 data-number="1" id="structure-of-optimal-procurement-strategy"><span class="header-section-number">1</span> Structure of optimal procurement strategy</h1>
@@ -77,71 +77,85 @@
 <div class="highlight">
 <dl>
 <dt>Dynamic programming</dt>
-<dd><p>Define the following value functions <span class="math inline">\(V_t \colon \reals \to \reals\)</span> <span class="math display">\[V_{T+1}(x) = 0\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span> <span class="math display">\[ Q_t(x, u) = p u + \EXP[ h(x + u - W_t) + V_{t+1}( x + u - W_t ) ]\]</span> and <span class="math display">\[ \begin{align*}
-V_t(x) &amp;= \min_{u \in \reals_{\ge 0}} Q_t(x,u) \\
-g_t(x) &amp;= \arg \min_{u \in \reals_{\ge 0}} Q_t(x,u) 
+<dd><p>Define the following value functions <span class="math inline">\(V_t \colon \reals \to \reals\)</span> <span class="math display">\[V_{T+1}(s) = 0\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span> <span class="math display">\[ Q_t(s, a) = p a + \EXP[ h(s + a - W_t) + V_{t+1}( s + a - W_t ) ]\]</span> and <span class="math display">\[ \begin{align*}
+V_t(s) &amp;= \min_{a \in \reals_{\ge 0}} Q_t(s,a) \\
+π_t(s) &amp;= \arg \min_{a \in \reals_{\ge 0}} Q_t(s,a) 
 \end{align*}
-  \]</span> Then the strategy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> is optimal.</p>
+  \]</span> Then the strategy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> is optimal.</p>
 </dd>
 </dl>
 </div>
 <p>It is possible to simplify the above dynamic program by exploiting a feature of the model. Notice that the dynamics can be split into two parts: <span class="math display">\[ \begin{align*}
-    Y_t &amp;= X_t + U_t,  \\
-    X_{t+1} &amp;= Y_t - W_t.
+    Z_t &amp;= S_t + A_t,  \\
+    S_{t+1} &amp;= Z_t - W_t.
    \end{align*}
-\]</span> The first part, <span class="math inline">\(Y_t\)</span>, depends only on the current state and action. The second part depends only on <span class="math inline">\(Y_t\)</span> and a primitive random variable. In this particular model, <span class="math inline">\(Y_t\)</span> is a deterministic function of <span class="math inline">\(X_t\)</span> and <span class="math inline">\(U_t\)</span>; but, in general, it could be stochastic as well; what is important is that the second part should only depend on <span class="math inline">\(Y_t\)</span> and a primitive random variable. The variable <span class="math inline">\(Y_t\)</span> is sometimes called the <em>post-decision state</em>.</p>
-<p>Now write the dynamic program in terms of the post-decision state as follows. Define <span class="math display">\[ H_t(y) = \EXP[ h(y - W) + V_{t+1}(y-W) ].\]</span> Then the value function and optimal policy at time <span class="math inline">\(t\)</span> can be written as: <span class="math display">\[ \begin{align*}
-  V_t(x) &amp;= \min_{u \in \reals_{\ge 0}} \bigl\{ pu + H_t(x + u) \bigr\}, \\
-  g_t(x) &amp;= \arg \min_{u \in \reals_{\ge 0}} \bigl\{ pu + H_t(x + u) \bigr\}.
+\]</span> The first part, <span class="math inline">\(Z_t\)</span>, depends only on the current state and action. The second part depends only on <span class="math inline">\(Z_t\)</span> and a primitive random variable. In this particular model, <span class="math inline">\(Z_t\)</span> is a deterministic function of <span class="math inline">\(S_t\)</span> and <span class="math inline">\(A_t\)</span>; but, in general, it could be stochastic as well; what is important is that the second part should only depend on <span class="math inline">\(Z_t\)</span> and a primitive random variable. The variable <span class="math inline">\(Z_t\)</span> is sometimes called the <em>post-decision state</em>.</p>
+<p>Now write the dynamic program in terms of the post-decision state as follows. Define <span class="math display">\[ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z-W) ].\]</span> Then the value function and optimal policy at time <span class="math inline">\(t\)</span> can be written as: <span class="math display">\[ \begin{align*}
+  V_t(s) &amp;= \min_{a \in \reals_{\ge 0}} \bigl\{ pu + H_t(s + a) \bigr\}, \\
+  π_t(s) &amp;= \arg \min_{a \in \reals_{\ge 0}} \bigl\{ pu + H_t(s + a) \bigr\}.
 \end{align*} \]</span></p>
 <p>The optimal policy is then characterized as follows.</p>
 <div class="highlight">
 <dl>
 <dt>Theorem</dt>
-<dd><p>Define <span class="math display">\[ s_t = \arg \min_{y \in \reals} \bigl\{ p y + H_t(y) \bigr\} . \]</span> Then, <span class="math display">\[\begin{equation} \label{eq:V}
-V_t(x) = \begin{cases}
-  H_t(s_t) + p (s_t - x), &amp;\text{if } x \le s_t \\
-  H_t(x)   , &amp; \text{otherwise }
+<dd><p>Define <span class="math display">\[ s^*_t = \arg \min_{z \in \reals} \bigl\{ p z + H_t(z) \bigr\} . \]</span> Then, <span class="math display">\[\begin{equation} \label{eq:V}
+V_t(s) = \begin{cases}
+  H_t(s_t) + p (s_t - s), &amp;\text{if } s \le s^*_t \\
+  H_t(s)   , &amp; \text{otherwise }
 \end{cases} 
-\end{equation}\]</span> and <span class="math display">\[g_t(x) = \begin{cases}
-  s_t - x, &amp;\text{if } x \le s_t \\
+\end{equation}\]</span> and <span class="math display">\[π_t(s) = \begin{cases}
+  s^*_t - s, &amp;\text{if } s \le s^*_t \\
   0, &amp; \text{otherwise }
 \end{cases} \]</span></p>
-<p>Furthermore, for all <span class="math inline">\(t\)</span>, <span class="math inline">\(H_t(y)\)</span> and <span class="math inline">\(V_t(x)\)</span> are convex in <span class="math inline">\(y\)</span> and <span class="math inline">\(x\)</span>, respectively.</p>
+<p>Furthermore, for all <span class="math inline">\(t\)</span>, <span class="math inline">\(H_t(z)\)</span> and <span class="math inline">\(V_t(s)\)</span> are convex in <span class="math inline">\(z\)</span> and <span class="math inline">\(s\)</span>, respectively.</p>
 </dd>
 </dl>
 </div>
 <h4 class="unnumbered" id="proof">Proof</h4>
 <p>We first establish some preliminary results.</p>
 <ol type="1">
-<li><p>For any convex function <span class="math inline">\(\theta \colon \reals \to \reals\)</span>, <span class="math inline">\(\Theta(x) = \EXP[ \theta(x - W) ]\)</span> is convex.</p>
-<p><strong>Proof</strong> For any realization of <span class="math inline">\(W\)</span>, <span class="math inline">\(\theta(x - w)\)</span> is convex in <span class="math inline">\(x\)</span>. The expectation w.r.t. <span class="math inline">\(W\)</span> is simply the sum of convex functions and is, therefore, convex.</p></li>
-<li><p>For any convex function <span class="math inline">\(\theta \colon \reals \to \reals\)</span>, let <span class="math inline">\(s = \arg \min_{x \in \reals} \theta(x)\)</span>. Then, <span class="math display">\[\arg \min_{u \in \reals_{\ge 0}} \theta(x + u) = \begin{cases}
-0, &amp; \text{if } x &gt; s, \\
-s - x, &amp; \text{if } x \le s
-\end{cases}\]</span> and <span class="math display">\[\Theta(x) = \min_{u \in \reals_{\ge 0}} \theta(x+u) = \begin{cases}
- \theta(x), &amp; \text{if } x &gt; s \\
- \theta(s), &amp; \text{if } x \le s
- \end{cases}\]</span> and <span class="math inline">\(\Theta(x)\)</span> is convex in <span class="math inline">\(x\)</span>.</p>
-<p>If there were no constraint on <span class="math inline">\(u\)</span>, then the minimizer will be <span class="math inline">\(u = s -  x\)</span>. If <span class="math inline">\(x \le s\)</span>, then <span class="math inline">\(u = s -x \in \reals_{\ge 0}\)</span> is the minimizer for the constrained problem as well. On the other hand, if <span class="math inline">\(x \ge s\)</span>, then the function <span class="math inline">\(\theta(x + u)\)</span> is increasing as a function of <span class="math inline">\(u\)</span>. Hence, the minimizer for the constrained problem is <span class="math inline">\(u = 0\)</span>. See the figures below.</p></li>
+<li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, <span class="math inline">\(F(s) = \EXP[ f(s - W) ]\)</span> is convex.</p>
+<p><strong>Proof</strong> For any realization of <span class="math inline">\(W\)</span>, <span class="math inline">\(f(s - w)\)</span> is convex in <span class="math inline">\(s\)</span>. The expectation w.r.t. <span class="math inline">\(W\)</span> is simply the sum of convex functions and is, therefore, convex.</p></li>
+<li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, let <span class="math inline">\(s^* = \arg \min_{s \in \reals} f(s)\)</span>. Then, <span class="math display">\[\arg \min_{a \in \reals_{\ge 0}} f(s + a) = \begin{cases}
+0, &amp; \text{if } s &gt; s^*, \\
+s^* - s, &amp; \text{if } s \le s^*
+\end{cases}\]</span> and <span class="math display">\[F(s) = \min_{a \in \reals_{\ge 0}} f(s+a) = \begin{cases}
+ f(s), &amp; \text{if } s &gt; s^* \\
+ f(s^*), &amp; \text{if } s \le s^*
+ \end{cases}\]</span> and <span class="math inline">\(F(s)\)</span> is convex in <span class="math inline">\(s\)</span>.</p>
+<p>If there were no constraint on <span class="math inline">\(a\)</span>, then the minimizer will be <span class="math inline">\(a = s^* -  s\)</span>. If <span class="math inline">\(s \le s^*\)</span>, then <span class="math inline">\(a = s^* -s \in \reals_{\ge 0}\)</span> is the minimizer for the constrained problem as well. On the other hand, if <span class="math inline">\(s \ge s^*\)</span>, then the function <span class="math inline">\(f(s + a)\)</span> is increasing as a function of <span class="math inline">\(a\)</span>. Hence, the minimizer for the constrained problem is <span class="math inline">\(a = 0\)</span>. See the figures below.</p></li>
 </ol>
-<div class="flex">
-<div id="function:f" style="width:400px; height:250px;">
+<div id="applet_container" style="width:800px;height:600px;display:block">
 
 </div>
-<div id="function:g" style="width:400px; height:250px;">
+<script type="text/javascript">
+      var params = {
+        filename: "/stochastic-control/geogebra/mdp/inventory-management.ggb",
+        width: 800,
+        height: 600,
+      }
 
-</div>
-</div>
+      var applet = new GGBApplet(params, true);
+
+      window.onload = function() {
+          applet.inject('applet_container');
+      }
+  </script>
+<p><!--
+ <div class="flex">
+   <div id="function:f" style="width:400px; height:250px;"></div>
+   <div id="function:π" style="width:400px; height:250px;"></div>
+ </div>
+
 <script>
   var state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   var Q     = [16, 10, 6.5, 4, 3, 4, 7, 12, 19, 28];
   var Qmin  = [3,  3, 3,   3, 3, 4, 7, 12, 19, 28];
 
-  function show_plot(dom, x, y, xtitle, ytitle) {
+  function show_plot(dom, s, z, xtitle, ytitle) {
     var data = [{ 
-        x: x,
-        y: y,
+        x: s,
+        y: z,
         line : { 
           shape: "spline",
         },
@@ -151,7 +165,7 @@ s - x, &amp; \text{if } x \le s
     var layout = { 
         paper_bgcolor: "#fffff8",
         plot_bgcolor:  "#fffff8",
-        xaxis : {
+        saxis : {
           title: xtitle,
           showgrid: true,
           showline: true,
@@ -185,27 +199,28 @@ s - x, &amp; \text{if } x \le s
     Plotly.plot(dom, data, layout, options);
   }
 
-  show_plot('function:f', state, Q, "$x$", "$\\theta(x)$");
-  show_plot('function:g', state, Qmin, "$x$",  "$\\Theta(x) = \\displaystyle \\min_{u \\ge 0} \\theta(x+u)$");
+  show_plot('function:f', state, Q, "$s$", "$f(s)$");
+  show_plot('function:π', state, Qmin, "$s$",  "$F(s) = \\displaystyle \\min_{a \\ge 0} f(s+a)$");
 </script>
-<p>Now to prove the result, we define <span class="math display">\[ \theta_t(y) = py + H_t(y). \]</span> Then, <span class="math display">\[ V_t(x) = \min_{u \in \reals_{\ge 0}} \bigl\{ p(x + u) + H_t(x + u)
-\bigr\} - p x 
-= \min_{u \in \reals_{\ge 0}} \theta_t(x+u) - p x.
+--></p>
+<p>Now to prove the result, we define <span class="math display">\[ f_t(z) = py + H_t(z). \]</span> Then, <span class="math display">\[ V_t(s) = \min_{a \in \reals_{\ge 0}} \bigl\{ p(s + a) + H_t(s + a)
+\bigr\} - p s 
+= \min_{a \in \reals_{\ge 0}} f_t(s+a) - p s.
 \]</span></p>
-<p>As usual, we prove the result by backward induction. For <span class="math inline">\(t=T\)</span>, <span class="math display">\[\bar Q_T(y) = \EXP[ h(y - W) ] \]</span> which is convex because <span class="math inline">\(h(y)\)</span> is convex. <span class="math inline">\(\theta_T(y) = p y + Q_T(y)\)</span> is the sum of a linear function and convex function and is, therefore, convex. Then, by fact 2 above, <span class="math display">\[g_T(x) = \arg \min_{u \in \reals_{\ge 0}} \theta_T(x+u) = \max(S_T - x, 0)
-\]</span> and <span class="math display">\[V_T(x) = \min_{u \in \reals_{\ge 0}} \theta_T(x + u) - px = 
+<p>As usual, we prove the result by backward induction. For <span class="math inline">\(t=T\)</span>, <span class="math display">\[\bar Q_T(z) = \EXP[ h(z - W) ] \]</span> which is convex because <span class="math inline">\(h(z)\)</span> is convex. <span class="math inline">\(f_T(z) = p z + Q_T(z)\)</span> is the sum of a linear function and convex function and is, therefore, convex. Then, by fact 2 above, <span class="math display">\[π_T(s) = \arg \min_{a \in \reals_{\ge 0}} f_T(s+a) = \max(s^*_T - s, 0)
+\]</span> and <span class="math display">\[V_T(s) = \min_{a \in \reals_{\ge 0}} f_T(s + a) - px = 
   \begin{cases}
-    \theta_T(x) - p x, &amp; \text{if } x &gt; S_T \\
-    \theta_T(S_T) - px, &amp; \text{if } x \le S_T.
+    f_T(s) - p s, &amp; \text{if } s &gt; s^*_T \\
+    f_T(s^*_T) - px, &amp; \text{if } s \le s^*_T.
   \end{cases}
-\]</span> Substituting <span class="math inline">\(\theta_t(y) = p y + H_t(y)\)</span>, we get that both <span class="math inline">\(V_T\)</span> and <span class="math inline">\(g_T\)</span> have the desired form and <span class="math inline">\(V_T\)</span> is convex. This forms the basis of induction.</p>
-<p>Now assume that <span class="math inline">\(V_{t+1}(x)\)</span> is convex and of the form \eqref{eq:V}. Now note that, by fact 1, <span class="math display">\[ H_t(y) = \EXP[ h(y - W) + V_{t+1}(y - W) ]\]</span> is convex. Hence, <span class="math inline">\(\theta_t(y)\)</span> is convex. Therefore, by fact 2 above, <span class="math display">\[ g_t(x) = \max(s_t - x, 0)\]</span> and <span class="math inline">\(V_t(x)\)</span> is of the desired form and convex.</p>
-<p>Thus, the result is holds by induction.</p>
+\]</span> Substituting <span class="math inline">\(f_t(z) = p z + H_t(z)\)</span>, we get that both <span class="math inline">\(V_T\)</span> and <span class="math inline">\(π_T\)</span> have the desired form and <span class="math inline">\(V_T\)</span> is convex. This forms the basis of induction.</p>
+<p>Now assume that <span class="math inline">\(V_{t+1}(s)\)</span> is convex and of the form \eqref{eq:V}. Now note that, by fact 1, <span class="math display">\[ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z - W) ]\]</span> is convex. Hence, <span class="math inline">\(f_t(z)\)</span> is convex. Therefore, by fact 2 above, <span class="math display">\[ π_t(s) = \max(s^*_t - s, 0)\]</span> and <span class="math inline">\(V_t(s)\)</span> is of the desired form and convex.</p>
+<p>Thus, the result is holds by induction. <span class="math inline">\(\Box\)</span></p>
 <h1 class="unnumbered" id="exercises">Exercises</h1>
 <ol type="1">
-<li>Suppose that the stocks <span class="math inline">\(U_t\)</span> ordered at the beginning of day <span class="math inline">\(t\)</span> must belong to <span class="math inline">\(\integers_{\ge 0}\)</span> rather than <span class="math inline">\(\reals_{\ge 0}\)</span>. Show that there exists a sequence <span class="math inline">\(\{s_t\}_{t \ge 1}\)</span> of numbres such that policy given by <span class="math display">\[ g_t(x) = \begin{cases}
-   n, &amp; \text{if } s_t - n \le x \le s_t - n + 1, \\
-   0, &amp; \text{if } x_t \ge s_t.
+<li>Suppose that the stocks <span class="math inline">\(A_t\)</span> ordered at the beginning of day <span class="math inline">\(t\)</span> must belong to <span class="math inline">\(\integers_{\ge 0}\)</span> rather than <span class="math inline">\(\reals_{\ge 0}\)</span>. Show that there exists a sequence <span class="math inline">\(\{s_t\}_{t \ge 1}\)</span> of numbres such that policy given by <span class="math display">\[ π_t(s) = \begin{cases}
+   n, &amp; \text{if } s_t - n \le s \le s_t - n + 1, \\
+   0, &amp; \text{if } s_t \ge s_t.
   \end{cases} \]</span> is optimal.</li>
 </ol>
 <h1 class="unnumbered" id="references">References</h1>
@@ -232,7 +247,7 @@ s - x, &amp; \text{if } x \le s
 <section class="footnotes" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>Part of the per-step cost depends on the <em>future</em> state <span class="math inline">\(X_{t+1}\)</span>. It is easy to show that the standard MDP model works even when the per-step cost is a function of <span class="math inline">\((X_t, U_t, X_{t+1})\)</span><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1" role="doc-endnote"><p>Part of the per-step cost depends on the <em>future</em> state <span class="math inline">\(S_{t+1}\)</span>. It is easy to show that the standard MDP model works even when the per-step cost is a function of <span class="math inline">\((S_t, A_t, S_{t+1})\)</span><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
@@ -240,7 +255,7 @@ s - x, &amp; \text{if } x \le s
 <p class="categories">
 This entry 
 
- was last updated on 06 Jun 2020
+ was last updated on 16 Dec 2021
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">

@@ -32,7 +32,7 @@
 <div class="title">
   <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
   <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
-      Winter 2020
+      Winter 2022
   </h2>
   <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
 	&nbsp;<small><small>|</small></small>&nbsp;
@@ -53,31 +53,31 @@
 </figure>
 <p>TL;DR <em>This stylized model of optimal gambling was introduced by <span class="citation" data-cites="Kelly1956"><a href="#ref-Kelly1956" role="doc-biblioref">Kelly</a> (<a href="#ref-Kelly1956" role="doc-biblioref">1956</a>)</span> to highlight a relationship between channel capacity (which had been proposed recently by Shannon), and gambling. Our motivation for studying this model is to use it as an illustrative example to show that sometimes it is possible to identify the optimal strategy and value function of MDPs in closed form.</em></p>
 <hr />
-<p>Imagine a gambler who goes to a casino with an initial fortune of <span class="math inline">\(x_1\)</span> dollars and places bets over time and must leave after <span class="math inline">\(T\)</span> bets. Let <span class="math inline">\(X_t\)</span> denote the gambler’s fortune after <span class="math inline">\(t\)</span> bets. In this example, time denotes the number of times that the gambler has bet.</p>
-<p>At time <span class="math inline">\(t\)</span>, the gambler may place a bet for any amount <span class="math inline">\(U_t\)</span> less than or equal to his current fortune <span class="math inline">\(X_t\)</span>. If he wins the bet (denoted by the even <span class="math inline">\(W_t = 1\)</span>), the casino gives him the amount that he had bet. If he loses the bet (denoted by the event <span class="math inline">\(W_t = -1\)</span>), he pays the casino the amount that he had bet. Thus, the dynamics can be written as</p>
-<p><span class="math display">\[ X_{t+1} = X_t + W_t U_t. \]</span></p>
+<p>Imagine a gambler who goes to a casino with an initial fortune of <span class="math inline">\(s_1\)</span> dollars and places bets over time and must leave after <span class="math inline">\(T\)</span> bets. Let <span class="math inline">\(S_t\)</span> denote the gambler’s fortune after <span class="math inline">\(t\)</span> bets. In this example, time denotes the number of times that the gambler has bet.</p>
+<p>At time <span class="math inline">\(t\)</span>, the gambler may place a bet for any amount <span class="math inline">\(A_t\)</span> less than or equal to his current fortune <span class="math inline">\(S_t\)</span>. If he wins the bet (denoted by the even <span class="math inline">\(W_t = 1\)</span>), the casino gives him the amount that he had bet. If he loses the bet (denoted by the event <span class="math inline">\(W_t = -1\)</span>), he pays the casino the amount that he had bet. Thus, the dynamics can be written as</p>
+<p><span class="math display">\[ S_{t+1} = S_t + W_t A_t. \]</span></p>
 <p>The outcomes of the bets <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are <em>primitive random variables</em>, i.e., they are independent of each other, the gambler’s initial fortune, and his betting strategy.</p>
-<p>The gambler’s utility is <span class="math inline">\(\log X_T\)</span>, the logarithm of his final fortune.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Thus, the reward function may be written as</p>
-<p><span class="math display">\[ r_t(x, u) = 0 
+<p>The gambler’s utility is <span class="math inline">\(\log S_T\)</span>, the logarithm of his final fortune.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Thus, the reward function may be written as</p>
+<p><span class="math display">\[ r_t(s, a) = 0 
    \quad \text{and} \quad
-   r_T(x) = \log x.
+   r_T(s) = \log s.
 \]</span></p>
-<p>Find the strategy that maximizes the gambler’s utility, <span class="math inline">\(\EXP[\log X_T]\)</span>.</p>
+<p>Find the strategy that maximizes the gambler’s utility, <span class="math inline">\(\EXP[\log S_T]\)</span>.</p>
 <h1 data-number="1" id="optimal-gambling-strategy-and-value-functions"><span class="header-section-number">1</span> Optimal gambling strategy and value functions</h1>
 <p>The above model of optimal gambling is a Markov decision process. Therefore, the optimal solution is given by dynamic programming.</p>
 <div class="highlight">
 <dl>
 <dt>Dynamic program</dt>
-<dd><p>Define the following value function <span class="math inline">\(V_t \colon \reals_{\ge 0} \to \reals\)</span> <span class="math display">\[ V_T(x) = \log x \]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span class="math display">\[ \begin{align*}
-  Q_t(x,u) &amp;= \EXP[ r_t(x,u) + V_{t+1}(X_{t+1}) \,|\, X_t = x, U_t = u] \\
-  &amp;= p V_{t+1}(x+u) + (1-p) V_{t+1}(x-u),
+<dd><p>Define the following value function <span class="math inline">\(V_t \colon \reals_{\ge 0} \to \reals\)</span> <span class="math display">\[ V_T(s) = \log s \]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span class="math display">\[ \begin{align*}
+  Q_t(s,a) &amp;= \EXP[ r_t(s,a) + V_{t+1}(S_{t+1}) \,|\, S_t = s, A_t = a] \\
+  &amp;= p V_{t+1}(s+a) + (1-p) V_{t+1}(s-a),
   \end{align*}
 \]</span> and <span class="math display">\[ \begin{align*}
-  V_t(x) &amp;=  \max_{u \in [0, x]} Q_t(x,u), \\
-  g_t(x) &amp;= \arg \max_{u \in [0, x]} Q_t(x,u). \\
+  V_t(s) &amp;=  \max_{a \in [0, s]} Q_t(s,a), \\
+  π_t(s) &amp;= \arg \max_{a \in [0, s]} Q_t(s,a). \\
   \end{align*}
 \]</span></p>
-<p>Then the strategy <span class="math inline">\(g = (g_1, \dots, g_{T-1})\)</span> is optimal.</p>
+<p>Then the strategy <span class="math inline">\(π = (π_1, \dots, π_{T-1})\)</span> is optimal.</p>
 </dd>
 </dl>
 </div>
@@ -87,13 +87,13 @@
 <dt>Theorem</dt>
 <dd><p>When <span class="math inline">\(p \le 0.5\)</span>:</p>
 <ul>
-<li>the optimal strategy is to <em>not gamble</em>, specifically <span class="math inline">\(g_t(x) = 0\)</span>;</li>
-<li>the value function is <span class="math inline">\(V_t(x) = \log x\)</span>.</li>
+<li>the optimal strategy is to <em>not gamble</em>, specifically <span class="math inline">\(π_t(s) = 0\)</span>;</li>
+<li>the value function is <span class="math inline">\(V_t(s) = \log s\)</span>.</li>
 </ul>
 <p>When <span class="math inline">\(p &gt; 0.5\)</span>:</p>
 <ul>
-<li>the optimal strategy is <em>to bet a fraction of the current fortune</em>, specifically <span class="math inline">\(g_t(x) = (2p - 1)x\)</span>;</li>
-<li>the value function is <span class="math inline">\(V_t(x) = \log x + (T - t) C\)</span>, where<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> <span class="math display">\[ C = \log 2 + p \log p + (1-p) \log (1-p).\]</span></li>
+<li>the optimal strategy is <em>to bet a fraction of the current fortune</em>, specifically <span class="math inline">\(π_t(s) = (2p - 1)s\)</span>;</li>
+<li>the value function is <span class="math inline">\(V_t(s) = \log s + (T - t) C\)</span>, where<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> <span class="math display">\[ C = \log 2 + p \log p + (1-p) \log (1-p).\]</span></li>
 </ul>
 </dd>
 </dl>
@@ -101,103 +101,103 @@
 <p>We prove the two cases separately.</p>
 <h4 class="unnumbered" id="proof-when-p-le-0.5">Proof when <span class="math inline">\(p \le 0.5\)</span></h4>
 <p>Let <span class="math inline">\(p = \PR(W_t = 1)\)</span> and <span class="math inline">\(q = \PR(W_t = -1)\)</span>. Then <span class="math inline">\(p \le 0.5\)</span> implies that <span class="math inline">\(p \le 1 - p = q\)</span>.</p>
-<p>We proceed by backward induction. For <span class="math inline">\(t = T\)</span>, we have that <span class="math inline">\(V_T(x) = \log x\)</span>. This forms the basis of induction. Now assume that for <span class="math inline">\(t+1\)</span>, <span class="math inline">\(V_{t+1}(x) = \log x\)</span>. Now consider</p>
-<p><span class="math display">\[ Q_t(x,u) = p V_{t+1}(x+u) + qV_{t+1}(x-u). \]</span></p>
-<p>Differentiating both sides w.r.t. <span class="math inline">\(u\)</span>, we get <span class="math display">\[ \begin{align*} 
-  \frac { \partial Q_t(x,u) } {\partial u} &amp;= 
-   \frac p { x + u} - \frac q { x - u } 
+<p>We proceed by backward induction. For <span class="math inline">\(t = T\)</span>, we have that <span class="math inline">\(V_T(s) = \log s\)</span>. This forms the basis of induction. Now assume that for <span class="math inline">\(t+1\)</span>, <span class="math inline">\(V_{t+1}(s) = \log s\)</span>. Now consider</p>
+<p><span class="math display">\[ Q_t(s,a) = p V_{t+1}(s+a) + qV_{t+1}(s-a). \]</span></p>
+<p>Differentiating both sides w.r.t. <span class="math inline">\(a\)</span>, we get <span class="math display">\[ \begin{align*} 
+  \frac { \partial Q_t(s,a) } {\partial a} &amp;= 
+   \frac p { s + a} - \frac q { s - a } 
    \\
-   &amp; = \frac { (p - q) x - (p + q) u } { x^2 - u^2 } 
+   &amp; = \frac { (p - q) s - (p + q) a } { s^2 - a^2 } 
    \\
    &amp; =
-   \frac { - (q - p) x - u } {x^2 - u^2 } 
+   \frac { - (q - p) s - a } {s^2 - a^2 } 
    \\
    &amp;&lt; 0.
   \end{align*}   
 \]</span></p>
-<p>This implies that <span class="math inline">\(Q_t(x,u)\)</span> is decreasing in <span class="math inline">\(u\)</span>. Therefore,</p>
-<p><span class="math display">\[ g_t(x) = \arg\max_{u \in [0, x]} Q_t(x,u) = 0. \]</span></p>
-<p>Moreover, <span class="math display">\[ V_t(x) = Q_t(x, g_t(x)) = \log x.\]</span></p>
+<p>This implies that <span class="math inline">\(Q_t(s,a)\)</span> is decreasing in <span class="math inline">\(a\)</span>. Therefore,</p>
+<p><span class="math display">\[ π_t(s) = \arg\max_{a \in [0, s]} Q_t(s,a) = 0. \]</span></p>
+<p>Moreover, <span class="math display">\[ V_t(s) = Q_t(s, π_t(s)) = \log s.\]</span></p>
 <p>This completes the induction step.</p>
 <h4 class="unnumbered" id="proof-when-p-0.5">Proof when <span class="math inline">\(p &gt; 0.5\)</span></h4>
 <p>As in the previous case, let <span class="math inline">\(p = \PR(W_t = 1)\)</span> and <span class="math inline">\(q = \PR(W_t = -1)\)</span>. Then <span class="math inline">\(p &gt; 0.5\)</span> implies that <span class="math inline">\(p &gt; 1 - p = q\)</span>.</p>
-<p>We proceed by backward induction. For <span class="math inline">\(t = T\)</span>, we have that <span class="math inline">\(V_T(x) = \log x\)</span>. This forms the basis of induction. Now assume that for <span class="math inline">\(t+1\)</span>, <span class="math inline">\(V_{t+1}(x) = \log x + (T -t - 1)C\)</span>. Now consider</p>
-<p><span class="math display">\[ Q_t(x,u) = p V_{t+1}(x+u) + qV_{t+1}(x-u). \]</span></p>
-<p>Differentiating both sides w.r.t. <span class="math inline">\(u\)</span>, we get <span class="math display">\[ \begin{align*} 
-  \frac { \partial Q_t(x,u) } {\partial u} &amp;= 
-   \frac p { x + u} - \frac q { x - u } 
+<p>We proceed by backward induction. For <span class="math inline">\(t = T\)</span>, we have that <span class="math inline">\(V_T(s) = \log s\)</span>. This forms the basis of induction. Now assume that for <span class="math inline">\(t+1\)</span>, <span class="math inline">\(V_{t+1}(s) = \log s + (T -t - 1)C\)</span>. Now consider</p>
+<p><span class="math display">\[ Q_t(s,a) = p V_{t+1}(s+a) + qV_{t+1}(s-a). \]</span></p>
+<p>Differentiating both sides w.r.t. <span class="math inline">\(a\)</span>, we get <span class="math display">\[ \begin{align*} 
+  \frac { \partial Q_t(s,a) } {\partial a} &amp;= 
+   \frac p { s + a} - \frac q { s - a } 
    \\
-   &amp; = \frac { (p - q) x - (p + q) u } { x^2 - u^2 } 
+   &amp; = \frac { (p - q) s - (p + q) a } { s^2 - a^2 } 
    \\
    &amp; =
-   \frac { (p - q) x - u } {x^2 - u^2 } 
+   \frac { (p - q) s - a } {s^2 - a^2 } 
   \end{align*}   
 \]</span></p>
-<p>Setting <span class="math inline">\(\partial Q_t(x,u)/\partial u = 0\)</span>, we get that the optimal action is</p>
-<p><span class="math display">\[ g_t(x) = (p-q) x. \]</span></p>
+<p>Setting <span class="math inline">\(\partial Q_t(s,a)/\partial a = 0\)</span>, we get that the optimal action is</p>
+<p><span class="math display">\[ π_t(s) = (p-q) s. \]</span></p>
 <p>Note that <span class="math inline">\((p-q) \in (0,1]\)</span></p>
 <p><span class="math display">\[ 
-  \frac { \partial^2 Q_t(x,u) } {\partial u^2} = 
-   - \frac p { (x + u)^2 } - \frac q { (x - u)^2 } 
+  \frac { \partial^2 Q_t(s,a) } {\partial a^2} = 
+   - \frac p { (s + a)^2 } - \frac q { (s - a)^2 } 
   &lt; 0;
 \]</span> hence the above action is indeed the maximizer. Moreover, <span class="math display">\[ \begin{align*} 
-  V_t(x) &amp;= Q_t(x, g_t(x))  \\
-  &amp;= p V_{t+1}(x + g_t(x)) + q V_{t+1}( x - g_t(x) )\\
-  &amp;= \log x + p \log (1 + (p-q)) + q \log (1 - (p-q)) + (T - t -1)C \\
-  &amp;= \log x + p \log 2p + q \log 2q + (T - t + 1)C \\
-  &amp;= \log x + (T - t) C
+  V_t(s) &amp;= Q_t(s, π_t(s))  \\
+  &amp;= p V_{t+1}(s + π_t(s)) + q V_{t+1}( s - π_t(s) )\\
+  &amp;= \log s + p \log (1 + (p-q)) + q \log (1 - (p-q)) + (T - t -1)C \\
+  &amp;= \log s + p \log 2p + q \log 2q + (T - t + 1)C \\
+  &amp;= \log s + (T - t) C
   \end{align*}   
 \]</span></p>
 <p>This completes the induction step.</p>
 <h1 data-number="2" id="generalized-model"><span class="header-section-number">2</span> Generalized model</h1>
-<p>Suppose that the terminal reward <span class="math inline">\(r_T(x)\)</span> is monotone increasing<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> in <span class="math inline">\(x\)</span>.</p>
+<p>Suppose that the terminal reward <span class="math inline">\(r_T(s)\)</span> is monotone increasing<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> in <span class="math inline">\(s\)</span>.</p>
 <div class="highlight">
 <dl>
 <dt>Theorem</dt>
 <dd><p>For the generalized optimal gambling problem:</p>
 <ul>
-<li>For each <span class="math inline">\(t\)</span>, the value function <span class="math inline">\(V_t(x)\)</span> is monotone increasing in <span class="math inline">\(x\)</span>.</li>
-<li>For each <span class="math inline">\(x\)</span>, the value function <span class="math inline">\(V_t(x)\)</span> is monotone decreasing in <span class="math inline">\(t\)</span>.</li>
+<li>For each <span class="math inline">\(t\)</span>, the value function <span class="math inline">\(V_t(s)\)</span> is monotone increasing in <span class="math inline">\(s\)</span>.</li>
+<li>For each <span class="math inline">\(s\)</span>, the value function <span class="math inline">\(V_t(s)\)</span> is monotone decreasing in <span class="math inline">\(t\)</span>.</li>
 </ul>
 </dd>
 </dl>
 </div>
-<h4 class="unnumbered" id="proof-of-monotonicity-in-x">Proof of monotonicity in <span class="math inline">\(x\)</span></h4>
-<p>We proceed by backward induction. <span class="math inline">\(V_T(x) = r_T(x)\)</span> which is monotone increasing in <span class="math inline">\(x\)</span>. Assume that <span class="math inline">\(V_{t+1}(x)\)</span> is increasing in <span class="math inline">\(x\)</span>. Now, consider <span class="math inline">\(V_t(x)\)</span>. Consider <span class="math inline">\(x_1, x_2 \in \reals_{\ge 0}\)</span> such that <span class="math inline">\(x_1 \le x_2\)</span>. Then for any <span class="math inline">\(u \le x_1\)</span>, we have that</p>
+<h4 class="unnumbered" id="proof-of-monotonicity-in-s">Proof of monotonicity in <span class="math inline">\(s\)</span></h4>
+<p>We proceed by backward induction. <span class="math inline">\(V_T(s) = r_T(s)\)</span> which is monotone increasing in <span class="math inline">\(s\)</span>. Assume that <span class="math inline">\(V_{t+1}(s)\)</span> is increasing in <span class="math inline">\(s\)</span>. Now, consider <span class="math inline">\(V_t(s)\)</span>. Consider <span class="math inline">\(s_1, s_2 \in \reals_{\ge 0}\)</span> such that <span class="math inline">\(s_1 \le s_2\)</span>. Then for any <span class="math inline">\(a \le s_1\)</span>, we have that</p>
 <p><span class="math display">\[ \begin{align*}
-    Q_t(x_1, u) &amp;= p V_{t+1}(x_1+u) + q V_{t+1}(x_1-u) \\
-    &amp; \stackrel{(a)}{\le} p V_{t+1}(x_2 + u) + q V_{t+1}(x_2  - u) \\
-    &amp; = Q_t(x_2, u),
+    Q_t(s_1, a) &amp;= p V_{t+1}(s_1+a) + q V_{t+1}(s_1-a) \\
+    &amp; \stackrel{(a)}{\le} p V_{t+1}(s_2 + a) + q V_{t+1}(s_2  - a) \\
+    &amp; = Q_t(s_2, a),
   \end{align*}
 \]</span> where <span class="math inline">\((a)\)</span> uses the induction hypothesis. Now consider</p>
 <p><span class="math display">\[ \begin{align*}
-  V_t(x_1) &amp;= \max_{u \in [0, x_1]} Q_t(x_1, u) \\
-  &amp; \stackrel{(b)}{\le} \max_{u \in [0, x_1]} Q_t(x_2, u) \\
-  &amp; \le \max_{u \in [0, x_2]} Q_t(x_2, u) \\
-  &amp;= V_t(x_2),
+  V_t(s_1) &amp;= \max_{a \in [0, s_1]} Q_t(s_1, a) \\
+  &amp; \stackrel{(b)}{\le} \max_{a \in [0, s_1]} Q_t(s_2, a) \\
+  &amp; \le \max_{a \in [0, s_2]} Q_t(s_2, a) \\
+  &amp;= V_t(s_2),
   \end{align*}
-\]</span> where <span class="math inline">\((b)\)</span> uses monotonicity of <span class="math inline">\(Q_t\)</span> in <span class="math inline">\(x\)</span>. This completes the induction step.</p>
+\]</span> where <span class="math inline">\((b)\)</span> uses monotonicity of <span class="math inline">\(Q_t\)</span> in <span class="math inline">\(s\)</span>. This completes the induction step.</p>
 <h4 class="unnumbered" id="proof-of-monotonicity-in-t">Proof of monotonicity in <span class="math inline">\(t\)</span></h4>
 <p>This is a simple consequence of the following:</p>
-<p><span class="math display">\[V_t(x) = \max_{u \in [0, x]} Q_t(x,u) \ge Q_t(x,0) = V_{t+1}(x).\]</span></p>
+<p><span class="math display">\[V_t(s) = \max_{a \in [0, s]} Q_t(s,a) \ge Q_t(s,0) = V_{t+1}(s).\]</span></p>
 <h1 class="unnumbered" id="exercises">Exercises</h1>
 <p>The purpose of these series of exercises is to generalize the basic result to a model where the gambler can bet on many mutually exclusive outcomes (think of betting on multiple horses in a horse race).</p>
 <ol type="1">
 <li><p>Given positive numbers <span class="math inline">\((p_1, \dots, p_n)\)</span>, consider the following constraint optimization problem: <span class="math display">\[\max \sum_{i=1}^n p_i \log w_i\]</span> subject to:</p>
 <ul>
 <li><span class="math inline">\(w_i \ge 0\)</span></li>
-<li><span class="math inline">\(\sum_{i=1}^n w_i \le x\)</span>.</li>
+<li><span class="math inline">\(\sum_{i=1}^n w_i \le s\)</span>.</li>
 </ul>
-<p>Show that the optimal solution is given by <span class="math display">\[ w_i = \frac{p_i}{p} x\]</span> where <span class="math inline">\(p = \sum_{i=1}^n p_i\)</span>.</p></li>
-<li><p>Given positive numbers <span class="math inline">\((p_1, \dots, p_n)\)</span>, consider the following constraint optimization problem: <span class="math display">\[\max \sum_{i=1}^n p_i \log (x - u + nu_i)\]</span> subject to:</p>
+<p>Show that the optimal solution is given by <span class="math display">\[ w_i = \frac{p_i}{p} s\]</span> where <span class="math inline">\(p = \sum_{i=1}^n p_i\)</span>.</p></li>
+<li><p>Given positive numbers <span class="math inline">\((p_1, \dots, p_n)\)</span>, consider the following constraint optimization problem: <span class="math display">\[\max \sum_{i=1}^n p_i \log (s - a + nu_i)\]</span> subject to:</p>
 <ul>
 <li><span class="math inline">\(u_i \ge 0\)</span></li>
-<li><span class="math inline">\(u = \sum_{i=1}^n u_i \le x\)</span>.</li>
+<li><span class="math inline">\(a = \sum_{i=1}^n u_i \le s\)</span>.</li>
 </ul>
-<p>Show that the optimal solution is given by <span class="math display">\[ u_i = \frac{p_i}{p} x\]</span> where <span class="math inline">\(p = \sum_{i=1}^n p_i\)</span>.</p></li>
-<li><p>Consider an alternative of the optimal gambling problem where, at each time, the gambler can place bets on many mutually exclusive outcomes. Suppose there are <span class="math inline">\(n\)</span> outcomes, with success probabilities <span class="math inline">\((p_1, \dots, p_n)\)</span>. Let <span class="math inline">\((U_{1,t}, \dots, U_{n,t})\)</span> denote the amount that the gambler bets on each outcome. The total amount <span class="math inline">\(U_t := \sum_{i=1}^n U_{i,t}\)</span> must be less than the gambler’s fortune <span class="math inline">\(X_t\)</span>. If <span class="math inline">\(W_t\)</span> denotes the winning outcome, then the gambler’s wealth evolves according to <span class="math display">\[ X_{t+1} = X_t - U_t + nU_{W_t, t}.\]</span> For example, if there are three outcomes, gambler’s current wealth is <span class="math inline">\(x\)</span>, the gambler bets <span class="math inline">\((u_1, u_2, u_3)\)</span>, and outcome 2 wins, then the gambler wins <span class="math inline">\(3 u_2\)</span> and his fortune at the next time is <span class="math display">\[ x - (u_1 + u_2 + u_3) + 3 u_2. \]</span></p>
-<p>The gambler’s utility is <span class="math inline">\(\log X_T\)</span>, the logarithm of his final wealth. Find the strategy that maximizes the gambler’s expected utility.</p>
-<p><em>Hint:</em> Argue that the value function is of the form <span class="math inline">\(V_t(x) = \log x +  (T -t)C\)</span>, where <span class="math display">\[C = \log n - H(p_1, \dots, p_n)\]</span> where <span class="math inline">\(H(p_1, \dots, p_n) = - \sum_{i=1}^n p_i \log p_i\)</span> is the entropy of a random variable with pmf <span class="math inline">\((p_1, \dots, p_n)\)</span>.</p>
+<p>Show that the optimal solution is given by <span class="math display">\[ u_i = \frac{p_i}{p} s\]</span> where <span class="math inline">\(p = \sum_{i=1}^n p_i\)</span>.</p></li>
+<li><p>Consider an alternative of the optimal gambling problem where, at each time, the gambler can place bets on many mutually exclusive outcomes. Suppose there are <span class="math inline">\(n\)</span> outcomes, with success probabilities <span class="math inline">\((p_1, \dots, p_n)\)</span>. Let <span class="math inline">\((A_{1,t}, \dots, A_{n,t})\)</span> denote the amount that the gambler bets on each outcome. The total amount <span class="math inline">\(A_t := \sum_{i=1}^n A_{i,t}\)</span> must be less than the gambler’s fortune <span class="math inline">\(S_t\)</span>. If <span class="math inline">\(W_t\)</span> denotes the winning outcome, then the gambler’s wealth evolves according to <span class="math display">\[ S_{t+1} = S_t - A_t + nU_{W_t, t}.\]</span> For example, if there are three outcomes, gambler’s current wealth is <span class="math inline">\(s\)</span>, the gambler bets <span class="math inline">\((u_1, u_2, u_3)\)</span>, and outcome 2 wins, then the gambler wins <span class="math inline">\(3 u_2\)</span> and his fortune at the next time is <span class="math display">\[ s - (u_1 + u_2 + u_3) + 3 u_2. \]</span></p>
+<p>The gambler’s utility is <span class="math inline">\(\log S_T\)</span>, the logarithm of his final wealth. Find the strategy that maximizes the gambler’s expected utility.</p>
+<p><em>Hint:</em> Argue that the value function is of the form <span class="math inline">\(V_t(s) = \log s +  (T -t)C\)</span>, where <span class="math display">\[C = \log n - H(p_1, \dots, p_n)\]</span> where <span class="math inline">\(H(p_1, \dots, p_n) = - \sum_{i=1}^n p_i \log p_i\)</span> is the entropy of a random variable with pmf <span class="math inline">\((p_1, \dots, p_n)\)</span>.</p>
 <dl>
 <dt>Side Remark</dt>
 <dd><p>The constant <span class="math inline">\(C\)</span> is the capacity of a symmetric discrete memoryless with <span class="math inline">\(n\)</span> outputs and for every input, the output probabilities are a permutation of <span class="math inline">\((p_1, \dots, p_n)\)</span>.</p>
@@ -232,7 +232,7 @@
 <p class="categories">
 This entry 
 
- was last updated on 13 Jun 2020
+ was last updated on 16 Dec 2021
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">

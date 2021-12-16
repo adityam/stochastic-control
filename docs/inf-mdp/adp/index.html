@@ -32,7 +32,7 @@
 <div class="title">
   <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
   <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
-      Winter 2020
+      Winter 2022
   </h2>
   <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
 	&nbsp;<small><small>|</small></small>&nbsp;
@@ -48,128 +48,128 @@
 
 <div class="h1-title">Theory: Approximate dynamic programming</div>
 
-<p>The value and policy iteration algorithms for discounted cost MDPs rely on exact computation of the Bellman update <span class="math inline">\(W = \mathcal B V\)</span> and the corresponding optimal policy <span class="math inline">\(g\)</span> such that <span class="math inline">\(\mathcal B V = \mathcal B_g V\)</span>. Suppose we cannot compute these updates exactly, but can find approximate solutions <span class="math inline">\(W\)</span> and <span class="math inline">\(g\)</span> such that <span class="math display">\[ \NORM{W - \mathcal B V} \le δ
+<p>The value and policy iteration algorithms for discounted cost MDPs rely on exact computation of the Bellman update <span class="math inline">\(W = \mathcal B V\)</span> and the corresponding optimal policy <span class="math inline">\(g\)</span> such that <span class="math inline">\(\mathcal B V = \mathcal B_π V\)</span>. Suppose we cannot compute these updates exactly, but can find approximate solutions <span class="math inline">\(W\)</span> and <span class="math inline">\(g\)</span> such that <span class="math display">\[ \NORM{W - \mathcal B V} \le δ
 \quad\text{and}\quad
-   \NORM{\mathcal B_g V - \mathcal B V} \le ε\]</span> where <span class="math inline">\(δ\)</span> and <span class="math inline">\(ε\)</span> are positive constants. (In general, these constants are unknown, so the results are quantitative in nature).</p>
+   \NORM{\mathcal B_π V - \mathcal B V} \le ε\]</span> where <span class="math inline">\(δ\)</span> and <span class="math inline">\(ε\)</span> are positive constants. (In general, these constants are unknown, so the results are quantitative in nature).</p>
 <p>The error <span class="math inline">\(δ\)</span> may be non-zero due to state aggregation in large state spaces, or using simulation to compute the Bellman update, or using least square fit to approximate the value function.</p>
 <p>The error <span class="math inline">\(ε\)</span> may be non-zero due to large or infinite action space.</p>
-<p>Often <span class="math inline">\(δ &gt; 0\)</span> and <span class="math inline">\(ε = 0\)</span>. We may also first pick a policy <span class="math inline">\(g\)</span> such that <span class="math inline">\(\NORM{\mathcal B_g V - \mathcal B V} \le ε\)</span> and then set <span class="math inline">\(W = \mathcal B_g V\)</span>, in which case <span class="math inline">\(δ = ε\)</span>.</p>
+<p>Often <span class="math inline">\(δ &gt; 0\)</span> and <span class="math inline">\(ε = 0\)</span>. We may also first pick a policy <span class="math inline">\(g\)</span> such that <span class="math inline">\(\NORM{\mathcal B_π V - \mathcal B V} \le ε\)</span> and then set <span class="math inline">\(W = \mathcal B_π V\)</span>, in which case <span class="math inline">\(δ = ε\)</span>.</p>
 <h1 data-number="1" id="approximate-value-iteration"><span class="header-section-number">1</span> Approximate value iteration</h1>
 <div class="highlight">
 <dl>
 <dt><span id="theorem:1"></span><span id="theorem:1" class="pandoc-numbering-text theorem"><strong>Theorem 1</strong></span></dt>
-<dd><p>Generate <span class="math inline">\(\{V_k\}_{k \ge 0}\)</span> and <span class="math inline">\(\{g_k\}_{k \ge 0}\)</span> such that <span class="math display">\[\NORM{V_{k+1} - \mathcal B V_k} \le δ 
+<dd><p>Generate <span class="math inline">\(\{V_k\}_{k \ge 0}\)</span> and <span class="math inline">\(\{π_k\}_{k \ge 0}\)</span> such that <span class="math display">\[\NORM{V_{k+1} - \mathcal B V_k} \le δ 
 \quad\text{and}\quad
-  \NORM{\mathcal B_{g_k} V_k - \mathcal B V_k} \le ε. \]</span> Then,</p>
+  \NORM{\mathcal B_{π_k} V_k - \mathcal B V_k} \le ε. \]</span> Then,</p>
 <ol type="1">
-<li><span class="math inline">\(\displaystyle \lim_{k \to ∞} \NORM{V_k - V^*} \le  \frac {δ}{(1-β)}.\)</span></li>
-<li><span class="math inline">\(\displaystyle \lim_{k \to ∞} \NORM{V_{g_k} - V^*} \le  \frac {ε}{(1-β)} + \frac{2βδ}{(1-β)^2}.\)</span></li>
+<li><span class="math inline">\(\displaystyle \lim_{k \to ∞} \NORM{V_k - V^*} \le  \frac {δ}{(1-γ)}.\)</span></li>
+<li><span class="math inline">\(\displaystyle \lim_{k \to ∞} \NORM{V_{π_k} - V^*} \le  \frac {ε}{(1-γ)} + \frac{2γδ}{(1-γ)^2}.\)</span></li>
 </ol>
 </dd>
 </dl>
 </div>
-<p>If we use a periodic policy with period <span class="math inline">\(M\)</span>, then the above bound can be improved by a factor of <span class="math inline">\(1/(1-β)\)</span>.</p>
+<p>If we use a periodic policy with period <span class="math inline">\(M\)</span>, then the above bound can be improved by a factor of <span class="math inline">\(1/(1-γ)\)</span>.</p>
 <h4 class="unnumbered" id="proof">Proof</h4>
 <p>To prove the first part, note that repeatedly combining the <a href="../discounted-mdp#prop:contraction">contraction property of the Bellman operator</a> with the fact that <span class="math inline">\(\NORM{V_{k+1} - \mathcal B V_k} \le δ\)</span>, we get that <span class="math display">\[\begin{equation}\label{eq:B1}
-  \NORM{\mathcal B^m V_{k+1} - \mathcal B^{m+1} V_k} \le β^m δ. 
+  \NORM{\mathcal B^m V_{k+1} - \mathcal B^{m+1} V_k} \le γ^m δ. 
 \end{equation}\]</span></p>
 <p>Now, from the triangle inequality, we have that <span class="math display">\[\begin{align*}
 \NORM{V_k - \mathcal B^k V_0} &amp;\le
   \NORM{V_k - \mathcal B V_{k-1}} + \NORM{\mathcal B V_{k-1} - \mathcal B^2 V_{k-2}}
   + \cdots + \NORM{B^{k-1} V_1 - \mathcal B^k V_0} \\
-  &amp;\stackrel{(a)}\le δ + βδ + \dots + β^{k-1}δ \\
-  &amp;= \left(\frac{1 - β^k}{1-β}\right) δ,
+  &amp;\stackrel{(a)}\le δ + γδ + \dots + γ^{k-1}δ \\
+  &amp;= \left(\frac{1 - γ^k}{1-γ}\right) δ,
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from \eqref{eq:B1}. Taking the limit as <span class="math inline">\(k \to ∞\)</span> gives the first result.</p>
 <p>Now, to prove the second part, we again apply the triangle inequality <span class="math display">\[\begin{align*}
-  \NORM{\mathcal B_{g_k} V^* - V^*} &amp;\le
-  \NORM{\mathcal B_{g_k} V^* - \mathcal B_{g_k} V_k} + 
-  \NORM{\mathcal B_{g_k} V_k - \mathcal B V_k} + 
+  \NORM{\mathcal B_{π_k} V^* - V^*} &amp;\le
+  \NORM{\mathcal B_{π_k} V^* - \mathcal B_{π_k} V_k} + 
+  \NORM{\mathcal B_{π_k} V_k - \mathcal B V_k} + 
   \NORM{\mathcal B V_k - V^*} \\
-  &amp;\stackrel{(b)}\le β \NORM{V^* - V_k} + ε + β \NORM{V_k - V^*} \\
-  &amp;\stackrel{(c)}\le ε + \frac{2βδ}{(1-β)} =: m,
-\end{align*}\]</span> where the first term in <span class="math inline">\((b)\)</span> uses the contraction property, the second term uses the fact that <span class="math inline">\(g_k\)</span> is an <span class="math inline">\(ε\)</span>-optimal policy and the third term uses the fact that <span class="math inline">\(V^*\)</span> is the fixed point of <span class="math inline">\(\mathcal B\)</span> and thus <span class="math inline">\(V^* = \mathcal B V^*\)</span> and then uses the contraction property. The inequality in <span class="math inline">\((c)\)</span> use the result from the first part.</p>
-<p>Now, from <a href="../discounted-mdp#prop:bounds">the discounting property of the Bellman operator</a>, <span class="math inline">\(\NORM{\mathcal B_{g_k} V^* - V^*} \le m\)</span> implies <span class="math display">\[ \NORM{V_{g_k} - V^*} \le \frac{m}{(1-β)}\]</span> which proves the second part.</p>
+  &amp;\stackrel{(b)}\le γ \NORM{V^* - V_k} + ε + γ \NORM{V_k - V^*} \\
+  &amp;\stackrel{(c)}\le ε + \frac{2γδ}{(1-γ)} =: m,
+\end{align*}\]</span> where the first term in <span class="math inline">\((b)\)</span> uses the contraction property, the second term uses the fact that <span class="math inline">\(π_k\)</span> is an <span class="math inline">\(ε\)</span>-optimal policy and the third term uses the fact that <span class="math inline">\(V^*\)</span> is the fixed point of <span class="math inline">\(\mathcal B\)</span> and thus <span class="math inline">\(V^* = \mathcal B V^*\)</span> and then uses the contraction property. The inequality in <span class="math inline">\((c)\)</span> use the result from the first part.</p>
+<p>Now, from <a href="../discounted-mdp#prop:bounds">the discounting property of the Bellman operator</a>, <span class="math inline">\(\NORM{\mathcal B_{π_k} V^* - V^*} \le m\)</span> implies <span class="math display">\[ \NORM{V_{π_k} - V^*} \le \frac{m}{(1-γ)}\]</span> which proves the second part.</p>
 <h1 data-number="2" id="approximate-policy-iteration"><span class="header-section-number">2</span> Approximate policy iteration</h1>
 <p>Before stating the approximate policy iteration algorithm, we state a preliminary result that serves as the main step in proving the error bounds for approximate policy iteration.</p>
 <div class="highlight">
 <dl>
 <dt><span id="prop:1"></span><span id="prop:prelim" class="pandoc-numbering-text prop"><strong>Prop. 1</strong></span></dt>
-<dd><p>Suppose <span class="math inline">\(V\)</span>, <span class="math inline">\(g\)</span>, and <span class="math inline">\(h\)</span> satisfy <span class="math display">\[ \NORM{V - V_g} \le δ
+<dd><p>Suppose <span class="math inline">\(V\)</span>, <span class="math inline">\(g\)</span>, and <span class="math inline">\(h\)</span> satisfy <span class="math display">\[ \NORM{V - V_π} \le δ
    \quad\text{and}\quad
    \NORM{\mathcal B_h V - \mathcal B V} \le ε.
-\]</span> Then, <span class="math display">\[ \NORM{V_h - V^*} \le β \NORM{V_g - V^*} + \frac{ε + 2βδ}{(1-β)}. \]</span></p>
+\]</span> Then, <span class="math display">\[ \NORM{V_h - V^*} \le γ \NORM{V_π - V^*} + \frac{ε + 2γδ}{(1-γ)}. \]</span></p>
 </dd>
 </dl>
 </div>
 <h4 class="unnumbered" id="proof-1">Proof</h4>
 <p>From the bounds on <span class="math inline">\(V\)</span>, <span class="math inline">\(g\)</span>, and <span class="math inline">\(h\)</span> and the <a href="../discounted-mdp#prop:properties">discounting property of the Bellman operator</a>, we have that <span class="math display">\[\begin{equation}\label{eq:P1}
-  \mathcal B_h V_g \le \mathcal B_h V + βδ \le \mathcal B V + ε + β δ.
+  \mathcal B_h V_π \le \mathcal B_h V + γδ \le \mathcal B V + ε + γ δ.
 \end{equation}\]</span></p>
-<p>Again, from the bounds on <span class="math inline">\(V\)</span> and <span class="math inline">\(g\)</span> and the discounting property of the Bellman operator, we have <span class="math inline">\(\mathcal B V \le \mathcal B V_g + βδ\)</span>. Thus, <span class="math display">\[\begin{equation}\label{eq:P2}
-  \mathcal B_h V_g \le \mathcal B V_g + ε + 2βδ
-\end{equation}\]</span> For ease of notation, let <span class="math inline">\(m := ε + 2βδ\)</span>.</p>
-<p>Moreover, from the definition of the Bellman operator <span class="math display">\[ \mathcal B V_g \le \mathcal B_g V_g = V_g.\]</span> Substituting the above in \eqref{eq:P2}, we get that <span class="math display">\[ \mathcal B_h V_g \le V_g + m. \]</span> Therefore, by the discounting property of Bellman operator, we get <span class="math display">\[\begin{equation}\label{eq:P3}
-  V_h \le V_g + \frac{m}{(1-β)}. 
+<p>Again, from the bounds on <span class="math inline">\(V\)</span> and <span class="math inline">\(g\)</span> and the discounting property of the Bellman operator, we have <span class="math inline">\(\mathcal B V \le \mathcal B V_π + γδ\)</span>. Thus, <span class="math display">\[\begin{equation}\label{eq:P2}
+  \mathcal B_h V_π \le \mathcal B V_π + ε + 2γδ
+\end{equation}\]</span> For ease of notation, let <span class="math inline">\(m := ε + 2γδ\)</span>.</p>
+<p>Moreover, from the definition of the Bellman operator <span class="math display">\[ \mathcal B V_π \le \mathcal B_π V_π = V_π.\]</span> Substituting the above in \eqref{eq:P2}, we get that <span class="math display">\[ \mathcal B_h V_π \le V_π + m. \]</span> Therefore, by the discounting property of Bellman operator, we get <span class="math display">\[\begin{equation}\label{eq:P3}
+  V_h \le V_π + \frac{m}{(1-γ)}. 
 \end{equation}\]</span></p>
-<p>Using \eqref{eq:P3} and the discounting property, we get that <span class="math display">\[V_h = \mathcal B_h V_h = \mathcal B_h V_g + \big( \mathcal B_h V_h -
-\mathcal B_h V_g \big) \le \mathcal B_h V_g + β \frac{m}{(1-β)}. \]</span></p>
+<p>Using \eqref{eq:P3} and the discounting property, we get that <span class="math display">\[V_h = \mathcal B_h V_h = \mathcal B_h V_π + \big( \mathcal B_h V_h -
+\mathcal B_h V_π \big) \le \mathcal B_h V_π + γ \frac{m}{(1-γ)}. \]</span></p>
 <p>Subtracting <span class="math inline">\(V^*\)</span> from both sides we get <span class="math display">\[\begin{align*}
-V_h - V^* &amp;\le \mathcal B_h V_g - V^* + \frac{mβ}{(1-β)} \\
-&amp;\stackrel{(a)}\le \mathcal B V_g + m - V^* + \frac{mβ}{(1-β)} \\
-&amp;\stackrel{(b)}= \mathcal B V_g - \mathcal B V^* + \frac{m}{(1-β)} \\
-&amp;\stackrel{(c)}{\le} β \NORM{V_g - V^*} + \frac{m}{(1-β)},
+V_h - V^* &amp;\le \mathcal B_h V_π - V^* + \frac{mγ}{(1-γ)} \\
+&amp;\stackrel{(a)}\le \mathcal B V_π + m - V^* + \frac{mγ}{(1-γ)} \\
+&amp;\stackrel{(b)}= \mathcal B V_π - \mathcal B V^* + \frac{m}{(1-γ)} \\
+&amp;\stackrel{(c)}{\le} γ \NORM{V_π - V^*} + \frac{m}{(1-γ)},
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from \eqref{eq:P1}, <span class="math inline">\((b)\)</span> uses the fact that <span class="math inline">\(V^*\)</span> is the fixed point of <span class="math inline">\(\mathcal B\)</span> and <span class="math inline">\((c)\)</span> uses the contraction property. Substituting the value of <span class="math inline">\(m\)</span> in the above equation gives the result.</p>
 <div class="highlight">
 <dl>
 <dt><span id="theorem:2"></span><span id="theorem:2" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
-<dd><p>Generate a sequence <span class="math inline">\(\{g_k\}_{k \ge 0}\)</span> and <span class="math inline">\(\{V_k\}_{k \ge 0}\)</span> such that <span class="math display">\[ \NORM{V_k - V_{g_k}} \le δ
+<dd><p>Generate a sequence <span class="math inline">\(\{π_k\}_{k \ge 0}\)</span> and <span class="math inline">\(\{V_k\}_{k \ge 0}\)</span> such that <span class="math display">\[ \NORM{V_k - V_{π_k}} \le δ
 \quad\text{and}\quad
-\NORM{\mathcal B_{g_k} V_k - \mathcal B V_k} \le ε.\]</span> Then, <span class="math display">\[ \limsup_{k\to ∞} \NORM{V_{g_k} - V^*} \le
-   \frac{ε+2βδ}{(1-β)^2}. \]</span></p>
+\NORM{\mathcal B_{π_k} V_k - \mathcal B V_k} \le ε.\]</span> Then, <span class="math display">\[ \limsup_{k\to ∞} \NORM{V_{π_k} - V^*} \le
+   \frac{ε+2γδ}{(1-γ)^2}. \]</span></p>
 </dd>
 </dl>
 </div>
 <dl>
 <dt>Remark</dt>
 <dd><ul>
-<li>Both approximate VI and approximate PI have similar error bounds (proportional to <span class="math inline">\(1/(1-β)^2\)</span>.)</li>
-<li>When <span class="math inline">\(ε = δ = 0\)</span>, then <a href="#prop:prelim" title="Prop. 1"><span class="pandoc-numbering-link prop">Prop. 1</span></a> implies that <span class="math inline">\(\NORM{V_{g_{k+1}} - V^*} \le β \NORM{V_{g_k} - V^*}\)</span>. Thus, standard policy iteration has a geometeric rate of convergence (similar to value iteration), though in practice it converges much faster.</li>
+<li>Both approximate VI and approximate PI have similar error bounds (proportional to <span class="math inline">\(1/(1-γ)^2\)</span>.)</li>
+<li>When <span class="math inline">\(ε = δ = 0\)</span>, then <a href="#prop:prelim" title="Prop. 1"><span class="pandoc-numbering-link prop">Prop. 1</span></a> implies that <span class="math inline">\(\NORM{V_{π_{k+1}} - V^*} \le γ \NORM{V_{π_k} - V^*}\)</span>. Thus, standard policy iteration has a geometeric rate of convergence (similar to value iteration), though in practice it converges much faster.</li>
 </ul>
 </dd>
 </dl>
 <h4 class="unnumbered" id="proof-2">Proof</h4>
 <p>From <a href="#prop:prelim" title="Prop. 1"><span class="pandoc-numbering-link prop">Prop. 1</span></a>, we have</p>
-<p><span class="math display">\[ \NORM{V_{g_{k+1}} - V^*} \le β \NORM{V_{g_k} - V^*} + \frac{ε + 2βδ}{(1-β)}.\]</span></p>
+<p><span class="math display">\[ \NORM{V_{π_{k+1}} - V^*} \le γ \NORM{V_{π_k} - V^*} + \frac{ε + 2γδ}{(1-γ)}.\]</span></p>
 <p>The result follows from taking the limit <span class="math inline">\(k \to ∞\)</span>.</p>
 <div class="highlight">
 <dl>
 <dt><span id="prop:2"></span><span id="prop:convergence" class="pandoc-numbering-text prop"><strong>Prop. 2</strong></span></dt>
-<dd><p>If the successive policies in approximate policy iteration converge<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, i.e.  <span class="math display">\[ g_{k+1} = g_k = g, 
-   \quad \text{for some $k$}. \]</span> Then, <span class="math display">\[ \NORM{V_g - V^*} \le \frac{ε + 2βδ}{(1-β)}. \]</span></p>
+<dd><p>If the successive policies in approximate policy iteration converge<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, i.e.  <span class="math display">\[ π_{k+1} = π_k = g, 
+   \quad \text{for some $k$}. \]</span> Then, <span class="math display">\[ \NORM{V_π - V^*} \le \frac{ε + 2γδ}{(1-γ)}. \]</span></p>
 </dd>
 </dl>
 </div>
 <h4 class="unnumbered" id="proof-3">Proof</h4>
-<p>Let <span class="math inline">\(V\)</span> be the approximate value function obtained at iteration <span class="math inline">\(k\)</span>, i.e., <span class="math display">\[\NORM{V - V_g} \le δ 
+<p>Let <span class="math inline">\(V\)</span> be the approximate value function obtained at iteration <span class="math inline">\(k\)</span>, i.e., <span class="math display">\[\NORM{V - V_π} \le δ 
   \quad\text{and}\quad
-  \NORM{\mathcal B_g V - \mathcal V} \le ε.\]</span></p>
+  \NORM{\mathcal B_π V - \mathcal V} \le ε.\]</span></p>
 <p>Then, from the triangle inequality, we have <span class="math display">\[\begin{align*}
-  \NORM{\mathcal B V_g - V_g } &amp;\le
-  \NORM{\mathcal B V_g - \mathcal B V} + 
-  \NORM{\mathcal B V - \mathcal B_g V} +
-  \NORM{\mathcal B_g V - \mathcal B_g V_g} \\
+  \NORM{\mathcal B V_π - V_π } &amp;\le
+  \NORM{\mathcal B V_π - \mathcal B V} + 
+  \NORM{\mathcal B V - \mathcal B_π V} +
+  \NORM{\mathcal B_π V - \mathcal B_π V_π} \\
   &amp;\stackrel{(a)}\le
-  β\NORM{V_g - V} + ε + β \NORM{V - V_g} \\
+  γ\NORM{V_π - V} + ε + γ \NORM{V - V_π} \\
   &amp;\stackrel{(b)}\le
-  ε + 2βδ,
-\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the fact that <span class="math inline">\(V_g = \mathcal B_g V_g\)</span> and the contraction property and <span class="math inline">\((b)\)</span> follows from the assumption on <span class="math inline">\(V\)</span>. Now, from the discounting property, we get the result.</p>
+  ε + 2γδ,
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the fact that <span class="math inline">\(V_π = \mathcal B_π V_π\)</span> and the contraction property and <span class="math inline">\((b)\)</span> follows from the assumption on <span class="math inline">\(V\)</span>. Now, from the discounting property, we get the result.</p>
 <div class="highlight">
 <dl>
 <dt><span id="prop:3"></span><span id="prop:approx" class="pandoc-numbering-text prop"><strong>Prop. 3</strong></span></dt>
-<dd><p>Suppose the successive value functions obtained by approximate policy iteration are “not too different,” i.e., <span class="math display">\[ \NORM{V - V_g} \le δ, \quad
+<dd><p>Suppose the successive value functions obtained by approximate policy iteration are “not too different,” i.e., <span class="math display">\[ \NORM{V - V_π} \le δ, \quad
    \NORM{B_h V - \mathcal B V} \le ε,
    \quad\text{and}\quad
-   \NORM{B_g V - \mathcal B_h V} \le ζ.\]</span> Then, <span class="math display">\[ \NORM{V_g - V^*} \le \frac{ε + ζ + 2βδ}{(1-β)}. \]</span></p>
+   \NORM{B_π V - \mathcal B_h V} \le ζ.\]</span> Then, <span class="math display">\[ \NORM{V_π - V^*} \le \frac{ε + ζ + 2γδ}{(1-γ)}. \]</span></p>
 </dd>
 </dl>
 </div>
@@ -193,7 +193,7 @@ V_h - V^* &amp;\le \mathcal B_h V_g - V^* + \frac{mβ}{(1-β)} \\
 <p class="categories">
 This entry 
 
- was last updated on 13 Jul 2020
+ was last updated on 16 Dec 2021
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">

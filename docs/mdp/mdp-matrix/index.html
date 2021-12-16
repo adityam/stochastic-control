@@ -34,7 +34,7 @@
 <div class="title">
   <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
   <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
-      Winter 2020
+      Winter 2022
   </h2>
   <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
 	&nbsp;<small><small>|</small></small>&nbsp;
@@ -54,55 +54,55 @@
 <img src="/stochastic-control/banners/calculator.jpg" title="Shut up and compute" style="width:100.0%" alt="Image credit: https://pixabay.com/photos/accountant-accounting-adviser-1238598/" /><figcaption aria-hidden="true">Image credit: https://pixabay.com/photos/accountant-accounting-adviser-1238598/</figcaption>
 </figure>
 <h1 data-number="1" id="mdps-as-controlled-markov-chains"><span class="header-section-number">1</span> MDPs as controlled Markov chains</h1>
-<p>In this section, we present a matrix formulation for finite state finite action MDPs, which is useful for computing the solutions numerically. Let’s start with <a href="../mdp-functional">the function model</a> described earlier and assume that <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET U\)</span> are finite sets and that the cost function and the probability distribution of <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are time-homogeneous. Then, the following is a fundamental property of MDPs:</p>
+<p>In this section, we present a matrix formulation for finite state finite action MDPs, which is useful for computing the solutions numerically. Let’s start with <a href="../mdp-functional">the function model</a> described earlier and assume that <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are finite sets and that the cost function and the probability distribution of <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are time-homogeneous. Then, the following is a fundamental property of MDPs:</p>
 <div class="highlight">
 <dl>
 <dt>Lemma</dt>
-<dd><p>For any <span class="math inline">\(x_1, x_2, \dots, x_T \in \ALPHABET X\)</span> and <span class="math inline">\(u_1, \dots, u_T \in \ALPHABET U\)</span>, we have <span class="math display">\[ \PR(X_{t+1} = x_{t+1} | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t})
- = \PR(X_{t+1} = x_{t+1} | X_{t}   = x_t    , U_t = u_t).\]</span> Moreover, the right hand side does not depend on the policy <span class="math inline">\(g\)</span>.</p>
+<dd><p>For any <span class="math inline">\(s_1, s_2, \dots, s_T \in \ALPHABET S\)</span> and <span class="math inline">\(a_1, \dots, a_T \in \ALPHABET A\)</span>, we have <span class="math display">\[ \PR(S_{t+1} = s_{t+1} | S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t})
+ = \PR(S_{t+1} = s_{t+1} | S_{t}   = s_t    , A_t = a_t).\]</span> Moreover, the right hand side does not depend on the policy <span class="math inline">\(π\)</span>.</p>
 </dd>
 </dl>
 </div>
 <h4 class="unnumbered" id="proof">Proof</h4>
-<p>For a given policy <span class="math inline">\(g\)</span> consider <span class="math display">\[\begin{align*}
+<p>For a given policy <span class="math inline">\(π\)</span> consider <span class="math display">\[\begin{align*}
   \hskip 2em &amp; \hskip -2em
-  \PR(X_{t+1} = x_{t+1} | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t})
+  \PR(S_{t+1} = s_{t+1} | S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t})
   \\
   &amp;\stackrel{(a)}=
-  \PR(\{ w_t \in \ALPHABET W : f_t(x_t, u_t, w_t) = x_{t+1} \}
-  | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t}) 
+  \PR(\{ w_t \in \ALPHABET W : f_t(s_t, a_t, w_t) = s_{t+1} \}
+  | S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t}) 
   \\
   &amp;\stackrel{(b)}=
-  \PR(\{ w_t \in \ALPHABET W : f_t(x_t, u_t, w_t) = x_{t+1} \})
+  \PR(\{ w_t \in \ALPHABET W : f_t(s_t, a_t, w_t) = s_{t+1} \})
   \\
   &amp;=
-  \PR(X_{t+1} = x_{t+1} | X_{t} = x_{t}, U_{t} = u_{t})
-\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the update equation for <span class="math inline">\(X_{t+1}\)</span> and <span class="math inline">\((b)\)</span> follows because the primitive random variables are independent. The expression in the right hand side of <span class="math inline">\((b)\)</span> does not depend on the control strategy <span class="math inline">\(g\)</span>.</p>
+  \PR(S_{t+1} = s_{t+1} | S_{t} = s_{t}, A_{t} = a_{t})
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the update equation for <span class="math inline">\(S_{t+1}\)</span> and <span class="math inline">\((b)\)</span> follows because the primitive random variables are independent. The expression in the right hand side of <span class="math inline">\((b)\)</span> does not depend on the control strategy <span class="math inline">\(π\)</span>.</p>
 <h1 data-number="2" id="matrix-formulation-of-an-mdp"><span class="header-section-number">2</span> Matrix formulation of an MDP</h1>
-<p>Let <span class="math inline">\(|\ALPHABET X| = n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>. The idea behind the matrix formulation of MDP is to think of <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> as a <em>controlled</em> Markov process and define the <span class="math inline">\(n \times n\)</span> tranistion matrices <span class="math inline">\(\{P(u)\}_{u \in \ALPHABET U}\)</span> as follows: <span class="math display">\[ P_{xy}(u) = \PR(X_{t+1} = y | X_t = x, U_t = u).\]</span></p>
-<p>Observe that <span class="math display">\[\EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
-  = \sum_{y \in \ALPHABET X} V_{t+1}(y) \PR(X_{t+1} = y | X_t = x, U_t = u).
-  \]</span> Now, if we think of <span class="math inline">\(V_t\)</span> as a <span class="math inline">\(n \times 1\)</span> column vector, then we can write <span class="math display">\[ \EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] = [ P(u)V_{t+1} ]_{x}, \]</span> or, equivalently, <span class="math display">\[ \MATRIX{ \EXP[V_{t+1}(X_{t+1}) | X_t = 1, U_t = u] \\ \vdots \\
-    \EXP[V_{t+1}(X_{t+1}) | X_t = n, U_t = u] }
-    = P(u)V_{t+1}. \]</span></p>
+<p>Let <span class="math inline">\(|\ALPHABET S| = n\)</span> and <span class="math inline">\(|\ALPHABET A| = m\)</span>. The idea behind the matrix formulation of MDP is to think of <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> as a <em>controlled</em> Markov process and define the <span class="math inline">\(n \times n\)</span> tranistion matrices <span class="math inline">\(\{P(a)\}_{a \in \ALPHABET A}\)</span> as follows: <span class="math display">\[ P_{ss&#39;}(a) = \PR(S_{t+1} = s&#39; | S_t = s, A_t = a).\]</span></p>
+<p>Observe that <span class="math display">\[\EXP[V_{t+1}(S_{t+1}) | S_t = s, A_t = a] 
+  = \sum_{s&#39; \in \ALPHABET S} V_{t+1}(s&#39;) \PR(S_{t+1} = s&#39; | S_t = s, A_t = a).
+  \]</span> Now, if we think of <span class="math inline">\(V_t\)</span> as a <span class="math inline">\(n \times 1\)</span> column vector, then we can write <span class="math display">\[ \EXP[V_{t+1}(S_{t+1}) | S_t = s, A_t = a] = [ P(a)V_{t+1} ]_{s}, \]</span> or, equivalently, <span class="math display">\[ \MATRIX{ \EXP[V_{t+1}(S_{t+1}) | S_t = 1, A_t = a] \\ \vdots \\
+    \EXP[V_{t+1}(S_{t+1}) | S_t = n, A_t = a] }
+    = P(a)V_{t+1}. \]</span></p>
 <p>Now, think of <span class="math inline">\(c_t\)</span> and <span class="math inline">\(Q_t\)</span> as <span class="math inline">\(n \times m\)</span> matrices. Then, we can write <span class="math display">\[ Q_t = c_t + \MATRIX { P(1)V_{t+1} &amp; \cdots &amp; P(n) V_{t+1} }. \]</span></p>
 <p>Define <span class="math inline">\(\bar P = \MATRIX{P(1) \\ \vdots \\ P(n)}\)</span>, then <span class="math display">\[ Q_t = c_t + \text{reshape}( \bar P \, V_{t+1}, n, m). \]</span> Hence, the key step of dynamic programming can be done using simple linear algebra and therefore implemented efficiently in any programming language.</p>
 <h1 data-number="3" id="an-example-machine-repair"><span class="header-section-number">3</span> An Example: Machine repair</h1>
-<p>Consider a machine which can be in one of <span class="math inline">\(n\)</span> states <span class="math inline">\(\ALPHABET X = \{1, \dots, n\}\)</span>, where state <span class="math inline">\(1\)</span> denotes the best state and state <span class="math inline">\(n\)</span> denotes the worse state.</p>
-<p>There are two actions <span class="math inline">\(\ALPHABET U = \{1, 2\}\)</span>, where <span class="math inline">\(u=1\)</span> means that the current machine is replaced by a brand new one (which starts in state <span class="math inline">\(1\)</span>) and <span class="math inline">\(u=2\)</span> means that the existing machine is used. When action <span class="math inline">\(u=2\)</span> is chosen, the machine state will either remain the same (with probability <span class="math inline">\(1 - θ\)</span>) or deteriorate by one unit (with probability <span class="math inline">\(θ\)</span>).</p>
+<p>Consider a machine which can be in one of <span class="math inline">\(n\)</span> states <span class="math inline">\(\ALPHABET S = \{1, \dots, n\}\)</span>, where state <span class="math inline">\(1\)</span> denotes the best state and state <span class="math inline">\(n\)</span> denotes the worse state.</p>
+<p>There are two actions <span class="math inline">\(\ALPHABET A = \{1, 2\}\)</span>, where <span class="math inline">\(a=1\)</span> means that the current machine is replaced by a brand new one (which starts in state <span class="math inline">\(1\)</span>) and <span class="math inline">\(a=2\)</span> means that the existing machine is used. When action <span class="math inline">\(a=2\)</span> is chosen, the machine state will either remain the same (with probability <span class="math inline">\(1 - θ\)</span>) or deteriorate by one unit (with probability <span class="math inline">\(θ\)</span>).</p>
 <p>For example, if <span class="math inline">\(n = 3\)</span>, then <span class="math display">\[ P(1) = \MATRIX{1 &amp; 0 &amp; 0\\ 1 &amp; 0 &amp; 0\\ 1 &amp; 0 &amp; 0},
 \qquad
 P(2) = \MATRIX{1-θ &amp;  θ &amp;  0\\ 0 &amp;  1-θ &amp; θ\\ 0 &amp;  0 &amp;  1}. \]</span></p>
-<p>Now suppose that the replace action <span class="math inline">\(u = 1\)</span> costs <span class="math inline">\(λ\)</span> unit (irrespective of the state) and the do nothing action <span class="math inline">\(u = 2\)</span> costs <span class="math inline">\(0\)</span> in state <span class="math inline">\(1\)</span>, <span class="math inline">\(1\)</span> in state <span class="math inline">\(2\)</span>, and <span class="math inline">\(5\)</span> in state <span class="math inline">\(3\)</span>. <span class="math display">\[ c = \MATRIX{λ &amp; 0 \\ λ &amp; 1 \\ λ &amp; 5 }. \]</span></p>
+<p>Now suppose that the replace action <span class="math inline">\(a = 1\)</span> costs <span class="math inline">\(λ\)</span> unit (irrespective of the state) and the do nothing action <span class="math inline">\(a = 2\)</span> costs <span class="math inline">\(0\)</span> in state <span class="math inline">\(1\)</span>, <span class="math inline">\(1\)</span> in state <span class="math inline">\(2\)</span>, and <span class="math inline">\(5\)</span> in state <span class="math inline">\(3\)</span>. <span class="math display">\[ c = \MATRIX{λ &amp; 0 \\ λ &amp; 1 \\ λ &amp; 5 }. \]</span></p>
 Then, the value functions and optimal policy for <span class="math inline">\(T = 4\)</span> and specific values of <span class="math inline">\(θ\)</span> and <span class="math inline">\(λ\)</span> are shown below. For visualization we show the replace action by <span class="math inline">\(\bullet\)</span> and the do thing action by <span class="math inline">\(\circ\)</span>. You can play around with the parameters $θ = $ <input id="theta" 
        type="number" step = 0.1
-       maxlength="3" size="2"
+       maxlength="3" size="3"
        min="0" max="1"
        onkeyup="showMatrix()"
        onchange="showMatrix()"
        value="" /> and $λ = $ <input id="lambda" 
        type="number" step = 1
-       maxlength="1" size="1"
+       maxlength="1" size="2"
        min="0" max="20"
        onkeyup="showMatrix()"
        onchange="showMatrix()"
@@ -139,7 +139,7 @@ function showMatrix(){
   const [n, m] = c.size();
   const T  = 4;
   const V  = [];
-  const g  = [];
+  const π  = [];
 
   V[T+1] = math.zeros(n)
   for (var t = T; t > 0; t--) {
@@ -148,15 +148,15 @@ function showMatrix(){
             
     // There is no argmin function in the math.js library
     // Since there are only two actions, we make the comparison by hand
-    g[t] = [];
+    π[t] = [];
     V[t] = [];
-    for(var x = 0; x < n; x++) {
-       if(Q[x][0] < Q[x][1]) {
-          V[t][x] = Q[x][0];
-          g[t][x] = "\\bullet";
+    for(var s = 0; s < n; s++) {
+       if(Q[s][0] < Q[s][1]) {
+          V[t][s] = Q[s][0];
+          π[t][s] = "\\bullet";
        } else {
-          V[t][x] = Q[x][1];
-          g[t][x] = "\\circ";
+          V[t][s] = Q[s][1];
+          π[t][s] = "\\circ";
        }
     }
     V[t] = math.matrix(V[t]);
@@ -182,10 +182,10 @@ function showMatrix(){
         V_3 &= ${VtoTeX(V[3])}, &
         V_2 &= ${VtoTeX(V[2])}, &
         V_1 &= ${VtoTeX(V[1])}. \\\\
-        g_4 &= ${gtoTeX(g[4])}, &
-        g_3 &= ${gtoTeX(g[3])}, &
-        g_2 &= ${gtoTeX(g[2])}, &
-        g_1 &= ${gtoTeX(g[1])}. \\\\
+        π_4 &= ${gtoTeX(π[4])}, &
+        π_3 &= ${gtoTeX(π[3])}, &
+        π_2 &= ${gtoTeX(π[2])}, &
+        π_1 &= ${gtoTeX(π[1])}. \\\\
        \\end{align*}$$`
       return id;
   })
@@ -203,7 +203,7 @@ showMatrix()
 <p class="categories">
 This entry 
 
- was last updated on 01 May 2020
+ was last updated on 16 Dec 2021
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">

@@ -32,7 +32,7 @@
 <div class="title">
   <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
   <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
-      Winter 2020
+      Winter 2022
   </h2>
   <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
 	&nbsp;<small><small>|</small></small>&nbsp;
@@ -48,26 +48,26 @@
 
 <div class="h1-title">Theory: Q-learning</div>
 
-<p>Consider an MDP with finite state space <span class="math inline">\(\ALPHABET X\)</span> and action space <span class="math inline">\(\ALPHABET U\)</span>, where <span class="math inline">\(|\ALPHABET X| = n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>. Recall the <a href="../../inf-mdp/discounted-mdp/#value-iteration-algorithm">value iteration algorithm</a> for infinite horizon MDPs. We start with an arbitrary initial <span class="math inline">\(V_0\)</span> and then recursively compute <span class="math inline">\(V_{k+1} = \mathcal B V_k\)</span>. We first observe that the value iteration can be written in terms of the <span class="math inline">\(Q\)</span>-function rather than the value function as follows: start with an arbitrary initial <span class="math inline">\(Q_0\)</span> and the recursively compute <span class="math display">\[ \begin{equation} \label{eq:Q}
-  Q_{k+1}(x,u) = c(x,u) + β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w \in
-  \ALPHABET U} Q_k(y,w),
-  \qquad x \in \ALPHABET X, u \in \ALPHABET U, k \ge 0
+<p>Consider an MDP with finite state space <span class="math inline">\(\ALPHABET S\)</span> and action space <span class="math inline">\(\ALPHABET A\)</span>, where <span class="math inline">\(|\ALPHABET S| = n\)</span> and <span class="math inline">\(|\ALPHABET A| = m\)</span>. Recall the <a href="../../inf-mdp/discounted-mdp/#value-iteration-algorithm">value iteration algorithm</a> for infinite horizon MDPs. We start with an arbitrary initial <span class="math inline">\(V_0\)</span> and then recursively compute <span class="math inline">\(V_{k+1} = \mathcal B V_k\)</span>. We first observe that the value iteration can be written in terms of the <span class="math inline">\(Q\)</span>-function rather than the value function as follows: start with an arbitrary initial <span class="math inline">\(Q_0\)</span> and the recursively compute <span class="math display">\[ \begin{equation} \label{eq:Q}
+  Q_{k+1}(s,a) = c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P_{ss&#39;}(a) \min_{a&#39; \in
+  \ALPHABET A} Q_k(s&#39;,a&#39;),
+  \qquad s \in \ALPHABET S, a \in \ALPHABET A, k \ge 0
 \end{equation} \]</span></p>
 <p>Suppose that the transition probabilities are unknown, but we have access to a simulator which can be used the sample the next state for any current state and action. Then, one can compute the fixed point of \eqref{eq:Q} using a stochastic approximation variant known as <strong>Q-learning</strong>.</p>
 <h1 data-number="1" id="simple-q-learning-algorithm"><span class="header-section-number">1</span> Simple Q-learning algorithm</h1>
-<p>Let <span class="math inline">\(Ψ\)</span> denote the simulator, where we use the notation <span class="math inline">\(X_{+} \sim Ψ(x,u)\)</span> to denote that the next state <span class="math inline">\(X_{+}\)</span> is sampled using the simulator with the current state input <span class="math inline">\(x\)</span> and action <span class="math inline">\(u\)</span>. Now, consider the following stochastic approximation algorithm: <span class="math display">\[\begin{equation} \label{eq:QL}
-Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
-  c(x,u) + β \min_{w \in \ALPHABET U} Q_k(Ψ(x,u), w)  - Q_k(x,u) \bigr]
-\end{equation} \]</span> <span class="math inline">\(x \in \ALPHABET X\)</span>, <span class="math inline">\(u \in \ALPHABET U\)</span>, where <span class="math inline">\(Ψ(x,u)\)</span> is an independently sampled next state from the simulator. Note that in the above equation we are assuming that we update the <span class="math inline">\(Q\)</span> function for all values of state action pairs <span class="math inline">\((x,u)\)</span> at each iteration.</p>
-<p>The iteration \eqref{eq:QL} may be viewed as a <a href="../stochastic-approximation">stochastic approximation</a> algorithm where <span class="math inline">\(θ_k = Q_k \in \reals^{n×m}\)</span> and <span class="math inline">\(f \colon \reals^{n×m} \to \reals^{n×m}\)</span> given by <span class="math inline">\(f(Q) = [ f_{xu}(Q) ]\)</span> where <span class="math display">\[
-  f_{xu}(Q) = c(x,u) + β \sum_{y \in \ALPHABET X}
-  P_{xy}(u) \min_{w \in \ALPHABET U} Q(y,w) - Q(x,u). 
+<p>Let <span class="math inline">\(Ψ\)</span> denote the simulator, where we use the notation <span class="math inline">\(S_{+} \sim Ψ(s,a)\)</span> to denote that the next state <span class="math inline">\(S_{+}\)</span> is sampled using the simulator with the current state input <span class="math inline">\(s\)</span> and action <span class="math inline">\(a\)</span>. Now, consider the following stochastic approximation algorithm: <span class="math display">\[\begin{equation} \label{eq:QL}
+Q_{k+1}(s,a) = Q_k(s,a) + a_k\bigl[
+  c(s,a) + γ \min_{a&#39; \in \ALPHABET A} Q_k(Ψ(s,a), a&#39;)  - Q_k(s,a) \bigr]
+\end{equation} \]</span> <span class="math inline">\(s \in \ALPHABET S\)</span>, <span class="math inline">\(a \in \ALPHABET A\)</span>, where <span class="math inline">\(Ψ(s,a)\)</span> is an independently sampled next state from the simulator. Note that in the above equation we are assuming that we update the <span class="math inline">\(Q\)</span> function for all values of state action pairs <span class="math inline">\((s,a)\)</span> at each iteration.</p>
+<p>The iteration \eqref{eq:QL} may be viewed as a <a href="../stochastic-approximation">stochastic approximation</a> algorithm where <span class="math inline">\(θ_k = Q_k \in \reals^{n×m}\)</span> and <span class="math inline">\(f \colon \reals^{n×m} \to \reals^{n×m}\)</span> given by <span class="math inline">\(f(Q) = [ f_{sa}(Q) ]\)</span> where <span class="math display">\[
+  f_{sa}(Q) = c(s,a) + γ \sum_{s&#39; \in \ALPHABET S}
+  P_{ss&#39;}(a) \min_{a&#39; \in \ALPHABET A} Q(s&#39;,a&#39;) - Q(s,a). 
 \]</span></p>
-<p>Define the martingale <span class="math inline">\(\{W_k\}_{k \ge 0}\)</span> by <span class="math inline">\(W_{k+1} = [W_{k+1}]_{xu}\)</span>, where <span class="math display">\[
-  [W_{k+1}]_{xu} = β \Bigl(
-    \min_{w} Q_n(Ψ(x,u), w) - \sum_{y \in \ALPHABET Y} P_{xy}(u)
-    \min_{w} Q_n(y, w) \Bigr), 
-  \quad x \in \ALPHABET X, u \in \ALPHABET  U.
+<p>Define the martingale <span class="math inline">\(\{W_k\}_{k \ge 0}\)</span> by <span class="math inline">\(W_{k+1} = [W_{k+1}]_{sa}\)</span>, where <span class="math display">\[
+  [W_{k+1}]_{sa} = γ \Bigl(
+    \min_{a&#39;} Q_n(Ψ(s,a), a&#39;) - \sum_{s&#39; \in \ALPHABET Y} P_{ss&#39;}(a)
+    \min_{a&#39;} Q_n(s&#39;, a&#39;) \Bigr), 
+  \quad s \in \ALPHABET S, a \in \ALPHABET  A.
 \]</span></p>
 <p>Then iteration \eqref{eq:QL} may be viewed as the standard stochastic approximation algorithm where <span class="math display">\[
   Q_{k+1} = Q_k + a_k[ f(Q_k) + W_{k+1} ].
@@ -76,11 +76,11 @@ Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
   \dot Q(t) = f(Q(t))
 \end{equation} \]</span> and <span class="math display">\[ \begin{equation} \label{eq:Q-ODE-inf}
   \dot Q(t) = f_∞(Q(t))
-\end{equation} \]</span> where <span class="math inline">\(f_∞(Q)\)</span> is given by <span class="math inline">\(f_∞(Q) = [f_∞(Q)]_{xu}\)</span> with <span class="math display">\[
-  [f_∞(Q)]_{xu} = 
-  β \sum_{y \in \ALPHABET X}
-  P_{xy}(u) \min_{w \in \ALPHABET U} Q(y,w) - Q(x,u),
-  \quad x \in \ALPHABET X, u \in \ALPHABET  U.
+\end{equation} \]</span> where <span class="math inline">\(f_∞(Q)\)</span> is given by <span class="math inline">\(f_∞(Q) = [f_∞(Q)]_{sa}\)</span> with <span class="math display">\[
+  [f_∞(Q)]_{sa} = 
+  γ \sum_{s&#39; \in \ALPHABET S}
+  P_{ss&#39;}(a) \min_{a&#39; \in \ALPHABET A} Q(s&#39;,a&#39;) - Q(s,a),
+  \quad s \in \ALPHABET S, a \in \ALPHABET  A.
 \]</span></p>
 <p>We will use the following general property to prove the global asymptotic stability of \eqref{eq:Q-ODE} and \eqref{eq:Q-ODE-inf}.</p>
 <div class="highlight">
@@ -116,15 +116,15 @@ Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
   \\
   &amp;= \| θ - θ^* \|_{[}^{p-1}\, \| T(θ) - T(θ^*) \|_{p}.
 \end{align*}\]</span> Subsituting this in the previous equation, we get <span class="math display">\[ \frac{dL(θ)}{dt} \le \| T(θ) - T(θ^*)\|_p - \| θ - θ^* \|_{p}. \]</span></p>
-<p>Note that we can subsitute <span class="math inline">\(p=∞\)</span> in the above expression because <span class="math inline">\(\|z\|_p \to \|z \|_{∞}\)</span> uniformly on compact sets. Since <span class="math inline">\(T\)</span> is a <span class="math inline">\(p\)</span>-norm contraction, <span class="math display">\[ \| T(θ) - T(θ^*) \|_{p} \le β \| θ - θ^* \|_{p}. \]</span> Substituting this in the previous equation, we get <span class="math display">\[
+<p>Note that we can subsitute <span class="math inline">\(p=∞\)</span> in the above expression because <span class="math inline">\(\|z\|_p \to \|z \|_{∞}\)</span> uniformly on compact sets. Since <span class="math inline">\(T\)</span> is a <span class="math inline">\(p\)</span>-norm contraction, <span class="math display">\[ \| T(θ) - T(θ^*) \|_{p} \le γ \| θ - θ^* \|_{p}. \]</span> Substituting this in the previous equation, we get <span class="math display">\[
   \frac{dL(θ)}{dt} \le 
-  \le - (1-β) \| θ(t) - θ^* \|_p = -(1-β) L(θ).
+  \le - (1-γ) \| θ(t) - θ^* \|_p = -(1-γ) L(θ).
 \]</span> Thus, <span class="math inline">\(L(θ) \to 0\)</span> (or equivalently, <span class="math inline">\(\| θ(t) - θ^* \|_{p} \to 0\)</span> as <span class="math inline">\(t \to ∞\)</span>. <span class="math inline">\(\Box\)</span></p>
 <hr />
-<p>Define the operator <span class="math inline">\(F(Q) = [F_{xu}(Q)]\)</span> by <span class="math display">\[ \begin{equation} \label{eq:F}
-  F_{xu}(Q) = c(x,u) + β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w} Q(y,w),
-\end{equation} \]</span> which may be thought as an analogue of the Bellman operator for the <span class="math inline">\(Q\)</span>-function. Similarly define <span class="math inline">\(F_∞(Q) = [F_{∞}(Q)]_{xu}\)</span> by <span class="math display">\[
-  [F_∞(Q)]_{xu} = β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w} Q(y,w),
+<p>Define the operator <span class="math inline">\(F(Q) = [F_{sa}(Q)]\)</span> by <span class="math display">\[ \begin{equation} \label{eq:F}
+  F_{sa}(Q) = c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P_{ss&#39;}(a) \min_{a&#39;} Q(s&#39;,a&#39;),
+\end{equation} \]</span> which may be thought as an analogue of the Bellman operator for the <span class="math inline">\(Q\)</span>-function. Similarly define <span class="math inline">\(F_∞(Q) = [F_{∞}(Q)]_{sa}\)</span> by <span class="math display">\[
+  [F_∞(Q)]_{sa} = γ \sum_{s&#39; \in \ALPHABET S} P_{ss&#39;}(a) \min_{a&#39;} Q(s&#39;,a&#39;),
 \]</span></p>
 <p>Then, we have have that <span class="math display">\[
   f(Q) = F(Q) - Q
@@ -133,9 +133,9 @@ Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
 \]</span> where both <span class="math inline">\(F\)</span> and <span class="math inline">\(F_∞\)</span> are sup-norm contractions. (It is immediate from definition that <span class="math inline">\(F_∞\)</span> is a sup-norm contraction. <span class="math inline">\(F(Q) = c + F_∞(Q)\)</span> is therefore also a sup-norm contraction). Therefore, <a href="#lemma:ODE" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a> implies that both ODEs \eqref{eq:Q-ODE} and \eqref{eq:Q-ODE-inf} have unique global asymptotically stable equilibrium points. Moreover, <span class="math inline">\(f_∞(0) = 0\)</span>. Therefore origin is the unique equilibrium point of \eqref{eq:Q-ODE-inf}. Therefore, we satisfy the conditions of <a href="../stochastic-approximation">stochastic approximation</a>. Hence, if the step sizes <span class="math inline">\(\{a_k\}_{k \ge 0}\)</span> satisfy either conditions (TS) or (BS), then Q-learning converges in the appropriate sense as described in the notes on <a href="../stochastic-approximation">stochastic approximation</a>.</p>
 <h1 data-number="2" id="a-single-trajectory-q-learning-algorithm"><span class="header-section-number">2</span> A single trajectory Q-learning algorithm</h1>
 <p>The previous version of Q-learning algorithm assumes that we have access to a simulator which samples the output for different choices of state-action pairs. In some applications, such a simulator is not available. Rather, one has to learn simply by interacting with the environment. The next variant of Q-learning does that. This variant is an <em>off-policy</em> learning algorithm, which means that the learner is following a behavioral property (which needs to be sufficiently exploring) while learning the optimal policy (on the side).</p>
-<p>The algorithm presented in the previous section assumed that we update the <span class="math inline">\(Q\)</span>-function for all state action pairs at each time. A more practical variation is the following. Let <span class="math inline">\(g\)</span> be some random policy such that <span class="math display">\[ \PR(U_k = u | X_k = x) &gt; 0 \]</span> for all state-action pairs <span class="math inline">\((x,u)\)</span>. Let <span class="math inline">\(\{x_k, u_k, c_k\}_{k \ge 0}\)</span> denote the sequence of states, actions, and costs obtained when executing the policy <span class="math inline">\(g\)</span>. Then, the “on-trajectory” variation of \eqref{eq:QL} is the following: <span class="math display">\[ \begin{equation} \label{eq:Q-traj}
+<p>The algorithm presented in the previous section assumed that we update the <span class="math inline">\(Q\)</span>-function for all state action pairs at each time. A more practical variation is the following. Let <span class="math inline">\(g\)</span> be some random policy such that <span class="math display">\[ \PR(A_k = a | S_k = s) &gt; 0 \]</span> for all state-action pairs <span class="math inline">\((s,a)\)</span>. Let <span class="math inline">\(\{x_k, u_k, c_k\}_{k \ge 0}\)</span> denote the sequence of states, actions, and costs obtained when executing the policy <span class="math inline">\(g\)</span>. Then, the “on-trajectory” variation of \eqref{eq:QL} is the following: <span class="math display">\[ \begin{equation} \label{eq:Q-traj}
   Q_{k+1}(x_k, u_k) = Q_k(x_k, u_k) + a_k(x_k, u_k)\bigl[
-  c_k + β \min_{w \in \ALPHABET W}Q_k(x_{t+1}, w) - Q_k(x_k, u_k) \bigr].
+  c_k + γ \min_{a&#39; \in \ALPHABET W}Q_k(x_{t+1}, a&#39;) - Q_k(x_k, u_k) \bigr].
 \end{equation} \]</span> This means that, at the <span class="math inline">\((t+1)\)</span>-th update, only the component <span class="math inline">\((x_k, u_k)\)</span> is updated.</p>
 <p>The convergence analysis of this algorithm relies on the following result from stochastic approximation (see <span class="citation" data-cites="Jaakkola1994">(<a href="#ref-Jaakkola1994" role="doc-biblioref">Jaakkola et al. 1994</a>)</span>)</p>
 <div class="highlight">
@@ -148,8 +148,8 @@ Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
 <ul>
 <li><span class="math inline">\(0 \le a_k(i) \le 1\)</span>, <span class="math inline">\(\sum_{k} a_k(i) = ∞\)</span>, and <span class="math inline">\(\sum_{k} a_k^2(i) &lt; ∞\)</span>, for all <span class="math inline">\(i \in \{1, \dots, d\}\)</span>.</li>
 <li>Let <span class="math inline">\(\mathcal F_k\)</span> denote the increasing family of <span class="math inline">\(σ\)</span>-fields <span class="math display">\[ \mathcal F_k = σ(Δ_{1:k}, W_{1:k}), \quad k \ge 0. \]</span> Then, for some norm <span class="math inline">\(\| ⋅ \|\)</span> and for all <span class="math inline">\(i \in \{1, \dots, d\}\)</span>, <span class="math display">\[
-   \| \EXP[ W_k(i) | \mathcal F_k] \| \le β \| Δ_k \|, \quad
-   \text{where } β \in (0, 1)
+   \| \EXP[ W_k(i) | \mathcal F_k] \| \le γ \| Δ_k \|, \quad
+   \text{where } γ \in (0, 1)
 \]</span> and <span class="math display">\[ \text{var}( W_k(i) | \mathcal F_k) \le C_0(1 + \| Δ_k \|)^2, 
   \quad \text{where $C$ is some constant}.
 \]</span></li>
@@ -157,20 +157,20 @@ Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
 </dd>
 </dl>
 </div>
-<p>To apply the above result, define the stochastic process <span class="math inline">\(\{Δ_k\}_{k \ge 1}\)</span> where <span class="math inline">\(Δ_k \in \reals^{n×m}\)</span> and is given by <span class="math display">\[ Δ_k(x,u) = Q_k(x,u) - Q^*(x,u) \]</span> where <span class="math inline">\(Q^*\)</span> is the optimal <span class="math inline">\(Q\)</span>-function. Then the iteration \eqref{eq:Q-traj} is of the form \eqref{eq:DT} where <span class="math display">\[
-  W_k(x_k,u_k) = c_k + β \min_{w \in \ALPHABET U}Q_k(x_{k+1}, w) - Q^*(x_k,
+<p>To apply the above result, define the stochastic process <span class="math inline">\(\{Δ_k\}_{k \ge 1}\)</span> where <span class="math inline">\(Δ_k \in \reals^{n×m}\)</span> and is given by <span class="math display">\[ Δ_k(s,a) = Q_k(s,a) - Q^*(s,a) \]</span> where <span class="math inline">\(Q^*\)</span> is the optimal <span class="math inline">\(Q\)</span>-function. Then the iteration \eqref{eq:Q-traj} is of the form \eqref{eq:DT} where <span class="math display">\[
+  W_k(x_k,u_k) = c_k + γ \min_{a&#39; \in \ALPHABET A}Q_k(x_{k+1}, a&#39;) - Q^*(x_k,
   u_k).
 \]</span> Now, note that <span class="math display">\[
   \EXP[ W_k(x_k, u_k) ] = (F Q_k)(x_k, u_k) - Q^*(x_k,u_k) = 
   (F Q)(x_k,u_k) - (F Q^*)(x_k,u_k),
 \]</span> where the operator <span class="math inline">\(F\)</span> is defined in \eqref{eq:F} and we have used the fact that <span class="math inline">\(Q^* = FQ^*\)</span>. From the contraction property of <span class="math inline">\(F\)</span>, we get that <span class="math display">\[
-  \EXP[ W_k(x_k, u_k) ] \le β \| Q_k - Q^* \|_∞ = β \| Δ_k \|_∞. 
+  \EXP[ W_k(x_k, u_k) ] \le γ \| Q_k - Q^* \|_∞ = γ \| Δ_k \|_∞. 
 \]</span></p>
 <p>Finally, <span class="math display">\[\begin{align*}
-  \text{var}[ W_k(x) | \mathcal F_k ] &amp;=
-  \EXP[ c_k + β \min_{w \in \ALPHABET U} Q_{t}(x_{t+1}, w) - (HQ_k)(x_k,u_k)
+  \text{var}[ W_k(s) | \mathcal F_k ] &amp;=
+  \EXP[ c_k + γ \min_{a&#39; \in \ALPHABET A} Q_{t}(x_{t+1}, a&#39;) - (HQ_k)(x_k,u_k)
   )^2 | \mathcal F_k ] \\
-  &amp;= \text{var}( c_k +  β \min_{w \in \ALPHABET U} Q_{t}(x_{t+1}, w) | \mathcal F_k]
+  &amp;= \text{var}( c_k +  γ \min_{a&#39; \in \ALPHABET A} Q_{t}(x_{t+1}, a&#39;) | \mathcal F_k]
 \end{align*}\]</span> which is bounded because of the fact that <span class="math inline">\(c\)</span> (and therefore <span class="math inline">\(Q\)</span>) are bounded. Then, the iteration \eqref{eq:Q-traj} satisfies the properties of <a href="#lemma:Jaakkola" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a>. Therefore <span class="math inline">\(Δ_k \to 0\)</span> or, equivalently, <span class="math inline">\(Q_k \to Q^*\)</span>, almost surely.</p>
 <h1 class="unnumbered" id="references">References</h1>
 <p>The Q-learning algorithm is due to <span class="citation" data-cites="Watkins1992"><a href="#ref-Watkins1992" role="doc-biblioref">Watkins and Dayan</a> (<a href="#ref-Watkins1992" role="doc-biblioref">1992</a>)</span>. The proof here is from <span class="citation" data-cites="Borkar2000"><a href="#ref-Borkar2000" role="doc-biblioref">Borkar and Meyn</a> (<a href="#ref-Borkar2000" role="doc-biblioref">2000</a>)</span>. Also see <span class="citation" data-cites="Tsitsiklis1994"><a href="#ref-Tsitsiklis1994" role="doc-biblioref">Tsitsiklis</a> (<a href="#ref-Tsitsiklis1994" role="doc-biblioref">1994</a>)</span> for a asynchronous version of Q-learning algorithm.</p>
@@ -196,7 +196,7 @@ Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
 <p class="categories">
 This entry 
 
- was last updated on 27 Jul 2020</p>
+ was last updated on 16 Dec 2021</p>
 
 
 
