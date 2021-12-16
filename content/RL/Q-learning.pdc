@@ -9,17 +9,17 @@ tags:
   - stochastic approximation
 ---
 
-Consider an MDP with finite state space $\ALPHABET X$ and action space
-$\ALPHABET U$, where $|\ALPHABET X| = n$ and $|\ALPHABET U| = m$. Recall the
+Consider an MDP with finite state space $\ALPHABET S$ and action space
+$\ALPHABET A$, where $|\ALPHABET S| = n$ and $|\ALPHABET A| = m$. Recall the
 [value iteration algorithm][VI] for infinite horizon MDPs. We start with an
 arbitrary initial $V_0$ and then recursively compute $V_{k+1} = \mathcal B
 V_k$. We first observe that the value iteration can be written in terms of the
 $Q$-function rather than the value function as follows: start with an
 arbitrary initial $Q_0$ and the recursively compute
 $$ \begin{equation} \label{eq:Q}
-  Q_{k+1}(x,u) = c(x,u) + β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w \in
-  \ALPHABET U} Q_k(y,w),
-  \qquad x \in \ALPHABET X, u \in \ALPHABET U, k \ge 0
+  Q_{k+1}(s,a) = c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) \min_{a' \in
+  \ALPHABET A} Q_k(s',a'),
+  \qquad s \in \ALPHABET S, a \in \ALPHABET A, k \ge 0
 \end{equation} $$
 
 Suppose that the transition probabilities are unknown, but we have access to a
@@ -29,33 +29,33 @@ stochastic approximation variant known as **Q-learning**.
 
 # Simple Q-learning algorithm
 
-Let $Ψ$ denote the simulator, where we use the notation $X_{+} \sim Ψ(x,u)$
-to denote that the next state $X_{+}$ is sampled using the simulator with the
-current state input $x$ and action $u$. Now, consider the following stochastic
+Let $Ψ$ denote the simulator, where we use the notation $S_{+} \sim Ψ(s,a)$
+to denote that the next state $S_{+}$ is sampled using the simulator with the
+current state input $s$ and action $a$. Now, consider the following stochastic
 approximation algorithm:
 $$\begin{equation} \label{eq:QL}
-Q_{k+1}(x,u) = Q_k(x,u) + a_k\bigl[
-  c(x,u) + β \min_{w \in \ALPHABET U} Q_k(Ψ(x,u), w)  - Q_k(x,u) \bigr]
+Q_{k+1}(s,a) = Q_k(s,a) + a_k\bigl[
+  c(s,a) + γ \min_{a' \in \ALPHABET A} Q_k(Ψ(s,a), a')  - Q_k(s,a) \bigr]
 \end{equation} $$
-$x \in \ALPHABET X$, $u \in \ALPHABET U$, 
-where $Ψ(x,u)$ is an independently sampled next state from the simulator.
+$s \in \ALPHABET S$, $a \in \ALPHABET A$, 
+where $Ψ(s,a)$ is an independently sampled next state from the simulator.
 Note that in the above equation we are assuming that we update the $Q$
-function for all values of state action pairs $(x,u)$ at each iteration. 
+function for all values of state action pairs $(s,a)$ at each iteration. 
 
 The iteration \\eqref{eq:QL} may be viewed as a [stochastic approximation][SA]
 algorithm where $θ_k = Q_k \in \reals^{n×m}$ and $f \colon \reals^{n×m} \to
-\reals^{n×m}$ given by $f(Q) = [ f_{xu}(Q) ]$ where
+\reals^{n×m}$ given by $f(Q) = [ f_{sa}(Q) ]$ where
 $$
-  f_{xu}(Q) = c(x,u) + β \sum_{y \in \ALPHABET X}
-  P_{xy}(u) \min_{w \in \ALPHABET U} Q(y,w) - Q(x,u). 
+  f_{sa}(Q) = c(s,a) + γ \sum_{s' \in \ALPHABET S}
+  P_{ss'}(a) \min_{a' \in \ALPHABET A} Q(s',a') - Q(s,a). 
 $$
 
-Define the martingale $\{W_k\}_{k \ge 0}$ by $W_{k+1} = [W_{k+1}]_{xu}$, where
+Define the martingale $\{W_k\}_{k \ge 0}$ by $W_{k+1} = [W_{k+1}]_{sa}$, where
 $$
-  [W_{k+1}]_{xu} = β \Bigl(
-    \min_{w} Q_n(Ψ(x,u), w) - \sum_{y \in \ALPHABET Y} P_{xy}(u)
-    \min_{w} Q_n(y, w) \Bigr), 
-  \quad x \in \ALPHABET X, u \in \ALPHABET  U.
+  [W_{k+1}]_{sa} = γ \Bigl(
+    \min_{a'} Q_n(Ψ(s,a), a') - \sum_{s' \in \ALPHABET Y} P_{ss'}(a)
+    \min_{a'} Q_n(s', a') \Bigr), 
+  \quad s \in \ALPHABET S, a \in \ALPHABET  A.
 $$
 
 Then iteration \\eqref{eq:QL} may be viewed as the standard stochastic
@@ -77,12 +77,12 @@ and
 $$ \begin{equation} \label{eq:Q-ODE-inf}
   \dot Q(t) = f_∞(Q(t))
 \end{equation} $$
-where $f_∞(Q)$ is given by $f_∞(Q) = [f_∞(Q)]_{xu}$ with
+where $f_∞(Q)$ is given by $f_∞(Q) = [f_∞(Q)]_{sa}$ with
 $$
-  [f_∞(Q)]_{xu} = 
-  β \sum_{y \in \ALPHABET X}
-  P_{xy}(u) \min_{w \in \ALPHABET U} Q(y,w) - Q(x,u),
-  \quad x \in \ALPHABET X, u \in \ALPHABET  U.
+  [f_∞(Q)]_{sa} = 
+  γ \sum_{s' \in \ALPHABET S}
+  P_{ss'}(a) \min_{a' \in \ALPHABET A} Q(s',a') - Q(s,a),
+  \quad s \in \ALPHABET S, a \in \ALPHABET  A.
 $$
 
 We will use the following general property to prove the global asymptotic
@@ -142,11 +142,11 @@ $$ \frac{dL(θ)}{dt} \le \| T(θ) - T(θ^*)\|_p - \| θ - θ^* \|_{p}. $$
 
 Note that we can subsitute $p=∞$ in the above expression because $\|z\|_p \to
 \|z \|_{∞}$ uniformly on compact sets. Since $T$ is a $p$-norm contraction, 
-$$ \| T(θ) - T(θ^*) \|_{p} \le β \| θ - θ^* \|_{p}. $$
+$$ \| T(θ) - T(θ^*) \|_{p} \le γ \| θ - θ^* \|_{p}. $$
 Substituting this in the previous equation, we get
 $$
   \frac{dL(θ)}{dt} \le 
-  \le - (1-β) \| θ(t) - θ^* \|_p = -(1-β) L(θ).
+  \le - (1-γ) \| θ(t) - θ^* \|_p = -(1-γ) L(θ).
 $$
 Thus, $L(θ) \to 0$ (or equivalently, $\| θ(t) - θ^* \|_{p} \to 0$ as $t \to
 ∞$. $\Box$
@@ -155,14 +155,14 @@ Thus, $L(θ) \to 0$ (or equivalently, $\| θ(t) - θ^* \|_{p} \to 0$ as $t \to
 
 
 
-Define the operator $F(Q) = [F_{xu}(Q)]$ by
+Define the operator $F(Q) = [F_{sa}(Q)]$ by
 $$ \begin{equation} \label{eq:F}
-  F_{xu}(Q) = c(x,u) + β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w} Q(y,w),
+  F_{sa}(Q) = c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) \min_{a'} Q(s',a'),
 \end{equation} $$
 which may be thought as an analogue of the Bellman operator for the
-$Q$-function. Similarly define $F_∞(Q) = [F_{∞}(Q)]_{xu}$ by
+$Q$-function. Similarly define $F_∞(Q) = [F_{∞}(Q)]_{sa}$ by
 $$
-  [F_∞(Q)]_{xu} = β \sum_{y \in \ALPHABET X} P_{xy}(u) \min_{w} Q(y,w),
+  [F_∞(Q)]_{sa} = γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) \min_{a'} Q(s',a'),
 $$
 
 Then, we have have that 
@@ -197,13 +197,13 @@ to be sufficiently exploring) while learning the optimal policy (on the side).
 The algorithm presented in the previous section assumed that we update the
 $Q$-function for all state action pairs at each time. A more practical
 variation is the following. Let $g$ be some random policy such that 
-$$ \PR(U_k = u | X_k = x) > 0 $$
-for all state-action pairs $(x,u)$. Let $\{x_k, u_k, c_k\}_{k \ge 0}$ denote the
+$$ \PR(A_k = a | S_k = s) > 0 $$
+for all state-action pairs $(s,a)$. Let $\{x_k, u_k, c_k\}_{k \ge 0}$ denote the
 sequence of states, actions, and costs obtained when executing the policy $g$.
 Then, the "on-trajectory" variation of \\eqref{eq:QL} is the following:
 $$ \begin{equation} \label{eq:Q-traj}
   Q_{k+1}(x_k, u_k) = Q_k(x_k, u_k) + a_k(x_k, u_k)\bigl[
-  c_k + β \min_{w \in \ALPHABET W}Q_k(x_{t+1}, w) - Q_k(x_k, u_k) \bigr].
+  c_k + γ \min_{a' \in \ALPHABET W}Q_k(x_{t+1}, a') - Q_k(x_k, u_k) \bigr].
 \end{equation} $$
 This means that, at the $(t+1)$-th update, only the component $(x_k, u_k)$ is
 updated. 
@@ -228,8 +228,8 @@ Lemma #Jaakkola
       $$ \mathcal F_k = σ(Δ_{1:k}, W_{1:k}), \quad k \ge 0. $$ 
       Then, for some norm $\| ⋅ \|$ and for all $i \in \{1, \dots, d\}$,
       $$
-         \| \EXP[ W_k(i) | \mathcal F_k] \| \le β \| Δ_k \|, \quad
-         \text{where } β \in (0, 1)
+         \| \EXP[ W_k(i) | \mathcal F_k] \| \le γ \| Δ_k \|, \quad
+         \text{where } γ \in (0, 1)
       $$
       and
       $$ \text{var}( W_k(i) | \mathcal F_k) \le C_0(1 + \| Δ_k \|)^2, 
@@ -241,11 +241,11 @@ Lemma #Jaakkola
 
 To apply the above result, define the stochastic process $\{Δ_k\}_{k \ge 1}$
 where $Δ_k \in \reals^{n×m}$ and is given by
-$$ Δ_k(x,u) = Q_k(x,u) - Q^*(x,u) $$
+$$ Δ_k(s,a) = Q_k(s,a) - Q^*(s,a) $$
 where $Q^*$ is the optimal $Q$-function. Then the iteration \\eqref{eq:Q-traj}
 is of the form \\eqref{eq:DT} where
 $$
-  W_k(x_k,u_k) = c_k + β \min_{w \in \ALPHABET U}Q_k(x_{k+1}, w) - Q^*(x_k,
+  W_k(x_k,u_k) = c_k + γ \min_{a' \in \ALPHABET A}Q_k(x_{k+1}, a') - Q^*(x_k,
   u_k).
 $$
 Now, note that
@@ -256,15 +256,15 @@ $$
 where the operator $F$ is defined in \\eqref{eq:F} and we have used the fact
 that $Q^* = FQ^*$. From the contraction property of $F$, we get that
 $$
-  \EXP[ W_k(x_k, u_k) ] \le β \| Q_k - Q^* \|_∞ = β \| Δ_k \|_∞. 
+  \EXP[ W_k(x_k, u_k) ] \le γ \| Q_k - Q^* \|_∞ = γ \| Δ_k \|_∞. 
 $$
 
 Finally, 
 \begin{align*}
-  \text{var}[ W_k(x) | \mathcal F_k ] &=
-  \EXP[ c_k + β \min_{w \in \ALPHABET U} Q_{t}(x_{t+1}, w) - (HQ_k)(x_k,u_k)
+  \text{var}[ W_k(s) | \mathcal F_k ] &=
+  \EXP[ c_k + γ \min_{a' \in \ALPHABET A} Q_{t}(x_{t+1}, a') - (HQ_k)(x_k,u_k)
   )^2 | \mathcal F_k ] \\
-  &= \text{var}( c_k +  β \min_{w \in \ALPHABET U} Q_{t}(x_{t+1}, w) | \mathcal F_k]
+  &= \text{var}( c_k +  γ \min_{a' \in \ALPHABET A} Q_{t}(x_{t+1}, a') | \mathcal F_k]
 \end{align*}
 which is bounded because of the fact that $c$ (and therefore $Q$) are bounded. 
 Then, the iteration \\eqref{eq:Q-traj} satisfies the properties of

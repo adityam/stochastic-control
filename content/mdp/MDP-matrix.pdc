@@ -19,7 +19,7 @@ compute" { width=100% }
 In this section, we present a matrix formulation for finite state finite
 action MDPs, which is useful for computing the solutions numerically. 
 Let's start with [the function model][MDP] described earlier and assume that
-$\ALPHABET X$ and $\ALPHABET U$ are finite sets and that the cost function and
+$\ALPHABET S$ and $\ALPHABET A$ are finite sets and that the cost function and
 the probability distribution of $\{W_t\}_{t \ge 1}$ are time-homogeneous.
 Then, the following is a fundamental property of MDPs:
 
@@ -28,51 +28,51 @@ Then, the following is a fundamental property of MDPs:
 ::: highlight :::
 Lemma
 
-:   For any $x_1, x_2, \dots, x_T \in \ALPHABET X$ and $u_1, \dots, u_T \in
-    \ALPHABET U$, we have
-    $$ \PR(X_{t+1} = x_{t+1} | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t})
-     = \PR(X_{t+1} = x_{t+1} | X_{t}   = x_t    , U_t = u_t).$$
-    Moreover, the right hand side does not depend on the policy $g$.
+:   For any $s_1, s_2, \dots, s_T \in \ALPHABET S$ and $a_1, \dots, a_T \in
+    \ALPHABET A$, we have
+    $$ \PR(S_{t+1} = s_{t+1} | S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t})
+     = \PR(S_{t+1} = s_{t+1} | S_{t}   = s_t    , A_t = a_t).$$
+    Moreover, the right hand side does not depend on the policy $π$.
 :::
 
 #### Proof {-}
-For a given policy $g$ consider
+For a given policy $π$ consider
 $$\begin{align*}
   \hskip 2em & \hskip -2em
-  \PR(X_{t+1} = x_{t+1} | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t})
+  \PR(S_{t+1} = s_{t+1} | S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t})
   \\
   &\stackrel{(a)}=
-  \PR(\{ w_t \in \ALPHABET W : f_t(x_t, u_t, w_t) = x_{t+1} \}
-  | X_{1:t} = x_{1:t}, U_{1:t} = u_{1:t}) 
+  \PR(\{ w_t \in \ALPHABET W : f_t(s_t, a_t, w_t) = s_{t+1} \}
+  | S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t}) 
   \\
   &\stackrel{(b)}=
-  \PR(\{ w_t \in \ALPHABET W : f_t(x_t, u_t, w_t) = x_{t+1} \})
+  \PR(\{ w_t \in \ALPHABET W : f_t(s_t, a_t, w_t) = s_{t+1} \})
   \\
   &=
-  \PR(X_{t+1} = x_{t+1} | X_{t} = x_{t}, U_{t} = u_{t})
+  \PR(S_{t+1} = s_{t+1} | S_{t} = s_{t}, A_{t} = a_{t})
 \end{align*}$$
-where $(a)$ follows from the update equation for $X_{t+1}$ and $(b)$ follows
+where $(a)$ follows from the update equation for $S_{t+1}$ and $(b)$ follows
 because the primitive random variables are independent. The expression in the
-right hand side of $(b)$ does not depend on the control strategy $g$. 
+right hand side of $(b)$ does not depend on the control strategy $π$. 
 
 # Matrix formulation of an MDP
 
-Let $|\ALPHABET X| = n$ and $|\ALPHABET U| = m$. The idea behind the matrix
-formulation of MDP is to think of $\{X_t\}_{t \ge 1}$ as a _controlled_ Markov
-process and define the $n \times n$ tranistion matrices $\{P(u)\}_{u \in
-\ALPHABET U}$ as follows:
-$$ P_{xy}(u) = \PR(X_{t+1} = y | X_t = x, U_t = u).$$
+Let $|\ALPHABET S| = n$ and $|\ALPHABET A| = m$. The idea behind the matrix
+formulation of MDP is to think of $\{S_t\}_{t \ge 1}$ as a _controlled_ Markov
+process and define the $n \times n$ tranistion matrices $\{P(a)\}_{a \in
+\ALPHABET A}$ as follows:
+$$ P_{ss'}(a) = \PR(S_{t+1} = s' | S_t = s, A_t = a).$$
 
 Observe that
-$$\EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
-  = \sum_{y \in \ALPHABET X} V_{t+1}(y) \PR(X_{t+1} = y | X_t = x, U_t = u).
+$$\EXP[V_{t+1}(S_{t+1}) | S_t = s, A_t = a] 
+  = \sum_{s' \in \ALPHABET S} V_{t+1}(s') \PR(S_{t+1} = s' | S_t = s, A_t = a).
   $$
 Now, if we think of $V_t$ as a $n \times 1$ column vector, then we can write
-$$ \EXP[V_{t+1}(X_{t+1}) | X_t = x, U_t = u] = [ P(u)V_{t+1} ]_{x}, $$
+$$ \EXP[V_{t+1}(S_{t+1}) | S_t = s, A_t = a] = [ P(a)V_{t+1} ]_{s}, $$
 or, equivalently,
-$$ \MATRIX{ \EXP[V_{t+1}(X_{t+1}) | X_t = 1, U_t = u] \\ \vdots \\
-    \EXP[V_{t+1}(X_{t+1}) | X_t = n, U_t = u] }
-    = P(u)V_{t+1}. $$
+$$ \MATRIX{ \EXP[V_{t+1}(S_{t+1}) | S_t = 1, A_t = a] \\ \vdots \\
+    \EXP[V_{t+1}(S_{t+1}) | S_t = n, A_t = a] }
+    = P(a)V_{t+1}. $$
 
 Now, think of $c_t$ and $Q_t$ as $n \times m$ matrices. Then, we can write
 $$ Q_t = c_t + \MATRIX { P(1)V_{t+1} & \cdots & P(n) V_{t+1} }. $$
@@ -84,13 +84,13 @@ algebra and therefore implemented efficiently in any programming language.
 
 # An Example: Machine repair
 
-Consider a machine which can be in one of $n$ states $\ALPHABET X = \{1,
+Consider a machine which can be in one of $n$ states $\ALPHABET S = \{1,
 \dots, n\}$, where state $1$ denotes the best state and state $n$ denotes the
 worse state. 
 
-There are two actions $\ALPHABET U = \{1, 2\}$, where $u=1$ means that the
+There are two actions $\ALPHABET A = \{1, 2\}$, where $a=1$ means that the
 current machine is replaced by a brand new one (which starts in state $1$)
-and $u=2$ means that the existing machine is used. When action $u=2$ is
+and $a=2$ means that the existing machine is used. When action $a=2$ is
 chosen, the machine state will either remain the same (with probability $1
 - θ$) or deteriorate by one unit (with probability $θ$). 
 
@@ -99,8 +99,8 @@ $$ P(1) = \MATRIX{1 & 0 & 0\\ 1 & 0 & 0\\ 1 & 0 & 0},
 \qquad
 P(2) = \MATRIX{1-θ &  θ &  0\\ 0 &  1-θ & θ\\ 0 &  0 &  1}. $$
 
-Now suppose that the replace action $u = 1$ costs $λ$ unit (irrespective of
-the state) and the do nothing action $u = 2$ costs $0$ in state $1$, $1$ in
+Now suppose that the replace action $a = 1$ costs $λ$ unit (irrespective of
+the state) and the do nothing action $a = 2$ costs $0$ in state $1$, $1$ in
 state $2$, and $5$ in state $3$. 
 $$ c = \MATRIX{λ & 0 \\ λ & 1 \\ λ & 5 }. $$
 
@@ -110,7 +110,7 @@ $\bullet$ and the do thing action by $\circ$. You can play around with the
 parameters $θ = $
 <input id="theta" 
        type="number" step = 0.1
-       maxlength="3" size="2"
+       maxlength="3" size="3"
        min="0" max="1"
        onkeyup="showMatrix()"
        onchange="showMatrix()"
@@ -119,7 +119,7 @@ and
 $λ = $
 <input id="lambda" 
        type="number" step = 1
-       maxlength="1" size="1"
+       maxlength="1" size="2"
        min="0" max="20"
        onkeyup="showMatrix()"
        onchange="showMatrix()"
@@ -157,7 +157,7 @@ function showMatrix(){
   const [n, m] = c.size();
   const T  = 4;
   const V  = [];
-  const g  = [];
+  const π  = [];
 
   V[T+1] = math.zeros(n)
   for (var t = T; t > 0; t--) {
@@ -166,15 +166,15 @@ function showMatrix(){
             
     // There is no argmin function in the math.js library
     // Since there are only two actions, we make the comparison by hand
-    g[t] = [];
+    π[t] = [];
     V[t] = [];
-    for(var x = 0; x < n; x++) {
-       if(Q[x][0] < Q[x][1]) {
-          V[t][x] = Q[x][0];
-          g[t][x] = "\\bullet";
+    for(var s = 0; s < n; s++) {
+       if(Q[s][0] < Q[s][1]) {
+          V[t][s] = Q[s][0];
+          π[t][s] = "\\bullet";
        } else {
-          V[t][x] = Q[x][1];
-          g[t][x] = "\\circ";
+          V[t][s] = Q[s][1];
+          π[t][s] = "\\circ";
        }
     }
     V[t] = math.matrix(V[t]);
@@ -200,10 +200,10 @@ function showMatrix(){
         V_3 &= ${VtoTeX(V[3])}, &
         V_2 &= ${VtoTeX(V[2])}, &
         V_1 &= ${VtoTeX(V[1])}. \\\\
-        g_4 &= ${gtoTeX(g[4])}, &
-        g_3 &= ${gtoTeX(g[3])}, &
-        g_2 &= ${gtoTeX(g[2])}, &
-        g_1 &= ${gtoTeX(g[1])}. \\\\
+        π_4 &= ${gtoTeX(π[4])}, &
+        π_3 &= ${gtoTeX(π[3])}, &
+        π_2 &= ${gtoTeX(π[2])}, &
+        π_1 &= ${gtoTeX(π[1])}. \\\\
        \\end{align*}$$`
       return id;
   })

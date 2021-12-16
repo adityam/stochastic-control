@@ -24,37 +24,37 @@ identify the optimal strategy and value function of MDPs in closed form._
 ---
 
 
-Imagine  a gambler who goes to a casino with an initial fortune of $x_1$
-dollars and places bets over time and must leave after $T$ bets. Let $X_t$
+Imagine  a gambler who goes to a casino with an initial fortune of $s_1$
+dollars and places bets over time and must leave after $T$ bets. Let $S_t$
 denote the gambler's fortune after $t$ bets. In this example, time denotes the
 number of times that the gambler has bet.
 
-At time $t$, the gambler may place a bet for any amount $U_t$ less than or
+At time $t$, the gambler may place a bet for any amount $A_t$ less than or
 equal to his
-current fortune $X_t$. If he wins the bet (denoted by the even $W_t = 1$), the
+current fortune $S_t$. If he wins the bet (denoted by the even $W_t = 1$), the
 casino gives him the amount that he had bet. If he loses the bet (denoted by
 the event $W_t = -1$), he pays the casino the amount that he had bet. Thus,
 the dynamics can be written as 
 
-$$ X_{t+1} = X_t + W_t U_t. $$
+$$ S_{t+1} = S_t + W_t A_t. $$
 
 The outcomes of the bets $\{W_t\}_{t \ge 1}$ are _primitive random variables_,
 i.e., they are independent of each other, the gambler's initial fortune, and
 his betting strategy. 
 
-The gambler's utility is $\log X_T$, the logarithm of his final fortune.[^1] Thus,
+The gambler's utility is $\log S_T$, the logarithm of his final fortune.[^1] Thus,
 the reward function may be written as
 
-$$ r_t(x, u) = 0 
+$$ r_t(s, a) = 0 
    \quad \text{and} \quad
-   r_T(x) = \log x.
+   r_T(s) = \log s.
 $$
 
 [^1]: See the notes on [risk sensitive utility] for a discussion on the choice of the utility function.
 
 [risk sensitive utility]: ../../risk-sensitive/risk-sensitive-utility
 
-Find the strategy that maximizes the gambler's utility, $\EXP[\log X_T]$. 
+Find the strategy that maximizes the gambler's utility, $\EXP[\log S_T]$. 
 
 # Optimal gambling strategy and value functions
 
@@ -65,21 +65,21 @@ the optimal solution is given by dynamic programming.
 Dynamic program
 
 :   Define the following value function $V_t \colon \reals_{\ge 0} \to \reals$
-    $$ V_T(x) = \log x $$
+    $$ V_T(s) = \log s $$
     and for $t \in \{T-1, \dots, 1\}$:
     $$ \begin{align*}
-      Q_t(x,u) &= \EXP[ r_t(x,u) + V_{t+1}(X_{t+1}) \,|\, X_t = x, U_t = u] \\
-      &= p V_{t+1}(x+u) + (1-p) V_{t+1}(x-u),
+      Q_t(s,a) &= \EXP[ r_t(s,a) + V_{t+1}(S_{t+1}) \,|\, S_t = s, A_t = a] \\
+      &= p V_{t+1}(s+a) + (1-p) V_{t+1}(s-a),
       \end{align*}
     $$
     and
     $$ \begin{align*}
-      V_t(x) &=  \max_{u \in [0, x]} Q_t(x,u), \\
-      g_t(x) &= \arg \max_{u \in [0, x]} Q_t(x,u). \\
+      V_t(s) &=  \max_{a \in [0, s]} Q_t(s,a), \\
+      π_t(s) &= \arg \max_{a \in [0, s]} Q_t(s,a). \\
       \end{align*}
     $$
 
-    Then the strategy $g = (g_1, \dots, g_{T-1})$ is optimal.
+    Then the strategy $π = (π_1, \dots, π_{T-1})$ is optimal.
 :::
 
 The above model is one of the rare instances when the optimal strategy and
@@ -91,14 +91,14 @@ Theorem
 
 :   When $p \le 0.5$:
 
-    - the optimal strategy is to _not gamble_, specifically $g_t(x) = 0$;
-    - the value function is $V_t(x) = \log x$. 
+    - the optimal strategy is to _not gamble_, specifically $π_t(s) = 0$;
+    - the value function is $V_t(s) = \log s$. 
 
     When $p > 0.5$:
 
     - the optimal strategy is _to bet a fraction of the current fortune_,
-      specifically $g_t(x) = (2p - 1)x$;
-    - the value function is $V_t(x) = \log x + (T - t) C$, where[^C]
+      specifically $π_t(s) = (2p - 1)s$;
+    - the value function is $V_t(s) = \log s + (T - t) C$, where[^C]
       $$ C = \log 2 + p \log p + (1-p) \log (1-p).$$
 :::
 
@@ -113,32 +113,32 @@ We prove the two cases separately.
 Let $p = \PR(W_t = 1)$ and $q = \PR(W_t = -1)$. Then $p \le 0.5$ implies that
 $p \le 1 - p = q$. 
 
-We proceed by backward induction. For $t = T$, we have that $V_T(x) = \log x$.
-This forms the basis of induction. Now assume that for $t+1$, $V_{t+1}(x) =
-\log x$. Now consider
+We proceed by backward induction. For $t = T$, we have that $V_T(s) = \log s$.
+This forms the basis of induction. Now assume that for $t+1$, $V_{t+1}(s) =
+\log s$. Now consider
 
-$$ Q_t(x,u) = p V_{t+1}(x+u) + qV_{t+1}(x-u). $$
+$$ Q_t(s,a) = p V_{t+1}(s+a) + qV_{t+1}(s-a). $$
 
-Differentiating both sides w.r.t. $u$, we get
+Differentiating both sides w.r.t. $a$, we get
 $$ \begin{align*} 
-  \frac { \partial Q_t(x,u) } {\partial u} &= 
-   \frac p { x + u} - \frac q { x - u } 
+  \frac { \partial Q_t(s,a) } {\partial a} &= 
+   \frac p { s + a} - \frac q { s - a } 
    \\
-   & = \frac { (p - q) x - (p + q) u } { x^2 - u^2 } 
+   & = \frac { (p - q) s - (p + q) a } { s^2 - a^2 } 
    \\
    & =
-   \frac { - (q - p) x - u } {x^2 - u^2 } 
+   \frac { - (q - p) s - a } {s^2 - a^2 } 
    \\
    &< 0.
   \end{align*}   
 $$
 
-This implies that $Q_t(x,u)$ is decreasing in $u$. Therefore,
+This implies that $Q_t(s,a)$ is decreasing in $a$. Therefore,
 
-$$ g_t(x) = \arg\max_{u \in [0, x]} Q_t(x,u) = 0. $$
+$$ π_t(s) = \arg\max_{a \in [0, s]} Q_t(s,a) = 0. $$
 
 Moreover,
-$$ V_t(x) = Q_t(x, g_t(x)) = \log x.$$
+$$ V_t(s) = Q_t(s, π_t(s)) = \log s.$$
 
 This completes the induction step. 
 
@@ -147,43 +147,43 @@ This completes the induction step.
 As in the previous case, let $p = \PR(W_t = 1)$ and $q = \PR(W_t = -1)$. Then
 $p > 0.5$ implies that $p > 1 - p = q$. 
 
-We proceed by backward induction. For $t = T$, we have that $V_T(x) = \log x$.
-This forms the basis of induction. Now assume that for $t+1$, $V_{t+1}(x) =
-\log x + (T -t - 1)C$. Now consider
+We proceed by backward induction. For $t = T$, we have that $V_T(s) = \log s$.
+This forms the basis of induction. Now assume that for $t+1$, $V_{t+1}(s) =
+\log s + (T -t - 1)C$. Now consider
 
-$$ Q_t(x,u) = p V_{t+1}(x+u) + qV_{t+1}(x-u). $$
+$$ Q_t(s,a) = p V_{t+1}(s+a) + qV_{t+1}(s-a). $$
 
-Differentiating both sides w.r.t. $u$, we get
+Differentiating both sides w.r.t. $a$, we get
 $$ \begin{align*} 
-  \frac { \partial Q_t(x,u) } {\partial u} &= 
-   \frac p { x + u} - \frac q { x - u } 
+  \frac { \partial Q_t(s,a) } {\partial a} &= 
+   \frac p { s + a} - \frac q { s - a } 
    \\
-   & = \frac { (p - q) x - (p + q) u } { x^2 - u^2 } 
+   & = \frac { (p - q) s - (p + q) a } { s^2 - a^2 } 
    \\
    & =
-   \frac { (p - q) x - u } {x^2 - u^2 } 
+   \frac { (p - q) s - a } {s^2 - a^2 } 
   \end{align*}   
 $$
 
-Setting $\partial Q_t(x,u)/\partial u = 0$, we get that the optimal action is
+Setting $\partial Q_t(s,a)/\partial a = 0$, we get that the optimal action is
 
-$$ g_t(x) = (p-q) x. $$
+$$ π_t(s) = (p-q) s. $$
 
 Note that $(p-q) \in (0,1]$ 
 
 $$ 
-  \frac { \partial^2 Q_t(x,u) } {\partial u^2} = 
-   - \frac p { (x + u)^2 } - \frac q { (x - u)^2 } 
+  \frac { \partial^2 Q_t(s,a) } {\partial a^2} = 
+   - \frac p { (s + a)^2 } - \frac q { (s - a)^2 } 
   < 0;
 $$
 hence the above action is indeed the maximizer. 
 Moreover,
 $$ \begin{align*} 
-  V_t(x) &= Q_t(x, g_t(x))  \\
-  &= p V_{t+1}(x + g_t(x)) + q V_{t+1}( x - g_t(x) )\\
-  &= \log x + p \log (1 + (p-q)) + q \log (1 - (p-q)) + (T - t -1)C \\
-  &= \log x + p \log 2p + q \log 2q + (T - t + 1)C \\
-  &= \log x + (T - t) C
+  V_t(s) &= Q_t(s, π_t(s))  \\
+  &= p V_{t+1}(s + π_t(s)) + q V_{t+1}( s - π_t(s) )\\
+  &= \log s + p \log (1 + (p-q)) + q \log (1 - (p-q)) + (T - t -1)C \\
+  &= \log s + p \log 2p + q \log 2q + (T - t + 1)C \\
+  &= \log s + (T - t) C
   \end{align*}   
 $$
 
@@ -191,7 +191,7 @@ This completes the induction step.
 
 # Generalized model
 
-Suppose that the terminal reward $r_T(x)$ is monotone increasing[^increasing] in $x$.
+Suppose that the terminal reward $r_T(s)$ is monotone increasing[^increasing] in $s$.
 
 [^increasing]: I use the convention that _increasing_ means _weakly
   increasing_. The alternative term _non-decreasing_ implicitly assumes that
@@ -202,41 +202,41 @@ Theorem
 
 :   For the generalized optimal gambling problem:
 
-    - For each $t$, the value function $V_t(x)$ is monotone increasing in $x$.
-    - For each $x$, the value function $V_t(x)$ is monotone decreasing in $t$.
+    - For each $t$, the value function $V_t(s)$ is monotone increasing in $s$.
+    - For each $s$, the value function $V_t(s)$ is monotone decreasing in $t$.
 
 </div>
 
-#### Proof of monotonicity in $x$ {-}
+#### Proof of monotonicity in $s$ {-}
 
-We proceed by backward induction. $V_T(x) = r_T(x)$ which is monotone
-increasing in $x$. Assume that $V_{t+1}(x)$ is increasing in $x$. Now,
-consider $V_t(x)$. Consider $x_1, x_2 \in \reals_{\ge 0}$ such that $x_1 \le
-x_2$. Then for any $u \le x_1$, we have that
+We proceed by backward induction. $V_T(s) = r_T(s)$ which is monotone
+increasing in $s$. Assume that $V_{t+1}(s)$ is increasing in $s$. Now,
+consider $V_t(s)$. Consider $s_1, s_2 \in \reals_{\ge 0}$ such that $s_1 \le
+s_2$. Then for any $a \le s_1$, we have that
 
 $$ \begin{align*}
-    Q_t(x_1, u) &= p V_{t+1}(x_1+u) + q V_{t+1}(x_1-u) \\
-    & \stackrel{(a)}{\le} p V_{t+1}(x_2 + u) + q V_{t+1}(x_2  - u) \\
-    & = Q_t(x_2, u),
+    Q_t(s_1, a) &= p V_{t+1}(s_1+a) + q V_{t+1}(s_1-a) \\
+    & \stackrel{(a)}{\le} p V_{t+1}(s_2 + a) + q V_{t+1}(s_2  - a) \\
+    & = Q_t(s_2, a),
   \end{align*}
 $$
 where $(a)$ uses the induction hypothesis. Now consider
 
 $$ \begin{align*}
-  V_t(x_1) &= \max_{u \in [0, x_1]} Q_t(x_1, u) \\
-  & \stackrel{(b)}{\le} \max_{u \in [0, x_1]} Q_t(x_2, u) \\
-  & \le \max_{u \in [0, x_2]} Q_t(x_2, u) \\
-  &= V_t(x_2),
+  V_t(s_1) &= \max_{a \in [0, s_1]} Q_t(s_1, a) \\
+  & \stackrel{(b)}{\le} \max_{a \in [0, s_1]} Q_t(s_2, a) \\
+  & \le \max_{a \in [0, s_2]} Q_t(s_2, a) \\
+  &= V_t(s_2),
   \end{align*}
 $$
-where $(b)$ uses monotonicity of $Q_t$ in $x$. This completes the induction
+where $(b)$ uses monotonicity of $Q_t$ in $s$. This completes the induction
 step. 
 
 #### Proof of monotonicity in $t$ {-}
 
 This is a simple consequence of the following:
 
-$$V_t(x) = \max_{u \in [0, x]} Q_t(x,u) \ge Q_t(x,0) = V_{t+1}(x).$$ 
+$$V_t(s) = \max_{a \in [0, s]} Q_t(s,a) \ge Q_t(s,0) = V_{t+1}(s).$$ 
 
 # Exercises {-}
 
@@ -250,42 +250,42 @@ of betting on multiple horses in a horse race).
    subject to:
 
      * $w_i \ge 0$
-     * $\sum_{i=1}^n w_i \le x$.
+     * $\sum_{i=1}^n w_i \le s$.
 
      Show that the optimal solution is given by
-     $$ w_i = \frac{p_i}{p} x$$
+     $$ w_i = \frac{p_i}{p} s$$
      where $p = \sum_{i=1}^n p_i$. 
 
 2. Given positive numbers $(p_1, \dots, p_n)$, consider the following
    constraint optimization problem:
-   $$\max \sum_{i=1}^n p_i \log (x - u + nu_i)$$
+   $$\max \sum_{i=1}^n p_i \log (s - a + nu_i)$$
    subject to:
 
      * $u_i \ge 0$
-     * $u = \sum_{i=1}^n u_i \le x$.
+     * $a = \sum_{i=1}^n u_i \le s$.
 
      Show that the optimal solution is given by
-     $$ u_i = \frac{p_i}{p} x$$
+     $$ u_i = \frac{p_i}{p} s$$
      where $p = \sum_{i=1}^n p_i$. 
 
 3.  Consider an alternative of the optimal gambling problem where, at each
     time, the gambler can place bets on many mutually exclusive outcomes.
     Suppose there are $n$ outcomes, with success probabilities $(p_1, \dots,
-    p_n)$. Let $(U_{1,t}, \dots, U_{n,t})$ denote the amount that the gambler
-    bets on each outcome. The total amount $U_t := \sum_{i=1}^n U_{i,t}$
-    must be less than the gambler's fortune $X_t$. If $W_t$ denotes the
+    p_n)$. Let $(A_{1,t}, \dots, A_{n,t})$ denote the amount that the gambler
+    bets on each outcome. The total amount $A_t := \sum_{i=1}^n A_{i,t}$
+    must be less than the gambler's fortune $S_t$. If $W_t$ denotes the
     winning outcome, then the gambler's wealth evolves according to
-    $$ X_{t+1} = X_t - U_t + nU_{W_t, t}.$$
+    $$ S_{t+1} = S_t - A_t + nU_{W_t, t}.$$
     For example, if there are three outcomes, gambler's current wealth is
-    $x$, the gambler bets $(u_1, u_2,
+    $s$, the gambler bets $(u_1, u_2,
     u_3)$, and outcome 2 wins, then the gambler wins $3 u_2$ and his fortune
     at the next time is
-    $$ x - (u_1 + u_2 + u_3) + 3 u_2. $$
+    $$ s - (u_1 + u_2 + u_3) + 3 u_2. $$
     
-    The gambler's utility is $\log X_T$, the logarithm of his final
+    The gambler's utility is $\log S_T$, the logarithm of his final
     wealth. Find the strategy that maximizes the gambler's expected utility. 
 
-      _Hint:_ Argue that the value function is of the form $V_t(x) = \log x +
+      _Hint:_ Argue that the value function is of the form $V_t(s) = \log s +
       (T -t)C$, where
       $$C = \log n - H(p_1, \dots, p_n)$$
       where $H(p_1, \dots, p_n) = - \sum_{i=1}^n p_i \log p_i$ is the entropy

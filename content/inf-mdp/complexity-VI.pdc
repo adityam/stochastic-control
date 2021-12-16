@@ -15,11 +15,11 @@ algorithm to obtain a policy that in within $ε$ of the optimal? In this
 section, we provide an answer for this question for the value iteration
 algorithm. 
 
-Conisder an MDP with a finite state space $\ALPHABET X = \{1, \dots, n \}$
-with a finite non-empty set of actions $\ALPHABET U(x)$ available at each $x
-\in \ALPHABET X$. Each action set consists of $M_x$ actions with a total
-number of $M = \sum_{x=1}^n M_x$ actions. This number can be interpreted as
-the total number of state-action pairs. Let $β \in (0, 1)$ be the discount
+Conisder an MDP with a finite state space $\ALPHABET S = \{1, \dots, n \}$
+with a finite non-empty set of actions $\ALPHABET A(s)$ available at each $s
+\in \ALPHABET S$. Each action set consists of $M_s$ actions with a total
+number of $M = \sum_{s=1}^n M_s$ actions. This number can be interpreted as
+the total number of state-action pairs. Let $γ \in (0, 1)$ be the discount
 factor. We present the value iteration algorithm from the [notes on discounted
 MDP][discounted] to achieve a pre-specified accuracy $ε$.
 
@@ -27,14 +27,14 @@ MDP][discounted] to achieve a pre-specified accuracy $ε$.
 
 **Value Iteration Algorithm**
 
-For given MDP, discount factor $β \in (0,1)$, and constant $ε > 0$
+For given MDP, discount factor $γ \in (0,1)$, and constant $ε > 0$
 
 1. Start with any $V_0 \in \reals^n$.
-2. Recursively compute $V_{k} = \mathcal B V_{k-1} = \mathcal B_{g_{k-1}} V_{k-1}.$
+2. Recursively compute $V_{k} = \mathcal B V_{k-1} = \mathcal B_{π_{k-1}} V_{k-1}.$
 3. Define 
-   $$ Δ_k = \max\{ V_k(x) - V_{k-1}(x) \} - \min \{ V_k(x) - V_{k-1}(x) \}. $$
-4. If $Δ_k > \frac{1 - β}{β} ε$, continue to step 2. Else carry out one more
-   step of value update and choose the policy $g_k$. 
+   $$ Δ_k = \max\{ V_k(s) - V_{k-1}(s) \} - \min \{ V_k(s) - V_{k-1}(s) \}. $$
+4. If $Δ_k > \frac{1 - γ}{γ} ε$, continue to step 2. Else carry out one more
+   step of value update and choose the policy $π_k$. 
    
 :::  
 
@@ -67,158 +67,158 @@ A basic result for our analysis is the following:
 Prop. #prop:span-matrix
 
 : Let $v \in \reals^n$ and $P$ be any matrix of compatible dimensions. Then,
-  $$ \SPAN(P v) \le γ_P \SPAN(v), $$
+  $$ \SPAN(P v) \le β_P \SPAN(v), $$
   where
   $$\begin{equation} \label{eq:span-matrix}
-    γ_P = 1 - \min_{x, y \in \ALPHABET X}
-    \sum_{z \in \ALPHABET X} \min\{ P_{xz}, P_{yz} \}.
+    β_P = 1 - \min_{s, s' \in \ALPHABET S}
+    \sum_{z \in \ALPHABET S} \min\{ P_{sz}, P_{s'z} \}.
   \end{equation}$$
-  Furhermore, $γ_P \in [0, 1]$ and there exists a $v \in \reals^n$ such that
-  $\SPAN(Pv) = γ_P \SPAN(v)$.
+  Furhermore, $β_P \in [0, 1]$ and there exists a $v \in \reals^n$ such that
+  $\SPAN(Pv) = β_P \SPAN(v)$.
 
 :::
 
 @prop:span-matrix illustrates the "averaging" property of a transition matrix. By
 multiplying a vector by a transition matrix, the resulting vector has
 components which are more nearly equal. When $P$ is a square matrix, the
-quantity $γ_P$ is called the ergodicity coefficient, which is often written in
+quantity $β_P$ is called the ergodicity coefficient, which is often written in
 an alternative form by using the relation $|a - b| = (a + b) - 2 \min(a,b)$:
 $$
-  γ_P = \frac12
-  \max_{x,y \in \ALPHABET X} \sum_{z \in \ALPHABET X}
-  \bigl| P_{xz} - P_{yz} \bigr|. $$
+  β_P = \frac12
+  \max_{s,s' \in \ALPHABET S} \sum_{z \in \ALPHABET S}
+  \bigl| P_{sz} - P_{s'z} \bigr|. $$
 The ergodicity coefficient is an upper bound on the second largest eigenvalue
-of $P$. $γ_P$ equals $0$ if all rows of $P$ are equal and equals $1$ if at
-least two rows of $P_d$ are orthogonal. From a different perspective, $γ_P <
+of $P$. $β_P$ equals $0$ if all rows of $P$ are equal and equals $1$ if at
+least two rows of $P_d$ are orthogonal. From a different perspective, $β_P <
 1$ if for each pair of states there exists at least one state which they both
 can reach with positive probability in one step. 
 
 Remark #rem:bound
 
 :   Note that
-    $$ γ_P \le 1 - \sum_{z \in \ALPHABET X} \min_{x \in \ALPHABET X} P_{xz} 
-    =: γ_P' $$
+    $$ β_P \le 1 - \sum_{z \in \ALPHABET S} \min_{s \in \ALPHABET S} P_{sz} 
+    =: β_P' $$
     which is easier to compute. 
 
 #### Proof {-}
 
 Note that for any $v \in \reals^n$
 \begin{align*}
-\SPAN(Pv) &= \max_{x \in \ALPHABET X} \sum_{z \in \ALPHABET X} P_{xz} v_z 
-- \min_{x \in \ALPHABET X} \sum_{z \in \ALPHABET X} P_{yz} v_z \\
-&= \max_{x, y \in \ALPHABET X} 
-  \sum_{z \in \ALPHABET X} P_{xz} v_z - \sum_{z \in \ALPHABET X} P_{yz} v_z 
+\SPAN(Pv) &= \max_{s \in \ALPHABET S} \sum_{z \in \ALPHABET S} P_{sz} v_z 
+- \min_{s' \in \ALPHABET S} \sum_{z \in \ALPHABET S} P_{s'z} v_z \\
+&= \max_{s, s' \in \ALPHABET S} 
+  \sum_{z \in \ALPHABET S} P_{sz} v_z - \sum_{z \in \ALPHABET S} P_{s'z} v_z 
 \end{align*}
-Let $B(z; x,y) = \min\{ P_{xz}, P_{yz} \}$. Then consider
+Let $B(z; s,s') = \min\{ P_{sz}, P_{s'z} \}$. Then consider
 \begin{align*}
-  \sum_{z \in \ALPHABET X} P_{xz} v_z - \sum_{z \in \ALPHABET X} P_{yz} v_z 
+  \sum_{z \in \ALPHABET S} P_{sz} v_z - \sum_{z \in \ALPHABET S} P_{s'z} v_z 
   &=
-  \sum_{z \in \ALPHABET X} [ P_{xz} - B(z; x,y) ] v_z - 
-  \sum_{z \in \ALPHABET X} [ P_{yz} - B(z; x,y) ] v_z \\
+  \sum_{z \in \ALPHABET S} [ P_{sz} - B(z; s,s') ] v_z - 
+  \sum_{z \in \ALPHABET S} [ P_{s'z} - B(z; s,s') ] v_z \\
   &\le 
-  \sum_{z \in \ALPHABET X} [ P_{xz} - B(z; x,y) ] \max(v) -
-  \sum_{z \in \ALPHABET X} [ P_{yz} - B(z; x,y) ] \min(v) 
+  \sum_{z \in \ALPHABET S} [ P_{sz} - B(z; s,s') ] \max(v) -
+  \sum_{z \in \ALPHABET S} [ P_{s'z} - B(z; s,s') ] \min(v) 
   \\
-  &= \biggl[ 1 - \sum_{z \in \ALPHABET X} B(z; x, y) \biggr] \SPAN(v).
+  &= \biggl[ 1 - \sum_{z \in \ALPHABET S} B(z; s, s') \biggr] \SPAN(v).
 \end{align*}
 Hence,
-$$ \SPAN(Pv) \le \max_{x, y \in \ALPHABET X} \biggl[
-  1 - \sum_{z \in \ALPHABET X} B(z; x, ) \biggr] \SPAN(v). $$
+$$ \SPAN(Pv) \le \max_{s, s' \in \ALPHABET S} \biggl[
+  1 - \sum_{z \in \ALPHABET S} B(z; s, ) \biggr] \SPAN(v). $$
 
 Now we show that there exists a $v$ such that \\eqref{eq:span-matrix} holds
-with equality. If $γ_P = 0$, then $P$ has equal rows, so
-that $\SPAN(Pv) = 0 = 0 \cdot \SPAN(v)$ for all $v \in \reals^n$. Suppose $γ_P
+with equality. If $β_P = 0$, then $P$ has equal rows, so
+that $\SPAN(Pv) = 0 = 0 \cdot \SPAN(v)$ for all $v \in \reals^n$. Suppose $β_P
 > 0$. Using the identity $[ a - b]^{+} = a - \min(a,b)$, we can write
 $$
-`γ_P = \max_{x,y \in \ALPHABET X} 
-\sum_{z \in \ALPHABET  X} \bigl[ P_{xz} - P_{yz} \bigr]^{+}.
+β_P = \max_{s,s' \in \ALPHABET S} 
+\sum_{z \in \ALPHABET  S} \bigl[ P_{sz} - P_{s'z} \bigr]^{+}.
 $$
-Let $x^*$ and $y^*$ be such that
+Let $s^*$ and $s'^*$ be such that
 $$
-  γ_P = \sum_{z \in \ALPHABET X}  
-\sum_{z \in \ALPHABET  X} \bigl[ P_{x^*z} - P_{y^*z} \bigr]^{+}.
+  β_P = \sum_{z \in \ALPHABET S}  
+\sum_{z \in \ALPHABET  S} \bigl[ P_{s^*z} - P_{s'^*z} \bigr]^{+}.
 $$
 Define $v$ by
 $$ 
-  v_z = \IND\{ P_{x^*z} > P_{y^*z} \}.
+  v_z = \IND\{ P_{s^*z} > P_{s'^*z} \}.
 $$
 Then, note that $\SPAN(v) = 1$ and 
 \begin{align*}
   \SPAN(Pv) &\ge 
-  \sum_{z \in \ALPHABET X} P_{x^* z} v_z - 
-  \sum_{z \in \ALPHABET X} P_{y^* z} v_z \\
+  \sum_{z \in \ALPHABET S} P_{s^* z} v_z - 
+  \sum_{z \in \ALPHABET S} P_{s'^* z} v_z \\
   &=
-  \sum_{z \in \ALPHABET  X} \bigl[ P_{x^*z} - P_{y^*z} \bigr]^{+}
+  \sum_{z \in \ALPHABET  S} \bigl[ P_{s^*z} - P_{s'^*z} \bigr]^{+}
   \\
-  &= γ_P \SPAN(v).
+  &= β_P \SPAN(v).
 \end{align*}
-Combining with \\eqref{eq:span-matrix}, we get $\SPAN(Pv) = γ_P
+Combining with \\eqref{eq:span-matrix}, we get $\SPAN(Pv) = β_P
 \SPAN(v)$. $\Box$
 
 
 Define the contraction factor
 $$\begin{equation}\label{eq:contraction}
-  γ = \max_{\substack{ x,y \in \ALPHABET X \\ u \in \ALPHABET U(x), w \in
-  \ALPHABET U(y)}}
-  \biggl[ 1 - \sum_{z \in \ALPHABET X} 
-    \min\{ P(z | x,u), P(z | y, w) \biggr].
+  β = \max_{\substack{ s,s' \in \ALPHABET S \\ a \in \ALPHABET A(s), w \in
+  \ALPHABET A(s')}}
+  \biggl[ 1 - \sum_{z \in \ALPHABET S} 
+    \min\{ P(z | s,a), P(z | s', w) \biggr].
 \end{equation}$$
-Note that $γ \in [0, 1]$. 
+Note that $β \in [0, 1]$. 
 
 ::: highlight :::
 
 Theorem #span-contraction
 
 : For any $V_1, V_2 \in \reals^n$, 
-  $$ \SPAN(\mathcal B V_1 - \mathcal B V_2) \le β γ\, \SPAN(V_1 - V_2). $$
+  $$ \SPAN(\mathcal B V_1 - \mathcal B V_2) \le γ β\, \SPAN(V_1 - V_2). $$
 
 :::
 
 #### Proof {-}
 
-Let $g_i$ be such that $\mathcal B V_i = \mathcal B_{g_i}V_i$. 
+Let $π_i$ be such that $\mathcal B V_i = \mathcal B_{π_i}V_i$. 
 Let 
 \begin{align*}
-  x^* &= \arg \max_{x \in \ALPHABET X}(\mathcal B V_1(x) - \mathcal B V_2(x)), 
+  s^* &= \arg \max_{s \in \ALPHABET S}(\mathcal B V_1(s) - \mathcal B V_2(s)), 
   \\
-  x_* &= \arg \min_{x \in \ALPHABET X}(\mathcal B V_1(x) - \mathcal B V_2(x)),
+  s_* &= \arg \min_{s \in \ALPHABET S}(\mathcal B V_1(s) - \mathcal B V_2(s)),
 \end{align*}
 Then, 
 $$
-  \mathcal B V_1(x^*) - \mathcal B V_2(x^*) \le 
-  \mathcal B_{g_2} V_1(x^*) - \mathcal B_{g_2} V_2(x^*) 
-  = β P_{g_2}(V_1 - V_2)(x^*)
+  \mathcal B V_1(s^*) - \mathcal B V_2(s^*) \le 
+  \mathcal B_{π_2} V_1(s^*) - \mathcal B_{π_2} V_2(s^*) 
+  = γ P_{π_2}(V_1 - V_2)(s^*)
 $$
 and
 $$
-  \mathcal B V_1(x_*) - \mathcal B V_2(x_*) \ge 
-  \mathcal B_{g_1} V_1(x^*) - \mathcal B_{g_1} V_2(x^*) 
-  = β P_{g_1}(V_1 - V_2)(x^*).
+  \mathcal B V_1(s_*) - \mathcal B V_2(s_*) \ge 
+  \mathcal B_{π_1} V_1(s^*) - \mathcal B_{π_1} V_2(s^*) 
+  = γ P_{π_1}(V_1 - V_2)(s^*).
 $$
 Therefore, 
 \begin{align*}
   \SPAN(\mathcal B V_1 - \mathcal B V_2) &\le
-  β P_{g_2}(V_1 - V_2)(x^*) - β P_{g_1}(V_1 - V_2)(x_*) \\
-  &\le \max_{x \in \ALPHABET X} β P_{g_2} (V_1 - V_2)(x) -
-  \min_{x \in \ALPHABET X} β P_{g_1}(V_1 - V_2)(x)
+  γ P_{π_2}(V_1 - V_2)(s^*) - γ P_{π_1}(V_1 - V_2)(s_*) \\
+  &\le \max_{s \in \ALPHABET S} γ P_{π_2} (V_1 - V_2)(s) -
+  \min_{s \in \ALPHABET S} γ P_{π_1}(V_1 - V_2)(s)
   \\
-  &\le \SPAN(β\, \ROWS(P_{g_2}, P_{g_1})(V_1 - V_2).
+  &\le \SPAN(γ\, \ROWS(P_{π_2}, P_{π_1})(V_1 - V_2).
 \end{align*}
 By applying @prop:span-matrix, we get
-$$ \SPAN(\mathcal B V_1 - \mathcal B V_2) \le βγ_{\bar P} \SPAN(V_1 - V_2), $$
-where $γ_{\bar P}$ is given by \\eqref{eq:span-matrix} with $\bar P =
-\ROWS(P_{g_2}, P_{g_1})$. The result follows by noting that $γ_{\bar P}$ is at
-most $γ$. $\Box$ 
+$$ \SPAN(\mathcal B V_1 - \mathcal B V_2) \le γβ_{\bar P} \SPAN(V_1 - V_2), $$
+where $β_{\bar P}$ is given by \\eqref{eq:span-matrix} with $\bar P =
+\ROWS(P_{π_2}, P_{π_1})$. The result follows by noting that $β_{\bar P}$ is at
+most $β$. $\Box$ 
 
 # Computational complexity of value iteration
 
-Note that $γ \in [0, 1]$. We will first rule out the case $γ = 0$. If $γ = 0$,
-then $P(z | x, u) = P(z | y, w)$ for all $x, y, z \in \ALPHABET X$ and $u \in
-\ALPHABET U(x)$ and $w \in \ALPHABET U(y)$, which implies that all
+Note that $β \in [0, 1]$. We will first rule out the case $β = 0$. If $β = 0$,
+then $P(z | s, a) = P(z | s', w)$ for all $s, s', z \in \ALPHABET S$ and $a \in
+\ALPHABET A(s)$ and $w \in \ALPHABET A(s')$, which implies that all
 deterministic policies have the same transition probabilities. Therefore, a
-deterministic policy $g$ is optimal if and only if it minimize the one-step
-cost. Thus, the case with $γ = 0$ is trivial. So, in the rest of the analysis,
-we assume that $γ \in (0, 1)$.
+deterministic policy $π$ is optimal if and only if it minimize the one-step
+cost. Thus, the case with $β = 0$ is trivial. So, in the rest of the analysis,
+we assume that $β \in (0, 1)$.
 
 
 ::: highlight :::
@@ -228,10 +228,10 @@ Theorem #VI-bound
 : Start with an abritrary $V_0$. If $Δ_1 = 0$, then we obtain an optimal
   policy in iteration 1. Otherwise, for
   any $ε > 0$, value iteration finds an $ε$-optimal policy in no more than
-  $K^*(β)$ iterations, where
+  $K^*(γ)$ iterations, where
   $$\begin{equation}\label{eq:K*}
-    K^*(β) =  \left\lceil
-    \frac{ \log \frac{(1-β) ε γ}{Δ_1} } {\log(βγ)}
+    K^*(γ) =  \left\lceil
+    \frac{ \log \frac{(1-γ) ε β}{Δ_1} } {\log(γβ)}
     \right\rceil.
   \end{equation}$$
   In addition, each iteration uses at most $O(nM)$
@@ -245,33 +245,33 @@ If follows from the definition of Bellman operator that each iteration uses at
 most $O(nM)$ iterations (to compute the $Q$ function, for each state-action
 pair, we need to compute a sum over $n$ terms).
 
-From @theorem:span-contraction, we get that $Δ_k \le (βγ)^{k-1} Δ_1$.
+From @theorem:span-contraction, we get that $Δ_k \le (γβ)^{k-1} Δ_1$.
 Therefore, the minimum number of iterations required to achieve $Δ_k \le
-\frac{1-β}{β}ε$ is given $K^*(β)$. $\Box$ 
+\frac{1-γ}{γ}ε$ is given $K^*(γ)$. $\Box$ 
 
 Remark #rem:simple
 
-: Note that finding the value of $γ$ requires computing the sum
-in \\eqref{eq:contraction} for all couples $\{ (x,u), (y,w) \}$ of state
-action pairs such that $(x,u) \neq (y,w)$. The total number of such pairs are
+: Note that finding the value of $β$ requires computing the sum
+in \\eqref{eq:contraction} for all couples $\{ (s,a), (s',w) \}$ of state
+action pairs such that $(s,a) \neq (s',w)$. The total number of such pairs are
 $M(M-1)/2 = O(M^2)$. Therefore, the number of arithematic operators
 in \\eqref{eq:contraction}, which are additions, is $n$ for each couple.
-Therefore, computation of $γ$ requires $O(nM^2)$ operations, which can be
+Therefore, computation of $β$ requires $O(nM^2)$ operations, which can be
 significantly larger than the complexity of computing an $ε$-optimal policy
-which is given by @theorem:VI-bound! Based on @rem:bound, we can replace $γ$ by
+which is given by @theorem:VI-bound! Based on @rem:bound, we can replace $β$ by
 in \\eqref{eq:K*} by
 $$
-  γ' = 1 - \sum_{z \in \ALPHABET X} \min_{x \in \ALPHABET X, u \in \ALPHABET U}
-       P(z | x,u)
+  β' = 1 - \sum_{z \in \ALPHABET S} \min_{s \in \ALPHABET S, a \in \ALPHABET A}
+       P(z | s,a)
 $$
 which requies $O(nM)$ operations. 
        
 ## The bound may be exact
 
 We now present an example (due to @Feinberg2020) to show that the bound in
-@theorem:VI-bound may be exact. Consider an MDP with $\ALPHABET X = \{1, 2,
-3\}$, $\ALPHABET U = \{1,2 \}$, with $\ALPHABET U(1) = \{1, 2\}$ and
-$\ALPHABET U(2) = \ALPHABET U(3) = \{1\}$. The per-step transitions are
+@theorem:VI-bound may be exact. Consider an MDP with $\ALPHABET S = \{1, 2,
+3\}$, $\ALPHABET A = \{1,2 \}$, with $\ALPHABET A(1) = \{1, 2\}$ and
+$\ALPHABET A(2) = \ALPHABET A(3) = \{1\}$. The per-step transitions are
 $$
   P(1) = \MATRIX{0 & 0 & 1 \\ 0 & 1 & 0 \\ 0 & 0 & 1 },
   \quad\text{and}\quad
@@ -286,7 +286,7 @@ $$
 Suppose we start with an initial $V_0 = \VEC(1, 2, -2)$. Then elementary
 calculations show that 
 $$
-  V_k = \MATRIX{ β^k \\ β^k \\ -β^k} + 
+  V_k = \MATRIX{ γ^k \\ γ^k \\ -γ^k} + 
   \MATRIX{ \sum_{\ell = {\color{red} 1}}^{k} α^\ell \\
            \sum_{\ell = 0}^{k} α^\ell \\
            \sum_{\ell = 0}^{k} α^\ell }.
@@ -294,20 +294,20 @@ $$
 Thus,
 $$
   V_k - V_{k-1} = \MATRIX{ 
-  2 β^k - β^{k-1} \\
-  2 β^k - β^{k-1} \\
-  - 2 β^k + β^{k-1} }.
+  2 γ^k - γ^{k-1} \\
+  2 γ^k - γ^{k-1} \\
+  - 2 γ^k + γ^{k-1} }.
 $$
 Hence, 
 $$
-\SPAN(V_k - V_{k-1}) = 2β^{k-1} |2β - 1| = β^{k-1} \SPAN(V_1 - V_0).
+\SPAN(V_k - V_{k-1}) = 2γ^{k-1} |2γ - 1| = γ^{k-1} \SPAN(V_1 - V_0).
 $$
 
 Thus, for this model, the expression \\eqref{eq:K*} is exact.
 
 Remark #rem:non-monotone
 
-:   The exact number of iterations need not be monotone in $β$! In the above
+:   The exact number of iterations need not be monotone in $γ$! In the above
     example, let $ε = 0.02$, then 
     $$
       K^*(0.24) = 3, \quad
@@ -315,7 +315,7 @@ Remark #rem:non-monotone
       K^*(0.48) = 3.
     $$
 
-    Thus, the number of iterations is not monotone in $β$.
+    Thus, the number of iterations is not monotone in $γ$.
 
 
 # References {-}

@@ -23,15 +23,15 @@ infinite horizon models.
 
 The most common formulation for infinite horizon models is the discounted
 setup, where the cost function is assumed to be 
-$$ J(g) = \EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} c_t(X_t, U_t) \Bigr] $$
-where $\beta \in (0,1)$ is called the discount factor.
+$$ J(π) = \EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} c_t(S_t, A_t) \Bigr] $$
+where $γ \in (0,1)$ is called the discount factor.
 
-There are two interpretations of the discount factor $\beta$. The first
+There are two interpretations of the discount factor $γ$. The first
 interpretation is an economic interpretation to determine the _present value_
 of a utility that will be received in the future. For example, suppose a
-decision maker is indifferent between receiving 1 dollar today or $x$ dollars
+decision maker is indifferent between receiving 1 dollar today or $s$ dollars
 tomorrow. This means that the decision maker discounts the future at a rate
-$1/x$, so $\beta = 1/x$.
+$1/s$, so $γ = 1/s$.
 
 The second interpretation is that of an absorbing state. Suppose we
 are operating a machine that generates a value of \$1 each day. However,
@@ -44,56 +44,56 @@ as $(1-p)$. See @Shwartz2001 for a detailed discussion of this alternative.
 In the remainder of this section, we will study how to obtain a solution for
 such infinite horizon discounted cost models. 
 
-_Note_: Throughout this section, we assume that $\ALPHABET X$ and $\ALPHABET U$ are
-finite and $|\ALPHABET X|= n$ and $|\ALPHABET U| = m$. 
+_Note_: Throughout this section, we assume that $\ALPHABET S$ and $\ALPHABET A$ are
+finite and $|\ALPHABET S|= n$ and $|\ALPHABET A| = m$. 
 
 # Performance of a time-homogeneous Markov policy
 
-For any $g \colon \ALPHABET X \to \ALPHABET U$, consider the time homogeneous
-policy $(g, g, \dots)$. For ease of notation, we denote this policy simply by
-$g$. The expected discounted cost under this policy is given by
-$$ V_g(x) = \EXP^g\bigg[ \sum_{t=1}^∞ β^{t-1} c(X_t, U_t) \biggm| X_1 = x
+For any $π \colon \ALPHABET S \to \ALPHABET A$, consider the time homogeneous
+policy $(π, π, \dots)$. For ease of notation, we denote this policy simply by
+$π$. The expected discounted cost under this policy is given by
+$$ V_π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
 \bigg].$$
 
-To get a compact expression for this, define a $n × 1$ vector $c_g$ and a $n
-× n$ matrix $P_g$ as follows:
-$$ [c_g]_x = c(x, g(x))
+To get a compact expression for this, define a $n × 1$ vector $c_π$ and a $n
+× n$ matrix $P_π$ as follows:
+$$ [c_π]_s = c(s, π(s))
    \quad\text{and}\quad
-   [P_g]_{xy} = P_{xy}(g(x)).
+   [P_π]_{ss'} = P_{ss'}(π(s)).
 $$
-Then the dynamics under policy $g$ are Markovian with transition probability
-matrix $P_g$ and a cost function $c_g$. Then
+Then the dynamics under policy $π$ are Markovian with transition probability
+matrix $P_π$ and a cost function $c_π$. Then
 $$ \begin{align*}
-\EXP^g\big[ c(X_t, g(X_t)) \bigm| X_1 = x \big]
-  &= \sum_{y \in \ALPHABET X} \PR^g(X_t = y | X_1 = x) c(y, g(y))
+\EXP^π\big[ c(S_t, π(S_t)) \bigm| S_1 = s \big]
+  &= \sum_{s' \in \ALPHABET S} \PR^π(S_t = s' | S_1 = s) c(s', π(s'))
   \\
-  &= \sum_{y \in \ALPHABET X} [P_g^{t-1}]_{xy} [c_g]_y
+  &= \sum_{s' \in \ALPHABET S} [P_π^{t-1}]_{ss'} [c_π]_y
   \\
-  &= δ_x P_g^{t-1} c_g.
+  &= δ_s P_π^{t-1} c_π.
 \end{align*} $$
 
-Let $V_g$ denote the $n × 1$ vector given by $[V_g]_x = V_g(x)$. Then,
+Let $V_π$ denote the $n × 1$ vector given by $[V_π]_s = V_π(s)$. Then,
 $$ \begin{align*}
-V_g &= c_g + β P_g c_g + β^2 P_g^2 c_g + \cdots \\
-    &= c_g + β P_g \big( c_g + β P_g c_g + \cdots \big) \\
-    &= c_g + β P_g V_g,
+V_π &= c_π + γ P_π c_π + γ^2 P_π^2 c_π + \cdots \\
+    &= c_π + γ P_π \big( c_π + γ P_π c_π + \cdots \big) \\
+    &= c_π + γ P_π V_π,
 \end{align*} $$
 which can be rewritten as
-$$ (I - β P_g) V_g = c_g. $$
+$$ (I - γ P_π) V_π = c_π. $$
 
-The [spectral radius] of $ρ(β P_d)$ is upper bounded by $\lVert β P_d \rVert = β < 1$. Therefore, the matrix $(I - β P_g)$ has an inverse and by left multiplying both sides by $(I - β P_g)^{-1}$, we get
-$$ V_g = (I - βP_g)^{-1} c_g. $$
+The [spectral radius] of $ρ(γ P_d)$ is upper bounded by $\lVert γ P_d \rVert = γ < 1$. Therefore, the matrix $(I - γ P_π)$ has an inverse and by left multiplying both sides by $(I - γ P_π)^{-1}$, we get
+$$ V_π = (I - γP_π)^{-1} c_π. $$
 
 [spectral radius]: https://en.wikipedia.org/wiki/Spectral_radius
 
 The equation 
-$$ V_g = c_g + β P_g V_g $$
+$$ V_π = c_π + γ P_π V_π $$
 is sometimes also written as
-$$ V_g = \mathcal B_g V_g $$
-where the operator $\mathcal B_g$, which is called the _Bellman operator_,
+$$ V_π = \mathcal B_π V_π $$
+where the operator $\mathcal B_π$, which is called the _Bellman operator_,
 is an operator from $\reals^n$ to $\reals^n$
 given by
-$$ \mathcal B_g v = c_g + β P_g v.$$
+$$ \mathcal B_π v = c_π + γ P_π v.$$
 
 # Bellman operators
 
@@ -101,12 +101,12 @@ Definition
 
 :   Define the _Bellman operator_ $\mathcal B : \reals^n \to \reals^n$ as
     follows: for any $v \in \reals^n$
-    $$ [\mathcal B v]_x = \min_{u \in \ALPHABET U}
-    \Big\{ c(x,u) + β \sum_{y \in \ALPHABET Y} P_{xy}(u) v_y \Big\}.
+    $$ [\mathcal B v]_s = \min_{a \in \ALPHABET A}
+    \Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET Y} P_{ss'}(a) v_y \Big\}.
     $$
 
 Note that the above may also be written as[^1]
-$$ \mathcal B v = \min_{g \in \ALPHABET G} \mathcal B_g v, $$
+$$ \mathcal B v = \min_{π \in \ALPHABET G} \mathcal B_π v, $$
 where $\ALPHABET G$ denotes the set of all deterministic Markov policies. 
 
 [^1]: This is true for general models only when the arg min at each state
@@ -115,35 +115,35 @@ where $\ALPHABET G$ denotes the set of all deterministic Markov policies.
 ::: highlight :::
 Prop. #prop:contraction
 
-:   For any $v \in \reals^n$, define the norm $\NORM{V} := \sup_{x \in
-    \ALPHABET X} \ABS{V_x}$. Then, the Bellman operator is a contraction,
+:   For any $v \in \reals^n$, define the norm $\NORM{V} := \sup_{s \in
+    \ALPHABET S} \ABS{V_s}$. Then, the Bellman operator is a contraction,
     i.e., for any $v, w \in \reals^n$,
-    $$ \NORM{\mathcal B v - \mathcal B w} \le β \NORM{v - w}. $$
+    $$ \NORM{\mathcal B v - \mathcal B w} \le γ \NORM{v - w}. $$
 :::
 
 
 #### Proof {-}
 
-Fix a state $x \in \ALPHABET X$ and consider $[\mathcal B v](x) - [\mathcal B
-w](x)$. In particular, let $u^*$ be the optimal action in the right hand side
-of $[\mathcal B w](x)$. Then,
+Fix a state $s \in \ALPHABET S$ and consider $[\mathcal B v](s) - [\mathcal B
+w](s)$. In particular, let $a^*$ be the optimal action in the right hand side
+of $[\mathcal B w](s)$. Then,
 $$\begin{align*}
-  [\mathcal B v - \mathcal B w](x) &= 
-  \min_{u \in \ALPHABET U}\bigl\{ c(x,u) + \beta \sum_{y \in \ALPHABET X}
-  P_{xy}(u) v(y) \bigr\} - 
-  \min_{u \in \ALPHABET U}\bigl\{ c(x,u) + \beta \sum_{y \in \ALPHABET X}
-  P_{xy}(u) w(y) \bigr\} 
+  [\mathcal B v - \mathcal B w](s) &= 
+  \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
+  P_{ss'}(a) v(s') \bigr\} - 
+  \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
+  P_{ss'}(a) w(s') \bigr\} 
   \\
-  &\le c(x,u^*) + \beta \sum_{y\in \ALPHABET X} P_{xy}(u^*) v(y) -
-       c(x,u^*) - \beta \sum_{y\in \ALPHABET X} P_{xy}(u^*) w(y)
+  &\le c(s,a^*) + γ \sum_{s'\in \ALPHABET S} P_{ss'}(a^*) v(s') -
+       c(s,a^*) - γ \sum_{s'\in \ALPHABET S} P_{ss'}(a^*) w(s')
   \\
-  &\le \beta \sum_{y \in \ALPHABET X} P_{xy}(u^*) \| v - w \|
+  &\le γ \sum_{s' \in \ALPHABET S} P_{ss'}(a^*) \| v - w \|
   \\
-  &= \beta \| v - w \|.
+  &= γ \| v - w \|.
 \end{align*} $$
 
-By a similar argument, we can show that $[\mathcal B w - \mathcal B v](x) \le
-\beta \| v - w \|$, which proves the other side of the inequality. 
+By a similar argument, we can show that $[\mathcal B w - \mathcal B v](s) \le
+γ \| v - w \|$, which proves the other side of the inequality. 
 &nbsp;$\Box$
 
 An immediate consequence of the contraction property is the following.
@@ -174,28 +174,28 @@ theorem](https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem)
 Prop.
 
 :   Let $h$ be any (possibly randomized) history dependent policy. Then,      
-    there exists a randomized Markov policy $g$ that has the same performance
+    there exists a randomized Markov policy $π$ that has the same performance
     as $h$.
 :::
 
 #### Proof {-}
 
 For any policy $h$, define the _occupation measure_
-$$ \mu(x,u | x^∘; h) 
-  := \EXP^h \bigg[ \sum_{t=1}^∞ β^{t-1} \IND\{X_t = x, U_t = u\} 
-  \biggm| X_1 = x^∘ \bigg]
+$$ \mu(s,a | s^∘; h) 
+  := \EXP^h \bigg[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
+  \biggm| S_1 = s^∘ \bigg]
 $$
 Then 
-$$ J(x^∘; h) = \sum_{x \in \ALPHABET X, u \in \ALPHABET U}
-   μ(x,u | x^∘; h) c(x,u).
+$$ J(s^∘; h) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
+   μ(s,a | s^∘; h) c(s,a).
 $$ {#eq:performance}
 
-Now, define a randomized Markov policy $g$ as follows:
-$$\PR(U_t = u | X_t = x; g) = \frac{ μ(x, u| x^∘; h) } { μ(x | x^∘; h) }$$
-where $μ(x|x^∘;h) = \sum_{u \in \ALPHABET U} μ(x,u | x^∘; h)$. Then, by
+Now, define a randomized Markov policy $π$ as follows:
+$$\PR(A_t = a | S_t = s; π) = \frac{ μ(s, a| s^∘; h) } { μ(s | s^∘; h) }$$
+where $μ(s|s^∘;h) = \sum_{a \in \ALPHABET A} μ(s,a | s^∘; h)$. Then, by
 construction, 
-$ μ(x,u | x^∘; g) = μ(x,u | x^∘; h) $
-and therefore by \\eqref{eq:performance}, we have that $J(x^∘; g) = J(x^∘; h).$
+$ μ(s,a | s^∘; π) = μ(s,a | s^∘; h) $
+and therefore by \\eqref{eq:performance}, we have that $J(s^∘; π) = J(s^∘; h).$
 
 -->
 
@@ -204,44 +204,44 @@ and therefore by \\eqref{eq:performance}, we have that $J(x^∘; g) = J(x^∘; h
 Prop. #prop:optimal
 
 :   Define 
-    $$ V^{opt}_∞(x) := \min_{g} \EXP^g \bigg[ \sum_{t=1}^∞ β^{t-1} c(X_t, U_t) 
-    \biggm| X_1 = x \bigg], $$
+    $$ V^{opt}_∞(s) := \min_{π} \EXP^π \bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) 
+    \biggm| S_1 = s \bigg], $$
     where the minimum is over all (possibly randomized) history dependent
     policies. Then, 
-    $$ V^{opt} = V^*, $$
+    $$ V^{opt}_∞ = V^*, $$
     where $V^*$ is the solution of the Bellman equation.
 :::
 
 #### Proof {-}
 
 Since the state and action space are finite, without loss of optimality, we
-can assume that $0 \le c(x,u) \le M$. 
+can assume that $0 \le c(s,a) \le M$. 
 
 Consider the finite horizon truncation 
-$$ V^{opt}_T(x) =  \min_{g} \EXP^g\bigg[ \sum_{t=1}^T β^{t-1} c(X_t, U_t) | X_1 = x \bigg].
+$$ V^{opt}_T(s) =  \min_{π} \EXP^π\bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) | S_1 = s \bigg].
 $$
 From the results for finite horizon MDP, we have that
 $$ V^{opt}_T = \mathcal B^T V_0 $$
 where $V_0$ is the all zeros vector. 
 
 Now by construction, 
-$$V^{opt}_∞(x) \ge V^{opt}_T(x) = [\mathcal B^T V_0](x). $$
+$$V^{opt}_∞(s) \ge V^{opt}_T(s) = [\mathcal B^T V_0](s). $$
 Taking limit as $T \to ∞$, we get that
 $$\begin{equation}\label{eq:1}
-  V^{opt}_∞(x) \ge \lim_{T \to ∞} [\mathcal B^T V_0](x) = V^*(x). 
+  V^{opt}_∞(s) \ge \lim_{T \to ∞} [\mathcal B^T V_0](s) = V^*(s). 
 \end{equation}$$
 
-Since $0 \le c(x,u) \le M$,  for any $T$,
+Since $0 \le c(s,a) \le M$,  for any $T$,
 $$ \begin{align*}
-V^{opt}_∞(x) &\le \min_g \EXP^g \bigg[ \sum_{t=1}^T β^{t-1} c(X_t, U_t) 
-\biggm| X_1 = x \bigg] + \sum_{t=T+1}^∞ β^{t-1} M \\
-&= V^{opt}_T(x) + β^T M / (1 - β) \\
-&= [\mathcal B^T V_0](x) + β^T M / (1-β). 
+V^{opt}_∞(s) &\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) 
+\biggm| S_1 = s \bigg] + \sum_{t=T+1}^∞ γ^{t-1} M \\
+&= V^{opt}_T(s) + γ^T M / (1 - γ) \\
+&= [\mathcal B^T V_0](s) + γ^T M / (1-γ). 
 \end{align*} $$
 Taking limit as $T \to ∞$, we get that
 $$\begin{equation}\label{eq:2}
-  V^{opt}_∞(x) \le \lim_{T \to ∞}
-  \big\{ [\mathcal B^T V_0](x) + β^T M / (1-β) \big\} = V^*(x). 
+  V^{opt}_∞(s) \le \lim_{T \to ∞}
+  \big\{ [\mathcal B^T V_0](s) + γ^T M / (1-γ) \big\} = V^*(s). 
 \end{equation}$$
 
 From \\eqref{eq:1} and \\eqref{eq:2}, we get that $V^{opt}_∞ = V^*$. 
@@ -255,20 +255,20 @@ Prop. #prop:properties
 :   The Bellman operator satisfies the following properties
 
     * _Monotonicity_. For any $v, w \in \reals^n$, if $v \le w$, then
-      $\mathcal B_g v \le \mathcal B_g w$ and 
+      $\mathcal B_π v \le \mathcal B_π w$ and 
       $\mathcal B v \le \mathcal B w$. 
     * _Discounting_. For any $v \in \reals^n$ and $m \in \reals$, 
-      $\mathcal B_g (v + m) = \mathcal B_g v + β m$
+      $\mathcal B_π (v + m) = \mathcal B_π v + γ m$
       and 
-      $\mathcal B (v + m) = \mathcal B v + β m$.
+      $\mathcal B (v + m) = \mathcal B v + γ m$.
 :::
 
-Note that we interpret $v + m$ as $[v + m]_x = v_x + m$. 
+Note that we interpret $v + m$ as $[v + m]_s = v_s + m$. 
 
 #### Proof {-}
 We first prove the monotonicity property. Recall that
-$$ \mathcal B_g v = c_g + β P_g v. $$
-So, monotonicity of $\mathcal B_g$ follows immediately from monotonicity of
+$$ \mathcal B_π v = c_π + γ P_π v. $$
+So, monotonicity of $\mathcal B_π$ follows immediately from monotonicity of
 matrix multiplication for positive matrices. 
 
 Let $h$ be such that $\mathcal B w = \mathcal B_h w$. 
@@ -280,13 +280,13 @@ where $(a)$ uses the monotonicity of $\mathcal B_h$.
 
 We now prove the discounting property. 
 Recall that
-$$ \mathcal B_g v = c_g + β P_g v. $$
+$$ \mathcal B_π v = c_π + γ P_π v. $$
 Thus,
-$$ \mathcal B_g(v+m) = c_g + β P_g (v+m) = c_g + β P_g v + β m = \mathcal B_g
-v + β m.$$ 
-Thus, $\mathcal B_g$ is discounting. Now consider 
-$$ \mathcal B (v + m ) = \min_{g} \mathcal B_g (v+m)
-= \min_g \mathcal (B_g v + β m) = \mathcal B v + β m.$$
+$$ \mathcal B_π(v+m) = c_π + γ P_π (v+m) = c_π + γ P_π v + γ m = \mathcal B_π
+v + γ m.$$ 
+Thus, $\mathcal B_π$ is discounting. Now consider 
+$$ \mathcal B (v + m ) = \min_{π} \mathcal B_π (v+m)
+= \min_π \mathcal (B_π v + γ m) = \mathcal B v + γ m.$$
 Thus, $\mathcal B$ is discounting.
 &nbsp;$\Box$
 
@@ -301,7 +301,7 @@ Prop. #prop:coarse-bounds
       and $V = V^*$.
 
     The same bounds are true when $(\mathcal B, V^*)$ is replaced with
-    $(\mathcal B_g, V_g)$. 
+    $(\mathcal B_π, V_π)$. 
 :::
 
 #### Proof {-}
@@ -323,34 +323,34 @@ Prop. #prop:bounds
 
 :   For any $V \in \reals^n$ and $m \in \reals$, 
 
-    * If $V + m \ge \mathcal B V$, then $V  + m/(1-β) \ge V^*$;
-    * If $V + m \le \mathcal B V$, then $V  + m/(1-β) \le V^*$;
+    * If $V + m \ge \mathcal B V$, then $V  + m/(1-γ) \ge V^*$;
+    * If $V + m \le \mathcal B V$, then $V  + m/(1-γ) \le V^*$;
 
     The same bounds are true when $(\mathcal B, V^*)$ is replaced with
-    $(\mathcal B_g, V_g)$. 
+    $(\mathcal B_π, V_π)$. 
 :::
 
 Remark
 
 :   The above result can also be stated as follows:
 
-    * $\displaystyle \| V_g - V \| \le \frac{1}{1-β}\| \mathcal B_g V - V \|$.
-    * $\displaystyle \| V^* - V \| \le \frac{1}{1-β}\| \mathcal B V - V \|$.
+    * $\displaystyle \| V_π - V \| \le \frac{1}{1-γ}\| \mathcal B_π V - V \|$.
+    * $\displaystyle \| V^* - V \| \le \frac{1}{1-γ}\| \mathcal B V - V \|$.
 
 
 #### Proof {-}
 Again, we only prove the first part. The proof of the second part is the same. We have that
 $$ V + m \ge \mathcal B V. $$
 From discounting and monotonicity properties, we get
-$$ \mathcal B V + β m \ge \mathcal B^2 V. $$
+$$ \mathcal B V + γ m \ge \mathcal B^2 V. $$
 Again, from discounting and monotonitiy properties, we get
-$$ \mathcal B^2 V + β^2 m \ge \mathcal B^3 V. $$
+$$ \mathcal B^2 V + γ^2 m \ge \mathcal B^3 V. $$
 Continuing this way, we get
-$$ \mathcal B^k V + β^k m \ge \mathcal B^{k+1} V. $$
+$$ \mathcal B^k V + γ^k m \ge \mathcal B^{k+1} V. $$
 Adding all the above equations, we get
-$$ V + \sum_{\ell = 0}^k β^\ell m \ge \mathcal B^{k+1} V. $$
+$$ V + \sum_{\ell = 0}^k γ^\ell m \ge \mathcal B^{k+1} V. $$
 Taking the limit as $k \to ∞$, we get
-$$ V + m/(1-β) \ge V^*. \Box$$
+$$ V + m/(1-γ) \ge V^*. \Box$$
 
 
 # Value Iteration Algorithm
@@ -360,17 +360,17 @@ $$ V + m/(1-β) \ge V^*. \Box$$
 #### Value Iteration Algorithm {-}
 
 1. Start with any $V_0 \in \reals^n$.
-2. Recursively compute $V_{k+1} = \mathcal B V_k = \mathcal B_{g_k} V_k.$
+2. Recursively compute $V_{k+1} = \mathcal B V_k = \mathcal B_{π_k} V_k.$
 3. Define 
    $$ \begin{align*}
-      \underline δ_k &= \frac{β}{1-β} \min_x \{ V_k(x) - V_{k-1}(x) \}, \\
-      \bar δ_k &=       \frac{β}{1-β} \max_x \{ V_k(x) - V_{k-1}(x) \}.
+      \underline δ_k &= \frac{γ}{1-γ} \min_s \{ V_k(s) - V_{k-1}(s) \}, \\
+      \bar δ_k &=       \frac{γ}{1-γ} \max_s \{ V_k(s) - V_{k-1}(s) \}.
     \end{align*} $$
 
 Then, for all $k$
 
 1. $V_k + \underline δ_k \le V^* \le V_k + \bar δ_k$.
-2. $\underline δ_k - \bar δ_k  \le V_{g_k} - V^* \le \bar δ_k -
+2. $\underline δ_k - \bar δ_k  \le V_{π_k} - V^* \le \bar δ_k -
    \underline δ_k.$
    
 :::  
@@ -380,39 +380,39 @@ Then, for all $k$
 By construction, 
 $$ \begin{align*} 
    \mathcal B V_k - V_k &= \mathcal B V_k - \mathcal B V_{k-1} \\ 
-   & \le \mathcal B_{g_{k-1}} V_k - \mathcal B_{g_{k-1}} V_{k-1}\\
-   & \le β P_{g_{k-1}}[ V_k - V_{k-1} ] \\
-   &= (1-β) \bar δ_k.
+   & \le \mathcal B_{π_{k-1}} V_k - \mathcal B_{π_{k-1}} V_{k-1}\\
+   & \le γ P_{π_{k-1}}[ V_k - V_{k-1} ] \\
+   &= (1-γ) \bar δ_k.
 \end{align*} $$
 Thus, by @prop:bounds, we have
 $$\begin{equation} \label{eq:VI-1}
   V^* \le V_k + \bar δ_k.
 \end{equation}$$
-Note that $\mathcal B V_k = \mathcal B_{g_k} V_k$. So, we have also show that
-$\mathcal B_{g_k} V_k - V_k \le (1-\beta) \bar \delta_k$. Thus, again by
+Note that $\mathcal B V_k = \mathcal B_{π_k} V_k$. So, we have also show that
+$\mathcal B_{π_k} V_k - V_k \le (1-γ) \bar \delta_k$. Thus, again by
 @prop:bounds, we have
 $$\begin{equation}\label{eq:VI-2}
-  V_{g_k} \le V_k + \bar δ_k. 
+  V_{π_k} \le V_k + \bar δ_k. 
 \end{equation}$$
 
 By a similar argument, we can show
 $$\begin{equation}\label{eq:VI-3}
   V^* \ge V_k + \underline δ_k
 \quad\text{and}\quad
- V_{g_k} \ge V_k + \underline δ_k. 
+ V_{π_k} \ge V_k + \underline δ_k. 
 \end{equation}$$
 
 Eq. \\eqref{eq:VI-1} and \\eqref{eq:VI-3} imply the first relationship of the
 result. To establish the second relationship, note that the triangle
 inequality
-$$ \max\{ V_{g_k} - V^* \} \le 
-   \max\{ V_{g_k} - V_k \} + \max\{ V_{k} - V^* \}
+$$ \max\{ V_{π_k} - V^* \} \le 
+   \max\{ V_{π_k} - V_k \} + \max\{ V_{k} - V^* \}
    \le \bar δ_k - \underline δ_k.
 $$
 Similarly,
 $$ 
-  \max\{ V^* - V_{g_k} \} \le
-   \max \{ V^* - V_k \} + \max\{ V_k - V_{g_k} \}
+  \max\{ V^* - V_{π_k} \} \le
+   \max \{ V^* - V_k \} + \max\{ V_k - V_{π_k} \}
    \le \bar δ_k - \underline δ_k.
 $$
 Combining the above two equation, we get the second relationship of the
@@ -424,37 +424,37 @@ result. $\Box$
 ::: highlight :::
 Lemma #lemma:PI
 
-:   **Policy Improvement** Suppose $V_g$ is the fixed point of $\mathcal B_g$ and
-    $$\mathcal B_{h} V_g = \mathcal B V_g. $$
+:   **Policy Improvement** Suppose $V_π$ is the fixed point of $\mathcal B_π$ and
+    $$\mathcal B_{h} V_π = \mathcal B V_π. $$
     Then,
-    $$V_{h}(x) \le V_g(x), \quad \forall x \in \ALPHABET X. $$
-    Moreover, if $g$ is not optimal, then at least one inequality is strict. 
+    $$V_{h}(s) \le V_π(s), \quad \forall s \in \ALPHABET S. $$
+    Moreover, if $π$ is not optimal, then at least one inequality is strict. 
 :::
 
 #### Proof {-}
 
-$$ V_g = \mathcal B_g V_g \ge \mathcal B V_g = \mathcal B_{h} V_g.$$
+$$ V_π = \mathcal B_π V_π \ge \mathcal B V_π = \mathcal B_{h} V_π.$$
 Thus,
-$$ V_g \ge V_{h}. $$
+$$ V_π \ge V_{h}. $$
 
-Finally, suppose $V_h = V_g$. Then, 
-$$ V_h = \mathcal B_h V_h = \mathcal B_h V_g = \mathcal B V_g = \mathcal B
+Finally, suppose $V_h = V_π$. Then, 
+$$ V_h = \mathcal B_h V_h = \mathcal B_h V_π = \mathcal B V_π = \mathcal B
 V_h. $$
-Thus, $V_h$ (and $V_g$) is the unique fixed point of $\mathcal B$. Hence $h$
-and $g$ are optimal.
+Thus, $V_h$ (and $V_π$) is the unique fixed point of $\mathcal B$. Hence $h$
+and $π$ are optimal.
 &nbsp;$\Box$
 
 ::: highlight :::
 
 #### Policy Iteration Algorithm {-}
 
-1. Start with an arbitrary policy $g_0$. Compute $V_0 = \mathcal B_{g_0} V_0$.
-2. Recursively compute a policy $g_k$ such that
-   $$\mathcal B V_{k-1} = \mathcal B_{g_k} V_{k-1}$$
+1. Start with an arbitrary policy $π_0$. Compute $V_0 = \mathcal B_{π_0} V_0$.
+2. Recursively compute a policy $π_k$ such that
+   $$\mathcal B V_{k-1} = \mathcal B_{π_k} V_{k-1}$$
    and compute the performance of the policy using
-   $$ V_k = \mathcal B_{g_k} V_k.$$ 
+   $$ V_k = \mathcal B_{π_k} V_k.$$ 
 
-3. Stop if $V_k = V_{k-1}$ (or $g_k = g_{k-1}$). 
+3. Stop if $V_k = V_{k-1}$ (or $π_k = π_{k-1}$). 
 
 :::
 
@@ -462,8 +462,8 @@ The policy improvement lemma (@lemma:PI) implies that $V_{k-1} \ge
 V_k$. Since the state and action spaces are finite, there are only a finite
 number of policies. The value function improves at each step. So the process
 must converge in finite number of iterations. At convergence, $V_k = V_{k-1}$
-and the policy improvement lemma implies that the corresponding policies $g_k$
-or $g_{k-1}$ are optimal. 
+and the policy improvement lemma implies that the corresponding policies $π_k$
+or $π_{k-1}$ are optimal. 
 
 ## Policy iteration as Newton-Raphson algoritm
 
@@ -481,19 +481,19 @@ the consequent linear equation for $Δ_k$.
 
 Now, let's try to apply this idea to find the fixed point of the Bellman
 equation. Suppose we have identified a guess $V_k$ and $\mathcal B V_k =
-\mathcal B_{g_{k+1}} V_k$. Because the choice of control action $u$ is
-optimization out in $\mathcal B$, the varation of $u$ induced by the variation
+\mathcal B_{π_{k+1}} V_k$. Because the choice of control action $a$ is
+optimization out in $\mathcal B$, the varation of $a$ induced by the variation
 $Δ_k$ of $V_k$ has no first-order effect on the value of $\mathcal B(V_k +
 Δ_k)$. Therefore,
 $$
-  \mathcal{B}(V_k + Δ_k) = \mathcal B_{g_{k+1}}(V_k + Δ_k) + o(Δ_k).
+  \mathcal{B}(V_k + Δ_k) = \mathcal B_{π_{k+1}}(V_k + Δ_k) + o(Δ_k).
 $$
 It follows that the linearized version of~\\eqref{eq:NR} is just
 $$ 
-  V_{k+1} = \mathcal B_{g_{k+1}} V_{k+1}.
+  V_{k+1} = \mathcal B_{π_{k+1}} V_{k+1}.
 $$
-That is, $V_{k+1}$ is just the value function for the policy $g_{k+1}$, where
-$g_{k+1}$ was deduced from the value function $V_k$ exactly by the policy
+That is, $V_{k+1}$ is just the value function for the policy $π_{k+1}$, where
+$π_{k+1}$ was deduced from the value function $V_k$ exactly by the policy
 improvement procedure. Therefore, we can conclude the following.
 
 ::: highlight :::
@@ -518,10 +518,10 @@ why policy iteration approaches converge in few iterations.
 
 2. Start with an initial guess $V_0 \in \reals^n$. 
 
-3. For $k=0, 1, 2, \dots$, recursively compute a policy $g_k$ such that
-   $$ \mathcal B_{g_k} V_k = \mathcal B V_k $$
+3. For $k=0, 1, 2, \dots$, recursively compute a policy $π_k$ such that
+   $$ \mathcal B_{π_k} V_k = \mathcal B V_k $$
    and then update the value function
-   $$ V_{k+1} = \mathcal B_{g_k}^{\ell_k} V_k. $$
+   $$ V_{k+1} = \mathcal B_{π_k}^{\ell_k} V_k. $$
 
 :::
 
@@ -537,10 +537,10 @@ Prop. #prop:multi-step
 
 :   For any $V \in \reals^n$ and $m \in \reals_{\ge 0}$ 
 
-    * If $V + m \ge \mathcal B V = \mathcal B_g V$, then for any $\ell \in \integers_{> 0}$, 
-      $$ \mathcal B V + \frac{\beta}{1 - \beta} m \ge \mathcal B_g^\ell V $$
+    * If $V + m \ge \mathcal B V = \mathcal B_π V$, then for any $\ell \in \integers_{> 0}$, 
+      $$ \mathcal B V + \frac{γ}{1 - γ} m \ge \mathcal B_π^\ell V $$
       and
-      $$ \mathcal B_g^\ell V + \beta^\ell m \ge \mathcal B( \mathcal B_g^\ell V). $$
+      $$ \mathcal B_π^\ell V + γ^\ell m \ge \mathcal B( \mathcal B_π^\ell V). $$
 
 :::
 
@@ -549,23 +549,23 @@ The proof is left as an exercise.
 ::: highlight :::
 Prop. #prop:optimistic-bound
 
-:   Let $\{(V_k, g_k)\}_{k \ge 0}$ be generated as per the optimistic policy
+:   Let $\{(V_k, π_k)\}_{k \ge 0}$ be generated as per the optimistic policy
     iteration algorithm. Define
     $$ \alpha_k = \begin{cases}
       1, & \text{if } k = 0 \\
-      \beta^{\ell_0 + \ell_1 + \dots + \ell_{k-1}}, & \text{if } k > 0.
+      γ^{\ell_0 + \ell_1 + \dots + \ell_{k-1}}, & \text{if } k > 0.
      \end{cases}$$
      Suppose there exists an $m \in \reals$ such that 
      $$ \| V_0 - \mathcal B V_0 \| \le m. $$
      Then, for all $k \ge 0$,
      $$ \mathcal B V_{k+1} - \alpha_{k+1} m \le V_{k+1} \le 
-     \mathcal B V_k + \frac{\beta}{1-\beta} \alpha_k m.
+     \mathcal B V_k + \frac{γ}{1-γ} \alpha_k m.
      $$
      Moreover,
-     $$ V_{k} - \frac{(k+1) \beta^k}{1-\beta} m \le
+     $$ V_{k} - \frac{(k+1) γ^k}{1-γ} m \le
         V^* \le 
-        V_k + \frac{\alpha_k}{1 - \beta} m \le 
-        V_k + \frac{\beta^k}{1 - \beta} m. $$
+        V_k + \frac{\alpha_k}{1 - γ} m \le 
+        V_k + \frac{γ^k}{1 - γ} m. $$
 
 ::: 
 
@@ -579,17 +579,17 @@ Prop. #prop:optimistic-bound
 
 2. **One-step look-ahead error bounds.**
 
-   Given any $V \in \reals^n$, let $g$ be such that $\mathcal B V = \mathcal
-   B_g V$. Moreover, let $V^*$ denote the unique fixed point of $\mathcal B$
-   and $V_g$ denote the unique fixed point of $\mathcal B_g$.
+   Given any $V \in \reals^n$, let $π$ be such that $\mathcal B V = \mathcal
+   B_π V$. Moreover, let $V^*$ denote the unique fixed point of $\mathcal B$
+   and $V_π$ denote the unique fixed point of $\mathcal B_π$.
    Then, show that
 
-   a. $$ \| V^* - V \| \le \frac{1}{1-\beta} \| \mathcal B V - V \|. $$
-   b. $$ \| V^* - \mathcal B V \| \le \frac{\beta}{1-\beta} \| \mathcal B V - V \|. $$
-   c. $$ \| V_g - V \| \le \frac{1}{1-\beta} \| \mathcal B_g V - V \|. $$
-   d. $$ \| V_g - \mathcal B_g V \| \le \frac{\beta}{1-\beta} \| \mathcal B_g V - V \|. $$
-   e. $$ \| V_g - V^* \| \le \frac{2}{1-\beta} \| \mathcal B V - V \|. $$
-   f. $$ \| V_g - V^* \| \le \frac{2\beta}{1 - \beta} \| V - V^* \|. $$
+   a. $$ \| V^* - V \| \le \frac{1}{1-γ} \| \mathcal B V - V \|. $$
+   b. $$ \| V^* - \mathcal B V \| \le \frac{γ}{1-γ} \| \mathcal B V - V \|. $$
+   c. $$ \| V_π - V \| \le \frac{1}{1-γ} \| \mathcal B_π V - V \|. $$
+   d. $$ \| V_π - \mathcal B_π V \| \le \frac{γ}{1-γ} \| \mathcal B_π V - V \|. $$
+   e. $$ \| V_π - V^* \| \le \frac{2}{1-γ} \| \mathcal B V - V \|. $$
+   f. $$ \| V_π - V^* \| \le \frac{2γ}{1 - γ} \| V - V^* \|. $$
 
 <!-- TODO: Add the example of policy improvement for the harvesting example
 from Page 61 of Whittle, Optimal Control: Basics and Beyond --> 

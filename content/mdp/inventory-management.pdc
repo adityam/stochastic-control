@@ -9,7 +9,7 @@ tags:
   - base-stock policy
   - structural results
 scripts:
-  - plotly
+  - geogebra
 ---
 
 ![Image credit:
@@ -29,8 +29,8 @@ meet random demand. Suppose the store procures new stocks at the end of each
 day (and that there is no lead time and stocks are available next morning).
 Let 
 
-* $X_t \in \reals$ denote the amount of stock at the beginning of day $t$,
-* $U_t \in \reals_{\ge 0}$ denote the stock ordered (and immediately delivered) at the beginning of day $t$, and
+* $S_t \in \reals$ denote the amount of stock at the beginning of day $t$,
+* $A_t \in \reals_{\ge 0}$ denote the stock ordered (and immediately delivered) at the beginning of day $t$, and
 * $W_t \in \reals_{\ge 0}$ denote the demand during day $t$. 
 
 The random variables $\{W_t\}_{t \ge 1}$ are i.i.d. with known probability
@@ -38,20 +38,20 @@ distribution.
 
 Excess demand is backlogged and filled when new inventory becomes available.
 Thus, the stock evolves according to
-$$X_{t+1} = X_t + U_t - W_t,$$
+$$S_{t+1} = S_t + A_t - W_t,$$
 where negative stock denotes backlogged demand. 
 
 The cost incurred during day $t$ consists of two components:
 
-*   A procurement cost of $p\, U_t$, where $p$ is the cost per unit. 
-*   At the end of the day, if the stock $X_{t+1}$ is positive, then there is a
-    holding cost of $a X_{t+1}$ for storing excess inventory; if $X_{t+1}$ is
-    negative, then a shortage cost of $-bX_{t+1}$ for unfilled demand. 
+*   A procurement cost of $p A_t$, where $p$ is the cost per unit. 
+*   At the end of the day, if the stock $S_{t+1}$ is positive, then there is a
+    holding cost of $c_h S_{t+1}$ for storing excess inventory; if $S_{t+1}$ is
+    negative, then a shortage cost of $-c_s S_{t+1}$ for unfilled demand. 
 
-      We denote this cost by $h(X_{t+1})$, where
-      $$ h(x) = \begin{cases} 
-         ax, & \text{if } x \ge 0 \\
-        -bx, & \text{if } x < 0
+      We denote this cost by $h(S_{t+1})$, where
+      $$ h(s) = \begin{cases} 
+         c_h s, & \text{if } s \ge 0 \\
+        -c_s s, & \text{if } s < 0
       \end{cases}$$
 
 # Structure of optimal procurement strategy 
@@ -59,47 +59,47 @@ The cost incurred during day $t$ consists of two components:
 The above model is a Markov decision process.[^cost] Therefore, the optimal
 solution is given by dynamic programming. 
 
-[^cost]: Part of the per-step cost depends on the _future_ state $X_{t+1}$.
+[^cost]: Part of the per-step cost depends on the _future_ state $S_{t+1}$.
   It is easy to show that the standard MDP model works even when the per-step
-  cost is a function of $(X_t, U_t, X_{t+1})$
+  cost is a function of $(S_t, A_t, S_{t+1})$
 
 ::: highlight
 Dynamic programming
 
 : Define the following value functions $V_t \colon \reals \to \reals$ 
-  $$V_{T+1}(x) = 0$$
+  $$V_{T+1}(s) = 0$$
   and for $t \in \{T, \dots, 1\}$
-  $$ Q_t(x, u) = p u + \EXP[ h(x + u - W_t) + V_{t+1}( x + u - W_t ) ]$$
+  $$ Q_t(s, a) = p a + \EXP[ h(s + a - W_t) + V_{t+1}( s + a - W_t ) ]$$
   and
   $$ \begin{align*}
-    V_t(x) &= \min_{u \in \reals_{\ge 0}} Q_t(x,u) \\
-    g_t(x) &= \arg \min_{u \in \reals_{\ge 0}} Q_t(x,u) 
+    V_t(s) &= \min_{a \in \reals_{\ge 0}} Q_t(s,a) \\
+    π_t(s) &= \arg \min_{a \in \reals_{\ge 0}} Q_t(s,a) 
     \end{align*}
   $$
-  Then the strategy $g = (g_1, \dots, g_T)$ is optimal. 
+  Then the strategy $π = (π_1, \dots, π_T)$ is optimal. 
 ::: 
 
 It is possible to simplify the above dynamic program by exploiting a feature
 of the model. Notice that the dynamics can be split into two parts: 
 $$ \begin{align*}
-    Y_t &= X_t + U_t,  \\
-    X_{t+1} &= Y_t - W_t.
+    Z_t &= S_t + A_t,  \\
+    S_{t+1} &= Z_t - W_t.
    \end{align*}
 $$
-The first part, $Y_t$, depends only on the current state and action. The
-second part depends only on $Y_t$ and a primitive random variable. 
-In this particular model, $Y_t$ is a deterministic function of $X_t$ and
-$U_t$; but, in general, it could be stochastic as well; what is important is
-that the second part should only depend on $Y_t$ and a primitive random
-variable. The variable $Y_t$ is sometimes called the _post-decision state_. 
+The first part, $Z_t$, depends only on the current state and action. The
+second part depends only on $Z_t$ and a primitive random variable. 
+In this particular model, $Z_t$ is a deterministic function of $S_t$ and
+$A_t$; but, in general, it could be stochastic as well; what is important is
+that the second part should only depend on $Z_t$ and a primitive random
+variable. The variable $Z_t$ is sometimes called the _post-decision state_. 
 
 Now write the dynamic program in terms of the post-decision state as follows.
 Define
-$$ H_t(y) = \EXP[ h(y - W) + V_{t+1}(y-W) ].$$
+$$ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z-W) ].$$
 Then the value function and optimal policy at time $t$ can be written as:
 $$ \begin{align*}
-  V_t(x) &= \min_{u \in \reals_{\ge 0}} \bigl\{ pu + H_t(x + u) \bigr\}, \\
-  g_t(x) &= \arg \min_{u \in \reals_{\ge 0}} \bigl\{ pu + H_t(x + u) \bigr\}.
+  V_t(s) &= \min_{a \in \reals_{\ge 0}} \bigl\{ pu + H_t(s + a) \bigr\}, \\
+  π_t(s) &= \arg \min_{a \in \reals_{\ge 0}} \bigl\{ pu + H_t(s + a) \bigr\}.
 \end{align*} $$
 
 
@@ -109,70 +109,85 @@ The optimal policy is then characterized as follows.
 Theorem
 
 :   Define 
-    $$ s_t = \arg \min_{y \in \reals} \bigl\{ p y + H_t(y) \bigr\} . $$
+    $$ s^*_t = \arg \min_{z \in \reals} \bigl\{ p z + H_t(z) \bigr\} . $$
     Then, 
     \begin{equation} \label{eq:V}
-    V_t(x) = \begin{cases}
-      H_t(s_t) + p (s_t - x), &\text{if } x \le s_t \\
-      H_t(x)   , & \text{otherwise }
+    V_t(s) = \begin{cases}
+      H_t(s_t) + p (s_t - s), &\text{if } s \le s^*_t \\
+      H_t(s)   , & \text{otherwise }
     \end{cases} 
     \end{equation}
     and
-    $$g_t(x) = \begin{cases}
-      s_t - x, &\text{if } x \le s_t \\
+    $$π_t(s) = \begin{cases}
+      s^*_t - s, &\text{if } s \le s^*_t \\
       0, & \text{otherwise }
     \end{cases} $$
 
-    Furthermore, for all $t$, $H_t(y)$ and $V_t(x)$ are convex in $y$
-    and $x$, respectively. 
+    Furthermore, for all $t$, $H_t(z)$ and $V_t(s)$ are convex in $z$
+    and $s$, respectively. 
 :::
 
 #### Proof {-}
 
 We first establish some preliminary results.
 
-1. For any convex function $\theta \colon \reals \to \reals$, 
-   $\Theta(x) = \EXP[ \theta(x - W) ]$ is convex.
+1. For any convex function $f \colon \reals \to \reals$, 
+   $F(s) = \EXP[ f(s - W) ]$ is convex.
 
-   **Proof** For any realization of $W$, $\theta(x - w)$ is convex in $x$.
+   **Proof** For any realization of $W$, $f(s - w)$ is convex in $s$.
    The expectation w.r.t. $W$ is simply the sum of convex functions and is,
    therefore, convex. 
 
-2. For any convex function $\theta \colon \reals \to \reals$, 
-   let $s =  \arg \min_{x \in \reals} \theta(x)$. Then,
-   $$\arg \min_{u \in \reals_{\ge 0}} \theta(x + u) = \begin{cases}
-   0, & \text{if } x > s, \\
-   s - x, & \text{if } x \le s
+2. For any convex function $f \colon \reals \to \reals$, 
+   let $s^* =  \arg \min_{s \in \reals} f(s)$. Then,
+   $$\arg \min_{a \in \reals_{\ge 0}} f(s + a) = \begin{cases}
+   0, & \text{if } s > s^*, \\
+   s^* - s, & \text{if } s \le s^*
    \end{cases}$$
    and
-   $$\Theta(x) = \min_{u \in \reals_{\ge 0}} \theta(x+u) = \begin{cases}
-    \theta(x), & \text{if } x > s \\
-    \theta(s), & \text{if } x \le s
+   $$F(s) = \min_{a \in \reals_{\ge 0}} f(s+a) = \begin{cases}
+    f(s), & \text{if } s > s^* \\
+    f(s^*), & \text{if } s \le s^*
     \end{cases}$$
-    and $\Theta(x)$ is convex in $x$.
+    and $F(s)$ is convex in $s$.
 
-     If there were no constraint on $u$, then the minimizer will be $u = s -
-     x$. If $x \le s$, then $u = s -x \in \reals_{\ge 0}$ is the minimizer for
-     the constrained problem as well. On the other hand, if $x \ge s$, then
-     the function $\theta(x + u)$ is increasing as a function of $u$. Hence,
-     the minimizer for the constrained problem is $u = 0$. 
+     If there were no constraint on $a$, then the minimizer will be $a = s^* -
+     s$. If $s \le s^*$, then $a = s^* -s \in \reals_{\ge 0}$ is the minimizer for
+     the constrained problem as well. On the other hand, if $s \ge s^*$, then
+     the function $f(s + a)$ is increasing as a function of $a$. Hence,
+     the minimizer for the constrained problem is $a = 0$. 
      See the figures below.
 
+  <div style="width:800px;height:600px;display:block" id="applet_container"></div>
+  <script type="text/javascript">
+      var params = {
+        filename: "/stochastic-control/geogebra/mdp/inventory-management.ggb",
+        width: 800,
+        height: 600,
+      }
+
+      var applet = new GGBApplet(params, true);
+
+      window.onload = function() {
+          applet.inject('applet_container');
+      }
+  </script>
+
+ <!--
  <div class="flex">
    <div id="function:f" style="width:400px; height:250px;"></div>
-   <div id="function:g" style="width:400px; height:250px;"></div>
+   <div id="function:π" style="width:400px; height:250px;"></div>
  </div>
-
 
 <script>
   var state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   var Q     = [16, 10, 6.5, 4, 3, 4, 7, 12, 19, 28];
   var Qmin  = [3,  3, 3,   3, 3, 4, 7, 12, 19, 28];
 
-  function show_plot(dom, x, y, xtitle, ytitle) {
+  function show_plot(dom, s, z, xtitle, ytitle) {
     var data = [{ 
-        x: x,
-        y: y,
+        x: s,
+        y: z,
         line : { 
           shape: "spline",
         },
@@ -182,7 +197,7 @@ We first establish some preliminary results.
     var layout = { 
         paper_bgcolor: "#fffff8",
         plot_bgcolor:  "#fffff8",
-        xaxis : {
+        saxis : {
           title: xtitle,
           showgrid: true,
           showline: true,
@@ -216,54 +231,55 @@ We first establish some preliminary results.
     Plotly.plot(dom, data, layout, options);
   }
 
-  show_plot('function:f', state, Q, "$x$", "$\\theta(x)$");
-  show_plot('function:g', state, Qmin, "$x$",  "$\\Theta(x) = \\displaystyle \\min_{u \\ge 0} \\theta(x+u)$");
+  show_plot('function:f', state, Q, "$s$", "$f(s)$");
+  show_plot('function:π', state, Qmin, "$s$",  "$F(s) = \\displaystyle \\min_{a \\ge 0} f(s+a)$");
 </script>
+-->
 
 Now to prove the result, we define 
-$$ \theta_t(y) = py + H_t(y). $$
+$$ f_t(z) = py + H_t(z). $$
 Then,
-$$ V_t(x) = \min_{u \in \reals_{\ge 0}} \bigl\{ p(x + u) + H_t(x + u)
-\bigr\} - p x 
-= \min_{u \in \reals_{\ge 0}} \theta_t(x+u) - p x.
+$$ V_t(s) = \min_{a \in \reals_{\ge 0}} \bigl\{ p(s + a) + H_t(s + a)
+\bigr\} - p s 
+= \min_{a \in \reals_{\ge 0}} f_t(s+a) - p s.
 $$
 
 As usual, we prove the result by backward induction. For $t=T$, 
-$$\bar Q_T(y) = \EXP[ h(y - W) ] $$
-which is convex because $h(y)$ is convex. $\theta_T(y) = p y + Q_T(y)$ is the
+$$\bar Q_T(z) = \EXP[ h(z - W) ] $$
+which is convex because $h(z)$ is convex. $f_T(z) = p z + Q_T(z)$ is the
 sum of a linear function and convex function and is, therefore, convex. 
 Then, by fact 2 above,
-$$g_T(x) = \arg \min_{u \in \reals_{\ge 0}} \theta_T(x+u) = \max(S_T - x, 0)
+$$π_T(s) = \arg \min_{a \in \reals_{\ge 0}} f_T(s+a) = \max(s^*_T - s, 0)
 $$
 and
-$$V_T(x) = \min_{u \in \reals_{\ge 0}} \theta_T(x + u) - px = 
+$$V_T(s) = \min_{a \in \reals_{\ge 0}} f_T(s + a) - px = 
   \begin{cases}
-    \theta_T(x) - p x, & \text{if } x > S_T \\
-    \theta_T(S_T) - px, & \text{if } x \le S_T.
+    f_T(s) - p s, & \text{if } s > s^*_T \\
+    f_T(s^*_T) - px, & \text{if } s \le s^*_T.
   \end{cases}
 $$
-Substituting $\theta_t(y) = p y + H_t(y)$, we get that both
-$V_T$ and $g_T$ have the desired form and $V_T$ is convex. This forms the basis of
+Substituting $f_t(z) = p z + H_t(z)$, we get that both
+$V_T$ and $π_T$ have the desired form and $V_T$ is convex. This forms the basis of
 induction.
 
-Now assume that $V_{t+1}(x)$ is convex and of the form \\eqref{eq:V}. Now note
+Now assume that $V_{t+1}(s)$ is convex and of the form \\eqref{eq:V}. Now note
 that, by fact 1,
-$$ H_t(y) = \EXP[ h(y - W) + V_{t+1}(y - W) ]$$
-is convex. Hence, $\theta_t(y)$ is convex. Therefore, 
+$$ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z - W) ]$$
+is convex. Hence, $f_t(z)$ is convex. Therefore, 
 by fact 2 above,
-$$ g_t(x) = \max(s_t - x, 0)$$
-and $V_t(x)$ is of the desired form and convex. 
+$$ π_t(s) = \max(s^*_t - s, 0)$$
+and $V_t(s)$ is of the desired form and convex. 
 
-Thus, the result is holds by induction.
+Thus, the result is holds by induction. $\Box$
 
 # Exercises {-}
 
-1. Suppose that the stocks $U_t$ ordered at the beginning of day $t$ must
+1. Suppose that the stocks $A_t$ ordered at the beginning of day $t$ must
    belong to $\integers_{\ge 0}$ rather than $\reals_{\ge 0}$. Show that there
    exists a sequence $\{s_t\}_{t \ge 1}$ of numbres such that policy given by
-   $$ g_t(x) = \begin{cases}
-      n, & \text{if } s_t - n \le x \le s_t - n + 1, \\
-      0, & \text{if } x_t \ge s_t.
+   $$ π_t(s) = \begin{cases}
+      n, & \text{if } s_t - n \le s \le s_t - n + 1, \\
+      0, & \text{if } s_t \ge s_t.
      \end{cases} $$
    is optimal.
 

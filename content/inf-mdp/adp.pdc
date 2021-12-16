@@ -14,12 +14,12 @@ tags:
 
 The value and policy iteration algorithms for discounted cost MDPs rely on
 exact computation of the Bellman update $W = \mathcal B V$ and the
-corresponding optimal policy $g$ such that $\mathcal B V = \mathcal B_g V$.
+corresponding optimal policy $g$ such that $\mathcal B V = \mathcal B_π V$.
 Suppose we cannot compute these updates exactly, but can find approximate
 solutions $W$ and $g$ such that
 $$ \NORM{W - \mathcal B V} \le δ
 \quad\text{and}\quad
-   \NORM{\mathcal B_g V - \mathcal B V} \le ε$$
+   \NORM{\mathcal B_π V - \mathcal B V} \le ε$$
 where $δ$ and $ε$ are positive constants. (In general, these constants are
 unknown, so the results are quantitative in nature). 
 
@@ -30,7 +30,7 @@ to approximate the value function.
 The error $ε$ may be non-zero due to large or infinite action space. 
 
 Often $δ > 0$ and $ε = 0$. We may also first pick a policy $g$ such that 
-$\NORM{\mathcal B_g V - \mathcal B V} \le ε$ and then set $W = \mathcal B_g
+$\NORM{\mathcal B_π V - \mathcal B V} \le ε$ and then set $W = \mathcal B_π
 V$, in which case $δ = ε$. 
 
 # Approximate value iteration
@@ -38,27 +38,27 @@ V$, in which case $δ = ε$.
 ::: highlight :::
 Theorem #
 
-:   Generate $\{V_k\}_{k \ge 0}$ and $\{g_k\}_{k \ge 0}$ such that
+:   Generate $\{V_k\}_{k \ge 0}$ and $\{π_k\}_{k \ge 0}$ such that
     $$\NORM{V_{k+1} - \mathcal B V_k} \le δ 
     \quad\text{and}\quad
-      \NORM{\mathcal B_{g_k} V_k - \mathcal B V_k} \le ε. $$
+      \NORM{\mathcal B_{π_k} V_k - \mathcal B V_k} \le ε. $$
     Then,
 
     1.  $\displaystyle \lim_{k \to ∞} \NORM{V_k - V^*} \le
-         \frac {δ}{(1-β)}.$
-    2.  $\displaystyle \lim_{k \to ∞} \NORM{V_{g_k} - V^*} \le
-         \frac {ε}{(1-β)} + \frac{2βδ}{(1-β)^2}.$
+         \frac {δ}{(1-γ)}.$
+    2.  $\displaystyle \lim_{k \to ∞} \NORM{V_{π_k} - V^*} \le
+         \frac {ε}{(1-γ)} + \frac{2γδ}{(1-γ)^2}.$
 :::
 
 If we use a periodic policy with period $M$, then the above bound can be
-improved by a factor of $1/(1-β)$. 
+improved by a factor of $1/(1-γ)$. 
 
 #### Proof {-}
 To prove the first part, note that repeatedly combining the [contraction
 property of the Bellman operator](../discounted-mdp#prop:contraction) with the fact that $\NORM{V_{k+1} - \mathcal
 B V_k} \le δ$, we get that
 $$\begin{equation}\label{eq:B1}
-  \NORM{\mathcal B^m V_{k+1} - \mathcal B^{m+1} V_k} \le β^m δ. 
+  \NORM{\mathcal B^m V_{k+1} - \mathcal B^{m+1} V_k} \le γ^m δ. 
 \end{equation}$$
 
 Now, from the triangle inequality, we have that
@@ -66,31 +66,31 @@ $$\begin{align*}
 \NORM{V_k - \mathcal B^k V_0} &\le
   \NORM{V_k - \mathcal B V_{k-1}} + \NORM{\mathcal B V_{k-1} - \mathcal B^2 V_{k-2}}
   + \cdots + \NORM{B^{k-1} V_1 - \mathcal B^k V_0} \\
-  &\stackrel{(a)}\le δ + βδ + \dots + β^{k-1}δ \\
-  &= \left(\frac{1 - β^k}{1-β}\right) δ,
+  &\stackrel{(a)}\le δ + γδ + \dots + γ^{k-1}δ \\
+  &= \left(\frac{1 - γ^k}{1-γ}\right) δ,
 \end{align*}$$
 where $(a)$ follows from \\eqref{eq:B1}. Taking the limit as $k \to ∞$ gives the
 first result.
 
 Now, to prove the second part, we again apply the triangle inequality
 $$\begin{align*}
-  \NORM{\mathcal B_{g_k} V^* - V^*} &\le
-  \NORM{\mathcal B_{g_k} V^* - \mathcal B_{g_k} V_k} + 
-  \NORM{\mathcal B_{g_k} V_k - \mathcal B V_k} + 
+  \NORM{\mathcal B_{π_k} V^* - V^*} &\le
+  \NORM{\mathcal B_{π_k} V^* - \mathcal B_{π_k} V_k} + 
+  \NORM{\mathcal B_{π_k} V_k - \mathcal B V_k} + 
   \NORM{\mathcal B V_k - V^*} \\
-  &\stackrel{(b)}\le β \NORM{V^* - V_k} + ε + β \NORM{V_k - V^*} \\
-  &\stackrel{(c)}\le ε + \frac{2βδ}{(1-β)} =: m,
+  &\stackrel{(b)}\le γ \NORM{V^* - V_k} + ε + γ \NORM{V_k - V^*} \\
+  &\stackrel{(c)}\le ε + \frac{2γδ}{(1-γ)} =: m,
 \end{align*}$$
 where the first term in $(b)$ uses the contraction property, the second term
-uses the fact that $g_k$ is an $ε$-optimal policy and the third term uses the
+uses the fact that $π_k$ is an $ε$-optimal policy and the third term uses the
 fact that $V^*$ is the fixed point of $\mathcal B$ and thus $V^* = \mathcal B
 V^*$ and then uses the contraction property. The inequality in $(c)$ use the
 result from the first part. 
 
 Now, from [the discounting property of the Bellman
-operator](../discounted-mdp#prop:bounds), $\NORM{\mathcal B_{g_k} V^* - V^*}
+operator](../discounted-mdp#prop:bounds), $\NORM{\mathcal B_{π_k} V^* - V^*}
 \le m$ implies
-$$ \NORM{V_{g_k} - V^*} \le \frac{m}{(1-β)}$$
+$$ \NORM{V_{π_k} - V^*} \le \frac{m}{(1-γ)}$$
 which proves the second part.
 
 # Approximate policy iteration
@@ -103,12 +103,12 @@ for approximate policy iteration.
 Prop. #prop:prelim
 
 :   Suppose $V$, $g$, and $h$ satisfy
-    $$ \NORM{V - V_g} \le δ
+    $$ \NORM{V - V_π} \le δ
        \quad\text{and}\quad
        \NORM{\mathcal B_h V - \mathcal B V} \le ε.
     $$
     Then,
-    $$ \NORM{V_h - V^*} \le β \NORM{V_g - V^*} + \frac{ε + 2βδ}{(1-β)}. $$
+    $$ \NORM{V_h - V^*} \le γ \NORM{V_π - V^*} + \frac{ε + 2γδ}{(1-γ)}. $$
 :::
 
 #### Proof {-}
@@ -116,35 +116,35 @@ Prop. #prop:prelim
 From the bounds on $V$, $g$, and $h$ and the [discounting property of the
 Bellman operator](../discounted-mdp#prop:properties), we have that
 $$\begin{equation}\label{eq:P1}
-  \mathcal B_h V_g \le \mathcal B_h V + βδ \le \mathcal B V + ε + β δ.
+  \mathcal B_h V_π \le \mathcal B_h V + γδ \le \mathcal B V + ε + γ δ.
 \end{equation}$$
 
 Again, from the bounds on $V$ and $g$ and the discounting property of the
-Bellman operator, we have $\mathcal B V \le \mathcal B V_g + βδ$. Thus,
+Bellman operator, we have $\mathcal B V \le \mathcal B V_π + γδ$. Thus,
 $$\begin{equation}\label{eq:P2}
-  \mathcal B_h V_g \le \mathcal B V_g + ε + 2βδ
+  \mathcal B_h V_π \le \mathcal B V_π + ε + 2γδ
 \end{equation}$$
-For ease of notation, let $m := ε + 2βδ$. 
+For ease of notation, let $m := ε + 2γδ$. 
 
 Moreover, from the definition of the Bellman operator
-$$ \mathcal B V_g \le \mathcal B_g V_g = V_g.$$
+$$ \mathcal B V_π \le \mathcal B_π V_π = V_π.$$
 Substituting the above in \\eqref{eq:P2}, we get that
-$$ \mathcal B_h V_g \le V_g + m. $$
+$$ \mathcal B_h V_π \le V_π + m. $$
 Therefore, by the discounting property of Bellman operator, we get
 $$\begin{equation}\label{eq:P3}
-  V_h \le V_g + \frac{m}{(1-β)}. 
+  V_h \le V_π + \frac{m}{(1-γ)}. 
 \end{equation}$$
 
 Using \\eqref{eq:P3} and the discounting property, we get that
-$$V_h = \mathcal B_h V_h = \mathcal B_h V_g + \big( \mathcal B_h V_h -
-\mathcal B_h V_g \big) \le \mathcal B_h V_g + β \frac{m}{(1-β)}. $$
+$$V_h = \mathcal B_h V_h = \mathcal B_h V_π + \big( \mathcal B_h V_h -
+\mathcal B_h V_π \big) \le \mathcal B_h V_π + γ \frac{m}{(1-γ)}. $$
 
 Subtracting $V^*$ from both sides we get
 $$\begin{align*}
-V_h - V^* &\le \mathcal B_h V_g - V^* + \frac{mβ}{(1-β)} \\
-&\stackrel{(a)}\le \mathcal B V_g + m - V^* + \frac{mβ}{(1-β)} \\
-&\stackrel{(b)}= \mathcal B V_g - \mathcal B V^* + \frac{m}{(1-β)} \\
-&\stackrel{(c)}{\le} β \NORM{V_g - V^*} + \frac{m}{(1-β)},
+V_h - V^* &\le \mathcal B_h V_π - V^* + \frac{mγ}{(1-γ)} \\
+&\stackrel{(a)}\le \mathcal B V_π + m - V^* + \frac{mγ}{(1-γ)} \\
+&\stackrel{(b)}= \mathcal B V_π - \mathcal B V^* + \frac{m}{(1-γ)} \\
+&\stackrel{(c)}{\le} γ \NORM{V_π - V^*} + \frac{m}{(1-γ)},
 \end{align*}$$
 where $(a)$ follows from \\eqref{eq:P1}, $(b)$ uses the fact that $V^*$ is the fixed
 point of $\mathcal B$ and $(c)$ uses the contraction property. Substituting
@@ -153,21 +153,21 @@ the value of $m$ in the above equation gives the result.
 ::: highlight :::
 Theorem #
 
-:   Generate a sequence $\{g_k\}_{k \ge 0}$ and $\{V_k\}_{k \ge 0}$ such that
-    $$ \NORM{V_k - V_{g_k}} \le δ
+:   Generate a sequence $\{π_k\}_{k \ge 0}$ and $\{V_k\}_{k \ge 0}$ such that
+    $$ \NORM{V_k - V_{π_k}} \le δ
     \quad\text{and}\quad
-    \NORM{\mathcal B_{g_k} V_k - \mathcal B V_k} \le ε.$$
+    \NORM{\mathcal B_{π_k} V_k - \mathcal B V_k} \le ε.$$
     Then,
-    $$ \limsup_{k\to ∞} \NORM{V_{g_k} - V^*} \le
-       \frac{ε+2βδ}{(1-β)^2}. $$
+    $$ \limsup_{k\to ∞} \NORM{V_{π_k} - V^*} \le
+       \frac{ε+2γδ}{(1-γ)^2}. $$
 :::
 
 Remark
 
 :   *   Both approximate VI and approximate PI have similar error bounds
-        (proportional to $1/(1-β)^2$.)
-    *   When $ε = δ = 0$, then @prop:prelim implies that $\NORM{V_{g_{k+1}} -
-        V^*} \le β \NORM{V_{g_k} - V^*}$. Thus, standard policy iteration has
+        (proportional to $1/(1-γ)^2$.)
+    *   When $ε = δ = 0$, then @prop:prelim implies that $\NORM{V_{π_{k+1}} -
+        V^*} \le γ \NORM{V_{π_k} - V^*}$. Thus, standard policy iteration has
         a geometeric rate of convergence (similar to value iteration), though
         in practice it converges much faster. 
 
@@ -175,7 +175,7 @@ Remark
 
 From @prop:prelim, we have
 
-$$ \NORM{V_{g_{k+1}} - V^*} \le β \NORM{V_{g_k} - V^*} + \frac{ε + 2βδ}{(1-β)}.$$
+$$ \NORM{V_{π_{k+1}} - V^*} \le γ \NORM{V_{π_k} - V^*} + \frac{ε + 2γδ}{(1-γ)}.$$
 
 The result follows from taking the limit $k \to ∞$. 
 
@@ -184,10 +184,10 @@ Prop. #prop:convergence
 
 :   If the successive policies in approximate policy iteration converge[^1],
     i.e. 
-    $$ g_{k+1} = g_k = g, 
+    $$ π_{k+1} = π_k = g, 
        \quad \text{for some $k$}. $$
     Then,
-    $$ \NORM{V_g - V^*} \le \frac{ε + 2βδ}{(1-β)}. $$
+    $$ \NORM{V_π - V^*} \le \frac{ε + 2γδ}{(1-γ)}. $$
 :::
 
 [^1]: In general the policies may not converge.
@@ -195,22 +195,22 @@ Prop. #prop:convergence
 #### Proof {-}
 
 Let $V$ be the approximate value function obtained at iteration $k$, i.e., 
-$$\NORM{V - V_g} \le δ 
+$$\NORM{V - V_π} \le δ 
   \quad\text{and}\quad
-  \NORM{\mathcal B_g V - \mathcal V} \le ε.$$
+  \NORM{\mathcal B_π V - \mathcal V} \le ε.$$
 
 Then, from the triangle inequality, we have
 $$\begin{align*}
-  \NORM{\mathcal B V_g - V_g } &\le
-  \NORM{\mathcal B V_g - \mathcal B V} + 
-  \NORM{\mathcal B V - \mathcal B_g V} +
-  \NORM{\mathcal B_g V - \mathcal B_g V_g} \\
+  \NORM{\mathcal B V_π - V_π } &\le
+  \NORM{\mathcal B V_π - \mathcal B V} + 
+  \NORM{\mathcal B V - \mathcal B_π V} +
+  \NORM{\mathcal B_π V - \mathcal B_π V_π} \\
   &\stackrel{(a)}\le
-  β\NORM{V_g - V} + ε + β \NORM{V - V_g} \\
+  γ\NORM{V_π - V} + ε + γ \NORM{V - V_π} \\
   &\stackrel{(b)}\le
-  ε + 2βδ,
+  ε + 2γδ,
 \end{align*}$$
-where $(a)$ follows from the fact that $V_g = \mathcal B_g V_g$ and the
+where $(a)$ follows from the fact that $V_π = \mathcal B_π V_π$ and the
 contraction property and $(b)$ follows from the assumption on $V$. Now, from
 the discounting property, we get the result. 
 
@@ -219,12 +219,12 @@ Prop. #prop:approx
 
 :   Suppose the successive value functions obtained by approximate policy
     iteration are "not too different", i.e.,
-    $$ \NORM{V - V_g} \le δ, \quad
+    $$ \NORM{V - V_π} \le δ, \quad
        \NORM{B_h V - \mathcal B V} \le ε,
        \quad\text{and}\quad
-       \NORM{B_g V - \mathcal B_h V} \le ζ.$$
+       \NORM{B_π V - \mathcal B_h V} \le ζ.$$
     Then,
-    $$ \NORM{V_g - V^*} \le \frac{ε + ζ + 2βδ}{(1-β)}. $$
+    $$ \NORM{V_π - V^*} \le \frac{ε + ζ + 2γδ}{(1-γ)}. $$
 :::
 
 #### Proof {-}

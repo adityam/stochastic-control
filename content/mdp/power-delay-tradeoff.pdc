@@ -24,9 +24,9 @@ depending the number of packets in the queue and the quality of the wireless
 channel.
 
 Let $X_t \in \integers_{\ge 0}$ denote the number of packets buffered at time
-$t$ and $U_t \in \integers_{\ge 0}$, $U_t \le X_t$, denote the number of
-packets transmitted at time $t$. The remaining $X_t - U_t$ packets incur a
-delay penalty given by $d(X_t - U_t)$, where $d(\cdot)$ is a _strictly_
+$t$ and $A_t \in \integers_{\ge 0}$, $A_t \le X_t$, denote the number of
+packets transmitted at time $t$. The remaining $X_t - A_t$ packets incur a
+delay penalty given by $d(X_t - A_t)$, where $d(\cdot)$ is a _strictly_
 increasing and convex function where $d(0) = 0$. 
 
 Remark
@@ -41,7 +41,7 @@ convex) if for any $x \in \integers$,
   f\Bigl(\Bigl\lceil \frac{x-y}{2} \Bigr\rceil\Bigr).$$
 
 During time $t$, $W_t \in \integers_{\ge 0}$ additional packets arrive and 
-$$ X_{t+1} = X_t - U_t + W_t.$$
+$$ X_{t+1} = X_t - A_t + W_t.$$
 We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d. process.
 
 The packets are transmitted over a wireless fading channel. Let $S_t \in
@@ -62,29 +62,29 @@ The transmission protocol sets the transmit power such that the signal to
 noise ratio (SNR) at the receiver is above a desired threshold. It can be
 shown that for additive white Gaussian channels (AWGN), the transmitted power
 is of the form
-$$p(U_t) q(S_t),$$
+$$p(A_t) q(S_t),$$
 where 
 
 * $p(\cdot)$ is a strictly increasing and convex function where $p(0) = 0$;
 * $q(\cdot)$ is a strictly increasing function.
 
-The objective is to choose a transmission policy $U_t = g_t(X_t, S_t)$ to
+The objective is to choose a transmission policy $A_t = g_t(X_t, S_t)$ to
 minimize the weighted sum of transmitted power and delay
-$$ \EXP\bigg[ \sum_{t=1}^T \big[ p(U_t) q(S_t) + \lambda d(X_t - U_t) \big]
+$$ \EXP\bigg[ \sum_{t=1}^T \big[ p(A_t) q(S_t) + \lambda d(X_t - A_t) \big]
 \bigg],$$
 where $\lambda$ may be viewed as a Lagrange multiplier corresponding to a
 constrained optimization problem. 
 
 # Dynamic program
 
-We can assume $Y_t = X_t - U_t$ as a post-decision state in the above model
+We can assume $Y_t = X_t - A_t$ as a post-decision state in the above model
 and write the dynamic program as follows:
 
 $$ V_{T+1}(x,s) = 0 $$
 and for $t \in \{T, \dots, 1\}$, 
 $$\begin{align*}
   H_t(y,s) &= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
-  V_t(x,s) &= \min_{0 \le u \le x} \big\{ p(u) q(s) + H_t(x-u, s) \big\}
+  V_t(x,s) &= \min_{0 \le a \le x} \big\{ p(a) q(s) + H_t(x-a, s) \big\}
 \end{align*}$$
 
 ## Monotonicity of value functions
@@ -98,7 +98,7 @@ Lemma #lem:increasing
 
 #### Proof {-}
 
-First note that the constraint set $\ALPHABET U(x) = \{0, \dots, x\}$
+First note that the constraint set $\ALPHABET A(x) = \{0, \dots, x\}$
 satisfies the conditions that generalize the result of monotonicity to
 constrained actions. 
 
@@ -110,8 +110,8 @@ $$H_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ]$$
 is increasing in $s$. Moreover, since both $d(y)$ and $V_{t+1}(y + w, s)$ are
 increasing in $y$, so is $H_t(y,s)$.
 
-Now, for every $u$, $p(u) q(s)$ and $H_t(x-u, s)$ is increasing in $x$ and
- $s$. So, the pointwise minima over $u$ is also increasing in $x$
+Now, for every $a$, $p(a) q(s)$ and $H_t(x-a, s)$ is increasing in $x$ and
+ $s$. So, the pointwise minima over $a$ is also increasing in $x$
 and $s$.
 
 ## Convexity of value functions
@@ -133,21 +133,21 @@ functions and, therefore, convex in $y$.
 
 We cannot directly show the convexity of $V_t(x,s)$ because the pointwise
 minimum of convex functions is not convex. So, we consider the following
-argument. Fix $s$ and pick $x > 1$. Let $\underline u = g^*_t(x-1,s)$ and
-$\bar u = g^*_t(x+1,s)$. Let $\underline v = \lfloor (\underline u + \bar u)/2
-\rfloor$ and $\bar v = \lceil (\underline u + \bar u)/2
+argument. Fix $s$ and pick $x > 1$. Let $\underline a = π^*_t(x-1,s)$ and
+$\bar a = π^*_t(x+1,s)$. Let $\underline v = \lfloor (\underline a + \bar a)/2
+\rfloor$ and $\bar v = \lceil (\underline a + \bar a)/2
 \rceil$. Note that both $\underline v$ and $\bar v$ are feasible at $x$. Then,
 $$ \begin{align*}
   \hskip 2em & \hskip -2em
   V_t(x-1, s) + V_t(x+1, s)
   \\
   &= 
-  [ p(\underline u) + p(\bar u) ] q(s) + H_t(x - 1 - \underline u, s)
-  + H_t(x + 1 - \bar u, s)
+  [ p(\underline a) + p(\bar a) ] q(s) + H_t(x - 1 - \underline a, s)
+  + H_t(x + 1 - \bar a, s)
   \\
   &\stackrel{(a)}\ge [ p(\underline v) + p(\bar v)] q(s) + 
     H_t(x - \underline v, s) + H_t(x - \bar v, s) \\
-  &\ge 2 \min_{u \le x} \big\{ p(u) q(s) + H_t(x-u, s) \\
+  &\ge 2 \min_{a \le x} \big\{ p(a) q(s) + H_t(x-a, s) \\
   &= 2 V_t(x,s),
 \end{align*} $$
 where $(a)$ follows from convexity of $p(\cdot)$ and $H_t(\cdot, s)$. Thus,
@@ -158,20 +158,20 @@ $V_t(x,s)$ is convex in $x$. This completes the induction step.&nbsp;$\Box$
 ::: highlight :::
 Theorem #thm:monotone-queue
 
-:   For all $t$ and $s$, there is an optimal strategy $g^*_t(x,s)$ which is
+:   For all $t$ and $s$, there is an optimal strategy $π^*_t(x,s)$ which is
     increasing in $x$.
 :::
 
 #### Proof {-}
 
 In the previous lemma, we have shown that $H_t(y,s)$ is convex
-in $y$. Therefore, $H_t(x-u, s)$ is submodular in $(x,u)$. 
+in $y$. Therefore, $H_t(x-a, s)$ is submodular in $(x,a)$. 
 
 [ One can show this by finite difference, but for simplicity, we assume that
-$H_t(y,s)$ is twice differentiable. Then, $\partial^2 H_t(x - u, s)/ \partial
-x \partial u \le 0$ (by convexity of $H_t$). ]
+$H_t(y,s)$ is twice differentiable. Then, $\partial^2 H_t(x - a, s)/ \partial
+x \partial a \le 0$ (by convexity of $H_t$). ]
 
-Thus, for a fixed $s$, $p(u)q(s) + H_t(x-u, s)$ is submodular in $(x,u)$.
+Thus, for a fixed $s$, $p(a)q(s) + H_t(x-a, s)$ is submodular in $(x,a)$.
 Therefore, the optimal policy is increasing in $x$.&nbsp;$\Box$
 
 ## Monotonicity of optimal policy in channel state
@@ -268,17 +268,17 @@ Thus, $H_t(y,s)$ is supermodular in $(y,s)$.
 Theorem #thm:monotone-channel
 
 Under [Assump. #](#ass:Pw), we cannot establish the monotonicity of 
-$g^*_t(x,s)$ is $s$.
+$π^*_t(x,s)$ is $s$.
 
 :::
 
 #### Proof {-}
 
 Note that we have established that $H_t(y,s)$ is supermodular in $(y,s)$. Thus,
-for any fixed $x$, $H_t(x-u,s)$ is submodular in $(u,s)$. Furthermore the
-function $p(u)q(s)$ is increasing in both variables and therefore supermodular
-in $(u,s)$. Therefore, we cannot say anything specific about
-p(u)q(s) + H_t(x-u, s)$ which is a sum of submodular and supermodular
+for any fixed $x$, $H_t(x-a,s)$ is submodular in $(a,s)$. Furthermore the
+function $p(a)q(s)$ is increasing in both variables and therefore supermodular
+in $(a,s)$. Therefore, we cannot say anything specific about
+p(a)q(s) + H_t(x-a, s)$ which is a sum of submodular and supermodular
 functions.&nbsp;$\Box$
 
 ---
