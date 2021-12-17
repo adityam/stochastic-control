@@ -14,11 +14,11 @@ Markov decision processes (MDP) are the simplest model of a stochastic control
 system. The dynamic behavior of an MDP is modeled by an equation of the
 form
 $$ \begin{equation} 
-  X_{t+1} = f_t(X_t, U_t, W_t) \label{eq:state}
+  S_{t+1} = f_t(S_t, A_t, W_t) \label{eq:state}
 \end{equation}$$
-where $X_t \in \ALPHABET X$ is the state, $U_t \in \ALPHABET U$ is the control
+where $S_t \in \ALPHABET S$ is the state, $A_t \in \ALPHABET A$ is the control
 input, and $W_t \in \ALPHABET W$ is the noise. An agent/controller observes
-the state and chooses the control input $U_t$.
+the state and chooses the control input $A_t$.
 
 Eq. \\eqref{eq:state} is a _non-linear_ _stochastic_ state-space
 model—_non-linear_ because $f_t$ can be any nonlinear function; _stochastic_
@@ -27,17 +27,17 @@ because the system is driven by stochastic noise $\{W_t\}_{t \ge 1}$.
 The controller can be as sophisticated as we want. In principle, it can
 analyze the entire history of observations and control actions to choose
 the current control action. Thus, the control action can be written as
-$$ U_t = g_t(X_{1:t}, U_{1:t-1}),$$
-where $X_{1:t}$ is a shorthand for $(X_1, \dots, X_t)$ and a similar
-interpretation holds for $U_{1:t-1})$. The function $g_t$ is called the
-_control law_ at time $t$. 
+$$ A_t = π_t(S_{1:t}, A_{1:t-1}),$$
+where $S_{1:t}$ is a shorthand for $(S_1, \dots, S_t)$ and a similar
+interpretation holds for $A_{1:t-1})$. The function $π_t$ is called the
+_control law_ (or _policy_ or _strategy_) at time $t$. 
 
 At each time, the system incurs a cost that may depend on the current state
-and control action. This cost is denoted by $c_t(X_t, U_t)$. The system
+and control action. This cost is denoted by $c_t(S_t, A_t)$. The system
 operates for a time horizon $T$. During this time, it incurs a total cost
-$$ \sum_{t=1}^T c_t(X_t, U_t). $$
+$$ \sum_{t=1}^T c_t(S_t, A_t). $$
 
-The initial state $X_1$ and the noise process $\{W_t\}_{t \ge 1}$ are random
+The initial state $S_1$ and the noise process $\{W_t\}_{t \ge 1}$ are random
 variables defined on a common probability space (these are called
 _primitive random variables_) and are mutually independent. This seemingly
 benign assumption is critical for the theory that we present to go through. 
@@ -45,9 +45,9 @@ benign assumption is critical for the theory that we present to go through.
 Suppose we have to design such a controller. We are told the probability
 distribution of the initial state and the noise. We are also told the system
 update functions $(f_1, \dots, f_T)$ and the cost functions $(c_1, \dots,
-c_T)$. We are asked to choose a _control strategy_ $g = (g_1, \dots, g_T)$ to
+c_T)$. We are asked to choose a _control strategy_ $π = (π_1, \dots, π_T)$ to
 minimize the expected total cost
-$$ J(g) := \EXP\bigg[ \sum_{t=1}^T c_t(X_t, U_t) \bigg]. $$
+$$ J(π) := \EXP\bigg[ \sum_{t=1}^T c_t(S_t, A_t) \bigg]. $$
 How should we proceed?
 
 At first glance, the problem looks intimidating. It appears that we have to
@@ -61,7 +61,7 @@ the following:
 **Optimality of Markov strategies.**
 For the system model described above, there is no loss of optimality in
 chosing the control action according to
-$$ U_t = g_t(X_t), \quad t=1, \dots, T.$$
+$$ A_t = π_t(S_t), \quad t=1, \dots, T.$$
 Such a control strategy is called a _Markov strategy_.
 :::
 
@@ -80,56 +80,56 @@ of optimality in restricting attention to a Markov control strategy at time
 $t=2$.
 :::
 
-Note that $g_1$ is Markov because it can only depend $X_1$. 
+Note that $π_1$ is Markov because it can only depend $S_1$. 
 
 #### Proof {-}
 
-Fix $g_1$ and look at the problem of optimizing $g_2$. The total cost is
-$$ \EXP[ c_1(X_1, g_1(X_1)) + c_2(X_2, g_2(X_{1:2}, U_1)) ]$$
-The choice of $g_2$ does not influence the first term. So, for a fixed $g_1$,
+Fix $π_1$ and look at the problem of optimizing $π_2$. The total cost is
+$$ \EXP[ c_1(S_1, π_1(S_1)) + c_2(S_2, π_2(S_{1:2}, A_1)) ]$$
+The choice of $π_2$ does not influence the first term. So, for a fixed $π_1$,
 minimizing the total cost is the equivalent to minimizing the second term.
 Now, from Blackwell's principle of irrelevant information, there
-exists a $g_2^* \colon X_2 \mapsto U_2$ such that for any $g_2$
-$$\EXP[c_2(X_2, g_2^*(X_2) ] \le \EXP[c_2(X_2, g_2(X_{1:2}, U_2) ].$$
+exists a $π_2^* \colon S_2 \mapsto A_2$ such that for any $π_2$
+$$\EXP[c_2(S_2, π_2^*(S_2) ] \le \EXP[c_2(S_2, π_2(S_{1:2}, A_2) ].$$
 
 
 ::: proclaim :::
 **Three-Step Lemma.**
 Consider an MDP that operates for three steps ($T=3$). Assume that the
-control law $g_3$ at time $t=3$ is Markov, i.e., $U_3 = g_3(X_3)$. Then, there
+control law $π_3$ at time $t=3$ is Markov, i.e., $A_3 = π_3(S_3)$. Then, there
 is no loss of optimality in restricting attention to Markov control law at
 time $t=2$.
 :::
 
 #### Proof {-}
 
-Fix $g_1$ and $g_3$ and look at optimizing $g_2$. The total cost is
-$$ \EXP[ c_1(X_1, g_1(X_1)) + c_2(X_2, g_2(X_{1:2}, U_1)) + c_3(X_3, g_3(X_3)].$$
+Fix $π_1$ and $π_3$ and look at optimizing $π_2$. The total cost is
+$$ \EXP[ c_1(S_1, π_1(S_1)) + c_2(S_2, π_2(S_{1:2}, A_1)) + c_3(S_3, π_3(S_3)].$$
 
-The choice of $g_2$ does not affect the first term. So, for a fixed $g_1$ and
-$g_3$, minimizing the total cost is the same as minimizing the last two terms. Let us look at the last term carefully. Bu the law of iterated expectations, we have
-$$ \EXP[ c_3(X_3, g_3(X_3) ] = \EXP[ \EXP[ c_3(X_3, g_3(X_3)) | X_2, U_2 ] ]. $$
+The choice of $π_2$ does not affect the first term. So, for a fixed $π_1$ and
+$π_3$, minimizing the total cost is the same as minimizing the last two terms. Let us look at the last term carefully. Bu the law of iterated expectations, we have
+$$ \EXP[ c_3(S_3, π_3(S_3) ] = \EXP[ \EXP[ c_3(S_3, π_3(S_3)) | S_2, A_2 ] ]. $$
 Now,
 \begin{align*}
-  \EXP[ c_3(X_3, g_3(X_3)) | X_2 = x_2, U_2 = u_2 ] &= 
-  \sum_{x_3 \in \ALPHABET X} c_3(x_3, g_3(x_3)) \\
-  &= \PR( w_2 \in \ALPHABET W : f_2(x_2, u_2, w_2) = x_3 )
+  \EXP[ c_3(S_3, π_3(S_3)) | S_2 = s_2, A_2 = u_2 ] &= 
+  \sum_{s_3 \in \ALPHABET S} c_3(s_3, π_3(s_3)) \\
+  &= \PR( w_2 \in \ALPHABET W : f_2(s_2, u_2, w_2) = s_3 )
   \\
-  &=: h_2(x_2, u_2).
+  &=: h_2(s_2, u_2).
 \end{align*}
-The key point is that $h_2(x_2, u_2)$ does not depend on $g_1$ or $g_2$. 
+The key point is that $h_2(s_2, u_2)$ does not depend on $π_1$ or $π_2$. 
 
-Thus, the total expected cost affected by the choice of $g_2$ can be written
+Thus, the total expected cost affected by the choice of $π_2$ can be written
 as 
 \begin{align*}
-  \EXP[ c_2(X_2, U_2) + c_3(X_3, U_3) ] &= \EXP[ c_2(X_2, U_2) + h_2(X_2, U_2)
+  \EXP[ c_2(S_2, A_2) + c_3(S_3, A_3) ] &= \EXP[ c_2(S_2, A_2) + h_2(S_2, A_2)
   ] \\
-  &=: \EXP[ \tilde c_2(X_2, U_2) ].
+  &=: \EXP[ \tilde c_2(S_2, A_2) ].
 \end{align*}
 Now, by Blackwell's principle of irrelevant information, there exists a
-$g_2^* : X_2 \mapsto U_2$ such that for any $g_2$, we have
-$$ \EXP[ \tilde c_2(X_2, g_2^*(X_2))] \le  \EXP[ \tilde c_2(X_2, g_2(X_{1:2},
-U_1) ].$$
+$π_2^* : S_2 \mapsto A_2$ such that for any $π_2$, we have
+$$ \EXP[ \tilde c_2(S_2, π_2^*(S_2))] \le  \EXP[ \tilde c_2(S_2, π_2(S_{1:2},
+A_1) ].$$
 
 ---
 
@@ -144,7 +144,7 @@ It can be thought of as a two-step system where $t \in \{1, \dots, T - 1\}$
 corresponds to step 1 and $t = T$ corresponds to step 2. From the two-step
 lemma, there is no loss of optimality in restricting attention to Markov
 control law at step 2 (i.e., at time $t=T$), i.e., 
-$$ U_T = g_T(X_T). $$
+$$ A_T = π_T(S_T). $$
 
 Now consider a system where we are using a Markov strategy at time $t=T$. This
 system can be thought of as a three-step system where $t \in \{1, \dots,
@@ -153,7 +153,7 @@ corresponds to step 3. Since the controller at time $T$ is Markov, the
 assumption of the three step lemma is satisfied. Thus, by that lemma, there is
 no loss of optimality in restricting attention to Markov controllers at step 2
 (i.e., at time $t=T-1$), i.e., 
-$$U_{T-1} = g_{T-1}(X_{T-1}).$$
+$$A_{T-1} = π_{T-1}(S_{T-1}).$$
 
 Now consider a system where we are using a Markov strategy at time $t \in
 \{T-1, T\}$. This can be thought of as a three-step system where $t \in \{1,
@@ -162,7 +162,7 @@ Now consider a system where we are using a Markov strategy at time $t \in
 \{T-1, T\}$ are Markov, the assumption of the three-step lemma is satisfied.
 Thus, by that lemma, there is no loss of optimality in restricting attention
 to Markov controllers at step 2 (i.e., at time $t=T-2$), i.e.,
-$$U_{T-2} = g_{T-2}(X_{T-2}).$$
+$$A_{T-2} = π_{T-2}(S_{T-2}).$$
 
 Proceeding this way, we continue to think of the system as a three step system
 by different relabeling of time. Once we have shown that the controllers at
@@ -173,7 +173,7 @@ time $t \in \{s+1, \dots, T\}$ are Markov, the assumption of the three-step
 lemma is satisfied. Thus, by that lemma, there is no loss of optimality in
 restricting attention to Markov controllers at stage 2 (i.e. at time $s$),
 i.e.,
-$$U_s = g_s(X_s).$$
+$$A_s = π_s(S_s).$$
 
 Proceeding until $s=2$, completes the proof.
 
@@ -182,18 +182,18 @@ Proceeding until $s=2$, completes the proof.
 We have shown that there is no loss of optimality to restrict attention to
 Markov strategies. One of the advantages of Markov strategies is that it is
 easy to recursively compute their performance. In particular, given any Markov
-strategy $g = (g_1, \dots, g_T)$, define _the cost-to-go functions_ as
+strategy $π = (π_1, \dots, π_T)$, define _the cost-to-go functions_ as
 follows:
-$$J_t(x; g) = \EXP^g \bigg[ \sum_{s = t}^{T} c_s(X_s, g_s(X_s)) \biggm| X_t =
-x\bigg]. $$
-Note that $J_t(x; g)$ only depends on the future strategy $(g_t, \dots, g_T)$. These functions can be computed recursively as follows:
+$$J_t(s; π) = \EXP^π \bigg[ \sum_{s = t}^{T} c_s(S_s, π_s(S_s)) \biggm| S_t =
+s\bigg]. $$
+Note that $J_t(s; π)$ only depends on the future strategy $(π_t, \dots, π_T)$. These functions can be computed recursively as follows:
 \begin{align*}
-  J_t(x; g) &= \EXP^g \bigg[ \sum_{s = t}^{T} c_s(X_s, g_s(X_s)) \biggm| X_t =
-  x \bigg] \\
-  &= \EXP^g \bigg[ c_t(x, g_t(x)) + \EXP^g \bigg[ \sum_{s = t+1}^T
-    c_s(X_s, g_s(X_s)) \biggm| X_{t+1} \bigg] \biggm| X_t = x \bigg]
+  J_t(s; π) &= \EXP^π \bigg[ \sum_{s = t}^{T} c_s(S_s, π_s(S_s)) \biggm| S_t =
+  s \bigg] \\
+  &= \EXP^π \bigg[ c_t(s, π_t(s)) + \EXP^π \bigg[ \sum_{s = t+1}^T
+    c_s(S_s, π_s(S_s)) \biggm| S_{t+1} \bigg] \biggm| S_t = s \bigg]
   \\
-  &= \EXP^g\big[ c_t(x, g_t(x)) + J_{t+1}(X_{t+1}; g) \big| X_t = x \big].
+  &= \EXP^π\big[ c_t(s, π_t(s)) + J_{t+1}(S_{t+1}; π) \big| S_t = s \big].
 \end{align*}
 
 # Dynamic Programming Decomposition {#DP}
@@ -202,24 +202,24 @@ Now we are ready to state the main result of MDPs
 
 ::: proclaim :::
 **Theorem (Dynamic program)**
-Recursive define _value functions_ $\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET X
+Recursive define _value functions_ $\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET S
 \to \reals$ as follows: 
 $$ \begin{equation} \label{eq:DP-1}
-  V_{T+1}(x) = 0 
+  V_{T+1}(s) = 0 
 \end{equation} $$ 
 and for $t \in \{T, \dots, 1\}$:
 $$\begin{align}
-   Q_t(x,u) &= c(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
+   Q_t(s,a) &= c(s,a) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s, A_t = a] 
    \nonumber \\
-   &= c(x,u) + \EXP[ V_{t+1}(f_t(x,u,W_t)) ], \label{eq:DP-2}
+   &= c(s,a) + \EXP[ V_{t+1}(f_t(s,a,W_t)) ], \label{eq:DP-2}
 \end{align}$$
 and define
 $$ \begin{equation} \label{eq:DP-3}
-  V_t(x) = \min_{u \in \ALPHABET U} Q_t(x,u).
+  V_t(s) = \min_{a \in \ALPHABET A} Q_t(s,a).
 \end{equation} $$
 Then, a Markov policy is optimal if and only if it satisfies
 $$ \begin{equation} \label{eq:verification} 
-  g_t^*(x) = \arg \min_{u \in \ALPHABET U} Q_t(x,u).
+  π_t^*(s) = \arg \min_{a \in \ALPHABET A} Q_t(s,a).
 \end{equation} $$
 
 :::
@@ -227,9 +227,9 @@ $$ \begin{equation} \label{eq:verification}
 Instead of proving the above result, we prove a related result
 
 ::: proclaim :::
-**Theorem (The comparison principle)** For any Markov strategy $g$
-$$ J_t(x; g) \ge V_t(x) $$
-with equality at $t$ if and only if the _future strategy_ $g_{t:T}$
+**Theorem (The comparison principle)** For any Markov strategy $π$
+$$ J_t(s; π) \ge V_t(s) $$
+with equality at $t$ if and only if the _future strategy_ $π_{t:T}$
 satisfies the verification step \\eqref{eq:verification}. 
 ::: 
 
@@ -251,38 +251,38 @@ policy with regard to the state resulting from the first decision.
 
 #### Proof of the comparison principle {-}
 
-The proof proceeds by backward induction. Consider any Markov strategy $g =
-(g_1, \dots, g_T)$. For $t = T$, 
+The proof proceeds by backward induction. Consider any Markov strategy $π =
+(π_1, \dots, π_T)$. For $t = T$, 
 $$ \begin{align*}
-  V_T(x) &= \min_{u \in \ALPHABET U} Q_T(x,u) \\
-  &\stackrel{(a)}= \min_{u \in \ALPHABET U} c_T(x,u) \\
-  &\stackrel{(b)}\le c_T(x, g_T(x)) \\
-  &\stackrel{(c)}= J_T(x; g),
+  V_T(s) &= \min_{a \in \ALPHABET A} Q_T(s,a) \\
+  &\stackrel{(a)}= \min_{a \in \ALPHABET A} c_T(s,a) \\
+  &\stackrel{(b)}\le c_T(s, π_T(s)) \\
+  &\stackrel{(c)}= J_T(s; π),
 \end{align*} $$
 where $(a)$ follows from the definition of $Q_T$, $(b)$ follows from the
 definition of minimization, and $(c)$ follows from the definition of $J_T$. 
-Equality holds in $(b)$ iff the policy $g_T$ is optimal. This result forms the basis of induction.
+Equality holds in $(b)$ iff the policy $π_T$ is optimal. This result forms the basis of induction.
 
 Now assume that the statement of the theorem is true for $t+1$. Then, for $t$
 $$ \begin{align*}
-  V_t(x) &= \min_{u \in \ALPHABET U} Q_t(x,u) \\
-  &\stackrel{(a)}= \min_{u \in \ALPHABET U} \Big\{
-  c_t(x,u) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u] 
+  V_t(s) &= \min_{a \in \ALPHABET A} Q_t(s,a) \\
+  &\stackrel{(a)}= \min_{a \in \ALPHABET A} \Big\{
+  c_t(s,a) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s, A_t = a] 
   \Big\}
   \\
   &\stackrel{(b)}\le  \Big\{
-  c_t(x,g_t(x)) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = g_t(x)] 
+  c_t(s,π_t(s)) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s, A_t = π_t(s)] 
   \Big\} \\
   &\stackrel{(c)}\le  \Big\{
-  c_t(x,g_t(x)) + \EXP[ J_{t+1}(X_{t+1}; g) | X_t = x, U_t = g_t(x)] 
+  c_t(s,π_t(s)) + \EXP[ J_{t+1}(S_{t+1}; π) | S_t = s, A_t = π_t(s)] 
   \Big\} \\
-  &\stackrel{(d)}= J_t(x; g),
+  &\stackrel{(d)}= J_t(s; π),
 \end{align*} $$
 where $(a)$ follows from the definition of $Q_t$, $(b)$ follows from the
 definition of minimization, $(c)$ follows from the induction hypothesis, and
 $(d)$ follows from the definition of $J_t$. We have equality in step $(b)$ iff
-$g_t$ satisfies the verification step \\eqref{eq:verification} and have equality
-in step $(c)$ iff $g_{t+1:T}$ is optimal (this is part of the induction
+$π_t$ satisfies the verification step \\eqref{eq:verification} and have equality
+in step $(c)$ iff $π_{t+1:T}$ is optimal (this is part of the induction
 hypothesis). Thus, the result is true for time $t$ and, by the principle of
 induction, is true for all time. 
 
@@ -299,23 +299,23 @@ Conceptually, such problems can be treated in the same way as the standard
 model.
 
 In particular, suppose we have a per-step cost given by
-$c_t(X_t,U_t,X_{t+1})$, where the objective is to minimize
-$$ J(g) = \EXP\Bigl[ \sum_{t=1}^T c_t(X_t, U_t, X_{t+1}) \Bigr]. $$
+$c_t(S_t,A_t,S_{t+1})$, where the objective is to minimize
+$$ J(π) = \EXP\Bigl[ \sum_{t=1}^T c_t(S_t, A_t, S_{t+1}) \Bigr]. $$
 
 Define 
-$$ \tilde c_t(x, u) = \EXP[ c_t(x, u, X_{t+1}) | X_t = x, U_t = u ] 
-= \EXP[ c_t(x,u, f_t(x,u, W_t) ]. $$
+$$ \tilde c_t(s, a) = \EXP[ c_t(s, a, S_{t+1}) | S_t = s, A_t = a ] 
+= \EXP[ c_t(s,a, f_t(s,a, W_t) ]. $$
 Then, by the towering property of conditional expectation, we can write
 
 $$ \begin{align*} 
- J(g) &= \EXP\Bigl[ \sum_{t=1}^T \EXP[ c_t(X_t, U_t, X_{t+1}) | X_t, U_t] \Bigr] \\
- &= \EXP\Bigl[ \sum_{t=1}^T \tilde c_t(X_t, U_t) \Bigr].
+ J(π) &= \EXP\Bigl[ \sum_{t=1}^T \EXP[ c_t(S_t, A_t, S_{t+1}) | S_t, A_t] \Bigr] \\
+ &= \EXP\Bigl[ \sum_{t=1}^T \tilde c_t(S_t, A_t) \Bigr].
 \end{align*} $$
 
 Thus, we can equivalently consider this as our standard model with the
-per-step cost given by $\tilde c_t(X_t, U_t)$. We can write the recursive step
+per-step cost given by $\tilde c_t(S_t, A_t)$. We can write the recursive step
 of the dynamic program as follows:
-$$ Q_t(x,u) = \EXP[ c_t(x,u, X_{t+1}) + V_{t+1}(X_{t+1}) | X_t = x, U_t = u ].$$
+$$ Q_t(s,a) = \EXP[ c_t(s,a, S_{t+1}) + V_{t+1}(S_{t+1}) | S_t = s, A_t = a ].$$
 
 For numerically solving the dynamic program when the cost is time-homogeneous
 (i.e., does not depend on $t$), it is more efficient to compute $\tilde c$
@@ -325,15 +325,15 @@ once and recuse that in the dynamic program recursion.
 ## Discounted cost
 
 In some applications, it is common to consider a discounted expected cost given by
-$$ J(g) = \EXP\Bigl[ \sum_{t=1}^T \beta^{t-1} c_t(X_t, U_t) \Bigr] $$
-where $\beta \in (0,1)$ is called the discount factor.
+$$ J(π) = \EXP\Bigl[ \sum_{t=1}^T γ^{t-1} c_t(S_t, A_t) \Bigr] $$
+where $γ \in (0,1)$ is called the discount factor.
 
-There are two interpretations of the discount factor $\beta$. The first
+There are two interpretations of the discount factor $γ$. The first
 interpretation is an economic interpretation to determine the _present value_
 of a utility that will be received in the future. For example, suppose a
-decision maker is indifferent between receiving 1 dollar today or $x$ dollars
+decision maker is indifferent between receiving 1 dollar today or $s$ dollars
 tomorrow. This means that the decision maker discounts the future at a rate
-$1/x$, so $\beta = 1/x$.
+$1/s$, so $γ = 1/s$.
 
 The second interpretation is that of an absorbing state. Suppose we
 are operating a machine that generates a value of \$1 each day. However,
@@ -344,65 +344,65 @@ is still working tomorrow). In this case, the discount factor is defined
 as $(1-p)$. See @Shwartz2001 for a detailed discussion of this alternative.
 
 The recursive step of the dynamic program for such models can be written as
-$$ Q_t(x,u) = c_t(x,u) + \beta \, \EXP[ V_{t+1}( X_{t+1}) | X_t = x, U_t = u ].$$
+$$ Q_t(s,a) = c_t(s,a) + γ \, \EXP[ V_{t+1}( S_{t+1}) | S_t = s, A_t = a ].$$
 
 ## Multiplicative cost {#multiplicative-cost}
 
 So far, we have assumed that the cost is additive. The dynamic proramming
 decomposition also works for models with multiplicative cost. In particular,
 suppose that the performance of any policy is given by 
-$$ J(g) = \EXP\Bigl[ \prod_{t=1}^T c_t(X_t, U_t) \Bigr] $$
+$$ J(π) = \EXP\Bigl[ \prod_{t=1}^T c_t(S_t, A_t) \Bigr] $$
 where the per-step cost function is positive. Then, it can be shown that the
 optimal policy is given by the following dynamic program.
 
 ::: highlight :::
 **Dynamic Program for multiplicative cost**
-Initialize $V_{T+1}(x) = 1$ and recursively compute
+Initialize $V_{T+1}(s) = 1$ and recursively compute
 $$ \begin{align*}
- Q_t(x,u) &= c_t(x,u) \EXP[ V_{t+1}(X_{t+1}) | X_t = x, U_t = u ], \\
- V_t(x) &= \min_{u \in \ALPHABET U} Q_t(x,u).
+ Q_t(s,a) &= c_t(s,a) \EXP[ V_{t+1}(S_{t+1}) | S_t = s, A_t = a ], \\
+ V_t(s) &= \min_{a \in \ALPHABET A} Q_t(s,a).
 \end{align*} $$
 :::
 
 ## Exponential cost function {#exponential-cost}
 
 A special class of multiplicative cost function is exponential of sum:
-$$J(g) = \EXP\Bigl[ \exp\Bigl( \theta \sum_{t=1}^T c_t(X_t, U_t) \Bigr) \Bigr]. $$
+$$J(π) = \EXP\Bigl[ \exp\Bigl( \theta \sum_{t=1}^T c_t(S_t, A_t) \Bigr) \Bigr]. $$
 
 When $\theta > 0$, the above captures risk-averse preferences and when
 $\theta < 0$, it corresponds to risk-seeking preferences. This is equivalent
 to a multiplicative cost
-$$J(g) = \EXP\Bigl[ \prod_{t=1}^T \exp( \theta c_t(X_t, U_t)) \Bigr]. $$
+$$J(π) = \EXP\Bigl[ \prod_{t=1}^T \exp( \theta c_t(S_t, A_t)) \Bigr]. $$
 Therefore, the dynamic program for multiplicative cost is also applicable for
 this model.
 
 
 ## Optimal stopping {#optimal-stopping}
 
-Let $\{X_t\}_{t \ge 1}$ be a Markov chain. At each time $t$, a decision maker
-observes the state $X_t$ of the Markov chain and decides whether to continue
+Let $\{S_t\}_{t \ge 1}$ be a Markov chain. At each time $t$, a decision maker
+observes the state $S_t$ of the Markov chain and decides whether to continue
 or stop the process. If the decision maker decides to continue, he incurs a
-_continuation cost_ $c_t(X_t)$ and the state evolves. If the DM decides to
-stop, he incurs a _stopping cost_ of $s_t(X_t)$ and the problem is terminated.
+_continuation cost_ $c_t(S_t)$ and the state evolves. If the DM decides to
+stop, he incurs a _stopping cost_ of $d_t(S_t)$ and the problem is terminated.
 The objective is to determine an optimal _stopping time_ $\tau$ to minimize
-$$J(\tau) := \EXP\bigg[ \sum_{t=1}^{\tau-1} c_t(X_t) + s_\tau(X_\tau)
+$$J(\tau) := \EXP\bigg[ \sum_{t=1}^{\tau-1} c_t(S_t) + d_\tau(S_\tau)
 \bigg].$$
 
 Such problems are called _Optimal stopping problems_. 
 
 Define the _cost-to-go function_ of any stopping rule as
-$$J_t(x; \tau) = \EXP\bigg[ \sum_{s = t}^{\tau - 1} c_{\tau}(X_t) +
-s_\tau(X_\tau) \,\bigg|\, \tau > t \bigg]$$
+$$J_t(s; \tau) = \EXP\bigg[ \sum_{s = t}^{\tau - 1} c_{\tau}(S_t) +
+d_\tau(S_\tau) \,\bigg|\, \tau > t \bigg]$$
 and the _value function_ as
-$$V_t(x) = \inf_{\tau} J_t(x; \tau). $$
+$$V_t(s) = \inf_{\tau} J_t(s; \tau). $$
 Then, it can be shown that the value functions satisfy the following
 recursion:
 
 ::: highlight :::
 **Dynamic Program for optimal stopping**
 $$ \begin{align*}
-V_T(x) &= s_T(x) \\
-V_t(x) &= \min\{ s_t(x), c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x].
+V_T(s) &= s_T(s) \\
+V_t(s) &= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 \end{align*}$$
 :::
 
@@ -411,6 +411,7 @@ For more details on the optimal stopping problems, see @Ferguson:book.
 
 ## Minimax setup
 
+_To be written_
 
 
 # References {-}
