@@ -9,6 +9,7 @@ tags:
   - hypothesis testing
 scripts:
   - plotly
+  - geogebra
 ---
 
 Consider a decision maker (DM) that makes a series of i.i.d. observations
@@ -54,47 +55,47 @@ strategy that minimize the expected total cost.
 We use the belief-state as an information state to obtain a dynamic
 programming decomposition. Recall that the beief state is two-dimensional pdf
 where
-$$ π_t(h) = \PR(H = h | Y_{1:t}), \quad h \in \{h_0, h_1\}. $$
+$$ b_t(h) = \PR(H = h | Y_{1:t}), \quad h \in \{h_0, h_1\}. $$
 
 Remarks
 
-:   * We are only conditioning on $Y_{1:t}$ and not adding $U_{1:t-1}$ in the
+:   * We are only conditioning on $Y_{1:t}$ and not adding $A_{1:t-1}$ in the
       conditioning. This is because we are taking the standard approach used
       in optimal stopping problems where we are only defining the state for
       case when the stopping decision hasn't been taken so far and all
       previous actions are continue. Taking a continue action does not effect
-      the observations. For this reason, we do not condition on $U_{1:t-1}$. 
+      the observations. For this reason, we do not condition on $A_{1:t-1}$. 
 
-    * In class, I had exploited the fact that $\pi_t = [p_t, 1 - p_t]^T$ and
+    * In class, I had exploited the fact that $b_t = [p_t, 1 - p_t]^T$ and
       written a simplified DP in terms of $p_t$. In these notes, I don't make
       this simplification so that we can see how these results will extend to
       the case of non-binary hypothesis.
 
 The dynamic program for the above model is then given by
 $$
-  V_T(π_T) = \min\{ \EXP[ \ell(h_0, H) | Π_T = π_T], 
-                    \EXP[ \ell(h_1, H) | Π_T = π_T] \}
+  V_T(b_T) = \min\{ \EXP[ \ell(h_0, H) | B_T = b_T], 
+                    \EXP[ \ell(h_1, H) | B_T = b_T] \}
 $$
 and for $t \in \{T-1, \dots, 1\}$,
-$$ V_t(π_t) = \min \{ \EXP[ \ell(h_0, H) | Π_t = π_t], 
-                      \EXP[ \ell(h_1, H) | Π_t = π_t],
-                     c + \EXP[V_{t+1}(ψ(π_t, Y_{t+1})) | Π_t = π_t] \},
+$$ V_t(b_t) = \min \{ \EXP[ \ell(h_0, H) | B_t = b_t], 
+                      \EXP[ \ell(h_1, H) | B_t = b_t],
+                     c + \EXP[V_{t+1}(ψ(b_t, Y_{t+1})) | B_t = b_t] \},
 $$
-where $ψ(π, y)$ denotes the standard non-linear filtering update (there is no
-dependence on $u$ here because there are no state dynamics in this model). 
+where $ψ(b, y)$ denotes the standard non-linear filtering update (there is no
+dependence on $a$ here because there are no state dynamics in this model). 
 
 We introduce some notation to simplify the discussion. Define
 
-* $L_i(π) = \EXP[ \ell(h_i, H) | Π = π] 
-  = \sum_{h \in \{h_0, h_1\}} \ell(h_i, h) π(h)$. 
-* $W_t(π_t) = c + \EXP[V_{t+1}(ψ(π_t, Y_{t+1})) | Π_t = π_t]$. 
+* $L_i(b) = \EXP[ \ell(h_i, H) | B = b] 
+  = \sum_{h \in \{h_0, h_1\}} \ell(h_i, h) b(h)$. 
+* $W_t(b_t) = c + \EXP[V_{t+1}(ψ(b_t, Y_{t+1})) | B_t = b_t]$. 
 
 Then, the above DP can be written as
 $$
-  V_T(π_T) = \min\{ L_0(π_T), L_1(π_T) \}
+  V_T(b_T) = \min\{ L_0(b_T), L_1(b_T) \}
 $$
 and for $t \in \{T-1, \dots, 1\}$,
-$$ V_t(π_t) = \min \{ L_0(π_t), L_1(π_t), W_t(π_t) \}. $$
+$$ V_t(b_t) = \min \{ L_0(b_t), L_1(b_t), W_t(b_t) \}. $$
 
 # Structure of the optimal policy
 
@@ -106,33 +107,57 @@ Lemma #concavity
 
 :   The above functions statisfy the following properties:
 
-    * $L_i(π)$ is linear in $π$.
-    * $V_t(π)$ and $W_t(π)$ is concave in $π$.
-    * $V_t(π)$ and $W_t(π)$  are increasing in $t$. 
+    * $L_i(b)$ is linear in $b$.
+    * $V_t(b)$ and $W_t(b)$ is concave in $b$.
+    * $V_t(b)$ and $W_t(b)$  are increasing in $t$. 
 
 :::
 
-<figure>
-  <img src="value-functions.png" 
-       title="Value Functions"
-       alt="Shape of value functions"
-       width="300" />
-  <figcaption>Shape of the value functions</figcaption>
-</figure>
+  <figure>
+  <div style="width:800px;height:800px;display:block" id="applet_container"></div>
+  <figcaption>An illustration of the minimum of two straight lines and a
+  concave function. Move the points around to see how the shape of the
+  function changes. </figcaption>
+  </figure>
+
+  <script type="text/javascript">
+      var params1 = {
+        filename: "/stochastic-control/geogebra/pomdp/hypothesis-testing.ggb",
+        enableShiftDragZoom: false,
+        width: 800,
+        height: 700,
+      }
+
+      var params2 = {
+        filename: "/stochastic-control/geogebra/pomdp/hypothesis-testing-2.ggb",
+        enableShiftDragZoom: false,
+        width: 800,
+        height: 700,
+      }
+
+      var applet1 = new GGBApplet(params1, true);
+      var applet2 = new GGBApplet(params2, true);
+
+      window.onload = function() {
+          applet1.inject('applet_container');
+          applet2.inject('applet_container2');
+      }
+  </script>
+
 
 #### Proof {-}
 
-The linearity of $L_i(π)$ follows from definition. From the discussion on
-[POMDPs], we know that $V_{t+1}(π)$ is concave in $π$ and so is
-$\EXP[V_{t+1}(ψ(π, Y_{t+1})) | Π_t = π]$. Therefore $W_t(π)$ is concave
-in $π$. 
+The linearity of $L_i(b)$ follows from definition. From the discussion on
+[POMDPs], we know that $V_{t+1}(b)$ is concave in $b$ and so is
+$\EXP[V_{t+1}(ψ(b, Y_{t+1})) | B_t = b]$. Therefore $W_t(b)$ is concave
+in $b$. 
 
-Finally, by construction, we have that $V_{T-1}(π) \le V_T(π)$. The
+Finally, by construction, we have that $V_{T-1}(b) \le V_T(b)$. The
 monotonicity in time then follows from Q2 of [Assignment
 2](../../assignments/02). Sincen $V_t$ is monotone in time, it implies that
 $W_t$ is also monotone. $\Box$
 
-Now define stopping sets $S_t(h) = \{ π \in Δ^2 : g_t(π) = h \}$ for $h \in
+Now define stopping sets $D_t(h) = \{ b \in Δ^2 : π_t(b) = h \}$ for $h \in
 \{h_0, h_1\}$. The key result is the following.
 
 [POMDPs]: ../pomdp/#theorem:belief-PWLC
@@ -140,37 +165,36 @@ Now define stopping sets $S_t(h) = \{ π \in Δ^2 : g_t(π) = h \}$ for $h \in
 ::: highlight :::
 Theorem #convex
 
-: For all $t$ and $h \in \{h_0, h_1\}$, the set $S_t(h)$ is convex. Moreover,
-  $S_t(h_i) \subseteq S_{t+1}(h_i)$. 
+: For all $t$ and $h \in \{h_0, h_1\}$, the set $D_t(h)$ is convex. Moreover,
+  $D_t(h_i) \subseteq D_{t+1}(h_i)$. 
 
 :::
 
-<figure class="plot">
-  <img src="stopping-sets.png" 
-       title="Stopping Sets"
-       alt="Stopping Sets"
-       width="300" />
-  <figcaption>Stopping sets</figcaption>
-</figure>
+  <figure>
+  <div style="width:800px;height:800px;display:block" id="applet_container2"></div>
+  <figcaption>An illustration of the stopping sets. Move the points around to see how the shape of the
+  stopping set changes. </figcaption>
+  </figure>
+
 
 #### Proof {-}
 
-Note that we can write $S_t(h) = A_t(h) \cap B_t(h)$, where
-$$ A_t(h_i) = \{ π \in Δ^2 : L_i(π)  \le L_j(π) \}
+Note that we can write $D_t(h) = A_t(h) \cap B_t(h)$, where
+$$ A_t(h_i) = \{ b \in Δ^2 : L_i(b)  \le L_j(b) \}
    \quad\text{and}\quad
-   B_t(h_i) = \{ π \in Δ^2 : L_i(π) \le W_t(π)  \}. $$
+   B_t(h_i) = \{ b \in Δ^2 : L_i(b) \le W_t(b)  \}. $$
 
-$A_t(h_i)$ is a the set of $π$ where one linear function of $π$ is less than
-or equal to another linear function of $π$. Therefore, $A_t(h_i)$ is a convex
+$A_t(h_i)$ is a the set of $b$ where one linear function of $b$ is less than
+or equal to another linear function of $b$. Therefore, $A_t(h_i)$ is a convex
 set. 
 
-Similarly, $B_t(h_i)$ is the set of $π$ where a linear function of $π$ is less
-than or equal to a concave function of $π$. Therefore $B_t(h_i)$ is also a
+Similarly, $B_t(h_i)$ is the set of $b$ where a linear function of $b$ is less
+than or equal to a concave function of $b$. Therefore $B_t(h_i)$ is also a
 convex set. 
 
-$S_t(h_i)$ is the intersection of two convex sets, and hence convex.
+$D_t(h_i)$ is the intersection of two convex sets, and hence convex.
 
-The monotonicty of $S_t(h_i)$ in time follows from the monotonicity of $W_t$
+The monotonicty of $D_t(h_i)$ in time follows from the monotonicity of $W_t$
 in time. $\Box$
 
 ::: highlight :::
@@ -183,7 +207,7 @@ Theorem #corner
       \quad\text{and}\quad
       \ell(h_1, h_1) \le c \le \ell(h_1, h_0). 
     \end{equation}
-    Then, $e_i \in S_t(h_i)$, where $e_i$ denotes the standard unit vector
+    Then, $e_i \in D_t(h_i)$, where $e_i$ denotes the standard unit vector
     (i.e., $e_0 = [1, 0]^T$ and $e_1 = [0, 1]^T$). 
 
 :::
@@ -199,14 +223,14 @@ Remark
 #### Proof {-}
       
 Note that $L_i(e_0) = \ell(h_i, h_0)$ and $L_i(e_1) = \ell(h_1, h_1)$.
-Moreover, by construction, $W_t(π) \ge c$. Thus, under the above assumption on
+Moreover, by construction, $W_t(b) \ge c$. Thus, under the above assumption on
 the cost, 
 $$ L_0(e_0) = \ell(h_0, h_0) \le c \le W_t(e_0) $$
 and
 $$ L_0(e_0) = \ell(h_0, h_0) \le \ell(h_1, h_0) = L_1(e_0). $$
-Thus, $e_0 \in S_t(h_0)$. 
+Thus, $e_0 \in D_t(h_0)$. 
 
-By a symmetric argument, we can show that $e_1 \in S_t(h_1)$. $\Box$
+By a symmetric argument, we can show that $e_1 \in D_t(h_1)$. $\Box$
 
 @theorem:convex and @theorem:corner imply that the optimal stopping regions
 are convex and include the "corner points" of the simplex. Note that although
@@ -225,14 +249,14 @@ hold in general as well.
 
 For binary hypothesis, we can present a more concerete characterizatin of the
 optimal policy. Note that the two-dimensional simplex is equivalent to the
-interval $[0,1]$. In particular, any $π = Δ^2$ is equal to $[p, 1-p]$, where
+interval $[0,1]$. In particular, any $b = Δ^2$ is equal to $[p, 1-p]$, where
 $p \in [0,1]$. Now define:
 
 * $\displaystyle b_t = \min\left\{ p \in [0, 1] :
-   g_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_0 
+   π_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_0 
   \right\}.$
 * $\displaystyle a_t = \max\left\{ p \in [0, 1] :
-   g_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_1 
+   π_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_1 
   \right\}.$
 
 Then, by definition, the optimal policy has the following threshold property:
@@ -241,8 +265,8 @@ Then, by definition, the optimal policy has the following threshold property:
 
 Proposition #threshold
 
-:   Let $\bar g_t(p) = g_t([p, 1-p]^T)$. Then, under \\eqref{eq:cost-ass}, 
-    $$ \bar g_t(p) = \begin{cases}
+:   Let $\bar π_t(p) = π_t([p, 1-p]^T)$. Then, under \\eqref{eq:cost-ass}, 
+    $$ \bar π_t(p) = \begin{cases}
        h_1, & \text{if } p \le a_t \\
        \mathsf{C}, & \text{if } a_t < p < b_t \\
        h_0, & \text{if } b_t \le p.
@@ -255,15 +279,15 @@ Proposition #threshold
 :::
 
 The above property is simplies stated slighted in terms of the likelihood
-ratio. In particular, define $λ_t = π_t(0)/π_t(1) = p_t/(1 - p_t)$. Then, we
+ratio. In particular, define $λ_t = b_t(0)/b_t(1) = p_t/(1 - p_t)$. Then, we
 have the following:
 
 ::: highlight :::
 
 Proposition #likelihood
 
-:   Let $\hat g_t(λ) = g_t([λ/(1+λ), 1/(1+λ)]^T)$. Then, under \\eqref{eq:cost-ass}, 
-    $$ \hat g_t(λ) = \begin{cases}
+:   Let $\hat π_t(λ) = π_t([λ/(1+λ), 1/(1+λ)]^T)$. Then, under \\eqref{eq:cost-ass}, 
+    $$ \hat π_t(λ) = \begin{cases}
        h_1, & \text{if } λ \le a_t/(1 - a_t) \\
        \mathsf{C}, & \text{if } a_t/(1 - a_t) < λ < b_t/(1 - b_t)_t \\
        h_0, & \text{if } b_t/(1 - b_t)_t \le λ.
@@ -291,9 +315,9 @@ Theorem #inf
 
 :   Under \\eqref{eq:cost-ass}, an optimal decision rule always exists, is
     time-homogeneous, and is given by the solution of the following DP:
-    $$ V(π) = \min\{ L_0(π) , L_1(π) , W(π) \} $$
+    $$ V(b) = \min\{ L_0(b) , L_1(b) , W(b) \} $$
     where
-    $$ W(π) = c + \int_{y} [ pf_0(y) + (1-p)f_1(y)] V(ψ(π,y)) dy. $$
+    $$ W(b) = c + \int_{y} [ pf_0(y) + (1-p)f_1(y)] V(ψ(b,y)) dy. $$
 
     Therefore, the optimal thresholds $a$ and $b$ are time-homogeneous. 
 
@@ -313,24 +337,24 @@ cost is non-negative.
 For simplicity, we assume that $\ell(h_0, h_0) = \ell(h_1, h_1) = 0$. For the
 infinite horizon model, we can get upper bound on the expected number of
 measurements that an optimal policy will take. Let $τ$ denote the number of
-measurements taken under policy $g$ and $U_τ$ denote the terminal action after
-stopping. Then, the performance of policy $g$ is given by 
+measurements taken under policy $π$ and $A_τ$ denote the terminal action after
+stopping. Then, the performance of policy $π$ is given by 
 $$
-  J(g) = \EXP[ c τ + \ell(H, U_\tau) \mid \Pi = \pi ].
+  J(π) = \EXP[ c τ + \ell(H, A_\tau) \mid \Pi = b ].
 $$
-Note that $\ell(H, U_\tau) \ge 0$. Therefore, the performance of the optimal
+Note that $\ell(H, A_\tau) \ge 0$. Therefore, the performance of the optimal
 policy is lower bounded by
 $$
-  J^* \ge c\, \EXP^{g^*}[  τ \mid \Pi = \pi] .
+  J^* \ge c\, \EXP^{π^*}[  τ \mid \Pi = b] .
 $$
-Now, consider a policy $\tilde g$ which does not consider continuation action
-and takes the best stopping decision. The performance of $\tilde g$ is given
+Now, consider a policy $\tilde π$ which does not consider continuation action
+and takes the best stopping decision. The performance of $\tilde π$ is given
 by 
-$$ J(\tilde g) = \min \{ \ell(h_1, h_0) \pi_1, \ell(h_0, h_1) \pi_0 \}. $$
-Since $J(\tilde g) \ge J^*$, we get
+$$ J(\tilde π) = \min \{ \ell(h_1, h_0) b_1, \ell(h_0, h_1) b_0 \}. $$
+Since $J(\tilde π) \ge J^*$, we get
 $$
-  \EXP^{g^*}[ τ  \mid \Pi = \pi ] \le \frac 1c 
-  \min \{ \ell(h_1, h_0) \pi_1, \ell(h_0, h_1) \pi_0 \}. $$
+  \EXP^{π^*}[ τ  \mid \Pi = b ] \le \frac 1c 
+  \min \{ \ell(h_1, h_0) b_1, \ell(h_0, h_1) b_0 \}. $$
 
 # Exercises {-} 
 
@@ -341,11 +365,11 @@ $$
       In contrast to the model discussed above, there are $N$ sensors. If
       the underlying hypothesis is $h_i$ and sensor $m$ is used at time $t$,
       then the observation $Y_t$ is distrubted according to pdf (or pmf)
-      $f^m_j(y)$. The cost of using sensor $m$ is $c_m$. 
+      $f^m_i(y)$. The cost of using sensor $m$ is $c_m$. 
 
       Whenever the decision maker takes a measurement, he picks a sensor $m$
       uniformly at random from $\{1, \dots, N\}$ and observes $Y_t$ according to
-      the distribution $f^m_j(\cdot)$ and incurs a cost $c_m$. 
+      the distribution $f^m_i(\cdot)$ and incurs a cost $c_m$. 
 
       The system continues for a finite time $T$. At each time $t < T$, the
       decision maker has three options: stop and declare $h_0$, stop and declare
@@ -361,25 +385,25 @@ $$
 2. In this exercise, we will derive an approximate method to compute the
    performance of a given threshold based policy for infinite horizon
    sequential hypothesis testing problem. Let
-   $$ θ_i(g,p) = \EXP^{g}[ τ | H = h_i] $$
+   $$ θ_i(π,p) = \EXP^{π}[ τ | H = h_i] $$
    denote the expected number of samples when using stopping
-   rule $g$ assuming that the true hypothesis is $h_i$. Note that for any
+   rule $π$ assuming that the true hypothesis is $h_i$. Note that for any
    belief state based stopping rule, $θ_i$ depends on the initial belief $[p,
    1-p]$. Furthermore, let 
-   $$ ξ_i(h_k ;g, p) = \PR^g(U_τ = h_k | H = h_i) $$
+   $$ ξ_i(h_k ;π, p) = \PR^π(A_τ = h_k | H = h_i) $$
    denote the probability that the stopping action is $h_k$ when using 
-   stopping rule $g$ assuming that the true hypothesis is $h_i$. 
+   stopping rule $π$ assuming that the true hypothesis is $h_i$. 
 
-     a. Argue that the performance of any policy $g$ can be written as
+     a. Argue that the performance of any policy $π$ can be written as
         \begin{align*}
-        V_g(p) &= c [ p θ_0(g, p) + (1-p) θ_1(g,p) ] \\
-        & \quad + p \sum_{u \in \{h_0, h_1\}} \ell(u, h_0) ξ_0(u; g, p) \\
-        & \quad + (1-p) \sum_{u \in \{h_0, h_1\}} \ell(u, h_1) ξ_1(u; g, p).
+        V_π(p) &= c [ p θ_0(π, p) + (1-p) θ_1(π,p) ] \\
+        & \quad + p \sum_{a \in \{h_0, h_1\}} \ell(a, h_0) ξ_0(a; π, p) \\
+        & \quad + (1-p) \sum_{a \in \{h_0, h_1\}} \ell(a, h_1) ξ_1(a; π, p).
         \end{align*}
         Thus, approximately computing $θ_i$ and $ξ_i$ gives an approximate
-        value of $V_g(p)$. 
+        value of $V_π(p)$. 
 
-     b. Now assume that the policy $g$ is of a threshold form with thresholds
+     b. Now assume that the policy $π$ is of a threshold form with thresholds
         $a$ and $b$. To avoid trivial cases, we assume that $p \in (a,b)$. The
         key idea to compute $θ_i$ and $ξ_i$ is that the evolution of $p_t =
         \PR(H = h_t | Y_{1:t})$ is a Markov chain which starts at a state $p
@@ -395,7 +419,7 @@ $$
 
         
         Suppose we discretize the state space space $[0, 1]$ into $n+1$ grid
-        points $\ALPHABET S_n = \{0, \frac1n, \dots, 1\}$. Assume that $p$,
+        points $\ALPHABET D_n = \{0, \frac1n, \dots, 1\}$. Assume that $p$,
         $a$, and $b$ lie on this discrete grid. Discreteize $p_t$ to the
         closest grid point and let $P_i$ denote the transition matrix of the
         discretized $p_t$ when the true hypothesis is $h_i$. Partition the
@@ -416,7 +440,7 @@ $$
             \hline
             I & 0 & I 
            \end{array}\right] $$
-        Now suppose $j$ is the index of $p$ in $\ALPHABET S_n$. Using
+        Now suppose $j$ is the index of $p$ in $\ALPHABET D_n$. Using
         properties of absorbing Markov chains, show that
 
         * $ξ_i(h_0; \langle a, b \rangle, p) \approx

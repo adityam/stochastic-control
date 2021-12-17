@@ -7,7 +7,7 @@ tags:
   - POMDP
   - belief state
 scripts:
-  - plotly
+  - geogebra
 ---
 
 So far, we have considered a setup where the decision maker perfectly observes
@@ -17,21 +17,21 @@ it. Such systems are modeled as partially observable Markov decision processes
 (POMDPs). We will describe the simplest model of POMDPs, which builds upon the
 [model of MDPs descibed earlier][MDP].
 
-We assume that the system has a state $X_t \in \ALPHABET X$, control input
-$U_t \in \ALPHABET U$, and process noise $W_t \in \ALPHABET W$. The state
+We assume that the system has a state $S_t \in \ALPHABET S$, control input
+$A_t \in \ALPHABET A$, and process noise $W_t \in \ALPHABET W$. The state
 evolves as
 \begin{equation} \label{eq:state}
-  X_{t+1} = f_t(X_t, U_t, W_t)
+  S_{t+1} = f_t(S_t, A_t, W_t)
 \end{equation}
 However, unlike the MDP setup, the assumption is that the decision maker does
-not observe $X_t$; rather, the observation of the decision maker at time $t$
+not observe $S_t$; rather, the observation of the decision maker at time $t$
 is given by
 \begin{equation} \label{eq:obs}
-  Y_t = \ell_t(X_t, N_t)
+  Y_t = \ell_t(S_t, N_t)
 \end{equation}
 where $Y_t \in \ALPHABET Y$ is the observation and $N_t \in \ALPHABET N$ is
 called the observation noise. As in the case of MDPs, we assume that the
-_primitive random varaibles_ $(X_1, W_1, \dots, W_T$, $N_1, \dots, N_T)$ are
+_primitive random varaibles_ $(S_1, W_1, \dots, W_T$, $N_1, \dots, N_T)$ are
 defined on a common probability space and are mutually independent. This
 assumption is critical for the results to go through.  
 
@@ -40,29 +40,29 @@ as we want. It can analyze the entire history of observations and control
 actions to choose the current control action. Thus, the control action can be
 written as
 $$
-  U_t = g_t(Y_{1:t}, U_{1:t-1}).
+  A_t = π_t(Y_{1:t}, A_{1:t-1}).
 $$
 
-At each time, the system incurs a cost $c_t(X_t, U_t)$ which depends on the
+At each time, the system incurs a cost $c_t(S_t, A_t)$ which depends on the
 current state and the current action. The system operates for a finite horizon
 $T$ and incurs a total cost
 $$
-  \sum_{t=1}^T c_t(X_t, U_t).
+  \sum_{t=1}^T c_t(S_t, A_t).
 $$
 
-Given the above system model, we want to choose a _control strategy_ $g =
-(g_1, \dots, g_T)$ to minimize the expected total cost
+Given the above system model, we want to choose a _control strategy_ $π =
+(π_1, \dots, π_T)$ to minimize the expected total cost
 $$
-  J(g) := \EXP\Bigl[ \sum_{t=1}^T c_t(X_t, U_t) \Bigr].
+  J(π) := \EXP\Bigl[ \sum_{t=1}^T c_t(S_t, A_t) \Bigr].
 $$
 How should we proceed?
 
 Note that the only difference from the MDP model is decision maker observes
-$Y_t$ instead of $X_t$. Apart from this, the other modeling assumptions are
+$Y_t$ instead of $S_t$. Apart from this, the other modeling assumptions are
 the same. So, the conceptual difficulties of the model are the same as that of
 MDPs:
 
-> The data $(Y_{1:t}, U_{1:t-1})$ available at the controller is increasing
+> The data $(Y_{1:t}, A_{1:t-1})$ available at the controller is increasing
 > with time. Therefore, the number of possible control laws at time $t$ are
 > increasing exponentially with time. How can we search for efficiently search
 > for optimal control strategies?
@@ -77,27 +77,27 @@ programming). So, what is the equivalent result for POMDPs?
 Our first step to develop an efficient dynamic programming decomposition is to
 simply ignore efficiency and develop _a_ dynamic programming decomposition.
 We start by deriving a recursive formula to compute the performance of a
-generic history dependent strategy $g = (g_1, \dots, g_T)$. 
+generic history dependent strategy $π = (π_1, \dots, π_T)$. 
 
 
 ## Performace of history-dependent strategies
 
-Let $H_t = (Y_{1:t}, U_{1:t-1})$ denote all the information available to the
-decision maker at time $t$. Thus, given any history dependent strategy $g$, we
-can write $U_t = g_t(H_t)$. Define _the cost-to-go functions_ as follows:
+Let $H_t = (Y_{1:t}, A_{1:t-1})$ denote all the information available to the
+decision maker at time $t$. Thus, given any history dependent strategy $π$, we
+can write $A_t = π_t(H_t)$. Define _the cost-to-go functions_ as follows:
 $$
-  J_t(h_t; g) = \EXP^g\biggl[ \sum_{s=t}^T c_s(X_s, U_s) \biggm| H_t = h_t
+  J_t(h_t; π) = \EXP^π\biggl[ \sum_{s=t}^T c_s(S_s, A_s) \biggm| H_t = h_t
   \biggr].
 $$
-Note that $J_t(h_t; g)$ only depends on the future strategy $(g_t, \dots,
-g_T)$. These functions can be computed recursively as follows: 
+Note that $J_t(h_t; π)$ only depends on the future strategy $(π_t, \dots,
+π_T)$. These functions can be computed recursively as follows: 
 \begin{align*}
-  J_t(h_t; g) &= \EXP^g\biggl[ \sum_{s=t}^T c_s(H_s, g_s(H_s)) \biggm|
+  J_t(h_t; π) &= \EXP^π\biggl[ \sum_{s=t}^T c_s(H_s, π_s(H_s)) \biggm|
     H_t = h_t \biggr] \\
-    &\stackrel{(a)}= \EXP^g \biggl[ c_t(h_t, g_t(h_t)) + \EXP^g\biggl[ 
-    \sum_{s=t+1}^T c_s(X_s, g_s(X_s)) \biggm| H_{t+1} \biggr] \biggm| 
+    &\stackrel{(a)}= \EXP^π \biggl[ c_t(h_t, π_t(h_t)) + \EXP^π\biggl[ 
+    \sum_{s=t+1}^T c_s(S_s, π_s(S_s)) \biggm| H_{t+1} \biggr] \biggm| 
     H_t = h_t \biggr]  \\
-    &= \EXP^g[ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid H_t = h_t ],
+    &= \EXP^π[ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid H_t = h_t ],
 \end{align*}
 where $(a)$ follows from the towering property of conditional expectation and
 the fact that $H_t \subseteq H_{t+1}$. 
@@ -106,7 +106,7 @@ Thus, we can use the following dynamic program to recursively compute the
 performance of a history-dependent strategy: $J_{T+1}(h_{T+1}) = 0$ and for $t
 \in \{T, \dots, 1\}$, 
 $$
-J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
+J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
   H_t = h_t ].
 $$
 
@@ -124,14 +124,14 @@ Theorem #history-dp
     \end{equation}
     and for $t \in \{T, \dots, 1\}$: 
     \begin{align}
-      Q_t(h_t, u_t) &= \EXP[ c_t(X_t, u_t) + V_{t+1}(H_{t+1}) \mid
-      H_t = h_t, U_t = u_t ] \\
-      V_t(h_t) &= \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t)
+      Q_t(h_t, a_t) &= \EXP[ c_t(S_t, a_t) + V_{t+1}(H_{t+1}) \mid
+      H_t = h_t, A_t = a_t ] \\
+      V_t(h_t) &= \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t)
     \end{align}
-    Then, a history-dependent policy $g$ is optimal if and only if it
+    Then, a history-dependent policy $π$ is optimal if and only if it
     satisfies
     \begin{equation} \label{eq:history-verification}
-      g_t(h_t) \in \arg \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t).
+      π_t(h_t) \in \arg \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t).
     \end{equation}
 :::
 
@@ -141,9 +141,9 @@ result, we prove a related result.
 ::: highlight :::
 Theorem #history-comparison
 
-:   **(The comparison principle)** For any history-dependent strategy $g$
-    $$ J_t(h_t; g) \ge V_t(h_t) $$
-    with equality at $t$ if and only if the _future straegy $g_{t:T}$
+:   **(The comparison principle)** For any history-dependent strategy $π$
+    $$ J_t(h_t; π) \ge V_t(h_t) $$
+    with equality at $t$ if and only if the _future_ straegy $π_{t:T}$
     satisfies the verification step \\eqref{eq:history-verification}.
 ::: 
 
@@ -154,31 +154,31 @@ the comparison principle is almost identical to the proof for MDPs.
 #### Proof of the comparison principle {-}
 
 The proof proceeds by backward induction. Consider any history dependent
-policy $g = (g_1, \dots, g_T)$. For $t = T+1$, the comparison principle is
+policy $π = (π_1, \dots, π_T)$. For $t = T+1$, the comparison principle is
 satisfied by definition and this forms the basis of induction. We assume that
 the result holds for time $t+1$, which is the induction hypothesis. Then for
 time $t$, we have 
 \begin{align*}
-  V_t(h_t) &= \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t) \\
-  &\stackrel{(a)}= \min_{u_t \in \ALPHABET U}
-   \EXP^g[ c_t(X_t, g_t(h_t)) + V_{t+1}(H_{t+1}) \mid
-  H_t = h_t, U_t = g_t(h_t) ] 
+  V_t(h_t) &= \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t) \\
+  &\stackrel{(a)}= \min_{a_t \in \ALPHABET A}
+   \EXP^π[ c_t(S_t, π_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = π_t(h_t) ] 
   \\
   &\stackrel{(b)}\le 
-   \EXP^g[ c_t(X_t, g_t(h_t)) + V_{t+1}(H_{t+1}) \mid
-  H_t = h_t, U_t = g_t(h_t)] 
+   \EXP^π[ c_t(S_t, π_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = π_t(h_t)] 
   \\
   &\stackrel{(c)}\le
-   \EXP^g[ c_t(X_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
-  H_t = h_t, U_t = g_t(h_t)] 
+   \EXP^π[ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
+  H_t = h_t, A_t = π_t(h_t)] 
   \\
-  &= J_t(h_t, g).
+  &= J_t(h_t, π).
 \end{align*}
 where $(a)$ follows from the definition of the $Q$-function; $(b)$ follows
 from the definition of minimization; and $(c)$ follows from the induction
-hyothesis. We have the equality at step $(b)$ iff $g_t$ satisfies the
+hyothesis. We have the equality at step $(b)$ iff $π_t$ satisfies the
 verification step \\eqref{eq:history-verification} and have the equality in step $(c)$
-iff $g_{t+1:T}$ is optimal (this is part of the induction hypothesis). Thus,
+iff $π_{t+1:T}$ is optimal (this is part of the induction hypothesis). Thus,
 the result is true for time $t$ and, by the principle of induction, is true
 for all time. $\Box$
 
@@ -192,13 +192,13 @@ _information state_ if $Z_t$ be a function of $H_t$ (which we denote by $Z_t =
 φ_t(H_t)$) and satisfies the following two properties:
 
 **P1. Sufficient for performance evaluation**, i.e., 
-    $$ \EXP^g[ c_t(X_t, U_t) \mid H_t = h_t, U_t = u_t] 
-    =  \EXP[ c_t(X_t, U_t) \mid Z_t = φ_t(h_t), U_t = u_t ] $$
+    $$ \EXP^π[ c_t(S_t, A_t) \mid H_t = h_t, A_t = a_t] 
+    =  \EXP[ c_t(S_t, A_t) \mid Z_t = φ_t(h_t), A_t = a_t ] $$
 
 **P2. Sufficient to predict itself**, i.e., for any Borel measurable subset
     $B$ of $\ALPHABET Z$, we have
-    $$ \PR^g(Z_{t+1} \in B \mid H_t = h_t, U_t = u_t) = 
-       \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), U_t = u_t).
+    $$ \PR^π(Z_{t+1} \in B \mid H_t = h_t, A_t = a_t) = 
+       \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), A_t = a_t).
     $$
 
 
@@ -208,18 +208,18 @@ some models:
 
 **P2a. Evolves in a state-like manner**, i.e., there exist measurable
      functions $\{ψ_t\}_{t=1}^T$ such that
-     $$ Z_{t+1} = ψ_t(Z_t, Y_{t+1}, U_t). $$
+     $$ Z_{t+1} = ψ_t(Z_t, Y_{t+1}, A_t). $$
 
 **P2b. Is sufficient for predicting future observations**, i.e., for any Borel
      subset $B$ of $\ALPHABET Y$, 
-     $$ \PR^g(Y_{t+1} \in B | H_t = h_t, U_t = u_t) = 
-        \PR(Y_{t+1} \in B | Z_t = φ_t(h_t), U_t = u_t). 
+     $$ \PR^π(Y_{t+1} \in B | H_t = h_t, A_t = a_t) = 
+        \PR(Y_{t+1} \in B | Z_t = φ_t(h_t), A_t = a_t). 
      $$
 
 Remark
 
 :   The right hand sides of (P1) and (P2) as well as (P2a) and (P2b) do not
-    depend on the choice of the policy $g$.
+    depend on the choice of the policy $π$.
 
 ::: highlight :::
 Proposition #info-state
@@ -228,23 +228,23 @@ Proposition #info-state
 
 :::
 
-### Proof
+#### Proof {-}
 
 For any Borel measurable subset $B$ of $\ALPHABET Z$, we have
 \begin{align*}
   \hskip 1em & \hskip -1em 
-  \PR(Z_{t+1} \in B \mid H_t = h_t, U_t = u_t)  
+  \PR(Z_{t+1} \in B \mid H_t = h_t, A_t = a_t)  
   \stackrel{(a)}= \sum_{y_{t+1} \in \ALPHABET Y} \PR(Y_{t+1} = y_{t+1}, Z_{t+1} \in B
-  \mid H_t = h_t, U_t = u_t ] 
+  \mid H_t = h_t, A_t = a_t ] 
   \\
-  &\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, u_t) \}
-  \PR(Y_{t+1} = y_{t+1} \mid H_t = h_t, U_t = u_t) 
+  &\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \}
+  \PR(Y_{t+1} = y_{t+1} \mid H_t = h_t, A_t = a_t) 
   \\
-  &\stackrel{(c)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, u_t) \}
-  \PR(Y_{t+1} = y_{t+1} \mid Z_t = φ_t(h_t), U_t = u_t) 
+  &\stackrel{(c)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \}
+  \PR(Y_{t+1} = y_{t+1} \mid Z_t = φ_t(h_t), A_t = a_t) 
   \\
   &\stackrel{(d)}=
-  \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), U_t = u_t)  
+  \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), A_t = a_t)  
 \end{align*}
 where $(a)$ follows from the law of total probability, $(b)$ follows from
 (P2a), $(c)$ follows from (P2b), and $(d)$ from the law of total probability. 
@@ -264,17 +264,17 @@ Example #history
 
 :::
 
-To establish this result, we define the _belief state_ $π_t \in Δ(\ALPHABET
-X)$ as follows: for any $x \in \ALPHABET X$
-$$ π_t(x) = \PR^g(X_t = x \mid H_t = h_t). $$
+To establish this result, we define the _belief state_ $b_t \in Δ(\ALPHABET
+S)$ as follows: for any $s \in \ALPHABET S$
+$$ b_t(s) = \PR^π(S_t = s \mid H_t = h_t). $$
 The belief state is a function of the history $h_t$. When we want to
-explicitly show the dependence of $π_t$ on $h_t$, we write it as $π_t[h_t]$.
+explicitly show the dependence of $b_t$ on $h_t$, we write it as $b_t[h_t]$.
 
 ::: highlight :::
 
 Lemma #belief-independence
 
-:   The belief state $π_t$ does not depend on the policy $g$.
+:   The belief state $b_t$ does not depend on the policy $π$.
 
 :::
 
@@ -282,118 +282,118 @@ This is an extremely important result which has wide-ranging implications in
 stochastic control. For a general discussion of this point, see
 @Witsenhausen1975.
 
-### Proof of @lemma:belief-independence
+#### Proof of @lemma:belief-independence {-}
 
 From the law of total probability and Bayes rule, we have
 \begin{equation} \label{eq:belief}
-  \PR(x_t | y_{1:t}, u_{1:t-1}) 
-  = \sum_{x_{1:t-1}} \PR(x_{1:t} | y_{1:t}, u_{1:t-1}) 
-  = \sum_{x_{1:t-1}}
-   \frac{\PR(x_{1:t}, y_{1:t}, u_{1:t-1})}
-   {\sum_{x'_{1:t}} \PR(x'_{1:t}, y_{1:t}, u_{1:t-1})}
+  \PR(s_t | y_{1:t}, a_{1:t-1}) 
+  = \sum_{s_{1:t-1}} \PR(s_{1:t} | y_{1:t}, a_{1:t-1}) 
+  = \sum_{s_{1:t-1}}
+   \frac{\PR(s_{1:t}, y_{1:t}, a_{1:t-1})}
+   {\sum_{s'_{1:t}} \PR(s'_{1:t}, y_{1:t}, a_{1:t-1})}
 \end{equation}
 
 Now consider
 \begin{align*}
-  \PR(x_{1:t}, y_{1:t}, u_{1:t-1}) &=
-  \PR(x_1) \PR(y_1 | x_1) \IND\{ u_1 = g_1(y_1) \} \\
+  \PR(s_{1:t}, y_{1:t}, a_{1:t-1}) &=
+  \PR(s_1) \PR(y_1 | s_1) \IND\{ a_1 = π_1(y_1) \} \\
   & \times
-  \PR(x_2 | x_1, u_1) \PR(y_2 | x_2) \IND \{ u_2 = g_2(y_{1:2}, u_1)\} \\
+  \PR(s_2 | s_1, a_1) \PR(y_2 | s_2) \IND \{ a_2 = π_2(y_{1:2}, a_1)\} \\
   & \times \cdots \\
   & \times
-  \PR(x_{t-1} | x_{t-2}, u_{t-2}) \PR(y_{t-1} | x_{t-1}) \IND \{ u_{t-1} =
-  g_{t-1}(y_{1:t-1}, u_{1:t-2}) \} \\
+  \PR(s_{t-1} | s_{t-2}, a_{t-2}) \PR(y_{t-1} | s_{t-1}) \IND \{ a_{t-1} =
+  π_{t-1}(y_{1:t-1}, a_{1:t-2}) \} \\
   & \times
-  \PR(x_{t} | x_{t-1}, u_{t-1}) \PR(y_{t} | x_{t}).
+  \PR(s_{t} | s_{t-1}, a_{t-1}) \PR(y_{t} | s_{t}).
 \end{align*}
 Substitute the above expression in both the numerator and the denominator of
-\\eqref{eq:belief}. Observe that the terms of the form $\IND\{ u_s =
-g_s(y_{1:s}, u_{1:s-1})$ are common to both the numerator and the denominator
+\\eqref{eq:belief}. Observe that the terms of the form $\IND\{ a_s =
+π_s(y_{1:s}, a_{1:s-1})$ are common to both the numerator and the denominator
 and cancel each other. Thus,
 \begin{equation} \label{eq:belief-fn}
-  \PR(x_t | y_{1:t}, u_{1:t-1}) = \sum_{x_{1:t-1}}
-  \frac{ \prod_{s=1}^t \PR(x_s \mid x_{s-1}, u_{s-1}) \PR(y_s \mid x_s) }
-  { \sum_{x'_{1:t}} \prod_{s=1}^t \PR(x'_s \mid x'_{s-1}, u_{s-1}) \PR(y_s \mid x'_s) }.
+  \PR(s_t | y_{1:t}, a_{1:t-1}) = \sum_{s_{1:t-1}}
+  \frac{ \prod_{s=1}^t \PR(s_s \mid s_{s-1}, a_{s-1}) \PR(y_s \mid s_s) }
+  { \sum_{s'_{1:t}} \prod_{s=1}^t \PR(s'_s \mid s'_{s-1}, a_{s-1}) \PR(y_s \mid s'_s) }.
 \end{equation}
-None of the terms here depend on the policy $g$. Hence, the belief state does
-not depend on the policy $g$. $\Box$
+None of the terms here depend on the policy $π$. Hence, the belief state does
+not depend on the policy $π$. $\Box$
 
 #### Proof of @example:history {-}
 
 We will prove that $Z_t = H_t$ satisfies properties (P1), (P2a), and (P2b).
 
-P1. $\displaystyle \EXP^g[ c_t(X_t, U_t) | H_t = h_t, U_t = u_t ] 
-= \sum_{x_t \in \ALPHABET X} c_t(x_t, u_t) π_t[h_t](x_t)$.
+P1. $\displaystyle \EXP^π[ c_t(S_t, A_t) | H_t = h_t, A_t = a_t ] 
+= \sum_{s_t \in \ALPHABET S} c_t(s_t, a_t) b_t[h_t](s_t)$.
 
-P2a. $H_{t+1} = (H_t, Y_{t+1}, U_t)$
+P2a. $H_{t+1} = (H_t, Y_{t+1}, A_t)$
 
-P2b. $\displaystyle \PR^g(y_{t+1} | y_{1:t}, u_{1:t}) 
-= \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR( x_{t+1} | x_t, u_t) \PR(x_t |
-y_{1:t}, u_{1:t})$. Note that in the last term $\PR^g(x_t | y_{1:t}, u_{1:t})$
-we can drop $u_t$ from the conditioning because it is a function of $(y_{1:t},
-u_{1:t-1})$. Thus, 
-$$ \PR^g(x_t | y_{1:t}, u_{1:t}) = \PR^g(x_t | y_{1:t}, u_{1:t-1}) =
-π_t[h_t](x_t).$$ 
+P2b. $\displaystyle \PR^π(y_{t+1} | y_{1:t}, a_{1:t}) 
+= \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR( s_{t+1} | s_t, a_t) \PR(s_t |
+y_{1:t}, a_{1:t})$. Note that in the last term $\PR^π(s_t | y_{1:t}, a_{1:t})$
+we can drop $a_t$ from the conditioning because it is a function of $(y_{1:t},
+a_{1:t-1})$. Thus, 
+$$ \PR^π(s_t | y_{1:t}, a_{1:t}) = \PR^π(s_t | y_{1:t}, a_{1:t-1}) =
+b_t[h_t](s_t).$$ 
 Thus,
-$\displaystyle \PR^g(y_{t+1} | y_{1:t}, u_{1:t}) 
-= \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR( x_{t+1} | x_t, u_t)
-π_t[h_t](x_t)$. 
+$\displaystyle \PR^π(y_{t+1} | y_{1:t}, a_{1:t}) 
+= \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR( s_{t+1} | s_t, a_t)
+b_t[h_t](s_t)$. 
 
 ::: highlight :::
 
 Example #belief
 
-:   The belief state $π_t$ is an information state.
+:   The belief state $b_t$ is an information state.
 
 :::
 
 #### Proof {-}
 
-The belief state $π_t$ is a function of the history $h_t$. (The exact form of
+The belief state $b_t$ is a function of the history $h_t$. (The exact form of
 this function is given by \\eqref{eq:belief-fn}). In the proof of
-@example:history, we have already shown that $π_t$ satisfies (P1) and (P2b).
-So, we only need to show that $π_t$ satisfies (P2a). This can be shown as
+@example:history, we have already shown that $b_t$ satisfies (P1) and (P2b).
+So, we only need to show that $b_t$ satisfies (P2a). This can be shown as
 follows, which is a standard result in non-linear filtering.
 
 ::: highlight :::
 
 Lemma #belief-update
 
-:   The belief state $π_t$ updates in a state like manner. In particular, for
-any $x_{t+1} \in \ALPHABET X$, we have
+:   The belief state $b_t$ updates in a state like manner. In particular, for
+any $s_{t+1} \in \ALPHABET S$, we have
 $$
-  π_{t+1}(x_{t+1}) = \sum_{x_t \in \ALPHABET X}
-  \frac{ \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
-   { \sum_{x'_{t:t+1}} \PR(y_{t+1} | x'_{t+1}) \PR(x'_{t+1} | x'_t, u_t) π_t(x'_t) }.
+  b_{t+1}(s_{t+1}) = \sum_{s_t \in \ALPHABET S}
+  \frac{ \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+   { \sum_{s'_{t:t+1}} \PR(y_{t+1} | s'_{t+1}) \PR(s'_{t+1} | s'_t, a_t) b_t(s'_t) }.
 $$
 
 :::
 
 #### Proof of @lemma:belief-update {-}
 
-For any $x_{t+1} \in \ALPHABET X$, consider
+For any $s_{t+1} \in \ALPHABET S$, consider
 
 \begin{align}
-π_{t+1}(x_{t+1}) &= \PR(x_{t+1} | y_{1:t+1}, u_{1:t}) \notag \\
-&= \sum_{x_t} \PR(x_{t:t+1} | y_{1:t+1}, u_{1:t}) \notag \\
-&= \sum_{x_t} \frac{ \PR(x_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) }
-  {\sum_{x'_{t:t+1}}\PR(x'_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) }.
+b_{t+1}(s_{t+1}) &= \PR(s_{t+1} | y_{1:t+1}, a_{1:t}) \notag \\
+&= \sum_{s_t} \PR(s_{t:t+1} | y_{1:t+1}, a_{1:t}) \notag \\
+&= \sum_{s_t} \frac{ \PR(s_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) }
+  {\sum_{s'_{t:t+1}}\PR(s'_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) }.
 \label{eq:update-1}
 \end{align}
 
 Now consider
 \begin{align}
 \hskip 1em & \hskip -1em 
-\PR(x_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) \notag \\
-&= \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) 
-   \IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}
-   \PR(x_t | y_{1:t}, u_{1_t-1}) \notag \\
-&= \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) 
-   \IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}
-   π_t(x_t). \label{eq:belief-2}
+\PR(s_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) \notag \\
+&= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) 
+   \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
+   \PR(s_t | y_{1:t}, a_{1_t-1}) \notag \\
+&= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) 
+   \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
+   b_t(s_t). \label{eq:belief-2}
 \end{align}
 Substitute the above expression in both the numerator and the denominator of
-\\eqref{eq:update-1}. Observe that $\IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}$
+\\eqref{eq:update-1}. Observe that $\IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}$
 is common to both the numerator and the denominator and cancels out. Thus, we
 get the result of the lemma. $\Box$
 
@@ -409,16 +409,16 @@ Remark
 
 Example #mdp
 
-:   An MDP is a special case of a POMDP where $Y_t = X_t$. For an
-    MDP $Z_t = X_t$ is an information state.
+:   An MDP is a special case of a POMDP where $Y_t = S_t$. For an
+    MDP $Z_t = S_t$ is an information state.
 
 :::
 
 #### Proof {-}
 
-We will show that $Z_t = X_t$ satisfies (P1) and (P2).
+We will show that $Z_t = S_t$ satisfies (P1) and (P2).
 
-(P1) is satisfied because the per-step cost is a function of the $(X_t, U_t)$.
+(P1) is satisfied because the per-step cost is a function of the $(S_t, A_t)$.
 (P2) is equivalent to the control Markov property. $\Box$
 
 
@@ -437,20 +437,20 @@ Theorem #info-state
   $$ \hat V_{T+1}(z_{T+1}) = 0 $$
   and for $t \in \{T, \dots, 1\}$: 
   \begin{align}
-    \hat Q_t(z_t, u_t) &= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}(Z_{t+1}) \mid
-    Z_t = z_t, U_t = u_t] \\
-    \hat V_t(z_t) &= \min_{u_t \in \ALPHABET U} \hat Q_t(z_t, u_t).
+    \hat Q_t(z_t, a_t) &= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}(Z_{t+1}) \mid
+    Z_t = z_t, A_t = a_t] \\
+    \hat V_t(z_t) &= \min_{a_t \in \ALPHABET A} \hat Q_t(z_t, a_t).
   \end{align}
-  Then, we have the following: for any $h_t$ and $u_t$,
+  Then, we have the following: for any $h_t$ and $a_t$,
   \begin{equation} \label{eq:history-info}
-    Q_t(h_t, u_t) = \hat Q_t(φ_t(h_t), u_t)
+    Q_t(h_t, a_t) = \hat Q_t(φ_t(h_t), a_t)
     \quad\text{and}\quad
     V_t(h_t) = \hat V_t(φ_t(h_t)).
   \end{equation}
-  Any stategy $\hat g = (\hat g_1, \dots, \hat g_T)$, where $\hat g_t \colon
-  \ALPHABET Z \to \ALPHABET U$, is optimal if and only if 
+  Any stategy $\hat π = (\hat π_1, \dots, \hat π_T)$, where $\hat π_t \colon
+  \ALPHABET Z \to \ALPHABET A$, is optimal if and only if 
   \begin{equation}\label{eq:info-verification}
-      \hat g_t(z_t) \in \arg\min_{u_t \in \ALPHABET U} \hat Q_t(z_t, u_t).
+      \hat π_t(z_t) \in \arg\min_{a_t \in \ALPHABET A} \hat Q_t(z_t, a_t).
   \end{equation}
 
 :::
@@ -462,13 +462,13 @@ Eq. \\eqref{eq:history-info} is true at time $T+1$. This forms the basis of
 induction. Now assume that \\eqref{eq:history-info} is true at time $t+1$ and
 consider the system at time $t$. Then, 
 \begin{align*}
-Q_t(h_t, u_t) &= \EXP[ c_t(X_t, U_t) + V_{t+1}(H_{t+1}) | H_t = h_t, U_t = u_t
+Q_t(h_t, a_t) &= \EXP[ c_t(S_t, A_t) + V_{t+1}(H_{t+1}) | H_t = h_t, A_t = a_t
 ] \\
-&\stackrel{(a)}= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | H_t =
-h_t, U_t = u_t ]  \\
-&\stackrel{(b)}= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | Z_t =
-φ_t(h_t), U_t = u_t ]  \\
-&\stackrel{(c)}= \hat Q_t(φ_t(h_t), u_t),
+&\stackrel{(a)}= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | H_t =
+h_t, A_t = a_t ]  \\
+&\stackrel{(b)}= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | Z_t =
+φ_t(h_t), A_t = a_t ]  \\
+&\stackrel{(c)}= \hat Q_t(φ_t(h_t), a_t),
 \end{align*}
 where $(a)$ follows from the induction hypothesis, $(b)$ follows from the
 properties (P1) and (P2) of the information state, and $(c)$ follows from the
@@ -478,35 +478,35 @@ also equal. $\Box$
 
 # Belief state based dynamic program 
 
-As shown in @example:belief, the belief state $π_t$ is an information state.
+As shown in @example:belief, the belief state $b_t$ is an information state.
 Therefore, @theorem:info-state implies that we can write a dynamic program
-based on $π_t$. This is an important and commonly used formulation, so we
+based on $b_t$. This is an important and commonly used formulation, so we
 study it separately and present some properties of the value functions. The
-belief state based dynamic program is given by: $V_{T+1}(π_{T+1}) = 0$ and for
+belief state based dynamic program is given by: $V_{T+1}(b_{T+1}) = 0$ and for
 $t \in \{T, \dots, 1\}$, 
 $$
-  Q_t(π_t, u_t) = 
-  \EXP [ c_t(X_t, U_t) + V_{t+1}(Π_{t+1}) \mid Π_t = π_t, U_t = u_t ].
+  Q_t(b_t, a_t) = 
+  \EXP [ c_t(S_t, A_t) + V_{t+1}(B_{t+1}) \mid B_t = b_t, A_t = a_t ].
 $$
 and 
-$$ V_t(π_t) = \min_{u_t \in \ALPHABET U} Q_t(π_t, u_t). $$ 
+$$ V_t(b_t) = \min_{a_t \in \ALPHABET A} Q_t(b_t, a_t). $$ 
 
 Define
-$$ \PR(y_{t+1} | π_t, u_t) = 
-   \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) π_t(x_t).
+$$ \PR(y_{t+1} | b_t, a_t) = 
+   \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) b_t(s_t).
 $$
 Then, the belief update expression in @lemma:belief-update can be written as:
 $$
-  π_{t+1}(x_{t+1}) = 
-  \frac{ \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
-  { \PR(y_{t+1} | π_t, u_t) }.
+  b_{t+1}(s_{t+1}) = 
+  \frac{ \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+  { \PR(y_{t+1} | b_t, a_t) }.
 $$
-For the ease of notation, we write this expression as $π_{t+1} = ψ(π_t,
-y_{t+1}, u_t)$.  
+For the ease of notation, we write this expression as $b_{t+1} = ψ(b_t,
+y_{t+1}, a_t)$.  
 \begin{align*}
-  Q_t(π_t, u_t) &= \sum_{x_t \in \ALPHABET X} c_t(x_t, u_t) π_t(x_t) \\
-  & \quad +  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
-  V_{t+1}( φ(π_t, y_{t+1}, u_t) ).
+  Q_t(b_t, a_t) &= \sum_{s_t \in \ALPHABET S} c_t(s_t, a_t) b_t(s_t) \\
+  & \quad +  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
+  V_{t+1}( φ(b_t, y_{t+1}, a_t) ).
 \end{align*}
 
 A key property of the belief-state based value functions is the following.
@@ -520,125 +520,67 @@ Theorem #belief-PWLC
 
 #### Proof {-}
 
-As usual, we prove the result using backward induction. For any $u_T$,
-$$ Q_T(π_T, u_T) = \sum_{x_T \in \ALPHABET X} c_T(x_T, u_T) π_T(x_T) $$
-is linear in $π_T$. Therefore, 
-$$ V_T(π_T) = \min_{u_T \in \ALPHABET U} Q_T(π_T, u_T) $$
-is the minimum of a finite number of linear functions. Hence $V_T(π_T)$ is
+As usual, we prove the result using backward induction. For any $a_T$,
+$$ Q_T(b_T, a_T) = \sum_{s_T \in \ALPHABET S} c_T(s_T, a_T) b_T(s_T) $$
+is linear in $b_T$. Therefore, 
+$$ V_T(b_T) = \min_{a_T \in \ALPHABET A} Q_T(b_T, a_T) $$
+is the minimum of a finite number of linear functions. Hence $V_T(b_T)$ is
 piecewise linear and concave. 
 
- <div class="flex">
-   <div id="V_T" style="width:400px; height:250px;"></div>
- </div>
+  <figure>
+  <div style="width:800px;height:600px;display:block" id="applet_container"></div>
+  <figcaption>An illustration of a piece-wise linear and concave function.
+  Move the points around to see how the shape of the function changes.</figcaption>
+  </figure>
 
-<script>
-  function interesect(alpha, beta) {
-    // y = (alpha[1] - alpha[0])x + alpha[0]
-    // y = (beta[1] - beta[0]) x + beta[0]
-    // => x = (alpha[0] - beta[0])/ (delta_beta - delta_alpha)
-    var delta_alpha = alpha[1] - alpha[0]
-    var delta_beta  = beta[1]  - beta[0]
-    var x = (alpha[0] - beta[0])/(delta_beta - delta_alpha)
-    var y = delta_alpha * x + alpha[0]
-    return [x, y]
-  }
+  <script type="text/javascript">
+      var params = {
+        filename: "/stochastic-control/geogebra/pomdp/PWLC.ggb",
+        enableShiftDragZoom: false,
+        width: 800,
+        height: 600,
+      }
 
-  var alpha = [ [1, 5], [5, 1], [3.5, 2] ]
-  var traces = new Array(alpha.length + 1)
+      var applet = new GGBApplet(params, true);
 
-  for (let i = 0; i < alpha.length; i++) {
-     traces[i] = { 
-        x: [0, 1],
-        y: alpha[i],
-        mode: 'lines',
-        line : {
-          color : 'black',
-          width : 1
-        }
-     }
-  }
-
-  // The lowest line: computed manually
-  var p = interesect(alpha[0], alpha[2]) 
-  var q = interesect(alpha[1], alpha[2])
-
-  traces[alpha.length] = {
-    x: [0, p[0], q[0], 1],
-    y: [1, p[1], q[1], 1],
-    mode: 'lines',
-    line : {
-      color : 'red',
-      width : 2
-    }
-  }
+      window.onload = function() {
+          applet.inject('applet_container');
+      }
+  </script>
 
 
-  var layout = {
-    paper_bgcolor: "#fffff8",
-    plot_bgcolor:  "#fffff8",
-    xaxis : {
-      title: "Belief state",
-      showgrid: true,
-      showline: true,
-      zeroline: false,
-      showticklabels: false,
-    },
-    yaxis : {
-      title: "Value function",
-      showgrid: true,
-      showline: true,
-      zeroline: true,
-      showticklabels: false,
-      range: [-1, 5],
-    },
-    automargin: true,
-    margin: {
-      l : 15,
-      r : 15,
-      b : 15,
-      t : 15,
-      pad : 15
-    } ,
-    showlegend: false, 
-    hovermode: false,
-  };
-
-  Plotly.plot('V_T', traces, layout)
-
-</script>
-
-Now assume that $V_{t+1}(π_{t+1})$ is piecewise linear and concave (PWLC). Any
+Now assume that $V_{t+1}(b_{t+1})$ is piecewise linear and concave (PWLC). Any
 PWLC funcation can be represented as a minimum of a finite number of
 hyperplanes. Therefore, we can find a finite set of vectors $\{ A_i
 \}_{i \in I}$ indexed by finite set $I$ such that
 $$
-  V_{t+1}(π) = \min_{i \in I} \langle A_i, π \rangle.
+  V_{t+1}(b) = \min_{i \in I} \langle A_i, b \rangle.
 $$
 
-We need to show that $V_t(π_t)$ is piecewise linear and concave (PWLC). We
-first show that $Q_t(π_t, u_t)$ is PWLC. For any fixed $u_t$, the first term
-$\sum_{x_t} c_t(x_t, u_t) π_t(x_t)$ is linear in $π_t$. Now consider the
+We need to show that $V_t(b_t)$ is piecewise linear and concave (PWLC). We
+first show that $Q_t(b_t, a_t)$ is PWLC. For any fixed $a_t$, the first term
+$\sum_{s_t} c_t(s_t, a_t) b_t(s_t)$ is linear in $b_t$. Now consider the
 second term:
 \begin{align*}
   \hskip 1em & \hskip -1em
-  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
-  V_{t+1}( φ(π_t, y_{t+1}, u_t) ) \\
+  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
+  V_{t+1}( φ(b_t, y_{t+1}, a_t) ) \\
   &= 
-  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
+  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
   \min_{i \in I} 
   \left\langle A_i, 
-  \frac{ \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
-  { \PR(y_{t+1} | π_t, u_t) } \right\rangle \\
+  \frac{ \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+  { \PR(y_{t+1} | b_t, a_t) } \right\rangle \\
   &=
   \sum_{y_{t+1} \in \ALPHABET Y} 
   \min_{i \in I} 
   \Big\langle A_i, 
-   \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) 
+   \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) 
    \Big\rangle
 \end{align*}
-which is the sum of PWLC functions of $π_t$ and therefore PWLC in $π_t$. 
+which is the sum of PWLC functions of $b_t$ and therefore PWLC in $b_t$. 
 
-Thus, $Q_t(π_t, u_t)$ is PWLC. Hence, $V_t(π_t)$ which is the pointwise
+Thus, $Q_t(b_t, a_t)$ is PWLC. Hence, $V_t(b_t)$ which is the pointwise
 minimum of PWLC functions is PWLC. Hence, the result holds due to principle of
 induction. $\Box$
 
@@ -647,12 +589,12 @@ Remark
 :   Since the value function is PWLC, we can identify a finite index set
     $I_t$, and a set of vectors $\{ A^i_t \}_{i \in I_t}$ such that
     $$
-        V_t(π) = \min_{i \in I_t} \langle A^i_t, π \rangle.
+        V_t(b) = \min_{i \in I_t} \langle A^i_t, b \rangle.
     $$
     @Smallwood1973 presented a "one-pass" algorithm to recursively compute $I_t$ and 
     $\{ A^i_t \}_{i \in I_t}$ which allows us to exactly compute the value
     function. Various efficient refinements of these algorithms have been
-    presented in the literature, e.g., the linear-support algorithm
+    presented in the literature, e.π., the linear-support algorithm
     [@Cheng1988], the witness algorithm [@Cassandra1994], incremental pruning
     [@Zhang1996; @Cassandra1997], duality based approach [@Zhang2009], and
     others. See https://pomdp.org/ for an accessible introduction to these
@@ -660,17 +602,18 @@ Remark
 
 # Exercises {-}
 
-1. Consider an MDP where the state space $\ALPHABET X$ is a symmetric subset
-   of integers of the form $\{-a, -a + 1, \dots, a -1 , a\}$ and the action
-   space $\ALPHABET U$ is discrete. Suppose the transition matrix $P(u)$ and
-   the cost function $c_t(x,u)$ satisfy properties (A1) and (A2) of Exercise 1
+1. Consider an MDP where the state space $\ALPHABET S$ is a symmetric subset
+   of integers of the form $\{-L, -L + 1, \dots, L -1 , L\}$ and the action
+   space $\ALPHABET A$ is discrete. Suppose the transition matrix $P(a)$ and
+   the cost function $c_t(s,a)$ satisfy properties (A1) and (A2) of Exercise 1
    of [Monotone MDPs](../../mdp/monotonicity#exercises). Show that $Z_t =
-   |X_t|$ is an information state.
+   |S_t|$ is an information state.
 
 2. Consider a linear system with state $x_t \in \reals^n$, observations
    $y_t \in \reals^p$,  and action $u_t \in \reals^m$. Note that we will
    follow the standard notation of linear systems and denote the system
-   variables by lower case letters rather than upper case letter. The dynamics
+   variables by lower case letters $(x,u)$ rather than upper case letter
+   $(S,A)$. The dynamics
    of the system are given by 
    \begin{align*}
       x_{t+1} &= A x_t + B u_t + w_t  \\
@@ -683,7 +626,7 @@ Remark
    $$
    where $Q$ is a positive semi-definite matrix and $R$ is a positive definite
    matrix. We make the standard assumption that the primitive random variables
-   $\{x_1, w_1, \dots, w_T, n_1, \dots, n_T \}$ are independent. 
+   $\{s_1, w_1, \dots, w_T, n_1, \dots, n_T \}$ are independent. 
 
    Show that if the primitive variables are Guassian, then the conditional
    estimate of the state 
@@ -701,8 +644,8 @@ Remark
    a fixed cost). The objective is to identify a maintenance policy to
    minimize the cost of production, inspection, repair, and replacement. 
 
-   Let $τ$ denote the time of last inspection and $X_τ$ denote the state of
-   the machine after inspection, repair, or replacement. Show that $(X_τ,
+   Let $τ$ denote the time of last inspection and $S_τ$ denote the state of
+   the machine after inspection, repair, or replacement. Show that $(S_τ,
    t-τ)$ is an information state.
 
 # References {-}

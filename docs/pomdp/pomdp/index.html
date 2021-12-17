@@ -12,7 +12,7 @@
   
 
   <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
-    src="https://cdn.plot.ly/plotly-basic-latest.min.js">
+    src="https://www.geogebra.org/apps/deployggb.js">
   </script><script type="text/javascript"
     src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
   </script>
@@ -51,41 +51,41 @@
 <div class="h1-title">Theory: Basic model of a POMDP</div>
 
 <p>So far, we have considered a setup where the decision maker perfectly observes the state of the system. In many applications, the decision maker may not directly observe the state of the system but only observe a noisy version of it. Such systems are modeled as partially observable Markov decision processes (POMDPs). We will describe the simplest model of POMDPs, which builds upon the <a href="../../mdp/mdp-functional">model of MDPs descibed earlier</a>.</p>
-<p>We assume that the system has a state <span class="math inline">\(X_t \in \ALPHABET X\)</span>, control input <span class="math inline">\(U_t \in \ALPHABET U\)</span>, and process noise <span class="math inline">\(W_t \in \ALPHABET W\)</span>. The state evolves as <span class="math display">\[\begin{equation} \label{eq:state}
-  X_{t+1} = f_t(X_t, U_t, W_t)
-\end{equation}\]</span> However, unlike the MDP setup, the assumption is that the decision maker does not observe <span class="math inline">\(X_t\)</span>; rather, the observation of the decision maker at time <span class="math inline">\(t\)</span> is given by <span class="math display">\[\begin{equation} \label{eq:obs}
-  Y_t = \ell_t(X_t, N_t)
-\end{equation}\]</span> where <span class="math inline">\(Y_t \in \ALPHABET Y\)</span> is the observation and <span class="math inline">\(N_t \in \ALPHABET N\)</span> is called the observation noise. As in the case of MDPs, we assume that the <em>primitive random varaibles</em> <span class="math inline">\((X_1, W_1, \dots, W_T\)</span>, <span class="math inline">\(N_1, \dots, N_T)\)</span> are defined on a common probability space and are mutually independent. This assumption is critical for the results to go through.</p>
+<p>We assume that the system has a state <span class="math inline">\(S_t \in \ALPHABET S\)</span>, control input <span class="math inline">\(A_t \in \ALPHABET A\)</span>, and process noise <span class="math inline">\(W_t \in \ALPHABET W\)</span>. The state evolves as <span class="math display">\[\begin{equation} \label{eq:state}
+  S_{t+1} = f_t(S_t, A_t, W_t)
+\end{equation}\]</span> However, unlike the MDP setup, the assumption is that the decision maker does not observe <span class="math inline">\(S_t\)</span>; rather, the observation of the decision maker at time <span class="math inline">\(t\)</span> is given by <span class="math display">\[\begin{equation} \label{eq:obs}
+  Y_t = \ell_t(S_t, N_t)
+\end{equation}\]</span> where <span class="math inline">\(Y_t \in \ALPHABET Y\)</span> is the observation and <span class="math inline">\(N_t \in \ALPHABET N\)</span> is called the observation noise. As in the case of MDPs, we assume that the <em>primitive random varaibles</em> <span class="math inline">\((S_1, W_1, \dots, W_T\)</span>, <span class="math inline">\(N_1, \dots, N_T)\)</span> are defined on a common probability space and are mutually independent. This assumption is critical for the results to go through.</p>
 <p>As in the case of MDPs, we assume that the controller can be as sophisticated as we want. It can analyze the entire history of observations and control actions to choose the current control action. Thus, the control action can be written as <span class="math display">\[
-  U_t = g_t(Y_{1:t}, U_{1:t-1}).
+  A_t = π_t(Y_{1:t}, A_{1:t-1}).
 \]</span></p>
-<p>At each time, the system incurs a cost <span class="math inline">\(c_t(X_t, U_t)\)</span> which depends on the current state and the current action. The system operates for a finite horizon <span class="math inline">\(T\)</span> and incurs a total cost <span class="math display">\[
-  \sum_{t=1}^T c_t(X_t, U_t).
+<p>At each time, the system incurs a cost <span class="math inline">\(c_t(S_t, A_t)\)</span> which depends on the current state and the current action. The system operates for a finite horizon <span class="math inline">\(T\)</span> and incurs a total cost <span class="math display">\[
+  \sum_{t=1}^T c_t(S_t, A_t).
 \]</span></p>
-<p>Given the above system model, we want to choose a <em>control strategy</em> <span class="math inline">\(g = (g_1, \dots, g_T)\)</span> to minimize the expected total cost <span class="math display">\[
-  J(g) := \EXP\Bigl[ \sum_{t=1}^T c_t(X_t, U_t) \Bigr].
+<p>Given the above system model, we want to choose a <em>control strategy</em> <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> to minimize the expected total cost <span class="math display">\[
+  J(π) := \EXP\Bigl[ \sum_{t=1}^T c_t(S_t, A_t) \Bigr].
 \]</span> How should we proceed?</p>
-<p>Note that the only difference from the MDP model is decision maker observes <span class="math inline">\(Y_t\)</span> instead of <span class="math inline">\(X_t\)</span>. Apart from this, the other modeling assumptions are the same. So, the conceptual difficulties of the model are the same as that of MDPs:</p>
+<p>Note that the only difference from the MDP model is decision maker observes <span class="math inline">\(Y_t\)</span> instead of <span class="math inline">\(S_t\)</span>. Apart from this, the other modeling assumptions are the same. So, the conceptual difficulties of the model are the same as that of MDPs:</p>
 <blockquote>
-<p>The data <span class="math inline">\((Y_{1:t}, U_{1:t-1})\)</span> available at the controller is increasing with time. Therefore, the number of possible control laws at time <span class="math inline">\(t\)</span> are increasing exponentially with time. How can we search for efficiently search for optimal control strategies?</p>
+<p>The data <span class="math inline">\((Y_{1:t}, A_{1:t-1})\)</span> available at the controller is increasing with time. Therefore, the number of possible control laws at time <span class="math inline">\(t\)</span> are increasing exponentially with time. How can we search for efficiently search for optimal control strategies?</p>
 </blockquote>
 <p>Recall that for MDPs, we first showed that there is no loss of optimality in restricting attention to Markov strategies. That structural result was instrumental in developing an efficient search algorithm (dynamic programming). So, what is the equivalent result for POMDPs?</p>
 <h1 data-number="1" id="history-dependent-dynamic-program"><span class="header-section-number">1</span> History dependent dynamic program</h1>
-<p>Our first step to develop an efficient dynamic programming decomposition is to simply ignore efficiency and develop <em>a</em> dynamic programming decomposition. We start by deriving a recursive formula to compute the performance of a generic history dependent strategy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span>.</p>
+<p>Our first step to develop an efficient dynamic programming decomposition is to simply ignore efficiency and develop <em>a</em> dynamic programming decomposition. We start by deriving a recursive formula to compute the performance of a generic history dependent strategy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>.</p>
 <h2 data-number="1.1" id="performace-of-history-dependent-strategies"><span class="header-section-number">1.1</span> Performace of history-dependent strategies</h2>
-<p>Let <span class="math inline">\(H_t = (Y_{1:t}, U_{1:t-1})\)</span> denote all the information available to the decision maker at time <span class="math inline">\(t\)</span>. Thus, given any history dependent strategy <span class="math inline">\(g\)</span>, we can write <span class="math inline">\(U_t = g_t(H_t)\)</span>. Define <em>the cost-to-go functions</em> as follows: <span class="math display">\[
-  J_t(h_t; g) = \EXP^g\biggl[ \sum_{s=t}^T c_s(X_s, U_s) \biggm| H_t = h_t
+<p>Let <span class="math inline">\(H_t = (Y_{1:t}, A_{1:t-1})\)</span> denote all the information available to the decision maker at time <span class="math inline">\(t\)</span>. Thus, given any history dependent strategy <span class="math inline">\(π\)</span>, we can write <span class="math inline">\(A_t = π_t(H_t)\)</span>. Define <em>the cost-to-go functions</em> as follows: <span class="math display">\[
+  J_t(h_t; π) = \EXP^π\biggl[ \sum_{s=t}^T c_s(S_s, A_s) \biggm| H_t = h_t
   \biggr].
-\]</span> Note that <span class="math inline">\(J_t(h_t; g)\)</span> only depends on the future strategy <span class="math inline">\((g_t, \dots, g_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align*}
-  J_t(h_t; g) &amp;= \EXP^g\biggl[ \sum_{s=t}^T c_s(H_s, g_s(H_s)) \biggm|
+\]</span> Note that <span class="math inline">\(J_t(h_t; π)\)</span> only depends on the future strategy <span class="math inline">\((π_t, \dots, π_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align*}
+  J_t(h_t; π) &amp;= \EXP^π\biggl[ \sum_{s=t}^T c_s(H_s, π_s(H_s)) \biggm|
     H_t = h_t \biggr] \\
-    &amp;\stackrel{(a)}= \EXP^g \biggl[ c_t(h_t, g_t(h_t)) + \EXP^g\biggl[ 
-    \sum_{s=t+1}^T c_s(X_s, g_s(X_s)) \biggm| H_{t+1} \biggr] \biggm| 
+    &amp;\stackrel{(a)}= \EXP^π \biggl[ c_t(h_t, π_t(h_t)) + \EXP^π\biggl[ 
+    \sum_{s=t+1}^T c_s(S_s, π_s(S_s)) \biggm| H_{t+1} \biggr] \biggm| 
     H_t = h_t \biggr]  \\
-    &amp;= \EXP^g[ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid H_t = h_t ],
+    &amp;= \EXP^π[ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid H_t = h_t ],
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the towering property of conditional expectation and the fact that <span class="math inline">\(H_t \subseteq H_{t+1}\)</span>.</p>
 <p>Thus, we can use the following dynamic program to recursively compute the performance of a history-dependent strategy: <span class="math inline">\(J_{T+1}(h_{T+1}) = 0\)</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, <span class="math display">\[
-J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
+J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
   H_t = h_t ].
 \]</span></p>
 <h2 data-number="1.2" id="history-dependent-dynamic-programming-decomposition"><span class="header-section-number">1.2</span> History-dependent dynamic programming decomposition</h2>
@@ -96,11 +96,11 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
 <dd><p>Recursively define _value functions <span class="math inline">\(\{V_t\}_{t = 1}^{T+1}\)</span>, where <span class="math inline">\(V_t \colon \ALPHABET H_t \to \reals\)</span> as follows: <span class="math display">\[\begin{equation}
   V_{T+1}(h_{T+1}) = 0 
 \end{equation}\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>: <span class="math display">\[\begin{align}
-  Q_t(h_t, u_t) &amp;= \EXP[ c_t(X_t, u_t) + V_{t+1}(H_{t+1}) \mid
-  H_t = h_t, U_t = u_t ] \\
-  V_t(h_t) &amp;= \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t)
-\end{align}\]</span> Then, a history-dependent policy <span class="math inline">\(g\)</span> is optimal if and only if it satisfies <span class="math display">\[\begin{equation} \label{eq:history-verification}
-  g_t(h_t) \in \arg \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t).
+  Q_t(h_t, a_t) &amp;= \EXP[ c_t(S_t, a_t) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = a_t ] \\
+  V_t(h_t) &amp;= \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t)
+\end{align}\]</span> Then, a history-dependent policy <span class="math inline">\(π\)</span> is optimal if and only if it satisfies <span class="math display">\[\begin{equation} \label{eq:history-verification}
+  π_t(h_t) \in \arg \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t).
 \end{equation}\]</span></p>
 </dd>
 </dl>
@@ -109,44 +109,44 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
 <div class="highlight">
 <dl>
 <dt><span id="theorem:2"></span><span id="theorem:history-comparison" class="pandoc-numbering-text theorem"><strong>Theorem 2</strong></span></dt>
-<dd><p><strong>(The comparison principle)</strong> For any history-dependent strategy <span class="math inline">\(g\)</span> <span class="math display">\[ J_t(h_t; g) \ge V_t(h_t) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the _future straegy <span class="math inline">\(g_{t:T}\)</span> satisfies the verification step \eqref{eq:history-verification}.</p>
+<dd><p><strong>(The comparison principle)</strong> For any history-dependent strategy <span class="math inline">\(π\)</span> <span class="math display">\[ J_t(h_t; π) \ge V_t(h_t) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future</em> straegy <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step \eqref{eq:history-verification}.</p>
 </dd>
 </dl>
 </div>
 <p>Note that the comparison principle immediately implies that the strategy obtained using dynamic program of <a href="#theorem:history-dp" title="Theorem 1"><span class="pandoc-numbering-link theorem">Theorem 1</span></a> is optimal. The proof of the comparison principle is almost identical to the proof for MDPs.</p>
 <h4 class="unnumbered" id="proof-of-the-comparison-principle">Proof of the comparison principle</h4>
-<p>The proof proceeds by backward induction. Consider any history dependent policy <span class="math inline">\(g = (g_1, \dots, g_T)\)</span>. For <span class="math inline">\(t = T+1\)</span>, the comparison principle is satisfied by definition and this forms the basis of induction. We assume that the result holds for time <span class="math inline">\(t+1\)</span>, which is the induction hypothesis. Then for time <span class="math inline">\(t\)</span>, we have <span class="math display">\[\begin{align*}
-  V_t(h_t) &amp;= \min_{u_t \in \ALPHABET U} Q_t(h_t, u_t) \\
-  &amp;\stackrel{(a)}= \min_{u_t \in \ALPHABET U}
-   \EXP^g[ c_t(X_t, g_t(h_t)) + V_{t+1}(H_{t+1}) \mid
-  H_t = h_t, U_t = g_t(h_t) ] 
+<p>The proof proceeds by backward induction. Consider any history dependent policy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>. For <span class="math inline">\(t = T+1\)</span>, the comparison principle is satisfied by definition and this forms the basis of induction. We assume that the result holds for time <span class="math inline">\(t+1\)</span>, which is the induction hypothesis. Then for time <span class="math inline">\(t\)</span>, we have <span class="math display">\[\begin{align*}
+  V_t(h_t) &amp;= \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t) \\
+  &amp;\stackrel{(a)}= \min_{a_t \in \ALPHABET A}
+   \EXP^π[ c_t(S_t, π_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = π_t(h_t) ] 
   \\
   &amp;\stackrel{(b)}\le 
-   \EXP^g[ c_t(X_t, g_t(h_t)) + V_{t+1}(H_{t+1}) \mid
-  H_t = h_t, U_t = g_t(h_t)] 
+   \EXP^π[ c_t(S_t, π_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = π_t(h_t)] 
   \\
   &amp;\stackrel{(c)}\le
-   \EXP^g[ c_t(X_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
-  H_t = h_t, U_t = g_t(h_t)] 
+   \EXP^π[ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
+  H_t = h_t, A_t = π_t(h_t)] 
   \\
-  &amp;= J_t(h_t, g).
-\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the definition of the <span class="math inline">\(Q\)</span>-function; <span class="math inline">\((b)\)</span> follows from the definition of minimization; and <span class="math inline">\((c)\)</span> follows from the induction hyothesis. We have the equality at step <span class="math inline">\((b)\)</span> iff <span class="math inline">\(g_t\)</span> satisfies the verification step \eqref{eq:history-verification} and have the equality in step <span class="math inline">\((c)\)</span> iff <span class="math inline">\(g_{t+1:T}\)</span> is optimal (this is part of the induction hypothesis). Thus, the result is true for time <span class="math inline">\(t\)</span> and, by the principle of induction, is true for all time. <span class="math inline">\(\Box\)</span></p>
+  &amp;= J_t(h_t, π).
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the definition of the <span class="math inline">\(Q\)</span>-function; <span class="math inline">\((b)\)</span> follows from the definition of minimization; and <span class="math inline">\((c)\)</span> follows from the induction hyothesis. We have the equality at step <span class="math inline">\((b)\)</span> iff <span class="math inline">\(π_t\)</span> satisfies the verification step \eqref{eq:history-verification} and have the equality in step <span class="math inline">\((c)\)</span> iff <span class="math inline">\(π_{t+1:T}\)</span> is optimal (this is part of the induction hypothesis). Thus, the result is true for time <span class="math inline">\(t\)</span> and, by the principle of induction, is true for all time. <span class="math inline">\(\Box\)</span></p>
 <h1 data-number="2" id="the-notion-of-an-information-state"><span class="header-section-number">2</span> The notion of an information state</h1>
 <p>Now that we have obtained a dynamic programming decomposition, let’s try to simplify it. To do so, we define the notion of an <em>information state</em>.</p>
 <p>A stochastic process <span class="math inline">\(\{Z_t\}_{t = 1}^T\)</span>, <span class="math inline">\(Z_t \in \ALPHABET Z\)</span>, is called an <em>information state</em> if <span class="math inline">\(Z_t\)</span> be a function of <span class="math inline">\(H_t\)</span> (which we denote by <span class="math inline">\(Z_t = φ_t(H_t)\)</span>) and satisfies the following two properties:</p>
-<p><strong>P1. Sufficient for performance evaluation</strong>, i.e., <span class="math display">\[ \EXP^g[ c_t(X_t, U_t) \mid H_t = h_t, U_t = u_t] 
-    =  \EXP[ c_t(X_t, U_t) \mid Z_t = φ_t(h_t), U_t = u_t ] \]</span></p>
-<p><strong>P2. Sufficient to predict itself</strong>, i.e., for any Borel measurable subset <span class="math inline">\(B\)</span> of <span class="math inline">\(\ALPHABET Z\)</span>, we have <span class="math display">\[ \PR^g(Z_{t+1} \in B \mid H_t = h_t, U_t = u_t) = 
-       \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), U_t = u_t).
+<p><strong>P1. Sufficient for performance evaluation</strong>, i.e., <span class="math display">\[ \EXP^π[ c_t(S_t, A_t) \mid H_t = h_t, A_t = a_t] 
+    =  \EXP[ c_t(S_t, A_t) \mid Z_t = φ_t(h_t), A_t = a_t ] \]</span></p>
+<p><strong>P2. Sufficient to predict itself</strong>, i.e., for any Borel measurable subset <span class="math inline">\(B\)</span> of <span class="math inline">\(\ALPHABET Z\)</span>, we have <span class="math display">\[ \PR^π(Z_{t+1} \in B \mid H_t = h_t, A_t = a_t) = 
+       \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), A_t = a_t).
     \]</span></p>
 <p>Instead of (P2), the following sufficient conditions are easier to verify in some models:</p>
-<p><strong>P2a. Evolves in a state-like manner</strong>, i.e., there exist measurable functions <span class="math inline">\(\{ψ_t\}_{t=1}^T\)</span> such that <span class="math display">\[ Z_{t+1} = ψ_t(Z_t, Y_{t+1}, U_t). \]</span></p>
-<p><strong>P2b. Is sufficient for predicting future observations</strong>, i.e., for any Borel subset <span class="math inline">\(B\)</span> of <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math display">\[ \PR^g(Y_{t+1} \in B | H_t = h_t, U_t = u_t) = 
-        \PR(Y_{t+1} \in B | Z_t = φ_t(h_t), U_t = u_t). 
+<p><strong>P2a. Evolves in a state-like manner</strong>, i.e., there exist measurable functions <span class="math inline">\(\{ψ_t\}_{t=1}^T\)</span> such that <span class="math display">\[ Z_{t+1} = ψ_t(Z_t, Y_{t+1}, A_t). \]</span></p>
+<p><strong>P2b. Is sufficient for predicting future observations</strong>, i.e., for any Borel subset <span class="math inline">\(B\)</span> of <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math display">\[ \PR^π(Y_{t+1} \in B | H_t = h_t, A_t = a_t) = 
+        \PR(Y_{t+1} \in B | Z_t = φ_t(h_t), A_t = a_t). 
      \]</span></p>
 <dl>
 <dt>Remark</dt>
-<dd><p>The right hand sides of (P1) and (P2) as well as (P2a) and (P2b) do not depend on the choice of the policy <span class="math inline">\(g\)</span>.</p>
+<dd><p>The right hand sides of (P1) and (P2) as well as (P2a) and (P2b) do not depend on the choice of the policy <span class="math inline">\(π\)</span>.</p>
 </dd>
 </dl>
 <div class="highlight">
@@ -156,21 +156,21 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
 </dd>
 </dl>
 </div>
-<h3 data-number="2.0.1" id="proof"><span class="header-section-number">2.0.1</span> Proof</h3>
+<h4 class="unnumbered" id="proof">Proof</h4>
 <p>For any Borel measurable subset <span class="math inline">\(B\)</span> of <span class="math inline">\(\ALPHABET Z\)</span>, we have <span class="math display">\[\begin{align*}
   \hskip 1em &amp; \hskip -1em 
-  \PR(Z_{t+1} \in B \mid H_t = h_t, U_t = u_t)  
+  \PR(Z_{t+1} \in B \mid H_t = h_t, A_t = a_t)  
   \stackrel{(a)}= \sum_{y_{t+1} \in \ALPHABET Y} \PR(Y_{t+1} = y_{t+1}, Z_{t+1} \in B
-  \mid H_t = h_t, U_t = u_t ] 
+  \mid H_t = h_t, A_t = a_t ] 
   \\
-  &amp;\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, u_t) \}
-  \PR(Y_{t+1} = y_{t+1} \mid H_t = h_t, U_t = u_t) 
+  &amp;\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \}
+  \PR(Y_{t+1} = y_{t+1} \mid H_t = h_t, A_t = a_t) 
   \\
-  &amp;\stackrel{(c)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, u_t) \}
-  \PR(Y_{t+1} = y_{t+1} \mid Z_t = φ_t(h_t), U_t = u_t) 
+  &amp;\stackrel{(c)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \}
+  \PR(Y_{t+1} = y_{t+1} \mid Z_t = φ_t(h_t), A_t = a_t) 
   \\
   &amp;\stackrel{(d)}=
-  \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), U_t = u_t)  
+  \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), A_t = a_t)  
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the law of total probability, <span class="math inline">\((b)\)</span> follows from (P2a), <span class="math inline">\((c)\)</span> follows from (P2b), and <span class="math inline">\((d)\)</span> from the law of total probability.</p>
 <hr />
 <h2 data-number="2.1" id="examples-of-an-information-state"><span class="header-section-number">2.1</span> Examples of an information state</h2>
@@ -182,84 +182,84 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
 </dd>
 </dl>
 </div>
-<p>To establish this result, we define the <em>belief state</em> <span class="math inline">\(π_t \in Δ(\ALPHABET X)\)</span> as follows: for any <span class="math inline">\(x \in \ALPHABET X\)</span> <span class="math display">\[ π_t(x) = \PR^g(X_t = x \mid H_t = h_t). \]</span> The belief state is a function of the history <span class="math inline">\(h_t\)</span>. When we want to explicitly show the dependence of <span class="math inline">\(π_t\)</span> on <span class="math inline">\(h_t\)</span>, we write it as <span class="math inline">\(π_t[h_t]\)</span>.</p>
+<p>To establish this result, we define the <em>belief state</em> <span class="math inline">\(b_t \in Δ(\ALPHABET S)\)</span> as follows: for any <span class="math inline">\(s \in \ALPHABET S\)</span> <span class="math display">\[ b_t(s) = \PR^π(S_t = s \mid H_t = h_t). \]</span> The belief state is a function of the history <span class="math inline">\(h_t\)</span>. When we want to explicitly show the dependence of <span class="math inline">\(b_t\)</span> on <span class="math inline">\(h_t\)</span>, we write it as <span class="math inline">\(b_t[h_t]\)</span>.</p>
 <div class="highlight">
 <dl>
 <dt><span id="lemma:1"></span><span id="lemma:belief-independence" class="pandoc-numbering-text lemma"><strong>Lemma 1</strong></span></dt>
-<dd><p>The belief state <span class="math inline">\(π_t\)</span> does not depend on the policy <span class="math inline">\(g\)</span>.</p>
+<dd><p>The belief state <span class="math inline">\(b_t\)</span> does not depend on the policy <span class="math inline">\(π\)</span>.</p>
 </dd>
 </dl>
 </div>
 <p>This is an extremely important result which has wide-ranging implications in stochastic control. For a general discussion of this point, see <span class="citation" data-cites="Witsenhausen1975"><a href="#ref-Witsenhausen1975" role="doc-biblioref">Witsenhausen</a> (<a href="#ref-Witsenhausen1975" role="doc-biblioref">1975</a>)</span>.</p>
-<h3 data-number="2.1.1" id="proof-of-lemmabelief-independence"><span class="header-section-number">2.1.1</span> Proof of <a href="#lemma:belief-independence" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a></h3>
+<h4 class="unnumbered" id="proof-of-lemmabelief-independence">Proof of <a href="#lemma:belief-independence" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a></h4>
 <p>From the law of total probability and Bayes rule, we have <span class="math display">\[\begin{equation} \label{eq:belief}
-  \PR(x_t | y_{1:t}, u_{1:t-1}) 
-  = \sum_{x_{1:t-1}} \PR(x_{1:t} | y_{1:t}, u_{1:t-1}) 
-  = \sum_{x_{1:t-1}}
-   \frac{\PR(x_{1:t}, y_{1:t}, u_{1:t-1})}
-   {\sum_{x&#39;_{1:t}} \PR(x&#39;_{1:t}, y_{1:t}, u_{1:t-1})}
+  \PR(s_t | y_{1:t}, a_{1:t-1}) 
+  = \sum_{s_{1:t-1}} \PR(s_{1:t} | y_{1:t}, a_{1:t-1}) 
+  = \sum_{s_{1:t-1}}
+   \frac{\PR(s_{1:t}, y_{1:t}, a_{1:t-1})}
+   {\sum_{s&#39;_{1:t}} \PR(s&#39;_{1:t}, y_{1:t}, a_{1:t-1})}
 \end{equation}\]</span></p>
 <p>Now consider <span class="math display">\[\begin{align*}
-  \PR(x_{1:t}, y_{1:t}, u_{1:t-1}) &amp;=
-  \PR(x_1) \PR(y_1 | x_1) \IND\{ u_1 = g_1(y_1) \} \\
+  \PR(s_{1:t}, y_{1:t}, a_{1:t-1}) &amp;=
+  \PR(s_1) \PR(y_1 | s_1) \IND\{ a_1 = π_1(y_1) \} \\
   &amp; \times
-  \PR(x_2 | x_1, u_1) \PR(y_2 | x_2) \IND \{ u_2 = g_2(y_{1:2}, u_1)\} \\
+  \PR(s_2 | s_1, a_1) \PR(y_2 | s_2) \IND \{ a_2 = π_2(y_{1:2}, a_1)\} \\
   &amp; \times \cdots \\
   &amp; \times
-  \PR(x_{t-1} | x_{t-2}, u_{t-2}) \PR(y_{t-1} | x_{t-1}) \IND \{ u_{t-1} =
-  g_{t-1}(y_{1:t-1}, u_{1:t-2}) \} \\
+  \PR(s_{t-1} | s_{t-2}, a_{t-2}) \PR(y_{t-1} | s_{t-1}) \IND \{ a_{t-1} =
+  π_{t-1}(y_{1:t-1}, a_{1:t-2}) \} \\
   &amp; \times
-  \PR(x_{t} | x_{t-1}, u_{t-1}) \PR(y_{t} | x_{t}).
-\end{align*}\]</span> Substitute the above expression in both the numerator and the denominator of \eqref{eq:belief}. Observe that the terms of the form <span class="math inline">\(\IND\{ u_s = g_s(y_{1:s}, u_{1:s-1})\)</span> are common to both the numerator and the denominator and cancel each other. Thus, <span class="math display">\[\begin{equation} \label{eq:belief-fn}
-  \PR(x_t | y_{1:t}, u_{1:t-1}) = \sum_{x_{1:t-1}}
-  \frac{ \prod_{s=1}^t \PR(x_s \mid x_{s-1}, u_{s-1}) \PR(y_s \mid x_s) }
-  { \sum_{x&#39;_{1:t}} \prod_{s=1}^t \PR(x&#39;_s \mid x&#39;_{s-1}, u_{s-1}) \PR(y_s \mid x&#39;_s) }.
-\end{equation}\]</span> None of the terms here depend on the policy <span class="math inline">\(g\)</span>. Hence, the belief state does not depend on the policy <span class="math inline">\(g\)</span>. <span class="math inline">\(\Box\)</span></p>
+  \PR(s_{t} | s_{t-1}, a_{t-1}) \PR(y_{t} | s_{t}).
+\end{align*}\]</span> Substitute the above expression in both the numerator and the denominator of \eqref{eq:belief}. Observe that the terms of the form <span class="math inline">\(\IND\{ a_s = π_s(y_{1:s}, a_{1:s-1})\)</span> are common to both the numerator and the denominator and cancel each other. Thus, <span class="math display">\[\begin{equation} \label{eq:belief-fn}
+  \PR(s_t | y_{1:t}, a_{1:t-1}) = \sum_{s_{1:t-1}}
+  \frac{ \prod_{s=1}^t \PR(s_s \mid s_{s-1}, a_{s-1}) \PR(y_s \mid s_s) }
+  { \sum_{s&#39;_{1:t}} \prod_{s=1}^t \PR(s&#39;_s \mid s&#39;_{s-1}, a_{s-1}) \PR(y_s \mid s&#39;_s) }.
+\end{equation}\]</span> None of the terms here depend on the policy <span class="math inline">\(π\)</span>. Hence, the belief state does not depend on the policy <span class="math inline">\(π\)</span>. <span class="math inline">\(\Box\)</span></p>
 <h4 class="unnumbered" id="proof-of-examplehistory">Proof of <a href="#example:history" title="Example 1"><span class="pandoc-numbering-link example">Example 1</span></a></h4>
 <p>We will prove that <span class="math inline">\(Z_t = H_t\)</span> satisfies properties (P1), (P2a), and (P2b).</p>
-<p>P1. <span class="math inline">\(\displaystyle \EXP^g[ c_t(X_t, U_t) | H_t = h_t, U_t = u_t ] = \sum_{x_t \in \ALPHABET X} c_t(x_t, u_t) π_t[h_t](x_t)\)</span>.</p>
-<p>P2a. <span class="math inline">\(H_{t+1} = (H_t, Y_{t+1}, U_t)\)</span></p>
-<p>P2b. <span class="math inline">\(\displaystyle \PR^g(y_{t+1} | y_{1:t}, u_{1:t}) = \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR( x_{t+1} | x_t, u_t) \PR(x_t | y_{1:t}, u_{1:t})\)</span>. Note that in the last term <span class="math inline">\(\PR^g(x_t | y_{1:t}, u_{1:t})\)</span> we can drop <span class="math inline">\(u_t\)</span> from the conditioning because it is a function of <span class="math inline">\((y_{1:t}, u_{1:t-1})\)</span>. Thus, <span class="math display">\[ \PR^g(x_t | y_{1:t}, u_{1:t}) = \PR^g(x_t | y_{1:t}, u_{1:t-1}) =
-π_t[h_t](x_t).\]</span> Thus, <span class="math inline">\(\displaystyle \PR^g(y_{t+1} | y_{1:t}, u_{1:t}) = \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR( x_{t+1} | x_t, u_t) π_t[h_t](x_t)\)</span>.</p>
+<p>P1. <span class="math inline">\(\displaystyle \EXP^π[ c_t(S_t, A_t) | H_t = h_t, A_t = a_t ] = \sum_{s_t \in \ALPHABET S} c_t(s_t, a_t) b_t[h_t](s_t)\)</span>.</p>
+<p>P2a. <span class="math inline">\(H_{t+1} = (H_t, Y_{t+1}, A_t)\)</span></p>
+<p>P2b. <span class="math inline">\(\displaystyle \PR^π(y_{t+1} | y_{1:t}, a_{1:t}) = \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR( s_{t+1} | s_t, a_t) \PR(s_t | y_{1:t}, a_{1:t})\)</span>. Note that in the last term <span class="math inline">\(\PR^π(s_t | y_{1:t}, a_{1:t})\)</span> we can drop <span class="math inline">\(a_t\)</span> from the conditioning because it is a function of <span class="math inline">\((y_{1:t}, a_{1:t-1})\)</span>. Thus, <span class="math display">\[ \PR^π(s_t | y_{1:t}, a_{1:t}) = \PR^π(s_t | y_{1:t}, a_{1:t-1}) =
+b_t[h_t](s_t).\]</span> Thus, <span class="math inline">\(\displaystyle \PR^π(y_{t+1} | y_{1:t}, a_{1:t}) = \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR( s_{t+1} | s_t, a_t) b_t[h_t](s_t)\)</span>.</p>
 <div class="highlight">
 <dl>
 <dt><span id="example:2"></span><span id="example:belief" class="pandoc-numbering-text example"><strong>Example 2</strong></span></dt>
-<dd><p>The belief state <span class="math inline">\(π_t\)</span> is an information state.</p>
+<dd><p>The belief state <span class="math inline">\(b_t\)</span> is an information state.</p>
 </dd>
 </dl>
 </div>
 <h4 class="unnumbered" id="proof-1">Proof</h4>
-<p>The belief state <span class="math inline">\(π_t\)</span> is a function of the history <span class="math inline">\(h_t\)</span>. (The exact form of this function is given by \eqref{eq:belief-fn}). In the proof of <a href="#example:history" title="Example 1"><span class="pandoc-numbering-link example">Example 1</span></a>, we have already shown that <span class="math inline">\(π_t\)</span> satisfies (P1) and (P2b). So, we only need to show that <span class="math inline">\(π_t\)</span> satisfies (P2a). This can be shown as follows, which is a standard result in non-linear filtering.</p>
+<p>The belief state <span class="math inline">\(b_t\)</span> is a function of the history <span class="math inline">\(h_t\)</span>. (The exact form of this function is given by \eqref{eq:belief-fn}). In the proof of <a href="#example:history" title="Example 1"><span class="pandoc-numbering-link example">Example 1</span></a>, we have already shown that <span class="math inline">\(b_t\)</span> satisfies (P1) and (P2b). So, we only need to show that <span class="math inline">\(b_t\)</span> satisfies (P2a). This can be shown as follows, which is a standard result in non-linear filtering.</p>
 <div class="highlight">
 <dl>
 <dt><span id="lemma:2"></span><span id="lemma:belief-update" class="pandoc-numbering-text lemma"><strong>Lemma 2</strong></span></dt>
-<dd><p>The belief state <span class="math inline">\(π_t\)</span> updates in a state like manner. In particular, for any <span class="math inline">\(x_{t+1} \in \ALPHABET X\)</span>, we have <span class="math display">\[
-  π_{t+1}(x_{t+1}) = \sum_{x_t \in \ALPHABET X}
-  \frac{ \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
-   { \sum_{x&#39;_{t:t+1}} \PR(y_{t+1} | x&#39;_{t+1}) \PR(x&#39;_{t+1} | x&#39;_t, u_t) π_t(x&#39;_t) }.
+<dd><p>The belief state <span class="math inline">\(b_t\)</span> updates in a state like manner. In particular, for any <span class="math inline">\(s_{t+1} \in \ALPHABET S\)</span>, we have <span class="math display">\[
+  b_{t+1}(s_{t+1}) = \sum_{s_t \in \ALPHABET S}
+  \frac{ \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+   { \sum_{s&#39;_{t:t+1}} \PR(y_{t+1} | s&#39;_{t+1}) \PR(s&#39;_{t+1} | s&#39;_t, a_t) b_t(s&#39;_t) }.
 \]</span></p>
 </dd>
 </dl>
 </div>
 <h4 class="unnumbered" id="proof-of-lemmabelief-update">Proof of <a href="#lemma:belief-update" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a></h4>
-<p>For any <span class="math inline">\(x_{t+1} \in \ALPHABET X\)</span>, consider</p>
+<p>For any <span class="math inline">\(s_{t+1} \in \ALPHABET S\)</span>, consider</p>
 <p><span class="math display">\[\begin{align}
-π_{t+1}(x_{t+1}) &amp;= \PR(x_{t+1} | y_{1:t+1}, u_{1:t}) \notag \\
-&amp;= \sum_{x_t} \PR(x_{t:t+1} | y_{1:t+1}, u_{1:t}) \notag \\
-&amp;= \sum_{x_t} \frac{ \PR(x_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) }
-  {\sum_{x&#39;_{t:t+1}}\PR(x&#39;_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) }.
+b_{t+1}(s_{t+1}) &amp;= \PR(s_{t+1} | y_{1:t+1}, a_{1:t}) \notag \\
+&amp;= \sum_{s_t} \PR(s_{t:t+1} | y_{1:t+1}, a_{1:t}) \notag \\
+&amp;= \sum_{s_t} \frac{ \PR(s_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) }
+  {\sum_{s&#39;_{t:t+1}}\PR(s&#39;_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) }.
 \label{eq:update-1}
 \end{align}\]</span></p>
 <p>Now consider <span class="math display">\[\begin{align}
 \hskip 1em &amp; \hskip -1em 
-\PR(x_{t:t+1}, y_{t+1}, u_t | y_{1:t}, u_{1:t-1}) \notag \\
-&amp;= \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) 
-   \IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}
-   \PR(x_t | y_{1:t}, u_{1_t-1}) \notag \\
-&amp;= \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) 
-   \IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}
-   π_t(x_t). \label{eq:belief-2}
-\end{align}\]</span> Substitute the above expression in both the numerator and the denominator of \eqref{eq:update-1}. Observe that <span class="math inline">\(\IND\{ u_t = g_t(y_{1:t}, u_{1:t-1}) \}\)</span> is common to both the numerator and the denominator and cancels out. Thus, we get the result of the lemma. <span class="math inline">\(\Box\)</span></p>
+\PR(s_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) \notag \\
+&amp;= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) 
+   \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
+   \PR(s_t | y_{1:t}, a_{1_t-1}) \notag \\
+&amp;= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) 
+   \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
+   b_t(s_t). \label{eq:belief-2}
+\end{align}\]</span> Substitute the above expression in both the numerator and the denominator of \eqref{eq:update-1}. Observe that <span class="math inline">\(\IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}\)</span> is common to both the numerator and the denominator and cancels out. Thus, we get the result of the lemma. <span class="math inline">\(\Box\)</span></p>
 <dl>
 <dt>Remark</dt>
 <dd><p>Both the above information states are generic information states which work for all models. For specific models, it is possible to identify other information states as well. We present some examples of such an information state below.</p>
@@ -268,58 +268,58 @@ J_t(h_t; g) = \EXP^g [ c_t(h_t, g_t(h_t)) + J_{t+1}(H_{t+1}; g) \mid
 <div class="highlight">
 <dl>
 <dt><span id="example:3"></span><span id="example:mdp" class="pandoc-numbering-text example"><strong>Example 3</strong></span></dt>
-<dd><p>An MDP is a special case of a POMDP where <span class="math inline">\(Y_t = X_t\)</span>. For an MDP <span class="math inline">\(Z_t = X_t\)</span> is an information state.</p>
+<dd><p>An MDP is a special case of a POMDP where <span class="math inline">\(Y_t = S_t\)</span>. For an MDP <span class="math inline">\(Z_t = S_t\)</span> is an information state.</p>
 </dd>
 </dl>
 </div>
 <h4 class="unnumbered" id="proof-2">Proof</h4>
-<p>We will show that <span class="math inline">\(Z_t = X_t\)</span> satisfies (P1) and (P2).</p>
-<p>(P1) is satisfied because the per-step cost is a function of the <span class="math inline">\((X_t, U_t)\)</span>. (P2) is equivalent to the control Markov property. <span class="math inline">\(\Box\)</span></p>
+<p>We will show that <span class="math inline">\(Z_t = S_t\)</span> satisfies (P1) and (P2).</p>
+<p>(P1) is satisfied because the per-step cost is a function of the <span class="math inline">\((S_t, A_t)\)</span>. (P2) is equivalent to the control Markov property. <span class="math inline">\(\Box\)</span></p>
 <h1 data-number="3" id="information-state-based-dynamic-program"><span class="header-section-number">3</span> Information state based dynamic program</h1>
 <p>The main feature of an information state is that one can always write a dynamic program based on an information state.</p>
 <div class="highlight">
 <dl>
 <dt><span id="theorem:3"></span><span id="theorem:info-state" class="pandoc-numbering-text theorem"><strong>Theorem 3</strong></span></dt>
 <dd><p>Let <span class="math inline">\(\{Z_t\}_{t=1}^T\)</span> be any information state, where <span class="math inline">\(Z_t = φ_t(H_t)\)</span>. Recursively define value functions <span class="math inline">\(\{ \hat V_t \}_{t=1}^T\)</span>, where <span class="math inline">\(\hat V_t  \colon \ALPHABET Z \to \reals\)</span>, as follows: <span class="math display">\[ \hat V_{T+1}(z_{T+1}) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>: <span class="math display">\[\begin{align}
-\hat Q_t(z_t, u_t) &amp;= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}(Z_{t+1}) \mid
-Z_t = z_t, U_t = u_t] \\
-\hat V_t(z_t) &amp;= \min_{u_t \in \ALPHABET U} \hat Q_t(z_t, u_t).
-  \end{align}\]</span> Then, we have the following: for any <span class="math inline">\(h_t\)</span> and <span class="math inline">\(u_t\)</span>, <span class="math display">\[\begin{equation} \label{eq:history-info}
-Q_t(h_t, u_t) = \hat Q_t(φ_t(h_t), u_t)
+\hat Q_t(z_t, a_t) &amp;= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}(Z_{t+1}) \mid
+Z_t = z_t, A_t = a_t] \\
+\hat V_t(z_t) &amp;= \min_{a_t \in \ALPHABET A} \hat Q_t(z_t, a_t).
+  \end{align}\]</span> Then, we have the following: for any <span class="math inline">\(h_t\)</span> and <span class="math inline">\(a_t\)</span>, <span class="math display">\[\begin{equation} \label{eq:history-info}
+Q_t(h_t, a_t) = \hat Q_t(φ_t(h_t), a_t)
 \quad\text{and}\quad
 V_t(h_t) = \hat V_t(φ_t(h_t)).
-  \end{equation}\]</span> Any stategy <span class="math inline">\(\hat g = (\hat g_1, \dots, \hat g_T)\)</span>, where <span class="math inline">\(\hat g_t \colon  \ALPHABET Z \to \ALPHABET U\)</span>, is optimal if and only if <span class="math display">\[\begin{equation}\label{eq:info-verification}
-  \hat g_t(z_t) \in \arg\min_{u_t \in \ALPHABET U} \hat Q_t(z_t, u_t).
+  \end{equation}\]</span> Any stategy <span class="math inline">\(\hat π = (\hat π_1, \dots, \hat π_T)\)</span>, where <span class="math inline">\(\hat π_t \colon  \ALPHABET Z \to \ALPHABET A\)</span>, is optimal if and only if <span class="math display">\[\begin{equation}\label{eq:info-verification}
+  \hat π_t(z_t) \in \arg\min_{a_t \in \ALPHABET A} \hat Q_t(z_t, a_t).
   \end{equation}\]</span></p>
 </dd>
 </dl>
 </div>
 <h4 class="unnumbered" id="proof-3">Proof</h4>
 <p>As usual, we prove the result by backward induction. By constuction, Eq. \eqref{eq:history-info} is true at time <span class="math inline">\(T+1\)</span>. This forms the basis of induction. Now assume that \eqref{eq:history-info} is true at time <span class="math inline">\(t+1\)</span> and consider the system at time <span class="math inline">\(t\)</span>. Then, <span class="math display">\[\begin{align*}
-Q_t(h_t, u_t) &amp;= \EXP[ c_t(X_t, U_t) + V_{t+1}(H_{t+1}) | H_t = h_t, U_t = u_t
+Q_t(h_t, a_t) &amp;= \EXP[ c_t(S_t, A_t) + V_{t+1}(H_{t+1}) | H_t = h_t, A_t = a_t
 ] \\
-&amp;\stackrel{(a)}= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | H_t =
-h_t, U_t = u_t ]  \\
-&amp;\stackrel{(b)}= \EXP[ c_t(X_t, U_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | Z_t =
-φ_t(h_t), U_t = u_t ]  \\
-&amp;\stackrel{(c)}= \hat Q_t(φ_t(h_t), u_t),
+&amp;\stackrel{(a)}= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | H_t =
+h_t, A_t = a_t ]  \\
+&amp;\stackrel{(b)}= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | Z_t =
+φ_t(h_t), A_t = a_t ]  \\
+&amp;\stackrel{(c)}= \hat Q_t(φ_t(h_t), a_t),
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the induction hypothesis, <span class="math inline">\((b)\)</span> follows from the properties (P1) and (P2) of the information state, and <span class="math inline">\((c)\)</span> follows from the definition of <span class="math inline">\(\hat Q_t\)</span>. This shows that the action value functions are equal. By minimizing over the actions, we get that the value functions are also equal. <span class="math inline">\(\Box\)</span></p>
 <h1 data-number="4" id="belief-state-based-dynamic-program"><span class="header-section-number">4</span> Belief state based dynamic program</h1>
-<p>As shown in <a href="#example:belief" title="Example 2"><span class="pandoc-numbering-link example">Example 2</span></a>, the belief state <span class="math inline">\(π_t\)</span> is an information state. Therefore, <a href="#theorem:info-state" title="Theorem 3"><span class="pandoc-numbering-link theorem">Theorem 3</span></a> implies that we can write a dynamic program based on <span class="math inline">\(π_t\)</span>. This is an important and commonly used formulation, so we study it separately and present some properties of the value functions. The belief state based dynamic program is given by: <span class="math inline">\(V_{T+1}(π_{T+1}) = 0\)</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, <span class="math display">\[
-  Q_t(π_t, u_t) = 
-  \EXP [ c_t(X_t, U_t) + V_{t+1}(Π_{t+1}) \mid Π_t = π_t, U_t = u_t ].
-\]</span> and <span class="math display">\[ V_t(π_t) = \min_{u_t \in \ALPHABET U} Q_t(π_t, u_t). \]</span></p>
-<p>Define <span class="math display">\[ \PR(y_{t+1} | π_t, u_t) = 
-   \sum_{x_{t:t+1}} \PR(y_{t+1} | x_{t+1}) \PR(x_{t+1} | x_t, u_t) π_t(x_t).
+<p>As shown in <a href="#example:belief" title="Example 2"><span class="pandoc-numbering-link example">Example 2</span></a>, the belief state <span class="math inline">\(b_t\)</span> is an information state. Therefore, <a href="#theorem:info-state" title="Theorem 3"><span class="pandoc-numbering-link theorem">Theorem 3</span></a> implies that we can write a dynamic program based on <span class="math inline">\(b_t\)</span>. This is an important and commonly used formulation, so we study it separately and present some properties of the value functions. The belief state based dynamic program is given by: <span class="math inline">\(V_{T+1}(b_{T+1}) = 0\)</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, <span class="math display">\[
+  Q_t(b_t, a_t) = 
+  \EXP [ c_t(S_t, A_t) + V_{t+1}(B_{t+1}) \mid B_t = b_t, A_t = a_t ].
+\]</span> and <span class="math display">\[ V_t(b_t) = \min_{a_t \in \ALPHABET A} Q_t(b_t, a_t). \]</span></p>
+<p>Define <span class="math display">\[ \PR(y_{t+1} | b_t, a_t) = 
+   \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) b_t(s_t).
 \]</span> Then, the belief update expression in <a href="#lemma:belief-update" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a> can be written as: <span class="math display">\[
-  π_{t+1}(x_{t+1}) = 
-  \frac{ \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
-  { \PR(y_{t+1} | π_t, u_t) }.
-\]</span> For the ease of notation, we write this expression as <span class="math inline">\(π_{t+1} = ψ(π_t, y_{t+1}, u_t)\)</span>.<br />
+  b_{t+1}(s_{t+1}) = 
+  \frac{ \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+  { \PR(y_{t+1} | b_t, a_t) }.
+\]</span> For the ease of notation, we write this expression as <span class="math inline">\(b_{t+1} = ψ(b_t, y_{t+1}, a_t)\)</span>.<br />
 <span class="math display">\[\begin{align*}
-  Q_t(π_t, u_t) &amp;= \sum_{x_t \in \ALPHABET X} c_t(x_t, u_t) π_t(x_t) \\
-  &amp; \quad +  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
-  V_{t+1}( φ(π_t, y_{t+1}, u_t) ).
+  Q_t(b_t, a_t) &amp;= \sum_{s_t \in \ALPHABET S} c_t(s_t, a_t) b_t(s_t) \\
+  &amp; \quad +  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
+  V_{t+1}( φ(b_t, y_{t+1}, a_t) ).
 \end{align*}\]</span></p>
 <p>A key property of the belief-state based value functions is the following.</p>
 <div class="highlight">
@@ -330,129 +330,71 @@ h_t, U_t = u_t ]  \\
 </dl>
 </div>
 <h4 class="unnumbered" id="proof-4">Proof</h4>
-<p>As usual, we prove the result using backward induction. For any <span class="math inline">\(u_T\)</span>, <span class="math display">\[ Q_T(π_T, u_T) = \sum_{x_T \in \ALPHABET X} c_T(x_T, u_T) π_T(x_T) \]</span> is linear in <span class="math inline">\(π_T\)</span>. Therefore, <span class="math display">\[ V_T(π_T) = \min_{u_T \in \ALPHABET U} Q_T(π_T, u_T) \]</span> is the minimum of a finite number of linear functions. Hence <span class="math inline">\(V_T(π_T)\)</span> is piecewise linear and concave.</p>
-<div class="flex">
-<div id="V_T" style="width:400px; height:250px;">
+<p>As usual, we prove the result using backward induction. For any <span class="math inline">\(a_T\)</span>, <span class="math display">\[ Q_T(b_T, a_T) = \sum_{s_T \in \ALPHABET S} c_T(s_T, a_T) b_T(s_T) \]</span> is linear in <span class="math inline">\(b_T\)</span>. Therefore, <span class="math display">\[ V_T(b_T) = \min_{a_T \in \ALPHABET A} Q_T(b_T, a_T) \]</span> is the minimum of a finite number of linear functions. Hence <span class="math inline">\(V_T(b_T)\)</span> is piecewise linear and concave.</p>
+<figure>
+<div id="applet_container" style="width:800px;height:600px;display:block">
 
 </div>
-</div>
-<script>
-  function interesect(alpha, beta) {
-    // y = (alpha[1] - alpha[0])x + alpha[0]
-    // y = (beta[1] - beta[0]) x + beta[0]
-    // => x = (alpha[0] - beta[0])/ (delta_beta - delta_alpha)
-    var delta_alpha = alpha[1] - alpha[0]
-    var delta_beta  = beta[1]  - beta[0]
-    var x = (alpha[0] - beta[0])/(delta_beta - delta_alpha)
-    var y = delta_alpha * x + alpha[0]
-    return [x, y]
-  }
+<figcaption>
+An illustration of a piece-wise linear and concave function. Move the points around to see how the shape of the function changes.
+</figcaption>
+</figure>
+<script type="text/javascript">
+      var params = {
+        filename: "/stochastic-control/geogebra/pomdp/PWLC.ggb",
+        enableShiftDragZoom: false,
+        width: 800,
+        height: 600,
+      }
 
-  var alpha = [ [1, 5], [5, 1], [3.5, 2] ]
-  var traces = new Array(alpha.length + 1)
+      var applet = new GGBApplet(params, true);
 
-  for (let i = 0; i < alpha.length; i++) {
-     traces[i] = { 
-        x: [0, 1],
-        y: alpha[i],
-        mode: 'lines',
-        line : {
-          color : 'black',
-          width : 1
-        }
-     }
-  }
-
-  // The lowest line: computed manually
-  var p = interesect(alpha[0], alpha[2]) 
-  var q = interesect(alpha[1], alpha[2])
-
-  traces[alpha.length] = {
-    x: [0, p[0], q[0], 1],
-    y: [1, p[1], q[1], 1],
-    mode: 'lines',
-    line : {
-      color : 'red',
-      width : 2
-    }
-  }
-
-
-  var layout = {
-    paper_bgcolor: "#fffff8",
-    plot_bgcolor:  "#fffff8",
-    xaxis : {
-      title: "Belief state",
-      showgrid: true,
-      showline: true,
-      zeroline: false,
-      showticklabels: false,
-    },
-    yaxis : {
-      title: "Value function",
-      showgrid: true,
-      showline: true,
-      zeroline: true,
-      showticklabels: false,
-      range: [-1, 5],
-    },
-    automargin: true,
-    margin: {
-      l : 15,
-      r : 15,
-      b : 15,
-      t : 15,
-      pad : 15
-    } ,
-    showlegend: false, 
-    hovermode: false,
-  };
-
-  Plotly.plot('V_T', traces, layout)
-
-</script>
-<p>Now assume that <span class="math inline">\(V_{t+1}(π_{t+1})\)</span> is piecewise linear and concave (PWLC). Any PWLC funcation can be represented as a minimum of a finite number of hyperplanes. Therefore, we can find a finite set of vectors <span class="math inline">\(\{ A_i \}_{i \in I}\)</span> indexed by finite set <span class="math inline">\(I\)</span> such that <span class="math display">\[
-  V_{t+1}(π) = \min_{i \in I} \langle A_i, π \rangle.
+      window.onload = function() {
+          applet.inject('applet_container');
+      }
+  </script>
+<p>Now assume that <span class="math inline">\(V_{t+1}(b_{t+1})\)</span> is piecewise linear and concave (PWLC). Any PWLC funcation can be represented as a minimum of a finite number of hyperplanes. Therefore, we can find a finite set of vectors <span class="math inline">\(\{ A_i \}_{i \in I}\)</span> indexed by finite set <span class="math inline">\(I\)</span> such that <span class="math display">\[
+  V_{t+1}(b) = \min_{i \in I} \langle A_i, b \rangle.
 \]</span></p>
-<p>We need to show that <span class="math inline">\(V_t(π_t)\)</span> is piecewise linear and concave (PWLC). We first show that <span class="math inline">\(Q_t(π_t, u_t)\)</span> is PWLC. For any fixed <span class="math inline">\(u_t\)</span>, the first term <span class="math inline">\(\sum_{x_t} c_t(x_t, u_t) π_t(x_t)\)</span> is linear in <span class="math inline">\(π_t\)</span>. Now consider the second term: <span class="math display">\[\begin{align*}
+<p>We need to show that <span class="math inline">\(V_t(b_t)\)</span> is piecewise linear and concave (PWLC). We first show that <span class="math inline">\(Q_t(b_t, a_t)\)</span> is PWLC. For any fixed <span class="math inline">\(a_t\)</span>, the first term <span class="math inline">\(\sum_{s_t} c_t(s_t, a_t) b_t(s_t)\)</span> is linear in <span class="math inline">\(b_t\)</span>. Now consider the second term: <span class="math display">\[\begin{align*}
   \hskip 1em &amp; \hskip -1em
-  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
-  V_{t+1}( φ(π_t, y_{t+1}, u_t) ) \\
+  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
+  V_{t+1}( φ(b_t, y_{t+1}, a_t) ) \\
   &amp;= 
-  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | π_t, u_t)
+  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
   \min_{i \in I} 
   \left\langle A_i, 
-  \frac{ \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) }
-  { \PR(y_{t+1} | π_t, u_t) } \right\rangle \\
+  \frac{ \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+  { \PR(y_{t+1} | b_t, a_t) } \right\rangle \\
   &amp;=
   \sum_{y_{t+1} \in \ALPHABET Y} 
   \min_{i \in I} 
   \Big\langle A_i, 
-   \PR(y_{t+1} | x_{t+1}) \sum_{x_t} \PR(x_{t+1} | x_t, u_t) π_t(x_t) 
+   \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) 
    \Big\rangle
-\end{align*}\]</span> which is the sum of PWLC functions of <span class="math inline">\(π_t\)</span> and therefore PWLC in <span class="math inline">\(π_t\)</span>.</p>
-<p>Thus, <span class="math inline">\(Q_t(π_t, u_t)\)</span> is PWLC. Hence, <span class="math inline">\(V_t(π_t)\)</span> which is the pointwise minimum of PWLC functions is PWLC. Hence, the result holds due to principle of induction. <span class="math inline">\(\Box\)</span></p>
+\end{align*}\]</span> which is the sum of PWLC functions of <span class="math inline">\(b_t\)</span> and therefore PWLC in <span class="math inline">\(b_t\)</span>.</p>
+<p>Thus, <span class="math inline">\(Q_t(b_t, a_t)\)</span> is PWLC. Hence, <span class="math inline">\(V_t(b_t)\)</span> which is the pointwise minimum of PWLC functions is PWLC. Hence, the result holds due to principle of induction. <span class="math inline">\(\Box\)</span></p>
 <dl>
 <dt>Remark</dt>
 <dd><p>Since the value function is PWLC, we can identify a finite index set <span class="math inline">\(I_t\)</span>, and a set of vectors <span class="math inline">\(\{ A^i_t \}_{i \in I_t}\)</span> such that <span class="math display">\[
-    V_t(π) = \min_{i \in I_t} \langle A^i_t, π \rangle.
-\]</span> <span class="citation" data-cites="Smallwood1973"><a href="#ref-Smallwood1973" role="doc-biblioref">Smallwood and Sondik</a> (<a href="#ref-Smallwood1973" role="doc-biblioref">1973</a>)</span> presented a “one-pass” algorithm to recursively compute <span class="math inline">\(I_t\)</span> and <span class="math inline">\(\{ A^i_t \}_{i \in I_t}\)</span> which allows us to exactly compute the value function. Various efficient refinements of these algorithms have been presented in the literature, e.g., the linear-support algorithm <span class="citation" data-cites="Cheng1988">(<a href="#ref-Cheng1988" role="doc-biblioref">Cheng 1988</a>)</span>, the witness algorithm <span class="citation" data-cites="Cassandra1994">(<a href="#ref-Cassandra1994" role="doc-biblioref">Cassandra et al. 1994</a>)</span>, incremental pruning <span class="citation" data-cites="Zhang1996 Cassandra1997">(<a href="#ref-Zhang1996" role="doc-biblioref">Zhang and Liu 1996</a>; <a href="#ref-Cassandra1997" role="doc-biblioref">Cassandra et al. 1997</a>)</span>, duality based approach <span class="citation" data-cites="Zhang2009">(<a href="#ref-Zhang2009" role="doc-biblioref">Zhang 2009</a>)</span>, and others. See https://pomdp.org/ for an accessible introduction to these algorithms.</p>
+    V_t(b) = \min_{i \in I_t} \langle A^i_t, b \rangle.
+\]</span> <span class="citation" data-cites="Smallwood1973"><a href="#ref-Smallwood1973" role="doc-biblioref">Smallwood and Sondik</a> (<a href="#ref-Smallwood1973" role="doc-biblioref">1973</a>)</span> presented a “one-pass” algorithm to recursively compute <span class="math inline">\(I_t\)</span> and <span class="math inline">\(\{ A^i_t \}_{i \in I_t}\)</span> which allows us to exactly compute the value function. Various efficient refinements of these algorithms have been presented in the literature, e.π., the linear-support algorithm <span class="citation" data-cites="Cheng1988">(<a href="#ref-Cheng1988" role="doc-biblioref">Cheng 1988</a>)</span>, the witness algorithm <span class="citation" data-cites="Cassandra1994">(<a href="#ref-Cassandra1994" role="doc-biblioref">Cassandra et al. 1994</a>)</span>, incremental pruning <span class="citation" data-cites="Zhang1996 Cassandra1997">(<a href="#ref-Zhang1996" role="doc-biblioref">Zhang and Liu 1996</a>; <a href="#ref-Cassandra1997" role="doc-biblioref">Cassandra et al. 1997</a>)</span>, duality based approach <span class="citation" data-cites="Zhang2009">(<a href="#ref-Zhang2009" role="doc-biblioref">Zhang 2009</a>)</span>, and others. See https://pomdp.org/ for an accessible introduction to these algorithms.</p>
 </dd>
 </dl>
 <h1 class="unnumbered" id="exercises">Exercises</h1>
 <ol type="1">
-<li><p>Consider an MDP where the state space <span class="math inline">\(\ALPHABET X\)</span> is a symmetric subset of integers of the form <span class="math inline">\(\{-a, -a + 1, \dots, a -1 , a\}\)</span> and the action space <span class="math inline">\(\ALPHABET U\)</span> is discrete. Suppose the transition matrix <span class="math inline">\(P(u)\)</span> and the cost function <span class="math inline">\(c_t(x,u)\)</span> satisfy properties (A1) and (A2) of Exercise 1 of <a href="../../mdp/monotonicity#exercises">Monotone MDPs</a>. Show that <span class="math inline">\(Z_t = |X_t|\)</span> is an information state.</p></li>
-<li><p>Consider a linear system with state <span class="math inline">\(x_t \in \reals^n\)</span>, observations <span class="math inline">\(y_t \in \reals^p\)</span>, and action <span class="math inline">\(u_t \in \reals^m\)</span>. Note that we will follow the standard notation of linear systems and denote the system variables by lower case letters rather than upper case letter. The dynamics of the system are given by <span class="math display">\[\begin{align*}
+<li><p>Consider an MDP where the state space <span class="math inline">\(\ALPHABET S\)</span> is a symmetric subset of integers of the form <span class="math inline">\(\{-L, -L + 1, \dots, L -1 , L\}\)</span> and the action space <span class="math inline">\(\ALPHABET A\)</span> is discrete. Suppose the transition matrix <span class="math inline">\(P(a)\)</span> and the cost function <span class="math inline">\(c_t(s,a)\)</span> satisfy properties (A1) and (A2) of Exercise 1 of <a href="../../mdp/monotonicity#exercises">Monotone MDPs</a>. Show that <span class="math inline">\(Z_t = |S_t|\)</span> is an information state.</p></li>
+<li><p>Consider a linear system with state <span class="math inline">\(x_t \in \reals^n\)</span>, observations <span class="math inline">\(y_t \in \reals^p\)</span>, and action <span class="math inline">\(u_t \in \reals^m\)</span>. Note that we will follow the standard notation of linear systems and denote the system variables by lower case letters <span class="math inline">\((x,u)\)</span> rather than upper case letter <span class="math inline">\((S,A)\)</span>. The dynamics of the system are given by <span class="math display">\[\begin{align*}
    x_{t+1} &amp;= A x_t + B u_t + w_t  \\
    y_t &amp;= C x_t + n_t 
 \end{align*}\]</span> where <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, and <span class="math inline">\(C\)</span> are matrices of appropriate dimensions. The per-step cost is given by <span class="math display">\[
    c(x_t, u_t) = x_t^\TRANS Q x_t + u_t^\TRANS R u_t,
-\]</span> where <span class="math inline">\(Q\)</span> is a positive semi-definite matrix and <span class="math inline">\(R\)</span> is a positive definite matrix. We make the standard assumption that the primitive random variables <span class="math inline">\(\{x_1, w_1, \dots, w_T, n_1, \dots, n_T \}\)</span> are independent.</p>
+\]</span> where <span class="math inline">\(Q\)</span> is a positive semi-definite matrix and <span class="math inline">\(R\)</span> is a positive definite matrix. We make the standard assumption that the primitive random variables <span class="math inline">\(\{s_1, w_1, \dots, w_T, n_1, \dots, n_T \}\)</span> are independent.</p>
 <p>Show that if the primitive variables are Guassian, then the conditional estimate of the state <span class="math display">\[
    \hat x_t = \EXP[ x_t | y_{1:t}, u_{1:t-1} ]
 \]</span> is an information state.</p></li>
 <li><p>Consider a machine which can be in one of <span class="math inline">\(n\)</span> ordered state where the first state is the best and the last state is the worst. The production cost increases with the state of the machine. The state evolves in a Markovian manner. At each time, an agent has the option to either run the machine or stop and inspect it for a cost. After inspection, the agent may either repair the machine (at a cost that depends on the state) or replace it (at a fixed cost). The objective is to identify a maintenance policy to minimize the cost of production, inspection, repair, and replacement.</p>
-<p>Let <span class="math inline">\(τ\)</span> denote the time of last inspection and <span class="math inline">\(X_τ\)</span> denote the state of the machine after inspection, repair, or replacement. Show that <span class="math inline">\((X_τ, t-τ)\)</span> is an information state.</p></li>
+<p>Let <span class="math inline">\(τ\)</span> denote the time of last inspection and <span class="math inline">\(S_τ\)</span> denote the state of the machine after inspection, repair, or replacement. Show that <span class="math inline">\((S_τ, t-τ)\)</span> is an information state.</p></li>
 </ol>
 <h1 class="unnumbered" id="references">References</h1>
 <p>The discussion in this section is taken from <span class="citation" data-cites="Subramanian2019"><a href="#ref-Subramanian2019" role="doc-biblioref">Subramanian and Mahajan</a> (<a href="#ref-Subramanian2019" role="doc-biblioref">2019</a>)</span>.</p>
@@ -487,7 +429,7 @@ h_t, U_t = u_t ]  \\
 <p class="categories">
 This entry 
 
- was last updated on 01 May 2020
+ was last updated on 17 Dec 2021
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/pomdp">
