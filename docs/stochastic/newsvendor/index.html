@@ -56,8 +56,32 @@
 <p>Let <span class="math inline">\(a\)</span> denote the number of newspapers bought and <span class="math inline">\(W\)</span> denotes the demand. If <span class="math inline">\(W &lt; a\)</span>, then the newsvendor will sell <span class="math inline">\(W\)</span> newspapers and receive a total earnings of <span class="math inline">\(q W - p a\)</span>. If <span class="math inline">\(W \ge a\)</span>, then the newsvendor will sell <span class="math inline">\(a\)</span> newspapers and receive a total earning of <span class="math inline">\(q a - p a\)</span>. Thus, the <em>reward</em> is</p>
 <p><span class="math display">\[r(a, W) = \begin{cases}
    q W - p a, &amp; \text{if } W &lt; a, \\
-   q u - p a, &amp; \text{if } W \ge a. 
+   q a - p a, &amp; \text{if } W \ge a. 
 \end{cases} \]</span></p>
+<figure style="max-width:30em;">
+<div id="observablehq-reward_plot-reward">
+
+</div>
+<div id="observablehq-viewof-p-reward">
+
+</div>
+<div id="observablehq-viewof-action-reward">
+
+</div>
+<figcaption>
+<b>Figure 1</b><br/> Reward as a function of <span class="math inline">\(w\)</span> for a fixed value of <span class="math inline">\(a\)</span>. You can change the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(a\)</span> by moving the sliders. Here <span class="math inline">\(q = 1\)</span>.
+</figcaption>
+</figure>
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/bf246f66927d3ddf.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "reward_plot") return new Inspector(document.querySelector("#observablehq-reward_plot-reward"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-reward"));
+  if (name === "viewof action") return new Inspector(document.querySelector("#observablehq-viewof-action-reward"));
+  return ["r","points","perf","plot","J","cost","plotJ","cost_values","a_opt","a"].includes(name);
+});
+</script>
 <hr />
 <p>The problem above has discrete action and discrete demand. To build intuition, we first consider the case where both the actions and demand are continuous. Let <span class="math inline">\(f(w)\)</span> denote the probability density of the demand and <span class="math inline">\(F(w)\)</span> denote the cumulative probability density. Then, the expected reward is <span class="math display">\[ \begin{equation} \label{eq:J}
 J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw. 
@@ -73,8 +97,11 @@ J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 <div id="observablehq-perf">
 
 </div>
+<div id="observablehq-reward_plot">
+
+</div>
 <figcaption>
-<b>Figure 1</b><br/> The value of expected cost as a function of action. The blue shaded region represents the probability of getting a demand less than the ordered goods and the red shared region represents the probability of getting a demand greater than the ordered goods. Note that the expected cost also depend on the value of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>, which are not shown in this plot.
+<b>Figure 2</b><br/> The value of expected cost as a function of action. In the first plot, the blue shaded region represents the probability of getting a demand less than the ordered goods and the red shared region represents the probability of getting a demand greater than the ordered goods. The second plot shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the value of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
 </figcaption>
 </figure>
 <p>We can also plot the performance as a function of action, and identify its maximma as shown in the plot below.</p>
@@ -83,7 +110,7 @@ J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 
 </div>
 <figcaption>
-<b>Figure 2</b><br/> The value of expected cost as a function of action. The blue dot shows the value of action chosen in Figure 1. The red dot shows the optimal value.
+<b>Figure 3</b><br/> The value of expected cost as a function of action. The blue dot shows the value of action chosen in Figure 2. The red dot shows the optimal value.
 </figcaption>
 </figure>
 <p>The plot of <span class="math inline">\(J(a)\)</span> is concave. This suggests that we can use calculus to find the optimal value. In particular, to find the optimal action, we need to compute the <span class="math inline">\(a\)</span> such that <span class="math inline">\(dJ(a)/da = 0\)</span>. We first recall the Leibniz integral rule: <span class="math display">\[ \dfrac{d}{dx} \left( \int_{p(x)}^{q(x)} f(x,t) dt \right)
@@ -114,7 +141,7 @@ a = F^{-1} \left( \dfrac{ q - p }{ q } \right).
 
 </div>
 <figcaption>
-<b>Figure 3</b><br/>The value of critical fractice for different values of <span class="math inline">\(p\)</span>. In this example, it is assumed that <span class="math inline">\(W\)</span> is distributed according to <a
+<b>Figure 4</b><br/>The value of critical fractice for different values of <span class="math inline">\(p\)</span>. In this example, it is assumed that <span class="math inline">\(W\)</span> is distributed according to <a
 href="https://en.wikipedia.org/wiki/Kumaraswamy_distribution">Kumaraswamy distribution</a> with parameters <span class="math inline">\((a,b) = (2,5)\)</span> and support <span class="math inline">\([0,100]\)</span>. The value of <span class="math inline">\(q=1\)</span>.
 </figcaption>
 </figure>
@@ -122,14 +149,15 @@ href="https://en.wikipedia.org/wiki/Kumaraswamy_distribution">Kumaraswamy distri
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 import define from "https://api.observablehq.com/d/49e833a074ec7152.js?v=3";
 new Runtime().module(define, name => {
+  if (name === "perf") return new Inspector(document.querySelector("#observablehq-perf"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p"));
+  if (name === "reward_plot") return new Inspector(document.querySelector("#observablehq-reward_plot"));
+  if (name === "viewof action") return new Inspector(document.querySelector("#observablehq-viewof-action"));
   if (name === "plot") return new Inspector(document.querySelector("#observablehq-plot"));
   if (name === "plotJ") return new Inspector(document.querySelector("#observablehq-plotJ"));
-  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p"));
-  if (name === "viewof action") return new Inspector(document.querySelector("#observablehq-viewof-action"));
-  if (name === "cost") return new Inspector(document.querySelector("#observablehq-cost"));
-  if (name === "perf") return new Inspector(document.querySelector("#observablehq-perf"));
   if (name === "a") return new Inspector(document.querySelector("#observablehq-a"));
-  return ["J","a_opt"].includes(name);
+  if (name === "cost") return new Inspector(document.querySelector("#observablehq-cost"));
+  return ["r","points","J","cost_values","a_opt"].includes(name);
 });
 </script>
 <dl>
@@ -162,7 +190,7 @@ M_i \le \dfrac{q-p}{q}
 <p>Note that the structure of the optimal solution is the same for continuous and discrete demand distributions.</p>
 <h1 class="unnumbered" id="exercises">Exercises</h1>
 <ol type="1">
-<li><p><strong>Qualitative properties of optimal solution.</strong> The numerical results shown in Figure 3 suggest that, for a fixed value of <span class="math inline">\(q\)</span>, the optimal value of <span class="math inline">\(a\)</span> is a decreasing function of <span class="math inline">\(p\)</span>. Intuitively, this makes sense: if the purchase price of the newspaper increases, but the selling price remains the same, then the newsvendor should buy less newspapers. Formally prove this statement.</p>
+<li><p><strong>Qualitative properties of optimal solution.</strong> The numerical results shown in Figure 4 suggest that, for a fixed value of <span class="math inline">\(q\)</span>, the optimal value of <span class="math inline">\(a\)</span> is a decreasing function of <span class="math inline">\(p\)</span>. Intuitively, this makes sense: if the purchase price of the newspaper increases, but the selling price remains the same, then the newsvendor should buy less newspapers. Formally prove this statement.</p>
 <p><em>Hint</em>: The CDF of a distribution is a weakly increasing function.</p></li>
 <li><p><strong>Monotonicity of optimal action.</strong> Consider two scenarios for the case with continuous demand and actions. In scenario 1, the demand is distributed according to PDF <span class="math inline">\(f_1\)</span>. In scenario 2, it is distributed according to PDF <span class="math inline">\(f_2\)</span>. Suppose <span class="math inline">\(F_1(w) \le F_2(w)\)</span> for all <span class="math inline">\(w\)</span>. Show that the optimal action <span class="math inline">\(a_1\)</span> for scenario 1 is greater than the optimal action <span class="math inline">\(a_2\)</span> for scenario 2.</p>
 <p><em>Hint</em>: Plot the two CDFs and try to interpret the optimal decision rule graphically.</p></li>

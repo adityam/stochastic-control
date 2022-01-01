@@ -33,8 +33,31 @@ _reward_ is
 
 $$r(a, W) = \begin{cases}
    q W - p a, & \text{if } W < a, \\
-   q u - p a, & \text{if } W \ge a. 
+   q a - p a, & \text{if } W \ge a. 
 \end{cases} $$
+
+<figure style='max-width:30em;'>
+<div id="observablehq-reward_plot-reward"></div>
+<div id="observablehq-viewof-p-reward"></div>
+<div id="observablehq-viewof-action-reward"></div>
+
+<figcaption><b>Figure 1</b><br/>
+Reward as a function of $w$ for a fixed value of $a$. You can change the
+values of $p$ and $a$ by moving the sliders. Here $q = 1$.</figcaption>
+</figure>
+
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/bf246f66927d3ddf.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "reward_plot") return new Inspector(document.querySelector("#observablehq-reward_plot-reward"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-reward"));
+  if (name === "viewof action") return new Inspector(document.querySelector("#observablehq-viewof-action-reward"));
+  return ["r","points","perf","plot","J","cost","plotJ","cost_values","a_opt","a"].includes(name);
+});
+</script>
+
 
 ---
 
@@ -54,13 +77,16 @@ $a$ to try and find an (approximately) optimal value of the action.
 <div id="observablehq-viewof-action"></div>
 <div id="observablehq-cost"></div>
 <div id="observablehq-perf"></div>
+<div id="observablehq-reward_plot"></div>
 
-<figcaption><b>Figure 1</b><br/>
-The value of expected cost as a function of action. The blue
+
+<figcaption><b>Figure 2</b><br/>
+The value of expected cost as a function of action. In the first plot, the blue
 shaded region represents the probability of getting a demand less than the
 ordered goods and the red shared region represents the probability of getting
-a demand greater than the ordered goods. Note that the expected cost also
-depend on the value of $p$ and $q$, which are not shown in this plot.</figcaption>
+a demand greater than the ordered goods. The second plot shows the reward
+function $r(a,\cdot)$, which 
+depends on the value of $p$ and $q$.</figcaption>
 </figure>
 
 We can also plot the performance as a function of action, and identify its
@@ -69,9 +95,9 @@ maximma as shown in the plot below.
 <figure style='max-width:30em;'>
 <div id="observablehq-plotJ"></div>
 
-<figcaption><b>Figure 2</b><br/>
+<figcaption><b>Figure 3</b><br/>
 The value of expected cost as a function of action. The blue dot
-shows the value of action chosen in Figure 1. The red dot shows the
+shows the value of action chosen in Figure 2. The red dot shows the
 optimal value.</figcaption>
 </figure>
 
@@ -112,7 +138,7 @@ An illustration of the optimal decision rule is shown below.
 <div id="observablehq-viewof-p"></div>
 <div id="observablehq-a"></div>
 <div id="observablehq-plot"></div>
-<figcaption><b>Figure 3</b><br/>The value of critical fractice for different values of $p$. In
+<figcaption><b>Figure 4</b><br/>The value of critical fractice for different values of $p$. In
 this example, it is assumed that $W$ is distributed according to <a
 href="https://en.wikipedia.org/wiki/Kumaraswamy_distribution">Kumaraswamy
 distribution</a> with parameters $(a,b) = (2,5)$ and support $[0,100]$. The
@@ -123,14 +149,15 @@ value of $q=1$.</figcaption>
 import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
 import define from "https://api.observablehq.com/d/49e833a074ec7152.js?v=3";
 new Runtime().module(define, name => {
+  if (name === "perf") return new Inspector(document.querySelector("#observablehq-perf"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p"));
+  if (name === "reward_plot") return new Inspector(document.querySelector("#observablehq-reward_plot"));
+  if (name === "viewof action") return new Inspector(document.querySelector("#observablehq-viewof-action"));
   if (name === "plot") return new Inspector(document.querySelector("#observablehq-plot"));
   if (name === "plotJ") return new Inspector(document.querySelector("#observablehq-plotJ"));
-  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p"));
-  if (name === "viewof action") return new Inspector(document.querySelector("#observablehq-viewof-action"));
-  if (name === "cost") return new Inspector(document.querySelector("#observablehq-cost"));
-  if (name === "perf") return new Inspector(document.querySelector("#observablehq-perf"));
   if (name === "a") return new Inspector(document.querySelector("#observablehq-a"));
-  return ["J","a_opt"].includes(name);
+  if (name === "cost") return new Inspector(document.querySelector("#observablehq-cost"));
+  return ["r","points","J","cost_values","a_opt"].includes(name);
 });
 </script>
 
@@ -185,7 +212,7 @@ discrete demand distributions.
 # Exercises {-}
 
 1. **Qualitative properties of optimal solution.** The numerical results shown
-   in Figure 3 suggest that, for a fixed value of $q$, the optimal value of
+   in Figure 4 suggest that, for a fixed value of $q$, the optimal value of
    $a$ is a decreasing function of $p$. Intuitively, this makes sense: if the
    purchase price of the newspaper increases, but the selling price remains
    the same, then the newsvendor should buy less newspapers. Formally prove
