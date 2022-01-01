@@ -29,12 +29,14 @@ Let $a$ denote the number of newspapers bought and $W$ denotes
 the demand. If $W < a$, then the newsvendor will sell $W$ newspapers and
 receive a total earnings of $q W - p a$. If $W \ge a$, then the newsvendor will
 sell $a$ newspapers and receive a total earning of $q a - p a$. Thus, the
-_reward_ is
+_reward_ is $r(a,W)$, where
 
-$$r(a, W) = \begin{cases}
-   q W - p a, & \text{if } W < a, \\
-   q a - p a, & \text{if } W \ge a. 
+$$r(a, w) = \begin{cases}
+   q w - p a, & \text{if } w < a, \\
+   q a - p a, & \text{if } w \ge a. 
 \end{cases} $$
+
+An illustration of the reward function is shown below.
 
 <figure style='max-width:30em;'>
 <div id="observablehq-reward_plot-reward"></div>
@@ -174,10 +176,47 @@ Remark
 ---
 
 Now, we come back to the problem with discrete actions and discrete demand.
-Suppose $W$ takes the values $\{ w_1, w_2, \dots, w_k \}$ (where $w_1 < w_2 <
+Suppose $W$ takes the values $\ALPHABET W = \{ w_1, w_2, \dots, w_k \}$ (where $w_1 < w_2 <
 \cdots < w_k$) with probabilities $\{ μ_1, μ_2, \dots, μ_k \}$. It is ease to
 see that in this case the action $a$ should be in the set $\{ w_1, w_2, \dots,
-w_k \}$. The expected reward for choice $w_i$ is
+w_k \}$. 
+
+As an illustration, consider the case when $\ALPHABET W = \{0, 1, \dots,
+100\}$.
+
+<figure style='max-width:30em;'>
+<div id="observablehq-viewof-p--discrete"></div>
+<div id="observablehq-viewof-action--discrete"></div>
+<div id="observablehq-cost--discrete"></div>
+<div id="observablehq-perf--discrete"></div>
+<div id="observablehq-reward_plot--discrete"></div>
+<figcaption><b>Figure 5</b><br/>
+The value of expected cost as a function of action. This is similar to
+Figure 1, except that demand and actions can take discrete
+values.</figcaption>
+</figure>
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/86f25914f7dddb7f.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "perf") return new Inspector(document.querySelector("#observablehq-perf--discrete"));
+  if (name === "cost") return new Inspector(document.querySelector("#observablehq-cost--discrete"));
+  if (name === "reward_plot") return new Inspector(document.querySelector("#observablehq-reward_plot--discrete"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p--discrete"));
+  if (name === "viewof action") return new Inspector(document.querySelector("#observablehq-viewof-action--discrete"));
+  return ["r","points","plot","J","plotJ","cost_values","a_opt","a"].includes(name);
+});
+</script>
+
+In the discrete case, the brute force search is easier (because there are a
+finite rather than continuous number of values). We cannot directly use the
+ideas from calculus because functions over discrete domain are not
+differentiable. But we can use a very similar idea. Instead of checking if
+$dJ(a)/da = 0$, we check the sign of $J(w_{i+1}) - J(w_i)$.
+
+
+The expected reward for choice $w_i$ is
 $$ \begin{align*} J(w_i) &=
 \sum_{j < i} μ_j [ q w_j - p w_i ] + \sum_{j \ge i} μ_j [q w_i - p w_i]
 \\

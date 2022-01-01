@@ -53,11 +53,12 @@
 </figure>
 <p>TL;DR <em>The newsvendor problem is a simple model of stochastic optimization problem where a decision has to be made when there is uncertainty about the outcome. It also shows that for some stochastic optimization problems it is possible to obtain the qualitative properties of the nature of optimal solution.</em></p>
 <p>Each morning, a newsvendor has to decide how many newspapers to buy before knowing the demand during the day. The newsvendor purchases a newspaper at a cost of <span class="math inline">\(\$p\)</span> per newspaper and sells them at a cost of <span class="math inline">\(\$q\)</span> per newspaper, where <span class="math inline">\(q &gt; p\)</span>. Any unsold newspapers at the end of the day have no salvage value.</p>
-<p>Let <span class="math inline">\(a\)</span> denote the number of newspapers bought and <span class="math inline">\(W\)</span> denotes the demand. If <span class="math inline">\(W &lt; a\)</span>, then the newsvendor will sell <span class="math inline">\(W\)</span> newspapers and receive a total earnings of <span class="math inline">\(q W - p a\)</span>. If <span class="math inline">\(W \ge a\)</span>, then the newsvendor will sell <span class="math inline">\(a\)</span> newspapers and receive a total earning of <span class="math inline">\(q a - p a\)</span>. Thus, the <em>reward</em> is</p>
-<p><span class="math display">\[r(a, W) = \begin{cases}
-   q W - p a, &amp; \text{if } W &lt; a, \\
-   q a - p a, &amp; \text{if } W \ge a. 
+<p>Let <span class="math inline">\(a\)</span> denote the number of newspapers bought and <span class="math inline">\(W\)</span> denotes the demand. If <span class="math inline">\(W &lt; a\)</span>, then the newsvendor will sell <span class="math inline">\(W\)</span> newspapers and receive a total earnings of <span class="math inline">\(q W - p a\)</span>. If <span class="math inline">\(W \ge a\)</span>, then the newsvendor will sell <span class="math inline">\(a\)</span> newspapers and receive a total earning of <span class="math inline">\(q a - p a\)</span>. Thus, the <em>reward</em> is <span class="math inline">\(r(a,W)\)</span>, where</p>
+<p><span class="math display">\[r(a, w) = \begin{cases}
+   q w - p a, &amp; \text{if } w &lt; a, \\
+   q a - p a, &amp; \text{if } w \ge a. 
 \end{cases} \]</span></p>
+<p>An illustration of the reward function is shown below.</p>
 <figure style="max-width:30em;">
 <div id="observablehq-reward_plot-reward">
 
@@ -168,7 +169,42 @@ new Runtime().module(define, name => {
 </dd>
 </dl>
 <hr />
-<p>Now, we come back to the problem with discrete actions and discrete demand. Suppose <span class="math inline">\(W\)</span> takes the values <span class="math inline">\(\{ w_1, w_2, \dots, w_k \}\)</span> (where <span class="math inline">\(w_1 &lt; w_2 &lt; \cdots &lt; w_k\)</span>) with probabilities <span class="math inline">\(\{ μ_1, μ_2, \dots, μ_k \}\)</span>. It is ease to see that in this case the action <span class="math inline">\(a\)</span> should be in the set <span class="math inline">\(\{ w_1, w_2, \dots, w_k \}\)</span>. The expected reward for choice <span class="math inline">\(w_i\)</span> is <span class="math display">\[ \begin{align*} J(w_i) &amp;=
+<p>Now, we come back to the problem with discrete actions and discrete demand. Suppose <span class="math inline">\(W\)</span> takes the values <span class="math inline">\(\ALPHABET W = \{ w_1, w_2, \dots, w_k \}\)</span> (where <span class="math inline">\(w_1 &lt; w_2 &lt; \cdots &lt; w_k\)</span>) with probabilities <span class="math inline">\(\{ μ_1, μ_2, \dots, μ_k \}\)</span>. It is ease to see that in this case the action <span class="math inline">\(a\)</span> should be in the set <span class="math inline">\(\{ w_1, w_2, \dots, w_k \}\)</span>.</p>
+<p>As an illustration, consider the case when <span class="math inline">\(\ALPHABET W = \{0, 1, \dots, 100\}\)</span>.</p>
+<figure style="max-width:30em;">
+<div id="observablehq-viewof-p--discrete">
+
+</div>
+<div id="observablehq-viewof-action--discrete">
+
+</div>
+<div id="observablehq-cost--discrete">
+
+</div>
+<div id="observablehq-perf--discrete">
+
+</div>
+<div id="observablehq-reward_plot--discrete">
+
+</div>
+<figcaption>
+<b>Figure 5</b><br/> The value of expected cost as a function of action. This is similar to Figure 1, except that demand and actions can take discrete values.
+</figcaption>
+</figure>
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/86f25914f7dddb7f.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "perf") return new Inspector(document.querySelector("#observablehq-perf--discrete"));
+  if (name === "cost") return new Inspector(document.querySelector("#observablehq-cost--discrete"));
+  if (name === "reward_plot") return new Inspector(document.querySelector("#observablehq-reward_plot--discrete"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p--discrete"));
+  if (name === "viewof action") return new Inspector(document.querySelector("#observablehq-viewof-action--discrete"));
+  return ["r","points","plot","J","plotJ","cost_values","a_opt","a"].includes(name);
+});
+</script>
+<p>In the discrete case, the brute force search is easier (because there are a finite rather than continuous number of values). We cannot directly use the ideas from calculus because functions over discrete domain are not differentiable. But we can use a very similar idea. Instead of checking if <span class="math inline">\(dJ(a)/da = 0\)</span>, we check the sign of <span class="math inline">\(J(w_{i+1}) - J(w_i)\)</span>.</p>
+<p>The expected reward for choice <span class="math inline">\(w_i\)</span> is <span class="math display">\[ \begin{align*} J(w_i) &amp;=
 \sum_{j &lt; i} μ_j [ q w_j - p w_i ] + \sum_{j \ge i} μ_j [q w_i - p w_i]
 \\
 &amp;= -p w_i + q \Bigl[ \sum_{j &lt; i}  μ_j w_j + \sum_{j \ge i} μ_j w_i \Bigr].
