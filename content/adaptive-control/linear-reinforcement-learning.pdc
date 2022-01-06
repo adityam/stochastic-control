@@ -1,0 +1,104 @@
+---
+title: Overview of reinforcement learning for linear systems
+weight: 02
+categories:
+  - RL
+tags:
+  - Linear systems
+  - reinforcement learning
+  - LQR
+scripts:
+  - math
+  - plotly
+  - random
+draft: true
+---
+
+# Q-learning
+
+Both certainty equivalence and Thompson sampling are _model-based approaches_,
+i.e., they estimate a system model and then the optimal policy of the
+estimated model. In contrast, the optimal policy can also be learned in a
+_model-free_ manner. 
+
+The dynamic program for the long-term average cost problem is
+given by
+$$ \TR(SΣ) + x^\TRANS S x = \min_{u \in \reals^m} \bigl\{
+  x^\TRANS Q x + u^\TRANS R u + \EXP[ (A x + Bu + w)^\TRANS S (Ax + Bu + w) ]
+ \bigr\}. 
+$$
+Recall that, by the completion of squares lemma (see notes on [LQR]), we can
+write the exression for minimization on the right hand side as:
+$$
+  x^\TRANS K x + (u + Lx)^\TRANS Δ (u + Lx) + \TR(SΣ)
+$$
+where 
+
+* $K = A^\TRANS S A + Q - Λ^\TRANS Δ^{-1} Λ$
+* $L = Δ^{-1} Λ$
+* $Δ = R + B^\TRANS S B$
+* $Λ = B^\TRANS S A$
+
+The above form is used in the standard dynamic programming treatment to argue
+that choosing $u = - L x$ satisfies the average cost dynamic program. However,
+there is another way to look at this result. We can write the dynamic
+programming equation as:
+$$
+  x^\TRANS S x = \min_{u \in \reals^m}
+  \MATRIX{ x \\ u }^\TRANS 
+  \MATRIX{ H_{xx} & H_{xu} \\ H_{ux} & H_{uu} }
+  \MATRIX{ x \\ u },
+$$
+where
+
+* $H_{xx} = K + L^\TRANS ΔL = A^\TRANS S A + Q$
+* $H_{xu} = H_{ux}^\TRANS = ΔL = B^\TRANS S A$
+* $H_{uu} = Δ = R + B^\TRANS S B$
+
+The expression inside the minization on the right hand side may be thought of
+as the Hamiltonian of the system. Note that the $H$ matrix depends on the
+model parameters $A$ and $B$, as well as the cost parameters $Q$ and $R$.
+However, if we know the $H$ matrix, then we can use it to find the optimal
+control action. In particular:
+$$
+  \nabla_u \MATRIX{ x \\ u }^\TRANS 
+  \MATRIX{ H_{xx} & H_{xu} \\ H_{ux} & H_{uu} }
+  \MATRIX{ x \\ u }
+  =
+  2 H_{ux} x + 2 H_{uu} u.
+$$
+Therefore, the control law $u_t = - H_{uu}^{-1} H_{ux} x_t$ is optimal.
+
+
+The idea behind $Q$ learning is that instead of trying to learn the model
+parameters, we can directly try to learn the matrix $H$ directly. In
+particular, if 
+$$
+  \hat H = \MATRIX{ \hat H_{xx} & \hat H_{xu} \\ \hat H_{ux} & H_{uu} }
+$$
+converges to the true $H$ of the system, then the control law
+$$
+  u_t = - \hat H_{uu}^{-1} \hat H_{ux} x_t
+$$
+will converge to the optimal control law.
+
+To illustrate how to learn the $H$ matrix, we assume that the system is
+scalar, where $A$, $B$, $Q$, and $R$ are unknown. We assume that the agent
+observes the per-step cost $c_t = x_t^\TRANS Q x_t + u_t^\TRANS R u_t$. The
+objective of $Q$-learning is to learn the Hamiltonian $H$ from the
+observations of $\{(x_t, u_t, c_t)\}_{t \ge 0}$. 
+
+The Hamiltonian is given by
+$$
+  H_{xx} x^2 + 2 H_{xu} xu + H_{uu} u^2
+$$
+
+TD equation:
+
+$$
+  z_t^\TRANS H z_t = c_t +  z_{t+1}^\TRANS H z_{t+1} + \EXP[ w_t^\TRANS H w_t] 
+$$
+with $u_t = - L_t x_t$.
+
+[LQR]: ../../linear-systems/lqr
+
