@@ -74,7 +74,7 @@ where the expectation is taken with respect to the joint probability
 distribution of $(S,W)$. 
 
 Formally, the above optimization problem may be written as
-$$\begin{equation} \label{eq:obs}
+$$\begin{equation} \label{eq:obs} \tag{P1}
   \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
 \end{equation}$$
 
@@ -101,24 +101,24 @@ realization $s$ of $S$. He then asks what action $a$ should he take to
 minimize the expected _conditional_ cost $Q(s,a) := \EXP[ c(s,a, W) | S = s]$,
 i.e., he considers the problem
 
-\begin{equation} \label{eq:cond-1}
+\begin{equation} \label{eq:cond-1} \tag{P2}
   \min_{a \in \ALPHABET A} \EXP[ c(s,a,W) | S = s], \quad
   \forall s \in \ALPHABET S.
 \end{equation}
 
-Thus, Problem \\eqref{eq:basic}, which is a functional optimization problem,
+Thus, Problem \\eqref{eq:obs}, which is a functional optimization problem,
 has been reduced to a collection of parameter optimization problems
 (Problem \\eqref{eq:cond-1}), one for each possible of $s$. 
 
 Now define
-$$ \begin{equation} \label{eq:cond}
-  π^*(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
+$$ \begin{equation} \label{eq:cond} \tag{P2-policy}
+  π^∘(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
 \end{equation} $$
 where ties (in the minimization) are broken arbitrarily. 
 
 ::: proclaim :::
 **Basic fact.**
-The decision rule $π^*$ defined in \\eqref{eq:cond} is optimal for Problem \\ref{eq:basic}.
+The decision rule $π^∘$ defined in \\eqref{eq:cond} is optimal for Problem \\ref{eq:basic}.
 :::
 
 Remark
@@ -128,7 +128,7 @@ $\ALPHABET W$. This is to avoid any measurability issues. If
 $\ALPHABET S$ and $\ALPHABET A$ are continuous sets, we need to restrict to
 _measurable_ $π$ in Problem \\ref{eq:basic} (otherwise the expectation is not
 well defined; of course the cost $c$ also has to be measurable). However, it
-is not immediately obvious that $π^*$ defined in \\eqref{eq:cond} is measurable.
+is not immediately obvious that $π^∘$ defined in \\eqref{eq:cond} is measurable.
 Conditions that ensure this are known as _measurable selection theorems_. 
 
 <details>
@@ -139,11 +139,11 @@ Conditions that ensure this are known as _measurable selection theorems_.
 Let $π$ be any other decision rule. Then,
 $$ \begin{align*}
   \EXP[ c(S, π(S), W) ] &\stackrel{(a)}= \EXP[ \EXP[c(S, π(S), W) | S ] ] \\
-  &\stackrel{(b)}\ge \EXP[\EXP[ c(S, π^*(S), W) | S ] ] \\
-  &\stackrel{(c)}= \EXP[ c(S, π^*(S), W) ],
+  &\stackrel{(b)}\ge \EXP[\EXP[ c(S, π^∘(S), W) | S ] ] \\
+  &\stackrel{(c)}= \EXP[ c(S, π^∘(S), W) ],
 \end{align*} $$
 where $(a)$ and $(c)$ follow from the law of iterated expectations and $(b)$
-follows from the definition of $π^*$ in \\eqref{eq:cond}. 
+follows from the definition of $π^∘$ in \\eqref{eq:cond}. 
 </div>
 </details>
 
@@ -161,39 +161,39 @@ policy $π^∘$ for Problem \ref{eq:basic} must satisfy \\eqref{eq:cond}.
 #### Proof {-}
 </summary>
 <div>
-We prove this by contradiction. Suppose $π^∘$ is an optimal policy that does
+We prove this by contradiction. Suppose $π^*$ is an optimal policy that does
 not satisfy \\eqref{eq:cond}. 
-By definition of $π^*$, it must be the case that for all states
+By definition of $π^∘$, it must be the case that for all states
 \begin{equation} 
-   \EXP[ c(s, π^*(s), W) | S = s ] 
+   \EXP[ c(s, π^∘(s), W) | S = s ] 
    \le
-   \EXP[ c(s, π^∘(s), W) | S = s ] .
+   \EXP[ c(s, π^*(s), W) | S = s ] .
    \label{eq:ineq:1}
 \end{equation}
-Now, since $π^∘$ does not satisfy \\eqref{eq:cond}, there exists some state $s^∘ \in \ALPHABET S$ such that 
+Now, since $π^*$ does not satisfy \\eqref{eq:cond}, there exists some state $s^∘ \in \ALPHABET S$ such that 
 \begin{equation}
-   \EXP[ c(s^∘, π^∘(s^∘), W) | S = s^∘ ] 
+   \EXP[ c(s^∘, π^*(s^∘), W) | S = s^∘ ] 
    > 
-   \EXP[ c(s^∘, π^*(s^∘), W) | S = s^∘ ] .
+   \EXP[ c(s^∘, π^∘(s^∘), W) | S = s^∘ ] .
    \label{eq:ineq:2}
 \end{equation}
 Therefore, 
 $$\begin{align*}
-   \EXP[ c(S, π^∘(S), W) ]
+   \EXP[ c(S, π^*(S), W) ]
    &=
-   \sum_{s \in \ALPHABET S} \PR(S = s) 
-   \EXP[ \EXP[ c(s, π^∘(s), W) | S = s ] ]
-   \\
-   & \stackrel{(a)}> 
    \sum_{s \in \ALPHABET S} \PR(S = s) 
    \EXP[ \EXP[ c(s, π^*(s), W) | S = s ] ]
    \\
+   & \stackrel{(a)}> 
+   \sum_{s \in \ALPHABET S} \PR(S = s) 
+   \EXP[ \EXP[ c(s, π^∘(s), W) | S = s ] ]
+   \\
    &=
-   \EXP[ c(S, π^*(S), W) ]
+   \EXP[ c(S, π^∘(S), W) ]
 \end{align*}$$
 where $(a)$ follows from \\eqref{eq:ineq:1} and \\eqref{eq:ineq:2} and the
-inequality is strict becase $\PR(S = s^∘) > 0$. Thus, $J(π^∘) > J(π^*)$ and,
-hence, $π^∘$ cannot be an optimal policy. $\Box$
+inequality is strict becase $\PR(S = s^∘) > 0$. Thus, $J(π^*) > J(π^∘)$ and,
+hence, $π^*$ cannot be an optimal policy. $\Box$
 </div>
 </details>
 
