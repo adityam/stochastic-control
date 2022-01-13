@@ -57,9 +57,9 @@
 <hr />
 <p>Imagine a retail store that stockpiles products in its warehouse to meet random demand. Suppose the store procures new stocks at the end of each day (and that there is no lead time and stocks are available next morning). Let</p>
 <ul>
-<li><span class="math inline">\(S_t \in \reals\)</span> denote the amount of stock at the beginning of day <span class="math inline">\(t\)</span>,</li>
-<li><span class="math inline">\(A_t \in \reals_{\ge 0}\)</span> denote the stock ordered (and immediately delivered) at the beginning of day <span class="math inline">\(t\)</span>, and</li>
-<li><span class="math inline">\(W_t \in \reals_{\ge 0}\)</span> denote the demand during day <span class="math inline">\(t\)</span>.</li>
+<li><span class="math inline">\(S_t \in \integers\)</span> denote the amount of stock at the beginning of day <span class="math inline">\(t\)</span>,</li>
+<li><span class="math inline">\(A_t \in \integers_{\ge 0}\)</span> denote the stock ordered (and immediately delivered) at the beginning of day <span class="math inline">\(t\)</span>, and</li>
+<li><span class="math inline">\(W_t \in \integers_{\ge 0}\)</span> denote the demand during day <span class="math inline">\(t\)</span>.</li>
 </ul>
 <p>The random variables <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are i.i.d. with known probability distribution.</p>
 <p>Excess demand is backlogged and filled when new inventory becomes available. Thus, the stock evolves according to <span class="math display">\[S_{t+1} = S_t + A_t - W_t,\]</span> where negative stock denotes backlogged demand.</p>
@@ -72,14 +72,16 @@
     -c_s s, &amp; \text{if } s &lt; 0
   \end{cases}\]</span></p></li>
 </ul>
-<h1 data-number="1" id="structure-of-optimal-procurement-strategy"><span class="header-section-number">1</span> Structure of optimal procurement strategy</h1>
+<h1 data-number="1" id="dynamic-programming-decomposition"><span class="header-section-number">1</span> Dynamic programming decomposition</h1>
+<p><span class="math inline">\(\def\S{\mathbb{S}}\)</span></p>
 <p>The above model is a Markov decision process.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Therefore, the optimal solution is given by dynamic programming.</p>
+<p>Instead of <span class="math inline">\(\integers\)</span>, we use <span class="math inline">\(\S\)</span> to denote the possible values of states. The reason is that we will later consider the case when the state space is the set of reals, and we can still use the same equations.</p>
 <div class="highlight">
 <dl>
 <dt>Dynamic programming</dt>
-<dd><p>Define the following value functions <span class="math inline">\(V_t \colon \reals \to \reals\)</span> <span class="math display">\[V_{T+1}(s) = 0\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span> <span class="math display">\[ Q_t(s, a) = p a + \EXP[ h(s + a - W_t) + V_{t+1}( s + a - W_t ) ]\]</span> and <span class="math display">\[ \begin{align*}
-V_t(s) &amp;= \min_{a \in \reals_{\ge 0}} Q_t(s,a) \\
-π_t(s) &amp;= \arg \min_{a \in \reals_{\ge 0}} Q_t(s,a) 
+<dd><p>Define the following value functions <span class="math inline">\(V_t \colon \S \to \reals\)</span> <span class="math display">\[V_{T+1}(s) = 0\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span> <span class="math display">\[ Q_t(s, a) = p a + \EXP[ h(s + a - W_t) + V_{t+1}( s + a - W_t ) ]\]</span> and <span class="math display">\[ \begin{align*}
+V_t(s) &amp;= \min_{a \in \S_{\ge 0}} Q_t(s,a) \\
+π_t(s) &amp;= \arg \min_{a \in \S_{\ge 0}} Q_t(s,a) 
 \end{align*}
   \]</span> Then the strategy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> is optimal.</p>
 </dd>
@@ -91,10 +93,13 @@ V_t(s) &amp;= \min_{a \in \reals_{\ge 0}} Q_t(s,a) \\
    \end{align*}
 \]</span> The first part, <span class="math inline">\(Z_t\)</span>, depends only on the current state and action. The second part depends only on <span class="math inline">\(Z_t\)</span> and a primitive random variable. In this particular model, <span class="math inline">\(Z_t\)</span> is a deterministic function of <span class="math inline">\(S_t\)</span> and <span class="math inline">\(A_t\)</span>; but, in general, it could be stochastic as well; what is important is that the second part should only depend on <span class="math inline">\(Z_t\)</span> and a primitive random variable. The variable <span class="math inline">\(Z_t\)</span> is sometimes called the <em>post-decision state</em>.</p>
 <p>Now write the dynamic program in terms of the post-decision state as follows. Define <span class="math display">\[ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z-W) ].\]</span> Then the value function and optimal policy at time <span class="math inline">\(t\)</span> can be written as: <span class="math display">\[ \begin{align*}
-  V_t(s) &amp;= \min_{a \in \reals_{\ge 0}} \bigl\{ pu + H_t(s + a) \bigr\}, \\
-  π_t(s) &amp;= \arg \min_{a \in \reals_{\ge 0}} \bigl\{ pu + H_t(s + a) \bigr\}.
+  V_t(s) &amp;= \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}, \\
+  π_t(s) &amp;= \arg \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}.
 \end{align*} \]</span></p>
-<p>The optimal policy is then characterized as follows.</p>
+<p>Note that the problem at each step is similar to the <a href="../../stochastic/newsvendor">newsvendor</a> problem. So, similar to that model, we try to see if we can establish qualitative properties of the optimal solution.</p>
+<h1 data-number="2" id="structure-of-optimal-solution"><span class="header-section-number">2</span> Structure of optimal solution</h1>
+<p>For ease of exposition, we assume that the state space <span class="math inline">\(\S\)</span> is equal to <span class="math inline">\(\reals\)</span> (instead of <span class="math inline">\(\integers\)</span>). See exercise 1 at the end to extend the argument to <span class="math inline">\(\integers\)</span>.</p>
+<p>For this setting, the optimal policy is then characterized as follows.</p>
 <div class="highlight">
 <dl>
 <dt>Theorem</dt>
@@ -219,7 +224,7 @@ s^* - s, &amp; \text{if } s \le s^*
 <p>Thus, the result is holds by induction. <span class="math inline">\(\Box\)</span></p>
 <h1 class="unnumbered" id="exercises">Exercises</h1>
 <ol type="1">
-<li>Suppose that the stocks <span class="math inline">\(A_t\)</span> ordered at the beginning of day <span class="math inline">\(t\)</span> must belong to <span class="math inline">\(\integers_{\ge 0}\)</span> rather than <span class="math inline">\(\reals_{\ge 0}\)</span>. Show that there exists a sequence <span class="math inline">\(\{s_t\}_{t \ge 1}\)</span> of numbres such that policy given by <span class="math display">\[ π_t(s) = \begin{cases}
+<li>Now consider the setting when <span class="math inline">\(\S = \integers\)</span>. Show that there exists a sequence <span class="math inline">\(\{s_t\}_{t \ge 1}\)</span> of numbres such that policy given by <span class="math display">\[ π_t(s) = \begin{cases}
    n, &amp; \text{if } s_t - n \le s \le s_t - n + 1, \\
    0, &amp; \text{if } s_t \ge s_t.
   \end{cases} \]</span> is optimal.</li>

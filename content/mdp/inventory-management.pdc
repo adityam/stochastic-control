@@ -1,6 +1,6 @@
 ---
 title: "Example: Inventory Management"
-weight: 13
+weight: 12
 categories:
   - MDP
 tags:
@@ -29,9 +29,9 @@ meet random demand. Suppose the store procures new stocks at the end of each
 day (and that there is no lead time and stocks are available next morning).
 Let 
 
-* $S_t \in \reals$ denote the amount of stock at the beginning of day $t$,
-* $A_t \in \reals_{\ge 0}$ denote the stock ordered (and immediately delivered) at the beginning of day $t$, and
-* $W_t \in \reals_{\ge 0}$ denote the demand during day $t$. 
+* $S_t \in \integers$ denote the amount of stock at the beginning of day $t$,
+* $A_t \in \integers_{\ge 0}$ denote the stock ordered (and immediately delivered) at the beginning of day $t$, and
+* $W_t \in \integers_{\ge 0}$ denote the demand during day $t$. 
 
 The random variables $\{W_t\}_{t \ge 1}$ are i.i.d. with known probability
 distribution. 
@@ -54,10 +54,16 @@ The cost incurred during day $t$ consists of two components:
         -c_s s, & \text{if } s < 0
       \end{cases}$$
 
-# Structure of optimal procurement strategy 
+# Dynamic programming decomposition
+
+$\def\S{\mathbb{S}}$ 
 
 The above model is a Markov decision process.[^cost] Therefore, the optimal
 solution is given by dynamic programming. 
+
+Instead of $\integers$, we use $\S$ to denote the possible values of states.
+The reason is that we will later consider the case when the state space is the
+set of reals, and we can still use the same equations.
 
 [^cost]: Part of the per-step cost depends on the _future_ state $S_{t+1}$.
   It is easy to show that the standard MDP model works even when the per-step
@@ -66,14 +72,14 @@ solution is given by dynamic programming.
 ::: highlight
 Dynamic programming
 
-: Define the following value functions $V_t \colon \reals \to \reals$ 
+: Define the following value functions $V_t \colon \S \to \reals$ 
   $$V_{T+1}(s) = 0$$
   and for $t \in \{T, \dots, 1\}$
   $$ Q_t(s, a) = p a + \EXP[ h(s + a - W_t) + V_{t+1}( s + a - W_t ) ]$$
   and
   $$ \begin{align*}
-    V_t(s) &= \min_{a \in \reals_{\ge 0}} Q_t(s,a) \\
-    π_t(s) &= \arg \min_{a \in \reals_{\ge 0}} Q_t(s,a) 
+    V_t(s) &= \min_{a \in \S_{\ge 0}} Q_t(s,a) \\
+    π_t(s) &= \arg \min_{a \in \S_{\ge 0}} Q_t(s,a) 
     \end{align*}
   $$
   Then the strategy $π = (π_1, \dots, π_T)$ is optimal. 
@@ -98,12 +104,23 @@ Define
 $$ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z-W) ].$$
 Then the value function and optimal policy at time $t$ can be written as:
 $$ \begin{align*}
-  V_t(s) &= \min_{a \in \reals_{\ge 0}} \bigl\{ pu + H_t(s + a) \bigr\}, \\
-  π_t(s) &= \arg \min_{a \in \reals_{\ge 0}} \bigl\{ pu + H_t(s + a) \bigr\}.
+  V_t(s) &= \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}, \\
+  π_t(s) &= \arg \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}.
 \end{align*} $$
 
+Note that the problem at each step is similar to the [newsvendor] problem. So,
+similar to that model, we try to see if we can establish qualitative
+properties of the optimal solution.
 
-The optimal policy is then characterized as follows.
+[newsvendor]: ../../stochastic/newsvendor
+
+# Structure of optimal solution
+
+For ease of exposition, we assume that the state space $\S$ is equal to
+$\reals$ (instead of $\integers$). See exercise 1 at the end to extend the
+argument to $\integers$.
+
+For this setting, the optimal policy is then characterized as follows.
 
 ::: highlight :::
 Theorem
@@ -275,8 +292,7 @@ Thus, the result is holds by induction. $\Box$
 
 # Exercises {-}
 
-1. Suppose that the stocks $A_t$ ordered at the beginning of day $t$ must
-   belong to $\integers_{\ge 0}$ rather than $\reals_{\ge 0}$. Show that there
+1. Now consider the setting when $\S = \integers$. Show that there
    exists a sequence $\{s_t\}_{t \ge 1}$ of numbres such that policy given by
    $$ π_t(s) = \begin{cases}
       n, & \text{if } s_t - n \le s \le s_t - n + 1, \\
