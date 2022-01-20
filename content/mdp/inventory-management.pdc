@@ -193,9 +193,16 @@ Theorem
     and $s$, respectively. 
 :::
 
-#### Proof {-}
-
 We first establish some preliminary results.
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/@adityam/properties-of-convex-functions.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "average_plot") return new Inspector(document.querySelector("#observablehq-average_plot-11079710"));
+  if (name === "minimum_plot") return new Inspector(document.querySelector("#observablehq-minimum_plot-11079710"));
+});
+</script>
 
 1. For any convex function $f \colon \reals \to \reals$, 
    $F(s) = \EXP[ f(s - W) ]$ is convex.
@@ -203,6 +210,14 @@ We first establish some preliminary results.
    **Proof** For any realization of $W$, $f(s - w)$ is convex in $s$.
    The expectation w.r.t. $W$ is simply the sum of convex functions and is,
    therefore, convex. 
+
+      <figure style='max-width:40em;'>
+        <div id="observablehq-average_plot-11079710"></div>
+        <figcaption><b>Figure 3</b><br />
+        An example showing that the average of convex functions is convex.
+        </figcaption>
+      </figure>
+
 
 2. For any convex function $f \colon \reals \to \reals$, 
    let $s^* =  \arg \min_{s \in \reals} f(s)$. Then,
@@ -217,6 +232,19 @@ We first establish some preliminary results.
     \end{cases}$$
     and $F(s)$ is convex in $s$.
 
+
+     We first see an illustration of $F(s) = \min\{ f(s), f(s+1), f(s+2) \}$. Note
+     that the resulting function is not convex because $a$ takes only discrete
+     values. But the plot shows that the minimum will look like when we allow
+     $a$ to take continuous values. 
+     <figure style='max-width:40em;'>
+       <div id="observablehq-minimum_plot-11079710"></div>
+       <figcaption><b>Figure 4</b><br />
+       An example showing that the minimum of $f(s)$, $f(s+1)$, $f(s+2)$. 
+       </figcaption>
+     </figure>
+
+
      If there were no constraint on $a$, then the minimizer will be $a = s^* -
      s$. If $s \le s^*$, then $a = s^* -s \in \reals_{\ge 0}$ is the minimizer for
      the constrained problem as well. On the other hand, if $s \ge s^*$, then
@@ -224,84 +252,9 @@ We first establish some preliminary results.
      the minimizer for the constrained problem is $a = 0$. 
      See the figures below.
 
-  <div style="width:800px;height:600px;display:block" id="applet_container"></div>
-  <script type="text/javascript">
-      var params = {
-        filename: "/stochastic-control/geogebra/mdp/inventory-management.ggb",
-        enableShiftDragZoom: false,
-        width: 800,
-        height: 600,
-      }
 
-      var applet = new GGBApplet(params, true);
+#### Proof {-}
 
-      window.onload = function() {
-          applet.inject('applet_container');
-      }
-  </script>
-
- <!--
- <div class="flex">
-   <div id="function:f" style="width:400px; height:250px;"></div>
-   <div id="function:π" style="width:400px; height:250px;"></div>
- </div>
-
-<script>
-  var state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  var Q     = [16, 10, 6.5, 4, 3, 4, 7, 12, 19, 28];
-  var Qmin  = [3,  3, 3,   3, 3, 4, 7, 12, 19, 28];
-
-  function show_plot(dom, s, z, xtitle, ytitle) {
-    var data = [{ 
-        x: s,
-        y: z,
-        line : { 
-          shape: "spline",
-        },
-        mode: "lines", 
-    }];
-
-    var layout = { 
-        paper_bgcolor: "#fffff8",
-        plot_bgcolor:  "#fffff8",
-        saxis : {
-          title: xtitle,
-          showgrid: true,
-          showline: true,
-          zeroline: false,
-          showticklabels: false,
-        },
-        yaxis : {
-          title: ytitle,
-          showgrid: true,
-          showline: true,
-          zeroline: false,
-          showticklabels: false,
-          range: [-5,30],
-        },
-        automargin: true,
-        margin: {
-          l : 50,
-          r : 15,
-          b : 15,
-          t : 15,
-          pad : 15
-        } ,
-        hovermode: false,
-    };
-
-    var options = {
-        staticPlot: true,
-        displayModeBar: false,
-    };
-
-    Plotly.plot(dom, data, layout, options);
-  }
-
-  show_plot('function:f', state, Q, "$s$", "$f(s)$");
-  show_plot('function:π', state, Qmin, "$s$",  "$F(s) = \\displaystyle \\min_{a \\ge 0} f(s+a)$");
-</script>
--->
 
 Now to prove the result, we define 
 $$ f_t(z) = py + H_t(z). $$
@@ -341,7 +294,7 @@ Thus, the result is holds by induction. $\Box$
 
 # Exercises {-}
 
-1. Now consider the setting when $\S = \integers$. Show that there
+1. Consider the setting when $\S = \integers$. Show that there
    exists a sequence $\{s_t\}_{t \ge 1}$ of numbres such that policy given by
    $$ π_t(s) = \begin{cases}
       n, & \text{if } s_t - n \le s \le s_t - n + 1, \\

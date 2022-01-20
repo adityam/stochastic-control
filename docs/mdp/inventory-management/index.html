@@ -166,11 +166,26 @@ V_t(s) = \begin{cases}
 </dd>
 </dl>
 </div>
-<h4 class="unnumbered" id="proof">Proof</h4>
 <p>We first establish some preliminary results.</p>
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/@adityam/properties-of-convex-functions.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "average_plot") return new Inspector(document.querySelector("#observablehq-average_plot-11079710"));
+  if (name === "minimum_plot") return new Inspector(document.querySelector("#observablehq-minimum_plot-11079710"));
+});
+</script>
 <ol type="1">
 <li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, <span class="math inline">\(F(s) = \EXP[ f(s - W) ]\)</span> is convex.</p>
-<p><strong>Proof</strong> For any realization of <span class="math inline">\(W\)</span>, <span class="math inline">\(f(s - w)\)</span> is convex in <span class="math inline">\(s\)</span>. The expectation w.r.t. <span class="math inline">\(W\)</span> is simply the sum of convex functions and is, therefore, convex.</p></li>
+<p><strong>Proof</strong> For any realization of <span class="math inline">\(W\)</span>, <span class="math inline">\(f(s - w)\)</span> is convex in <span class="math inline">\(s\)</span>. The expectation w.r.t. <span class="math inline">\(W\)</span> is simply the sum of convex functions and is, therefore, convex.</p>
+<figure style="max-width:40em;">
+<div id="observablehq-average_plot-11079710">
+
+</div>
+<figcaption>
+<p><b>Figure 3</b><br /> An example showing that the average of convex functions is convex.</p>
+</figcaption>
+</figure></li>
 <li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, let <span class="math inline">\(s^* = \arg \min_{s \in \reals} f(s)\)</span>. Then, <span class="math display">\[\arg \min_{a \in \reals_{\ge 0}} f(s + a) = \begin{cases}
 0, &amp; \text{if } s &gt; s^*, \\
 s^* - s, &amp; \text{if } s \le s^*
@@ -178,87 +193,18 @@ s^* - s, &amp; \text{if } s \le s^*
  f(s), &amp; \text{if } s &gt; s^* \\
  f(s^*), &amp; \text{if } s \le s^*
  \end{cases}\]</span> and <span class="math inline">\(F(s)\)</span> is convex in <span class="math inline">\(s\)</span>.</p>
-<p>If there were no constraint on <span class="math inline">\(a\)</span>, then the minimizer will be <span class="math inline">\(a = s^* -  s\)</span>. If <span class="math inline">\(s \le s^*\)</span>, then <span class="math inline">\(a = s^* -s \in \reals_{\ge 0}\)</span> is the minimizer for the constrained problem as well. On the other hand, if <span class="math inline">\(s \ge s^*\)</span>, then the function <span class="math inline">\(f(s + a)\)</span> is increasing as a function of <span class="math inline">\(a\)</span>. Hence, the minimizer for the constrained problem is <span class="math inline">\(a = 0\)</span>. See the figures below.</p></li>
-</ol>
-<div id="applet_container" style="width:800px;height:600px;display:block">
+<p>We first see an illustration of <span class="math inline">\(F(s) = \min\{ f(s), f(s+1), f(s+2) \}\)</span>. Note that the resulting function is not convex because <span class="math inline">\(a\)</span> takes only discrete values. But the plot shows that the minimum will look like when we allow <span class="math inline">\(a\)</span> to take continuous values.</p>
+<figure style="max-width:40em;">
+<div id="observablehq-minimum_plot-11079710">
 
 </div>
-<script type="text/javascript">
-      var params = {
-        filename: "/stochastic-control/geogebra/mdp/inventory-management.ggb",
-        enableShiftDragZoom: false,
-        width: 800,
-        height: 600,
-      }
-
-      var applet = new GGBApplet(params, true);
-
-      window.onload = function() {
-          applet.inject('applet_container');
-      }
-  </script>
-<p><!--
- <div class="flex">
-   <div id="function:f" style="width:400px; height:250px;"></div>
-   <div id="function:π" style="width:400px; height:250px;"></div>
- </div>
-
-<script>
-  var state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  var Q     = [16, 10, 6.5, 4, 3, 4, 7, 12, 19, 28];
-  var Qmin  = [3,  3, 3,   3, 3, 4, 7, 12, 19, 28];
-
-  function show_plot(dom, s, z, xtitle, ytitle) {
-    var data = [{ 
-        x: s,
-        y: z,
-        line : { 
-          shape: "spline",
-        },
-        mode: "lines", 
-    }];
-
-    var layout = { 
-        paper_bgcolor: "#fffff8",
-        plot_bgcolor:  "#fffff8",
-        saxis : {
-          title: xtitle,
-          showgrid: true,
-          showline: true,
-          zeroline: false,
-          showticklabels: false,
-        },
-        yaxis : {
-          title: ytitle,
-          showgrid: true,
-          showline: true,
-          zeroline: false,
-          showticklabels: false,
-          range: [-5,30],
-        },
-        automargin: true,
-        margin: {
-          l : 50,
-          r : 15,
-          b : 15,
-          t : 15,
-          pad : 15
-        } ,
-        hovermode: false,
-    };
-
-    var options = {
-        staticPlot: true,
-        displayModeBar: false,
-    };
-
-    Plotly.plot(dom, data, layout, options);
-  }
-
-  show_plot('function:f', state, Q, "$s$", "$f(s)$");
-  show_plot('function:π', state, Qmin, "$s$",  "$F(s) = \\displaystyle \\min_{a \\ge 0} f(s+a)$");
-</script>
---></p>
+<figcaption>
+<p><b>Figure 4</b><br /> An example showing that the minimum of <span class="math inline">\(f(s)\)</span>, <span class="math inline">\(f(s+1)\)</span>, <span class="math inline">\(f(s+2)\)</span>.</p>
+</figcaption>
+</figure>
+<p>If there were no constraint on <span class="math inline">\(a\)</span>, then the minimizer will be <span class="math inline">\(a = s^* -  s\)</span>. If <span class="math inline">\(s \le s^*\)</span>, then <span class="math inline">\(a = s^* -s \in \reals_{\ge 0}\)</span> is the minimizer for the constrained problem as well. On the other hand, if <span class="math inline">\(s \ge s^*\)</span>, then the function <span class="math inline">\(f(s + a)\)</span> is increasing as a function of <span class="math inline">\(a\)</span>. Hence, the minimizer for the constrained problem is <span class="math inline">\(a = 0\)</span>. See the figures below.</p></li>
+</ol>
+<h4 class="unnumbered" id="proof">Proof</h4>
 <p>Now to prove the result, we define <span class="math display">\[ f_t(z) = py + H_t(z). \]</span> Then, <span class="math display">\[ V_t(s) = \min_{a \in \reals_{\ge 0}} \bigl\{ p(s + a) + H_t(s + a)
 \bigr\} - p s 
 = \min_{a \in \reals_{\ge 0}} f_t(s+a) - p s.
@@ -274,7 +220,7 @@ s^* - s, &amp; \text{if } s \le s^*
 <p>Thus, the result is holds by induction. <span class="math inline">\(\Box\)</span></p>
 <h1 class="unnumbered" id="exercises">Exercises</h1>
 <ol type="1">
-<li>Now consider the setting when <span class="math inline">\(\S = \integers\)</span>. Show that there exists a sequence <span class="math inline">\(\{s_t\}_{t \ge 1}\)</span> of numbres such that policy given by <span class="math display">\[ π_t(s) = \begin{cases}
+<li>Consider the setting when <span class="math inline">\(\S = \integers\)</span>. Show that there exists a sequence <span class="math inline">\(\{s_t\}_{t \ge 1}\)</span> of numbres such that policy given by <span class="math display">\[ π_t(s) = \begin{cases}
    n, &amp; \text{if } s_t - n \le s \le s_t - n + 1, \\
    0, &amp; \text{if } s_t \ge s_t.
   \end{cases} \]</span> is optimal.</li>
