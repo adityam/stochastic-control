@@ -51,81 +51,75 @@
 <h2 data-number="0.1" id="problem-1"><span class="header-section-number">0.1</span> Problem 1</h2>
 <p>The code for computing the optimal policy is <a href="queueing.jl">available here</a>. The code is written for ease of reading, not efficiency.</p>
 <div class="highlight">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#75715e"># State spaces</span>
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> Distributions
+
+<span style="color:#75715e"># Parameters</span>
 n, m  <span style="color:#f92672">=</span> <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">3</span>
-X <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
-U <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>m<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
+λ <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>
 
-<span style="color:#75715e"># Transition probability</span>
-q <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.6</span>
-p <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.0</span>,<span style="color:#ae81ff">0.25</span>,<span style="color:#ae81ff">0.5</span>,<span style="color:#ae81ff">0.8</span>]
+μ <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.2</span>, <span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.8</span>]
+q <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">8</span>]
 
-P <span style="color:#f92672">=</span> [ zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">for</span> u <span style="color:#66d9ef">in</span> U ]
-
-<span style="color:#75715e"># We are using 1-indexed arrays, so need to be careful with the indices</span>
-<span style="color:#66d9ef">for</span> u <span style="color:#66d9ef">in</span> U
-    <span style="color:#a6e22e">@views</span> Pu <span style="color:#f92672">=</span> P[u]
-    <span style="color:#66d9ef">for</span> x <span style="color:#66d9ef">in</span> X
-        <span style="color:#66d9ef">if</span> x <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>
-            Pu[x,x]   <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> q
-            Pu[x,x<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> q
-        <span style="color:#66d9ef">elseif</span> x <span style="color:#f92672">==</span> n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
-            Pu[x,x<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1</span><span style="color:#f92672">-</span>q)<span style="color:#f92672">*</span>p[u]
-            Pu[x,x  ] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> (<span style="color:#ae81ff">1</span><span style="color:#f92672">-</span>q)<span style="color:#f92672">*</span>p[u]
-        <span style="color:#66d9ef">else</span>
-            Pu[x,x<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1</span><span style="color:#f92672">-</span>q)<span style="color:#f92672">*</span>p[u]
-            Pu[x,x  ] <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1</span><span style="color:#f92672">-</span>q)<span style="color:#f92672">*</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">-</span>p[u]) <span style="color:#f92672">+</span> q<span style="color:#f92672">*</span>p[u]
-            Pu[x,x<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> q<span style="color:#f92672">*</span>(<span style="color:#ae81ff">1</span><span style="color:#f92672">-</span>p[u])
-        <span style="color:#66d9ef">end</span>
-    <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-
-P_concat <span style="color:#f92672">=</span> vcat(P<span style="color:#f92672">...</span>)
-
-<span style="color:#75715e"># Costs</span>
-R <span style="color:#f92672">=</span> <span style="color:#ae81ff">6</span> 
 h <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
-c <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">12</span>]
+R <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
+B <span style="color:#f92672">=</span> <span style="color:#ae81ff">15</span>
 
-r <span style="color:#f92672">=</span> zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,m<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)
-<span style="color:#66d9ef">for</span> u <span style="color:#66d9ef">in</span> U, x <span style="color:#66d9ef">in</span> X
-    <span style="color:#66d9ef">if</span> x <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>
-        r[x,u] <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>c[u]
+<span style="color:#75715e"># State spaces</span>
+S <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>n
+A <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>m
+Z <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
+
+<span style="color:#75715e"># Dynamics</span>
+f(s,z,w) <span style="color:#f92672">=</span> min( max(s<span style="color:#f92672">-</span>z, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">+</span> w, n)
+
+<span style="color:#75715e"># Arrival probability</span>
+W <span style="color:#f92672">=</span> Poisson(λ)
+Pw(w) <span style="color:#f92672">=</span> pdf(W,w)
+
+<span style="color:#75715e"># Departure probability</span>
+Z <span style="color:#f92672">=</span> [Bernoulli(μ[a]) <span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A]
+Pz(z,a) <span style="color:#f92672">=</span> pdf(Z[a],z)
+
+<span style="color:#75715e"># Per-step cost. We use $E[c(S,Y,A) | S, A]$ as our cost function</span>
+c̃ <span style="color:#f92672">=</span> zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,m)
+<span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A, s <span style="color:#66d9ef">in</span> S
+    <span style="color:#66d9ef">if</span> s <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>
+        c̃[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,a] <span style="color:#f92672">=</span> q[a]
     <span style="color:#66d9ef">else</span>
-        r[x,u] <span style="color:#f92672">=</span> p[u]<span style="color:#f92672">*</span>R <span style="color:#f92672">-</span> h<span style="color:#f92672">*</span>x <span style="color:#f92672">-</span> c[u]
+        c̃[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,a] <span style="color:#f92672">=</span> q[a] <span style="color:#f92672">+</span> h<span style="color:#f92672">*</span>s <span style="color:#f92672">-</span> R<span style="color:#f92672">*</span>μ[a]
     <span style="color:#66d9ef">end</span>
 <span style="color:#66d9ef">end</span>
+
 
 <span style="color:#75715e"># Dynamic programming</span>
+T <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>
 
-T <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>
-
-v <span style="color:#f92672">=</span> [ zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)        <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] 
-g <span style="color:#f92672">=</span> [ zeros(<span style="color:#66d9ef">Int</span>, n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)   <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
+V <span style="color:#f92672">=</span> [ zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)        <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] 
+Q <span style="color:#f92672">=</span> [ zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,m)      <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
+π <span style="color:#f92672">=</span> [ zeros(<span style="color:#66d9ef">Int</span>, n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)   <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
 
 <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> T<span style="color:#f92672">:-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
-    Q <span style="color:#f92672">=</span> r <span style="color:#f92672">+</span> reshape(P_concat <span style="color:#f92672">*</span> v[t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>], n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, m<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)
-    <span style="color:#66d9ef">for</span> x <span style="color:#66d9ef">in</span> X 
-        idx <span style="color:#f92672">=</span> argmax(Q[x,<span style="color:#f92672">:</span>])
-        v[t][x] <span style="color:#f92672">=</span> Q[x, idx]
-        g[t][x] <span style="color:#f92672">=</span> idx <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span> <span style="color:#75715e"># To revert back to natural indices</span>
+    <span style="color:#a6e22e">@views</span> Qt <span style="color:#f92672">=</span> Q[t]
+    <span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S 
+        <span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A
+          Qt[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, a] <span style="color:#f92672">=</span> c̃[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,a] <span style="color:#f92672">+</span> sum(Pw(w)<span style="color:#f92672">*</span>Pz(z,a)<span style="color:#f92672">*</span>V[t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>][f(s,z,w) <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>] <span style="color:#66d9ef">for</span> w <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>B, z <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>)
+        <span style="color:#66d9ef">end</span>
+        idx <span style="color:#f92672">=</span> argmin(Qt[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,<span style="color:#f92672">:</span>])
+        V[t][s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> Qt[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, idx]
+        π[t][s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> idx 
     <span style="color:#66d9ef">end</span>
 <span style="color:#66d9ef">end</span>
 
 <span style="color:#66d9ef">using</span> PyPlot
 
-step(<span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>n, hcat(v[<span style="color:#ae81ff">1</span>], v[<span style="color:#ae81ff">50</span>], v[<span style="color:#ae81ff">75</span>], v[<span style="color:#ae81ff">95</span>]), <span style="color:#66d9ef">where</span><span style="color:#f92672">=</span><span style="color:#e6db74">:mid</span>)
-legend([<span style="color:#e6db74">&#34;v[1]&#34;</span>, <span style="color:#e6db74">&#34;v[50]&#34;</span>, <span style="color:#e6db74">&#34;v[75]&#34;</span>, <span style="color:#e6db74">&#34;v[95]&#34;</span>], loc<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;center left&#34;</span>, bbox_to_anchor<span style="color:#f92672">=</span>(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0.5</span>)) 
-xlabel(<span style="color:#e6db74">&#34;State&#34;</span>)
-title(<span style="color:#e6db74">&#34;Value function for different times&#34;</span>)
-savefig(<span style="color:#e6db74">&#34;queueing.png&#34;</span>, bbox_inches<span style="color:#f92672">=</span><span style="color:#e6db74">:tight</span>)
-
-
-<span style="color:#a6e22e">@info</span> <span style="color:#e6db74">&#34;Optimal policy&#34;</span> [g[<span style="color:#ae81ff">1</span>], g[<span style="color:#ae81ff">50</span>], g[<span style="color:#ae81ff">75</span>], g[<span style="color:#ae81ff">95</span>]]
-
-
-
-
+<span style="color:#75715e"># step(0:n, hcat(π[1], π[50], π[75], π[95]), where=:mid)</span>
+<span style="color:#75715e"># legend([&#34;v[1]&#34;, &#34;v[50]&#34;, &#34;v[75]&#34;, &#34;v[95]&#34;], loc=&#34;center left&#34;, bbox_to_anchor=(1,0.5)) </span>
+<span style="color:#75715e"># xlabel(&#34;State&#34;)</span>
+<span style="color:#75715e"># title(&#34;Value function for different times&#34;)</span>
+<span style="color:#75715e"># savefig(&#34;queueing.png&#34;, bbox_inches=:tight)</span>
+<span style="color:#75715e"># </span>
+<span style="color:#75715e"># </span>
+<span style="color:#75715e"># @info &#34;Optimal policy&#34; [π[1], π[50], π[75], π[95]]</span>
 
 </code></pre>
 </div>

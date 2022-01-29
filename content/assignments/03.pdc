@@ -6,107 +6,55 @@ marks: 10
 
 1. **Service rate control in queueing systems**
 
-    Consider a queueing system in which jobs arrive according to a i.i.d.
-    Bernoulli process $\{A_t\}_{t \ge 1}$, where $\PR(A_t = 1) = q$. The jobs
-    are queued in a buffer of size $n$. Let $X_t \in \{0, 1, \dots, n\}$
-    denote the number of jobs in the queue at time $t$. 
+    Consider a queueing system where $S_t \in \{0, 1, \dots, n\}$ denotes the
+    number of jobs in the queue at time $t$, $W_t \in \integers_{\ge 0}$
+    denotes the number of new job arrivals in time $t$, $Z_t \in \{0,1\}$
+    denotes whether the job being processed gets completed in time $t$. The
+    dynamics of the system are given by
+    $$
+      S_{t+1} = \bigl[ [ S_t - Z_t]^{+} + W_t \bigr]^{n}_{0}
+    $$ 
+    where $[s]^{+} = \max\{s,0\}$, and $[s]_{0}^n$ is the clip function
+    (defined in [Assignment 2](../02)).
 
-    At each time, if there are jobs in the queue, the server works on the job
-    at the head of the queue at service rate $U_t \in \{0, 1, \dots, m\}$ and
-    finishes the job with probability $p(u)$. Thus,
-    $$ P_{0y}(u) = 
-    \begin{cases}
-      1 - q,    & \text{if } y = 0 \\
-      q,  & \text{if } y = 1 \\
-      0,  & \text{otherwise}
-    \end{cases} $$
-    and for $x \not\in\{0, n\}$, 
-    $$ P_{xy}(u) = 
-    \begin{cases}
-      (1 - q) p(u), & \text{if } y = x - 1 \\
-      (1 - q)(1 - p(u)) + qp(u),    & \text{if } y = x \\
-      q(1-p(u)) ,  & \text{if } y = x + 1 \\
-      0,  & \text{otherwise}
-    \end{cases} $$
-    and for $x = n$
-    $$ P_{xy}(u) = 
-    \begin{cases}
-      (1 - q) p(u), & \text{if } y = x - 1 \\
-      1 - (1 - q)p(u),    & \text{if } y = x \\
-      0,  & \text{otherwise}
-    \end{cases} $$
+    We assume that job arrivals $W_t$ follow a Poisson distribution, i.e., $\PR(W_t
+    = w) = P_w(w) = λ^{w} e^{-λ}/w!$. When the queue is empty, no job can be
+    completed. When the queue is non-empty, the number of job completions
+    $Z_t$ is a Bernoulli random variable where the success probability
+    $μ(A_t)$.
 
-    There are three components of the per-step reward. A reward of $R$ units
-    for every job that is completed, a holding cost of $h$ for every job that
-    is in the queue, and a running cost of $c(u)$ for choosing rate $u$.
-    Thus,
+    There are three components to the per-step cost. (i) there is a holding
+    cost of $h$ for every job that is in the queue; (ii) there is a running
+    cost $q(a)$ for choosing rate $a$; and (iii) there is a negative cost (or
+    reward) $R$ for every job that is completed. Thus, the per-step cost is 
+    $c(S_t,Z_t,A_t)$, where
+    $$
+        c(s,z,a) = h \cdot s + q(a) - R \cdot z.
+    $$
 
-    $$r(0,u) = - c(u)$$
-    and for $x \neq 0$
-    $$r(x,u) = p(u) R - h\cdot x - c(u). $$
+    Consider the above model with $n = 8$, $m = 3$, $λ = 0.5$, $μ(1) = 0.2$,
+    $μ(2) = 0.5$, $μ(3) = 0.8$, $q(1) = 1$, $q(2) = 3$, $q(3) = 8$, $h = 1$,
+    and $R = 10$. 
 
-    Consider the above model with $n = 8$, $m = 3$, $q = 0.6$, $R = 6$, $h =
-    1$, $p = [0, 0.25, 0.5, 0.8]$, $c = [0, 1, 4, 12]$ and $T = 100$.
+    Note that in this model, the arrival process is unbounded, which makes it
+    difficult to use the formula that we had in class. To circumvent this
+    difficulty, we pick a bound $B > n$ such that $\sum_{w = 0}^B P_w(w)
+    \approx 1$. In this exercise, we pick $B = 15$ [Verify that $B$ satisfies
+    the above property]. So, we can effectively consider that $W_t$ has a
+    support $\{0, \dots, B\}$. 
 
-    a. Write code (in any programming language) for solving the dynamic
-       program. 
+    a. Write code (in any programming language) for solving the (approximate)
+    dynamic program for $T = 50$. 
 
-    b. Plot the value function for $t \in \{1, 50, 75, 95 \}$ on the same
+    b. Plot the value function for $t \in \{1, 5, 10, 25 \}$ on the same
        plot.
 
-    c. Show the optimal policy for $t \in \{1, 50, 75, 95 \}$.
+    c. Show the optimal policy for $t \in \{1, 5, 10, 25 \}$.
 
-Submit your code with your solution.
+    Submit your code with your solution.
 
 2. **State transmission in Internet of Things**
 
-    Consider an IoT device which is observing an autoregressive process
-    $\{X_t\}_{t \ge 0}$, $X_t \in \reals$, which starts at $X_1 = 0$ and for
-    $t > 1$ evolves as 
-    $$ X_{t+1} = X_t + W_t $$
-    where $\{W_t\}_{t \ge 1}$ is an i.i.d. process with $W_t \sim {\cal
-    N}(0,1)$. 
-
-    The IoT device can either transmit its observation (denoted by $U_t = 1$)
-    or not (denoted by $U_t = 0$). Transmitting a packet has a cost $\lambda$
-    while not transmitting has no cost. 
-
-    When $U_t = 0$, the receiver estimates the state of the process as the
-    previously transmitted observation $Z_t$ and incurs a cost $(X_t -
-    Z_t)^2$. 
-
-    The above system can be modeled as an MDP with state $\{E_t \}_{t \ge 0}$,
-    where $E_t = X_t - Z_t$. It can be shown that the dynamics of $\{E_t\}_{t
-    \ge 1}$ are as follows:
-    $$ E_{t+1} = \begin{cases}
-        E_t + W_t, & \text{if } U_t = 0 \\
-        W_t, & \text{if } U_t = 1
-      \end{cases} $$
-
-    The per-step cost is given by
-    $$ c(e,u) = \lambda u + (1-u)e^2. $$
-
-    The objective of this exercise is to find the optimal policy for the above
-    problem using dynamic programming. 
-
-    The system has continuous state and discrete actions. We will convert it
-    into a discrete state MDP as follows:
-
-    * The state space is the set of real-numbers. We first truncate it into a
-      bounded interval $[-B, B]$. We assume that any transition which takes
-      the state to $(B,\infty)$ gets restricted to $B$ and any transition
-      which takes the state to $(-\infty,-B)$ gets restricted to $-B$.
-
-    * We then discretize the interval $[-B, B]$ into a grid of $2N + 1$
-      points and consider the center of each cell as the representivative
-      element of that cell.
-
-    * We follow the discretization procedure discussed in class to construct
-      the finite state transition matrix. 
-
-    * Write computer code to solve the discrete time system for $λ = 1$ and
-      horizon $T = 4$. Plot the value function for all times on the same plot.
-
-You need to experiment with the values of $B$ and $N$ to make sure that the
-choice of $B$ and $N$ does not affect your result.
+    _I am still verifying the parameters for this problem and will post it
+    soon_
 

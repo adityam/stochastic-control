@@ -465,8 +465,7 @@ This means that we need to compute \(P(W|S)\). However, we can avoid that step b
       
       <guid>https://adityam.github.io/stochastic-control/assignments/03/</guid>
       <description>Service rate control in queueing systems
-Consider a queueing system in which jobs arrive according to a i.i.d. Bernoulli process \(\{A_t\}_{t \ge 1}\), where \(\PR(A_t = 1) = q\). The jobs are queued in a buffer of size \(n\). Let \(X_t \in \{0, 1, \dots, n\}\) denote the number of jobs in the queue at time \(t\).
-At each time, if there are jobs in the queue, the server works on the job at the head of the queue at service rate \(U_t \in \{0, 1, \dots, m\}\) and finishes the job with probability \(p(u)\).</description>
+Consider a queueing system where \(S_t \in \{0, 1, \dots, n\}\) denotes the number of jobs in the queue at time \(t\), \(W_t \in \integers_{\ge 0}\) denotes the number of new job arrivals in time \(t\), \(Z_t \in \{0,1\}\) denotes whether the job being processed gets completed in time \(t\). The dynamics of the system are given by \[ S_{t+1} = \bigl[ [ S_t - Z_t]^{+} + W_t \bigr]^{n}_{0} \] where \([s]^{+} = \max\{s,0\}\), and \([s]_{0}^n\) is the clip function (defined in Assignment 2).</description>
     </item>
     
     <item>
@@ -476,7 +475,7 @@ At each time, if there are jobs in the queue, the server works on the job at the
       
       <guid>https://adityam.github.io/stochastic-control/solutions/03/</guid>
       <description>0.1 Problem 1 The code for computing the optimal policy is available here. The code is written for ease of reading, not efficiency.
-# State spaces n, m = 8, 3 X = 1:n+1 U = 1:m+1 # Transition probability q = 0.6 p = [0.0,0.25,0.5,0.8] P = [ zeros(n+1,n+1) for u in U ] # We are using 1-indexed arrays, so need to be careful with the indices for u in U @views Pu = P[u] for x in X if x == 1 Pu[x,x] = 1 - q Pu[x,x+1] = q elseif x == n+1 Pu[x,x-1] = (1-q)*p[u] Pu[x,x ] = 1 - (1-q)*p[u] else Pu[x,x-1] = (1-q)*p[u] Pu[x,x ] = (1-q)*(1-p[u]) + q*p[u] Pu[x,x+1] = q*(1-p[u]) end end end P_concat = vcat(P.</description>
+using Distributions # Parameters n, m = 8, 3 λ = 0.5 μ = [0.2, 0.5, 0.8] q = [1, 3, 8] h = 1 R = 10 B = 15 # State spaces S = 0:n A = 1:m Z = 0:1 # Dynamics f(s,z,w) = min( max(s-z, 0) + w, n) # Arrival probability W = Poisson(λ) Pw(w) = pdf(W,w) # Departure probability Z = [Bernoulli(μ[a]) for a in A] Pz(z,a) = pdf(Z[a],z) # Per-step cost.</description>
     </item>
     
     <item>
