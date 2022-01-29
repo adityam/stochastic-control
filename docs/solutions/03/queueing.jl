@@ -1,4 +1,4 @@
-using Distributions
+using Distributions, OffsetArrays
 
 # Parameters
 n, m  = 8, 3
@@ -14,46 +14,37 @@ B = 15
 # State spaces
 S = 0:n
 A = 1:m
+W = 0:B
 Z = 0:1
 
 # Dynamics
 f(s,z,w) = min( max(s-z, 0) + w, n)
 
 # Arrival probability
-W = Poisson(λ)
-Pw(w) = pdf(W,w)
+Pw(w) = pdf(Poisson(λ),w)
 
 # Departure probability
-Z = [Bernoulli(μ[a]) for a in A]
-Pz(z,a) = pdf(Z[a],z)
+Pz(z,s,a) = (s == 0) ? convert(Int, z==0) : pdf(Bernoulli(μ[a]),z)
 
-# Per-step cost. We use $E[c(S,Y,A) | S, A]$ as our cost function
-c̃ = zeros(n+1,m)
-for a in A, s in S
-    if s == 0
-        c̃[s+1,a] = q[a]
-    else
-        c̃[s+1,a] = q[a] + h*s - R*μ[a]
-    end
-end
-
+# Cost
+c(s,z,a) = h*s + q[a] - R*z
 
 # Dynamic programming
 T = 50
 
-V = [ zeros(n+1)        for t in 1:T+1] 
-Q = [ zeros(n+1,m)      for t in 1:T]
-π = [ zeros(Int, n+1)   for t in 1:T]
+V = [ OffsetArray(zeros(length(S)), S)               for t in 1:T+1] 
+Q = [ OffsetArray(zeros(length(S),length(A)), S,A)   for t in 1:T]
+π = [ OffsetArray(zeros(Int, length(S)), S)          for t in 1:T]
 
 for t in T:-1:1
     @views Qt = Q[t]
     for s in S 
         for a in A
-          Qt[s+1, a] = c̃[s+1,a] + sum(Pw(w)*Pz(z,a)*V[t+1][f(s,z,w) + 1] for w in 0:B, z in 0:1)
+          Qt[s, a] = sum(Pw(w)*Pz(z,s,a)*( c(s,z,a) + V[t+1][f(s,z,w)] ) for w in W, z in Z)
         end
-        idx = argmin(Qt[s+1,:])
-        V[t][s+1] = Qt[s+1, idx]
-        π[t][s+1] = idx 
+        idx = argmin(Qt[s,:])
+        V[t][s] = Qt[s, idx]
+        π[t][s] = idx 
     end
 end
 

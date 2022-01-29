@@ -51,7 +51,7 @@
 <h2 data-number="0.1" id="problem-1"><span class="header-section-number">0.1</span> Problem 1</h2>
 <p>The code for computing the optimal policy is <a href="queueing.jl">available here</a>. The code is written for ease of reading, not efficiency.</p>
 <div class="highlight">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> Distributions
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> Distributions, OffsetArrays
 
 <span style="color:#75715e"># Parameters</span>
 n, m  <span style="color:#f92672">=</span> <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">3</span>
@@ -67,46 +67,37 @@ B <span style="color:#f92672">=</span> <span style="color:#ae81ff">15</span>
 <span style="color:#75715e"># State spaces</span>
 S <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>n
 A <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>m
+W <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>B
 Z <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
 
 <span style="color:#75715e"># Dynamics</span>
 f(s,z,w) <span style="color:#f92672">=</span> min( max(s<span style="color:#f92672">-</span>z, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">+</span> w, n)
 
 <span style="color:#75715e"># Arrival probability</span>
-W <span style="color:#f92672">=</span> Poisson(λ)
-Pw(w) <span style="color:#f92672">=</span> pdf(W,w)
+Pw(w) <span style="color:#f92672">=</span> pdf(Poisson(λ),w)
 
 <span style="color:#75715e"># Departure probability</span>
-Z <span style="color:#f92672">=</span> [Bernoulli(μ[a]) <span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A]
-Pz(z,a) <span style="color:#f92672">=</span> pdf(Z[a],z)
+Pz(z,s,a) <span style="color:#f92672">=</span> (s <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">?</span> convert(<span style="color:#66d9ef">Int</span>, z<span style="color:#f92672">==</span><span style="color:#ae81ff">0</span>) <span style="color:#f92672">:</span> pdf(Bernoulli(μ[a]),z)
 
-<span style="color:#75715e"># Per-step cost. We use $E[c(S,Y,A) | S, A]$ as our cost function</span>
-c̃ <span style="color:#f92672">=</span> zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,m)
-<span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A, s <span style="color:#66d9ef">in</span> S
-    <span style="color:#66d9ef">if</span> s <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>
-        c̃[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,a] <span style="color:#f92672">=</span> q[a]
-    <span style="color:#66d9ef">else</span>
-        c̃[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,a] <span style="color:#f92672">=</span> q[a] <span style="color:#f92672">+</span> h<span style="color:#f92672">*</span>s <span style="color:#f92672">-</span> R<span style="color:#f92672">*</span>μ[a]
-    <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-
+<span style="color:#75715e"># Cost</span>
+c(s,z,a) <span style="color:#f92672">=</span> h<span style="color:#f92672">*</span>s <span style="color:#f92672">+</span> q[a] <span style="color:#f92672">-</span> R<span style="color:#f92672">*</span>z
 
 <span style="color:#75715e"># Dynamic programming</span>
 T <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>
 
-V <span style="color:#f92672">=</span> [ zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)        <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] 
-Q <span style="color:#f92672">=</span> [ zeros(n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,m)      <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
-π <span style="color:#f92672">=</span> [ zeros(<span style="color:#66d9ef">Int</span>, n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)   <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
+V <span style="color:#f92672">=</span> [ OffsetArray(zeros(length(S)), S)               <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] 
+Q <span style="color:#f92672">=</span> [ OffsetArray(zeros(length(S),length(A)), S,A)   <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
+π <span style="color:#f92672">=</span> [ OffsetArray(zeros(<span style="color:#66d9ef">Int</span>, length(S)), S)          <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
 
 <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> T<span style="color:#f92672">:-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
     <span style="color:#a6e22e">@views</span> Qt <span style="color:#f92672">=</span> Q[t]
     <span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S 
         <span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A
-          Qt[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, a] <span style="color:#f92672">=</span> c̃[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,a] <span style="color:#f92672">+</span> sum(Pw(w)<span style="color:#f92672">*</span>Pz(z,a)<span style="color:#f92672">*</span>V[t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>][f(s,z,w) <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>] <span style="color:#66d9ef">for</span> w <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>B, z <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>)
+          Qt[s, a] <span style="color:#f92672">=</span> sum(Pw(w)<span style="color:#f92672">*</span>Pz(z,s,a)<span style="color:#f92672">*</span>( c(s,z,a) <span style="color:#f92672">+</span> V[t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>][f(s,z,w)] ) <span style="color:#66d9ef">for</span> w <span style="color:#66d9ef">in</span> W, z <span style="color:#66d9ef">in</span> Z)
         <span style="color:#66d9ef">end</span>
-        idx <span style="color:#f92672">=</span> argmin(Qt[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>,<span style="color:#f92672">:</span>])
-        V[t][s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> Qt[s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, idx]
-        π[t][s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> idx 
+        idx <span style="color:#f92672">=</span> argmin(Qt[s,<span style="color:#f92672">:</span>])
+        V[t][s] <span style="color:#f92672">=</span> Qt[s, idx]
+        π[t][s] <span style="color:#f92672">=</span> idx 
     <span style="color:#66d9ef">end</span>
 <span style="color:#66d9ef">end</span>
 
@@ -136,89 +127,42 @@ Q <span style="color:#f92672">=</span> [ zeros(n<span style="color:#f92672">+</s
 <h2 data-number="0.2" id="problem-2"><span class="header-section-number">0.2</span> Problem 2</h2>
 <p>The code for computing the optimal policy is <a href="iot.jl">available here</a>. Note that we save a lot of explicit calculations by comuting the probability of landing in a bin in terms of differences of CDFs rather than an integral of the PDF.</p>
 <div class="highlight">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> Distributions
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> Distributions, OffsetArrays
 <span style="color:#66d9ef">using</span> PyPlot
 
+Pw(w) <span style="color:#f92672">=</span> (abs(w) <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">5</span>) <span style="color:#f92672">?</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#ae81ff">5</span> <span style="color:#f92672">-</span> abs(w)<span style="color:#f92672">/</span><span style="color:#ae81ff">25</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">0</span> 
+λ <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>
+B <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>
 
-<span style="color:#66d9ef">const</span> T <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span> 
-<span style="color:#66d9ef">const</span> λ <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+<span style="color:#75715e"># State spaces</span>
+S <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>B<span style="color:#f92672">:</span>B
+A <span style="color:#f92672">=</span>  <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
+W <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">5</span><span style="color:#f92672">:</span><span style="color:#ae81ff">5</span>
 
-<span style="color:#75715e"># We first truncate the state space to [-B, B] and then discretize it into</span>
-<span style="color:#75715e"># 2N + 1 points. </span>
+<span style="color:#75715e"># Dynamics</span>
+f(s,a,w) <span style="color:#f92672">=</span> clip(s<span style="color:#f92672">*</span>(a<span style="color:#f92672">==</span><span style="color:#ae81ff">0</span>) <span style="color:#f92672">+</span> w, <span style="color:#f92672">-</span>B, B) 
+clip(x,L,U) <span style="color:#f92672">=</span> max( min(x,U), L)
 
-<span style="color:#66d9ef">const</span> N <span style="color:#f92672">=</span> <span style="color:#ae81ff">500</span>
-<span style="color:#66d9ef">const</span> B <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span>
-<span style="color:#66d9ef">const</span> X <span style="color:#f92672">=</span> range(<span style="color:#f92672">-</span>B, B, length<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)
+<span style="color:#75715e"># cost</span>
+c(s,a) <span style="color:#f92672">=</span> λ <span style="color:#f92672">*</span> a <span style="color:#f92672">+</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> a)<span style="color:#f92672">*</span>s<span style="color:#f92672">^</span><span style="color:#ae81ff">2</span>
 
-<span style="color:#75715e"># Next we create the voronoi boundaries of these grid points.</span>
-<span style="color:#75715e"># Note that there are 2N+1 grid points, so there will be 2N+2 boundaries.</span>
-<span style="color:#75715e"># We follow the convention that the lower boundary of grid point n indexed by</span>
-<span style="color:#75715e"># n and the upper boundary is indexed by n+1</span>
+T <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>
 
-boundary <span style="color:#f92672">=</span> zeros(<span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">2</span>)
+V <span style="color:#f92672">=</span> [ OffsetArray(zeros(length(S)), S) <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span> ]
+π <span style="color:#f92672">=</span> [ OffsetArray(zeros(<span style="color:#66d9ef">Int</span>, length(S)), S) <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T ]
+Q <span style="color:#f92672">=</span> [ OffsetArray(zeros(length(S), length(A)), S,A) <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T ]
 
-boundary[<span style="color:#ae81ff">1</span>]    <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>Inf
-boundary[<span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> Inf
-
-<span style="color:#66d9ef">for</span> n <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
-    boundary[n] <span style="color:#f92672">=</span> (X[n<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]<span style="color:#f92672">+</span>X[n])<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>
-<span style="color:#66d9ef">end</span>
-
-<span style="color:#75715e"># The action space is binary. 0 means don&#39;t transmit and 1 means transmit</span>
-<span style="color:#66d9ef">const</span> U0 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
-<span style="color:#66d9ef">const</span> U1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>
-<span style="color:#66d9ef">const</span> U <span style="color:#f92672">=</span> [U0, U1]
-
-<span style="color:#75715e"># Now, we discretize the probability distribution. For every grid point x[i],</span>
-<span style="color:#75715e"># we calculate the probability that the transition takes us to the interval</span>
-<span style="color:#75715e"># (boundary[j], boundary[j+1])</span>
-
-<span style="color:#66d9ef">const</span> W <span style="color:#f92672">=</span> Normal(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>)
-
-P <span style="color:#f92672">=</span> [zeros(<span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">for</span> u <span style="color:#66d9ef">in</span> U]
-
-<span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, j <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
-    P[U0][i,j] <span style="color:#f92672">=</span> cdf(W, boundary[j<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">-</span> X[i]) <span style="color:#f92672">-</span> cdf(W, boundary[j] <span style="color:#f92672">-</span> X[i])
-    P[U1][i,j] <span style="color:#f92672">=</span> (cdf(W, boundary[j<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>]) <span style="color:#f92672">-</span> cdf(W, boundary[j])) 
-<span style="color:#66d9ef">end</span>
-
-<span style="color:#75715e"># Per-step cost cost (note that action is stored as as u+1. So we subtract one)</span>
-cost(x,u) <span style="color:#f92672">=</span> λ<span style="color:#f92672">*</span>(u<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> (u<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>))<span style="color:#f92672">*</span>x<span style="color:#f92672">*</span>x
-C <span style="color:#f92672">=</span> zeros(<span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, length(U))
-
-<span style="color:#66d9ef">for</span> u <span style="color:#66d9ef">in</span> U, n <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
-  C[n,u] <span style="color:#f92672">=</span> cost(X[n], u)
-<span style="color:#66d9ef">end</span>
-
-Q <span style="color:#f92672">=</span> [ C <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T ]
-
-V <span style="color:#f92672">=</span> [ zeros(<span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)      <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T ]
-g <span style="color:#f92672">=</span> [ zeros(<span style="color:#66d9ef">Int</span>, <span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T ]
-
-<span style="color:#66d9ef">function</span> find_optimal(t) 
-  <span style="color:#66d9ef">for</span> n <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
-    idx <span style="color:#f92672">=</span> Q[t][n,U0] <span style="color:#f92672">&lt;=</span> Q[t][n,U1] <span style="color:#f92672">?</span> U0 <span style="color:#f92672">:</span> U1
-    g[t][n] <span style="color:#f92672">=</span> idx <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>
-    V[t][n] <span style="color:#f92672">=</span> Q[t][n,idx]
-  <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-
-find_optimal(T)
-
-<span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> T<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
-  <span style="color:#66d9ef">for</span> u <span style="color:#66d9ef">in</span> U, n <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
-    <span style="color:#66d9ef">for</span> m <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>N<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>
-      Q[t][n,u] <span style="color:#f92672">+=</span> P[u][n,m]<span style="color:#f92672">*</span>V[t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>][m]
+<span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> T<span style="color:#f92672">:-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
+    <span style="color:#a6e22e">@views</span> Qt <span style="color:#f92672">=</span> Q[t]
+    <span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S 
+        <span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A
+          Qt[s, a] <span style="color:#f92672">=</span> c(s,a) <span style="color:#f92672">+</span> sum(Pw(w) <span style="color:#f92672">*</span> V[t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>][f(s,a,w)] <span style="color:#66d9ef">for</span> w <span style="color:#66d9ef">in</span> W)
+        <span style="color:#66d9ef">end</span>
+        idx <span style="color:#f92672">=</span> argmin(Qt[s,<span style="color:#f92672">:</span>])
+        V[t][s] <span style="color:#f92672">=</span> Qt[s, idx]
+        π[t][s] <span style="color:#f92672">=</span> idx 
     <span style="color:#66d9ef">end</span>
-  <span style="color:#66d9ef">end</span>
-  find_optimal(t)
 <span style="color:#66d9ef">end</span>
-
-plot(X, hcat(V[<span style="color:#ae81ff">1</span>], V[<span style="color:#ae81ff">2</span>], V[<span style="color:#ae81ff">3</span>], V[<span style="color:#ae81ff">4</span>]))
-legend([<span style="color:#e6db74">&#34;V[1]&#34;</span>, <span style="color:#e6db74">&#34;V[2]&#34;</span>, <span style="color:#e6db74">&#34;V[3]&#34;</span>, <span style="color:#e6db74">&#34;V[4]&#34;</span>], loc<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;center left&#34;</span>, bbox_to_anchor<span style="color:#f92672">=</span>(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0.5</span>))
-xlabel(<span style="color:#e6db74">&#34;State&#34;</span>)
-title(<span style="color:#e6db74">&#34;Value function for different times&#34;</span>)
-savefig(<span style="color:#e6db74">&#34;iot.png&#34;</span>, bbox_inches<span style="color:#f92672">=</span><span style="color:#e6db74">:tight</span>)
 
 
 </code></pre>

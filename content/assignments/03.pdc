@@ -49,12 +49,70 @@ marks: 10
     b. Plot the value function for $t \in \{1, 5, 10, 25 \}$ on the same
        plot.
 
-    c. Show the optimal policy for $t \in \{1, 5, 10, 25 \}$.
+    c. Plot the optimal policy for $t \in \{1, 5, 10, 25 \}$.
 
-    Submit your code with your solution.
+    Submit your code (a PDF listing as well as the source code) with your solution.
 
 2. **State transmission in Internet of Things**
 
-    _I am still verifying the parameters for this problem and will post it
-    soon_
+    Consider an IoT device which is observing an autoregressive process
+    $\{X_t\}_{t \ge 0}$, $X_t \in \integers$, which starts at $X_1 = 0$ and for
+    $t > 1$ evolves as 
+    $$ X_{t+1} = X_t + W_t $$
+    where $\{W_t\}_{t \ge 1}$ is an i.i.d. process with $W_t \in \{ -5, \dots,
+    5 \}$ with 
+    $$ \PR(W_t = w) =
+    \begin{cases}
+      \frac{1}{5} - \frac{|w|}{25}, & \text{if } |w| \le 5 \\
+      0, & \text{otherwise}
+    \end{cases}$$
+
+    The IoT device can either transmit its observation (denoted by $A_t = 1$)
+    or not (denoted by $A_t = 0$). Transmitting a packet has a cost $\lambda$
+    while not transmitting has no cost. 
+
+    When $A_t = 0$, the receiver estimates the state of the process as the
+    previously transmitted observation $Z_t$ and incurs a cost $(X_t -
+    Z_t)^2$. 
+
+    The above system can be modeled as an MDP with state $\{S_t \}_{t \ge 0}$,
+    where $S_t = X_t - Z_t$. It can be shown that the dynamics of $\{S_t\}_{t
+    \ge 1}$ are as follows:
+    $$ S_{t+1} = \begin{cases}
+        S_t + W_t, & \text{if } A_t = 0 \\
+        W_t, & \text{if } A_t = 1
+      \end{cases} $$
+
+    The per-step cost is given by
+    $$ c(s,a) = \lambda a + (1-a)s^2. $$
+
+    The objective of this exercise is to find the optimal policy for the above
+    problem using dynamic programming. 
+
+    In this problem, the state space is unbounded which makes it difficult to
+    use the formula derived in the class. So, we construct approximate
+    dynamics as follows. We pick a large number $B$ and assume that the
+    dynamics are:
+    $$ S_{t+1} = \begin{cases}
+        [S_t + W_t]_{-B}^B, & \text{if } A_t = 0 \\
+        [W_t]_{-B}^B, & \text{if } A_t = 1
+      \end{cases} $$
+
+    In this exercise, we pick $λ = 100$ and $λ = 100$. So, we can effective
+    consider the state space to be $\{-B, \dots, B\}$. 
+
+    a. Write code (in any programming language) for solving the (approximate)
+       dynamic program for $T = 20$. 
+
+    b. Plot the value function for $t \in \{1, 5, 10, 19 \}$ on the same
+       plot.
+
+    c. Plot the optimal policy for $t \in \{1, 5, 10, 19 \}$.
+
+    d. Change the value of $B$ in the set $\{50, 60, 70, 80 \}$ to make sure
+    that our truncation does not have a significant impact on the value
+    function and the optimal policy.
+
+    Submit your code (a PDF listing as well as the source code) with your solution.
+
 
