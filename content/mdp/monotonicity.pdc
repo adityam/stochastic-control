@@ -9,12 +9,16 @@ tags:
   - monotone policies
 ---
 
+_TL;DR General conditions are presented under which the optimal policy is
+monotone. Such a *structural property* is useful because it makes it easy to
+search and implement the optimal policy._
+
 Consider the [matrix formulation](../mdp-matrix) of MDPs and suppose the state
 space $\ALPHABET S$ is totally ordered. In many applications, it is useful to
 know if the value function is increasing (or decreasing) in state. 
 
 ::: highlight :::
-Theorem
+Theorem #thm:monotone
 
 :   Consider an MDP where the state space $\ALPHABET S$ is totally ordered. 
     Suppose the following conditions are satisfied.
@@ -237,7 +241,7 @@ Lemma #lem:sufficient-C4
     
     (a) $c_t(s,a)$ is supermodular in $(s,a)$.
     (b) For all $s' \in \ALPHABET S$, 
-        $H(s' | s,a) = 1 - \sum_{s' \le s'} P_{xx'}(a)$ is supermodular in $(s,s')$.
+        $H(s' | s,a) = 1 - \sum_{z \le s'} P_{sz}(a)$ is supermodular in $(s,a)$.
 
     The condition (C4) of the previous theorem holds.
 
@@ -284,11 +288,99 @@ conditions are satisfied:
 2.  For any $s \in \ALPHABET S$ and $a \in \ALPHABET A(s)$, $a' < a$ implies
     that $a' \in \ALPHABET A(s)$.
 
+# Monotone dynamic programming
+
+If we can establish that the optimal policy is monontone, then we can use this
+structure to implement the dynamic program more efficient. Suppose 
+$\ALPHABET S = \{1, \dots, n\}$ and $\ALPHABET A = \{1, \dots. m\}$. The main
+idea is as follows. Suppose $V_{t+1}(\cdot)$ has been caclulated. Insead of
+computing $Q_t(s,a)$ and $V_t(s)$, proceed as follows:
+
+1. Set $s = 1$ and $α = 1$. 
+2. For all $u \in \{α, \dots, m\}$, compute $Q_t(s,a)$ as usual. 
+3. Compute 
+
+     $$V_t(s) = \min_{ α \le a \le m } Q_t(s,a)$$
+
+     and set 
+
+     $$π_t^*(s) = \max \{ a \in \{α, \dots, m\} : V_t(s) = Q_t(s,a) \}.$$
+
+4. If $s = n$, then stop. Otherwise, set $α = π_t^*(s)$ and $s = s+1$ and go
+   to step 2. 
+
+# Example: A machine replacement model
+
+In this section, we use @thm:increasing-policy to establish the structure of
+the optimal policy in a model of machine replacement. 
+
+Consider a manufacturing process, where the machine used for manufacturing
+deteriorates over time. Let $\ALPHABET S = \{0, 1, \dots \}$ represent the
+condition of the machine. The higher the value of $s$, the worse the condition
+of the equipment. Note that, for simplicity, we have assumed that the state
+space is countable. 
+
+At each decision epoch, the decision maker can choose
+actions from the set $\ALPHABET A = \{0,1\}$. Action $0$ corresponds to
+operating the equipment as is for an additional period, while action 1
+corresponds to scrapping the equipment and replacing it with a new and
+identical piece of equipment. We assume that there is a PMF $μ$ on $\ALPHABET
+S$ such that 
+$$ P_{sz}(0) = \begin{cases}
+  0, & z < s \\
+  μ_{z - s}, & z \ge s
+\end{cases}
+\quad\text{and}\quad
+ P_sz(1) = μ_z.
+$$
+The transition matrix $P(0)$ states that the equipment detiorates from $s$ to
+$s + k$, with probability $μ_k$ for all states $s$. 
+
+We assume that running the machine in state $s$ costs $h(s)$, where $h(\cdot)$
+is a weakly increasing function. Replacing the machine costs a constant
+amount~$K$. 
+
+We now verify the conditions (C1)--(C4) for the model. 
+
+C1. For $a = 0$, $c(s,0) = h(s)$, which is weakly increasing by assumption.
+For $a = 1$, $c(s,1) = K$, which is trivially weakly increasing.
+
+C2. For $a = 0$, $P(0)$ is stochastically monotone (because the CDF of
+$P(\cdot | s, 0)$ lies above the CDF of $P(\cdot | s+1, 0)$). For $a = 1$,
+all rows of $P(1)$ are the same; therefore $P(1)$ is stochastically monotone. 
+
+Since (C1) and (C2) are satisfied, by @thm:monotone, we can assert that the
+value function is weakly increasing. 
+
+C3. $c(s,1) - c(s,0) = K - h(s)$, which is weakly decreasing in $s$.
+Therefore, $c(s,a)$ is submodular in $(s,a)$. 
+
+C4. Recall that $H(s'|s,a) = 1 - \sum_{z \le s'} P_{sz}(a).$ Therefore, 
+    
+$$H(s'|s,0) = 1 - \sum_{z = s}^{s'} μ_{z -s} = 1 - \sum_{k = 0}^{s' - s} μ_k 
+= 1 - M_{s' - s},$$
+where $M$ is the CMF of $μ$, and
+$$H(s'|s,1) = 1 - \sum_{z \le s'} μ_z = 1 - M_{s'},$$
+
+Therefore, $H(s'|s,1) - H(s'|s,0) = M_{s'-s} - M_{s'}$. For any fixed $s'$,
+$H(s'|s,1) - H(s'|s,0)$ is weakly decreasing in $s$. There $H(s'|s,a)$ is
+submodular in $(s,a)$. 
+
+Since (C1)--(C4) are satisfied, the optimal policy is weakly increasing
+in~$s$. Since there are only two actions, it means that for every time, there
+exists a state $s^*_t$ with the property that if $s$ exceeds $s^*_t$, the
+optimal decision is to replace the machine; and if $s \le s^*_t$, then the
+optimal decision is to operate the machine for another period. 
+
 ---
 
 # Exercises {-}
 
-1. Suppose the state space $\ALPHABET S$ is a symmetric subset of integers of
+1. Consider the example of machine repair presented in notes on [matrix
+   formulation of MDPs](../mdp-matrix#an-example-machine-repair). Prove that
+   the optimal policy for that model is weakly increasing.
+
+2. Suppose the state space $\ALPHABET S$ is a symmetric subset of integers of
    the form $\{-L, -L + 1, \dots, L-1, L\}$ and the action space $\ALPHABET A$
    is discrete. Let $\ALPHABET X_{\ge 0}$ denote the set $\{0, \dots, L\}$.
 
@@ -398,4 +490,4 @@ conditions are satisfied:
 
 @Ross1974 has an early treatment of monotonicity of optimal policies. The
 general theory was developed by @Topkis1998. The presentation here follows
-@Puterman2014. Exercise 1 is from @Chakravorty2018.
+@Puterman2014. Exercise 2 is from @Chakravorty2018.
