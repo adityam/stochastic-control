@@ -2,87 +2,77 @@
 title: Assignment 4 (solution)
 ---
 
-## Problem 1
+## Problem 1 {-}
 
-I had a solution to this problem but the TA found a mistake in my solution.
-Having thought about it a bit, I realize that as stated the problem cannot be
-solved. 
+We first note that when the channel is i.i.d., we can simplify the dynamic
+program as follows:
 
-There are [urban legends][snopes] of students solving unsolved problems
-thinking they were homework questions. That was not my intention!
-Let me attempt to explain what led to the mistake and how it can be
-fixed. This requires some background knowledge of communication systems. 
+$$V_{T+1}(x,s) = 0$$
 
-[snopes]: https://www.snopes.com/fact-check/the-unsolvable-math-problem/
+and for $t \in \{T, \dots, 1\}$, 
+$$\begin{align}
+H_t(y) &= λ d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) ] \label{eq:1}\\
+V_t(x,s) &= \min_{0 \le a \le x} \bigl\{ p(a) q(s) + H_t(x-a) \bigr\}
+\end{align}$$
 
-As explained in the notes, the model is taken from @Berry2000 but the result
-was proved by first principle in @Berry2000. There is one difference between
-the model in @Berry2000 and the model presented in class. In @Berry2000, the
-channel is ordered such that the lowest channel state corresponds to the best
-channel quality. I have been working on a variation of this model on and off
-since 2010 (see [this recent conference submission][conf] for the details of
-the model, if you are interested). For reasons that are too complicated to
-explain in a note, when I started working on the model in 2010, I thought
-that indexing the channel by saying that the highest state is the best state
-simplified some of the proofs. So, when I started covering Berry's model in
-class, I followed the same modeling assumption.
+Note that due the i.i.d. nature of the channel, we don't need to condition on
+the current state in \\eqref{eq:1}. 
 
-[conf]: http://cim.mcgill.ca/~adityam/projects/communication/conference/2020-wiopt.pdf
+a. This was a trick question! I don't know of an easy way to prove convexity
+of the value function in $s$. The objective was to chcck if you can logically
+reason that it is difficult to establish convexity in $s$. 
 
-Now, this change sounds innocuous, but there is a big caveat. The reason why
-we say that the channel is stochastically monotone is as follows. If the
-channel has two states, then typically
-$$ \PR(\text{GOOD} | \text{GOOD}) \ge \PR(\text{GOOD} | \text{BAD}). $$
-For the ordering chosen in @Berry2000, the channel is stochastically monotone.
-In the ordering that I picked, the channel is the reverse of stochastically
-monotone. But in my notes I assumed that the channel is stochastic monotone.
-This leads to some weirdness in the solution of the problem, as stated. 
-
-Now, as I said, the proof in @Berry2000 is from first principles. Each time I
-teach the course, I simplify the proof a little. This year, I realized that
-the old proof could be considerably simplified if I used the post-decision
-state model. 
-
-Now, in @Berry2000, the monotonicity of the policy is proved under the
-assumption that $\{S_t\}_{t \ge 1}$ is i.i.d. It is clear that under that
-assumption, the post-decision state value function just depends on the queue
-state $y$ and not on the channel state $s$. So, we have
-$$ V_t(x) = \min_{u \le x} \bigl\{ p(x)q(s) + Q_t(y-u) \bigr\} $$
-and it is easy to see that for any fixed $x$, $g_t(x,s)$ will be monotone in
-$s$. 
-
-Now, once I simplified the proof in terms of post-decision state, I believed
-that I could generalize Berry's result to stochastically monotone $\{S_t\}_{t
-\ge 1}$. My proof seemed to go through and it was relatively simple, so I gave
-this as a homework assignment. My TA later found a mistake in the proof and
-having thought about it for a while, I realize that there is no way to prove
-the result, as stated. 
-
-I have [rewritten the notes](../../mdp/power-delay-tradeoff-2) to derive the
-results with the right ordering of channel states. However, in general it is
-not possible to prove that $p(u)q(s) + H_t(x-u,s)$ is sub- or super-modular. 
-In the updated notes, I explain why this is the case. 
-
-I know it is frustrating to get a homework problem which is unsolvable. The
-only silver lining here is that you get an insight of the fickle nature of
-getting proofs right. Many a times we think that we have the right proof,
-only to realize that one of our seemingly obvious looking steps was
-completely nonsensical. 
-
-## Problem 2
-
-See @Chakravorty2018 for the solution. Most of you got parts (a) and (b)
-right, but made a mistake in part (c). For part (c), you need to take the
-sufficient conditions under which the value function and optimal policy of the
-folder MDP are even and increasing, and translate these sufficient conditions
-back to the original model. In particular, you need to argue that something
-equivalent to $S(y|x,u)$ defined in Lemma 2 of the notes should be submodular
-in $(x,u)$
+b. Note that $H_t(x-a)$ does not depend on $s$. Therefore it is trivially
+supermodular in $(s,a)$. Furthermore, observe that 
+$$\dfrac{∂^2 p(a)q(s) }{ ∂a∂s } \ge 0$$
+because both $p$ and $q$ are increasing functions. Thus, $p(a)q(s) + H_t(x-a)$
+is a supermodular function. Therefore, the optimal policy is a monotone
+decreasing function of the channel state. 
 
 
+## Problem 2 {-}
+
+We prove the two parts separately.
+
+**(a) implies (b)** If $P$ is stochastic monotone and $μ^1 \succeq_s μ^2$,
+then $μ^1 P \succeq_s μ^2 P$.
+
+_Proof:_ Most of you tried to prove this directly by algebra. Here I present a
+more conceptual proof. 
+
+Suppose $f \colon \ALPHABET S \to \reals$ is an arbitrary weakly increasing
+function. Define 
+$$\begin{equation}\label{eq:cond}
+g(s) = \EXP[ f(S_{t+1}) | S_t = s ] = \sum_{z \in \ALPHABET S} P_{sz} f(z).
+\end{equation}$$ 
+
+Since $P$ is stochastically monotone, $g(s)$ is weakly increasing in $s$.
+Furthermore, since $μ^1 \succeq_s μ^2$, we have
+$$\sum_{s \in \ALPHABET S} μ^1_s g(s) \ge \sum_{s \in \ALPHABET S} μ^2_s g(s).$$
+
+Substituting \\eqref{eq:cond} in the above equation we get:
+$$\sum_{s \in \ALPHABET S} μ^1_s \sum_{z \in \ALPHABET S} P_{sz} f(z)  
+\ge \sum_{s \in \ALPHABET S} μ^2_s \sum_{z \in \ALPHABET S} P_{sz} f(z).$$
+
+Interchanging the order of summations, we have:
+$$\sum_{z \in \ALPHABET S} \sum_{s \in \ALPHABET S} μ^1_s P_{sz} f(z)  
+\ge \sum_{z \in \ALPHABET S} \sum_{s \in \ALPHABET S} μ^2_s P_{sz} f(z).$$
+
+Thus, 
+$$\begin{equation}\label{eq:final}
+\sum_{z \in \ALPHABET S} ν^1_z f(z) \ge \sum_{z \in \ALPHABET S} ν^2_z
+f(z)
+\end{equation}$$
+where $ν^1 = μ^1 P$ and $ν^2 = μ^2 P$. Since \\eqref{eq:final} is true for
+every weakly increasing function $f$, we have that $ν^1 \succeq_s ν^2$. 
 
 
----
+**(b) impleis (a)** For every $μ^1 \succeq_s μ^2$, we have $μ^1 P \succeq_s
+μ^2 P$. Then, $P$ is stochastic monotone.
 
-## References 
+_Proof:_ Pick $μ^1 = δ_{s+1}$ and $μ^2 = δ_s$, where $δ_s$ denotes the Dirac
+delta function. Note that $δ_{s+1} \succeq_s δ_s$. Then, we have
+$δ_{s+1}P \succeq_s δ_s P$. Note that this means that the $s+1$-st row of $P$
+stochastically dominates the $s$-th row of $P$. Hence, $P$ is stochastic
+monotone.
 
