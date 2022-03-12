@@ -10,45 +10,45 @@ tags:
   - Constrained MDPs
 ---
 
-_Note_: Throughout this section, we assume that $\ALPHABET X$ and $\ALPHABET U$ are
-finite and $|\ALPHABET X|= n$ and $|\ALPHABET U| = m$. 
+_Note_: Throughout this section, we assume that $\ALPHABET S$ and $\ALPHABET A$ are
+finite and $|\ALPHABET S|= n$ and $|\ALPHABET A| = m$. 
 
 We know that if $V \le \mathcal B V$ then $V \le V^* = \mathcal B V^*$. Thus,
 $V^*$ is the "largest" $V$ that satisfies the constraint $V \le \mathcal B V$.
 This constraint can be written as a finite system of linear equations:
 $$\begin{equation} \label{eq:constaints}
-V(x) \le c(x,u) + β\sum_{y \in \ALPHABET X} P(y|x,u) V(y), 
-\qquad x \in \ALPHABET X, u \in \ALPHABET U.
+V(s) \le c(s,a) + γ\sum_{z \in \ALPHABET S} P(z|s,a) V(z), 
+\qquad s \in \ALPHABET S, a \in \ALPHABET A.
 \end{equation}$$
 This observation provides the basis for a linear programming formulation of
 the discounted MDP. 
 
 ### Primal Linear Program {-}
 
-Choose a weight function $\pi \colon \ALPHABET X \to \reals_{\ge 0}$ such that
-$\sum_{x \in \ALPHABET X} \pi(x) = 1$. This can be thought of as the
+Choose a weight function $p \colon \ALPHABET S \to \reals_{\ge 0}$ such that
+$\sum_{s \in \ALPHABET S} p(s) = 1$. This can be thought of as the
 distribution of the initial state. Then the primal LP corresponding to
 \\eqref{eq:constaints} is
 $$\begin{gather}
-  \max \sum_{x \in \ALPHABET X} \pi(x) V(x) \notag \\
+  \max \sum_{s \in \ALPHABET S} p(s) V(s) \notag \\
   \text{subject to}\quad
-  V(x) - \beta \sum_{y \in \ALPHABET X} P(y|x,u)V(y) \le c(x,u), 
-  \quad \forall x \in \ALPHABET X, u \in \ALPHABET U.
+  V(s) - γ \sum_{z \in \ALPHABET S} P(z|s,a)V(z) \le c(s,a), 
+  \quad \forall s \in \ALPHABET S, a \in \ALPHABET A.
   \label{eq:primal}
 \end{gather}$$
 
 ### Dual Linear Program {-}
 
 Now consider the dual version of the primal LP \\eqref{eq:primal}. We
-associate a positive dual variable $\mu(x,u)$ for each constraint consider the
+associate a positive dual variable $\mu(s,a)$ for each constraint consider the
 following linear program:[^1]
 $$\begin{gather}
-  \min \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) c(x,u)
+  \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) c(s,a)
   \notag \\
   \text{subject to}\quad
-  \mu(x,u) - \beta\sum_{y \in \ALPHABET X} \sum_{u \in \ALPHABET U}
-  P(x | y, u) \mu(y,u) = \pi(x), \quad \forall x \in \ALPHABET X, \notag \\
-  \mu(x,u) \ge 0, \quad \forall x \in \ALPHABET X, u \in \ALPHABET U. 
+  \mu(s,a) - γ\sum_{z \in \ALPHABET S} \sum_{a \in \ALPHABET A}
+  P(s | z, a) \mu(z,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
+  \mu(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A. 
   \label{eq:dual}
 \end{gather}$$
 
@@ -69,22 +69,22 @@ dual is more efficient to solve.
 We state the following results without proof. See @Puterman2014 [Sec 6.9] for
 details. 
 
-1. Let $g$ be any possibly randomized history dependent policy. Define the
+1. Let $π$ be any possibly randomized history dependent policy. Define the
    _occupancy measure_
     
-    $$\mu_g(x,u) = \sum_{z \in \ALPHABET X} \pi(z) 
-    \sum_{t=1}^\infty \beta^{t-1} \PR^{g}(X_t = x, U_t = u \mid X_1 = z).$$
+    $$\mu_π(s,a) = \sum_{z \in \ALPHABET S} p(z) 
+    \sum_{t=1}^\infty γ^{t-1} \PR^{π}(S_t = s, A_t = a \mid S_1 = z).$$
 
-    Then, $\mu_g$ is a feasible solution to the dual LP \\eqref{eq:dual}.
+    Then, $\mu_π$ is a feasible solution to the dual LP \\eqref{eq:dual}.
 
-2. Suppose $\mu(x,u)$ is a feasible solution to the dual LP. Then for each $x
-   \in \ALPHABET X$ such that $\sum_{u \in \ALPHABET U} \mu(x,a) > 0$, define
+2. Suppose $\mu(s,a)$ is a feasible solution to the dual LP. Then for each $s
+   \in \ALPHABET S$ such that $\sum_{a \in \ALPHABET A} \mu(s,a) > 0$, define
    a stationary randomized policy $h$ by
    $$\begin{equation} \label{eq:policy}
-   h(u|x) h_\mu(u|x) = \frac{ \mu(x,u) } { \displaystyle \sum_{u \in \ALPHABET U} \mu(x,u) }. 
+   h(a|s) h_\mu(a|s) = \frac{ \mu(s,a) } { \displaystyle \sum_{a \in \ALPHABET A} \mu(s,a) }. 
    \end{equation} $$
-   Then, $\mu_h$ is a feasible solution to the dual LP and $\mu_h(x,u) =
-   \mu(x,u)$ for all $x \in \ALPHABET X$ and $u \in \ALPHABET U$. 
+   Then, $\mu_h$ is a feasible solution to the dual LP and $\mu_h(s,a) =
+   \mu(s,a)$ for all $s \in \ALPHABET S$ and $a \in \ALPHABET A$. 
 
 3. A feasible solution of an LP is called a _basic feasible solution_ if it
    cannot be expression as a nontrivial convex combination of other feasible
@@ -110,8 +110,8 @@ details.
 8. If $h$ is a deterministic optimal policy for the MDP, then $\mu_h$ is a
    optimal basic solution to the dual LP. 
 
-9. As long as $\pi(x) > 0$ for all $x$, the policy $h_\mu$ based of optimal
-   solution the dual LP does not depend on $\pi(x)$. This means that $\pi(x)$
+9. As long as $p(s) > 0$ for all $s$, the policy $h_\mu$ based of optimal
+   solution the dual LP does not depend on $p(s)$. This means that $p(s)$
    need not sum to 1. 
 
 There are various trade-offs between solving a DP using value iteration,
@@ -121,29 +121,29 @@ we discuss next.
 
 # Constrained MDPs
 
-Suppose, in addition to the per-step cost function $c \colon \ALPHABET X
-\times \ALPHABET U \to \reals$, we have a per-step constraint function $d
-\colon \ALPHABET X \times \ALPHABET U \to \reals$ and we are interested in the
+Suppose, in addition to the per-step cost function $c \colon \ALPHABET S
+\times \ALPHABET A \to \reals$, we have a per-step constraint function $d
+\colon \ALPHABET S \times \ALPHABET A \to \reals$ and we are interested in the
 following constrained optimization problems:
 
 $$\begin{gather*}
-\min \EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} c(X_t, U_t) \Bigr] \\
+\min \EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} c(S_t, A_t) \Bigr] \\
 \text{subject to}\quad
-\EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} d(X_t, U_t) \Bigr] \le D. 
+\EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} d(S_t, A_t) \Bigr] \le D. 
 \end{gather*}$$
 
 The dual LP in this case is given by 
 $$\begin{gather}
-  \min \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) c(x,u)
+  \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) c(s,a)
   \notag \\
   \text{subject to}\quad
-  \mu(x,u) - \beta\sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U}
-  P(x | y, u) \mu(x,u) = \pi(x), \quad \forall x \in \ALPHABET X, \notag \\
-  \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) d(x,u) \le D \notag \\
-  \mu(x,u) \ge 0, \quad \forall x \in \ALPHABET X, u \in \ALPHABET U. 
+  \mu(s,a) - γ\sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A}
+  P(s | z, a) \mu(s,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
+  \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) d(s,a) \le D \notag \\
+  \mu(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A. 
 \end{gather}$$
 
-If we interpret $\mu(x,u)$ as the occupation measure of any policy, then this
+If we interpret $\mu(s,a)$ as the occupation measure of any policy, then this
 formulation follows immediately. 
 
 ---
