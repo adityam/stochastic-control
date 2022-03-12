@@ -126,29 +126,29 @@ V_π &amp;= c_π + γ P_π c_π + γ^2 P_π^2 c_π + \cdots \\
 ::: highlight :::
 Prop.
 
-:   Let $h$ be any (possibly randomized) history dependent policy. Then,      
+:   Let $μ$ be any (possibly randomized) history dependent policy. Then,      
     there exists a randomized Markov policy $π$ that has the same performance
-    as $h$.
+    as $μ$.
 :::
 
 #### Proof {-}
 
-For any policy $h$, define the _occupation measure_
-$$ \mu(s,a | s^∘; h) 
-  := \EXP^h \bigg[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
+For any policy $μ$, define the _occupation measure_
+$$ \mu(s,a | s^∘; μ) 
+  := \EXP^μ \bigg[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
   \biggm| S_1 = s^∘ \bigg]
 $$
 Then 
-$$ J(s^∘; h) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
-   μ(s,a | s^∘; h) c(s,a).
+$$ J(s^∘; μ) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
+   μ(s,a | s^∘; μ) c(s,a).
 $$ {#eq:performance}
 
 Now, define a randomized Markov policy $π$ as follows:
-$$\PR(A_t = a | S_t = s; π) = \frac{ μ(s, a| s^∘; h) } { μ(s | s^∘; h) }$$
-where $μ(s|s^∘;h) = \sum_{a \in \ALPHABET A} μ(s,a | s^∘; h)$. Then, by
+$$\PR(A_t = a | S_t = s; π) = \frac{ μ(s, a| s^∘; μ) } { μ(s | s^∘; μ) }$$
+where $μ(s|s^∘;μ) = \sum_{a \in \ALPHABET A} μ(s,a | s^∘; μ)$. Then, by
 construction, 
-$ μ(s,a | s^∘; π) = μ(s,a | s^∘; h) $
-and therefore by \\eqref{eq:performance}, we have that $J(s^∘; π) = J(s^∘; h).$
+$ μ(s,a | s^∘; π) = μ(s,a | s^∘; μ) $
+and therefore by \\eqref{eq:performance}, we have that $J(s^∘; π) = J(s^∘; μ).$
 
 -->
 <div class="highlight">
@@ -185,7 +185,7 @@ V^{opt}_∞(s) &amp;\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t)
 <p>The Bellman operator satisfies the following properties</p>
 <ul>
 <li><em>Monotonicity</em>. For any <span class="math inline">\(v, w \in \reals^n\)</span>, if <span class="math inline">\(v \le w\)</span>, then <span class="math inline">\(\mathcal B_π v \le \mathcal B_π w\)</span> and <span class="math inline">\(\mathcal B v \le \mathcal B w\)</span>.</li>
-<li><em>Discounting</em>. For any <span class="math inline">\(v \in \reals^n\)</span> and <span class="math inline">\(m \in \reals\)</span>, <span class="math inline">\(\mathcal B_π (v + m) = \mathcal B_π v + γ m\)</span> and <span class="math inline">\(\mathcal B (v + m) = \mathcal B v + γ m\)</span>.</li>
+<li><em>Discounting</em>. For any <span class="math inline">\(v \in \reals^n\)</span> and <span class="math inline">\(m \in \reals\)</span>, <span class="math inline">\(\mathcal B_π (v + m \ONES) = \mathcal B_π v + γ m \ONES\)</span> and <span class="math inline">\(\mathcal B (v + m \ONES) = \mathcal B v + γ m \ONES\)</span>.</li>
 </ul>
 </dd>
 </dl>
@@ -193,9 +193,9 @@ V^{opt}_∞(s) &amp;\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t)
 <p>Note that we interpret <span class="math inline">\(v + m\)</span> as <span class="math inline">\([v + m]_s = v_s + m\)</span>.</p>
 <h4 class="unnumbered" id="proof-3">Proof</h4>
 <p>We first prove the monotonicity property. Recall that <span class="math display">\[ \mathcal B_π v = c_π + γ P_π v. \]</span> So, monotonicity of <span class="math inline">\(\mathcal B_π\)</span> follows immediately from monotonicity of matrix multiplication for positive matrices.</p>
-<p>Let <span class="math inline">\(h\)</span> be such that <span class="math inline">\(\mathcal B w = \mathcal B_h w\)</span>. Then, <span class="math display">\[ v = \mathcal B v \le \mathcal B_h v 
-\stackrel{(a)} \le \mathcal B_h w = \mathcal B w = w,
-\]</span> where <span class="math inline">\((a)\)</span> uses the monotonicity of <span class="math inline">\(\mathcal B_h\)</span>.</p>
+<p>Let <span class="math inline">\(μ\)</span> be such that <span class="math inline">\(\mathcal B w = \mathcal B_μ w\)</span>. Then, <span class="math display">\[ \mathcal B v \le \mathcal B_μ v 
+\stackrel{(a)} \le \mathcal B_μ w = \mathcal B w,
+\]</span> where <span class="math inline">\((a)\)</span> uses the monotonicity of <span class="math inline">\(\mathcal B_μ\)</span>.</p>
 <p>We now prove the discounting property. Recall that <span class="math display">\[ \mathcal B_π v = c_π + γ P_π v. \]</span> Thus, <span class="math display">\[ \mathcal B_π(v+m) = c_π + γ P_π (v+m) = c_π + γ P_π v + γ m = \mathcal B_π
 v + γ m.\]</span> Thus, <span class="math inline">\(\mathcal B_π\)</span> is discounting. Now consider <span class="math display">\[ \mathcal B (v + m ) = \min_{π} \mathcal B_π (v+m)
 = \min_π \mathcal (B_π v + γ m) = \mathcal B v + γ m.\]</span> Thus, <span class="math inline">\(\mathcal B\)</span> is discounting.  <span class="math inline">\(\Box\)</span></p>

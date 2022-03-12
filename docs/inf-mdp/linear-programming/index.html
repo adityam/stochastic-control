@@ -48,66 +48,66 @@
 
 <div class="h1-title">Theory: Linear Programming Formulation and Constrained MDPs</div>
 
-<p><em>Note</em>: Throughout this section, we assume that <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET U\)</span> are finite and <span class="math inline">\(|\ALPHABET X|= n\)</span> and <span class="math inline">\(|\ALPHABET U| = m\)</span>.</p>
+<p><em>Note</em>: Throughout this section, we assume that <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are finite and <span class="math inline">\(|\ALPHABET S|= n\)</span> and <span class="math inline">\(|\ALPHABET A| = m\)</span>.</p>
 <p>We know that if <span class="math inline">\(V \le \mathcal B V\)</span> then <span class="math inline">\(V \le V^* = \mathcal B V^*\)</span>. Thus, <span class="math inline">\(V^*\)</span> is the “largest” <span class="math inline">\(V\)</span> that satisfies the constraint <span class="math inline">\(V \le \mathcal B V\)</span>. This constraint can be written as a finite system of linear equations: <span class="math display">\[\begin{equation} \label{eq:constaints}
-V(x) \le c(x,u) + β\sum_{y \in \ALPHABET X} P(y|x,u) V(y), 
-\qquad x \in \ALPHABET X, u \in \ALPHABET U.
+V(s) \le c(s,a) + γ\sum_{z \in \ALPHABET S} P(z|s,a) V(z), 
+\qquad s \in \ALPHABET S, a \in \ALPHABET A.
 \end{equation}\]</span> This observation provides the basis for a linear programming formulation of the discounted MDP.</p>
 <h3 class="unnumbered" id="primal-linear-program">Primal Linear Program</h3>
-<p>Choose a weight function <span class="math inline">\(\pi \colon \ALPHABET X \to \reals_{\ge 0}\)</span> such that <span class="math inline">\(\sum_{x \in \ALPHABET X} \pi(x) = 1\)</span>. This can be thought of as the distribution of the initial state. Then the primal LP corresponding to \eqref{eq:constaints} is <span class="math display">\[\begin{gather}
-  \max \sum_{x \in \ALPHABET X} \pi(x) V(x) \notag \\
+<p>Choose a weight function <span class="math inline">\(p \colon \ALPHABET S \to \reals_{\ge 0}\)</span> such that <span class="math inline">\(\sum_{s \in \ALPHABET S} p(s) = 1\)</span>. This can be thought of as the distribution of the initial state. Then the primal LP corresponding to \eqref{eq:constaints} is <span class="math display">\[\begin{gather}
+  \max \sum_{s \in \ALPHABET S} p(s) V(s) \notag \\
   \text{subject to}\quad
-  V(x) - \beta \sum_{y \in \ALPHABET X} P(y|x,u)V(y) \le c(x,u), 
-  \quad \forall x \in \ALPHABET X, u \in \ALPHABET U.
+  V(s) - γ \sum_{z \in \ALPHABET S} P(z|s,a)V(z) \le c(s,a), 
+  \quad \forall s \in \ALPHABET S, a \in \ALPHABET A.
   \label{eq:primal}
 \end{gather}\]</span></p>
 <h3 class="unnumbered" id="dual-linear-program">Dual Linear Program</h3>
-<p>Now consider the dual version of the primal LP \eqref{eq:primal}. We associate a positive dual variable <span class="math inline">\(\mu(x,u)\)</span> for each constraint consider the following linear program:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math display">\[\begin{gather}
-  \min \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) c(x,u)
+<p>Now consider the dual version of the primal LP \eqref{eq:primal}. We associate a positive dual variable <span class="math inline">\(\mu(s,a)\)</span> for each constraint consider the following linear program:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math display">\[\begin{gather}
+  \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) c(s,a)
   \notag \\
   \text{subject to}\quad
-  \mu(x,u) - \beta\sum_{y \in \ALPHABET X} \sum_{u \in \ALPHABET U}
-  P(x | y, u) \mu(y,u) = \pi(x), \quad \forall x \in \ALPHABET X, \notag \\
-  \mu(x,u) \ge 0, \quad \forall x \in \ALPHABET X, u \in \ALPHABET U. 
+  \mu(s,a) - γ\sum_{z \in \ALPHABET S} \sum_{a \in \ALPHABET A}
+  P(s | z, a) \mu(z,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
+  \mu(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A. 
   \label{eq:dual}
 \end{gather}\]</span></p>
 <p>The primal LP has <span class="math inline">\(n\)</span> variables (<span class="math inline">\(V(1), V(2), \dots, V(n)\)</span>) and <span class="math inline">\(n \times m\)</span> constraints, while the dual LP has <span class="math inline">\(n \times m\)</span> variables. So, in general, the dual is more efficient to solve.</p>
 <h3 class="unnumbered" id="basic-solution-and-stationary-policies">Basic solution and stationary policies</h3>
 <p>We state the following results without proof. See <span class="citation" data-cites="Puterman2014">Puterman (<a href="#ref-Puterman2014" role="doc-biblioref">2014</a>, Sec 6.9)</span> for details.</p>
 <ol type="1">
-<li><p>Let <span class="math inline">\(g\)</span> be any possibly randomized history dependent policy. Define the <em>occupancy measure</em></p>
-<p><span class="math display">\[\mu_g(x,u) = \sum_{z \in \ALPHABET X} \pi(z) 
- \sum_{t=1}^\infty \beta^{t-1} \PR^{g}(X_t = x, U_t = u \mid X_1 = z).\]</span></p>
-<p>Then, <span class="math inline">\(\mu_g\)</span> is a feasible solution to the dual LP \eqref{eq:dual}.</p></li>
-<li><p>Suppose <span class="math inline">\(\mu(x,u)\)</span> is a feasible solution to the dual LP. Then for each <span class="math inline">\(x \in \ALPHABET X\)</span> such that <span class="math inline">\(\sum_{u \in \ALPHABET U} \mu(x,a) &gt; 0\)</span>, define a stationary randomized policy <span class="math inline">\(h\)</span> by <span class="math display">\[\begin{equation} \label{eq:policy}
-h(u|x) h_\mu(u|x) = \frac{ \mu(x,u) } { \displaystyle \sum_{u \in \ALPHABET U} \mu(x,u) }. 
-\end{equation} \]</span> Then, <span class="math inline">\(\mu_h\)</span> is a feasible solution to the dual LP and <span class="math inline">\(\mu_h(x,u) = \mu(x,u)\)</span> for all <span class="math inline">\(x \in \ALPHABET X\)</span> and <span class="math inline">\(u \in \ALPHABET U\)</span>.</p></li>
+<li><p>Let <span class="math inline">\(π\)</span> be any possibly randomized history dependent policy. Define the <em>occupancy measure</em></p>
+<p><span class="math display">\[\mu_π(s,a) = \sum_{z \in \ALPHABET S} p(z) 
+ \sum_{t=1}^\infty γ^{t-1} \PR^{π}(S_t = s, A_t = a \mid S_1 = z).\]</span></p>
+<p>Then, <span class="math inline">\(\mu_π\)</span> is a feasible solution to the dual LP \eqref{eq:dual}.</p></li>
+<li><p>Suppose <span class="math inline">\(\mu(s,a)\)</span> is a feasible solution to the dual LP. Then for each <span class="math inline">\(s \in \ALPHABET S\)</span> such that <span class="math inline">\(\sum_{a \in \ALPHABET A} \mu(s,a) &gt; 0\)</span>, define a stationary randomized policy <span class="math inline">\(h\)</span> by <span class="math display">\[\begin{equation} \label{eq:policy}
+h(a|s) h_\mu(a|s) = \frac{ \mu(s,a) } { \displaystyle \sum_{a \in \ALPHABET A} \mu(s,a) }. 
+\end{equation} \]</span> Then, <span class="math inline">\(\mu_h\)</span> is a feasible solution to the dual LP and <span class="math inline">\(\mu_h(s,a) = \mu(s,a)\)</span> for all <span class="math inline">\(s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>.</p></li>
 <li><p>A feasible solution of an LP is called a <em>basic feasible solution</em> if it cannot be expression as a nontrivial convex combination of other feasible solutions. A key property of a basic feasible solution is that when the LP has <span class="math inline">\(k\)</span> constraints, then all basic feasible solutions have at most <span class="math inline">\(k\)</span> positive components. Using this, one can show that if <span class="math inline">\(\mu\)</span> is a basic feasible solution, then the policy <span class="math inline">\(h\)</span> given by \eqref{eq:policy} is a deterministic policy.</p></li>
 <li><p>Similarly, for any deterministic policy <span class="math inline">\(h\)</span>, the occupancy measure <span class="math inline">\(\mu_h\)</span> is a basic feasible solution to the dual LP.</p></li>
 <li><p>If <span class="math inline">\(\mu^*\)</span> is an <em>optimal</em> solution to the dual LP, then <span class="math inline">\(h_{\mu}\)</span> is an optimal policy.</p></li>
 <li><p>If <span class="math inline">\(\mu^*\)</span> is an <em>optimal basic</em> solution to the dual LP, then <span class="math inline">\(h_{\mu}\)</span> is a deterministic optimal policy.</p></li>
 <li><p>If <span class="math inline">\(h\)</span> is a possibly randomized optimal policy for the MDP, them <span class="math inline">\(\mu_h\)</span> is a optimal solution to the dual LP.</p></li>
 <li><p>If <span class="math inline">\(h\)</span> is a deterministic optimal policy for the MDP, then <span class="math inline">\(\mu_h\)</span> is a optimal basic solution to the dual LP.</p></li>
-<li><p>As long as <span class="math inline">\(\pi(x) &gt; 0\)</span> for all <span class="math inline">\(x\)</span>, the policy <span class="math inline">\(h_\mu\)</span> based of optimal solution the dual LP does not depend on <span class="math inline">\(\pi(x)\)</span>. This means that <span class="math inline">\(\pi(x)\)</span> need not sum to 1.</p></li>
+<li><p>As long as <span class="math inline">\(p(s) &gt; 0\)</span> for all <span class="math inline">\(s\)</span>, the policy <span class="math inline">\(h_\mu\)</span> based of optimal solution the dual LP does not depend on <span class="math inline">\(p(s)\)</span>. This means that <span class="math inline">\(p(s)\)</span> need not sum to 1.</p></li>
 </ol>
 <p>There are various trade-offs between solving a DP using value iteration, policy iteration, and LP and we will not go into these trade-offs here. But one benefit of the LP formulation is that it is easy to add constraints, which we discuss next.</p>
 <h1 data-number="1" id="constrained-mdps"><span class="header-section-number">1</span> Constrained MDPs</h1>
-<p>Suppose, in addition to the per-step cost function <span class="math inline">\(c \colon \ALPHABET X \times \ALPHABET U \to \reals\)</span>, we have a per-step constraint function <span class="math inline">\(d \colon \ALPHABET X \times \ALPHABET U \to \reals\)</span> and we are interested in the following constrained optimization problems:</p>
+<p>Suppose, in addition to the per-step cost function <span class="math inline">\(c \colon \ALPHABET S \times \ALPHABET A \to \reals\)</span>, we have a per-step constraint function <span class="math inline">\(d \colon \ALPHABET S \times \ALPHABET A \to \reals\)</span> and we are interested in the following constrained optimization problems:</p>
 <p><span class="math display">\[\begin{gather*}
-\min \EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} c(X_t, U_t) \Bigr] \\
+\min \EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} c(S_t, A_t) \Bigr] \\
 \text{subject to}\quad
-\EXP\Bigl[ \sum_{t=1}^\infty \beta^{t-1} d(X_t, U_t) \Bigr] \le D. 
+\EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} d(S_t, A_t) \Bigr] \le D. 
 \end{gather*}\]</span></p>
 <p>The dual LP in this case is given by <span class="math display">\[\begin{gather}
-  \min \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) c(x,u)
+  \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) c(s,a)
   \notag \\
   \text{subject to}\quad
-  \mu(x,u) - \beta\sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U}
-  P(x | y, u) \mu(x,u) = \pi(x), \quad \forall x \in \ALPHABET X, \notag \\
-  \sum_{x \in \ALPHABET X} \sum_{u \in \ALPHABET U} \mu(x,u) d(x,u) \le D \notag \\
-  \mu(x,u) \ge 0, \quad \forall x \in \ALPHABET X, u \in \ALPHABET U. 
+  \mu(s,a) - γ\sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A}
+  P(s | z, a) \mu(s,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
+  \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) d(s,a) \le D \notag \\
+  \mu(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A. 
 \end{gather}\]</span></p>
-<p>If we interpret <span class="math inline">\(\mu(x,u)\)</span> as the occupation measure of any policy, then this formulation follows immediately.</p>
+<p>If we interpret <span class="math inline">\(\mu(s,a)\)</span> as the occupation measure of any policy, then this formulation follows immediately.</p>
 <hr />
 <h1 class="unnumbered" id="references">References</h1>
 <p>The material in this section is taken from <span class="citation" data-cites="Puterman2014">Puterman (<a href="#ref-Puterman2014" role="doc-biblioref">2014</a>)</span>. See <span class="citation" data-cites="Altman1999">Altman (<a href="#ref-Altman1999" role="doc-biblioref">1999</a>)</span> for a detailed treatment of constrained MDPs.</p>
@@ -130,7 +130,7 @@ h(u|x) h_\mu(u|x) = \frac{ \mu(x,u) } { \displaystyle \sum_{u \in \ALPHABET U} \
 <p class="categories">
 This entry 
 
- was last updated on 07 Jul 2020
+ was last updated on 12 Mar 2022
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">
