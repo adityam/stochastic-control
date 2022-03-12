@@ -11,6 +11,9 @@ tags:
   - policy iteration
 ---
 
+<!-- FIXME: Temp while the mathjax definition propogaes to server -->
+$\def\ONES{\mathbb{1}}$
+
 A common way to approximate systems that run for a very large horizon
 is to assume that they run for an infinite horizon. There is an inherent
 homogeneity over time for infinite horizon system: the future depends only on the
@@ -173,29 +176,29 @@ theorem](https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem)
 ::: highlight :::
 Prop.
 
-:   Let $h$ be any (possibly randomized) history dependent policy. Then,      
+:   Let $μ$ be any (possibly randomized) history dependent policy. Then,      
     there exists a randomized Markov policy $π$ that has the same performance
-    as $h$.
+    as $μ$.
 :::
 
 #### Proof {-}
 
-For any policy $h$, define the _occupation measure_
-$$ \mu(s,a | s^∘; h) 
-  := \EXP^h \bigg[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
+For any policy $μ$, define the _occupation measure_
+$$ \mu(s,a | s^∘; μ) 
+  := \EXP^μ \bigg[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
   \biggm| S_1 = s^∘ \bigg]
 $$
 Then 
-$$ J(s^∘; h) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
-   μ(s,a | s^∘; h) c(s,a).
+$$ J(s^∘; μ) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
+   μ(s,a | s^∘; μ) c(s,a).
 $$ {#eq:performance}
 
 Now, define a randomized Markov policy $π$ as follows:
-$$\PR(A_t = a | S_t = s; π) = \frac{ μ(s, a| s^∘; h) } { μ(s | s^∘; h) }$$
-where $μ(s|s^∘;h) = \sum_{a \in \ALPHABET A} μ(s,a | s^∘; h)$. Then, by
+$$\PR(A_t = a | S_t = s; π) = \frac{ μ(s, a| s^∘; μ) } { μ(s | s^∘; μ) }$$
+where $μ(s|s^∘;μ) = \sum_{a \in \ALPHABET A} μ(s,a | s^∘; μ)$. Then, by
 construction, 
-$ μ(s,a | s^∘; π) = μ(s,a | s^∘; h) $
-and therefore by \\eqref{eq:performance}, we have that $J(s^∘; π) = J(s^∘; h).$
+$ μ(s,a | s^∘; π) = μ(s,a | s^∘; μ) $
+and therefore by \\eqref{eq:performance}, we have that $J(s^∘; π) = J(s^∘; μ).$
 
 -->
 
@@ -258,9 +261,9 @@ Prop. #prop:properties
       $\mathcal B_π v \le \mathcal B_π w$ and 
       $\mathcal B v \le \mathcal B w$. 
     * _Discounting_. For any $v \in \reals^n$ and $m \in \reals$, 
-      $\mathcal B_π (v + m) = \mathcal B_π v + γ m$
+      $\mathcal B_π (v + m \ONES) = \mathcal B_π v + γ m \ONES$
       and 
-      $\mathcal B (v + m) = \mathcal B v + γ m$.
+      $\mathcal B (v + m \ONES) = \mathcal B v + γ m \ONES$.
 :::
 
 Note that we interpret $v + m$ as $[v + m]_s = v_s + m$. 
@@ -271,22 +274,23 @@ $$ \mathcal B_π v = c_π + γ P_π v. $$
 So, monotonicity of $\mathcal B_π$ follows immediately from monotonicity of
 matrix multiplication for positive matrices. 
 
-Let $h$ be such that $\mathcal B w = \mathcal B_h w$. 
+Let $μ$ be such that $\mathcal B w = \mathcal B_μ w$. 
 Then,
-$$ v = \mathcal B v \le \mathcal B_h v 
-\stackrel{(a)} \le \mathcal B_h w = \mathcal B w = w,
+$$ \mathcal B v \le \mathcal B_μ v 
+\stackrel{(a)} \le \mathcal B_μ w = \mathcal B w,
 $$
-where $(a)$ uses the monotonicity of $\mathcal B_h$. 
+where $(a)$ uses the monotonicity of $\mathcal B_μ$. 
 
 We now prove the discounting property. 
 Recall that
 $$ \mathcal B_π v = c_π + γ P_π v. $$
 Thus,
-$$ \mathcal B_π(v+m) = c_π + γ P_π (v+m) = c_π + γ P_π v + γ m = \mathcal B_π
-v + γ m.$$ 
+$$ \mathcal B_π(v+m \ONES) = c_π + γ P_π (v+m \ONES) = c_π + γ P_π v + γ m
+\ONES = \mathcal B_π
+v + γ m \ONES.$$ 
 Thus, $\mathcal B_π$ is discounting. Now consider 
-$$ \mathcal B (v + m ) = \min_{π} \mathcal B_π (v+m)
-= \min_π \mathcal (B_π v + γ m) = \mathcal B v + γ m.$$
+$$ \mathcal B (v + m \ONES ) = \min_{π} \mathcal B_π (v+m \ONES)
+= \min_π \mathcal (B_π v + γ m \ONES) = \mathcal B v + γ m \ONES.$$
 Thus, $\mathcal B$ is discounting.
 &nbsp;$\Box$
 
@@ -323,8 +327,8 @@ Prop. #prop:bounds
 
 :   For any $V \in \reals^n$ and $m \in \reals$, 
 
-    * If $V + m \ge \mathcal B V$, then $V  + m/(1-γ) \ge V^*$;
-    * If $V + m \le \mathcal B V$, then $V  + m/(1-γ) \le V^*$;
+    * If $V + m \ONES \ge \mathcal B V$, then $V  + m \ONES/(1-γ) \ge V^*$;
+    * If $V + m \ONES \le \mathcal B V$, then $V  + m \ONES/(1-γ) \le V^*$;
 
     The same bounds are true when $(\mathcal B, V^*)$ is replaced with
     $(\mathcal B_π, V_π)$. 
@@ -340,17 +344,17 @@ Remark
 
 #### Proof {-}
 Again, we only prove the first part. The proof of the second part is the same. We have that
-$$ V + m \ge \mathcal B V. $$
+$$ V + m \ONES \ge \mathcal B V. $$
 From discounting and monotonicity properties, we get
-$$ \mathcal B V + γ m \ge \mathcal B^2 V. $$
+$$ \mathcal B V + γ m \ONES \ge \mathcal B^2 V. $$
 Again, from discounting and monotonitiy properties, we get
-$$ \mathcal B^2 V + γ^2 m \ge \mathcal B^3 V. $$
+$$ \mathcal B^2 V + γ^2 m \ONES \ge \mathcal B^3 V. $$
 Continuing this way, we get
-$$ \mathcal B^k V + γ^k m \ge \mathcal B^{k+1} V. $$
+$$ \mathcal B^k V + γ^k m \ONES \ge \mathcal B^{k+1} V. $$
 Adding all the above equations, we get
-$$ V + \sum_{\ell = 0}^k γ^\ell m \ge \mathcal B^{k+1} V. $$
+$$ V + \sum_{\ell = 0}^k γ^\ell m \ONES \ge \mathcal B^{k+1} V. $$
 Taking the limit as $k \to ∞$, we get
-$$ V + m/(1-γ) \ge V^*. \Box$$
+$$ V + m \ONES/(1-γ) \ge V^*. \Box$$
 
 
 # Value Iteration Algorithm
@@ -369,9 +373,9 @@ $$ V + m/(1-γ) \ge V^*. \Box$$
 
 Then, for all $k$
 
-1. $V_k + \underline δ_k \le V^* \le V_k + \bar δ_k$.
-2. $\underline δ_k - \bar δ_k  \le V_{π_k} - V^* \le \bar δ_k -
-   \underline δ_k.$
+1. $V_k + \underline δ_k \ONES \le V^* \le V_k + \bar δ_k \ONES$.
+2. $(\underline δ_k - \bar δ_k) \ONES  \le V_{π_k} - V^* \le (\bar δ_k -
+   \underline δ_k) \ONES.$
    
 :::  
 
@@ -382,24 +386,24 @@ $$ \begin{align*}
    \mathcal B V_k - V_k &= \mathcal B V_k - \mathcal B V_{k-1} \\ 
    & \le \mathcal B_{π_{k-1}} V_k - \mathcal B_{π_{k-1}} V_{k-1}\\
    & \le γ P_{π_{k-1}}[ V_k - V_{k-1} ] \\
-   &= (1-γ) \bar δ_k.
+   &= (1-γ) \bar δ_k \ONES.
 \end{align*} $$
 Thus, by @prop:bounds, we have
 $$\begin{equation} \label{eq:VI-1}
-  V^* \le V_k + \bar δ_k.
+  V^* \le V_k + \bar δ_k \ONES.
 \end{equation}$$
 Note that $\mathcal B V_k = \mathcal B_{π_k} V_k$. So, we have also show that
-$\mathcal B_{π_k} V_k - V_k \le (1-γ) \bar \delta_k$. Thus, again by
+$\mathcal B_{π_k} V_k - V_k \le (1-γ) \bar δ_k \ONES$. Thus, again by
 @prop:bounds, we have
 $$\begin{equation}\label{eq:VI-2}
-  V_{π_k} \le V_k + \bar δ_k. 
+  V_{π_k} \le V_k + \bar δ_k \ONES. 
 \end{equation}$$
 
 By a similar argument, we can show
 $$\begin{equation}\label{eq:VI-3}
-  V^* \ge V_k + \underline δ_k
+  V^* \ge V_k + \underline δ_k \ONES
 \quad\text{and}\quad
- V_{π_k} \ge V_k + \underline δ_k. 
+ V_{π_k} \ge V_k + \underline δ_k \ONES. 
 \end{equation}$$
 
 Eq. \\eqref{eq:VI-1} and \\eqref{eq:VI-3} imply the first relationship of the
@@ -407,13 +411,13 @@ result. To establish the second relationship, note that the triangle
 inequality
 $$ \max\{ V_{π_k} - V^* \} \le 
    \max\{ V_{π_k} - V_k \} + \max\{ V_{k} - V^* \}
-   \le \bar δ_k - \underline δ_k.
+   \le (\bar δ_k - \underline δ_k) \ONES.
 $$
 Similarly,
 $$ 
   \max\{ V^* - V_{π_k} \} \le
    \max \{ V^* - V_k \} + \max\{ V_k - V_{π_k} \}
-   \le \bar δ_k - \underline δ_k.
+   \le (\bar δ_k - \underline δ_k) \ONES.
 $$
 Combining the above two equation, we get the second relationship of the
 result. $\Box$
@@ -425,22 +429,22 @@ result. $\Box$
 Lemma #lemma:PI
 
 :   **Policy Improvement** Suppose $V_π$ is the fixed point of $\mathcal B_π$ and
-    $$\mathcal B_{h} V_π = \mathcal B V_π. $$
+    $$\mathcal B_{μ} V_π = \mathcal B V_π. $$
     Then,
-    $$V_{h}(s) \le V_π(s), \quad \forall s \in \ALPHABET S. $$
+    $$V_{μ}(s) \le V_π(s), \quad \forall s \in \ALPHABET S. $$
     Moreover, if $π$ is not optimal, then at least one inequality is strict. 
 :::
 
 #### Proof {-}
 
-$$ V_π = \mathcal B_π V_π \ge \mathcal B V_π = \mathcal B_{h} V_π.$$
+$$ V_π = \mathcal B_π V_π \ge \mathcal B V_π = \mathcal B_{μ} V_π.$$
 Thus,
-$$ V_π \ge V_{h}. $$
+$$ V_π \ge V_{μ}. $$
 
-Finally, suppose $V_h = V_π$. Then, 
-$$ V_h = \mathcal B_h V_h = \mathcal B_h V_π = \mathcal B V_π = \mathcal B
-V_h. $$
-Thus, $V_h$ (and $V_π$) is the unique fixed point of $\mathcal B$. Hence $h$
+Finally, suppose $V_μ = V_π$. Then, 
+$$ V_μ = \mathcal B_μ V_μ = \mathcal B_μ V_π = \mathcal B V_π = \mathcal B
+V_μ. $$
+Thus, $V_μ$ (and $V_π$) is the unique fixed point of $\mathcal B$. Hence $μ$
 and $π$ are optimal.
 &nbsp;$\Box$
 
@@ -535,12 +539,12 @@ results to establish the convergence bounds for optimistic policy iteration.
 ::: highlight :::
 Prop. #prop:multi-step
 
-:   For any $V \in \reals^n$ and $m \in \reals_{\ge 0}$ 
+:   For any $V \in \reals^n$ and $m \ONES \in \reals_{\ge 0}$ 
 
-    * If $V + m \ge \mathcal B V = \mathcal B_π V$, then for any $\ell \in \integers_{> 0}$, 
-      $$ \mathcal B V + \frac{γ}{1 - γ} m \ge \mathcal B_π^\ell V $$
+    * If $V + m \ONES \ge \mathcal B V = \mathcal B_π V$, then for any $\ell \in \integers_{> 0}$, 
+      $$ \mathcal B V + \frac{γ}{1 - γ} m \ONES \ge \mathcal B_π^\ell V $$
       and
-      $$ \mathcal B_π^\ell V + γ^\ell m \ge \mathcal B( \mathcal B_π^\ell V). $$
+      $$ \mathcal B_π^\ell V + γ^\ell m \ONES \ge \mathcal B( \mathcal B_π^\ell V). $$
 
 :::
 
@@ -573,9 +577,9 @@ Prop. #prop:optimistic-bound
 
 1. Show that the error bound for value iteration is monotone with the number
    of iterations, i.e,
-   $$ V_k + \underline δ_k \le V_{k+1} + \underline δ_{k+1} 
+   $$ V_k + \underline δ_k \le V_{k+1} + \underline δ_{k+1} \ONES
    \le V^* 
-   \le V_{k+1} + \bar δ_{k+1} \le V_k + \bar δ_k. $$
+   \le V_{k+1} + \bar δ_{k+1} \ONES \le V_k + \bar δ_k \ONES. $$
 
 2. **One-step look-ahead error bounds.**
 

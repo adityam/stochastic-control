@@ -8,7 +8,7 @@ window.MathJax = {
       PR: "\\mathbb{P}",
       EXP: "\\mathbb{E}",
       IND: "\\mathbb{I}",
-      ONES: "\\mathbf{1}",
+      ONES: "\\mathbb{1}",
       reals: "\\mathbb{R}",
       integers: "\\mathbb{Z}",
       BLANK: "\\mathfrak{E}",
