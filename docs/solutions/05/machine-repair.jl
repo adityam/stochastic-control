@@ -21,13 +21,9 @@ function evaluate(π)
     # https://discourse.julialang.org/t/problem-extracting-a-row-from-an-array-returns-a-column/37331/14 
     P_π = reduce(vcat, [ P[π[s]][ s:s,:] for s in S ])
     V_π = (I - γ*P_π)\c_π
-    @printf("-------------------------\n")
-    @printf("Performance of policy %s:\n", π)
-    display(V_π)
-
 end
 
-evaluate.([π₁, π₂, π₃, π₄])
+display.(evaluate.([π₁, π₂, π₃, π₄]))
 
 # Bellman update
 function update!(v, π)
