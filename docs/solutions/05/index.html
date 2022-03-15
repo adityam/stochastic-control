@@ -46,49 +46,49 @@
 
 <div class="h1-title">Assignment 5 (solution)</div>
 
-<h2 data-number="0.1" id="problem-1"><span class="header-section-number">0.1</span> Problem 1</h2>
 <ol type="a">
-<li><p>For the reward maximization case, the dynamic program is given as follows:</p>
-<p><span class="math display">\[V_T(x) = s_T(x)\]</span> and for <span class="math inline">\(t \in \{T-1,\dots, 1\}\)</span>, we have <span class="math display">\[V_t(x) = \max\{ s_t(x), c_t(x) + \EXP[V_{t+1}(X_{t+1} | X_t = x]. \]</span></p>
-<p>We define the benefit funciton as before. i.e., <span class="math display">\[B_t(x) = c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x] - s_t(x). \]</span> Then, it is optimal to stop whenever <span class="math inline">\(B_t(x) \le 0\)</span>.</p>
-<p>Now, we write the value function in terms of the benefit function as follows:</p>
-<p><span class="math display">\[\begin{align*} 
- V_t(x) &amp;= \max\{ s_t(x), B_t(x) + s_t(x) \} \\
- &amp;= s_t(x) + \max\{ B_t(x), 0 \} \\
- &amp;= s_t(x) + [B_t(x)]^{+}
- \end{align*}\]</span> where <span class="math inline">\([y]^{+}\)</span> is a short hand for <span class="math inline">\(\max\{y, 0\}\)</span>.</p>
-<p>Now, define the one-step look-ahead function as before: <span class="math display">\[ M_t(x) = c_t(x) + \EXP[ s_{t+1}(X_{t+1}) | X_t = x] - s_t(x). \]</span> Now we derive the relationship between the one-step look-ahead function and the benefit function: <span class="math display">\[ B_T(x) = M_T(x) \]</span> and for <span class="math inline">\(t \in \{T-1,\dots, 1\}\)</span>, we have <span class="math display">\[\begin{align*}
-   B_t(x) &amp;= c_t(x) + \EXP[V_{t+1}(X_{t+1}) | X_t = x] - s_t(x) \\
-   &amp;= c_t(x) + \EXP[ s_{t+1}(X_{t+1}) + [B_{t+1}(X_{t+1})]^+ | X_t = x] - s_t(x)
-   \\
-   &amp;= M_t(x) + \EXP[ [B_{t+1}(X_{t+1}]^- | X_t = x ].
- \end{align*}\]</span></p></li>
-<li><p>The equivalent to Theorem 1 for reward maximization is the following:</p></li>
+<li><p>Note that <span class="math inline">\(c(s,1) = λ\)</span>, which is a constant and <span class="math inline">\(c(\cdot,2) = [0,1,5]\)</span>, which is increasing. Thus (C1) is satisfied.</p>
+<p>Now we consider stochastic monotonicity of the transition matrices. <span class="math inline">\(P(1) = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 1 &amp; 0 &amp; 0  \end{bmatrix}\)</span>. Since all rows of <span class="math inline">\(P(1)\)</span> are identical, it is trivially, stochsatic monotone.</p>
+<p><span class="math inline">\(P(2) = \begin{bmatrix} 1-θ &amp; θ &amp; 0 \\ 0 &amp; 1-θ &amp; θ \\ 0 &amp; 0 &amp; 1  \end{bmatrix}\)</span>. By construction, the CDF of the first row lies below the CDF of the second row, which lies below the CDF of the third row. Hence, the matrix is stochastic monotone. Thus, condition (C2) is satisfied.</p>
+<p>Now we consider sub-modularity of the cost. Consider <span class="math inline">\(c(s,2) - c(s,1)\)</span>. Since <span class="math inline">\(c(s,1)\)</span> is a constant and <span class="math inline">\(c(s,2)\)</span> is weakly increasing in <span class="math inline">\(s\)</span>, this implies that <span class="math inline">\(c(s,2) - c(s,1)\)</span> is weakly increasing in <span class="math inline">\(s\)</span>. Hence, the cost function is sub-modular. Thus, condition (C4a) is satisfied.</p>
+<p>Now, we consider <span class="math inline">\(H(s&#39;|s,a) = 1 - \sum_{z \le s&#39;} P_{sz}(a)\)</span>. We will think of <span class="math inline">\(H(a)\)</span> as a matrix (similar to the notation for the transition matrix <span class="math inline">\(P(a)\)</span>). Note that, <span class="math display">\[
+     H(1) = \begin{bmatrix}
+         0 &amp; 0 &amp; 0 \\
+         0 &amp; 0 &amp; 0 \\
+         0 &amp; 0 &amp; 0 
+     \end{bmatrix}
+     \qquad
+     H(2) = \begin{bmatrix}
+         θ &amp; 0 &amp; 0 \\ 
+         1 &amp; θ &amp; 0 \\
+         1 &amp; 1 &amp; 0 
+     \end{bmatrix}
+ \]</span> For every fixed value of <span class="math inline">\(s&#39;\)</span>, <span class="math inline">\(H(s&#39;|s,2) - H(s&#39;|s,1) = H(s&#39;|s,2)\)</span> is increasing in <span class="math inline">\(s\)</span>. Hence <span class="math inline">\(H(s&#39;|s,a)\)</span> is supermodular in <span class="math inline">\((s,a)\)</span>. Thus, condition (C4b) is satisfied. Hence, the optimal policy is monotone decreasing.</p></li>
+<li><p>The four possible monotone policies are:</p>
+<ul>
+<li><span class="math inline">\(π_1 = [2, 2, 2]\)</span></li>
+<li><span class="math inline">\(π_2 = [2, 2, 1]\)</span></li>
+<li><span class="math inline">\(π_3 = [2, 1, 1]\)</span></li>
+<li><span class="math inline">\(π_4 = [1, 1, 1]\)</span></li>
+</ul>
+<p>We can evaluate the performance of each policy using the performance evaluation formula:</p>
+<p><span class="math display">\[ V_π = (1 - γ P_π)^{-1} c_π. \]</span></p>
+<p>We carry out this evaluation below:</p>
+<iframe width="100%" height="700px" src="https://replit.com/@adityam17/Assignment-5?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals">
+</iframe></li>
+<li><p>We use the short hand <span class="math inline">\(V_i\)</span> to denote <span class="math inline">\(V_{π_i}\)</span>. From the above code, we see that</p>
+<ul>
+<li><span class="math inline">\(V_1 = [28.598, 39.189, 50.000]\)</span></li>
+<li><span class="math inline">\(V_2 = [11.967, 16.401, 18.771]\)</span></li>
+<li><span class="math inline">\(V_3 = [17,008, 23.307, 23.307]\)</span></li>
+<li><span class="math inline">\(V_4 = [80.000, 80.000, 80.000]\)</span></li>
+</ul>
+<p>Note that <span class="math inline">\(V_2\)</span> is component-wise smaller than all other value functions. Therefore, the policy <span class="math inline">\(π_2\)</span> is optimal.</p></li>
+<li><p>The code for the calculation is given below:</p>
+<iframe width="100%" height="700px" src="https://replit.com/@adityam17/Assignment-5-VI?lite=true" scrolling="no" frameborder="no" allowtransparency="true" allowfullscreen="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals">
+</iframe>
+<p>The value function after 100 iterations is close to the optimal value function obtained in part~(c). The policy after 100 iterations is exactly the same as the optimal policy.</p></li>
 </ol>
-<div class="highlight">
-<dl>
-<dt>Theorem</dt>
-<dd>
-<p>Suppose the state space is totally ordered and the following conditions hold.</p>
-<ol type="1">
-<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(M_t(x)\)</span> is weakly increasing in <span class="math inline">\(x\)</span>.</li>
-<li><span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is stochastic monotone.</li>
-</ol>
-<p>Then <span class="math inline">\(B_t(x)\)</span> is weakly increasing in <span class="math inline">\(x\)</span> for all <span class="math inline">\(t\)</span> and there exists a sequence <span class="math inline">\(\{λ_t\}_{t \ge 1}\)</span> such that it is optimal to stop at time <span class="math inline">\(t\)</span> if and only if <span class="math inline">\(X_t \le λ_t\)</span>.</p>
-</dd>
-</dl>
-</div>
-<p>As in the notes, we first prove the monotonicity of <span class="math inline">\(B_t(x)\)</span> by backward induction. Since <span class="math inline">\(B_T(x) = M_T(x)\)</span>, which is increasing. This forms the basis of induction. Now assume that <span class="math inline">\(B_{t+1}(x)\)</span> is increasing in <span class="math inline">\(x\)</span> and consider the problem at <span class="math inline">\(t\)</span>.</p>
-<p>Since <span class="math inline">\(B_{t+1}(x)\)</span> is increasing so is <span class="math inline">\([B_{t+1}(x)]^{+}\)</span>. Moreover, since <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math inline">\(\EXP[B_{t+1}(X_{t+1})^{+} | X_t = x]\)</span> is increasing in <span class="math inline">\(x\)</span>. Therefore, <span class="math display">\[ B_t(x) = M_t(x) + \EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x] \]</span> is increasing in <span class="math inline">\(x\)</span>. Thus, by induction, <span class="math inline">\(B_t(x)\)</span> is increasing in <span class="math inline">\(x\)</span> for all <span class="math inline">\(t\)</span>.</p>
-<p>Recall that it is optimal to stop iff <span class="math inline">\(B_t(x) \le 0\)</span>. Since <span class="math inline">\(B_t(x)\)</span> is increasing in <span class="math inline">\(x\)</span>, the optimal decision is of the threshold type described in the Theorem.</p>
-<h2 data-number="0.2" id="problem-2"><span class="header-section-number">0.2</span> Problem 2</h2>
-<p>Let <span class="math inline">\(X_t\)</span> denote the maximum offer received so far. Then, <span class="math display">\[X_t = \max\{W_1, \dots, W_t\}\]</span> and <span class="math display">\[X_{t+1} = \max\{ X_t, W_{t+1} \}. \]</span> The above dynamics are monotone; in particular, if <span class="math inline">\(x &gt; y\)</span> then <span class="math display">\[ \max\{x, W\} \ge \max\{y, W\}. \]</span></p>
-<p>We model this problem as a reward maximization problem. The continuation reward <span class="math inline">\(c_t(x) = -c\)</span> and the stopping reward <span class="math inline">\(s_t(x) = x\)</span>. Thus, the one-step benefit function is <span class="math display">\[ \begin{align}
-  M_t(x) &amp;= c_t(x) + \EXP[ s_{t+1}(\max\{ x, W \}) ] - s_t(x) \\
-  &amp;= -c + \EXP[ \max\{x, W\} ] - x \\
-  &amp;= -c + \EXP[ (W - x)+ ].
-\end{align}\]</span> Note that for any <span class="math inline">\(W\)</span>, <span class="math inline">\((W-x)^{+}\)</span> is a decreasing function of <span class="math inline">\(x\)</span>. Thus, <span class="math inline">\(\EXP[ (W-x)^+ ]\)</span> is a decreasing function of <span class="math inline">\(x\)</span>; hence so is <span class="math inline">\(M_t(x)\)</span>.</p>
-<p>Since we are looking at a reward maximization problem where <span class="math inline">\(M_t(x)\)</span> is weakly decreasing in <span class="math inline">\(x\)</span> and <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is monotone, from <a href="../../theory/monotonicity-optimal-stopping#monotone-stopping">the result on monotonicity of optimal stopping</a> that there exist thresholds <span class="math inline">\(\{λ_t\}_{t \ge 1}\)</span> such that it is optimal to stop at time <span class="math inline">\(t\)</span> iff <span class="math inline">\(X_t \ge λ_t\)</span>.</p>
 
 
 <p class="categories">

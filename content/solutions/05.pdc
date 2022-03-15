@@ -2,97 +2,85 @@
 title: Assignment 5 (solution)
 ---
 
-## Problem 1
+a. Note that $c(s,1) = λ$, which is a constant and $c(\cdot,2) = [0,1,5]$,
+which is increasing. Thus (C1) is satisfied.
 
-a. For the reward maximization case, the dynamic program is given as follows:
+    Now we consider stochastic monotonicity of the transition matrices.
+    $P(1) = \begin{bmatrix} 1 & 0 & 0 \\ 1 & 0 & 0 \\ 1 & 0 & 0
+    \end{bmatrix}$. Since all rows of $P(1)$ are identical, it is trivially,
+    stochsatic monotone. 
 
-   $$V_T(x) = s_T(x)$$
-   and for $t \in \{T-1,\dots, 1\}$, we have
-   $$V_t(x) = \max\{ s_t(x), c_t(x) + \EXP[V_{t+1}(X_{t+1} | X_t = x]. $$
+    $P(2) = \begin{bmatrix} 1-θ & θ & 0 \\ 0 & 1-θ & θ \\ 0 & 0 & 1
+    \end{bmatrix}$. By construction, the CDF of the first row lies below the
+    CDF of the second row, which lies below the CDF of the third row. Hence,
+    the matrix is stochastic monotone. Thus, condition (C2) is satisfied.
 
-   We define the benefit funciton as before. i.e., 
-   $$B_t(x) = c_t(x) + \EXP[ V_{t+1}(X_{t+1}) | X_t = x] - s_t(x). $$
-   Then, it is optimal to stop whenever $B_t(x) \le 0$. 
+    Now we consider sub-modularity of the cost. Consider $c(s,2) - c(s,1)$.
+    Since $c(s,1)$ is a constant and $c(s,2)$ is weakly increasing in $s$, this
+    implies that $c(s,2) - c(s,1)$ is weakly increasing in $s$. Hence, the
+    cost function is sub-modular. Thus, condition (C4a) is satisfied. 
 
-   Now, we write the value function in terms of the benefit function as
-   follows:
-
-   $$\begin{align*} 
-    V_t(x) &= \max\{ s_t(x), B_t(x) + s_t(x) \} \\
-    &= s_t(x) + \max\{ B_t(x), 0 \} \\
-    &= s_t(x) + [B_t(x)]^{+}
-    \end{align*}$$
-    where $[y]^{+}$ is a short hand for $\max\{y, 0\}$. 
-
-    Now, define the one-step look-ahead function as before:
-    $$ M_t(x) = c_t(x) + \EXP[ s_{t+1}(X_{t+1}) | X_t = x] - s_t(x). $$
-    Now we derive the relationship between the one-step look-ahead function
-    and the benefit function:
-    $$ B_T(x) = M_T(x) $$
-    and for $t \in \{T-1,\dots, 1\}$, we have
-    $$\begin{align*}
-      B_t(x) &= c_t(x) + \EXP[V_{t+1}(X_{t+1}) | X_t = x] - s_t(x) \\
-      &= c_t(x) + \EXP[ s_{t+1}(X_{t+1}) + [B_{t+1}(X_{t+1})]^+ | X_t = x] - s_t(x)
-      \\
-      &= M_t(x) + \EXP[ [B_{t+1}(X_{t+1}]^- | X_t = x ].
-    \end{align*}$$
-
-b. The equivalent to Theorem 1 for reward maximization is the following:
-  
-::: highlight :::
-Theorem
-
-:   Suppose the state space is totally ordered and the following
-    conditions hold.
-
-      1. For all $t$, $M_t(x)$ is weakly increasing in $x$.
-      2. $\{X_t\}_{t \ge 1}$ is stochastic monotone.
-
-    Then $B_t(x)$ is weakly increasing in $x$ for all $t$ and there exists
-    a sequence $\{λ_t\}_{t \ge 1}$ such that it is optimal to stop at time
-    $t$ if and only if $X_t \le λ_t$. 
-
-:::
-
-As in the notes, we first prove the monotonicity of $B_t(x)$ by backward
-induction. Since $B_T(x) = M_T(x)$, which is increasing. This forms the basis
-of induction. Now assume that $B_{t+1}(x)$ is increasing in $x$ and consider
-the problem at $t$.
-
-Since $B_{t+1}(x)$ is increasing so is $[B_{t+1}(x)]^{+}$. Moreover, since
-$\{X_t\}_{t \ge 1}$ is stochastically monotone, $\EXP[B_{t+1}(X_{t+1})^{+} |
-X_t = x]$ is increasing in $x$. Therefore,
-$$ B_t(x) = M_t(x) + \EXP[ [B_{t+1}(X_{t+1})]^- | X_t = x] $$
-is increasing in $x$. Thus, by induction, $B_t(x)$ is increasing in $x$ for
-all $t$.
-
-Recall that it is optimal to stop iff $B_t(x) \le 0$. Since $B_t(x)$ is
-increasing in $x$, the optimal decision is of the threshold type described in
-the Theorem. 
+    Now, we consider $H(s'|s,a) = 1 - \sum_{z \le s'} P_{sz}(a)$. We will
+    think of $H(a)$ as a matrix (similar to the notation for the transition
+    matrix $P(a)$). Note that,
+    $$
+        H(1) = \begin{bmatrix}
+            0 & 0 & 0 \\
+            0 & 0 & 0 \\
+            0 & 0 & 0 
+        \end{bmatrix}
+        \qquad
+        H(2) = \begin{bmatrix}
+            θ & 0 & 0 \\ 
+            1 & θ & 0 \\
+            1 & 1 & 0 
+        \end{bmatrix}
+    $$
+    For every fixed value of $s'$, $H(s'|s,2) - H(s'|s,1) = H(s'|s,2)$ is
+    increasing in $s$. Hence $H(s'|s,a)$ is supermodular in $(s,a)$. Thus,
+    condition (C4b) is satisfied. Hence, the optimal policy is monotone decreasing.
 
 
-## Problem 2
-Let $X_t$ denote the maximum offer received so far. Then,
-$$X_t = \max\{W_1, \dots, W_t\}$$
-and
-$$X_{t+1} = \max\{ X_t, W_{t+1} \}. $$
-The above dynamics are monotone; in particular, if $x > y$ then 
-$$ \max\{x, W\} \ge \max\{y, W\}. $$
 
-We model this problem as a reward maximization problem. The continuation
-reward $c_t(x) = -c$ and the stopping reward $s_t(x) = x$. Thus, the
-one-step benefit function is
-$$ \begin{align}
-  M_t(x) &= c_t(x) + \EXP[ s_{t+1}(\max\{ x, W \}) ] - s_t(x) \\
-  &= -c + \EXP[ \max\{x, W\} ] - x \\
-  &= -c + \EXP[ (W - x)+ ].
-\end{align}$$
-Note that for any $W$, $(W-x)^{+}$ is a decreasing function of $x$. Thus,
-$\EXP[ (W-x)^+ ]$ is a decreasing function of $x$; hence so is $M_t(x)$. 
+b. The four possible monotone policies are:
 
-Since we are looking at a reward maximization problem where $M_t(x)$ is
-weakly decreasing in $x$ and $\{X_t\}_{t \ge 1}$ is monotone, from 
-[the result on monotonicity of optimal
-stopping](../../theory/monotonicity-optimal-stopping#monotone-stopping)
-that there exist thresholds $\{λ_t\}_{t \ge 1}$ such that it is optimal to
-stop at time $t$ iff $X_t \ge λ_t$.
+   - $π_1 = [2, 2, 2]$
+   - $π_2 = [2, 2, 1]$
+   - $π_3 = [2, 1, 1]$
+   - $π_4 = [1, 1, 1]$
+
+   We can evaluate the performance of each policy using the performance
+   evaluation formula:
+
+   $$ V_π = (1 - γ P_π)^{-1} c_π. $$
+
+   We carry out this evaluation below:
+
+   <iframe width="100%" height="700px"
+    src="https://replit.com/@adityam17/Assignment-5?lite=true"
+    scrolling="no" frameborder="no" allowtransparency="true"
+    allowfullscreen="true" sandbox=
+    "allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
+
+c.  We use the short hand $V_i$ to denote $V_{π_i}$. From the above code, we see that
+
+    - $V_1 = [28.598, 39.189, 50.000]$
+    - $V_2 = [11.967, 16.401, 18.771]$
+    - $V_3 = [17,008, 23.307, 23.307]$
+    - $V_4 = [80.000, 80.000, 80.000]$
+
+    Note that $V_2$ is component-wise smaller than all other value functions.
+    Therefore, the policy $π_2$ is optimal.
+
+d. The code for the calculation is given below:
+
+   <iframe width="100%" height="700px"
+    src="https://replit.com/@adityam17/Assignment-5-VI?lite=true"
+    scrolling="no" frameborder="no" allowtransparency="true"
+    allowfullscreen="true" sandbox=
+    "allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-modals"></iframe>
+
+    The value function after 100 iterations is close to the optimal value
+    function obtained in part~(c). The policy after 100 iterations is exactly
+    the same as the optimal policy.
+
