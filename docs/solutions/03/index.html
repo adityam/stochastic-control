@@ -50,61 +50,59 @@
 
 <h2 data-number="0.1" id="problem-1"><span class="header-section-number">0.1</span> Problem 1</h2>
 <p>The code for computing the optimal policy is <a href="queueing.jl">available here</a>. The code is written for ease of reading, not efficiency.</p>
-<div class="highlight">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> Distributions, OffsetArrays
-
-<span style="color:#75715e"># Parameters</span>
-n, m  <span style="color:#f92672">=</span> <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">3</span>
-λ <span style="color:#f92672">=</span> <span style="color:#ae81ff">0.5</span>
-
-μ <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.2</span>, <span style="color:#ae81ff">0.5</span>, <span style="color:#ae81ff">0.8</span>]
-q <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">8</span>]
-
-h <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
-R <span style="color:#f92672">=</span> <span style="color:#ae81ff">10</span>
-B <span style="color:#f92672">=</span> <span style="color:#ae81ff">15</span>
-
-<span style="color:#75715e"># State spaces</span>
-S <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>n
-A <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>m
-W <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span>B
-Z <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
-
-<span style="color:#75715e"># Dynamics</span>
-f(s,z,w) <span style="color:#f92672">=</span> min( max(s<span style="color:#f92672">-</span>z, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">+</span> w, n)
-
-<span style="color:#75715e"># Arrival probability</span>
-Pw(w) <span style="color:#f92672">=</span> pdf(Poisson(λ),w)
-
-<span style="color:#75715e"># Departure probability</span>
-Pz(z,s,a) <span style="color:#f92672">=</span> (s <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">?</span> convert(<span style="color:#66d9ef">Int</span>, z<span style="color:#f92672">==</span><span style="color:#ae81ff">0</span>) <span style="color:#f92672">:</span> pdf(Bernoulli(μ[a]),z)
-
-<span style="color:#75715e"># Cost</span>
-c(s,z,a) <span style="color:#f92672">=</span> h<span style="color:#f92672">*</span>s <span style="color:#f92672">+</span> q[a] <span style="color:#f92672">-</span> R<span style="color:#f92672">*</span>z
-
-<span style="color:#75715e"># Dynamic programming</span>
-T <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>
-
-V <span style="color:#f92672">=</span> [ OffsetArray(zeros(length(S)), S)               <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>] 
-Q <span style="color:#f92672">=</span> [ OffsetArray(zeros(length(S),length(A)), S,A)   <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
-π <span style="color:#f92672">=</span> [ OffsetArray(zeros(<span style="color:#66d9ef">Int</span>, length(S)), S)          <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T]
-
-<span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> T<span style="color:#f92672">:-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
-    <span style="color:#a6e22e">@views</span> Qt <span style="color:#f92672">=</span> Q[t]
-    <span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S 
-        <span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A
-          Qt[s, a] <span style="color:#f92672">=</span> sum(Pw(w)<span style="color:#f92672">*</span>Pz(z,s,a)<span style="color:#f92672">*</span>( c(s,z,a) <span style="color:#f92672">+</span> V[t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>][f(s,z,w)] ) <span style="color:#66d9ef">for</span> w <span style="color:#66d9ef">in</span> W, z <span style="color:#66d9ef">in</span> Z)
-        <span style="color:#66d9ef">end</span>
-        idx <span style="color:#f92672">=</span> argmin(Qt[s,<span style="color:#f92672">:</span>])
-        V[t][s] <span style="color:#f92672">=</span> Qt[s, idx]
-        π[t][s] <span style="color:#f92672">=</span> idx 
-    <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-
-display(hcat(V[<span style="color:#ae81ff">1</span>], V[<span style="color:#ae81ff">5</span>], V[<span style="color:#ae81ff">10</span>], V[<span style="color:#ae81ff">25</span>]))
-display(hcat(π[<span style="color:#ae81ff">1</span>], π[<span style="color:#ae81ff">5</span>], π[<span style="color:#ae81ff">10</span>], π[<span style="color:#ae81ff">25</span>]))
-
-</code></pre>
+<div id="cb1" class="sourceCode">
+<pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Distributions</span>, <span class="bu">OffsetArrays</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameters</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>n, m  <span class="op">=</span> <span class="fl">8</span>, <span class="fl">3</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>λ <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>μ <span class="op">=</span> [<span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">0.8</span>]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">8</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">1</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>R <span class="op">=</span> <span class="fl">10</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="fl">15</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># State spaces</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>S <span class="op">=</span> <span class="fl">0</span><span class="op">:</span>n</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> <span class="fl">1</span><span class="op">:</span>m</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> <span class="fl">0</span><span class="op">:</span>B</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>Z <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Dynamics</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">f</span>(s,z,w) <span class="op">=</span> <span class="fu">min</span>( <span class="fu">max</span>(s<span class="op">-</span>z, <span class="fl">0</span>) <span class="op">+</span> w, n)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Arrival probability</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">Pw</span>(w) <span class="op">=</span> <span class="fu">pdf</span>(<span class="fu">Poisson</span>(λ),w)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Departure probability</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">Pz</span>(z,s,a) <span class="op">=</span> (s <span class="op">==</span> <span class="fl">0</span>) ? <span class="fu">convert</span>(<span class="dt">Int</span>, z<span class="op">==</span><span class="fl">0</span>) <span class="op">:</span> <span class="fu">pdf</span>(<span class="fu">Bernoulli</span>(μ[a]),z)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Cost</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(s,z,a) <span class="op">=</span> h<span class="op">*</span>s <span class="op">+</span> q[a] <span class="op">-</span> R<span class="op">*</span>z</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Dynamic programming</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> <span class="fl">50</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>V <span class="op">=</span> [ <span class="fu">OffsetArray</span>(<span class="fu">zeros</span>(<span class="fu">length</span>(S)), S)               for t <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>T<span class="op">+</span><span class="fl">1</span>] </span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> [ <span class="fu">OffsetArray</span>(<span class="fu">zeros</span>(<span class="fu">length</span>(S),<span class="fu">length</span>(A)), S,A)   for t <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>T]</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="cn">π</span> <span class="op">=</span> [ <span class="fu">OffsetArray</span>(<span class="fu">zeros</span>(<span class="dt">Int</span>, <span class="fu">length</span>(S)), S)          for t <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>T]</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> T<span class="op">:-</span><span class="fl">1</span><span class="op">:</span><span class="fl">1</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@views</span> Qt <span class="op">=</span> Q[t]</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s <span class="kw">in</span> S </span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> a <span class="kw">in</span> A</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>          Qt[s, a] <span class="op">=</span> <span class="fu">sum</span>(<span class="fu">Pw</span>(w)<span class="fu">*Pz</span>(z,s,a)<span class="fu">*</span>( <span class="fu">c</span>(s,z,a) <span class="op">+</span> V[t<span class="op">+</span><span class="fl">1</span>][<span class="fu">f</span>(s,z,w)] ) <span class="cf">for</span> w <span class="kw">in</span> W, z <span class="kw">in</span> Z)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> <span class="fu">argmin</span>(Qt[s,<span class="op">:</span>])</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>        V[t][s] <span class="op">=</span> Qt[s, idx]</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>        <span class="cn">π</span>[t][s] <span class="op">=</span> idx </span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(<span class="fu">hcat</span>(V[<span class="fl">1</span>], V[<span class="fl">5</span>], V[<span class="fl">10</span>], V[<span class="fl">25</span>]))</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(<span class="fu">hcat</span>(<span class="cn">π</span>[<span class="fl">1</span>], <span class="cn">π</span>[<span class="fl">5</span>], <span class="cn">π</span>[<span class="fl">10</span>], <span class="cn">π</span>[<span class="fl">25</span>]))</span></code></pre>
 </div>
 <p>The value functions are shown below.</p>
 <p><img src="queueing.png" style="width:100.0%" /></p>
@@ -118,46 +116,44 @@ display(hcat(π[<span style="color:#ae81ff">1</span>], π[<span style="color:#ae
 └     [0, 1, 1, 1, 1, 1, 1, 1, 1]</code></pre>
 <h2 data-number="0.2" id="problem-2"><span class="header-section-number">0.2</span> Problem 2</h2>
 <p>The code for computing the optimal policy is <a href="iot.jl">available here</a>. Note that we save a lot of explicit calculations by comuting the probability of landing in a bin in terms of differences of CDFs rather than an integral of the PDF.</p>
-<div class="highlight">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> Distributions, OffsetArrays
-<span style="color:#66d9ef">using</span> PyPlot
-
-Pw(w) <span style="color:#f92672">=</span> (abs(w) <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">5</span>) <span style="color:#f92672">?</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">/</span><span style="color:#ae81ff">5</span> <span style="color:#f92672">-</span> abs(w)<span style="color:#f92672">/</span><span style="color:#ae81ff">25</span> <span style="color:#f92672">:</span> <span style="color:#ae81ff">0</span> 
-λ <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>
-B <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span>
-
-<span style="color:#75715e"># State spaces</span>
-S <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>B<span style="color:#f92672">:</span>B
-A <span style="color:#f92672">=</span>  <span style="color:#ae81ff">0</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
-W <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">5</span><span style="color:#f92672">:</span><span style="color:#ae81ff">5</span>
-
-<span style="color:#75715e"># Dynamics</span>
-f(s,a,w) <span style="color:#f92672">=</span> clip(s<span style="color:#f92672">*</span>(a<span style="color:#f92672">==</span><span style="color:#ae81ff">0</span>) <span style="color:#f92672">+</span> w, <span style="color:#f92672">-</span>B, B) 
-clip(x,L,U) <span style="color:#f92672">=</span> max( min(x,U), L)
-
-<span style="color:#75715e"># cost</span>
-c(s,a) <span style="color:#f92672">=</span> λ <span style="color:#f92672">*</span> a <span style="color:#f92672">+</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> a)<span style="color:#f92672">*</span>s<span style="color:#f92672">^</span><span style="color:#ae81ff">2</span>
-
-T <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>
-
-V <span style="color:#f92672">=</span> [ OffsetArray(zeros(length(S)), S) <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span> ]
-π <span style="color:#f92672">=</span> [ OffsetArray(zeros(<span style="color:#66d9ef">Int</span>, length(S)), S) <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T ]
-Q <span style="color:#f92672">=</span> [ OffsetArray(zeros(length(S), length(A)), S,A) <span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span>T ]
-
-<span style="color:#66d9ef">for</span> t <span style="color:#66d9ef">in</span> T<span style="color:#f92672">:-</span><span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>
-    <span style="color:#a6e22e">@views</span> Qt <span style="color:#f92672">=</span> Q[t]
-    <span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S 
-        <span style="color:#66d9ef">for</span> a <span style="color:#66d9ef">in</span> A
-          Qt[s, a] <span style="color:#f92672">=</span> c(s,a) <span style="color:#f92672">+</span> sum(Pw(w) <span style="color:#f92672">*</span> V[t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>][f(s,a,w)] <span style="color:#66d9ef">for</span> w <span style="color:#66d9ef">in</span> W)
-        <span style="color:#66d9ef">end</span>
-        idx <span style="color:#f92672">=</span> argmin(Qt[s,<span style="color:#f92672">:</span>])
-        V[t][s] <span style="color:#f92672">=</span> Qt[s, idx]
-        π[t][s] <span style="color:#f92672">=</span> idx 
-    <span style="color:#66d9ef">end</span>
-<span style="color:#66d9ef">end</span>
-
-
-</code></pre>
+<div id="cb1" class="sourceCode">
+<pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Distributions</span>, <span class="bu">OffsetArrays</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">PyPlot</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Pw</span>(w) <span class="op">=</span> (<span class="fu">abs</span>(w) <span class="op">&lt;=</span> <span class="fl">5</span>) ? <span class="fl">1</span><span class="op">/</span><span class="fl">5</span> <span class="op">-</span> <span class="fu">abs</span>(w)<span class="op">/</span><span class="fl">25</span> <span class="op">:</span> <span class="fl">0</span> </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>λ <span class="op">=</span> <span class="fl">100</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="fl">50</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># State spaces</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>S <span class="op">=</span> <span class="op">-</span>B<span class="op">:</span>B</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span>  <span class="fl">0</span><span class="op">:</span><span class="fl">1</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> <span class="op">-</span><span class="fl">5</span><span class="op">:</span><span class="fl">5</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Dynamics</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">f</span>(s,a,w) <span class="op">=</span> <span class="fu">clip</span>(<span class="fu">s*</span>(a<span class="op">==</span><span class="fl">0</span>) <span class="op">+</span> w, <span class="op">-</span>B, B) </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">clip</span>(x,L,U) <span class="op">=</span> <span class="fu">max</span>( <span class="fu">min</span>(x,U), L)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># cost</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(s,a) <span class="op">=</span> λ <span class="op">*</span> a <span class="op">+</span> (<span class="fl">1</span> <span class="op">-</span> a)<span class="op">*</span>s<span class="op">^</span><span class="fl">2</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> <span class="fl">20</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>V <span class="op">=</span> [ <span class="fu">OffsetArray</span>(<span class="fu">zeros</span>(<span class="fu">length</span>(S)), S) for t <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>T<span class="op">+</span><span class="fl">1</span> ]</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="cn">π</span> <span class="op">=</span> [ <span class="fu">OffsetArray</span>(<span class="fu">zeros</span>(<span class="dt">Int</span>, <span class="fu">length</span>(S)), S) for t <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>T ]</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> [ <span class="fu">OffsetArray</span>(<span class="fu">zeros</span>(<span class="fu">length</span>(S), <span class="fu">length</span>(A)), S,A) for t <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>T ]</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> T<span class="op">:-</span><span class="fl">1</span><span class="op">:</span><span class="fl">1</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@views</span> Qt <span class="op">=</span> Q[t]</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> s <span class="kw">in</span> S </span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> a <span class="kw">in</span> A</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>          Qt[s, a] <span class="op">=</span> <span class="fu">c</span>(s,a) <span class="op">+</span> <span class="fu">sum</span>(<span class="fu">Pw</span>(w) <span class="op">*</span> V[t<span class="op">+</span><span class="fl">1</span>][<span class="fu">f</span>(s,a,w)] <span class="cf">for</span> w <span class="kw">in</span> W)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> <span class="fu">argmin</span>(Qt[s,<span class="op">:</span>])</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        V[t][s] <span class="op">=</span> Qt[s, idx]</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>        <span class="cn">π</span>[t][s] <span class="op">=</span> idx </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span></code></pre>
 </div>
 <p>The value functions are shown below:</p>
 <p><img src="iot.png" style="width:100.0%" /></p>

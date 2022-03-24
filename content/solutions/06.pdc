@@ -2,152 +2,75 @@
 title: Assignment 6 (solution)
 ---
 
-### Problem 1
+$\def\ONES{\mathbb{1}}$
+
+### Problem 1 {-}
 
 We start by the right side of the inequality. We want to show that 
-$$V_{k+1} + \bar{\delta}_{k+1} \leq V_k + \bar{\delta}_k.$$
-We know from the value iteration algorithm proof that 
-$$\mathcal{B} V_k - V_k \leq (1 - \beta) \bar{\delta}_k$$
-Rewriting this equation, we get
-$$\begin{equation}
- V_k + \bar{\delta}_k \geq \mathcal{B} V_k + \beta \bar{\delta}_k
- \implies
- V_k + \bar{\delta}_k \geq V_{k+1} + \beta \bar{\delta}_k. 
- \label{eq:one}
+$$\begin{equation} \label{eq:zero}
+V_{k+1} + \bar{\delta}_{k+1}\ONES \leq V_k + \bar{\delta}_k\ONES.
 \end{equation}$$
 
-By definition, we have
-$$\begin{align}
-  \bar{\delta}_{k+1} &= \frac{\beta}{1-\beta} \max_x \{ V_{k+1}(x) - V_k(x) \}
-  = \frac{\beta}{1-\beta} \| V_{k+1} - V_k \| 
-  \notag \\
-   &= \frac{\beta}{1-\beta} \| \mathcal{B}V_k - \mathcal{B}V_{k-1} \|
-   \notag \\
-  &\leq \frac{\beta^2}{1-\beta} \| V_{k} - V_{k-1} \| = \beta \bar{\delta}_k.
-  \label{eq:two}
-\end{align} $$
-
-From \\eqref{eq:one} and \\eqref{eq:two}, we have that
-$$V_{k+1} + \bar{\delta}_{k+1} \leq V_{k+1} + \beta \bar{\delta}_k \leq V_k + \bar{\delta}_k.$$
-
-This proves one side of the inequality. For the other side, we have to show that 
-$$V_{k+1} + \underline{\delta}_{k+1} \geq V_k + \underline{\delta}_k.$$
-We know from the value iteration algorithm proof that 
-$$\mathcal{B} V_k - V_k \geq (1 - \beta) \underline{\delta}_k$$
-Rewriting this equation, we get
-$$\begin{equation}
- V_k + \underline{\delta}_k \leq \mathcal{B} V_k + \beta \underline{\delta}_k
- \implies
- V_k + \underline{\delta}_k \leq V_{k+1} + \beta \underline{\delta}_k. 
- \label{eq:three}
+From the definition of $\bar{δ}_k$, we know that for any $s \in \ALPHABET S$,  
+$$
+   V_{k}(s) - V_{k-1}(s) \le \frac{(1-γ)}{γ} \bar δ_k.
+$$
+Thus,
+$$
+  V_k \le V_{k-1} + \frac{(1-γ)}{γ} \bar δ_k \ONES.
+$$
+Applying the Bellman operator on both sides and using the discounting
+property, we get that
+$$\begin{equation} 
+  V_{k+1} \le V_k + (1-γ) \bar δ_k \ONES \label{eq:one}
 \end{equation}$$
 
-By definition, we have
-$$\begin{align}
-  \underline{\delta}_{k+1} &= \frac{\beta}{1-\beta} \min_{x} \{ V_{k+1}(x) - V_k(x) \}
-  \notag \\
-  &= \frac{\beta}{1-\beta} \min_{x} \{ \mathcal B V_{k}(x) - \mathcal B V_k(x) \}
-  \notag \\
-  &\geq \frac{\beta}{1-\beta} \min_{x} \{ \mathcal B_{g_k} V_{k}(x) - \mathcal
-  B_{g_k} V_k(x) \}
-  \notag \\
-  &\geq \frac{\beta^2}{1-\beta} \| V_{k} - V_{k-1} \| = \beta \underline{\delta}_k.
-  \label{eq:four}
-\end{align} $$
-
-From \\eqref{eq:three} and \\eqref{eq:four}, we have that
-$$V_{k+1} + \underline{\delta}_{k+1} \geq V_{k+1} + \beta \underline{\delta}_k \geq V_k + \underline1{\delta}_k.$$
-
-This proves the other side of the inequality.
-
-### Problem 3
-
-#### Proof of Prop. 6:
-
-The proof of the first part is similar to the proof of Prop. 5. 
-We know that 
-$$ V + m \geq \mathcal{B} = \mathcal{B}_g V.$$
-By the monotonicity and discounting properties, we get
-$$\mathcal{B}_gV + \beta m \geq \mathcal{B}_g^2 V.$$
-Again, from the discounting and monotonicity properties, we get
-$$\mathcal{B}_g^2V + \beta^2 m \geq \mathcal{B}_g^3 V.$$
-Continuing this way, we get
-$$\begin{equation} \label{eq:k}
-  \mathcal{B}_g^{k-1}V + \beta^{k-1} m \geq \mathcal{B}_g^k V.
+Eq. \\eqref{eq:one} implies
+$$
+  \max_{s \in \ALPHABET S} \{ V_{k+1}(s) - V_k(s) \} \le (1-γ) \bar δ_k.
+$$
+Thus,
+$$\begin{equation}\label{eq:two}
+  \frac{(1-γ)}{γ} \bar δ_{k+1} \le (1-γ) \bar δ_k
+  \implies
+  \bar δ_{k+1} \le γ \bar δ_k.
 \end{equation}$$
 
-Adding all of the above equations, we get 
-$$ \mathcal B_g V + \sum_{\ell = 1}^{k-1} β^{\ell } m \ge \mathcal B^{k} V. $$
-The result then follows from observing that $\mathcal B_g V = \mathcal B V$
-and $$ \sum_{\ell = 1}^{k-1} \beta^\ell m \le \sum_{\ell = 1}^\infty \beta^\ell m 
-= \frac{\beta}{1 - \beta} m. $$
-This completes the proof of the first part.
+Adding \\eqref{eq:one} and \\eqref{eq:two}, we get \\eqref{eq:zero}. This
+completes the first part of the proof.
 
+---
 
-For the second part, observe that 
-$$\mathcal B(\mathcal B_g^{\ell} V) \le \mathcal B_g(\mathcal B_g^{\ell} V)
-= \mathcal B_g^{\ell + 1} V.$$
-The result follows from \\eqref{eq:k}.
+For the other side, we have to show that 
+$$\begin{equation} \label{eq:0}
+V_{k+1} + \underline{\delta}_{k+1} \geq V_k + \underline{\delta}_k.
+\end{equation}$$
 
-#### Proof of Prop. 7
+From the definition of $\underline {δ}_k$, we know that for any $s \in \ALPHABET S$,  
+$$
+   V_{k}(s) - V_{k-1}(s) \ge \frac{(1-γ)}{γ} \underline δ_k.
+$$
+Thus,
+$$
+  V_k \ge V_{k-1} + \frac{(1-γ)}{γ} \underline δ_k \ONES.
+$$
+Applying the Bellman operator on both sides and using the discounting
+property, we get that
+$$\begin{equation} 
+  V_{k+1} \ge V_k + (1-γ) \underline δ_k \ONES \label{eq:1}
+\end{equation}$$
 
-We prove the result by induction. 
+Eq. \\eqref{eq:1} implies
+$$
+  \min_{s \in \ALPHABET S} \{ V_{k+1}(s) - V_k(s) \} \ge (1-γ) \underline δ_k.
+$$
+Thus,
+$$\begin{equation}\label{eq:2}
+  \frac{(1-γ)}{γ} \underline δ_{k+1} \ge (1-γ) \underline δ_k
+  \implies
+  \underline δ_{k+1} \ge γ \underline δ_k.
+\end{equation}$$
 
-By assumption, we have that $V_0 + m \ge \mathcal B V_0 = \mathcal B_{g_0}
-V_0$. Then, by the first property of Prop. 6, we have
-$$\mathcal B_{g_0}^{\ell_0} V_0 \le \mathcal B V_0 + \frac {\beta}{1 -
-\beta}m$$
-and by the second property of Prop. 6, we have
-$$\mathcal B_{g_0}^{\ell_0} V_0 + \beta^{\ell_0} m \ge \mathcal B(\mathcal
-B_{g_0}^{\ell_0} V_0). $$
-This establishes the first property of Prop. 7 for $k=0$ and forms the basis
-of induction.
+Adding \\eqref{eq:1} and \\eqref{eq:2}, we get \\eqref{eq:0}. This
+completes the other part of the proof.
 
-Now assume that the first property is true for $k$. We want to show that it is
-true for $k+1$.
-
-From the left hand side of the induction hypothesis we have,
-$$\mathcal{B} V_k - \alpha_k m \leq V_k.$$ 
-which means
-$$\mathcal{B} V_k  \leq V_k + \alpha_k m.$$
-Now from Prop. 6, with $V = V_k$, $g = g_k$, and $\ell=\ell_k$, we have
-$$\mathcal{B} V_k +\frac{\beta}{1-\beta} \alpha_k m \geq \mathcal{B}_{g_k} V_k = V_{k+1}$$
-which shows the right hand side of the induction for $k+1$.
-
-Also from Prop. 6, with $V = V_k$, $g = g_k$, and $\ell=\ell_k$, we have
-$$\begin{align*}
-  V_{k+1} = \mathcal{B}_{g_k} V_k &\geq \mathcal{B} (\mathcal{B}_{g_k} V_k) - \beta^{m_k} \alpha_k m 
-  \notag \\
-  &= \mathcal{B} V_{k+1} - \beta^{m_k} \alpha_k m
-  \notag \\
-  &= \mathcal{B} V_{k+1} - \alpha_{k+1} m.
-\end{align*}$$
-This estabishes the left hand side for $k+1$. Thus, the first property holds
-by induction.
-
-We now show the second property of Prop. 7. From the first property, we know
-$$V_k \geq \mathcal{B} V_k - \alpha_k m$$
-Using this and Prop. 5 for $k=0$ we have
-$$V_k + \frac{m\alpha_k}{1-\beta} \geq V^*$$
-Now we know that $\alpha_k \leq \beta^k$. Hence
-$$V_k + \frac{m\beta^k}{1-\beta} \geq V_k + \frac{m\alpha_k}{1-\beta} \geq V^*$$
-which shows the right hand side of the second part of Prop 7.
-
-For the left hand side we use the results of the first part of Prop 7.
-We know that 
-$$\mathcal{B} V_j \geq V_{j+1} - \frac{\beta}{1-\beta} \alpha_j m$$
-We apply $\mathcal{B}^{k-j-1}$ to both sides and use monotonicity and contraction properties. Hence we have,
-$$\mathcal{B}^{k-j} V_j \geq \mathcal{B}^{k-j-1} V_{j+1} - \frac{\beta^{k-j}}{1-\beta} \alpha_j m$$
-By using the fact that $\alpha_j \leq \beta^j$ 
-and adding the above equation from $j=0$ to $j=k-1$ we have
-$$\mathcal{B}^{k} V_0 \geq V_{k} - \sum_{j=0}^{k-1} \frac{\beta^{k-j}}{1-\beta} \beta^j m
-= V_{k} - \frac{k \beta^{k}}{1-\beta} m$$
-
-Now, by an arguement similar to Prop. 5, we can show that if
-$$V + m \leq \mathcal{B} V \implies $V^* \ge \mathcal B^k V +
-\frac{\beta^k}{1-\beta}m.$$
-
-Using this result for $V_0$, by assumption we have $V_0 + m \le \mathcal B
-V_0$. Thus,
-$$V^* \geq \mathcal{B}^k V_0 - \frac{\beta^k}{1-\beta}m, \quad k=0,1,\dots$$
-Now combining this inequality with the one above we can show the left hand side of the last equation in prop 7 and the proof is complete.

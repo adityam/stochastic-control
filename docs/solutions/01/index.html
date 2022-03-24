@@ -59,32 +59,31 @@ c(s,a,w).\]</span> The <span class="math inline">\(1/P(S)\)</span> term outside 
 <!--
 
 
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> LinearAlgebra<span style="color:#f92672">:</span> dot, argmin
+<div class="sourceCode" id="cb1"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">LinearAlgebra</span>: dot, argmin</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The state spaces</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>S, A, W <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Probability transition matrix</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> [<span class="fl">0.25</span> <span class="fl">0.15</span> <span class="fl">0.05</span>; <span class="fl">0.30</span> <span class="fl">0.10</span> <span class="fl">0.15</span>]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Cost function</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> <span class="fu">zeros</span>(<span class="fu">length</span>(S), <span class="fu">length</span>(A), <span class="fu">length</span>(W))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>C[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">1</span>] <span class="op">=</span> [<span class="fl">3</span> <span class="fl">5</span> <span class="fl">1</span>; <span class="fl">2</span> <span class="fl">3</span> <span class="fl">1</span>];</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>C[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">2</span>] <span class="op">=</span> [<span class="fl">4</span> <span class="fl">3</span> <span class="fl">1</span>; <span class="fl">1</span> <span class="fl">2</span> <span class="fl">8</span>];</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>C[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">3</span>] <span class="op">=</span> [<span class="fl">1</span> <span class="fl">2</span> <span class="fl">2</span>; <span class="fl">4</span> <span class="fl">1</span> <span class="fl">3</span>];</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> <span class="fu">zeros</span>(<span class="fu">length</span>(S), <span class="fu">length</span>(A));</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> S, a <span class="kw">in</span> A</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    Q[s,a] <span class="op">=</span> <span class="fu">dot</span>(P[s,<span class="op">:</span>],C[s,a,<span class="op">:</span>])</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cn">π</span> <span class="op">=</span> <span class="fu">zeros</span>(<span class="dt">Int</span>, <span class="fu">length</span>(S));</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> S</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@views</span> <span class="cn">π</span>[s] <span class="op">=</span> <span class="fu">argmin</span>(Q[s,<span class="op">:</span>])</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="pp">@info</span> <span class="st">&quot;The optimal actions are&quot;</span> <span class="cn">π</span></span></code></pre></div>
 
-<span style="color:#75715e"># The state spaces</span>
-S, A, W <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">3</span>
-
-<span style="color:#75715e"># Probability transition matrix</span>
-P <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.25</span> <span style="color:#ae81ff">0.15</span> <span style="color:#ae81ff">0.05</span>; <span style="color:#ae81ff">0.30</span> <span style="color:#ae81ff">0.10</span> <span style="color:#ae81ff">0.15</span>]
-
-<span style="color:#75715e"># Cost function</span>
-C <span style="color:#f92672">=</span> zeros(length(S), length(A), length(W))
-C[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">3</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">1</span>; <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">1</span>];
-C[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">1</span>; <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">8</span>];
-C[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span>; <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">3</span>];
-
-Q <span style="color:#f92672">=</span> zeros(length(S), length(A));
-<span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S, a <span style="color:#66d9ef">in</span> A
-    Q[s,a] <span style="color:#f92672">=</span> dot(P[s,<span style="color:#f92672">:</span>],C[s,a,<span style="color:#f92672">:</span>])
-<span style="color:#66d9ef">end</span>
-
-π <span style="color:#f92672">=</span> zeros(<span style="color:#66d9ef">Int</span>, length(S));
-<span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S
-    <span style="color:#a6e22e">@views</span> π[s] <span style="color:#f92672">=</span> argmin(Q[s,<span style="color:#f92672">:</span>])
-<span style="color:#66d9ef">end</span>
-<span style="color:#a6e22e">@info</span> <span style="color:#e6db74">&#34;The optimal actions are&#34;</span> π
-
-</code></pre></div>
 
 
 
@@ -102,38 +101,37 @@ Q <span style="color:#f92672">=</span> zeros(length(S), length(A));
 <!--
 
 
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-julia" data-lang="julia"><span style="color:#66d9ef">using</span> LinearAlgebra<span style="color:#f92672">:</span> dot, argmin
+<div class="sourceCode" id="cb1"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">LinearAlgebra</span>: dot, argmin</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The state spaces</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>S, Y, A, W <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># The transition matrix is called Q in the</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># question. We call it P for convenience</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> <span class="fu">zeros</span>(<span class="fu">length</span>(S), <span class="fu">length</span>(W), <span class="fu">length</span>(Y));</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>P[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">1</span>] <span class="op">=</span> [<span class="fl">0.15</span> <span class="fl">0.1</span> <span class="fl">0.0</span>; <span class="fl">0.15</span> <span class="fl">0.05</span> <span class="fl">0.1</span>];</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>P[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">2</span>] <span class="op">=</span> [<span class="fl">0.1</span> <span class="fl">0.05</span> <span class="fl">0.05</span>; <span class="fl">0.15</span> <span class="fl">0.05</span> <span class="fl">0.05</span>];</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Cost</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> <span class="fu">zeros</span>(<span class="fu">length</span>(S), <span class="fu">length</span>(A), <span class="fu">length</span>(W));</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>C[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">1</span>] <span class="op">=</span> [<span class="fl">3</span> <span class="fl">5</span> <span class="fl">1</span>; <span class="fl">2</span> <span class="fl">3</span> <span class="fl">1</span>];</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>C[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">2</span>] <span class="op">=</span> [<span class="fl">4</span> <span class="fl">3</span> <span class="fl">1</span>; <span class="fl">1</span> <span class="fl">2</span> <span class="fl">8</span>];</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>C[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">3</span>] <span class="op">=</span> [<span class="fl">1</span> <span class="fl">2</span> <span class="fl">2</span>; <span class="fl">4</span> <span class="fl">1</span> <span class="fl">3</span>];</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>Q <span class="op">=</span> <span class="fu">zeros</span>(<span class="fu">length</span>(S), <span class="fu">length</span>(Y), <span class="fu">length</span>(A));</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> S, y <span class="kw">in</span> Y, a <span class="kw">in</span> A</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    Q[s,y,a] <span class="op">=</span> <span class="fu">dot</span>(P[s,<span class="op">:</span>,y], C[s,a,<span class="op">:</span>])</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="cn">π</span> <span class="op">=</span> <span class="fu">zeros</span>(<span class="dt">Int</span>, <span class="fu">length</span>(S), <span class="fu">length</span>(Y));</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> S, y <span class="kw">in</span> Y</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="cn">π</span>[s,y] <span class="op">=</span> <span class="fu">argmin</span>(Q[s,y,<span class="op">:</span>])</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="pp">@info</span> <span class="st">&quot;The optimal actions are&quot;</span> <span class="cn">π</span> </span></code></pre></div>
 
-<span style="color:#75715e"># The state spaces</span>
-S, Y, A, W <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#ae81ff">3</span>
-
-<span style="color:#75715e"># The transition matrix is called Q in the</span>
-<span style="color:#75715e"># question. We call it P for convenience</span>
-
-P <span style="color:#f92672">=</span> zeros(length(S), length(W), length(Y));
-
-P[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.15</span> <span style="color:#ae81ff">0.1</span> <span style="color:#ae81ff">0.0</span>; <span style="color:#ae81ff">0.15</span> <span style="color:#ae81ff">0.05</span> <span style="color:#ae81ff">0.1</span>];
-P[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">0.1</span> <span style="color:#ae81ff">0.05</span> <span style="color:#ae81ff">0.05</span>; <span style="color:#ae81ff">0.15</span> <span style="color:#ae81ff">0.05</span> <span style="color:#ae81ff">0.05</span>];
-
-<span style="color:#75715e"># Cost</span>
-C <span style="color:#f92672">=</span> zeros(length(S), length(A), length(W));
-C[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">3</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">1</span>; <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">1</span>];
-C[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">2</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">4</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">1</span>; <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">8</span>];
-C[<span style="color:#f92672">:</span>,<span style="color:#f92672">:</span>,<span style="color:#ae81ff">3</span>] <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">2</span>; <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">3</span>];
-
-Q <span style="color:#f92672">=</span> zeros(length(S), length(Y), length(A));
-<span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S, y <span style="color:#66d9ef">in</span> Y, a <span style="color:#66d9ef">in</span> A
-    Q[s,y,a] <span style="color:#f92672">=</span> dot(P[s,<span style="color:#f92672">:</span>,y], C[s,a,<span style="color:#f92672">:</span>])
-<span style="color:#66d9ef">end</span>
-
-π <span style="color:#f92672">=</span> zeros(<span style="color:#66d9ef">Int</span>, length(S), length(Y));
-<span style="color:#66d9ef">for</span> s <span style="color:#66d9ef">in</span> S, y <span style="color:#66d9ef">in</span> Y
-    π[s,y] <span style="color:#f92672">=</span> argmin(Q[s,y,<span style="color:#f92672">:</span>])
-<span style="color:#66d9ef">end</span>
-
-<span style="color:#a6e22e">@info</span> <span style="color:#e6db74">&#34;The optimal actions are&#34;</span> π 
-
-</code></pre></div>
 
 
 
