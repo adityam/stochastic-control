@@ -1,5 +1,5 @@
 ---
-title: "Theory: State aggregation in MDPs"
+title: "Theory: State aggregation or discretization or quantization"
 weight: 11
 categories:
   - MDP
@@ -11,358 +11,373 @@ tags:
   - state aggregation
 ---
 
-# State quantization
 
-Consider an MDP with continuous state space $\ALPHABET X$ and finite action
-space $\ALPHABET U$. We denote this MDP by $M = (\ALPHABET X, \ALPHABET U, c,
-p)$, where for simplicity we assume that the $p$ is the density of the
-transition kernel. 
+So far, we have studied exact solutions to the dynamic program. When the state
+space is large (or possibly continuous), an exact solution is not possible due
+to computational limitations. So, we need to look at approximate solutions. 
 
-Since the state space is continuous, in general, we cannot compute the value
-functions exactly. The simplest way to proceed is to discretize the state
-space $\ALPHABET X$. In particular, let $\{\ALPHABET X_1, \dots \ALPHABET
-X_n\}$ denote a partition of $\ALPHABET X$ (i.e., $\bigcup_{i=1}^n \ALPHABET
-X_i = \ALPHABET X$ and for any $i \neq j$, $\ALPHABET X_i \cap \ALPHABET X_j =
-\emptyset$). Pick a representative point $x_i \in \ALPHABET X_i$ and consider
-the "grid" $\bar {\ALPHABET X} = \{x_1, \dots, x_n\}$ as the state space of
-the discretized MDP. We consider a finite state MDP $\bar M = (\bar {\ALPHABET
-X}, \ALPHABET U, \bar c, \bar P)$, where $\bar c$ is the restriction of $c$
-onto $\bar {\ALPHABET X}$, and $\bar P$ is given by $$\bar P(x_j | x_i, u) =
-\int_{\ALPHABET X_j} p(y | x_i, u) dy = p(\ALPHABET X_j | x_i, u). $$
+The simplest form of approximate solution is **state aggregation**, in which
+we partition the state space into equivalence classes and assign one state in
+each class as a representative element of that class. When the state space is
+continuous, the procedure is called **state discretization** or **state
+quantization**. We will use the state quantization terminology in these notes.
 
-Let's consider infinite horizon discounted setup. Let $V \colon \ALPHABET X \to
-\reals$ and $g \colon \ALPHABET X \to \ALPHABET U$ be the value function and
-optimal policy of
-the original MDP $M$ and let $\bar W \colon \bar {\ALPHABET X} \to \reals$
-and $\bar h \colon \bar {\ALPHABET X} \to \ALPHABET U$ be the value function
-and optimal policy of the discretized MDP $\bar M$. Define $W \colon \ALPHABET X \to
-\reals$ and $h \colon \ALPHABET X \to \reals$ to be piecewise constant
-extrapolation of $\bar W$ and $\bar h$ from $\bar {\ALPHABET X}$ to
-$\ALPHABET X$.
+# System model
 
-Note that the policy $h$ is choosing the same action on all states in
-$\ALPHABET X_i$. 
+Consider an MDP with abstract state space $\ALPHABET S$ and finite action
+space $\ALPHABET A$. We denote this MDP by $M = (\ALPHABET S, \ALPHABET A, c,
+p)$. For simplicity, we assume that $\ALPHABET S$ is continuous (and compact),
+and that the $p$ is the density of the transition kernel. Note that we are
+using the term "probability density" in the engineering sense (so, it may be a
+combination of a continuous function and delta functions) rather than in the
+precise measure theoretic sense (where it is the Radon-Nikodym derivative with
+respect to the Lebesque measure).
+
+If exact computations were possible, we can find an optimal solution by
+solving the following dynamic program:
+$$ V = \mathcal B V, $$
+that is
+$$ V(s) = 
+\min_{a \in \ALPHABET A} \biggl\{ c(s,a) 
++ \gamma \int_{\ALPHABET S} p(s'|s,a) V(s') ds' \biggr\},
+\quad \forall s \in \ALPHABET S.
+$$
+Let $V^*$ denote the optimal value function and $π^*$ denote the optimal
+policy.
+
+However, since the state space is continuous, we cannot compute the value
+functions exactly. The simplest way to proceed is to discretize or quantize the state
+space $\ALPHABET S$. In particular, let $\{\ALPHABET S_1, \dots \ALPHABET
+S_n\}$ denote a partition of $\ALPHABET S$ (i.e., $\bigcup_{i=1}^n \ALPHABET
+S_i = \ALPHABET S$ and for any $i \neq j$, $\ALPHABET S_i \cap \ALPHABET S_j =
+\emptyset$). Pick a representative point $\hat s_i \in \ALPHABET S_i$. We can
+think of the "grid points" $\hat {\ALPHABET S} = \{\hat s_1, \dots, \hat
+s_n\}$ as quantization of the state space $\ALPHABET S$. In particular, we
+think of the quantization function $φ \colon \ALPHABET S \to \hat {\ALPHABET
+ S}$ as a quantization function which maps points in $\ALPHABET S_i$ to the
+ representative element $\hat s_i$. 
+
+
+We consider a finite state MDP $\hat M = (\hat {\ALPHABET S}, \ALPHABET A,
+\hat c, \hat P)$, where $\hat c$ is the restriction of $c$ onto $\hat
+{\ALPHABET S}$, and $\hat P$ is given by $$\hat P(\hat s_j | \hat s_i, a) =
+\int_{\ALPHABET S_j} p(s' | \hat s_i, a) dy = p(\ALPHABET S_j | \hat s_i, a).
+$$
+
+Suppose $\hat W^* \colon \hat S \to \reals$ be the optimal value function and
+$\hat μ^* \colon \hat {\ALPHABET S} \to \ALPHABET A$ be the optimal policy for
+the approximate model. Define $W^* \colon \ALPHABET S \to
+\reals$ and $μ^* \colon \ALPHABET S \to \reals$ to be piecewise constant
+extrapolation of $\hat W^*$ and $\hat μ^*$ from $\hat {\ALPHABET S}$ to
+$\ALPHABET S$, i.e.,
+$$
+W^*(s) = \hat W^*(φ(s)) \qquad
+μ^*(s) = \hat μ^*(φ(s)).
+$$
+Note that the policy $μ^*$ chooses the same action on all states in a
+quantization cell $\ALPHABET S_i$. 
+
 
 We are interested in two questions:
 
-1. What is the error if $W$ is used as an approximation for $V$?
-2. What is the error if the policy $h$ is used instead of
-   the optimal policy $g$? 
+1. What is the error if $W^*$ is used as an approximation for $V^*$?
+2. What is the error if the policy $μ^*$ is used instead of
+   the optimal policy $π^*$? 
 
-We will answer these questions under the assumption that $M$ is a $(L_c,
-L_p)$-Lipschitz MDP. In particular, we make the following assumptions:
+## Preliminary results
 
-Assumpt. #
+We start by some preliminary results to build the intuition behind the
+approximation bounds. We start with a property of the discretized transition matrix.
 
-:   * $(\ALPHABET X, d_X)$ is a bounded metric space
-    * For every $u \in \ALPHABET U$, $c(\cdot, u)$ is $L_c$-Lipschitz.
-    * For every $u \in \ALPHABET U$, $p(\cdot | x, u)$ is $L_p$-Lipschitz
+::: highlight :::
+
+Lemma #lemma:pmf
+
+:   For any $\hat V \colon \hat {\ALPHABET S} \to \reals$, let $V \colon \ALPHABET
+    S \to \reals$ be its piecewise constant extrapolation from $\hat
+    {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ φ$). Then, for
+    any $\hat s \in \ALPHABET S$ and $a \in \ALPHABET A$, we have
+    $$
+    \int_{\ALPHABET S} p(s' | s,a) V(s') ds' 
+    =
+    \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | \hat s, a) 
+    \hat V(\hat s).
+    $$
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Recall that $\{\ALPHABET S_1, \dots, \ALPHABET S_n\}$ is a partition of
+$\ALPHABET S$ and $\ALPHABET S_i = φ^{-1}(\hat s_i)$. Therefore,
+$$\begin{align*}
+\int_{\ALPHABET S} p(s'|\hat s, a) V(s') ds' 
+&= \sum_{\hat s' \in \hat {\ALPHABET S}} 
+\int_{φ^{-1}(\hat s')} p(s' | \hat s; a) \hat V(φ(s')) ds'
+\\
+&= \sum_{\hat s' \in \hat {\ALPHABET S}} \hat V(\hat s') 
+\int_{φ^{-1}(\hat s')} p(s' | \hat s; a) ds'
+\\
+&= \sum_{\hat s' \in \hat {\ALPHABET S}} \hat V(\hat s') 
+\hat P(\hat s' | \hat s, a).
+\end{align*}$$
+</div>
+</details>
+
+An immediate consequence of @lemma:pmf is the following:
+
+::: highlight :::
+
+Lemma #lemma:one-step
+
+:   For any $\hat V \colon \hat {\ALPHABET S} \to \reals$, let $V \colon \ALPHABET
+    S \to \reals$ be its piecewise constant extrapolation from $\hat
+    {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ φ$). Define,
+    one-step update functions:
+    $$\begin{align}
+      W(s) &= \min_{a \in \ALPHABET A}\biggl\{
+      c(s,a) + γ \int_{\ALPHABET S} p(s' | s,a) V(s') ds' \biggr\}, 
+      \label{eq:one-step-a}\\ 
+      \hat W(\hat s) &= \min_{a \in \ALPHABET  A} \biggl\{
+      \hat c(\hat s,a) + γ \sum_{\hat s \in \ALPHABET S} \hat P(\hat s' | s,a) \hat
+      V(\hat s') \biggr\}.
+      \label{eq:one-step-b}
+    \end{align}$$
+    Then,
+    $$\begin{equation}\label{eq:one-step}
+      W(\hat s) = \hat W(\hat s), \quad \forall \hat s \in \hat {\ALPHABET S}.
+    \end{equation}$$
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Let $π$ be the optimal policy for \\eqref{eq:one-step-a} and $\hat π$ be the
+optimal policy for \\eqref{eq:one-step-b}. Fix a state $\hat s \in \hat
+{\ALPHABET S}$ and let $a = π(\hat s)$ and $\hat a = \hat π(\hat s)$. Then,
+$$\begin{align*}
+W(\hat s) &= c(\hat s, a) + γ \int_{\ALPHABET S}
+  \hat P(\hat s' | s, a) \hat V(s') ds'
+\\
+&\stackrel{(a)}= \hat c(\hat s, a) + γ
+\sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s'|\hat s, a) \hat V(\hat
+s')
+\\
+&\ge \hat W(\hat s),
+\end{align*}$$
+where $(a)$ follows from definition of $\hat c$ and @lemma:pmf.
+
+Similarly, we have 
+$$\begin{align*}
+\hat W(\hat s) &= \hat c(\hat s, \hat a) + γ
+\sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s'|\hat s, \hat a) \hat V(\hat
+s')
+\\
+&\stackrel{(b)}= c(\hat s, \hat a) + γ \int_{\ALPHABET S}
+  \hat P(\hat s' | s, \hat a) \hat V(s') ds'
+\\
+&\ge W(\hat s),
+\end{align*}$$
+where $(b)$ follows from definition of $\hat c$ and @lemma:pmf.
+
+Thus, $W(\hat s) = \hat W(\hat s)$.
+</div>
+</details>
+
+
+@lemma:pmf shows that for any quantization point $\hat s$ and action $a$, computing the
+expectation of the future cost to go function $\hat V \colon \hat {\ALPHABET
+S} \to \reals$ with respect to the measure $\hat P$ is the same as computing
+the expectation of the piecewise linear extrapolation $V$ of $\hat V$ with
+respect to the original measure $p$. 
+@lemma:one-step shows that the one step Bellman update of a function $\hat V$
+coincides with the one-step Bellman update of its piecewise constant
+extrapolation $V$ at quantization points $\hat s \in \hat {\ALPHABET S}$.
+
+Note that these equivalences are valid only at quantization points $\hat s \in
+\hat {\ALPHABET S}$ and not for other points in $\ALPHABET S$. 
+
+## Bounding the error for value function approximation
+
+So far, we haven't used any regularity property of the model. @lemma:pmf and
+@lemma:one-step depend only on the construction of the quantized model. 
+
+Now suppose $\ALPHABET S$ is a bounded metric space with metric $d_S$. Suppose the
+original MDP $M$ satisfies some regularity properties such that the value
+function $V^*$ is Lipschitz with Lipschitz constant $\NORM{V^*}_L$, i.e., for any
+$s,s' \in \ALPHABET S$
+$$ \bigl| V^*(s) - V^*(s') \bigr| \le \NORM{V^*}_L d_S(s,s'). $$
+This means that for any $s \in \ALPHABET S$, 
+$$\begin{equation}\label{eq:lip}
+\bigl| V(s) - V(φ(s)) \bigr| \le \NORM{V^*}_L D, 
+\end{equation}$$
+where $D = \sup_{s \in \ALPHABET S} d_S(s,φ(s))$ is the largest _radius_ of
+the quantization cells. Note that since $\ALPHABET S$ is assumed to be a
+bounded metric space, $D$ is finite. 
+
+Using this idea, we can answer our first question. 
+
+::: highlight :::
+Proposition #prop:value
+
+:   $$\NORM{ V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L. $$
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Consider any $s \in \ALPHABET S$. Then,
+$$\begin{align}
+  \bigl| V^*(s) - W^*(s) \bigr| 
+  &\le \bigl| V^*(s) - V^*(φ(s)) \bigr| + \bigl| V^*(φ(s)) - \hat W^*(φ(s)) \bigr|
+  \notag \\
+  &\le \NORM{V^*}_L D + \bigl| V^*(φ(s)) - \hat W^*(φ(s)) \bigr|
+  \label{eq:step-a-1}
+\end{align}$$
+
+For the ease of notation let $\mathcal B$ and $\hat {\mathcal B}$ denote the
+Bellman operators for model $M$ and $\hat M$, respectively. Now, we know that 
+$\hat W^* = \hat {\mathcal B} \hat W^*$ and by @lemma:one-step $[\hat {\mathcal B}
+\hat W^*](\hat s) = [\mathcal B W^*](\hat s)$. Thus, we can write the second term
+of \\eqref{eq:step-a-1} as follows:
+$$\begin{align*}
+  \bigl| V^*(φ(s)) - \hat W^*(φ(s)) \bigr| 
+  &=
+  \bigl| [\mathcal B V^*](φ(s)) - [ \mathcal B W^* ](φ(s)) \bigr| 
+  \\
+  &\le γ \NORM{V^* - W^*}_∞.
+\end{align*}$$
+Substituting back in \\eqref{eq:step-a-1}, we get
+$$\bigl| V^*(s) - W^*(s) \bigr| \le \NORM{V^*}_L D + γ \NORM{V^* - W^*}_∞.$$
+We get the result by supermizing over $s$ and rearranging the terms.
+</div>
+</details>
+
+## Bounding the error for policy approximation
+
+Using the same idea as @prop:value, it is possible to show that 
+$$
+\NORM{V^{μ^*} - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^{μ^*}}_L.
+$$
+Combining this with @prop:value, we get
+$$
+\NORM{V^{μ^*} - V^*}_∞ \le \NORM{V^{μ^*} - W^*}_∞ + \NORM{V^* - W^*}_∞
+\le \frac{D}{1-γ} [ \NORM{V^*}_L + \NORM{V^{μ^*}}_L ].
+$$
+
+If we assume that the model is Lipschitz, then we can get a bound on
+$\NORM{V^*}_L$ in terms of Lipschitz constants on the cost function and the
+transition dynamics. However, it is difficult to bound $\NORM{V^μ}_L$ because
+that bound will be interms of the Lipschitz constant of the policy $μ^* = \hat
+μ^* \circ φ$. So, we provide an alternative bound on $\NORM{V^{μ^*} - W^*}_∞$
+in this section.
+
+
+We assume that the model $M$ is a $(L_c, L_p)$-Lipschitz MDP. 
+
+Assumpt. #ass:lip
+
+:   * For every $a \in \ALPHABET A$, $c(\cdot, a)$ is $L_c$-Lipschitz.
+    * For every $a \in \ALPHABET A$, $p(\cdot | s, a)$ is $L_p$-Lipschitz
       (with respect to the Kantorovich distance on probability measures). 
 
-Given any set $\ALPHABET S \subset \ALPHABET X$, the diameter
-$\text{diam}(\ALPHABET S)$ is defined as $\sup_{x,y \in \ALPHABET S}
-d_X(x,y)$. Since $d_X$ is assumed to be bounded, diameter of any subset of
-$\ALPHABET X$ is finite. Let $d := \max_{1 \le i \le n} \text{diam}(\ALPHABET
-X_i)$ denote the largest diameter of the grid cells $\ALPHABET X_i$. 
-
-Let $\mathcal B$ and $\bar {\mathcal B}$ denote the Bellman update
-operators for MDP $M$ and $\bar M$. 
+Under this assumption, we can show the following:
 
 ::: highlight :::
+Proposition #prop:policy
 
-Lemma #lem:update
+:   Under @ass:lip, we have
+    $$\NORM{V^{μ^*} - V^*}_∞ \le 
+      \frac{D}{1-γ} \biggl[ L_c + γ L_p \NORM{V^*}_L + 
+      \frac{1 + γ}{1-γ} \NORM{V^*}_L \biggr]. $$
 
-:    For any function $\bar w \colon \bar {\ALPHABET X} \to \reals$, let $w
-     \colon \ALPHABET X \to \reals$ be the piecewise constant extrapolation of
-     $\bar w$ from $\bar {\ALPHABET X}$ to $\ALPHABET X$. Then for any $x_i
-     \in \bar {\ALPHABET X}$, 
-     $$ [\bar {\mathcal B} \bar w](x_i) = [\mathcal B w](x_i).$$
-:::
-
-Remark
-
-:   The above result states that $\bar {\mathcal B} \bar w$ and $\mathcal B w$
-    agree on the grid points $\{x_1, \dots, x_n\}$.
-
-#### Proof {-}
-
-Observe that
-$$\begin{align}
-  [\bar {\mathcal B} \bar w](x_i) &= \min_{u \in \ALPHABET U}
-  \Bigl\{ c(x_i, u) + β \sum_{j=1}^n \bar P(x_j | x_i, u) \bar w(x_j)\Bigr\} 
-  \notag \\
-  &= \min_{u \in \ALPHABET U} \Bigl\{
-      c(x_i, u) + β \sum_{j=1}^n p(\ALPHABET X_j | x_i, u) \bar w(x_j) \Bigr\}
-  \notag \\
-  &= \min_{u \in \ALPHABET U} \Bigl\{
-      c(x_i, u) + β \sum_{j=1}^n \int_{\ALPHABET X_j} p(y | x_i, u) w(y)dy \Bigr\}
-  \notag \\
-  &= \min_{u \in \ALPHABET U} \Bigl\{
-      c(x_i, u) + β \int_{\ALPHABET X} p(y | x_i, u) w(y)dy \Bigr\}
-  \notag \\
-  &= [\mathcal B w](x_i) \tag*{$\Box$}
-\end{align}$$
-
-::: highlight :::
-
-Lemma #lem:fixed
-
-:   For any grid point $\bar x_i \in \bar {\ALPHABET X}$, we have
-    $$ |V(x_i) - \bar W(x_i)| \le β \| V - W \|. $$
+    Furthermore, if $γ L_p < 1$, then from properties of Lipschitz MDPs, we
+    know that $\NORM{V^*}_L \le L_c/(1- γ L_p)$. Thus,
+    $$\NORM{V^{μ^*} - V^*}_∞ \le 
+      \frac{2 D L_c }{ (1-γ)^2 (1-γ L_p) }. $$
 
 :::
 
+<details>
+<summary>
 #### Proof {-}
-
-Note that $\bar W(x_i) = [\bar {\mathcal B} \bar W](x_i) = [\mathcal B
-W](x_i)$, where the last equality follows from @lem:update. Thus,
-$$\begin{align}
-  |V(x_i) - \bar W(x_i)| &= | [\mathcal B V](x_i) - [\mathcal B W](x_i) | 
-  \notag \\
-  &\le \| \mathcal BV - \mathcal BW \| 
-  \notag \\
-  &\stackrel{(a)}\le β\| V - W\| \notag
-\end{align}$$
-where $(a)$ follows from the discounting property.&nbsp;$\Box$
-
-::: highlight :::
-Theorem #thm:infinite
-
-:   Suppose $\beta L_p < 1$. Then the value functions $V$ is Lipschitz
-    with Lipschitz constant $L_v = L_c/(1 - β L_p)$. Moreover,
-    $$
-      \| V - W \| \le \frac{L_v d}{1 - β} = \frac{ L_c d } { (1-β)(1 - βL_p)}.
-    $$
-
-:::
-
-#### Proof {-}
-
-The Lipschitz continuity of $V$ follows the results for Lipschitz continuous
-MDPs. 
-
-Now, consider a state $x \in \ALPHABET X_i$. Then,
+</summary>
+<div>
+Fix a state $s \in \ALPHABET S$. Let $\hat s = φ(s)$ and $a = \hat
+μ^*(\hat s) = μ(s)$. By construction, $W^*(s) = \hat W^*(\hat s)$. Thus, 
 $$\begin{align*}
-| V(x) - W(x) | &\le | V(x) - V(x_i)| + |V(x_i) - W(x)| \\
-&\le L_v d_X(x, x_i) + | V(x_i) - \bar W(x_i)| \\
-&\stackrel{(a)}\le L_v d + β\| V - W\|
-\end{align*}$$
-where (a) follows from @lem:update. We get the result by
-rearranging terms.&nbsp;$\Box$
-
-# State abstraction or compression (Latent space models)
-
-Let $M = (\ALPHABET X, \ALPHABET U, p, c)$ be an MDP with discrete or
-continuous state space. Let $(\bar {\ALPHABET X}, d_{\bar X})$ be a metric
-space. Consider a _compression_ or an _abstraction_ function $φ \colon
-\ALPHABET X \to \bar {\ALPHABET X}$. For any $x \in \ALPHABET X$, $φ(x)$ is
-the compressed or abstract state corresponding to the ground state $x$ and the
-inverse image $φ^{-1}(\bar x)$ with $\bar x \in \bar {\ALPHABET X}$ is the
-set of ground states that correspond to $\bar x$ under abstraction function
-$φ$.  Note that $\{ φ^{-1}(\bar x) \mid \bar x \in \bar {\ALPHABET X} \}$
-partitions the state space $\ALPHABET X$. 
-
-<figure style="float:right;">
-  <img src="latent-space.png"
-       alt="Example of latent space embedding"
-       title="Latent space embedding" 
-       width="120" />
-  <figcaption>Example of latent space embedding</figcaption>
-</figure>
-
-For example, suppose $\ALPHABET X = [0,1]^2$ and $\bar {\ALPHABET X} = [0, 2]$
-with $φ(x_1, x_2) = x_1 + x_2$. Then $φ^{-1}(\bar x) = \{ (x_1, x_2) \in [0,
-1]^2 : x_1 + x_2 = \bar x \}$ which is a staight line as shown in the figure
-on the right.
-
-
-We want to define an abstract or compressed MDP $\bar M = (\bar {\ALPHABET X},
-\ALPHABET U, \bar p, \bar c)$. Unlike the situation with state quantization
-where $\bar {\ALPHABET X}$ was a subset of $\ALPHABET X$, here we have not
-imposed any relationship between $\bar {\ALPHABET X}$ and $\ALPHABET X$.
-Therefore, to define $\bar p$ and $\bar c$, we need a weighting function $α 
-\colon \ALPHABET X \to [0, 1]$, such that for each $\bar x \in \bar {\ALPHABET
- X}$, $\int_{x \in φ^{-1}(\bar x)} α(x) dx = 1$. Then, for any $\bar x, \bar y
- \in \bar{\ALPHABET  X}$, define
- $$\bar c(\bar x, u) = \int_{x \in φ^{-1}(\bar x)} α(x)c(x,u)dx, \qquad
- \bar p(\bar y | \bar x, u) = 
- \int_{x \in φ^{-1}(\bar x)} α(x) \int_{y \in φ^{-1}(\bar y)}
- p(y | x, u) dx dy. $$
-
-For example, in the example above, we need to choose a weight function $α :
-[0, 1]^2 \to [0, 1]$ such that for any set $A(\bar x) = \{ (x_1, x_2) \in [0,
-1]^2 : x_1 + x_2 = 1\}$, we have that $\int_{A} α(x) dx = 1$. One way to
-obtain such a weight function is to pick a probability density $μ$ over
-$\ALPHABET X$ and pick $α(x)$ in $φ^{-1}(\bar x)$ as the corresponding
-conditional density given $φ(x) = \bar x$. Then $\bar c(\bar x, u)$ may be
-viewed as the conditional cost $\EXP_μ[ c(X, u) | φ(X) = \bar x]$ and $\bar
-p(\bar y | \bar x, u)$ may be viewed as $\EXP_μ[ p(\{ Y \in \ALPHABET X : φ(Y)
-= \bar y \} | X, u) | φ(X) = x]$. If $\ALPHABET X$ is compact, then the
-simplest option is to pick $μ$ as the uniform density over $\ALPHABET X$.  
-
-Now, as before, suppose $V \colon \ALPHABET X \to \reals$ and $g \colon
-\ALPHABET X \to \ALPHABET U$ are the value function and the optimal policy of
-the original MDP $M$ and $\bar W \colon \bar{\ALPHABET X} \to \reals$ and
-$\bar h \colon \bar {\ALPHABET X} \to \ALPHABET U$ be the value function and
-optimal policy of the abstract MDP $\bar M$. Define $W \colon \ALPHABET X \to
-\reals$ and $h \colon \ALPHABET X \to \ALPHABET U$ as $W = \bar W ∘ φ$ and $h
-= \bar h ∘ φ$. 
-
-We are interested in two questions:
-
-1. What is the error if $W$ is used as an approximation for $V$?
-2. What is the error if the policy $h$ is used instead of policy $g$?
-
-We will answer these questions under the assumption that $\bar M$ is a
-$(L_{\bar c}, L_{\bar p})$-Lipschitz. In particular, we will make the
-following assumptions:
-
-For any $x \in \ALPHABET X$ and $\bar y \in \bar {\ALPHABET X}$, define
-$$ \hat p(\bar y | x, u) = \int_{y \in φ^{-1}(\bar y)} p(y| x, u) dy. $$
-Define
-$$\begin{align*}
-  L_c^∞ &= \sup_{x \in \ALPHABET X, u \in \ALPHABET U} \big| c(x,u) - \bar c(φ(x),
-u) \bigr|, \\
- L_p^∞ &= \sup_{x \in \ALPHABET X, u \in \ALPHABET U} 
- K(\hat p(⋅ | x, u), \bar p(⋅ | φ(x), u)).
-\end{align*}$$
-
-Assumpt. 
-
-:   * The value function $\bar W$ is Lipschitz
-    * $L_c^∞$ and $L_p^∞$ are bounded.
-
-Note that this is different than state quantization where we were assuming
-that the original MDP $M$ is Lipschitz. In this model, we haven't even assumed
-that the original state space is a metric space.
-
-
-::: highlight :::
-Lemma #lem:policy
-
-:   Suppose the value function $\bar W$ is Lipschitz with Lipschitz constant $L_{\bar W}$.
-    Then
-    $$ \| V_h - W \| \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. $$
-:::
-
-#### Proof {-}
-
-Consider a state $x \in \ALPHABET X$. Then,
-$$\begin{align}
-  |V_h(x) &- W(x)| = | V_h(x) - \bar W_{\bar h}(φ(x)) | \notag \\
-  &\stackrel{(a)}\le |c(x, h(x)) - \bar c(φ(x), \bar h(φ(x))| \notag \\
-  & \quad + 
-  β \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy -
-  \int_{\bar {\ALPHABET X}} p(\bar y| φ(x), \bar h(φ(x)) ) \bar W(\bar y) d \bar y \right|
-  \label{eq:split}
-\end{align}$$
-where $(a)$ follows from triangle inequality. Recall that $h(x) = \bar
-h(φ(x))$. Thus, the first term is bounded by $L_c^∞$. 
-Now, let's consider the second term of \\eqref{eq:split}
-$$\begin{align}
-  \hskip 2em & \hskip -2em
-  \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy -
-  \int_{\bar {\ALPHABET X}} p(\bar y| φ(x), \bar h(φ(x)) ) \bar W(\bar y) d \bar y \right|
-  \notag \\
-  &\stackrel{(b)}\le 
-  \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy 
-  - \int_{\ALPHABET X} p(y| x, h(x)) W(y) dy \right|
-  \notag \\
-  &\quad + 
-  \left| \int_{\ALPHABET X} p(y | x, h(x)) W(y)dy 
-  - \int_{\bar {\ALPHABET X}} \bar p(\bar y| φ(x), \bar h(\bar φ(x))) \bar W(\bar y) d\bar y \right|
-  \notag \\
-  &\stackrel{(c)}\le 
-  \int_{\ALPHABET X} p(y | x, h(x)) \left| V_h(y) - W(y) \right| dy
-  \notag \\
-  &\quad + 
-  \left| \int_{\bar {\ALPHABET X}} \int_{y \in φ^{-1}(y)} p(y | x, h(x)) \bar W(\bar y) d y d\bar y 
-  - \int_{\bar {\ALPHABET X}} \bar p(\bar y| φ(x), \bar h(\bar φ(x))) \bar W(\bar y) d\bar y \right|
-  \notag \\
-  &\le \|V_h - W \| + L_{\bar W} L_p^∞ 
-  \label{eq:2nd}
-\end{align}$$
-where $(b)$ follows from triangle inequality and the first term of $(c)$
-follows from triangle inequality and the second term follows from Lipschitz
-continuity of $W$ and the definition of Kantorovich distance. We get the
-result by substituting \\eqref{eq:2nd} in
-\\eqref{eq:split} and rearranging terms.&nbsp;$\Box$
-
-::: highlight :::
-
-Lemma #lem:value
-
-:   Suppose the value function $\bar W$ is Lipschitz with Lipschitz constant
-    $L_{\bar W}$. Then,
-    $$ | V_h(x_1) - V_h(x_2) | \le L_{\bar W} d_{\bar X}(φ(x_1), φ(x_2))
-    + 2 \frac{L_c^∞ + β L_{\bar W} L_P^∞}{1 - β}. $$
-::: 
-
-#### Proof {-}
-From the triangle inequality, we have
-$$|V_h(x_1) - V_h(x_2) | \le
-  |V_h(x_1) - W(x_1)| + |V_h(x_2) - W(x_2)| + |W(x_1) - W(x_2)|. $$
-
-Now, the first two terms can be bounded using @lem:policy. To bound
-the third term, note that $W(x) = \bar W(φ(x))$. Thus, the third term is
-bounded by $L_{\bar W}d_{\bar X}(φ(x_1), φ(x_2))$. Substituting these back in
-the above equation, give the bounds of the Lemma.&nbsp;$\Box$ 
-
-::: highlight :::
-
-Theorem #thm:value-diff
-
-:   Suppose the value function $\bar W$ is Lipschitz with Lipschitz constant
-    $L_{\bar W}$. Then, 
-    $$ \| V - W \| \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. $$
-:::
-
-#### Proof {-}
-
-The proof idea is similar to @lem:policy. However, unlike the proof
-of @lem:policy, the policy used in value function $V$ is not the
-same as the policy used in the value function $W$. Nonetheless, we can exploit
-the fact that the policy used is optimal for the respective models to get
-bounds on the difference. In particular, 
-$$ V(x) - W(x) \le V_h(x) - W(x) \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 -
-β}.$$
-
-To bound the other direction, note that 
-$$\begin{align*} W(x) &- V(x) = \bar W(φ(x)) - V(x) \\
-&\le \bar c(φ(x), g(x)) + β\int_{\bar {\ALPHABET X}} \bar p(\bar y | φ(x), g(x)) d\bar y 
+W^*(s) &= \hat W^*(\hat s) = c(\hat s, a) + γ \sum_{\hat s' \in \hat {\ALPHABET S}}
+\hat P(\hat s' | \hat s, a) \hat W^*(\hat s').
 \\
-&\quad 
- - \left[ c(x, g(x)) + β\int_{\ALPHABET X} p(y | x, g(x)) dy \right]. 
+&= c(\hat s, a) + γ \int_{\ALPHABET S} p(s' | \hat s, a) W^*(s') ds'.
 \end{align*}$$
-We can now follow steps similar to @lem:policy to show that the
-above difference is bounded by $\frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}$. 
+Moreover, 
+$$
+V^{μ^*}(s) = c(s, a) + γ \int_{\ALPHABET S} 
+p(s'|s,a) V^{μ^*}(s') ds'.
+$$
+Thus,
+$$\begin{align}
+\bigl| V^{μ^*}(s) - W^*(s) \bigr| &\stackrel{(a)}\le
+\bigl| c(s,a) - c(φ(s),a) \bigr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{μ^*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|s,a) W^*(s') ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) W^{*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|s,a) V^*(s') ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|\phi(s),a) V^*(s') ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|\phi(s),a) V^{*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|\phi(s),a) W^*(s') ds' \biggr| 
+\label{eq:step-b-1}
+\end{align}$$
+where $(a)$ follows from the triangle inequality. Now, we bound each of the
+terms in \\eqref{eq:step-b-1}. Since $c$ is Lipschitz, we have
+$$\begin{equation} \label{eq:step-b-2}
+\bigl| c(s,a) - c(φ(s),a) \bigr| \le L_c D.
+\end{equation}$$
+Moreover,
+$$\begin{equation} \label{eq:step-b-3}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) V^{μ^*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|s,a) W^*(s') ds' \biggr| 
+\le \NORM{ V^{μ^*} - W^*}_∞.
+\end{equation}$$
+From @prop:value we have
+$$\begin{equation} \label{eq:step-b-4}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) W^{*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|s,a) V^*(s') ds' \biggr| 
+\le \NORM{ W^* - V^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L
+\end{equation}$$
+From the Kantorovich-Rubinstein duality, we have 
+$$\begin{equation} \label{eq:step-b-5}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|\phi(s),a) V^*(s') ds' \biggr| 
+\le \mathcal {W}(p( \cdot | s,a), p(\cdot | φ(s), a)) \NORM{V^*}_L
+\le L_p D \NORM{V^*}_L.
+\end{equation}$$
+Finally, from @prop:value, we have
+$$\begin{equation} \label{eq:step-b-6}
+\biggl| \int_{\ALPHABET S} p(s'|\phi(s),a) V^{*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|\phi(s),a) W^*(s') ds' \biggr| 
+\le \NORM{V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L.
+\end{equation}$$
+Substituting \\eqref{eq:step-b-2}--\\eqref{eq:step-b-6} in \\eqref{eq:step-b-1}
+and rearranging, we get
+$$\begin{equation}
+  \NORM{V^{μ^*} - W^*}_∞ \le \frac{D}{1-γ} \biggl[
+  L_c + γ L_p \NORM{V^*}_L + \frac{2γ}{1-γ} \NORM{V^*}_L \biggr]
+\end{equation}$$
 
-Combining the two inequalities above establishes the result.&nbsp;$\Box$
+This proves the first result of the Proposition. The second result follows
+from simple algebra.
+</div>
+</details>
 
-::: highlight :::
-Theorem #thm:perf-diff
-
-:   Suppose the value function $\bar W$ is Lipschitz with Lipschitz constant
-    $L_{\bar W}$. Then,
-    $$ \|V - V_h\| \le  2\frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. $$
-:::
-
-#### Proof {-}
-
-From triangle inequality, we have
-$$ |V(x) - V_h(x)| \le |V(x) - W(x)| + |V_h(x) - W(x)|. $$
-the result then follows from @lem:policy and 
-@thm:value-diff.&nbsp;$\Box$
-
-# References {-}
-
-The material on state quantization is taken from @Hinderer2005. These results
-first appeared in @Bertsekas1975. 
-
-The material on state abstraction is taken from @Gelada2019. Surprisingly,
-@Gelada2019 do not completely specify how to construct $\bar c$ and $\bar p$.
-The construction for these functions is taken from @Li2006. There has been a
-lot of interest in understanding approximation bounds for state compression.
-See the references in @Gelada2019. 
-
----
