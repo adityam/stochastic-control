@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="infinite horizon,discounted cost,Lipschitz continuity,approximation bounds,state aggregation" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2022
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Theory: Feature abstraction in MDPs</div>
+
+<p>Consider an MDP with continuous state space <span class="math inline">\(\ALPHABET X\)</span> and finite action space <span class="math inline">\(\ALPHABET U\)</span>. We denote this MDP by <span class="math inline">\(M = (\ALPHABET X, \ALPHABET U, c, p)\)</span>, where for simplicity we assume that the <span class="math inline">\(p\)</span> is the density of the transition kernel.</p>
+<p>Since the state space is continuous, in general, we cannot compute the value functions exactly. The simplest way to proceed is to discretize the state space <span class="math inline">\(\ALPHABET X\)</span>. In particular, let <span class="math inline">\(\{\ALPHABET X_1, \dots \ALPHABET X_n\}\)</span> denote a partition of <span class="math inline">\(\ALPHABET X\)</span> (i.e., <span class="math inline">\(\bigcup_{i=1}^n \ALPHABET X_i = \ALPHABET X\)</span> and for any <span class="math inline">\(i \neq j\)</span>, <span class="math inline">\(\ALPHABET X_i \cap \ALPHABET X_j = \emptyset\)</span>). Pick a representative point <span class="math inline">\(x_i \in \ALPHABET X_i\)</span> and consider the “grid” <span class="math inline">\(\bar {\ALPHABET X} = \{x_1, \dots, x_n\}\)</span> as the state space of the discretized MDP. We consider a finite state MDP <span class="math inline">\(\bar M = (\bar {\ALPHABET X}, \ALPHABET U, \bar c, \bar P)\)</span>, where <span class="math inline">\(\bar c\)</span> is the restriction of <span class="math inline">\(c\)</span> onto <span class="math inline">\(\bar {\ALPHABET X}\)</span>, and <span class="math inline">\(\bar P\)</span> is given by <span class="math display">\[\bar P(x_j | x_i, u) =
+\int_{\ALPHABET X_j} p(y | x_i, u) dy = p(\ALPHABET X_j | x_i, u). \]</span></p>
+<p>Let’s consider infinite horizon discounted setup. Let <span class="math inline">\(V \colon \ALPHABET X \to \reals\)</span> and <span class="math inline">\(g \colon \ALPHABET X \to \ALPHABET U\)</span> be the value function and optimal policy of the original MDP <span class="math inline">\(M\)</span> and let <span class="math inline">\(\bar W \colon \bar {\ALPHABET X} \to \reals\)</span> and <span class="math inline">\(\bar h \colon \bar {\ALPHABET X} \to \ALPHABET U\)</span> be the value function and optimal policy of the discretized MDP <span class="math inline">\(\bar M\)</span>. Define <span class="math inline">\(W \colon \ALPHABET X \to \reals\)</span> and <span class="math inline">\(h \colon \ALPHABET X \to \reals\)</span> to be piecewise constant extrapolation of <span class="math inline">\(\bar W\)</span> and <span class="math inline">\(\bar h\)</span> from <span class="math inline">\(\bar {\ALPHABET X}\)</span> to <span class="math inline">\(\ALPHABET X\)</span>.</p>
+<p>Note that the policy <span class="math inline">\(h\)</span> is choosing the same action on all states in <span class="math inline">\(\ALPHABET X_i\)</span>.</p>
+<p>We are interested in two questions:</p>
+<ol type="1">
+<li>What is the error if <span class="math inline">\(W\)</span> is used as an approximation for <span class="math inline">\(V\)</span>?</li>
+<li>What is the error if the policy <span class="math inline">\(h\)</span> is used instead of the optimal policy <span class="math inline">\(g\)</span>?</li>
+</ol>
+<p>We will answer these questions under the assumption that <span class="math inline">\(M\)</span> is a <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz MDP. In particular, we make the following assumptions:</p>
+<dl>
+<dt><span id="assumpt-:1"></span><span id="assumpt-:1" class="pandoc-numbering-text assumpt-"><strong>Assumpt. 1</strong></span></dt>
+<dd>
+<ul>
+<li><span class="math inline">\((\ALPHABET X, d_X)\)</span> is a bounded metric space</li>
+<li>For every <span class="math inline">\(u \in \ALPHABET U\)</span>, <span class="math inline">\(c(\cdot, u)\)</span> is <span class="math inline">\(L_c\)</span>-Lipschitz.</li>
+<li>For every <span class="math inline">\(u \in \ALPHABET U\)</span>, <span class="math inline">\(p(\cdot | x, u)\)</span> is <span class="math inline">\(L_p\)</span>-Lipschitz (with respect to the Kantorovich distance on probability measures).</li>
+</ul>
+</dd>
+</dl>
+<p>Given any set <span class="math inline">\(\ALPHABET S \subset \ALPHABET X\)</span>, the diameter <span class="math inline">\(\text{diam}(\ALPHABET S)\)</span> is defined as <span class="math inline">\(\sup_{x,y \in \ALPHABET S} d_X(x,y)\)</span>. Since <span class="math inline">\(d_X\)</span> is assumed to be bounded, diameter of any subset of <span class="math inline">\(\ALPHABET X\)</span> is finite. Let <span class="math inline">\(d := \max_{1 \le i \le n} \text{diam}(\ALPHABET X_i)\)</span> denote the largest diameter of the grid cells <span class="math inline">\(\ALPHABET X_i\)</span>.</p>
+<p>Let <span class="math inline">\(\mathcal B\)</span> and <span class="math inline">\(\bar {\mathcal B}\)</span> denote the Bellman update operators for MDP <span class="math inline">\(M\)</span> and <span class="math inline">\(\bar M\)</span>.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lem:1"></span><span id="lem:update" class="pandoc-numbering-text lem"><strong>Lemma 1</strong></span></dt>
+<dd>
+<p>For any function <span class="math inline">\(\bar w \colon \bar {\ALPHABET X} \to \reals\)</span>, let <span class="math inline">\(w  \colon \ALPHABET X \to \reals\)</span> be the piecewise constant extrapolation of <span class="math inline">\(\bar w\)</span> from <span class="math inline">\(\bar {\ALPHABET X}\)</span> to <span class="math inline">\(\ALPHABET X\)</span>. Then for any <span class="math inline">\(x_i  \in \bar {\ALPHABET X}\)</span>, <span class="math display">\[ [\bar {\mathcal B} \bar w](x_i) = [\mathcal B w](x_i).\]</span></p>
+</dd>
+</dl>
+</div>
+<dl>
+<dt>Remark</dt>
+<dd>
+<p>The above result states that <span class="math inline">\(\bar {\mathcal B} \bar w\)</span> and <span class="math inline">\(\mathcal B w\)</span> agree on the grid points <span class="math inline">\(\{x_1, \dots, x_n\}\)</span>.</p>
+</dd>
+</dl>
+<h4 class="unnumbered" id="proof">Proof</h4>
+<p>Observe that <span class="math display">\[\begin{align}
+  [\bar {\mathcal B} \bar w](x_i) &amp;= \min_{u \in \ALPHABET U}
+  \Bigl\{ c(x_i, u) + β \sum_{j=1}^n \bar P(x_j | x_i, u) \bar w(x_j)\Bigr\} 
+  \notag \\
+  &amp;= \min_{u \in \ALPHABET U} \Bigl\{
+      c(x_i, u) + β \sum_{j=1}^n p(\ALPHABET X_j | x_i, u) \bar w(x_j) \Bigr\}
+  \notag \\
+  &amp;= \min_{u \in \ALPHABET U} \Bigl\{
+      c(x_i, u) + β \sum_{j=1}^n \int_{\ALPHABET X_j} p(y | x_i, u) w(y)dy \Bigr\}
+  \notag \\
+  &amp;= \min_{u \in \ALPHABET U} \Bigl\{
+      c(x_i, u) + β \int_{\ALPHABET X} p(y | x_i, u) w(y)dy \Bigr\}
+  \notag \\
+  &amp;= [\mathcal B w](x_i) \tag*{$\Box$}
+\end{align}\]</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="lem:2"></span><span id="lem:fixed" class="pandoc-numbering-text lem"><strong>Lemma 2</strong></span></dt>
+<dd>
+<p>For any grid point <span class="math inline">\(\bar x_i \in \bar {\ALPHABET X}\)</span>, we have <span class="math display">\[ |V(x_i) - \bar W(x_i)| \le β \| V - W \|. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" id="proof-1">Proof</h4>
+<p>Note that <span class="math inline">\(\bar W(x_i) = [\bar {\mathcal B} \bar W](x_i) = [\mathcal B W](x_i)\)</span>, where the last equality follows from <a href="#lem:update" title="Lemma 1"><span class="pandoc-numbering-link lem">Lemma 1</span></a>. Thus, <span class="math display">\[\begin{align}
+  |V(x_i) - \bar W(x_i)| &amp;= | [\mathcal B V](x_i) - [\mathcal B W](x_i) | 
+  \notag \\
+  &amp;\le \| \mathcal BV - \mathcal BW \| 
+  \notag \\
+  &amp;\stackrel{(a)}\le β\| V - W\| \notag
+\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the discounting property. <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:1"></span><span id="thm:infinite" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
+<dd>
+<p>Suppose <span class="math inline">\(\beta L_p &lt; 1\)</span>. Then the value functions <span class="math inline">\(V\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(L_v = L_c/(1 - β L_p)\)</span>. Moreover, <span class="math display">\[
+  \| V - W \| \le \frac{L_v d}{1 - β} = \frac{ L_c d } { (1-β)(1 - βL_p)}.
+\]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" id="proof-2">Proof</h4>
+<p>The Lipschitz continuity of <span class="math inline">\(V\)</span> follows the results for Lipschitz continuous MDPs.</p>
+<p>Now, consider a state <span class="math inline">\(x \in \ALPHABET X_i\)</span>. Then, <span class="math display">\[\begin{align*}
+| V(x) - W(x) | &amp;\le | V(x) - V(x_i)| + |V(x_i) - W(x)| \\
+&amp;\le L_v d_X(x, x_i) + | V(x_i) - \bar W(x_i)| \\
+&amp;\stackrel{(a)}\le L_v d + β\| V - W\|
+\end{align*}\]</span> where (a) follows from <a href="#lem:update" title="Lemma 1"><span class="pandoc-numbering-link lem">Lemma 1</span></a>. We get the result by rearranging terms. <span class="math inline">\(\Box\)</span></p>
+<h1 data-number="1" id="state-abstraction-or-compression-latent-space-models"><span class="header-section-number">1</span> State abstraction or compression (Latent space models)</h1>
+<p>Let <span class="math inline">\(M = (\ALPHABET X, \ALPHABET U, p, c)\)</span> be an MDP with discrete or continuous state space. Let <span class="math inline">\((\bar {\ALPHABET X}, d_{\bar X})\)</span> be a metric space. Consider a <em>compression</em> or an <em>abstraction</em> function <span class="math inline">\(φ \colon \ALPHABET X \to \bar {\ALPHABET X}\)</span>. For any <span class="math inline">\(x \in \ALPHABET X\)</span>, <span class="math inline">\(φ(x)\)</span> is the compressed or abstract state corresponding to the ground state <span class="math inline">\(x\)</span> and the inverse image <span class="math inline">\(φ^{-1}(\bar x)\)</span> with <span class="math inline">\(\bar x \in \bar {\ALPHABET X}\)</span> is the set of ground states that correspond to <span class="math inline">\(\bar x\)</span> under abstraction function <span class="math inline">\(φ\)</span>. Note that <span class="math inline">\(\{ φ^{-1}(\bar x) \mid \bar x \in \bar {\ALPHABET X} \}\)</span> partitions the state space <span class="math inline">\(\ALPHABET X\)</span>.</p>
+<figure style="float:right;">
+<img src="latent-space.png"
+       alt="Example of latent space embedding"
+       title="Latent space embedding" 
+       width="120" />
+<figcaption>
+Example of latent space embedding
+</figcaption>
+</figure>
+<p>For example, suppose <span class="math inline">\(\ALPHABET X = [0,1]^2\)</span> and <span class="math inline">\(\bar {\ALPHABET X} = [0, 2]\)</span> with <span class="math inline">\(φ(x_1, x_2) = x_1 + x_2\)</span>. Then <span class="math inline">\(φ^{-1}(\bar x) = \{ (x_1, x_2) \in [0, 1]^2 : x_1 + x_2 = \bar x \}\)</span> which is a staight line as shown in the figure on the right.</p>
+<p>We want to define an abstract or compressed MDP <span class="math inline">\(\bar M = (\bar {\ALPHABET X}, \ALPHABET U, \bar p, \bar c)\)</span>. Unlike the situation with state quantization where <span class="math inline">\(\bar {\ALPHABET X}\)</span> was a subset of <span class="math inline">\(\ALPHABET X\)</span>, here we have not imposed any relationship between <span class="math inline">\(\bar {\ALPHABET X}\)</span> and <span class="math inline">\(\ALPHABET X\)</span>. Therefore, to define <span class="math inline">\(\bar p\)</span> and <span class="math inline">\(\bar c\)</span>, we need a weighting function <span class="math inline">\(α \colon \ALPHABET X \to [0, 1]\)</span>, such that for each <span class="math inline">\(\bar x \in \bar {\ALPHABET  X}\)</span>, <span class="math inline">\(\int_{x \in φ^{-1}(\bar x)} α(x) dx = 1\)</span>. Then, for any <span class="math inline">\(\bar x, \bar y  \in \bar{\ALPHABET X}\)</span>, define <span class="math display">\[\bar c(\bar x, u) = \int_{x \in φ^{-1}(\bar x)} α(x)c(x,u)dx, \qquad
+ \bar p(\bar y | \bar x, u) = 
+ \int_{x \in φ^{-1}(\bar x)} α(x) \int_{y \in φ^{-1}(\bar y)}
+ p(y | x, u) dx dy. \]</span></p>
+<p>For example, in the example above, we need to choose a weight function <span class="math inline">\(α : [0, 1]^2 \to [0, 1]\)</span> such that for any set <span class="math inline">\(A(\bar x) = \{ (x_1, x_2) \in [0, 1]^2 : x_1 + x_2 = 1\}\)</span>, we have that <span class="math inline">\(\int_{A} α(x) dx = 1\)</span>. One way to obtain such a weight function is to pick a probability density <span class="math inline">\(μ\)</span> over <span class="math inline">\(\ALPHABET X\)</span> and pick <span class="math inline">\(α(x)\)</span> in <span class="math inline">\(φ^{-1}(\bar x)\)</span> as the corresponding conditional density given <span class="math inline">\(φ(x) = \bar x\)</span>. Then <span class="math inline">\(\bar c(\bar x, u)\)</span> may be viewed as the conditional cost <span class="math inline">\(\EXP_μ[ c(X, u) | φ(X) = \bar x]\)</span> and <span class="math inline">\(\bar p(\bar y | \bar x, u)\)</span> may be viewed as <span class="math inline">\(\EXP_μ[ p(\{ Y \in \ALPHABET X : φ(Y) = \bar y \} | X, u) | φ(X) = x]\)</span>. If <span class="math inline">\(\ALPHABET X\)</span> is compact, then the simplest option is to pick <span class="math inline">\(μ\)</span> as the uniform density over <span class="math inline">\(\ALPHABET X\)</span>.</p>
+<p>Now, as before, suppose <span class="math inline">\(V \colon \ALPHABET X \to \reals\)</span> and <span class="math inline">\(g \colon \ALPHABET X \to \ALPHABET U\)</span> are the value function and the optimal policy of the original MDP <span class="math inline">\(M\)</span> and <span class="math inline">\(\bar W \colon \bar{\ALPHABET X} \to \reals\)</span> and <span class="math inline">\(\bar h \colon \bar {\ALPHABET X} \to \ALPHABET U\)</span> be the value function and optimal policy of the abstract MDP <span class="math inline">\(\bar M\)</span>. Define <span class="math inline">\(W \colon \ALPHABET X \to \reals\)</span> and <span class="math inline">\(h \colon \ALPHABET X \to \ALPHABET U\)</span> as <span class="math inline">\(W = \bar W ∘ φ\)</span> and <span class="math inline">\(h = \bar h ∘ φ\)</span>.</p>
+<p>We are interested in two questions:</p>
+<ol type="1">
+<li>What is the error if <span class="math inline">\(W\)</span> is used as an approximation for <span class="math inline">\(V\)</span>?</li>
+<li>What is the error if the policy <span class="math inline">\(h\)</span> is used instead of policy <span class="math inline">\(g\)</span>?</li>
+</ol>
+<p>We will answer these questions under the assumption that <span class="math inline">\(\bar M\)</span> is a <span class="math inline">\((L_{\bar c}, L_{\bar p})\)</span>-Lipschitz. In particular, we will make the following assumptions:</p>
+<p>For any <span class="math inline">\(x \in \ALPHABET X\)</span> and <span class="math inline">\(\bar y \in \bar {\ALPHABET X}\)</span>, define <span class="math display">\[ \hat p(\bar y | x, u) = \int_{y \in φ^{-1}(\bar y)} p(y| x, u) dy. \]</span> Define <span class="math display">\[\begin{align*}
+  L_c^∞ &amp;= \sup_{x \in \ALPHABET X, u \in \ALPHABET U} \big| c(x,u) - \bar c(φ(x),
+u) \bigr|, \\
+ L_p^∞ &amp;= \sup_{x \in \ALPHABET X, u \in \ALPHABET U} 
+ K(\hat p(⋅ | x, u), \bar p(⋅ | φ(x), u)).
+\end{align*}\]</span></p>
+<dl>
+<dt>Assumpt.</dt>
+<dd>
+<ul>
+<li>The value function <span class="math inline">\(\bar W\)</span> is Lipschitz</li>
+<li><span class="math inline">\(L_c^∞\)</span> and <span class="math inline">\(L_p^∞\)</span> are bounded.</li>
+</ul>
+</dd>
+</dl>
+<p>Note that this is different than state quantization where we were assuming that the original MDP <span class="math inline">\(M\)</span> is Lipschitz. In this model, we haven’t even assumed that the original state space is a metric space.</p>
+<div class="highlight">
+<dl>
+<dt><span id="lem:3"></span><span id="lem:policy" class="pandoc-numbering-text lem"><strong>Lemma 3</strong></span></dt>
+<dd>
+<p>Suppose the value function <span class="math inline">\(\bar W\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(L_{\bar W}\)</span>. Then <span class="math display">\[ \| V_h - W \| \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" id="proof-3">Proof</h4>
+<p>Consider a state <span class="math inline">\(x \in \ALPHABET X\)</span>. Then, <span class="math display">\[\begin{align}
+  |V_h(x) &amp;- W(x)| = | V_h(x) - \bar W_{\bar h}(φ(x)) | \notag \\
+  &amp;\stackrel{(a)}\le |c(x, h(x)) - \bar c(φ(x), \bar h(φ(x))| \notag \\
+  &amp; \quad + 
+  β \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy -
+  \int_{\bar {\ALPHABET X}} p(\bar y| φ(x), \bar h(φ(x)) ) \bar W(\bar y) d \bar y \right|
+  \label{eq:split}
+\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from triangle inequality. Recall that <span class="math inline">\(h(x) = \bar h(φ(x))\)</span>. Thus, the first term is bounded by <span class="math inline">\(L_c^∞\)</span>. Now, let’s consider the second term of \eqref{eq:split} <span class="math display">\[\begin{align}
+  \hskip 2em &amp; \hskip -2em
+  \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy -
+  \int_{\bar {\ALPHABET X}} p(\bar y| φ(x), \bar h(φ(x)) ) \bar W(\bar y) d \bar y \right|
+  \notag \\
+  &amp;\stackrel{(b)}\le 
+  \left| \int_{\ALPHABET X} p(y | x, h(x)) V_h(y)dy 
+  - \int_{\ALPHABET X} p(y| x, h(x)) W(y) dy \right|
+  \notag \\
+  &amp;\quad + 
+  \left| \int_{\ALPHABET X} p(y | x, h(x)) W(y)dy 
+  - \int_{\bar {\ALPHABET X}} \bar p(\bar y| φ(x), \bar h(\bar φ(x))) \bar W(\bar y) d\bar y \right|
+  \notag \\
+  &amp;\stackrel{(c)}\le 
+  \int_{\ALPHABET X} p(y | x, h(x)) \left| V_h(y) - W(y) \right| dy
+  \notag \\
+  &amp;\quad + 
+  \left| \int_{\bar {\ALPHABET X}} \int_{y \in φ^{-1}(y)} p(y | x, h(x)) \bar W(\bar y) d y d\bar y 
+  - \int_{\bar {\ALPHABET X}} \bar p(\bar y| φ(x), \bar h(\bar φ(x))) \bar W(\bar y) d\bar y \right|
+  \notag \\
+  &amp;\le \|V_h - W \| + L_{\bar W} L_p^∞ 
+  \label{eq:2nd}
+\end{align}\]</span> where <span class="math inline">\((b)\)</span> follows from triangle inequality and the first term of <span class="math inline">\((c)\)</span> follows from triangle inequality and the second term follows from Lipschitz continuity of <span class="math inline">\(W\)</span> and the definition of Kantorovich distance. We get the result by substituting \eqref{eq:2nd} in \eqref{eq:split} and rearranging terms. <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="lem:4"></span><span id="lem:value" class="pandoc-numbering-text lem"><strong>Lemma 4</strong></span></dt>
+<dd>
+<p>Suppose the value function <span class="math inline">\(\bar W\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(L_{\bar W}\)</span>. Then, <span class="math display">\[ | V_h(x_1) - V_h(x_2) | \le L_{\bar W} d_{\bar X}(φ(x_1), φ(x_2))
++ 2 \frac{L_c^∞ + β L_{\bar W} L_P^∞}{1 - β}. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" id="proof-4">Proof</h4>
+<p>From the triangle inequality, we have <span class="math display">\[|V_h(x_1) - V_h(x_2) | \le
+  |V_h(x_1) - W(x_1)| + |V_h(x_2) - W(x_2)| + |W(x_1) - W(x_2)|. \]</span></p>
+<p>Now, the first two terms can be bounded using <a href="#lem:policy" title="Lemma 3"><span class="pandoc-numbering-link lem">Lemma 3</span></a>. To bound the third term, note that <span class="math inline">\(W(x) = \bar W(φ(x))\)</span>. Thus, the third term is bounded by <span class="math inline">\(L_{\bar W}d_{\bar X}(φ(x_1), φ(x_2))\)</span>. Substituting these back in the above equation, give the bounds of the Lemma. <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:2"></span><span id="thm:value-diff" class="pandoc-numbering-text thm"><strong>Theorem 2</strong></span></dt>
+<dd>
+<p>Suppose the value function <span class="math inline">\(\bar W\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(L_{\bar W}\)</span>. Then, <span class="math display">\[ \| V - W \| \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" id="proof-5">Proof</h4>
+<p>The proof idea is similar to <a href="#lem:policy" title="Lemma 3"><span class="pandoc-numbering-link lem">Lemma 3</span></a>. However, unlike the proof of <a href="#lem:policy" title="Lemma 3"><span class="pandoc-numbering-link lem">Lemma 3</span></a>, the policy used in value function <span class="math inline">\(V\)</span> is not the same as the policy used in the value function <span class="math inline">\(W\)</span>. Nonetheless, we can exploit the fact that the policy used is optimal for the respective models to get bounds on the difference. In particular, <span class="math display">\[ V(x) - W(x) \le V_h(x) - W(x) \le \frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 -
+β}.\]</span></p>
+<p>To bound the other direction, note that <span class="math display">\[\begin{align*} W(x) &amp;- V(x) = \bar W(φ(x)) - V(x) \\
+&amp;\le \bar c(φ(x), g(x)) + β\int_{\bar {\ALPHABET X}} \bar p(\bar y | φ(x), g(x)) d\bar y 
+\\
+&amp;\quad 
+ - \left[ c(x, g(x)) + β\int_{\ALPHABET X} p(y | x, g(x)) dy \right]. 
+\end{align*}\]</span> We can now follow steps similar to <a href="#lem:policy" title="Lemma 3"><span class="pandoc-numbering-link lem">Lemma 3</span></a> to show that the above difference is bounded by <span class="math inline">\(\frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}\)</span>.</p>
+<p>Combining the two inequalities above establishes the result. <span class="math inline">\(\Box\)</span></p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:3"></span><span id="thm:perf-diff" class="pandoc-numbering-text thm"><strong>Theorem 3</strong></span></dt>
+<dd>
+<p>Suppose the value function <span class="math inline">\(\bar W\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(L_{\bar W}\)</span>. Then, <span class="math display">\[ \|V - V_h\| \le  2\frac{L_c^∞ + β L_{\bar W} L_p^∞}{1 - β}. \]</span></p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" id="proof-6">Proof</h4>
+<p>From triangle inequality, we have <span class="math display">\[ |V(x) - V_h(x)| \le |V(x) - W(x)| + |V_h(x) - W(x)|. \]</span> the result then follows from <a href="#lem:policy" title="Lemma 3"><span class="pandoc-numbering-link lem">Lemma 3</span></a> and <a href="#thm:value-diff" title="Theorem 2"><span class="pandoc-numbering-link thm">Theorem 2</span></a>. <span class="math inline">\(\Box\)</span></p>
+<h1 class="unnumbered" id="references">References</h1>
+<p>The material on state quantization is taken from <span class="citation" data-cites="Hinderer2005">Hinderer (<a href="#ref-Hinderer2005" role="doc-biblioref">2005</a>)</span>. These results first appeared in <span class="citation" data-cites="Bertsekas1975">Bertsekas (<a href="#ref-Bertsekas1975" role="doc-biblioref">1975</a>)</span>.</p>
+<p>The material on state abstraction is taken from <span class="citation" data-cites="Gelada2019">Gelada et al. (<a href="#ref-Gelada2019" role="doc-biblioref">2019</a>)</span>. Surprisingly, <span class="citation" data-cites="Gelada2019">Gelada et al. (<a href="#ref-Gelada2019" role="doc-biblioref">2019</a>)</span> do not completely specify how to construct <span class="math inline">\(\bar c\)</span> and <span class="math inline">\(\bar p\)</span>. The construction for these functions is taken from <span class="citation" data-cites="Li2006">Li et al. (<a href="#ref-Li2006" role="doc-biblioref">2006</a>)</span>. There has been a lot of interest in understanding approximation bounds for state compression. See the references in <span class="citation" data-cites="Gelada2019">Gelada et al. (<a href="#ref-Gelada2019" role="doc-biblioref">2019</a>)</span>.</p>
+<hr />
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-Bertsekas1975" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Bertsekas, D.</span> 1975. Convergence of discretization procedures in dynamic programming. <em>IEEE Transactions on Automatic Control</em> <em>20</em>, 3, 415–419. DOI: <a href="https://doi.org/10.1109/TAC.1975.1100984">10.1109/TAC.1975.1100984</a>.
+</div>
+<div id="ref-Gelada2019" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Gelada, C., Kumar, S., Buckman, J., Nachum, O., and Bellemare, M.G.</span> 2019. <span>D</span>eep<span>MDP</span>: Learning continuous latent space models for representation learning. <em>Proceedings of the 36th international conference on machine learning</em>, PMLR, 2170–2179. Available at: <a href="http://proceedings.mlr.press/v97/gelada19a.html">http://proceedings.mlr.press/v97/gelada19a.html</a>.
+</div>
+<div id="ref-Hinderer2005" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Hinderer, K.</span> 2005. Lipschitz continuity of value functions in <span>M</span>arkovian decision processes. <em>Mathematical Methods of Operations Research</em> <em>62</em>, 1, 3–22. DOI: <a href="https://doi.org/10.1007/s00186-005-0438-1">10.1007/s00186-005-0438-1</a>.
+</div>
+<div id="ref-Li2006" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Li, L., Walsh, T.J., and Littman, M.L.</span> 2006. Towards a unified theory of state abstraction for <span>MDPs</span>. <em>ISAIM</em>. Available at: <a href="http://anytime.cs.umass.edu/aimath06/proceedings/P21.pdf">http://anytime.cs.umass.edu/aimath06/proceedings/P21.pdf</a>.
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 05 May 2022
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/infinite-horizon">infinite horizon</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/discounted-cost">discounted cost</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/lipschitz-continuity">lipschitz continuity</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/approximation-bounds">approximation bounds</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/state-aggregation">state aggregation</a>.</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
