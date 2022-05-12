@@ -52,8 +52,8 @@ S_n\}$ denote a partition of $\ALPHABET S$ (i.e., $\bigcup_{i=1}^n \ALPHABET
 S_i = \ALPHABET S$ and for any $i \neq j$, $\ALPHABET S_i \cap \ALPHABET S_j =
 \emptyset$). Pick a representative point $\hat s_i \in \ALPHABET S_i$. We can
 think of the "grid points" $\hat {\ALPHABET S} = \{\hat s_1, \dots, \hat
-s_n\}$ as quantization of the state space $\ALPHABET S$. To simplify notation, we
-define quantization function $φ \colon \ALPHABET S \to \hat {\ALPHABET
+s_n\}$ as quantization of the state space $\ALPHABET S$. To simplify the notation, we
+define a quantization function $\phi \colon \ALPHABET S \to \hat {\ALPHABET
  S}$ which maps all points in $\ALPHABET S_i$ to the
  representative element $\hat s_i$. 
 
@@ -71,9 +71,9 @@ the approximate model. Define $W^* \colon \ALPHABET S \to
 extrapolation of $\hat W^*$ and $\hat μ^*$ from $\hat {\ALPHABET S}$ to
 $\ALPHABET S$, i.e.,
 $$
-W^*(s) = \hat W^*(φ(s)) 
+W^*(s) = \hat W^*(\phi(s)) 
 \quad\text{and}\quad
-μ^*(s) = \hat μ^*(φ(s)).
+μ^*(s) = \hat μ^*(\phi(s)).
 $$
 Note that the policy $μ^*$ chooses the same action on all states in a
 quantization cell $\ALPHABET S_i$. 
@@ -81,15 +81,18 @@ quantization cell $\ALPHABET S_i$.
 
 We are interested in two questions:
 
-1. What is the error if $W^*$ is used as an approximation for $V^*$?
-2. What is the error if the policy $μ^*$ is used instead of
-   the optimal policy $π^*$? 
+1. **Error in value approximation:** What is the error if $W^*$ is used as an
+   approximation for $V^*$?
+2. **Error in policy approximation:** What is the error if the policy $μ^*$ is
+   used instead of the optimal policy $π^*$? 
 
+<!--
 We present two methods to bound the two approximation errors. The first method
 bounds the errors in terms of the Lipschitz constant of $V^*$ while the second
 method bounds the errors in terms of the Lipschitz constant of $\hat W^*$.
+-->
 
-# Bounds in terms of Lipschitz constant of $V^*$
+# Bounds on value and policy approximation error
 
 ## Preliminary results
 
@@ -102,7 +105,7 @@ Lemma #lemma:pmf
 
 :   For any $\hat V \colon \hat {\ALPHABET S} \to \reals$, let $V \colon \ALPHABET
     S \to \reals$ be its piecewise constant extrapolation from $\hat
-    {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ φ$). Then, for
+    {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ \phi$). Then, for
     any $\hat s \in \ALPHABET S$ and $a \in \ALPHABET A$, we have
     $$
     \int_{\ALPHABET S} p(s' | s,a) V(s') ds' 
@@ -119,14 +122,14 @@ Lemma #lemma:pmf
 </summary>
 <div>
 Recall that $\{\ALPHABET S_1, \dots, \ALPHABET S_n\}$ is a partition of
-$\ALPHABET S$ and $\ALPHABET S_i = φ^{-1}(\hat s_i)$. Therefore,
+$\ALPHABET S$ and $\ALPHABET S_i = \phi^{-1}(\hat s_i)$. Therefore,
 $$\begin{align*}
 \int_{\ALPHABET S} p(s'|\hat s, a) V(s') ds' 
 &= \sum_{\hat s' \in \hat {\ALPHABET S}} 
-\int_{φ^{-1}(\hat s')} p(s' | \hat s; a) \hat V(φ(s')) ds'
+\int_{\phi^{-1}(\hat s')} p(s' | \hat s; a) \hat V(\phi(s')) ds'
 \\
 &= \sum_{\hat s' \in \hat {\ALPHABET S}} \hat V(\hat s') 
-\int_{φ^{-1}(\hat s')} p(s' | \hat s; a) ds'
+\int_{\phi^{-1}(\hat s')} p(s' | \hat s; a) ds'
 \\
 &= \sum_{\hat s' \in \hat {\ALPHABET S}} \hat V(\hat s') 
 \hat P(\hat s' | \hat s, a).
@@ -142,7 +145,7 @@ Lemma #lemma:one-step
 
 :   For any $\hat V \colon \hat {\ALPHABET S} \to \reals$, let $V \colon \ALPHABET
     S \to \reals$ be its piecewise constant extrapolation from $\hat
-    {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ φ$). Define,
+    {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ \phi$). Define,
     one-step update functions:
     $$\begin{align}
       W(s) &= \min_{a \in \ALPHABET A}\biggl\{
@@ -222,9 +225,9 @@ $s,s' \in \ALPHABET S$
 $$ \bigl| V^*(s) - V^*(s') \bigr| \le \NORM{V^*}_L d_S(s,s'). $$
 This means that for any $s \in \ALPHABET S$, 
 $$\begin{equation}\label{eq:lip}
-\bigl| V(s) - V(φ(s)) \bigr| \le \NORM{V^*}_L D, 
+\bigl| V(s) - V(\phi(s)) \bigr| \le \NORM{V^*}_L D, 
 \end{equation}$$
-where $D = \sup_{s \in \ALPHABET S} d_S(s,φ(s))$ is the largest _radius_ of
+where $D = \sup_{s \in \ALPHABET S} d_S(s,\phi(s))$ is the largest _radius_ of
 the quantization cells. Note that since $\ALPHABET S$ is assumed to be a
 bounded metric space, $D$ is finite. 
 
@@ -245,9 +248,9 @@ Proposition #prop:value
 Consider any $s \in \ALPHABET S$. Then,
 $$\begin{align}
   \bigl| V^*(s) - W^*(s) \bigr| 
-  &\le \bigl| V^*(s) - V^*(φ(s)) \bigr| + \bigl| V^*(φ(s)) - \hat W^*(φ(s)) \bigr|
+  &\le \bigl| V^*(s) - V^*(\phi(s)) \bigr| + \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr|
   \notag \\
-  &\le \NORM{V^*}_L D + \bigl| V^*(φ(s)) - \hat W^*(φ(s)) \bigr|
+  &\le \NORM{V^*}_L D + \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr|
   \label{eq:step-a-1}
 \end{align}$$
 
@@ -257,9 +260,9 @@ $\hat W^* = \hat {\mathcal B} \hat W^*$ and by @lemma:one-step $[\hat {\mathcal 
 \hat W^*](\hat s) = [\mathcal B W^*](\hat s)$. Thus, we can write the second term
 of \\eqref{eq:step-a-1} as follows:
 $$\begin{align*}
-  \bigl| V^*(φ(s)) - \hat W^*(φ(s)) \bigr| 
+  \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr| 
   &=
-  \bigl| [\mathcal B V^*](φ(s)) - [ \mathcal B W^* ](φ(s)) \bigr| 
+  \bigl| [\mathcal B V^*](\phi(s)) - [ \mathcal B W^* ](\phi(s)) \bigr| 
   \\
   &\le γ \NORM{V^* - W^*}_∞.
 \end{align*}$$
@@ -268,6 +271,36 @@ $$\bigl| V^*(s) - W^*(s) \bigr| \le \NORM{V^*}_L D + γ \NORM{V^* - W^*}_∞.$$
 We get the result by supermizing over $s$ and rearranging the terms.
 </div>
 </details>
+
+Note that the result of @prop:value is what is called an "instance-dependent"
+bound: it depends on the Lipschitz constant of the value function $V^*$. As we
+showed in the notes of [Lipschitz MDPs][LP], we can obtain an
+"instance-independent" upper bound on $\NORM{V^*}_L$.
+
+[LP]: ../lipschitz-mdp#thm:Lipschitz-opt
+
+
+In particular, assume that the model $M$ is a $(L_c, L_p)$-Lipschitz MDP. 
+
+Assumpt. #ass:lip
+
+:   * For every $a \in \ALPHABET A$, $c(s, a)$ is $L_c$-Lipschitz in $s$
+    * For every $a \in \ALPHABET A$, $p(\cdot | s, a)$ is $L_p$-Lipschitz
+      in $s$ (with respect to the Kantorovich distance on probability measures). 
+
+Under this assumption, [Theorem 1 of Lipschitz MDPs][LP], implies that
+$\NORM{V^*}_L \le L_c/(1 - γ L_p)$. Thus, we have the following:
+
+::: highlight :::
+
+Corollary #cor:value
+
+:   Under @ass:lip, if $γ L_p < 1$, then
+    $$
+        \NORM{V^* - W^*}_∞ \le \frac{L_c}{(1-γ)(1-γL_p)} D.
+    $$
+
+::: 
 
 ## Bounding the error for policy approximation
 
@@ -281,23 +314,14 @@ $$
 \le \frac{D}{1-γ} [ \NORM{V^*}_L + \NORM{V^{μ^*}}_L ].
 $$
 
-If we assume that the model is Lipschitz, then we can get a bound on
+As in @cor:value, if we assume that the model is Lipschitz, then we can get a bound on
 $\NORM{V^*}_L$ in terms of Lipschitz constants on the cost function and the
 transition dynamics. However, it is difficult to bound $\NORM{V^μ}_L$ because
 that bound will be interms of the Lipschitz constant of the policy $μ^* = \hat
-μ^* \circ φ$. So, we provide an alternative bound on $\NORM{V^{μ^*} - W^*}_∞$
+μ^* \circ \phi$. So, we provide an alternative bound on $\NORM{V^{μ^*} - W^*}_∞$
 in this section.
 
 
-We assume that the model $M$ is a $(L_c, L_p)$-Lipschitz MDP. 
-
-Assumpt. #ass:lip
-
-:   * For every $a \in \ALPHABET A$, $c(\cdot, a)$ is $L_c$-Lipschitz.
-    * For every $a \in \ALPHABET A$, $p(\cdot | s, a)$ is $L_p$-Lipschitz
-      (with respect to the Kantorovich distance on probability measures). 
-
-Under this assumption, we can show the following:
 
 ::: highlight :::
 Proposition #prop:policy
@@ -308,7 +332,7 @@ Proposition #prop:policy
       \frac{1 + γ}{1-γ} \NORM{V^*}_L \biggr]. $$
 
     Furthermore, if $γ L_p < 1$, then from properties of Lipschitz MDPs, we
-    know that $\NORM{V^*}_L \le L_c/(1-γ)(1- γ L_p)$. Thus,
+    know that $\NORM{V^*}_L \le L_c/(1- γ L_p)$. Thus,
     $$\NORM{V^{μ^*} - V^*}_∞ \le 
       \frac{2 D L_c }{ (1-γ)^2 (1-γ L_p) }. $$
 
@@ -319,7 +343,7 @@ Proposition #prop:policy
 #### Proof {-}
 </summary>
 <div>
-Fix a state $s \in \ALPHABET S$. Let $\hat s = φ(s)$ and $a = \hat
+Fix a state $s \in \ALPHABET S$. Let $\hat s = \phi(s)$ and $a = \hat
 μ^*(\hat s) = μ^*(s)$. By construction, $W^*(s) = \hat W^*(\hat s)$. Thus, 
 $$\begin{align*}
 W^*(s) &= \hat W^*(\hat s) = c(\hat s, a) + γ \sum_{\hat s' \in \hat {\ALPHABET S}}
@@ -335,7 +359,80 @@ $$
 Thus,
 $$\begin{align}
 \bigl| V^{μ^*}(s) - W^*(s) \bigr| &\stackrel{(a)}\le
-\bigl| c(s,a) - c(φ(s),a) \bigr| \notag \\
+\bigl| c(s,a) - c(\hat s,a) \bigr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{μ^*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|s,a) V^*(s') ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|\phi(s),a) V^*(s') ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|\phi(s),a) V^{*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|\phi(s),a) W^*(s') ds' \biggr| 
+\label{eq:step-c-1}
+\end{align}$$
+where $(a)$ follows from the triangle inequality. Now, we bound each of the
+terms in \\eqref{eq:step-b-1}. Since $c$ is Lipschitz, we have
+$$\begin{equation} \label{eq:step-c-2}
+\bigl| c(s,a) - c(\hat s,a) \bigr| \le L_c D.
+\end{equation}$$
+Moreover, from triangle inequality, we have
+$$\begin{equation} \label{eq:step-c-3}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) V^{μ^*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|s,a) V^*(s') ds' \biggr| 
+\le \NORM{ V^{μ^*} - V^*}_∞.
+\end{equation}$$
+From the Kantorovich-Rubinstein duality, we have 
+$$\begin{equation} \label{eq:step-c-5}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|\phi(s),a) V^*(s') ds' \biggr| 
+\le \mathcal {W}(p( \cdot | s,a), p(\cdot | \phi(s), a)) \NORM{V^*}_L
+\le L_p D \NORM{V^*}_L.
+\end{equation}$$
+Finally, from triangle inequality and @prop:value, we have
+$$\begin{equation} \label{eq:step-c-6}
+\biggl| \int_{\ALPHABET S} p(s'|\phi(s),a) V^{*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|\phi(s),a) W^*(s') ds' \biggr| 
+\le \NORM{V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L.
+\end{equation}$$
+Substituting \\eqref{eq:step-c-2}--\\eqref{eq:step-c-6} in \\eqref{eq:step-c-1}
+and rearranging, we get
+$$\begin{equation}\label{eq:step-c-7}
+  \NORM{V^{μ^*} - W^*}_∞ \le D \biggl[
+  L_c + γ L_p \NORM{V^*}_L + \frac{γ}{1-γ} \NORM{V^*}_L \biggr]
+  + γ \NORM{V^{μ^*} - V^*}_∞.
+\end{equation}$$
+
+Now, by triangle inequality
+$$\NORM{V^{μ^*} - V^*}_∞ \le \NORM{V^{μ^*} - W^*}_∞ + \NORM{V^* - W^*}_∞
+\le  D \biggl[
+  L_c + γ L_p \NORM{V^*}_L + \frac{1+γ}{1-γ} \NORM{V^*}_L \biggr]
+  + γ \NORM{V^{μ^*} - V^*}.
+$$
+where the last inequality follows from @prop:value and \\eqref{eq:step-c-7}.
+Rearranging the terms proves the first result of the Proposition. The second result follows from simple algebra.
+</div>
+</details>
+
+<details>
+<summary>
+#### Alternative Proof {-}
+</summary>
+<div>
+Fix a state $s \in \ALPHABET S$. Let $\hat s = \phi(s)$ and $a = \hat
+μ^*(\hat s) = μ^*(s)$. By construction, $W^*(s) = \hat W^*(\hat s)$. Thus, 
+$$\begin{align*}
+W^*(s) &= \hat W^*(\hat s) = c(\hat s, a) + γ \sum_{\hat s' \in \hat {\ALPHABET S}}
+\hat P(\hat s' | \hat s, a) \hat W^*(\hat s').
+\\
+&= c(\hat s, a) + γ \int_{\ALPHABET S} p(s' | \hat s, a) W^*(s') ds'.
+\end{align*}$$
+Moreover, 
+$$
+V^{μ^*}(s) = c(s, a) + γ \int_{\ALPHABET S} 
+p(s'|s,a) V^{μ^*}(s') ds'.
+$$
+Thus,
+$$\begin{align}
+\bigl| V^{μ^*}(s) - W^*(s) \bigr| &\stackrel{(a)}\le
+\bigl| c(s,a) - c(\hat s,a) \bigr| \notag \\
 &\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{μ^*}(s') ds' 
                 -  \int_{\ALPHABET S} p(s'|s,a) W^*(s') ds' \biggr| \notag \\
 &\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) W^{*}(s') ds' 
@@ -349,7 +446,7 @@ $$\begin{align}
 where $(a)$ follows from the triangle inequality. Now, we bound each of the
 terms in \\eqref{eq:step-b-1}. Since $c$ is Lipschitz, we have
 $$\begin{equation} \label{eq:step-b-2}
-\bigl| c(s,a) - c(φ(s),a) \bigr| \le L_c D.
+\bigl| c(s,a) - c(\hat s,a) \bigr| \le L_c D.
 \end{equation}$$
 Moreover,
 $$\begin{equation} \label{eq:step-b-3}
@@ -367,7 +464,7 @@ From the Kantorovich-Rubinstein duality, we have
 $$\begin{equation} \label{eq:step-b-5}
 \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
       -  \int_{\ALPHABET S} p(s'|\phi(s),a) V^*(s') ds' \biggr| 
-\le \mathcal {W}(p( \cdot | s,a), p(\cdot | φ(s), a)) \NORM{V^*}_L
+\le \mathcal {W}(p( \cdot | s,a), p(\cdot | \phi(s), a)) \NORM{V^*}_L
 \le L_p D \NORM{V^*}_L.
 \end{equation}$$
 Finally, from @prop:value, we have
@@ -388,6 +485,106 @@ from simple algebra.
 </div>
 </details>
 
-# Bounds in terms of Lipschitz constant of $\hat W^*$
 
-TODO
+<!--{{{ # Bounds in terms of Lipschitz constant of $\hat W^*$
+
+When $γL_p < 1$, the bound in @prop:policy scales as $\mathcal{O}(1/(1-γ)^2)$
+with the discount factor $γ$. In this section, we present a tighter scaling
+with respect to the discount factor. 
+
+## Preliminary results
+
+First we define a metric $d_{\hat{\ALPHABET S}}$ on $\hat {\ALPHABET S}$ as
+follows:
+$$
+d_{\hat {\ALPHABET S}}(\hat s, \hat s') = d_{\ALPHABET S}(\hat s, \hat s'),
+\quad \forall \hat s, \hat s' \in \hat{\ALPHABET S}.
+$$
+
+Then, we have the following.
+
+::: highlight :::
+Lemma #lemma:lip
+
+:   Under @ass:lip, the model $\hat M$ is $(L_c, 2L_p)$-Lipschitz MDP, i.e.,
+
+    * For every $a \in \ALPHABET A$, $\hat c(\hat s, a)$ is $L_c$-Lipschitz in
+      $\hat s$
+    * For every $a \in \ALPHABET A$, $\hat P(\cdot | \hat s, a)$ is $L_p$-Lipschitz
+      in $\hat s$ (with respect to the Kantorovich distance on probability measures). 
+
+:::
+
+#### Proof {-}
+
+For any $a \in \ALPHABET A$ and $\hat s, \hat s' \in \hat {\ALPHABET S}$, we
+have
+$$\begin{align}
+\bigl| \hat c(\hat s, a) - \hat c(\hat s', a) \bigr| 
+&=
+\bigl| c(\hat s, a) - c(\hat s', a) \bigr| 
+\notag \\
+&\stackrel{(a)}\le L_c d_{\ALPHABET S}(\hat s, \hat s')
+\notag \\
+&\stackrel{(b)}\le L_c d_{\hat {\ALPHABET S}}(\hat s, \hat s').
+\label{eq:prop-1}
+\end{align}$$
+where $(a)$ follows from the fact that $c(s,a)$ is $L_c$-Lipschitz in $s$ and
+$(b)$ follows from the definition of $d_{\hat {\ALPHABET S}}$.
+Eq. \\eqref{eq:prop-1} implies that $\hat c(\hat s, a)$ is $L_c$-Lipschitz in
+$\hat s$.
+
+Proof of the second part TBW.
+
+## Bounding the error for value function approximation
+
+#### Proof {-}
+
+Fix a state $s \in \ALPHABET S$. Let $\hat s = \phi(s)$ and $a = \hat
+μ^*(\hat s) = μ^*(s)$. By construction, $W^*(s) = \hat W^*(\hat s)$. Thus, 
+$$\begin{align*}
+W^*(s) &= \hat W^*(\hat s) = c(\hat s, a) + γ \sum_{\hat s' \in \hat {\ALPHABET S}}
+\hat P(\hat s' | \hat s, a) \hat W^*(\hat s').
+\\
+&= c(\hat s, a) + γ \int_{\ALPHABET S} p(s' | \hat s, a) W^*(s') ds'.
+\end{align*}$$
+Moreover, 
+$$
+V^{*}(s) = c(s, a) + γ \int_{\ALPHABET S} 
+p(s'|s,a) V^{*}(s') ds'.
+$$
+Thus,
+$$\begin{align}
+\bigl| V^{*}(s) - W^*(s) \bigr| &\stackrel{(a)}\le
+\bigl| c(s,a) - c(\phi(s),a) \bigr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|s,a) W^*(s') ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) W^{*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|\hat s,a) W^*(s') ds' \biggr|
+\label{eq:prop-value-1}
+\end{align}$$
+Now we bound each term of \\eqref{eq:prop-value-1}. Note that $\bigl| c(s,a) -
+c(\phi(s),a) \bigr|$ can be bound using \\eqref{eq:step-b-2}. Furthermore,
+$$\begin{equation}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|s,a) W^*(s') ds' \biggr| 
+\le \NORM{ V^* - W^* }_{∞}.
+\label{eq:prop-value-2}
+\end{equation}$$
+Moreover, by Kantorovich-Rubinstein duality, we have
+$$\begin{equation}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) W^{*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|\hat s,a) W^*(s') ds' \biggr|
+\le 
+\mathcal{W}(p(\cdot | s, a), \hat p(\cdot | \hat s, a)
+\end{equation}$$
+
+## Bounding the error for policy approximation
+}}}-->
+
+# References {-}
+
+The results on state discretization (or quantization) first appeared in
+@Bertsekas1975. The material here is adapted from @Bertsekas1975 and
+@Hinderer2005. The alternative proof of @prop:policy is from @Kara2021.
+
