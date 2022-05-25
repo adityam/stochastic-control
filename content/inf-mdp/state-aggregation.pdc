@@ -585,7 +585,6 @@ $$\begin{equation}
 # Variations of a theme
 
 $\newcommand\red[1]{{\color{red} #1}}$
-
 In the discussion above, we assumed that the approximate model $(\hat
 {\ALPHABET S}, \ALPHABET A, \hat P, \hat c)$ was defined as
 follows:
@@ -756,7 +755,7 @@ Then, as for @prop:value, we can show the following.
 ::: highlight :::
 Proposition #prop:value-w
 
-:   $$\NORM{ V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L. $$
+:   @prop:value holds for the weighted approximate model as well.
 
 :::
 
@@ -825,10 +824,123 @@ We get the result by supermizing over $s$ and rearranging the terms.
 </div>
 </details>
 
+Note that since @cor:value only relies on the bound on $\NORM{V^*}_L$ it is
+also applicable to the weighted approximate model. 
+
+## Bounding the error for policy approximation
+
+The bound and the proof for policy approximation goes through with very minor
+changes.
+
+::: highlight :::
+Proposition #prop:policy-w
+
+:   @prop:policy holds for the weighted approximate model as well.
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+We will follow the alternative proof of @prop:policy. 
+Fix a state $s \in \ALPHABET S$ and suppose $s \in \hat {\ALPHABET S}_k$. Then
+$\phi(s) = \hat s_k$. Let $a = \hat
+μ^*(\hat s_k) = μ^*(s)$. By construction, $W^*(s) = \hat W^*(\hat s_k)$. Thus, 
+$$\begin{align*}
+W^*(s) &= \hat W^*(\hat s_k) = \hat c(\hat s_k, a) + γ \sum_{\hat s' \in \hat {\ALPHABET S}}
+\hat P(\hat s' | \hat s, a) \hat W^*(\hat s').
+\\
+&= \red{\int_{\hat {\ALPHABET S}_k}}c(\tilde s, a) \red{α(\tilde s) d\tilde s}
++ γ \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET S}_k}}p(s' | \tilde s, a)
+  W^*(s')  \red{α(\tilde s) d\tilde s}ds'.
+\end{align*}$$
+Moreover, 
+$$
+V^{μ^*}(s) = c(s, a) + γ \int_{\ALPHABET S} 
+p(s'|s,a) V^{μ^*}(s') ds'.
+$$
+Thus,
+$$\begin{align}
+\bigl| V^{μ^*}(s) - W^*(s) \bigr| &\stackrel{(a)}\le
+\biggl| c(s,a) - \red{\int_{\hat {\ALPHABET S}_k}}c(\tilde s,a) \red{α(\tilde
+s) d\tilde s}\biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{μ^*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|s,a) W^*(s') ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) W^{*}(s') ds' 
+                -  \int_{\ALPHABET S} p(s'|s,a) V^*(s') ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+                -  \int_{\ALPHABET S}\red{\int_{\hat {\ALPHABET S}_k}}
+                   p(s'|\tilde s,a) V^*(s') \red{α(\tilde s) d\tilde s}ds' \biggr| \notag \\
+&\quad + γ \biggl| \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
+S}_k}}p(s'|\tilde s,a) V^{*}(s')\red{α(\tilde s) d\tilde s} ds' 
+                -  \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
+                   S}_k}}p(s'|\tilde s,a) W^*(s')\red{α(\tilde s) d\tilde s} ds' \biggr| 
+\label{eq:step-b-1-w}
+\end{align}$$
+where $(a)$ follows from the triangle inequality. Now, we bound each of the
+terms in \\eqref{eq:step-b-1-w}. Since $c$ is Lipschitz and the weight
+function $α$ satisfies \\eqref{eq:property}, we have
+$$\begin{equation} \label{eq:step-b-2-w}
+\biggl| c(s,a) - \red{\int_{\hat {\ALPHABET S}_k}}c(\tilde s,a) \red{α(\tilde
+s) d\tilde s}\biggr| \le 
+\red{\int_{\hat {\ALPHABET S}_k}} \bigl| c(s,a) - c(\tilde s,a) \bigr| \red{α(\tilde s) d\tilde s}\le L_c D.
+\end{equation}$$
+The next two terms can be bound as before. Fron triangle inequality, we have
+$$\begin{equation} \label{eq:step-b-3-w}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) V^{μ^*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|s,a) W^*(s') ds' \biggr| 
+\le \NORM{ V^{μ^*} - W^*}_∞.
+\end{equation}$$
+From @prop:value-w we have
+$$\begin{equation} \label{eq:step-b-4-w}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) W^{*}(s') ds' 
+      -  \int_{\ALPHABET S} p(s'|s,a) V^*(s') ds' \biggr| 
+\le \NORM{ W^* - V^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L
+\end{equation}$$
+From the Kantorovich-Rubinstein duality, we have 
+$$\begin{align}
+\hskip 2em & \hskip -2em
+\biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+       -  \int_{\ALPHABET S}\red{\int_{\hat {\ALPHABET S}_k}}
+          p(s'|\tilde s,a) V^*(s') \red{α(\tilde s) d\tilde s}ds' \biggr|
+       \notag \\
+&\le 
+\red{\int_{\hat {\ALPHABET S}_k}}
+\biggl| \int_{\ALPHABET S} p(s'|s,a) V^{*}(s') ds' 
+       -  \int_{\ALPHABET S} p(s'|\tilde s,a) V^*(s') ds' \biggr| \red{α(\tilde s) d\tilde s}
+       \notag \\
+&\le \mathcal {W}(p( \cdot | s,a), p(\cdot | \phi(s), a)) \NORM{V^*}_L
+       \notag \\
+&\le L_p D \NORM{V^*}_L. \label{eq:step-b-5-w}
+\end{align}$$
+Finally, from @prop:value-w, we have
+$$\begin{equation} \label{eq:step-b-6-w}
+\biggl| \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
+S}_k}}p(s'|\tilde s,a) V^{*}(s')\red{α(\tilde s) d\tilde s} ds' 
+                -  \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
+                   S}_k}}p(s'|\tilde s,a) W^*(s')\red{α(\tilde s) d\tilde s} ds' \biggr| 
+\le \NORM{V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L.
+\end{equation}$$
+Substituting \\eqref{eq:step-b-2}--\\eqref{eq:step-b-6} in \\eqref{eq:step-b-1}
+and rearranging, we get
+$$\begin{equation}
+  \NORM{V^{μ^*} - W^*}_∞ \le \frac{D}{1-γ} \biggl[
+  L_c + γ L_p \NORM{V^*}_L + \frac{2γ}{1-γ} \NORM{V^*}_L \biggr]
+\end{equation}$$
+
+This proves the first result of the Proposition. The second result follows
+from simple algebra.
+</div>
+</details>
 
 # References {-}
 
 The results on state discretization (or quantization) first appeared in
 @Bertsekas1975. The material here is adapted from @Bertsekas1975 and
 @Hinderer2005. The alternative proof of @prop:policy is from @Kara2021.
+
+The generalization to a weighted model is based on @Li2006. Similar model is
+also considered in @Kara2021.
 
