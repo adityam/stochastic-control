@@ -108,10 +108,10 @@ Lemma #lemma:pmf
     {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ \phi$). Then, for
     any $\hat s \in \ALPHABET S$ and $a \in \ALPHABET A$, we have
     $$
-    \int_{\ALPHABET S} p(s' | s,a) V(s') ds' 
+    \int_{\ALPHABET S} p(s' | \hat s,a) V(s') ds' 
     =
     \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | \hat s, a) 
-    \hat V(\hat s).
+    \hat V(\hat s').
     $$
 
 :::
@@ -173,7 +173,7 @@ optimal policy for \\eqref{eq:one-step-b}. Fix a state $\hat s \in \hat
 {\ALPHABET S}$ and let $a = π(\hat s)$ and $\hat a = \hat π(\hat s)$. Then,
 $$\begin{align*}
 W(\hat s) &= c(\hat s, a) + γ \int_{\ALPHABET S}
-  \hat P(\hat s' | s, a) \hat V(s') ds'
+  p( s' | \hat s, a) V(s') ds'
 \\
 &\stackrel{(a)}= \hat c(\hat s, a) + γ
 \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s'|\hat s, a) \hat V(\hat
@@ -190,7 +190,7 @@ $$\begin{align*}
 s')
 \\
 &\stackrel{(b)}= c(\hat s, \hat a) + γ \int_{\ALPHABET S}
-  \hat P(\hat s' | s, \hat a) \hat V(s') ds'
+  p( s' | \hat s, \hat a) \hat V(s') ds'
 \\
 &\ge W(\hat s),
 \end{align*}$$
@@ -581,6 +581,250 @@ $$\begin{equation}
 
 ## Bounding the error for policy approximation
 }}}-->
+
+# Variations of a theme
+
+$\newcommand\red[1]{{\color{red} #1}}$
+
+In the discussion above, we assumed that the approximate model $(\hat
+{\ALPHABET S}, \ALPHABET A, \hat P, \hat c)$ was defined as
+follows:
+$$ \hat c(\hat s, a) = c(s, a) 
+ \quad\text{and}\quad
+ \hat P(\hat s' | \hat s, a) = p(\phi^{-1}(\hat s') | \hat s, a).
+$$
+
+A slightly general method of defining the approximate model is as follows.
+Consider a weight function $α \colon \ALPHABET S \to [0,1]$ which satisfies
+the following property:
+$$\begin{equation}\label{eq:property}
+ \int_{\phi^{-1}(\hat s)} α(s) ds = 1, 
+ \quad \forall \hat s \in \hat {\ALPHABET S}.
+\end{equation}$$
+For example, such a weight function can be defined via an arbitrary measure
+$λ$ on $\ALPHABET S$ by viewing $α(s)$ as the conditional probability
+distribution
+$$ α(s) = \dfrac{ λ(s) }{ λ(\phi^{-1}(\phi(s))) }, $$
+which satisfies \\eqref{eq:property} by construction.
+
+Now given a weight function which satisfies \\eqref{eq:property}, we can
+define an approximate model $(\hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat
+c)$ as follows: for all $\hat s \in \hat {\ALPHABET S}$ and $a \in \ALPHABET
+A$, 
+
+$$\hat c(\hat s, a) = \int_{\phi^{-1}(\hat s)} c(s,a) α(s) ds
+\quad\text{and}\quad
+\hat P(\hat s' | \hat s, a) = \int_{\phi^{-1}(s)} p(\phi^{-1}(\hat s') | s, a) α(s) ds.
+$$
+Note that if we take $α(s) = \sum_{\hat s \in \hat {\ALPHABET S}}δ(s - \hat
+s)$, then we recover the approximation function used in the previous section.
+
+Using a weighed approximate model does not fundamentally change any of the
+results. Here we rederive all the previous results for the weighted
+approximate model. 
+
+## Preliminary results
+
+As before, we start by some preliminary results to build the intuition behind the
+approximation bounds. We start with a property of the discretized transition matrix.
+
+::: highlight :::
+
+Lemma #lemma:pmf-w
+
+:   For any $\hat V \colon \hat {\ALPHABET S} \to \reals$, let $V \colon \ALPHABET
+    S \to \reals$ be its piecewise constant extrapolation from $\hat
+    {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ \phi$). Then, for
+    any $\hat s_k \in \ALPHABET S$ and $a \in \ALPHABET A$, we have
+    $$
+    \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET S}_k}} p(s' | \hat s_k,a) V(s') \red{α(s) ds} ds' 
+    =
+    \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | \hat s_k, a) 
+    \hat V(\hat s').
+    $$
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Recall that $\{\ALPHABET S_1, \dots, \ALPHABET S_n\}$ is a partition of
+$\ALPHABET S$ and $\ALPHABET S_i = \phi^{-1}(\hat s_i)$. Therefore,
+$$\begin{align*}
+\int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET S}_k}} p(s' | s,a) V(s') \red{α(s) ds} ds' 
+&=
+\sum_{\hat s'_i \in \hat {\ALPHABET S}} \int_{\hat {\ALPHABET S}_i}
+\biggl[ \red{\int_{\hat{\ALPHABET S}_k}} p(s' | \hat s,a) \red{α(s)
+ds}\biggr] V(s') ds' 
+\\
+&=
+\sum_{\hat s' \in \hat {\ALPHABET S}}\hat V(\hat s'_i)  \biggl[\int_{\hat
+{\ALPHABET S}_i}
+ \red{\int_{\hat{\ALPHABET S}_k}} p(s' | s,a) \red{α(s)
+ds}ds' \biggr] 
+\\
+&= \sum_{\hat s' \in \hat {\ALPHABET S}} \hat V(\hat s') 
+\hat P(\hat s' | \hat s, a).
+\end{align*}$$
+</div>
+</details>
+
+As before, an immediate consequence of @lemma:pmf-w is the following:
+
+::: highlight :::
+
+Lemma #lemma:one-step-w
+
+:   For any $\hat V \colon \hat {\ALPHABET S} \to \reals$, let $V \colon \ALPHABET
+    S \to \reals$ be its piecewise constant extrapolation from $\hat
+    {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ \phi$). As in
+    @lemma:one-step, define the 
+    one-step update functions:
+    $$\begin{align}
+      W(s) &= \min_{a \in \ALPHABET A}\biggl\{
+      c(s,a) + γ \int_{\ALPHABET S} p(s' | s,a) V(s') ds' \biggr\}, 
+      \label{eq:one-step-a-w}\\ 
+      \hat W(\hat s) &= \min_{a \in \ALPHABET  A} \biggl\{
+      \hat c(\hat s,a) + γ \sum_{\hat s \in \ALPHABET S} \hat P(\hat s' | s,a) \hat
+      V(\hat s') \biggr\}.
+      \label{eq:one-step-b-w}
+    \end{align}$$
+    Then,
+    $$\begin{equation}\label{eq:one-step-w}
+      \red{\int_{\phi^{-1}(\hat s)}} W(s) \red{α(s) ds} = \hat W(\hat s), \quad \forall \hat s \in \hat {\ALPHABET S}.
+    \end{equation}$$
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Let $π$ be the optimal policy for \\eqref{eq:one-step-a-w} and $\hat π$ be the
+optimal policy for \\eqref{eq:one-step-b-w}. Fix a state $\hat s_k \in \hat
+{\ALPHABET S}$ and let $a = π(\hat s_k)$ and $\hat a = \hat π(\hat s_k)$. Then,
+$$\begin{align*}
+\red{\int_{\hat {\ALPHABET S}_k}} W(s) \red{α(s) ds} &= 
+\red{\int_{\hat {\ALPHABET S}_k}} c(s, a) \red{α(s) ds} + γ \int_{\ALPHABET S}
+\red{\int_{\hat {\ALPHABET S}_k}} p( s' | s, a)  V(s') \red{α(s) ds} ds'
+\\
+&\stackrel{(a)}= \hat c(\hat s_k, a) + γ
+\sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s'|\hat s_k, a) \hat V(\hat
+s')
+\\
+&\ge \hat W(\hat s_k),
+\end{align*}$$
+where $(a)$ follows from definition of $\hat c$ and @lemma:pmf-w.
+
+Similarly, we have 
+$$\begin{align*}
+\hat W(\hat s_k) &= \hat c(\hat s_k, \hat a) + γ
+\sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s'|\hat s_k, \hat a) \hat V(\hat
+s')
+\\
+&\stackrel{(b)}= \red{\int_{\hat {\ALPHABET S}_k}} c(s, \hat a) \red{α(s) ds}
++ γ \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET S}_k} }
+  P( s' | s, \hat a)  V(s') \red{α(s) ds} ds'
+\\
+&\ge \red{\int_{\hat {\ALPHABET S}_k}} W(s) \red{α(s) ds},
+\end{align*}$$
+where $(b)$ follows from definition of $\hat c$ and @lemma:pmf-w.
+
+Thus, $\int_{\hat {\ALPHABET S}_k} W(s) α(s) ds = \hat W(\hat s_k)$.
+</div>
+</details>
+
+The interpretations of @lemma:pmf-w and @lemma:one-step-w are similar to those
+of @lemma:pmf and @lemma:one-step. The one step Bellman update of any
+cost-to-go function $\hat V \colon \ALPHABET S \to \reals$ in the approximate
+model is the same as one-step Bellman update of its piecewise
+constant extrapolation $V$ _averaged_ using the weight function $α$. 
+
+## Bounding the error for value function approximation
+
+The intuition of bounding the value function approximation is the same as
+before. We assume that $\ALPHABET S$ is a bounded metric space with metric
+$d_{\ALPHABET S}$ and the orignal MDP satisfies regularity conditions (such as
+@ass:lip) such that the value function $V^*$ is Lipschitz with Lipschitz
+constant $\NORM{V^*}_L$. 
+
+Then, as for @prop:value, we can show the following.
+
+::: highlight :::
+Proposition #prop:value-w
+
+:   $$\NORM{ V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L. $$
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Consider any $s \in \ALPHABET S$. Define the piecewise constant function
+$$
+  \bar V(s) = \int_{\phi^{-1}( \phi(s) )} V^*(s) α(s) ds.
+$$
+For the ease of notation, let $\hat {\ALPHABET S}_k$ denote the code cell
+where $s$ lies. Then, we can write $\bar V(s) = \int_{\hat{\ALPHABET S}_k}
+V^*(s) α(s) ds$ for all $s \in \hat {\ALPHABET S}_k$.  Note that, by Lipschitz
+continuity of $V^*$, we have for any $s \in \hat {\ALPHABET S}_k$,
+$$\begin{align}
+\bigl| V^*(s) - \bar V(s) \bigr| 
+&= \biggl| \int_{\hat {\ALPHABET S}_k} V^*(s) α(s') ds' - \int_{\hat {\ALPHABET S}_k}
+V^*(s') α(s') ds' \biggr| 
+\notag \\
+&\le \int_{\hat {\ALPHABET S}_k} \bigl| V^*(s) - V^*(s') \bigr| α(s') ds' 
+\notag \\
+&\stackrel{(a)}{\le} \int_{\hat {\ALPHABET S}_k} \NORM{V^*}_L D α(s') ds' 
+\notag \\
+&= \NORM{V^*}_L D
+\label{eq:lip-w}
+\end{align}$$
+where $(a)$ follows from \\eqref{eq:lip}. Note that since the code cell $\hat
+{\ALPHABET S}_k$ was arbitrary, \\eqref{eq:lip-w} holds for all $s \in
+\ALPHABET S$. Thus, \\eqref{eq:lip-w} may be viewed as the analog of
+\\eqref{eq:lip} for the weighted model.
+
+Now consider,
+$$\begin{align}
+  \bigl| V^*(s) - W^*(s) \bigr| 
+  &\le \bigl| V^*(s) - \bar V(s) \bigr| + \bigl| \bar V(s) - W^*(s) \bigr|
+  \notag \\
+  &\le \NORM{V^*}_L D + \bigl| \bar V(s) -  W^*(s) \bigr|
+  \label{eq:step-a-1-w}
+\end{align}$$
+where the first term follows from \\eqref{eq:lip-w}. 
+
+Now we bound the second term. 
+For the ease of notation let $\mathcal B$ and $\hat {\mathcal B}$ denote the
+Bellman operators for model $M$ and $\hat M$, respectively. Without loss of
+generality, we assume that $s \in \hat {\ALPHABET S}_k$. Then, 
+$$ \bar V(s) = \int_{\hat {\ALPHABET S}_k} V^*(s) α(s) ds
+= \int_{\hat {\ALPHABET S}_k} [ \mathcal B V^*](s) α(s) ds.$$
+Furthermore,
+$$ W^*(s) = \hat W^*(\hat s_k) = [\hat {\mathcal B} \hat W^*](\hat s_k)
+= \int_{\hat {\ALPHABET S}_k} [\mathcal B W^* ](s) α(s) ds,$$
+where the last equality follows from @lemma:one-step-w. 
+
+Combining the above two equations, we have
+$$\begin{align}
+\bigl| \bar V(s) - W^*(s) \bigr| &\le
+\int_{\hat {\ALPHABET S}_k} \bigl| [\mathcal B V^*](s) - [\mathcal B W^*](s)
+\bigr| α(s) ds \notag \\
+&\le γ \NORM{V^* - W^*}_∞ \label{eq:step-a-2-w}
+\end{align}$$
+
+Substituting \\eqref{eq:step-a-2-w} back in \\eqref{eq:step-a-1-w}, we get
+$$\bigl| V^*(s) - W^*(s) \bigr| \le \NORM{V^*}_L D + γ \NORM{V^* - W^*}_∞.$$
+We get the result by supermizing over $s$ and rearranging the terms.
+</div>
+</details>
+
 
 # References {-}
 
