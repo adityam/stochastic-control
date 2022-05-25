@@ -433,8 +433,7 @@ $$\begin{equation}
 ## Bounding the error for policy approximation
 }}}-->
 <h1 data-number="3" id="variations-of-a-theme"><span class="header-section-number">3</span> Variations of a theme</h1>
-<p><span class="math inline">\(\newcommand\red[1]{{\color{red} #1}}\)</span></p>
-<p>In the discussion above, we assumed that the approximate model <span class="math inline">\((\hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c)\)</span> was defined as follows: <span class="math display">\[ \hat c(\hat s, a) = c(s, a) 
+<p><span class="math inline">\(\newcommand\red[1]{{\color{red} #1}}\)</span> In the discussion above, we assumed that the approximate model <span class="math inline">\((\hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c)\)</span> was defined as follows: <span class="math display">\[ \hat c(\hat s, a) = c(s, a) 
  \quad\text{and}\quad
  \hat P(\hat s&#39; | \hat s, a) = p(\phi^{-1}(\hat s&#39;) | \hat s, a).
 \]</span></p>
@@ -543,7 +542,7 @@ s&#39;)
 <dl>
 <dt><span id="prop:3"></span><span id="prop:value-w" class="pandoc-numbering-text prop"><strong>Proposition 3</strong></span></dt>
 <dd>
-<p><span class="math display">\[\NORM{ V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L. \]</span></p>
+<p><a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a> holds for the weighted approximate model as well.</p>
 </dd>
 </dl>
 </div>
@@ -585,8 +584,90 @@ V^*(s&#39;) α(s&#39;) ds&#39; \biggr|
 <p>Substituting \eqref{eq:step-a-2-w} back in \eqref{eq:step-a-1-w}, we get <span class="math display">\[\bigl| V^*(s) - W^*(s) \bigr| \le \NORM{V^*}_L D + γ \NORM{V^* - W^*}_∞.\]</span> We get the result by supermizing over <span class="math inline">\(s\)</span> and rearranging the terms.</p>
 </div>
 </details>
+<p>Note that since <a href="#cor:value" title="Corollary 1"><span class="pandoc-numbering-link cor">Corollary 1</span></a> only relies on the bound on <span class="math inline">\(\NORM{V^*}_L\)</span> it is also applicable to the weighted approximate model.</p>
+<h2 data-number="3.3" id="bounding-the-error-for-policy-approximation-1"><span class="header-section-number">3.3</span> Bounding the error for policy approximation</h2>
+<p>The bound and the proof for policy approximation goes through with very minor changes.</p>
+<div class="highlight">
+<dl>
+<dt><span id="prop:4"></span><span id="prop:policy-w" class="pandoc-numbering-text prop"><strong>Proposition 4</strong></span></dt>
+<dd>
+<p><a href="#prop:policy" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a> holds for the weighted approximate model as well.</p>
+</dd>
+</dl>
+</div>
+<details>
+<summary>
+<h4 class="unnumbered" id="proof-7">Proof</h4>
+</summary>
+<div>
+<p>We will follow the alternative proof of <a href="#prop:policy" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a>. Fix a state <span class="math inline">\(s \in \ALPHABET S\)</span> and suppose <span class="math inline">\(s \in \hat {\ALPHABET S}_k\)</span>. Then <span class="math inline">\(\phi(s) = \hat s_k\)</span>. Let <span class="math inline">\(a = \hat μ^*(\hat s_k) = μ^*(s)\)</span>. By construction, <span class="math inline">\(W^*(s) = \hat W^*(\hat s_k)\)</span>. Thus, <span class="math display">\[\begin{align*}
+W^*(s) &amp;= \hat W^*(\hat s_k) = \hat c(\hat s_k, a) + γ \sum_{\hat s&#39; \in \hat {\ALPHABET S}}
+\hat P(\hat s&#39; | \hat s, a) \hat W^*(\hat s&#39;).
+\\
+&amp;= \red{\int_{\hat {\ALPHABET S}_k}}c(\tilde s, a) \red{α(\tilde s) d\tilde s}
++ γ \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET S}_k}}p(s&#39; | \tilde s, a)
+  W^*(s&#39;)  \red{α(\tilde s) d\tilde s}ds&#39;.
+\end{align*}\]</span> Moreover, <span class="math display">\[
+V^{μ^*}(s) = c(s, a) + γ \int_{\ALPHABET S} 
+p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39;.
+\]</span> Thus, <span class="math display">\[\begin{align}
+\bigl| V^{μ^*}(s) - W^*(s) \bigr| &amp;\stackrel{(a)}\le
+\biggl| c(s,a) - \red{\int_{\hat {\ALPHABET S}_k}}c(\tilde s,a) \red{α(\tilde
+s) d\tilde s}\biggr| \notag \\
+&amp;\quad + γ \biggl| \int_{\ALPHABET S} p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39; 
+                -  \int_{\ALPHABET S} p(s&#39;|s,a) W^*(s&#39;) ds&#39; \biggr| \notag \\
+&amp;\quad + γ \biggl| \int_{\ALPHABET S} p(s&#39;|s,a) W^{*}(s&#39;) ds&#39; 
+                -  \int_{\ALPHABET S} p(s&#39;|s,a) V^*(s&#39;) ds&#39; \biggr| \notag \\
+&amp;\quad + γ \biggl| \int_{\ALPHABET S} p(s&#39;|s,a) V^{*}(s&#39;) ds&#39; 
+                -  \int_{\ALPHABET S}\red{\int_{\hat {\ALPHABET S}_k}}
+                   p(s&#39;|\tilde s,a) V^*(s&#39;) \red{α(\tilde s) d\tilde s}ds&#39; \biggr| \notag \\
+&amp;\quad + γ \biggl| \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
+S}_k}}p(s&#39;|\tilde s,a) V^{*}(s&#39;)\red{α(\tilde s) d\tilde s} ds&#39; 
+                -  \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
+                   S}_k}}p(s&#39;|\tilde s,a) W^*(s&#39;)\red{α(\tilde s) d\tilde s} ds&#39; \biggr| 
+\label{eq:step-b-1-w}
+\end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the triangle inequality. Now, we bound each of the terms in \eqref{eq:step-b-1-w}. Since <span class="math inline">\(c\)</span> is Lipschitz and the weight function <span class="math inline">\(α\)</span> satisfies \eqref{eq:property}, we have <span class="math display">\[\begin{equation} \label{eq:step-b-2-w}
+\biggl| c(s,a) - \red{\int_{\hat {\ALPHABET S}_k}}c(\tilde s,a) \red{α(\tilde
+s) d\tilde s}\biggr| \le 
+\red{\int_{\hat {\ALPHABET S}_k}} \bigl| c(s,a) - c(\tilde s,a) \bigr| \red{α(\tilde s) d\tilde s}\le L_c D.
+\end{equation}\]</span> The next two terms can be bound as before. Fron triangle inequality, we have <span class="math display">\[\begin{equation} \label{eq:step-b-3-w}
+\biggl| \int_{\ALPHABET S} p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39; 
+      -  \int_{\ALPHABET S} p(s&#39;|s,a) W^*(s&#39;) ds&#39; \biggr| 
+\le \NORM{ V^{μ^*} - W^*}_∞.
+\end{equation}\]</span> From <a href="#prop:value-w" title="Proposition 3"><span class="pandoc-numbering-link prop">Proposition 3</span></a> we have <span class="math display">\[\begin{equation} \label{eq:step-b-4-w}
+\biggl| \int_{\ALPHABET S} p(s&#39;|s,a) W^{*}(s&#39;) ds&#39; 
+      -  \int_{\ALPHABET S} p(s&#39;|s,a) V^*(s&#39;) ds&#39; \biggr| 
+\le \NORM{ W^* - V^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L
+\end{equation}\]</span> From the Kantorovich-Rubinstein duality, we have <span class="math display">\[\begin{align}
+\hskip 2em &amp; \hskip -2em
+\biggl| \int_{\ALPHABET S} p(s&#39;|s,a) V^{*}(s&#39;) ds&#39; 
+       -  \int_{\ALPHABET S}\red{\int_{\hat {\ALPHABET S}_k}}
+          p(s&#39;|\tilde s,a) V^*(s&#39;) \red{α(\tilde s) d\tilde s}ds&#39; \biggr|
+       \notag \\
+&amp;\le 
+\red{\int_{\hat {\ALPHABET S}_k}}
+\biggl| \int_{\ALPHABET S} p(s&#39;|s,a) V^{*}(s&#39;) ds&#39; 
+       -  \int_{\ALPHABET S} p(s&#39;|\tilde s,a) V^*(s&#39;) ds&#39; \biggr| \red{α(\tilde s) d\tilde s}
+       \notag \\
+&amp;\le \mathcal {W}(p( \cdot | s,a), p(\cdot | \phi(s), a)) \NORM{V^*}_L
+       \notag \\
+&amp;\le L_p D \NORM{V^*}_L. \label{eq:step-b-5-w}
+\end{align}\]</span> Finally, from <a href="#prop:value-w" title="Proposition 3"><span class="pandoc-numbering-link prop">Proposition 3</span></a>, we have <span class="math display">\[\begin{equation} \label{eq:step-b-6-w}
+\biggl| \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
+S}_k}}p(s&#39;|\tilde s,a) V^{*}(s&#39;)\red{α(\tilde s) d\tilde s} ds&#39; 
+                -  \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
+                   S}_k}}p(s&#39;|\tilde s,a) W^*(s&#39;)\red{α(\tilde s) d\tilde s} ds&#39; \biggr| 
+\le \NORM{V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L.
+\end{equation}\]</span> Substituting \eqref{eq:step-b-2}–\eqref{eq:step-b-6} in \eqref{eq:step-b-1} and rearranging, we get <span class="math display">\[\begin{equation}
+  \NORM{V^{μ^*} - W^*}_∞ \le \frac{D}{1-γ} \biggl[
+  L_c + γ L_p \NORM{V^*}_L + \frac{2γ}{1-γ} \NORM{V^*}_L \biggr]
+\end{equation}\]</span></p>
+<p>This proves the first result of the Proposition. The second result follows from simple algebra.</p>
+</div>
+</details>
 <h1 class="unnumbered" id="references">References</h1>
 <p>The results on state discretization (or quantization) first appeared in <span class="citation" data-cites="Bertsekas1975">Bertsekas (<a href="#ref-Bertsekas1975" role="doc-biblioref">1975</a>)</span>. The material here is adapted from <span class="citation" data-cites="Bertsekas1975">Bertsekas (<a href="#ref-Bertsekas1975" role="doc-biblioref">1975</a>)</span> and <span class="citation" data-cites="Hinderer2005">Hinderer (<a href="#ref-Hinderer2005" role="doc-biblioref">2005</a>)</span>. The alternative proof of <a href="#prop:policy" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a> is from <span class="citation" data-cites="Kara2021">Kara et al. (<a href="#ref-Kara2021" role="doc-biblioref">2021</a>)</span>.</p>
+<p>The generalization to a weighted model is based on <span class="citation" data-cites="Li2006">Li et al. (<a href="#ref-Li2006" role="doc-biblioref">2006</a>)</span>. Similar model is also considered in <span class="citation" data-cites="Kara2021">Kara et al. (<a href="#ref-Kara2021" role="doc-biblioref">2021</a>)</span>.</p>
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-Bertsekas1975" class="csl-entry" role="doc-biblioentry">
 <span class="smallcaps">Bertsekas, D.</span> 1975. Convergence of discretization procedures in dynamic programming. <em>IEEE Transactions on Automatic Control</em> <em>20</em>, 3, 415–419. DOI: <a href="https://doi.org/10.1109/TAC.1975.1100984">10.1109/TAC.1975.1100984</a>.
@@ -597,13 +678,16 @@ V^*(s&#39;) α(s&#39;) ds&#39; \biggr|
 <div id="ref-Kara2021" class="csl-entry" role="doc-biblioentry">
 <span class="smallcaps">Kara, A.D., Saldi, N., and Yüksel, S.</span> 2021. Q-learning for MDPs with general spaces: Convergence and near optimality via quantization under weak continuity. Available at: <a href="https://arxiv.org/abs/2111.06781v1">https://arxiv.org/abs/2111.06781v1</a>.
 </div>
+<div id="ref-Li2006" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Li, L., Walsh, T.J., and Littman, M.L.</span> 2006. Towards a unified theory of state abstraction for <span>MDPs</span>. <em>ISAIM</em>. Available at: <a href="http://anytime.cs.umass.edu/aimath06/proceedings/P21.pdf">http://anytime.cs.umass.edu/aimath06/proceedings/P21.pdf</a>.
+</div>
 </div>
 
 
 <p class="categories">
 This entry 
 
- was last updated on 12 May 2022
+ was last updated on 25 May 2022
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">
