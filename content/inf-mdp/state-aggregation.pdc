@@ -215,28 +215,18 @@ Note that these equivalences are valid only at quantization points $\hat s \in
 
 ## Bounding the error for value function approximation
 
-So far, we haven't used any regularity property of the model. @lemma:pmf and
-@lemma:one-step depend only on the construction of the quantized model. 
+We will present two bounds on the value function approximation. For the first
+bound, define 
+$$
+  H_{\max} = \sup_{s \in \ALPHABET S}| V^*(s) - V^*(\phi(s)) |.
+$$
 
-Now suppose $\ALPHABET S$ is a bounded metric space with metric $d_S$. Suppose the
-original MDP $M$ satisfies some regularity properties such that the value
-function $V^*$ is Lipschitz with Lipschitz constant $\NORM{V^*}_L$, i.e., for any
-$s,s' \in \ALPHABET S$
-$$ \bigl| V^*(s) - V^*(s') \bigr| \le \NORM{V^*}_L d_S(s,s'). $$
-This means that for any $s \in \ALPHABET S$, 
-$$\begin{equation}\label{eq:lip}
-\bigl| V(s) - V(\phi(s)) \bigr| \le \NORM{V^*}_L D, 
-\end{equation}$$
-where $D = \sup_{s \in \ALPHABET S} d_S(s,\phi(s))$ is the largest _radius_ of
-the quantization cells. Note that since $\ALPHABET S$ is assumed to be a
-bounded metric space, $D$ is finite. 
-
-Using this idea, we can answer our first question. 
+Then, we can bound the error for value function approximation as follows.
 
 ::: highlight :::
-Proposition #prop:value
+Proposition #prop:value0
 
-:   $$\NORM{ V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L. $$
+:   $$\NORM{ V^* - W^*}_∞ \le \frac{H_{\max}}{1-γ} . $$
 
 :::
 
@@ -250,7 +240,7 @@ $$\begin{align}
   \bigl| V^*(s) - W^*(s) \bigr| 
   &\le \bigl| V^*(s) - V^*(\phi(s)) \bigr| + \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr|
   \notag \\
-  &\le \NORM{V^*}_L D + \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr|
+  &\le H_{\max} + \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr|
   \label{eq:step-a-1}
 \end{align}$$
 
@@ -267,20 +257,48 @@ $$\begin{align*}
   &\le γ \NORM{V^* - W^*}_∞.
 \end{align*}$$
 Substituting back in \\eqref{eq:step-a-1}, we get
-$$\bigl| V^*(s) - W^*(s) \bigr| \le \NORM{V^*}_L D + γ \NORM{V^* - W^*}_∞.$$
+$$\bigl| V^*(s) - W^*(s) \bigr| \le H_{\max} + γ \NORM{V^* - W^*}_∞.$$
 We get the result by supermizing over $s$ and rearranging the terms.
 </div>
 </details>
 
-Note that the result of @prop:value is what is called an "instance-dependent"
-bound: it depends on the Lipschitz constant of the value function $V^*$. As we
-showed in the notes of [Lipschitz MDPs][LP], we can obtain an
+Note that the result of @prop:value0 is what is called an "instance-dependent"
+bound: it depends on the value function $V^*$. In some situations, we want an
+'instance-indendent" bound, which does not depend the value function. 
+
+As a first step to obtain an instance-indendent bound, we assume that $\ALPHABET S$ is a bounded metric space with metric $d_S$. Suppose the
+original MDP $M$ satisfies some regularity properties such that the value
+function $V^*$ is Lipschitz with Lipschitz constant $\NORM{V^*}_L$, i.e., for any
+$s,s' \in \ALPHABET S$
+$$ \bigl| V^*(s) - V^*(s') \bigr| \le \NORM{V^*}_L d_S(s,s'). $$
+This means that for any $s \in \ALPHABET S$, 
+$$\begin{equation}\label{eq:lip}
+\bigl| V(s) - V(\phi(s)) \bigr| \le \NORM{V^*}_L D, 
+\end{equation}$$
+where $D = \sup_{s \in \ALPHABET S} d_S(s,\phi(s))$ is the largest _radius_ of
+the quantization cells. Note that since $\ALPHABET S$ is assumed to be a
+bounded metric space, $D$ is finite. An immediate implication of
+\\eqref{eq:lip} is that
+$$
+  H_{\max} \le \NORM{V^*}_L D.
+$$
+
+Substituting this in @prop:value0, we get
+
+::: highlight :::
+Proposition #prop:value
+
+:   $$\NORM{ V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L . $$
+
+:::
+
+The advantage of the bound in @prop:value is that we can obtain an
 "instance-independent" upper bound on $\NORM{V^*}_L$.
+In particular, assume that the model $M$ is a $(L_c, L_p)$-Lipschitz MDP. 
+
 
 [LP]: ../lipschitz-mdp#thm:Lipschitz-opt
 
-
-In particular, assume that the model $M$ is a $(L_c, L_p)$-Lipschitz MDP. 
 
 Assumpt. #ass:lip
 

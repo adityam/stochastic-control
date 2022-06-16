@@ -160,16 +160,15 @@ s&#39;)
 <p><a href="#lemma:pmf" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a> shows that for any quantization point <span class="math inline">\(\hat s\)</span> and action <span class="math inline">\(a\)</span>, computing the expectation of the future cost to go function <span class="math inline">\(\hat V \colon \hat {\ALPHABET S} \to \reals\)</span> with respect to the measure <span class="math inline">\(\hat P\)</span> is the same as computing the expectation of the piecewise linear extrapolation <span class="math inline">\(V\)</span> of <span class="math inline">\(\hat V\)</span> with respect to the original measure <span class="math inline">\(p\)</span>. <a href="#lemma:one-step" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a> shows that the one step Bellman update of a function <span class="math inline">\(\hat V\)</span> coincides with the one-step Bellman update of its piecewise constant extrapolation <span class="math inline">\(V\)</span> at quantization points <span class="math inline">\(\hat s \in \hat {\ALPHABET S}\)</span>.</p>
 <p>Note that these equivalences are valid only at quantization points <span class="math inline">\(\hat s \in \hat {\ALPHABET S}\)</span> and not for other points in <span class="math inline">\(\ALPHABET S\)</span>.</p>
 <h2 data-number="2.2" id="bounding-the-error-for-value-function-approximation"><span class="header-section-number">2.2</span> Bounding the error for value function approximation</h2>
-<p>So far, we haven’t used any regularity property of the model. <a href="#lemma:pmf" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a> and <a href="#lemma:one-step" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a> depend only on the construction of the quantized model.</p>
-<p>Now suppose <span class="math inline">\(\ALPHABET S\)</span> is a bounded metric space with metric <span class="math inline">\(d_S\)</span>. Suppose the original MDP <span class="math inline">\(M\)</span> satisfies some regularity properties such that the value function <span class="math inline">\(V^*\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(\NORM{V^*}_L\)</span>, i.e., for any <span class="math inline">\(s,s&#39; \in \ALPHABET S\)</span> <span class="math display">\[ \bigl| V^*(s) - V^*(s&#39;) \bigr| \le \NORM{V^*}_L d_S(s,s&#39;). \]</span> This means that for any <span class="math inline">\(s \in \ALPHABET S\)</span>, <span class="math display">\[\begin{equation}\label{eq:lip}
-\bigl| V(s) - V(\phi(s)) \bigr| \le \NORM{V^*}_L D, 
-\end{equation}\]</span> where <span class="math inline">\(D = \sup_{s \in \ALPHABET S} d_S(s,\phi(s))\)</span> is the largest <em>radius</em> of the quantization cells. Note that since <span class="math inline">\(\ALPHABET S\)</span> is assumed to be a bounded metric space, <span class="math inline">\(D\)</span> is finite.</p>
-<p>Using this idea, we can answer our first question.</p>
+<p>We will present two bounds on the value function approximation. For the first bound, define <span class="math display">\[
+  H_{\max} = \sup_{s \in \ALPHABET S}| V^*(s) - V^*(\phi(s)) |.
+\]</span></p>
+<p>Then, we can bound the error for value function approximation as follows.</p>
 <div class="highlight">
 <dl>
-<dt><span id="prop:1"></span><span id="prop:value" class="pandoc-numbering-text prop"><strong>Proposition 1</strong></span></dt>
+<dt><span id="prop:1"></span><span id="prop:value0" class="pandoc-numbering-text prop"><strong>Proposition 1</strong></span></dt>
 <dd>
-<p><span class="math display">\[\NORM{ V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L. \]</span></p>
+<p><span class="math display">\[\NORM{ V^* - W^*}_∞ \le \frac{H_{\max}}{1-γ} . \]</span></p>
 </dd>
 </dl>
 </div>
@@ -182,7 +181,7 @@ s&#39;)
   \bigl| V^*(s) - W^*(s) \bigr| 
   &amp;\le \bigl| V^*(s) - V^*(\phi(s)) \bigr| + \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr|
   \notag \\
-  &amp;\le \NORM{V^*}_L D + \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr|
+  &amp;\le H_{\max} + \bigl| V^*(\phi(s)) - \hat W^*(\phi(s)) \bigr|
   \label{eq:step-a-1}
 \end{align}\]</span></p>
 <p>For the ease of notation let <span class="math inline">\(\mathcal B\)</span> and <span class="math inline">\(\hat {\mathcal B}\)</span> denote the Bellman operators for model <span class="math inline">\(M\)</span> and <span class="math inline">\(\hat M\)</span>, respectively. Now, we know that <span class="math inline">\(\hat W^* = \hat {\mathcal B} \hat W^*\)</span> and by <a href="#lemma:one-step" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a> <span class="math inline">\([\hat {\mathcal B} \hat W^*](\hat s) = [\mathcal B W^*](\hat s)\)</span>. Thus, we can write the second term of \eqref{eq:step-a-1} as follows: <span class="math display">\[\begin{align*}
@@ -191,11 +190,25 @@ s&#39;)
   \bigl| [\mathcal B V^*](\phi(s)) - [ \mathcal B W^* ](\phi(s)) \bigr| 
   \\
   &amp;\le γ \NORM{V^* - W^*}_∞.
-\end{align*}\]</span> Substituting back in \eqref{eq:step-a-1}, we get <span class="math display">\[\bigl| V^*(s) - W^*(s) \bigr| \le \NORM{V^*}_L D + γ \NORM{V^* - W^*}_∞.\]</span> We get the result by supermizing over <span class="math inline">\(s\)</span> and rearranging the terms.</p>
+\end{align*}\]</span> Substituting back in \eqref{eq:step-a-1}, we get <span class="math display">\[\bigl| V^*(s) - W^*(s) \bigr| \le H_{\max} + γ \NORM{V^* - W^*}_∞.\]</span> We get the result by supermizing over <span class="math inline">\(s\)</span> and rearranging the terms.</p>
 </div>
 </details>
-<p>Note that the result of <a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a> is what is called an “instance-dependent” bound: it depends on the Lipschitz constant of the value function <span class="math inline">\(V^*\)</span>. As we showed in the notes of <a href="../lipschitz-mdp#thm:Lipschitz-opt">Lipschitz MDPs</a>, we can obtain an “instance-independent” upper bound on <span class="math inline">\(\NORM{V^*}_L\)</span>.</p>
-<p>In particular, assume that the model <span class="math inline">\(M\)</span> is a <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz MDP.</p>
+<p>Note that the result of <a href="#prop:value0" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a> is what is called an “instance-dependent” bound: it depends on the value function <span class="math inline">\(V^*\)</span>. In some situations, we want an ’instance-indendent” bound, which does not depend the value function.</p>
+<p>As a first step to obtain an instance-indendent bound, we assume that <span class="math inline">\(\ALPHABET S\)</span> is a bounded metric space with metric <span class="math inline">\(d_S\)</span>. Suppose the original MDP <span class="math inline">\(M\)</span> satisfies some regularity properties such that the value function <span class="math inline">\(V^*\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(\NORM{V^*}_L\)</span>, i.e., for any <span class="math inline">\(s,s&#39; \in \ALPHABET S\)</span> <span class="math display">\[ \bigl| V^*(s) - V^*(s&#39;) \bigr| \le \NORM{V^*}_L d_S(s,s&#39;). \]</span> This means that for any <span class="math inline">\(s \in \ALPHABET S\)</span>, <span class="math display">\[\begin{equation}\label{eq:lip}
+\bigl| V(s) - V(\phi(s)) \bigr| \le \NORM{V^*}_L D, 
+\end{equation}\]</span> where <span class="math inline">\(D = \sup_{s \in \ALPHABET S} d_S(s,\phi(s))\)</span> is the largest <em>radius</em> of the quantization cells. Note that since <span class="math inline">\(\ALPHABET S\)</span> is assumed to be a bounded metric space, <span class="math inline">\(D\)</span> is finite. An immediate implication of \eqref{eq:lip} is that <span class="math display">\[
+  H_{\max} \le \NORM{V^*}_L D.
+\]</span></p>
+<p>Substituting this in <a href="#prop:value0" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>, we get</p>
+<div class="highlight">
+<dl>
+<dt><span id="prop:2"></span><span id="prop:value" class="pandoc-numbering-text prop"><strong>Proposition 2</strong></span></dt>
+<dd>
+<p><span class="math display">\[\NORM{ V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L . \]</span></p>
+</dd>
+</dl>
+</div>
+<p>The advantage of the bound in <a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a> is that we can obtain an “instance-independent” upper bound on <span class="math inline">\(\NORM{V^*}_L\)</span>. In particular, assume that the model <span class="math inline">\(M\)</span> is a <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz MDP.</p>
 <dl>
 <dt><span id="ass:1"></span><span id="ass:lip" class="pandoc-numbering-text ass"><strong>Assumpt. 1</strong></span></dt>
 <dd>
@@ -217,16 +230,16 @@ s&#39;)
 </dl>
 </div>
 <h2 data-number="2.3" id="bounding-the-error-for-policy-approximation"><span class="header-section-number">2.3</span> Bounding the error for policy approximation</h2>
-<p>Using the same idea as <a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>, it is possible to show that <span class="math display">\[
+<p>Using the same idea as <a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a>, it is possible to show that <span class="math display">\[
 \NORM{V^{μ^*} - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^{μ^*}}_L.
-\]</span> Combining this with <a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>, we get <span class="math display">\[
+\]</span> Combining this with <a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a>, we get <span class="math display">\[
 \NORM{V^{μ^*} - V^*}_∞ \le \NORM{V^{μ^*} - W^*}_∞ + \NORM{V^* - W^*}_∞
 \le \frac{D}{1-γ} [ \NORM{V^*}_L + \NORM{V^{μ^*}}_L ].
 \]</span></p>
 <p>As in <a href="#cor:value" title="Corollary 1"><span class="pandoc-numbering-link cor">Corollary 1</span></a>, if we assume that the model is Lipschitz, then we can get a bound on <span class="math inline">\(\NORM{V^*}_L\)</span> in terms of Lipschitz constants on the cost function and the transition dynamics. However, it is difficult to bound <span class="math inline">\(\NORM{V^μ}_L\)</span> because that bound will be interms of the Lipschitz constant of the policy <span class="math inline">\(μ^* = \hat μ^* \circ \phi\)</span>. So, we provide an alternative bound on <span class="math inline">\(\NORM{V^{μ^*} - W^*}_∞\)</span> in this section.</p>
 <div class="highlight">
 <dl>
-<dt><span id="prop:2"></span><span id="prop:policy" class="pandoc-numbering-text prop"><strong>Proposition 2</strong></span></dt>
+<dt><span id="prop:3"></span><span id="prop:policy" class="pandoc-numbering-text prop"><strong>Proposition 3</strong></span></dt>
 <dd>
 <p>Under <a href="#ass:lip" title="Assumpt. 1"><span class="pandoc-numbering-link ass">Assumpt. 1</span></a>, we have <span class="math display">\[\NORM{V^{μ^*} - V^*}_∞ \le 
   \frac{D}{1-γ} \biggl[ L_c + γ L_p \NORM{V^*}_L + 
@@ -270,7 +283,7 @@ p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39;.
       -  \int_{\ALPHABET S} p(s&#39;|\phi(s),a) V^*(s&#39;) ds&#39; \biggr| 
 \le \mathcal {W}(p( \cdot | s,a), p(\cdot | \phi(s), a)) \NORM{V^*}_L
 \le L_p D \NORM{V^*}_L.
-\end{equation}\]</span> Finally, from triangle inequality and <a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>, we have <span class="math display">\[\begin{equation} \label{eq:step-c-6}
+\end{equation}\]</span> Finally, from triangle inequality and <a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a>, we have <span class="math display">\[\begin{equation} \label{eq:step-c-6}
 \biggl| \int_{\ALPHABET S} p(s&#39;|\phi(s),a) V^{*}(s&#39;) ds&#39; 
       -  \int_{\ALPHABET S} p(s&#39;|\phi(s),a) W^*(s&#39;) ds&#39; \biggr| 
 \le \NORM{V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L.
@@ -283,7 +296,7 @@ p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39;.
 \le  D \biggl[
   L_c + γ L_p \NORM{V^*}_L + \frac{1+γ}{1-γ} \NORM{V^*}_L \biggr]
   + γ \NORM{V^{μ^*} - V^*}.
-\]</span> where the last inequality follows from <a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a> and \eqref{eq:step-c-7}. Rearranging the terms proves the first result of the Proposition. The second result follows from simple algebra.</p>
+\]</span> where the last inequality follows from <a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a> and \eqref{eq:step-c-7}. Rearranging the terms proves the first result of the Proposition. The second result follows from simple algebra.</p>
 </div>
 </details>
 <details>
@@ -317,7 +330,7 @@ p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39;.
 \biggl| \int_{\ALPHABET S} p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39; 
       -  \int_{\ALPHABET S} p(s&#39;|s,a) W^*(s&#39;) ds&#39; \biggr| 
 \le \NORM{ V^{μ^*} - W^*}_∞.
-\end{equation}\]</span> From <a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a> we have <span class="math display">\[\begin{equation} \label{eq:step-b-4}
+\end{equation}\]</span> From <a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a> we have <span class="math display">\[\begin{equation} \label{eq:step-b-4}
 \biggl| \int_{\ALPHABET S} p(s&#39;|s,a) W^{*}(s&#39;) ds&#39; 
       -  \int_{\ALPHABET S} p(s&#39;|s,a) V^*(s&#39;) ds&#39; \biggr| 
 \le \NORM{ W^* - V^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L
@@ -326,7 +339,7 @@ p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39;.
       -  \int_{\ALPHABET S} p(s&#39;|\phi(s),a) V^*(s&#39;) ds&#39; \biggr| 
 \le \mathcal {W}(p( \cdot | s,a), p(\cdot | \phi(s), a)) \NORM{V^*}_L
 \le L_p D \NORM{V^*}_L.
-\end{equation}\]</span> Finally, from <a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>, we have <span class="math display">\[\begin{equation} \label{eq:step-b-6}
+\end{equation}\]</span> Finally, from <a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a>, we have <span class="math display">\[\begin{equation} \label{eq:step-b-6}
 \biggl| \int_{\ALPHABET S} p(s&#39;|\phi(s),a) V^{*}(s&#39;) ds&#39; 
       -  \int_{\ALPHABET S} p(s&#39;|\phi(s),a) W^*(s&#39;) ds&#39; \biggr| 
 \le \NORM{V^* - W^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L.
@@ -537,12 +550,12 @@ s&#39;)
 <p>The interpretations of <a href="#lemma:pmf-w" title="Lemma 3"><span class="pandoc-numbering-link lemma">Lemma 3</span></a> and <a href="#lemma:one-step-w" title="Lemma 4"><span class="pandoc-numbering-link lemma">Lemma 4</span></a> are similar to those of <a href="#lemma:pmf" title="Lemma 1"><span class="pandoc-numbering-link lemma">Lemma 1</span></a> and <a href="#lemma:one-step" title="Lemma 2"><span class="pandoc-numbering-link lemma">Lemma 2</span></a>. The one step Bellman update of any cost-to-go function <span class="math inline">\(\hat V \colon \ALPHABET S \to \reals\)</span> in the approximate model is the same as one-step Bellman update of its piecewise constant extrapolation <span class="math inline">\(V\)</span> <em>averaged</em> using the weight function <span class="math inline">\(α\)</span>.</p>
 <h2 data-number="3.2" id="bounding-the-error-for-value-function-approximation-1"><span class="header-section-number">3.2</span> Bounding the error for value function approximation</h2>
 <p>The intuition of bounding the value function approximation is the same as before. We assume that <span class="math inline">\(\ALPHABET S\)</span> is a bounded metric space with metric <span class="math inline">\(d_{\ALPHABET S}\)</span> and the orignal MDP satisfies regularity conditions (such as <a href="#ass:lip" title="Assumpt. 1"><span class="pandoc-numbering-link ass">Assumpt. 1</span></a>) such that the value function <span class="math inline">\(V^*\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(\NORM{V^*}_L\)</span>.</p>
-<p>Then, as for <a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a>, we can show the following.</p>
+<p>Then, as for <a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a>, we can show the following.</p>
 <div class="highlight">
 <dl>
-<dt><span id="prop:3"></span><span id="prop:value-w" class="pandoc-numbering-text prop"><strong>Proposition 3</strong></span></dt>
+<dt><span id="prop:4"></span><span id="prop:value-w" class="pandoc-numbering-text prop"><strong>Proposition 4</strong></span></dt>
 <dd>
-<p><a href="#prop:value" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a> holds for the weighted approximate model as well.</p>
+<p><a href="#prop:value" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a> holds for the weighted approximate model as well.</p>
 </dd>
 </dl>
 </div>
@@ -589,9 +602,9 @@ V^*(s&#39;) α(s&#39;) ds&#39; \biggr|
 <p>The bound and the proof for policy approximation goes through with very minor changes.</p>
 <div class="highlight">
 <dl>
-<dt><span id="prop:4"></span><span id="prop:policy-w" class="pandoc-numbering-text prop"><strong>Proposition 4</strong></span></dt>
+<dt><span id="prop:5"></span><span id="prop:policy-w" class="pandoc-numbering-text prop"><strong>Proposition 5</strong></span></dt>
 <dd>
-<p><a href="#prop:policy" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a> holds for the weighted approximate model as well.</p>
+<p><a href="#prop:policy" title="Proposition 3"><span class="pandoc-numbering-link prop">Proposition 3</span></a> holds for the weighted approximate model as well.</p>
 </dd>
 </dl>
 </div>
@@ -600,7 +613,7 @@ V^*(s&#39;) α(s&#39;) ds&#39; \biggr|
 <h4 class="unnumbered" id="proof-7">Proof</h4>
 </summary>
 <div>
-<p>We will follow the alternative proof of <a href="#prop:policy" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a>. Fix a state <span class="math inline">\(s \in \ALPHABET S\)</span> and suppose <span class="math inline">\(s \in \hat {\ALPHABET S}_k\)</span>. Then <span class="math inline">\(\phi(s) = \hat s_k\)</span>. Let <span class="math inline">\(a = \hat μ^*(\hat s_k) = μ^*(s)\)</span>. By construction, <span class="math inline">\(W^*(s) = \hat W^*(\hat s_k)\)</span>. Thus, <span class="math display">\[\begin{align*}
+<p>We will follow the alternative proof of <a href="#prop:policy" title="Proposition 3"><span class="pandoc-numbering-link prop">Proposition 3</span></a>. Fix a state <span class="math inline">\(s \in \ALPHABET S\)</span> and suppose <span class="math inline">\(s \in \hat {\ALPHABET S}_k\)</span>. Then <span class="math inline">\(\phi(s) = \hat s_k\)</span>. Let <span class="math inline">\(a = \hat μ^*(\hat s_k) = μ^*(s)\)</span>. By construction, <span class="math inline">\(W^*(s) = \hat W^*(\hat s_k)\)</span>. Thus, <span class="math display">\[\begin{align*}
 W^*(s) &amp;= \hat W^*(\hat s_k) = \hat c(\hat s_k, a) + γ \sum_{\hat s&#39; \in \hat {\ALPHABET S}}
 \hat P(\hat s&#39; | \hat s, a) \hat W^*(\hat s&#39;).
 \\
@@ -634,7 +647,7 @@ s) d\tilde s}\biggr| \le
 \biggl| \int_{\ALPHABET S} p(s&#39;|s,a) V^{μ^*}(s&#39;) ds&#39; 
       -  \int_{\ALPHABET S} p(s&#39;|s,a) W^*(s&#39;) ds&#39; \biggr| 
 \le \NORM{ V^{μ^*} - W^*}_∞.
-\end{equation}\]</span> From <a href="#prop:value-w" title="Proposition 3"><span class="pandoc-numbering-link prop">Proposition 3</span></a> we have <span class="math display">\[\begin{equation} \label{eq:step-b-4-w}
+\end{equation}\]</span> From <a href="#prop:value-w" title="Proposition 4"><span class="pandoc-numbering-link prop">Proposition 4</span></a> we have <span class="math display">\[\begin{equation} \label{eq:step-b-4-w}
 \biggl| \int_{\ALPHABET S} p(s&#39;|s,a) W^{*}(s&#39;) ds&#39; 
       -  \int_{\ALPHABET S} p(s&#39;|s,a) V^*(s&#39;) ds&#39; \biggr| 
 \le \NORM{ W^* - V^*}_∞ \le \frac{D}{1-γ} \NORM{V^*}_L
@@ -652,7 +665,7 @@ s) d\tilde s}\biggr| \le
 &amp;\le \mathcal {W}(p( \cdot | s,a), p(\cdot | \phi(s), a)) \NORM{V^*}_L
        \notag \\
 &amp;\le L_p D \NORM{V^*}_L. \label{eq:step-b-5-w}
-\end{align}\]</span> Finally, from <a href="#prop:value-w" title="Proposition 3"><span class="pandoc-numbering-link prop">Proposition 3</span></a>, we have <span class="math display">\[\begin{equation} \label{eq:step-b-6-w}
+\end{align}\]</span> Finally, from <a href="#prop:value-w" title="Proposition 4"><span class="pandoc-numbering-link prop">Proposition 4</span></a>, we have <span class="math display">\[\begin{equation} \label{eq:step-b-6-w}
 \biggl| \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
 S}_k}}p(s&#39;|\tilde s,a) V^{*}(s&#39;)\red{α(\tilde s) d\tilde s} ds&#39; 
                 -  \int_{\ALPHABET S} \red{\int_{\hat {\ALPHABET
@@ -666,7 +679,7 @@ S}_k}}p(s&#39;|\tilde s,a) V^{*}(s&#39;)\red{α(\tilde s) d\tilde s} ds&#39;
 </div>
 </details>
 <h1 class="unnumbered" id="references">References</h1>
-<p>The results on state discretization (or quantization) first appeared in <span class="citation" data-cites="Bertsekas1975">Bertsekas (<a href="#ref-Bertsekas1975" role="doc-biblioref">1975</a>)</span>. The material here is adapted from <span class="citation" data-cites="Bertsekas1975">Bertsekas (<a href="#ref-Bertsekas1975" role="doc-biblioref">1975</a>)</span> and <span class="citation" data-cites="Hinderer2005">Hinderer (<a href="#ref-Hinderer2005" role="doc-biblioref">2005</a>)</span>. The alternative proof of <a href="#prop:policy" title="Proposition 2"><span class="pandoc-numbering-link prop">Proposition 2</span></a> is from <span class="citation" data-cites="Kara2021">Kara et al. (<a href="#ref-Kara2021" role="doc-biblioref">2021</a>)</span>.</p>
+<p>The results on state discretization (or quantization) first appeared in <span class="citation" data-cites="Bertsekas1975">Bertsekas (<a href="#ref-Bertsekas1975" role="doc-biblioref">1975</a>)</span>. The material here is adapted from <span class="citation" data-cites="Bertsekas1975">Bertsekas (<a href="#ref-Bertsekas1975" role="doc-biblioref">1975</a>)</span> and <span class="citation" data-cites="Hinderer2005">Hinderer (<a href="#ref-Hinderer2005" role="doc-biblioref">2005</a>)</span>. The alternative proof of <a href="#prop:policy" title="Proposition 3"><span class="pandoc-numbering-link prop">Proposition 3</span></a> is from <span class="citation" data-cites="Kara2021">Kara et al. (<a href="#ref-Kara2021" role="doc-biblioref">2021</a>)</span>.</p>
 <p>The generalization to a weighted model is based on <span class="citation" data-cites="Li2006">Li et al. (<a href="#ref-Li2006" role="doc-biblioref">2006</a>)</span>. Similar model is also considered in <span class="citation" data-cites="Kara2021">Kara et al. (<a href="#ref-Kara2021" role="doc-biblioref">2021</a>)</span>.</p>
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-Bertsekas1975" class="csl-entry" role="doc-biblioentry">
