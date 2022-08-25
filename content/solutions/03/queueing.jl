@@ -1,75 +1,52 @@
-# State spaces
+using Distributions, OffsetArrays
+
+# Parameters
 n, m  = 8, 3
-X = 1:n+1
-U = 1:m+1
+λ = 0.5
 
-# Transition probability
-q = 0.6
-p = [0.0,0.25,0.5,0.8]
+μ = [0.2, 0.5, 0.8]
+q = [1, 3, 8]
 
-P = [ zeros(n+1,n+1) for u in U ]
-
-# We are using 1-indexed arrays, so need to be careful with the indices
-for u in U
-    @views Pu = P[u]
-    for x in X
-        if x == 1
-            Pu[x,x]   = 1 - q
-            Pu[x,x+1] = q
-        elseif x == n+1
-            Pu[x,x-1] = (1-q)*p[u]
-            Pu[x,x  ] = 1 - (1-q)*p[u]
-        else
-            Pu[x,x-1] = (1-q)*p[u]
-            Pu[x,x  ] = (1-q)*(1-p[u]) + q*p[u]
-            Pu[x,x+1] = q*(1-p[u])
-        end
-    end
-end
-
-P_concat = vcat(P...)
-
-# Costs
-R = 6 
 h = 1
-c = [0, 1, 4, 12]
+R = 10
+B = 15
 
-r = zeros(n+1,m+1)
-for u in U, x in X
-    if x == 1
-        r[x,u] = -c[u]
-    else
-        r[x,u] = p[u]*R - h*x - c[u]
-    end
-end
+# State spaces
+S = 0:n
+A = 1:m
+W = 0:B
+Z = 0:1
+
+# Dynamics
+f(s,z,w) = min( max(s-z, 0) + w, n)
+
+# Arrival probability
+Pw(w) = pdf(Poisson(λ),w)
+
+# Departure probability
+Pz(z,s,a) = (s == 0) ? convert(Int, z==0) : pdf(Bernoulli(μ[a]),z)
+
+# Cost
+c(s,z,a) = h*s + q[a] - R*z
 
 # Dynamic programming
+T = 50
 
-T = 100
-
-v = [ zeros(n+1)        for t in 1:T+1] 
-g = [ zeros(Int, n+1)   for t in 1:T]
+V = [ OffsetArray(zeros(length(S)), S)               for t in 1:T+1] 
+Q = [ OffsetArray(zeros(length(S),length(A)), S,A)   for t in 1:T]
+π = [ OffsetArray(zeros(Int, length(S)), S)          for t in 1:T]
 
 for t in T:-1:1
-    Q = r + reshape(P_concat * v[t+1], n+1, m+1)
-    for x in X 
-        idx = argmax(Q[x,:])
-        v[t][x] = Q[x, idx]
-        g[t][x] = idx - 1 # To revert back to natural indices
+    @views Qt = Q[t]
+    for s in S 
+        for a in A
+          Qt[s, a] = sum(Pw(w)*Pz(z,s,a)*( c(s,z,a) + V[t+1][f(s,z,w)] ) for w in W, z in Z)
+        end
+        idx = argmin(Qt[s,:])
+        V[t][s] = Qt[s, idx]
+        π[t][s] = idx 
     end
 end
 
-using PyPlot
-
-step(0:n, hcat(v[1], v[50], v[75], v[95]), where=:mid)
-legend(["v[1]", "v[50]", "v[75]", "v[95]"], loc="center left", bbox_to_anchor=(1,0.5)) 
-xlabel("State")
-title("Value function for different times")
-savefig("queueing.png", bbox_inches=:tight)
-
-
-@info "Optimal policy" [g[1], g[50], g[75], g[95]]
-
-
-
-
+display(hcat(V[1], V[5], V[10], V[25]))
+display(hcat(π[1], π[5], π[10], π[25]))
