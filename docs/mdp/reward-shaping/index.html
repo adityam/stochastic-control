@@ -48,72 +48,77 @@
 
 <div class="h1-title">Theory: Reward Shaping</div>
 
-<p>What are the conditions under which two MDPs which have the same dynamics but different cost functions have the same optimal policy? This is an important question in reinforcement learning (where one often <em>shapes</em> the reward function to speed up learning) and inverse reinforcement learning (where one learns the reward function from the behavior of an expert). The following result provides a complete answer to this question.</p>
-<p>Let <span class="math inline">\(M^1\)</span> and <span class="math inline">\(M^2\)</span> denote two MDPs on the same state space <span class="math inline">\(\ALPHABET S\)</span> and action space <span class="math inline">\(\ALPHABET A\)</span>. Both MDPs have the same dynamics <span class="math inline">\(f = (f^1, \dots, f_T)\)</span>, same distribution on the noise <span class="math inline">\(P_W\)</span>, but different cost functions <span class="math inline">\(c^1 = (c^1_1, \dots, c^1_T)\)</span> and <span class="math inline">\(c^2 = (c^2_1, \dots, c^2_T)\)</span>. We assume that for <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, the per-step cost is a function of the current state, current action, and next state (see <a href="../mdp-functional#cost-depends-on-next-state">cost depending on next state</a>) and for <span class="math inline">\(t = T\)</span>, the per-step cost function is just a function of the current state. Let <span class="math inline">\(π^1 = (π^1_1, \dots, π^1_T)\)</span> and <span class="math inline">\(π^2 = (π^2_1, \dots, π^2_T)\)</span> denote the optimal policy corresponding to <span class="math inline">\(M^1\)</span> and <span class="math inline">\(M^2\)</span>, respectively.</p>
+<p>What are the conditions under which two MDPs which have the same dynamics but different cost functions have the same optimal policy? This is an important question in reinforcement learning (where one often <em>shapes</em> the reward function to speed up learning) and inverse reinforcement learning (where one learns the reward function from the behavior of an expert). The following result provides a complete answer to this question. These results are typically established for inifinte horizon models. However, in my opinion, it is conceptually simpler to start with the finite horizon model.</p>
+<p>Let <span class="math inline">\(M^1\)</span> and <span class="math inline">\(M^2\)</span> denote two MDPs on the same state space <span class="math inline">\(\ALPHABET S\)</span> and action space <span class="math inline">\(\ALPHABET A\)</span>. Both MDPs have the same dynamics <span class="math inline">\(P = (P_1, \dots, P_T)\)</span>, but different cost functions <span class="math inline">\(c^1 = (c^1_1, \dots, c^1_T)\)</span> and <span class="math inline">\(c^2 = (c^2_1, \dots, c^2_T)\)</span>. We assume that for <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, the per-step cost is a function of the current state, current action, and next state (see <a href="../mdp-functional#cost-depends-on-next-state">cost depending on next state</a>)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> and for <span class="math inline">\(t = T\)</span>, the per-step cost function is just a function of the current state.</p>
 <div class="highlight">
 <dl>
 <dt><span id="thm:1"></span><span id="thm:reward-shaping" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
 <dd>
-<p>The policy <span class="math inline">\(π^1\)</span> is equal to the policy <span class="math inline">\(π^2\)</span> for every choice of transition function <span class="math inline">\(f\)</span> and probability distribution <span class="math inline">\(P_W\)</span> if and only if there exists a sequence of functions <span class="math inline">\(\{Φ_t \colon \ALPHABET S \to \reals\}_{t \ge 1}\)</span>, which are called <em>potential functions</em>, such that:</p>
+<p>Suppose the cost functions in MDPs <span class="math inline">\(M^1\)</span> and <span class="math inline">\(M^2\)</span> are related as follows:</p>
 <ol type="1">
 <li><p>For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ c^2_T(s) = c^1_T(s) - Φ_T(s).  \]</span></p></li>
 <li><p>For <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>, <span class="math display">\[ c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) +  Φ_{t+1}(s_{+}) - Φ_t(s). \]</span></p></li>
 </ol>
+<p>Then, for any policy <span class="math inline">\(π\)</span>, <span class="math display">\[\begin{equation}\label{eq:result}
+    Q^{\pi,2}(s,a) = Q^{\pi,1}(s,a) - Φ_t(s)
+    \quad\text{and}\quad
+    V^{\pi,2}(s) = V^{\pi,1}(s) - Φ_t(s).
+\end{equation}\]</span></p>
 </dd>
 </dl>
 </div>
 <dl>
-<dt>Remark</dt>
+<dt><span id="rem:1"></span><span id="rem:sign" class="pandoc-numbering-text rem"><strong>Remark 1</strong></span></dt>
 <dd>
-<ol type="1">
-<li><p>The sign of the potential function is irrelevant. So, we could also have written <span class="math display">\[ c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) +  Φ_t(s) - Φ_{t+1}(s_{+}). \]</span></p></li>
-<li><p>The result naturally extends to infinite horizon expected cost model (and is typically stated for such a model). In the infinite horizon case, the potential function must be time-invariant and condition 2 needs to be replaced by <span class="math display">\[ c^2(s,a,s_{+}) = c^1(s,a,s_{+}) + γ Φ(s_{+}) - Φ(s). \]</span></p></li>
-</ol>
+<p>The sign of the potential function is irrelevant. So, we could also have written <span class="math display">\[ c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) +  Φ_t(s) - Φ_{t+1}(s_{+}) \]</span> and argued that <span class="math display">\[  V^{\pi,2}(s) = V^{\pi,1}(s) + Φ_t(s).\]</span></p>
 </dd>
 </dl>
 <details>
 <summary>
-<h4 class="unnumbered" id="proof-sufficiency">Proof (sufficiency)</h4>
+<h4 class="unnumbered" id="proof">Proof</h4>
 </summary>
 <div>
-<p>Suppose conditions 1 and 2 in the statement of the theorem hold. That is, <span class="math display">\[c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) - Φ_t(s) + Φ_{t+1}(s_{+})
-\quad\text{and}\quad
-c^2_T(s) = c^1_T(s) - Φ_T(s). \]</span></p>
-<p>Then, we claim that <span class="math display">\[\begin{equation} \label{eq:claim}
-Q^2_t(s,a) = Q^1_t(s,a) - Φ_t(s)
-\quad
-V^2_t(s) = V^1_t(s) - Φ_t(s).
-\end{equation}\]</span></p>
 <p>We prove the result by backward induction. First note that <span class="math display">\[
-  V^2_T(s) = c^2_T(s) = c^1_T(s) - Φ_T(s) = V^1_T(s) - Φ_T(s).
-\]</span> This forms the basis of induction. Now suppose that \eqref{eq:claim} holds for time <span class="math inline">\(t+1\)</span>. Now consider <span class="math display">\[\begin{align*}
-Q^2_t(s,a) &amp;= \EXP[ c^2_t(s,a,S_{t+1}) + V^2_{t+1}(S_{t+1}) \mid S_t = s, A_t = a ]
+  V^{\pi,2}_T(s) = c^2_T(s) = c^1_T(s) - Φ_T(s) = V^{\pi,1}_T(s) - Φ_T(s).
+\]</span> This forms the basis of induction. Now suppose that \eqref{eq:result} holds for time <span class="math inline">\(t+1\)</span>. Now consider <span class="math display">\[\begin{align*}
+Q^{\pi,2}_t(s,a) &amp;= \EXP[ c^2_t(s,a,S_{t+1}) + V^{\pi,2}_{t+1}(S_{t+1}) \mid S_t
+= s, a ]
 \\
 &amp;\stackrel{(a)}= \EXP[ c^1_t(s,a,S_{t+1}) - Φ_t(s) + Φ_{t+1}(S_{t+1}) \\
-&amp;\qquad + V^1_{t+1}(S_{t+1}) - Φ_{t+1}(S_{t+1}) \mid S_t = s, A_t = a ] \\
+&amp;\qquad + V^{\pi,1}_{t+1}(S_{t+1}) - Φ_{t+1}(S_{t+1}) \mid S_t = s, A_t = a ] \\
 &amp;= \EXP[ c^1_t(s,a,S_{t+1}) - Φ_t(s) + V^1_{t+1}(S_{t+1}) \mid
 S_t = s, A_t = a] \\
-&amp;= Q^1_t(s,a) - Φ_t(s),
+&amp;= Q^{\pi,1}_t(s,a) - Φ_t(s),
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from property 2 and the induction hypothesis.</p>
-<p>Now, mimimizing both sides over <span class="math inline">\(a\)</span> gives <span class="math display">\[ V^2_t(s) = V^1_t(s) - Φ_t(s). \]</span></p>
+<p>Now, <span class="math display">\[ \begin{align*}
+  V^{\pi,2}_t(s) &amp;= Q^{\pi,2}(s,\pi(s)) \\
+  &amp;= Q^{\pi,1}(s,\pi(s) - Φ_t(s) \\ 
+  &amp;= V^{\pi,1}_t(s) - Φ_t(s). 
+\end{align*}\]</span></p>
 <p>This proves the induction step.</p>
 </div>
 </details>
-<details>
-<summary>
-<h4 class="unnumbered" id="proof-necessity">Proof (necessity)</h4>
-</summary>
-<div>
-<p>See <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999" role="doc-biblioref">1999</a>)</span>.</p>
-</div>
-</details>
+<p>By almost an analogous argument, we can show that the optimal value functions also satisfy a similar relationship.</p>
+<div class="highlight">
 <dl>
-<dt>Additional Remarks</dt>
+<dt><span id="cor:1"></span><span id="cor:reward-shaping" class="pandoc-numbering-text cor"><strong>Corollary 1</strong></span></dt>
 <dd>
-<ol type="1">
-<li><p>The advantage (or benefit) function given by <span class="math display">\[ B_t(s,a) := Q_t(s,a) - V_t(s) \]</span> measures the relative cost of choosing action <span class="math inline">\(a\)</span> over the optimal action. An implication of the claim \eqref{eq:claim} used in the above proof is that reward shaping does not change the advantage function!</p></li>
-<li><p>In reinforcement learning in infinite horizon discounted cost setup, reward shaping refers to choosing a potential function <span class="math inline">\(Φ\)</span> to change the cost function from <span class="math inline">\(c(s,a,s_{+})\)</span> to <span class="math inline">\(\tilde c(s,a,s_{+}) = c(s,a,s_{+}) + γ Φ(s_{+}) - Φ(s)\)</span> to speed up learning. One often chooses <span class="math inline">\(Φ(s) = V(s)\)</span>. If we extend claim \eqref{eq:claim} to infinite horizon, then an implication of choosing <span class="math inline">\(Φ(s) = V(s)\)</span> is that the value function of the modified cost <span class="math inline">\(\tilde c(s,a,s_{+})\)</span> is zero!</p></li>
-</ol>
+<p>Under conditions of <a href="#thm:reward-shaping" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a>, <span class="math display">\[\begin{equation}\label{eq:result-opt}
+    Q^{2}(s,a) = Q^{1}(s,a) - Φ_t(s)
+    \quad\text{and}\quad
+    V^{2}(s) = V^{1}(s) - Φ_t(s).
+\end{equation}\]</span></p>
+</dd>
+</dl>
+</div>
+<dl>
+<dt><span id="rem:2"></span><span id="rem:advantage" class="pandoc-numbering-text rem"><strong>Remark 2</strong></span></dt>
+<dd>
+<p>The advantage (or benefit) function given by <span class="math display">\[ B_t(s,a) := Q_t(s,a) - V_t(s) \]</span> measures the relative cost of choosing action <span class="math inline">\(a\)</span> over the optimal action. An implication of \eqref{eq:result-opt} is that reward shaping does not change the advantage function!</p>
+</dd>
+<dt><span id="rem:3"></span><span id="rem:difference" class="pandoc-numbering-text rem"><strong>Remark 3</strong></span></dt>
+<dd>
+<p>Another implication of <a href="#thm:reward-shaping" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a> and <a href="#cor:reward-shaping" title="Corollary 1"><span class="pandoc-numbering-link cor">Corollary 1</span></a> is that for any policy <span class="math inline">\(π\)</span>, <span class="math display">\[ V^{\pi,2}(s) - V^{2}(s) = V^{\pi,1}(s) - V^1(s). \]</span> Thus, reward shaping also preserves near-optimality; i.e., if a policy is approximately optimal in model <span class="math inline">\(M^1\)</span>, then it is approximately optimal in model <span class="math inline">\(M^2\)</span> as well.</p>
 </dd>
 </dl>
 <h1 data-number="1" id="generalization-to-discounted-models"><span class="header-section-number">1</span> Generalization to discounted models</h1>
@@ -129,9 +134,9 @@ J(π) = \EXP\Bigl[ \sum_{t=1}^{T-1} γ^{t-1} c_t(S_t, A_t) + γ^T c_T(S_T)
 <p>For such models, we have the following.</p>
 <div class="highlight">
 <dl>
-<dt><span id="cor:1"></span><span id="cor:discounted" class="pandoc-numbering-text cor"><strong>Corollary 1</strong></span></dt>
+<dt><span id="cor:2"></span><span id="cor:discounted" class="pandoc-numbering-text cor"><strong>Corollary 2</strong></span></dt>
 <dd>
-<p>For discounted cost models, the result of <a href="#thm:reward-shaping">Theorem 1</a> hold if condition 2 is replaced by</p>
+<p>For discounted cost models, the results of <a href="#thm:reward-shaping">Theorem 1</a> and <a href="#cor:reward-shaping">Corollary 1</a> continue to hold if condition 2 is replaced by</p>
 <ol start="2" type="1">
 <li><p>For <span class="math inline">\(t \in \{1, \dots, T-1\}\)</span>,</p>
 <p><span class="math display">\[ c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) + γ Φ_{t+1}(s_{+}) - Φ_t(s). \]</span></p></li>
@@ -140,35 +145,48 @@ J(π) = \EXP\Bigl[ \sum_{t=1}^{T-1} γ^{t-1} c_t(S_t, A_t) + γ^T c_T(S_T)
 </dl>
 </div>
 <dl>
-<dt>Remark</dt>
+<dt><span id="rem:4"></span><span id="rem:inf" class="pandoc-numbering-text rem"><strong>Remark 4</strong></span></dt>
 <dd>
-<ol type="1">
-<li><p>If the cost function is time homogeneous, <a href="#cor:discounted">Corollary 1</a> extends naturally to infinite horizon models with a time-homogeneous potential function.</p></li>
-<li><p>See the notes on <a href="../../inf-mdp/martingale-approach">martingale approach to stochastic control</a> for an iteresting relationship between reward shaping and martingales.</p></li>
-<li><p>As an example of reward shaping, see the notes on <a href="../../inf-mdp/inventory-management">inventory management</a>.</p></li>
-</ol>
+<p>If the cost function is time homogeneous, <a href="#cor:discounted">Corollary 2</a> extends naturally to infinite horizon models with a time-homogeneous potential function. A remarkable feature is that if the potential function is chosen as the value function, i.e., <span class="math inline">\(Φ(s) = V(s)\)</span>, then the value function of the modified cost <span class="math inline">\(\tilde c(s,a,s_{+})\)</span> is zero!</p>
 </dd>
 </dl>
-<h1 class="unnumbered" id="exercises">Exercises</h1>
-<ol type="1">
-<li><p>Suppose <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> is any <em>Markov</em> policy. Let <span class="math inline">\(J^i_t(s;π)\)</span>, <span class="math inline">\(i \in \{1, 2\}\)</span> denote the performance of policy <span class="math inline">\(π\)</span> in model <span class="math inline">\(M^i\)</span> starting in state <span class="math inline">\(s\)</span> at time <span class="math inline">\(t\)</span> (see <a href="../mdp-functional/#performance">Performance of Markov Strategies</a>). Show that</p>
-<p><span class="math display">\[ J^2_t(s; π) = J^1_t(s; π) - Φ(s). \]</span></p>
-<p>Using this relationship, show that reward shaping is <em>robust</em> in the sense that near-optimal policies are preserved. If <span class="math inline">\(π\)</span> is near optimal in <span class="math inline">\(M^2\)</span> in the sense that <span class="math inline">\(| V^2_t(s) - J^2_t(s; π)| \le ε_t\)</span> using potential based shaping, then, <span class="math inline">\(π\)</span> will also be near optimal in the original model, i.e., <span class="math inline">\(|V^1_t(s) - J^1_t(s;π) | \le ε_t\)</span>.</p></li>
-</ol>
+<h1 data-number="2" id="examples"><span class="header-section-number">2</span> Examples</h1>
+<p>As an example of reward shaping, see the notes on <a href="../../inf-mdp/inventory-management">inventory management</a>. Also see the notes on <a href="../../inf-mdp/martingale-approach">martingale approach to stochastic control</a> for an iteresting relationship between reward shaping and martingales.</p>
 <h1 class="unnumbered" id="references">References</h1>
-<p>The above result is due to <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999" role="doc-biblioref">1999</a>)</span> who provided the result for infinite horizon models. However, in my opinion, it is conceptually simpler to start with the finite horizon model. For a discussion on practical considerations in using reward shaping in reinforcement learning, see <span class="citation" data-cites="Grzes2009">Grzes and Kudenko (<a href="#ref-Grzes2009" role="doc-biblioref">2009</a>)</span> and <span class="citation" data-cites="Devlin2014">Devlin (<a href="#ref-Devlin2014" role="doc-biblioref">2014</a>)</span>.</p>
+<p><a href="#cor:discounted" title="Corollary 2"><span class="pandoc-numbering-link cor">Corollary 2</span></a> is due to <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999" role="doc-biblioref">1999</a>)</span>. A similar result was also established in <span class="citation" data-cites="Porteus1975">Porteus (<a href="#ref-Porteus1975" role="doc-biblioref">1975</a>)</span>, where it was called the transformation method. <span class="citation" data-cites="Porteus1975">Porteus (<a href="#ref-Porteus1975" role="doc-biblioref">1975</a>)</span> also describes transformations of the dynamics which preserve the optimal policy. Both these results were for time-homogeneous potential functions. The generalization to time-varying potential functions was presented in <span class="citation" data-cites="Devlin2012">Devlin and Kudenko (<a href="#ref-Devlin2012" role="doc-biblioref">2012</a>)</span>.</p>
+<p><span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999" role="doc-biblioref">1999</a>)</span> also established a partial converse of <a href="#cor:reward-shaping" title="Corollary 1"><span class="pandoc-numbering-link cor">Corollary 1</span></a> stating that the shaping presented in <a href="#thm:reward-shaping" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a> is the <em>only</em> additive cost transformation that that preserves the set of optimal policy. However, this converse was derived under the assumption that the transition dynamics are <em>complete</em> (see <span class="citation" data-cites="Ng1999">Ng et al. (<a href="#ref-Ng1999" role="doc-biblioref">1999</a>)</span>). A similar converse under a weaker set of assumptions on the transition dynamics is established in <span class="citation" data-cites="Jenner2022">Jenner et al. (<a href="#ref-Jenner2022" role="doc-biblioref">2022</a>)</span>.</p>
+<p>For a discussion on practical considerations in using reward shaping in reinforcement learning, see <span class="citation" data-cites="Grzes2009">Grzes and Kudenko (<a href="#ref-Grzes2009" role="doc-biblioref">2009</a>)</span> and <span class="citation" data-cites="Devlin2014">Devlin (<a href="#ref-Devlin2014" role="doc-biblioref">2014</a>)</span>. As a counter-point, <span class="citation" data-cites="Wiewiora2003">Wiewiora (<a href="#ref-Wiewiora2003" role="doc-biblioref">2003</a>)</span> shows that the advantages of reward shaping can also be achieved by simply adding the potential function to the <span class="math inline">\(Q\)</span>-function initialization.</p>
 <hr />
 <div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-Devlin2014" class="csl-entry" role="doc-biblioentry">
 <span class="smallcaps">Devlin, S.</span> 2014. Potential based reward shaping tutorial. Available at: <a href="http://www-users.cs.york.ac.uk/~devlin/presentations/pbrs-tut.pdf">http://www-users.cs.york.ac.uk/~devlin/presentations/pbrs-tut.pdf</a>.
 </div>
+<div id="ref-Devlin2012" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Devlin, S. and Kudenko, D.</span> 2012. Dynamic potential-based reward shaping. <em>Proceedings of the 11th international conference on autonomous agents and multiagent systems</em>, International Foundation for Autonomous Agents; Multiagent Systems, 433–440.
+</div>
 <div id="ref-Grzes2009" class="csl-entry" role="doc-biblioentry">
 <span class="smallcaps">Grzes, M. and Kudenko, D.</span> 2009. Theoretical and empirical analysis of reward shaping in reinforcement learning. <em>International conference on machine learning and applications</em>, 337–344. DOI: <a href="https://doi.org/10.1109/ICMLA.2009.33">10.1109/ICMLA.2009.33</a>.
+</div>
+<div id="ref-Jenner2022" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Jenner, E., Hoof, H. van, and Gleave, A.</span> 2022. Calculus on MDPs: Potential shaping as a gradient. Available at: <a href="https://arxiv.org/abs/2208.09570v1">https://arxiv.org/abs/2208.09570v1</a>.
 </div>
 <div id="ref-Ng1999" class="csl-entry" role="doc-biblioentry">
 <span class="smallcaps">Ng, A.Y., Harada, D., and Russell, S.</span> 1999. Policy invariance under reward transformations: Theory and application to reward shaping. <em>ICML</em>, 278–287. Available at: <a href="http://aima.eecs.berkeley.edu/~russell/papers/icml99-shaping.pdf">http://aima.eecs.berkeley.edu/~russell/papers/icml99-shaping.pdf</a>.
 </div>
+<div id="ref-Porteus1975" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Porteus, E.L.</span> 1975. Bounds and transformations for discounted finite markov decision chains. <em>Operations Research</em> <em>23</em>, 4, 761–784. DOI: <a href="https://doi.org/10.1287/opre.23.4.761">10.1287/opre.23.4.761</a>.
 </div>
+<div id="ref-Wiewiora2003" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Wiewiora, E.</span> 2003. Potential-based shaping and q-value initialization are equivalent. <em>Journal of Artificial Intelligence Research</em> <em>19</em>, 1, 205–208.
+</div>
+</div>
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>We choose the cost to depend on the next state only for convenience of analysis. The result of <a href="#thm:reward-shaping" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a> can be established for models where the cost depends only on the per-step cost by replacing property~2 in <a href="#thm:reward-shaping" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a> by <span class="math display">\[ c^2_t(s,a) = c^1_t(s,a) + \sum_{s&#39; \in \ALPHABET S} P_t(s&#39;|s,a) Φ_{t+1}(s&#39;) -
+Φ_t(s).\]</span><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
 
 
 <p class="categories">

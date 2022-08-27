@@ -12,113 +12,119 @@ different cost functions have the same optimal policy? This is an important
 question in reinforcement learning (where one often _shapes_ the reward
 function to speed up learning) and inverse reinforcement learning (where one
 learns the reward function from the behavior of an expert). The following
-result provides a complete answer to this question.
+result provides a complete answer to this question. These results are
+typically established for inifinte horizon models. However, in my opinion, it is conceptually simpler to start with the finite horizon model. 
 
 Let $M^1$ and $M^2$ denote two MDPs on the same state space $\ALPHABET S$ and
-action space $\ALPHABET A$. Both MDPs have the same dynamics $f = (f^1, \dots,
-f_T)$, same distribution on the noise $P_W$, but different cost functions $c^1
+action space $\ALPHABET A$. Both MDPs have the same dynamics $P = (P_1, \dots,
+P_T)$, but different cost functions $c^1
 = (c^1_1, \dots, c^1_T)$ and $c^2 = (c^2_1, \dots, c^2_T)$. We assume that for
 $t \in \{1, \dots, T-1\}$, the per-step cost is a function of the current
 state, current action, and next state (see [cost depending on next
-state](../mdp-functional#cost-depends-on-next-state)) and for $t = T$, the
-per-step cost function is just a function of the current state. Let $π^1 =
-(π^1_1, \dots, π^1_T)$ and $π^2 = (π^2_1, \dots, π^2_T)$ denote the optimal
-policy corresponding to $M^1$ and $M^2$, respectively.
+state](../mdp-functional#cost-depends-on-next-state))[^1] and for $t = T$, the
+per-step cost function is just a function of the current state. 
+
+[^1]: We choose the cost to depend on the next state only for convenience of
+analysis. The result of @thm:reward-shaping can be established for models where
+the cost depends only on the per-step cost by replacing property~2 in
+@thm:reward-shaping by
+$$ c^2_t(s,a) = c^1_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s'|s,a) Φ_{t+1}(s') -
+Φ_t(s).$$
 
 ::: highlight :::
 Theorem #thm:reward-shaping
 
-:   The policy $π^1$ is equal to the policy $π^2$ for every choice of
-    transition function $f$ and probability distribution $P_W$ if and only if
-    there exists a sequence of functions $\{Φ_t \colon \ALPHABET S \to
-    \reals\}_{t \ge 1}$, which are called _potential functions_, such that:
+:   Suppose the cost functions in MDPs $M^1$ and $M^2$ are related as follows:
 
     1. For $t = T$,
     $$ c^2_T(s) = c^1_T(s) - Φ_T(s).  $$
 
     2. For $t \in \{1, \dots, T-1\}$, 
     $$ c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) +  Φ_{t+1}(s_{+}) - Φ_t(s). $$
-::: 
 
-Remark
+    Then, for any policy $π$,
+    $$\begin{equation}\label{eq:result}
+        Q^{\pi,2}(s,a) = Q^{\pi,1}(s,a) - Φ_t(s)
+        \quad\text{and}\quad
+        V^{\pi,2}(s) = V^{\pi,1}(s) - Φ_t(s).
+    \end{equation}$$
 
-:   1. The sign of the potential function is irrelevant. So, we could also
-       have written
-       $$ c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) +  Φ_t(s) - Φ_{t+1}(s_{+}). $$
+:::
 
-    2. The result naturally extends to infinite horizon expected cost model
-       (and is typically stated for such a model). In the infinite horizon
-       case, the potential function must be time-invariant and 
-       condition 2 needs to be replaced by
-       $$ c^2(s,a,s_{+}) = c^1(s,a,s_{+}) + γ Φ(s_{+}) - Φ(s). $$
+Remark #rem:sign
 
+:   The sign of the potential function is irrelevant. So, we could also
+    have written
+       $$ c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) +  Φ_t(s) - Φ_{t+1}(s_{+}) $$
+    and argued that 
+    $$  V^{\pi,2}(s) = V^{\pi,1}(s) + Φ_t(s).$$
 
 <details>
 <summary>
-#### Proof (sufficiency) {-}
+#### Proof {-}
 </summary>
 <div>
-Suppose conditions 1 and 2 in the statement of the theorem hold. That is,
-$$c^2_t(s,a,s_{+}) = c^1_t(s,a,s_{+}) - Φ_t(s) + Φ_{t+1}(s_{+})
-\quad\text{and}\quad
-c^2_T(s) = c^1_T(s) - Φ_T(s). $$
-
-Then, we claim that
-$$\begin{equation} \label{eq:claim}
-Q^2_t(s,a) = Q^1_t(s,a) - Φ_t(s)
-\quad
-V^2_t(s) = V^1_t(s) - Φ_t(s).
-\end{equation}$$
-
 We prove the result by backward induction. First note that
 $$
-  V^2_T(s) = c^2_T(s) = c^1_T(s) - Φ_T(s) = V^1_T(s) - Φ_T(s).
+  V^{\pi,2}_T(s) = c^2_T(s) = c^1_T(s) - Φ_T(s) = V^{\pi,1}_T(s) - Φ_T(s).
 $$
-This forms the basis of induction. Now suppose that \\eqref{eq:claim} holds for
+This forms the basis of induction. Now suppose that \\eqref{eq:result} holds for
 time $t+1$. Now consider
 $$\begin{align*}
-Q^2_t(s,a) &= \EXP[ c^2_t(s,a,S_{t+1}) + V^2_{t+1}(S_{t+1}) \mid S_t = s, A_t = a ]
+Q^{\pi,2}_t(s,a) &= \EXP[ c^2_t(s,a,S_{t+1}) + V^{\pi,2}_{t+1}(S_{t+1}) \mid S_t
+= s, a ]
 \\
 &\stackrel{(a)}= \EXP[ c^1_t(s,a,S_{t+1}) - Φ_t(s) + Φ_{t+1}(S_{t+1}) \\
-&\qquad + V^1_{t+1}(S_{t+1}) - Φ_{t+1}(S_{t+1}) \mid S_t = s, A_t = a ] \\
+&\qquad + V^{\pi,1}_{t+1}(S_{t+1}) - Φ_{t+1}(S_{t+1}) \mid S_t = s, A_t = a ] \\
 &= \EXP[ c^1_t(s,a,S_{t+1}) - Φ_t(s) + V^1_{t+1}(S_{t+1}) \mid
 S_t = s, A_t = a] \\
-&= Q^1_t(s,a) - Φ_t(s),
+&= Q^{\pi,1}_t(s,a) - Φ_t(s),
 \end{align*}$$
 where $(a)$ follows from property 2 and the induction hypothesis.
 
-Now, mimimizing both sides over $a$ gives 
-$$ V^2_t(s) = V^1_t(s) - Φ_t(s). $$
+Now, 
+$$ \begin{align*}
+  V^{\pi,2}_t(s) &= Q^{\pi,2}(s,\pi(s)) \\
+  &= Q^{\pi,1}(s,\pi(s) - Φ_t(s) \\ 
+  &= V^{\pi,1}_t(s) - Φ_t(s). 
+\end{align*}$$
 
 This proves the induction step.
 </div>
 </details>
 
-<details>
-<summary>
-#### Proof (necessity) {-}
-</summary>
-<div>
-See @Ng1999.
-</div>
-</details>
+By almost an analogous argument, we can show that the optimal value functions
+also satisfy a similar relationship.
 
+::: highlight :::
 
-Additional Remarks
+Corollary #cor:reward-shaping
 
-:   1. The advantage (or benefit) function given by
+: Under conditions of @thm:reward-shaping,
+    $$\begin{equation}\label{eq:result-opt}
+        Q^{2}(s,a) = Q^{1}(s,a) - Φ_t(s)
+        \quad\text{and}\quad
+        V^{2}(s) = V^{1}(s) - Φ_t(s).
+    \end{equation}$$
+
+:::
+
+Remark #rem:advantage
+
+:   The advantage (or benefit) function given by
        $$ B_t(s,a) := Q_t(s,a) - V_t(s) $$
-       measures the relative cost of choosing action $a$ over the optimal
-       action. An implication of the claim \\eqref{eq:claim} used in the above
-       proof is that reward shaping does not change the advantage function!
+    measures the relative cost of choosing action $a$ over the optimal action.
+    An implication of \\eqref{eq:result-opt} is that reward shaping does not
+    change the advantage function!
 
-    2. In reinforcement learning in infinite horizon discounted cost setup,
-       reward shaping refers to choosing a potential function $Φ$ to change
-       the cost function from $c(s,a,s_{+})$ to $\tilde c(s,a,s_{+}) = c(s,a,s_{+}) + γ
-       Φ(s_{+}) - Φ(s)$ to speed up learning. One often chooses $Φ(s) = V(s)$. If
-       we extend claim \\eqref{eq:claim} to infinite horizon, then an
-       implication of choosing $Φ(s) = V(s)$ is that the value function of the
-       modified cost $\tilde c(s,a,s_{+})$ is zero!
+Remark #rem:difference
+
+:   Another implication of @thm:reward-shaping and @cor:reward-shaping is that
+    for any policy $π$, 
+    $$ V^{\pi,2}(s) - V^{2}(s) = V^{\pi,1}(s) - V^1(s). $$
+    Thus, reward shaping also preserves near-optimality; i.e., if a policy is
+    approximately optimal in model $M^1$, then it is approximately optimal in
+    model $M^2$ as well. 
 
 # Generalization to discounted models
 
@@ -147,8 +153,9 @@ For such models, we have the following.
 
 Corollary #cor:discounted
 
-:   For discounted cost models, the result of [Theorem #](#thm:reward-shaping)
-    hold if condition 2 is replaced by
+:   For discounted cost models, the results of [Theorem #](#thm:reward-shaping)
+    and [Corollary #](#cor:reward-shaping) continue to hold if condition 2 is
+    replaced by
 
     2.  For $t \in \{1, \dots, T-1\}$,
 
@@ -156,43 +163,45 @@ Corollary #cor:discounted
 
 :::
 
-Remark
 
-:   1. If the cost function is time homogeneous, [Corollary #](#cor:discounted)
-       extends naturally to infinite horizon models with a time-homogeneous
-       potential function. 
+Remark #rem:inf
 
-    2. See the notes on [martingale approach to stochastic
-       control][martingale] for an iteresting relationship between reward
-       shaping and martingales.
+:   If the cost function is time homogeneous, [Corollary #](#cor:discounted)
+    extends naturally to infinite horizon models with a time-homogeneous potential
+    function. A remarkable feature is that if the potential function is chosen
+    as the value function, i.e., $Φ(s) = V(s)$, then the value function of the
+    modified cost $\tilde c(s,a,s_{+})$ is zero!
 
-    3. As an example of reward shaping, see the notes on [inventory
-       management][inventory].
 
 [martingale]: ../../inf-mdp/martingale-approach
 
-# Exercises {-}
+# Examples
 
-1. Suppose $π = (π_1, \dots, π_T)$ is any _Markov_ policy. Let $J^i_t(s;π)$,
-   $i \in \{1, 2\}$  denote the performance of policy $π$ in model
-   $M^i$ starting in state $s$ at time $t$ (see 
-   [Performance of Markov Strategies](../mdp-functional/#performance)). Show that
-
-   $$ J^2_t(s; π) = J^1_t(s; π) - Φ(s). $$
-
-   Using this relationship, show that reward shaping is _robust_ in the
-   sense that near-optimal policies are preserved. If $π$ is near optimal in
-   $M^2$ in the sense that $| V^2_t(s) - J^2_t(s; π)| \le ε_t$ using potential
-   based shaping, then, $π$ will also be near optimal in the original model,
-   i.e., $|V^1_t(s) - J^1_t(s;π) | \le ε_t$.
-
+As an example of reward shaping, see the notes on [inventory
+management][inventory]. Also see the notes on [martingale approach to stochastic
+control][martingale] for an iteresting relationship between reward shaping and
+martingales.
 
 # References {-}
 
-The above result is due to @Ng1999 who provided the result for infinite
-horizon models. However, in my opinion, it is conceptually simpler to start
-with the finite horizon model. For a discussion on practical considerations in
-using reward shaping in reinforcement learning, see @Grzes2009 and @Devlin2014.
+@cor:discounted is due to @Ng1999. A similar result was also established in
+@Porteus1975, where it was called the transformation method. @Porteus1975 also
+describes transformations of the dynamics which preserve the optimal policy.
+Both these results were for time-homogeneous potential functions. The
+generalization to time-varying potential functions was presented in @Devlin2012. 
+
+@Ng1999 also established a partial converse of @cor:reward-shaping stating that
+the shaping presented in @thm:reward-shaping is the _only_ additive cost
+transformation that that preserves the set of optimal policy. However, this
+converse was derived under the assumption that the transition dynamics are
+_complete_ (see @Ng1999). A similar converse under a weaker set of assumptions
+on the transition dynamics is established in @Jenner2022. 
+
+For a discussion on practical considerations in using reward shaping in
+reinforcement learning, see @Grzes2009 and @Devlin2014. As a counter-point,
+@Wiewiora2003 shows that the advantages of reward shaping can also be achieved
+by simply adding the potential function to the $Q$-function initialization. 
+
 
 
 [inventory]: ../../inf-mdp/inventory-management
