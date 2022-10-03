@@ -53,6 +53,42 @@
   c_h s, &amp; \text{if $s \ge 0$} \\
   -c_s s, &amp; \text{if $s &lt; 0$},
 \end{cases}\]</span> where <span class="math inline">\(a\)</span> is the per-unit holding cost, <span class="math inline">\(b\)</span> is the per-unit shortage cost, and <span class="math inline">\(p\)</span> is the per-unit procurement cost. Note that in the per-step cost, we are assuming that the holding or shortage cost is dicounted because this cost is incurred at the end of the time period.</p>
+<p>Recall that in the finite horizon setting, the optimal policy was a <em>base-stock</em> policy characterized by thresholds <span class="math inline">\(\{s^*_t\}_{t \ge 1}\)</span>. In the infinite horizon discounted setting, we expect the optimal policy to be time-homogeneous, i.e., the thresholds <span class="math inline">\(\{s^*_t\}_{t \ge 1}\)</span> be a constant <span class="math inline">\(s^*\)</span> and not to depend on time.</p>
+<p>As an illustration, let’s reconsider the example used for the <a href="../../mdp/inventory-management#fig1">finite horizon setting</a> (where <span class="math inline">\(p=5\)</span>, <span class="math inline">\(c_h = 4\)</span>, <span class="math inline">\(c_s = 2\)</span>, and the demand is Binomial(10,0.4)). We consider the discount factor <span class="math inline">\(γ = 0.9\)</span>. The value function and optimal policy is this case are shown below.</p>
+<figure style='max-width:40em;'>
+<div id="observablehq-viewof-discount-11b15b95">
+
+</div>
+<table>
+<tr>
+<td id="observablehq-inf_value_plot-11b15b95">
+</td>
+<td id="observablehq-inf_action_plot-11b15b95">
+</td>
+</tr>
+<tr>
+<td>
+Value function
+</td>
+<td>
+Optimal policy
+</td>
+</table>
+<figcaption>
+<b>Figure 1</b><br/> The value function and the optimal policy for the example
+</figcaption>
+</figure>
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "inf_value_plot") return new Inspector(document.querySelector("#observablehq-inf_value_plot-11b15b95"));
+  if (name === "inf_action_plot") return new Inspector(document.querySelector("#observablehq-inf_action_plot-11b15b95"));
+  if (name === "viewof discount") return new Inspector(document.querySelector("#observablehq-viewof-discount-11b15b95"));
+  return ["infDP"].includes(name);
+});
+</script>
+<p>We are interested in the following question: <em>Is it possible to identify the optimal threshold of the base-stock policy without explicitly solving the dynamic program?</em> In this section, we show that the answer is affirmative.</p>
 <p>As a first step, we modify the per-step cost using <a href="../../mdp/reward-shaping">reward shaping</a>. In particular, we consider the following potential function</p>
 <p><span class="math display">\[\varphi(s) = h(s) + \frac1{γ} p s - \frac{1}{1-γ}p\mu,\]</span> where <span class="math inline">\(\mu = \EXP[W]\)</span> is the expected number of arrivals at each time period.</p>
 <p>Now consider a new cost function <span class="math display">\[\begin{align*}
@@ -81,12 +117,31 @@ V(s) = c^*(s) + γ \EXP[ V(s^* - W) ], \qquad s \le s^*.
 </dd>
 </dl>
 </div>
-<p>A almost closed form characterization of the optimal policy may be obtained using the same approach as that used for the <a href="../../stochastic/newsvendor">newsvendor problem</a>.</p>
+<p>An almost closed form characterization of the optimal policy may be obtained using the same approach as that used for the <a href="../../stochastic/newsvendor">newsvendor problem</a>. In particular, let <span class="math inline">\(f\)</span> denote the distribution of <span class="math inline">\(W\)</span>, <span class="math inline">\(F\)</span> denote the CDF, and <span class="math inline">\(μ = \EXP[W]\)</span>. Then, <span class="math display">\[\begin{align}
+\EXP[c^*(s^*-W)] &amp;= \EXP[h(s^*-W)] + \frac{1-γ}{γ}p(s^* - μ) 
+\notag \\
+&amp;= \int_{0}^{s^*} c_s(w-s^*)f(w)dw + 
+   \int_{s^*}^{∞} c_h(s^*-w)f(w)dw + \frac{1-γ}{γ}p(s^* - μ) \notag
+\end{align}\]</span> Thereore, <span class="math display">\[\begin{align}
+\frac{∂ \EXP[c^*(s^*-W)]}{∂s^*} &amp;=
+  \int_{0}^{s^*} [-c_s] f(w)dw
++ \int_{s^*}^{\infty}c_h f(w)dw 
++ \frac{1-γ}{γ}p \notag \\
+&amp;= -c_s F(s^*) + c_h(1 - F(s^*))
++ \frac{1-γ}{γ}p \notag \\
+\end{align}\]</span> To find the optimal threshold, we set the derivative to <span class="math inline">\(0\)</span> and simplify: <span class="math display">\[
+ s^* = F^{-1}\left( \frac{c_h + p(1-γ)/γ}{c_h + c_s} \right).
+\]</span></p>
 <hr />
 <h1 class="unnumbered" id="exercises">Exercises</h1>
 <ol type="1">
-<li><p>Suppose that the arrival process is exponential with rate <span class="math inline">\(1/\mu\)</span>, i.e., the density of <span class="math inline">\(W\)</span> is given by <span class="math inline">\(e^{-s/\mu}/\mu\)</span>. Show that the optimal threshold is given by <span class="math display">\[ s^* = \mu \log \left[ \frac{ a + b} { a + p (1-γ)/γ} \right]. \]</span></p>
-<p><em>Hint</em>: Show that for exponential distribution <span class="math display">\[ \EXP[ (s^*-W)^+ ] = (s^* - \mu) + \mu e^{-s^*/\mu} \]</span> and <span class="math display">\[ \EXP[ (s^*-W)^- ] = - \mu e^{-s^*/\mu}. \]</span></p></li>
+<li><p>Suppose that the arrival process is exponential with rate <span class="math inline">\(1/\mu\)</span>, i.e., the density of <span class="math inline">\(W\)</span> is given by <span class="math inline">\(e^{-s/\mu}/\mu\)</span>. Show that the optimal threshold is given by <span class="math display">\[ s^* = \mu \log \left[ \frac{ c_h + c_s} { c_h + p (1-γ)/γ} \right]. \]</span></p>
+<p><em>Hint</em>: Recall that the CDF the exponential distribution is <span class="math inline">\(F(s) = 1 - e^{-s/μ}\)</span>. <!--
+_Hint_: Show that for exponential distribution
+$$ \EXP[ (s^*-W)^+ ] = (s^* - \mu) + \mu e^{-s^*/\mu} $$
+and
+$$ \EXP[ (s^*-W)^- ] = - \mu e^{-s^*/\mu}. $$
+--></p></li>
 </ol>
 <hr />
 <h1 class="unnumbered" id="references">References</h1>

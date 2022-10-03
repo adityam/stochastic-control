@@ -26,6 +26,50 @@ $p$ is the per-unit procurement cost. Note that in the per-step cost, we are
 assuming that the holding or shortage cost is dicounted because this cost is
 incurred at the end of the time period.  
 
+Recall that in the finite horizon setting, the optimal policy was a
+_base-stock_ policy characterized by thresholds $\{s^*_t\}_{t \ge 1}$. In the
+infinite horizon discounted setting, we expect the optimal policy to be
+time-homogeneous, i.e., the thresholds $\{s^*_t\}_{t \ge 1}$ be a constant
+$s^*$ and not to depend on time.
+
+As an illustration, let's reconsider the example used for the [finite horizon
+setting][finite] (where $p=5$, $c_h = 4$, $c_s = 2$, and the demand is
+Binomial(10,0.4)). We consider the discount factor $γ = 0.9$. The value
+function and optimal policy is this case are shown below.
+
+[finite]: ../../mdp/inventory-management#fig1
+
+<figure style='max-width:40em;'>
+<div id="observablehq-viewof-discount-11b15b95"></div>
+<table>
+<tr>
+<td id="observablehq-inf_value_plot-11b15b95"></td>
+<td id="observablehq-inf_action_plot-11b15b95"></td>
+</tr>
+<tr> 
+<td> Value function </td>
+<td> Optimal policy </td>
+</table>
+<figcaption><b>Figure 1</b><br/>
+The value function and the optimal policy for the example</figcaption>
+</figure>
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "inf_value_plot") return new Inspector(document.querySelector("#observablehq-inf_value_plot-11b15b95"));
+  if (name === "inf_action_plot") return new Inspector(document.querySelector("#observablehq-inf_action_plot-11b15b95"));
+  if (name === "viewof discount") return new Inspector(document.querySelector("#observablehq-viewof-discount-11b15b95"));
+  return ["infDP"].includes(name);
+});
+</script>
+
+We are interested in the following question:
+_Is it possible to identify the optimal threshold of the base-stock policy
+without explicitly solving the dynamic program?_ In this section, we show that
+the answer is affirmative.
+
 As a first step, we modify the per-step cost using [reward shaping]. In
 particular, we consider the following potential function
 
@@ -81,9 +125,29 @@ $\EXP[ c^*(s^*-W) ]$.
 
 ::: 
 
-A almost closed form characterization of the optimal policy may be obtained
+An almost closed form characterization of the optimal policy may be obtained
 using the same approach as that used for the [newsvendor
-problem](../../stochastic/newsvendor).
+problem](../../stochastic/newsvendor). In particular, let $f$ denote the
+distribution of $W$, $F$ denote the CDF, and $μ = \EXP[W]$. Then,
+$$\begin{align}
+\EXP[c^*(s^*-W)] &= \EXP[h(s^*-W)] + \frac{1-γ}{γ}p(s^* - μ) 
+\notag \\
+&= \int_{0}^{s^*} c_s(w-s^*)f(w)dw + 
+   \int_{s^*}^{∞} c_h(s^*-w)f(w)dw + \frac{1-γ}{γ}p(s^* - μ) \notag
+\end{align}$$
+Thereore, 
+$$\begin{align}
+\frac{∂ \EXP[c^*(s^*-W)]}{∂s^*} &=
+  \int_{0}^{s^*} [-c_s] f(w)dw
++ \int_{s^*}^{\infty}c_h f(w)dw 
++ \frac{1-γ}{γ}p \notag \\
+&= -c_s F(s^*) + c_h(1 - F(s^*))
++ \frac{1-γ}{γ}p \notag \\
+\end{align}$$
+To find the optimal threshold, we set the derivative to $0$ and simplify:
+$$
+ s^* = F^{-1}\left( \frac{c_h + p(1-γ)/γ}{c_h + c_s} \right).
+$$
 
 ---
 
@@ -92,12 +156,16 @@ problem](../../stochastic/newsvendor).
 1. Suppose that the arrival process is exponential with rate $1/\mu$, i.e.,
    the density of $W$ is given by $e^{-s/\mu}/\mu$. Show that the optimal
    threshold is given by
-   $$ s^* = \mu \log \left[ \frac{ a + b} { a + p (1-γ)/γ} \right]. $$
+   $$ s^* = \mu \log \left[ \frac{ c_h + c_s} { c_h + p (1-γ)/γ} \right]. $$
 
+   _Hint_: Recall that the CDF the exponential distribution is
+   $F(s) = 1 - e^{-s/μ}$.
+   <!--
    _Hint_: Show that for exponential distribution
    $$ \EXP[ (s^*-W)^+ ] = (s^* - \mu) + \mu e^{-s^*/\mu} $$
    and
    $$ \EXP[ (s^*-W)^- ] = - \mu e^{-s^*/\mu}. $$
+   -->
 
 
 ---
