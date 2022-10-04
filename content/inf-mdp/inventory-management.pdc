@@ -70,6 +70,9 @@ new Runtime().module(define, name => {
   return ["DP","value_plot","action_plot","infDP","F_opt"].includes(name);
 });
 </script>
+
+---
+
 We are interested in the following question:
 _Is it possible to identify the optimal threshold of the base-stock policy
 without explicitly solving the dynamic program?_ In this section, we show that
@@ -94,7 +97,7 @@ $$ \EXP[ c'(s,a,S_{+}) | S = s, A = a ] = h(s) + \frac{1-γ}{γ} ps
 Thus, the optimal policy of the original model is the same as that in which
 the per-step cost is given by $c^*(s)$. 
 
-Recall that the optimal policy in the original model was a control limit
+Recall that the optimal policy in the original model was a base stock 
 policy. For the infinite horizon model, the threshold will become
 time-invariant. Thus, the optimal policy will be of the form
 $$
@@ -104,21 +107,28 @@ $$
 \end{cases}$$
 
 The infinite horizon dynamic programming with this modified cost is given by 
-$$ V(s) = \min_{a \in \reals_{\ge 0}} 
-   \bigl\{ c^*(s) + γ \EXP[ V(s + a - W) ] \bigr\}. $$
+$$\begin{equation}\label{eq:DP}
+  V(s) = \min_{a \in \reals_{\ge 0}} 
+   \bigl\{ c^*(s) + γ \EXP[ V(s + a - W) ] \bigr\}. 
+\end{equation}$$
 
-Using the structure of the optimal policy identified above, we have that
+Using the structure of the optimal policy identified above, we have two
+properties. First,
 $$\begin{equation}\label{eq:opt}
 V(s) = c^*(s) + γ \EXP[ V(s^* - W) ], \qquad s \le s^*.
 \end{equation}$$
+Second, at $s = 0$, $π(0) = s^*$ (and recall that $c^*(0) = 0$). Therefore,
+$$\begin{equation}\label{eq:opt-policy}
+  s^* = \arg\min_{a \in \reals_{\ge 0}} γ \EXP[V(a - W)]
+\end{equation}$$
+
 Let $F(s^*)$ denote $\EXP[V(s^*-W)]$. Then, substituting $s = s^* - W$ in 
 \\eqref{eq:opt} and taking expectations, we get
 $$F(s^*) = \EXP[ c^*(s^* - W) ] + γ F(s^*).$$
 Thus, 
-$$ F(s^*) = \frac{1}{1-γ} \EXP[ c^*(s^*-W) ]. $$
+$$ \EXP[V(s^* - W)] = F(s^*) = \frac{1}{1-γ} \EXP[ c^*(s^*-W) ]. $$
 
-Substituting the above in \\eqref{eq:opt} for $s = 0$, (note that $c^*(0) =
-0$) we get
+Substituting the above in \\eqref{eq:opt-policy}, we get
 $$ s^* = \arg\min_{s^* \ge 0} \frac{γ}{1-γ} \EXP[ c^*(s^* - W) ].$$
 Consequently, we have the following:
 
@@ -198,10 +208,11 @@ The optimal threshold for the numerical example shown above</figcaption>
 
 # References {-}
 
-The idea of using reward shaping to derive a closed form expression for
+The idea of using [reward shaping] to derive a closed form expression for
 inventory management is taken from @Whittle1982. It is interesting to note
 that @Whittle1982 uses the idea of reward shaping more than 17 years before
-the paper by @Ng1999 on reward shaping. 
+the paper by @Ng1999 on reward shaping. It is possible that Whittle was using
+the results of @Porteus1975. 
 
 
 [inventory management]: ../../mdp/inventory-management
