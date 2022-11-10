@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="infinite horizon,discounted cost,Lipschitz continuity,approximation bounds,state aggregation" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2022
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Theory: Model approximation in MDPs</div>
+
+<p>Consider an MDP <span class="math inline">\(\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, γ \rangle\)</span>. Suppose the components <span class="math inline">\(\langle \ALPHABET S, \ALPHABET A, γ \rangle\)</span> but we know <span class="math inline">\((c,P)\)</span> only approximately. Consider the approximate MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, γ \rangle\)</span>. Suppose <span class="math inline">\(\hat π^*\)</span> is an optimal policy policy for <span class="math inline">\(\widehat {\ALPHABET M}\)</span>. We are interested in the following question:</p>
+<blockquote>
+<p><em>What is the approximation error in using the policy <span class="math inline">\(\hat π^*\)</span> (which is optimal in the approximate model) in the true model.</em></p>
+</blockquote>
+<p>Define the following <em>Bellman error</em> operator: <span class="math inline">\(Δ{\ALPHABET B}\)</span> from <span class="math inline">\(\reals^n\)</span> to <span class="math inline">\(\reals^n\)</span>, where <span class="math inline">\(n = |\ALPHABET S|\)</span>. For any <span class="math inline">\(v \in \reals^n\)</span> <span class="math display">\[\begin{align*}
+  [Δ{\ALPHABET B} v]_s  = \max_{a \in \ALPHABET A} \Biggl| &amp;
+  c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) v(s&#39;) 
+  \notag \\
+  &amp; \quad - 
+  \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) v(s&#39;) 
+  \Biggr| 
+\end{align*}\]</span> Then we have the following bound.</p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:1"></span><span id="thm:ais-bound" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
+<dd>
+<p>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> with <span class="math display">\[
+  α \le \frac{2}{1-γ}\min\{ Δ \ALPHABET B V^*, Δ \ALPHABET B \hat V^* \}.
+\]</span></p>
+</dd>
+</dl>
+</div>
+<details>
+<summary>
+<h4 class="unnumbered" id="proof">Proof</h4>
+</summary>
+<div>
+<p>We will separately prove that <span class="math inline">\(α &lt; 2 Δ \ALPHABET B V^*/(1-γ)\)</span> and <span class="math inline">\(α &lt; 2 Δ \ALPHABET B \hat V^*/(1-γ)\)</span>.</p>
+<ol type="1">
+<li><p><strong>Proof that <span class="math inline">\(α &lt; 2 Δ V^*/(1-γ)\)</span>.</strong></p>
+<p>From triangle inequality we have <span class="math display">\[\begin{equation} \label{eq:triangle-1}
+   \| V^* - V^{\hat π^*} \|_∞ \le
+   \| V^* - \hat V^{\hat π^*} \|_∞ 
+   + 
+   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
+ \end{equation}\]</span> Now, we bound the two terms separtely. For the first term of \eqref{eq:triangle-1}, since <span class="math inline">\(\hat  V^{\hat π^*} = \hat V^*\)</span>, we have <span class="math display">\[\begin{align}
+   \| V^* - \hat V^{*} \|_∞ 
+   &amp;\stackrel{(a)}\le
+   \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) V^*(s&#39;) \notag \\
+   &amp; 
+   \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+   - 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) \hat V^*(s&#39;) \Biggr| 
+   \notag \\
+   &amp;\stackrel{(b)}\le
+   \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) V^*(s&#39;) \notag \\
+   &amp; 
+   \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+   - 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) V^*(s&#39;) \Biggr| 
+   \notag \\
+   &amp; \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
+   \Biggl| \sum_{s&#39; \in \ALPHABET S} 
+   \biggl[ \hat P(s&#39;|s,a) V^*(s&#39;) - \hat P(s&#39;|s,a) \hat V^*(s)\biggr] \Biggr| 
+   \notag \\
+   &amp;\stackrel{(c)}\le γ Δ \ALPHABET B V^* + γ \| V^* - \hat V^* \|_∞
+   \label{eq:ineq-1}
+ \end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the fact that <span class="math inline">\(| \min f(x) - \min g(x) | \le \max  | f(x) - g(x) |\)</span>, <span class="math inline">\((b)\)</span> follows from triangle inequality, and <span class="math inline">\((c)\)</span> follows from the definition of <span class="math inline">\(Δ\)</span>. Rearranging terms in \eqref{eq:ineq-1}, gives us <span class="math display">\[\begin{equation}
+ \| V^* - \hat V^* \|_∞ \le \frac{ γ Δ \ALPHABET B V^*}{1 - γ}.
+ \label{eq:ineq-2}\end{equation}\]</span></p>
+<p>Now, for the second term of \eqref{eq:triangle-1}, we have <span class="math display">\[\begin{align}
+   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
+   &amp;\le
+   \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) V^{\hat π^*}(s&#39;) \notag \\
+   &amp; 
+   \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
+   - 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) \hat V^{\hat π^*}(s&#39;) \Biggr| 
+   \notag \\
+   &amp;\stackrel{(d)}\le
+   \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) V^{\hat π^*}(s&#39;) \notag \\
+   &amp; 
+   \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
+   - 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) V^{\hat π^*}(s&#39;) \Biggr| 
+   \notag \\
+   &amp; \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
+   \Biggl| \sum_{s&#39; \in \ALPHABET S} 
+   \biggl[ \hat P(s&#39;|s,a) V^{\hat π^*}(s&#39;) - \hat P(s&#39;|s,a) \hat V^{\hat π^*}(s)\biggr] \Biggr| 
+   \notag \\
+   &amp;\stackrel{(e)}\le γ Δ \ALPHABET B V^* + γ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
+   \label{eq:ineq-3}
+ \end{align}\]</span> where <span class="math inline">\((d)\)</span> follows from triangle inequality and <span class="math inline">\((e)\)</span> follows from the definition of <span class="math inline">\(ε\)</span> and <span class="math inline">\(Δ\)</span>. Rearranging terms in \eqref{eq:ineq-3} gives us <span class="math display">\[\begin{equation}
+ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ \le \frac{γ Δ \ALPHABET B V^*}{1 - γ}.
+ \label{eq:ineq-4}\end{equation}\]</span></p>
+<p>Substituting \eqref{eq:ineq-2} and \eqref{eq:ineq-4} in \eqref{eq:triangle-1} gives us <span class="math display">\[\begin{equation}
+ \| V^* - V^{\hat π^*} \|_∞ \le \frac{2γ Δ \ALPHABET B V^*}{1 - γ}.
+ \label{eq:term-1}\end{equation}\]</span></p></li>
+<li><p><strong>Proof that <span class="math inline">\(α &lt; 2 Δ \ALPHABET B \hat V^*/(1-γ)\)</span>.</strong></p>
+<p>This is almost the same argument as the previous case, except in step (b) of \eqref{eq:ineq-1}, we add and subtract <span class="math inline">\(P(s&#39;|s,a) \hat V^*(s)\)</span> and a similar thing in step (d) of \eqref{eq:ineq-3}.</p></li>
+</ol>
+</div>
+</details>
+
+
+<p class="categories">
+This entry 
+
+ was last updated on 10 Nov 2022
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/mdp">
+  MDP</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/infinite-horizon">infinite horizon</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/discounted-cost">discounted cost</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/lipschitz-continuity">lipschitz continuity</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/approximation-bounds">approximation bounds</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/state-aggregation">state aggregation</a>.</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
