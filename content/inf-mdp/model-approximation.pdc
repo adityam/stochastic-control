@@ -1,0 +1,144 @@
+---
+title: "Theory: Model approximation in MDPs"
+weight: 13
+categories:
+  - MDP
+tags:
+  - infinite horizon
+  - discounted cost
+  - Lipschitz continuity
+  - approximation bounds
+  - state aggregation
+---
+
+Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c,
+γ \rangle$. Suppose the components $\langle \ALPHABET S, \ALPHABET A, γ
+\rangle$ but we know $(c,P)$ only approximately. Consider the approximate MDP
+$\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, γ
+\rangle$. Suppose $\hat π^*$ is an optimal policy policy for $\widehat
+{\ALPHABET M}$. We are interested in the following question:
+
+What is the approximation error in using the policy $\hat π^*$ (which is
+optimal in the approximate model) in the true model. The following threorem
+bounds this error.
+
+::: highlight :::
+
+Theorem #ais-bound
+
+:   The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ with
+    $$
+      α \le \frac{2ε}{1-γ} + \frac{2γ}{1-γ} \min\{ Δ, \hat Δ \}
+    $$
+    where
+    $$
+    Δ = \max_{s \in \ALPHABET S, a \in \ALPHABET A}
+    \Biggl| \sum_{s' \in \ALPHABET S} \biggl[
+      P(s'|s,a) V^* - \hat P(s'|s,a) V^*
+    \biggr] \Biggr|$$
+    and
+    $$
+    \hat Δ = \max_{s \in \ALPHABET S, a \in \ALPHABET A}
+    \Biggl| \sum_{s' \in \ALPHABET S} \biggl[
+      P(s'|s,a) \hat V^* - \hat P(s'|s,a) \hat V^*
+    \biggr] \Biggr|.$$
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+We will separately prove that $α < (2ε + 2γ Δ)/(1-γ)$ and $α < (2ε + 2γ \hat
+Δ)/(1-γ)$. 
+
+1. **Proof that $α < (2ε + 2γΔ)/(1-γ)$.**
+
+    From triangle inequality we have
+    $$\begin{equation} \label{eq:triangle-1}
+      \| V^* - V^{\hat π^*} \|_∞ \le
+      \| V^* - \hat V^{\hat π^*} \|_∞ 
+      + 
+      \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
+    \end{equation}$$
+    Now, we bound the two terms separtely. For the first term of
+    \\eqref{eq:triangle-1}, since $\hat
+    V^{\hat π^*} = \hat V^*$, we have
+    $$\begin{align}
+      \| V^* - \hat V^{*} \|_∞ 
+      &\stackrel{(a)}\le
+      \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+      r(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \notag \\
+      & 
+      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+      - 
+      \hat r(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^*(s') \Biggr| 
+      \notag \\
+      &\stackrel{(b)}\le
+      \max_{s \in \ALPHABET S, a \in \ALPHABET A} \bigl| r(s,a) - \hat r(s,a) \bigr|
+      \notag \\
+      & \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
+      \Biggl| \sum_{s' \in \ALPHABET S} 
+      \biggl[ P(s'|s,a) V^*(s') - \hat P(s'|s,a) V^*(s)\biggr] \Biggr| 
+      \notag \\
+      & \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
+      \Biggl| \sum_{s' \in \ALPHABET S} 
+      \biggl[ \hat P(s'|s,a) V^*(s') - \hat P(s'|s,a) \hat V^*(s)\biggr] \Biggr| 
+      \notag \\
+      &\stackrel{(c)}\le ε + γ Δ + γ \| V^* - \hat V^* \|_∞
+      \label{eq:ineq-1}
+    \end{align}$$
+    where $(a)$ follows from the fact that $| \min f(x) - \min g(x) | \le \max
+    | f(x) - g(x) |$, $(b)$ follows from triangle inequality, and $(c)$
+    follows from the definition of $ε$ and $Δ$. Rearranging terms
+    in \\eqref{eq:ineq-1}, gives us
+    $$\begin{equation}
+    \| V^* - \hat V^* \|_∞ \le \frac{ε + γ Δ}{1 - γ}.
+    \label{eq:ineq-2}\end{equation}$$
+
+    Now, for the second term of \\eqref{eq:triangle-1}, we have
+    $$\begin{align}
+      \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
+      &\le
+      \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
+      r(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^{\hat π^*}(s') \notag \\
+      & 
+      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
+      - 
+      \hat r(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^{\hat π^*}(s') \Biggr| 
+      \notag \\
+      &\stackrel{(d)}\le
+      \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) \bigl| r(s,a) - \hat r(s,a) \bigr|
+      \notag \\
+      & \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
+      \Biggl| \sum_{s' \in \ALPHABET S} 
+      \biggl[ P(s'|s,a) V^{\hat π^*}(s') - \hat P(s'|s,a) V^{\hat π^*}(s)\biggr] \Biggr| 
+      \notag \\
+      & \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
+      \Biggl| \sum_{s' \in \ALPHABET S} 
+      \biggl[ \hat P(s'|s,a) V^{\hat π^*}(s') - \hat P(s'|s,a) \hat V^{\hat π^*}(s)\biggr] \Biggr| 
+      \notag \\
+      &\stackrel{(e)}\le ε + γ Δ + γ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
+      \label{eq:ineq-3}
+    \end{align}$$
+    where $(d)$ follows from triangle inequality and $(e)$ follows from the
+    definition of $ε$ and $Δ$. Rearranging terms in \\eqref{eq:ineq-3} gives
+    us
+    $$\begin{equation}
+    \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ \le \frac{ε + γ Δ}{1 - γ}.
+    \label{eq:ineq-4}\end{equation}$$
+
+    Substituting \\eqref{eq:ineq-2} and \\eqref{eq:ineq-4}
+    in \\eqref{eq:triangle-1} gives us
+    $$\begin{equation}
+    \| V^* - V^{\hat π^*} \|_∞ \le \frac{2ε + 2γ Δ}{1 - γ}.
+    \label{eq:term-1}\end{equation}$$
+
+2. **Proof that $α < (2ε + 2γΔ)/(1-γ)$.**
+  
+    This is almost the same argument as the previous case, except in step (b)
+    of \\eqref{eq:ineq-1}, we add and subtract $P(s'|s,a) \hat V^*(s)$ and a
+    similar thing in step (d) of \\eqref{eq:ineq-3}.
+</div>
+</details>
