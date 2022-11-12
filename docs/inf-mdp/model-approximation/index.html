@@ -64,26 +64,40 @@
 <dl>
 <dt><span id="thm:1"></span><span id="thm:ais-bound" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
 <dd>
-<p>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> with <span class="math display">\[
-  α \le \frac{2}{1-γ}\min\{ Δ \ALPHABET B V^*, Δ \ALPHABET B \hat V^* \}.
+<p>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[\begin{equation} \label{eq:bound}
+α := \| V^* - V^{\hat π^*} \|_∞ =
+\frac{γ}{1 - γ}\bigl[ Δ_1 + Δ_2 \bigr]
+%(Δ \ALPHABET B V^* + Δ \ALPHABET B V^{\hat π^*})}
+\end{equation}\]</span> where <span class="math display">\[
+ Δ_1 \le \min\{ Δ \ALPHABET B V^*, Δ \ALPHABET B \hat V^* \}
+ \quad\text{and}\quad
+ Δ_2 \le \min\{ Δ \ALPHABET B V^{\hat π^*}, Δ \ALPHABET B \hat V^{\hat π^*} \}.
 \]</span></p>
 </dd>
 </dl>
 </div>
+<p>Note that depending on how we pick <span class="math inline">\(Δ_1\)</span> and <span class="math inline">\(Δ_2\)</span>, we get four possible upper bounds and can bound <span class="math inline">\(α\)</span> by the tightest of them, i.e., <span class="math display">\[
+  α \le \frac{γ}{1 - γ} \min\bigl\{
+  Δ \ALPHABET B V^* + Δ \ALPHABET B V^{\hat π^*}, \space 
+  Δ \ALPHABET B V^* + Δ \ALPHABET B \hat V^*, \space
+  Δ \ALPHABET B \hat V^* + Δ \ALPHABET B V^{\hat π^*}, \space 
+  2Δ \ALPHABET B \hat V^* \bigr\}
+\]</span> where we have used the fact that <span class="math inline">\(\hat V^{\hat π^*} = \hat V^*\)</span> to simplify some of the terms.</p>
 <details>
 <summary>
 <h4 class="unnumbered" id="proof">Proof</h4>
 </summary>
 <div>
-<p>We will separately prove that <span class="math inline">\(α &lt; 2 Δ \ALPHABET B V^*/(1-γ)\)</span> and <span class="math inline">\(α &lt; 2 Δ \ALPHABET B \hat V^*/(1-γ)\)</span>.</p>
-<ol type="1">
-<li><p><strong>Proof that <span class="math inline">\(α &lt; 2 Δ V^*/(1-γ)\)</span>.</strong></p>
 <p>From triangle inequality we have <span class="math display">\[\begin{equation} \label{eq:triangle-1}
-   \| V^* - V^{\hat π^*} \|_∞ \le
-   \| V^* - \hat V^{\hat π^*} \|_∞ 
-   + 
-   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
- \end{equation}\]</span> Now, we bound the two terms separtely. For the first term of \eqref{eq:triangle-1}, since <span class="math inline">\(\hat  V^{\hat π^*} = \hat V^*\)</span>, we have <span class="math display">\[\begin{align}
+  \| V^* - V^{\hat π^*} \|_∞ \le
+  \| V^* - \hat V^{\hat π^*} \|_∞ 
+  + 
+  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
+\end{equation}\]</span></p>
+<p>We will bound each of these terms in two ways, giving the two possible values of <span class="math inline">\(Δ_1\)</span> and <span class="math inline">\(Δ_2\)</span>.</p>
+<ol type="1">
+<li><p><strong>Bounds on the first term of \eqref{eq:triangle-1}</strong></p>
+<p>Since <span class="math inline">\(\hat V^{\hat π^*} = \hat V^*\)</span>, we have <span class="math display">\[\begin{align}
    \| V^* - \hat V^{*} \|_∞ 
    &amp;\stackrel{(a)}\le
    \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
@@ -99,18 +113,75 @@
    &amp; 
    \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
    - 
-   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) V^*(s&#39;) \Biggr| 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) {\color{red} V^*(s&#39;)} \Biggr| 
    \notag \\
    &amp; \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
    \Biggl| \sum_{s&#39; \in \ALPHABET S} 
-   \biggl[ \hat P(s&#39;|s,a) V^*(s&#39;) - \hat P(s&#39;|s,a) \hat V^*(s)\biggr] \Biggr| 
+   \biggl[ \hat P(s&#39;|s,a) V^*(s&#39;) - \hat P(s&#39;|s,a) \hat V^*(s&#39;)\biggr] \Biggr| 
    \notag \\
    &amp;\stackrel{(c)}\le γ Δ \ALPHABET B V^* + γ \| V^* - \hat V^* \|_∞
    \label{eq:ineq-1}
  \end{align}\]</span> where <span class="math inline">\((a)\)</span> follows from the fact that <span class="math inline">\(| \min f(x) - \min g(x) | \le \max  | f(x) - g(x) |\)</span>, <span class="math inline">\((b)\)</span> follows from triangle inequality, and <span class="math inline">\((c)\)</span> follows from the definition of <span class="math inline">\(Δ\)</span>. Rearranging terms in \eqref{eq:ineq-1}, gives us <span class="math display">\[\begin{equation}
  \| V^* - \hat V^* \|_∞ \le \frac{ γ Δ \ALPHABET B V^*}{1 - γ}.
- \label{eq:ineq-2}\end{equation}\]</span></p>
-<p>Now, for the second term of \eqref{eq:triangle-1}, we have <span class="math display">\[\begin{align}
+ \label{eq:ineq-2}\end{equation}\]</span> This is the first value of <span class="math inline">\(Δ_1\)</span>.</p>
+<p>Now, another way to bound the first term of \eqref{eq:triangle-1} is as follows: <span class="math display">\[\begin{align}
+   \| V^* - \hat V^{*} \|_∞ 
+   &amp;\stackrel{(d)}\le
+   \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) V^*(s&#39;) \notag \\
+   &amp; 
+   \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+   - 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) \hat V^*(s&#39;) \Biggr| 
+   \notag \\
+   &amp;\stackrel{(e)}\le
+   \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) \color{red}{\hat
+   V^*(s&#39;)} \notag \\
+   &amp; 
+   \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+   - 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) \hat V^*(s&#39;) \Biggr| 
+   \notag \\
+   &amp; \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
+   \Biggl| \sum_{s&#39; \in \ALPHABET S} 
+   \biggl[ P(s&#39;|s,a) V^*(s&#39;) - P(s&#39;|s,a) \hat V^*(s&#39;)\biggr] \Biggr| 
+   \notag \\
+   &amp;\stackrel{(f)}\le γ Δ \ALPHABET B  \hat V^* + γ \| V^* - \hat V^* \|_∞
+   \label{eq:ineq-11}
+ \end{align}\]</span> where <span class="math inline">\((d)\)</span> follows from the fact that <span class="math inline">\(| \min f(x) - \min g(x) | \le \max  | f(x) - g(x) |\)</span>, <span class="math inline">\((e)\)</span> follows from triangle inequality, and <span class="math inline">\((f)\)</span> follows from the definition of <span class="math inline">\(Δ\)</span>. Rearranging terms in \eqref{eq:ineq-11}, gives us <span class="math display">\[\begin{equation}
+ \| V^* - \hat V^* \|_∞ \le \frac{ γ Δ \ALPHABET B \hat V^*}{1 - γ}.
+ \label{eq:ineq-12}\end{equation}\]</span> This is the second value of <span class="math inline">\(Δ_1\)</span>.</p></li>
+<li><p><strong>Bounds on the second term of \eqref{eq:triangle-1}</strong></p>
+<p>We have <span class="math display">\[\begin{align}
+   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
+   &amp;\le
+   \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) V^{\hat π^*}(s&#39;) \notag \\
+   &amp; 
+   \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
+   - 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) \hat V^{\hat π^*}(s&#39;) \Biggr| 
+   \notag \\
+   &amp;\stackrel{(g)}\le
+   \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) V^{\hat π^*}(s&#39;) \notag \\
+   &amp; 
+   \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
+   - 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) {\color{red} V^{\hat π^*}(s&#39;)} \Biggr| 
+   \notag \\
+   &amp; \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
+   \Biggl| \sum_{s&#39; \in \ALPHABET S} 
+   \biggl[ \hat P(s&#39;|s,a) V^{\hat π^*}(s&#39;) - \hat P(s&#39;|s,a) \hat V^{\hat π^*}(s)\biggr] \Biggr| 
+   \notag \\
+   &amp;\stackrel{(h)}\le γ Δ \ALPHABET B V^{\hat π^*} + γ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
+   \label{eq:ineq-3}
+ \end{align}\]</span> where <span class="math inline">\((g)\)</span> follows from triangle inequality and <span class="math inline">\((h)\)</span> follows from the definition of <span class="math inline">\(ε\)</span> and <span class="math inline">\(Δ\)</span>. Rearranging terms in \eqref{eq:ineq-3} gives us <span class="math display">\[\begin{equation}
+ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ \le \frac{γ Δ \ALPHABET B V^{\hat
+ π^*}}{1 - γ}.
+ \label{eq:ineq-4}\end{equation}\]</span> This gives the first bound on <span class="math inline">\(Δ_2\)</span>.</p>
+<p>Now, another way to bound the second term of \eqref{eq:triangle-1} is as follows: <span class="math display">\[\begin{align}
    \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
    &amp;\le
    \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
@@ -122,26 +193,23 @@
    \notag \\
    &amp;\stackrel{(d)}\le
    \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
-   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) V^{\hat π^*}(s&#39;) \notag \\
+   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) {\color{red} \hat V^{\hat
+   π^*}(s&#39;)} \notag \\
    &amp; 
    \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
    - 
-   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) V^{\hat π^*}(s&#39;) \Biggr| 
+   \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) \hat V^{\hat π^*}(s&#39;) \Biggr| 
    \notag \\
    &amp; \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
    \Biggl| \sum_{s&#39; \in \ALPHABET S} 
-   \biggl[ \hat P(s&#39;|s,a) V^{\hat π^*}(s&#39;) - \hat P(s&#39;|s,a) \hat V^{\hat π^*}(s)\biggr] \Biggr| 
+   \biggl[ P(s&#39;|s,a) V^{\hat π^*}(s&#39;) - P(s&#39;|s,a) \hat V^{\hat π^*}(s)\biggr] \Biggr| 
    \notag \\
-   &amp;\stackrel{(e)}\le γ Δ \ALPHABET B V^* + γ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
-   \label{eq:ineq-3}
- \end{align}\]</span> where <span class="math inline">\((d)\)</span> follows from triangle inequality and <span class="math inline">\((e)\)</span> follows from the definition of <span class="math inline">\(ε\)</span> and <span class="math inline">\(Δ\)</span>. Rearranging terms in \eqref{eq:ineq-3} gives us <span class="math display">\[\begin{equation}
- \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ \le \frac{γ Δ \ALPHABET B V^*}{1 - γ}.
- \label{eq:ineq-4}\end{equation}\]</span></p>
-<p>Substituting \eqref{eq:ineq-2} and \eqref{eq:ineq-4} in \eqref{eq:triangle-1} gives us <span class="math display">\[\begin{equation}
- \| V^* - V^{\hat π^*} \|_∞ \le \frac{2γ Δ \ALPHABET B V^*}{1 - γ}.
- \label{eq:term-1}\end{equation}\]</span></p></li>
-<li><p><strong>Proof that <span class="math inline">\(α &lt; 2 Δ \ALPHABET B \hat V^*/(1-γ)\)</span>.</strong></p>
-<p>This is almost the same argument as the previous case, except in step (b) of \eqref{eq:ineq-1}, we add and subtract <span class="math inline">\(P(s&#39;|s,a) \hat V^*(s)\)</span> and a similar thing in step (d) of \eqref{eq:ineq-3}.</p></li>
+   &amp;\stackrel{(e)}\le γ Δ \ALPHABET B \hat V^{\hat π^*} + γ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
+   \label{eq:ineq-13}
+ \end{align}\]</span> where <span class="math inline">\((d)\)</span> follows from triangle inequality and <span class="math inline">\((e)\)</span> follows from the definition of <span class="math inline">\(ε\)</span> and <span class="math inline">\(Δ\)</span>. Rearranging terms in \eqref{eq:ineq-13} gives us <span class="math display">\[\begin{equation}
+ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ \le \frac{γ Δ \ALPHABET B
+ \hat V^{\hat π^*}}{1 - γ}.
+ \label{eq:ineq-14}\end{equation}\]</span> This gives the second bound on <span class="math inline">\(Δ_2\)</span>.</p></li>
 </ol>
 </div>
 </details>
