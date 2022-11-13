@@ -11,18 +11,38 @@ tags:
   - state aggregation
 ---
 
-Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c,
-γ \rangle$. Suppose the components $\langle \ALPHABET S, \ALPHABET A, γ
-\rangle$ but we know $(c,P)$ only approximately. Consider the approximate MDP
-$\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, γ
-\rangle$. Suppose $\hat π^*$ is an optimal policy policy for $\widehat
-{\ALPHABET M}$. 
-We are interested in the following question:
+There are many instances where we may plan using an approximate model. For
+example, in many applications with large state spaces, we may construct a
+simulation model of the system and use it to identify an optimal policy using
+simulation based methods (such as reinforcement learning). Often, the
+simulation model is only In such instances,
+we want to know the error in using the policy obtained from the simulation
+model in the real world. In this section, we present bounds on such
+_sim-to-real_ transfer. 
 
-> _What is the approximation error in using the policy $\hat π^*$ (which is
-optimal in the approximate model) in the true model._ 
+Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, γ
+\rangle$. Suppose the components $\langle \ALPHABET S, \ALPHABET A, γ \rangle$
+are known exactly but we know $(c,P)$ only approximately. Consider the
+approximate MDP $\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A,
+\hat P, \hat c, γ \rangle$. We will call $\ALPHABET M$ to be the _true model_
+and $\widehat {\ALPHABET M}$ to be the _approximate model_. 
 
-# Preliminary results
+Let $V^*$ and $\hat V^*$ denote the optimal value functions of the true model
+$\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$,
+respectively. Moreover, let $π^*$ and $\hat π^*$ be optimal policies for the
+true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$,
+respectively. 
+
+We are interested in two questions:
+
+1. **Error in value approximation:** What is the error if $\hat V^*$ is used
+   as an approximation for $V^*$?
+
+2. **Error in policy approximation:** What is the error if the policy $\hat
+   π^*$ is used instead of the optimal policy $π^*$
+
+# Bounding the error for value function approximation
+
 Define the following _Bellman error_ operator: $Δ{\ALPHABET B}$ from
 $\reals^n$ to $\reals^n$, where $n = |\ALPHABET S|$. For any $v \in \reals^n$ 
 \begin{align*}
@@ -30,11 +50,12 @@ $\reals^n$ to $\reals^n$, where $n = |\ALPHABET S|$. For any $v \in \reals^n$
   c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) v(s') 
   \notag \\
   & \quad - 
-  \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) v(s') 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) v(s') 
   \Biggr| 
 \end{align*}
 
-We first start with a useful Lemma.
+The Bellman error operator can be used to bound the performance difference of
+a policy between the true and approximate models.
 
 ::: highlight :::
 
@@ -131,7 +152,7 @@ This gives the second bound.
 
 
 Similar to the above, we can also bound the difference between the optimal
-value function of the original and approximate models. 
+value function of the true and approximate models. 
 
 ::: highlight :::
 
@@ -146,7 +167,7 @@ Lemma #lem:bound-opt
 
 :::
 
-<details>
+<details><!--{{{ Proof -->
 <summary>
 #### Proof {-}
 </summary>
@@ -248,10 +269,17 @@ $$
   \frac{γ}{1-γ} \min\{ Δ \ALPHABET B V^*, Δ \ALPHABET B \hat V^{π^*} \}.
 $$
 
+If we combine the two, we get the following bound, 
+$$
+  \| V^* - \hat V^* \|_∞ \le 
+  \frac{γ}{1-γ} \max\{ Δ \ALPHABET B V^*, Δ \ALPHABET  B \hat V^* \} 
+$$
+which is weaker than what we want to prove. 
+
 </div>
 </details><!--}}}-->
 
-# Model approximation bounds
+# Bounding the error for policy approximation error
 
 ::: highlight :::
 
@@ -410,3 +438,5 @@ Remark #rem:comparison
     this bound is in terms of $\hat V^*$. In some settings, we prefer a bound
     in terms of $V^*$. Using @thm:ais-bound2 in such settings leads to scaling
     by $1/(1-γ)$. 
+
+

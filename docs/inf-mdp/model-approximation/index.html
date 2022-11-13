@@ -48,20 +48,24 @@
 
 <div class="h1-title">Theory: Model approximation in MDPs</div>
 
-<p>Consider an MDP <span class="math inline">\(\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, γ \rangle\)</span>. Suppose the components <span class="math inline">\(\langle \ALPHABET S, \ALPHABET A, γ \rangle\)</span> but we know <span class="math inline">\((c,P)\)</span> only approximately. Consider the approximate MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, γ \rangle\)</span>. Suppose <span class="math inline">\(\hat π^*\)</span> is an optimal policy policy for <span class="math inline">\(\widehat {\ALPHABET M}\)</span>. We are interested in the following question:</p>
-<blockquote>
-<p><em>What is the approximation error in using the policy <span class="math inline">\(\hat π^*\)</span> (which is optimal in the approximate model) in the true model.</em></p>
-</blockquote>
-<h1 data-number="1" id="preliminary-results"><span class="header-section-number">1</span> Preliminary results</h1>
+<p>There are many instances where we may plan using an approximate model. For example, in many applications with large state spaces, we may construct a simulation model of the system and use it to identify an optimal policy using simulation based methods (such as reinforcement learning). Often, the simulation model is only In such instances, we want to know the error in using the policy obtained from the simulation model in the real world. In this section, we present bounds on such <em>sim-to-real</em> transfer.</p>
+<p>Consider an MDP <span class="math inline">\(\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, γ \rangle\)</span>. Suppose the components <span class="math inline">\(\langle \ALPHABET S, \ALPHABET A, γ \rangle\)</span> are known exactly but we know <span class="math inline">\((c,P)\)</span> only approximately. Consider the approximate MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, γ \rangle\)</span>. We will call <span class="math inline">\(\ALPHABET M\)</span> to be the <em>true model</em> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span> to be the <em>approximate model</em>.</p>
+<p>Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions of the true model <span class="math inline">\(\ALPHABET M\)</span> and the approximate model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Moreover, let <span class="math inline">\(π^*\)</span> and <span class="math inline">\(\hat π^*\)</span> be optimal policies for the true model <span class="math inline">\(\ALPHABET M\)</span> and the approximate model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively.</p>
+<p>We are interested in two questions:</p>
+<ol type="1">
+<li><p><strong>Error in value approximation:</strong> What is the error if <span class="math inline">\(\hat V^*\)</span> is used as an approximation for <span class="math inline">\(V^*\)</span>?</p></li>
+<li><p><strong>Error in policy approximation:</strong> What is the error if the policy <span class="math inline">\(\hat π^*\)</span> is used instead of the optimal policy <span class="math inline">\(π^*\)</span></p></li>
+</ol>
+<h1 data-number="1" id="bounding-the-error-for-value-function-approximation"><span class="header-section-number">1</span> Bounding the error for value function approximation</h1>
 <p>Define the following <em>Bellman error</em> operator: <span class="math inline">\(Δ{\ALPHABET B}\)</span> from <span class="math inline">\(\reals^n\)</span> to <span class="math inline">\(\reals^n\)</span>, where <span class="math inline">\(n = |\ALPHABET S|\)</span>. For any <span class="math inline">\(v \in \reals^n\)</span> <span class="math display">\[\begin{align*}
   [Δ{\ALPHABET B} v]_s  = \max_{a \in \ALPHABET A} \Biggl| &amp;
   c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P(s&#39;|s,a) v(s&#39;) 
   \notag \\
   &amp; \quad - 
-  \hat c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) v(s&#39;) 
+  \hat c(s,a) - γ \sum_{s&#39; \in \ALPHABET S} \hat P(s&#39;|s,a) v(s&#39;) 
   \Biggr| 
 \end{align*}\]</span></p>
-<p>We first start with a useful Lemma.</p>
+<p>The Bellman error operator can be used to bound the performance difference of a policy between the true and approximate models.</p>
 <div class="highlight">
 <dl>
 <dt><span id="lem:1"></span><span id="lem:bound-policy" class="pandoc-numbering-text lem"><strong>Lemma 1</strong></span></dt>
@@ -138,7 +142,7 @@
 </div>
 </details>
 <!--}}}-->
-<p>Similar to the above, we can also bound the difference between the optimal value function of the original and approximate models.</p>
+<p>Similar to the above, we can also bound the difference between the optimal value function of the true and approximate models.</p>
 <div class="highlight">
 <dl>
 <dt><span id="lem:2"></span><span id="lem:bound-opt" class="pandoc-numbering-text lem"><strong>Lemma 2</strong></span></dt>
@@ -151,6 +155,7 @@
 </dl>
 </div>
 <details>
+<!--{{{ Proof -->
 <summary>
 <h4 class="unnumbered" id="proof-1">Proof</h4>
 </summary>
@@ -227,10 +232,14 @@
   \hat V^* - V^* \le \hat V^{π^*} - V^{π^*} \le
   \frac{γ}{1-γ} \min\{ Δ \ALPHABET B V^*, Δ \ALPHABET B \hat V^{π^*} \}.
 \]</span></p>
+<p>If we combine the two, we get the following bound, <span class="math display">\[
+  \| V^* - \hat V^* \|_∞ \le 
+  \frac{γ}{1-γ} \max\{ Δ \ALPHABET B V^*, Δ \ALPHABET  B \hat V^* \} 
+\]</span> which is weaker than what we want to prove.</p>
 </div>
 </details>
 <!--}}}-->
-<h1 data-number="2" id="model-approximation-bounds"><span class="header-section-number">2</span> Model approximation bounds</h1>
+<h1 data-number="2" id="bounding-the-error-for-policy-approximation-error"><span class="header-section-number">2</span> Bounding the error for policy approximation error</h1>
 <div class="highlight">
 <dl>
 <dt><span id="thm:1"></span><span id="thm:ais-bound" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
