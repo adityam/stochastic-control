@@ -24,15 +24,233 @@ optimal in the approximate model) in the true model._
 
 Define the following _Bellman error_ operator: $Δ{\ALPHABET B}$ from
 $\reals^n$ to $\reals^n$, where $n = |\ALPHABET S|$. For any $v \in \reals^n$ 
-$$\begin{align*}
+\begin{align*}
   [Δ{\ALPHABET B} v]_s  = \max_{a \in \ALPHABET A} \Biggl| &
   c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) v(s') 
   \notag \\
   & \quad - 
   \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) v(s') 
   \Biggr| 
-\end{align*}$$
-Then we have the following bound.
+\end{align*}
+
+We first start with a useful Lemma.
+
+::: highlight :::
+
+Lemma #lem:bound-policy
+
+:   For any (possibly randomized) policy $π$, 
+    \begin{equation}\label{eq:bound-0}
+       \| V^{π} - \hat V^{π} \|_∞ \le 
+       \frac{γ}{1-γ} \min\{ Δ \ALPHABET B V^{π}, Δ \ALPHABET B \hat V^{π} \}. 
+    \end{equation}
+
+:::
+
+<details><!--{{{ Proof -->
+<summary>
+#### Proof {-}
+</summary>
+<div>
+We bound the left hand side of \\eqref{eq:bound-0} in two ways. The first way 
+is as follows:
+\begin{align}
+  \| V^{π} - \hat V^{π} \|_∞ 
+  &\le
+  \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} π(a | s) \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^{π}(s') \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} π(a | s) \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^{π}(s') \Biggr| 
+  \notag \\
+  &\stackrel{(a)}\le
+  \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} π(a | s) \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^{π}(s') \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} π(a | s) \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) {\color{red} V^{π}(s')} \Biggr| 
+  \notag \\
+  & \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} π(a|s) 
+  \Biggl| \sum_{s' \in \ALPHABET S} 
+  \biggl[ \hat P(s'|s,a) V^{π}(s') - \hat P(s'|s,a) \hat V^{π}(s)\biggr] \Biggr| 
+  \notag \\
+  &\stackrel{(b)}\le γ Δ \ALPHABET B V^{π} + γ \| V^{π} - \hat V^{π} \|_∞
+  \label{eq:ineq-3}
+\end{align}
+where $(a)$ follows from triangle inequality and $(b)$ follows from the
+definition of $Δ \ALPHABET B$. Rearranging terms in \\eqref{eq:ineq-3} gives
+us
+$$\begin{equation}
+\| V^{π} - \hat V^{π} \|_∞ \le \frac{γ Δ \ALPHABET B V^{\hat
+π}}{1 - γ}.
+\label{eq:ineq-4}\end{equation}
+This gives the first bound.
+
+
+Now, another way to bound the left hand side of \\eqref{eq:bound-0} is as
+follows:
+\begin{align}
+  \| V^{π} - \hat V^{π} \|_∞ 
+  &\le
+  \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} π(a | s) \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^{π}(s') \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} π(a | s) \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^{π}(s') \Biggr| 
+  \notag \\
+  &\stackrel{(c)}\le
+  \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} π(a | s) \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) {\color{red} \hat V^{π}(s')} \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} π(a | s) \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^{π}(s') \Biggr| 
+  \notag \\
+  & \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} π(a|s) 
+  \Biggl| \sum_{s' \in \ALPHABET S} 
+  \biggl[ P(s'|s,a) V^{π}(s') - P(s'|s,a) \hat V^{π}(s)\biggr] \Biggr| 
+  \notag \\
+  &\stackrel{(d)}\le γ Δ \ALPHABET B \hat V^{π} + γ \| V^{π} - \hat V^{π} \|_∞
+  \label{eq:ineq-13}
+\end{align}
+where $(c)$ follows from triangle inequality and $(d)$ follows from the
+definition of $Δ \ALPHABET B$. Rearranging terms in \\eqref{eq:ineq-13} gives
+us
+$$\begin{equation}
+\| V^{π} - \hat V^{π} \|_∞ \le \frac{γ Δ \ALPHABET B
+\hat V^{π}}{1 - γ}.
+\label{eq:ineq-14}\end{equation}$$
+This gives the second bound.
+</div>
+</details><!--}}}-->
+
+
+
+Similar to the above, we can also bound the difference between the optimal
+value function of the original and approximate models. 
+
+::: highlight :::
+
+Lemma #lem:bound-opt
+
+:   Let $V^*$ and $\hat V^*$ denote the optimal value functions for $\ALPHABET
+    M$ and $\widehat {\ALPHABET M}$, respectively. Then,
+    \begin{equation}\label{eq:bound-1}
+        \| V^* - \hat V^* \|_∞ \le 
+        \frac{γ}{1-γ} \min\{ Δ \ALPHABET B V^*, Δ \ALPHABET  B \hat V^* \} 
+    \end{equation}
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+We bound the left hand side of \\eqref{eq:bound-1} in two ways. The first was
+is as follows:
+\begin{align}
+  \| V^* - \hat V^{*} \|_∞ 
+  &\stackrel{(a)}\le
+  \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^*(s') \Biggr| 
+  \notag \\
+  &\stackrel{(b)}\le
+  \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) {\color{red} V^*(s')} \Biggr| 
+  \notag \\
+  & \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
+  \Biggl| \sum_{s' \in \ALPHABET S} 
+  \biggl[ \hat P(s'|s,a) V^*(s') - \hat P(s'|s,a) \hat V^*(s')\biggr] \Biggr| 
+  \notag \\
+  &\stackrel{(c)}\le γ Δ \ALPHABET B V^* + γ \| V^* - \hat V^* \|_∞
+  \label{eq:ineq-1}
+\end{align}
+where $(a)$ follows from the fact that $| \min f(x) - \min g(x) | \le \max
+| f(x) - g(x) |$, $(b)$ follows from triangle inequality, and $(c)$
+follows from the definition of $Δ \ALPHABET B$. Rearranging terms
+in \\eqref{eq:ineq-1}, gives us
+\begin{equation}
+\| V^* - \hat V^* \|_∞ \le \frac{ γ Δ \ALPHABET B V^*}{1 - γ}.
+\label{eq:ineq-2}\end{equation}
+This gives the first bound.
+
+
+Now, another way to bound the left hand side of \\eqref{eq:bound-1} is as
+follows:
+\begin{align}
+  \| V^* - \hat V^{*} \|_∞ 
+  &\stackrel{(d)}\le
+  \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^*(s') \Biggr| 
+  \notag \\
+  &\stackrel{(e)}\le
+  \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) \color{red}{\hat
+  V^*(s')} \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^*(s') \Biggr| 
+  \notag \\
+  & \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
+  \Biggl| \sum_{s' \in \ALPHABET S} 
+  \biggl[ P(s'|s,a) V^*(s') - P(s'|s,a) \hat V^*(s')\biggr] \Biggr| 
+  \notag \\
+  &\stackrel{(f)}\le γ Δ \ALPHABET B  \hat V^* + γ \| V^* - \hat V^* \|_∞
+  \label{eq:ineq-11}
+\end{align}
+where $(d)$ follows from the fact that $| \min f(x) - \min g(x) | \le \max
+| f(x) - g(x) |$, $(e)$ follows from triangle inequality, and $(f)$
+follows from the definition of $Δ \ALPHABET B$. Rearranging terms
+in \\eqref{eq:ineq-11}, gives us
+\begin{equation}
+\| V^* - \hat V^* \|_∞ \le \frac{ γ Δ \ALPHABET B \hat V^*}{1 - γ}.
+\label{eq:ineq-12}\end{equation}
+This is the second value of $Δ_1$. 
+</div>
+</details><!--}}}-->
+
+<details><!--{{{ Proof -->
+<summary>
+#### A partial alternative proof {-}
+</summary>
+<div>
+
+It is tempting to try to prove @lem:bound-opt using @lem:bound-policy, but
+that approach does not work. We present it here for completeness. 
+
+Since $π^*$ is optimal for $\ALPHABET M$, we have $V^* \le V^{\hat π^*}$. Therefore, 
+$$ V^* - \hat V^* \le V^{\hat π^*} - \hat V^{\hat π^*} 
+  \le \frac{γ}{1-γ} \min\{ Δ \ALPHABET B V^{\hat π^*}, Δ \ALPHABET B \hat V^* \}$$
+
+where the last inequality follows from @lem:bound-policy.
+
+By a similar argument, we have $\hat V^* \le \hat V^{π^*}$. Threfore,
+$$
+  \hat V^* - V^* \le \hat V^{π^*} - V^{π^*} \le
+  \frac{γ}{1-γ} \min\{ Δ \ALPHABET B V^*, Δ \ALPHABET B \hat V^{π^*} \}.
+$$
+
+</div>
+</details><!--}}}-->
+
+An immediate consequence of combining these two bounds is the following.
 
 ::: highlight :::
 
@@ -53,18 +271,6 @@ Theorem #thm:ais-bound
 
 :::
 
-Note that depending on how we pick $Δ_1$ and $Δ_2$, we get four possible upper
-bounds and can bound $α$ by the tightest of them, i.e., 
-$$
-  α \le \frac{γ}{1 - γ} \min\bigl\{
-  Δ \ALPHABET B V^* + Δ \ALPHABET B V^{\hat π^*}, \space 
-  Δ \ALPHABET B V^* + Δ \ALPHABET B \hat V^*, \space
-  Δ \ALPHABET B \hat V^* + Δ \ALPHABET B V^{\hat π^*}, \space 
-  2Δ \ALPHABET B \hat V^* \bigr\}
-$$
-where we have used the fact that $\hat V^{\hat π^*} = \hat V^*$ to simplify
-some of the terms.
-
 <details>
 <summary>
 #### Proof {-}
@@ -78,159 +284,128 @@ $$\begin{equation} \label{eq:triangle-1}
   + 
   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
 \end{equation}$$
-
-We will bound each of these terms in two ways, giving the two possible values
-of $Δ_1$ and $Δ_2$. 
-
-1. **Bounds on the first term of \\eqref{eq:triangle-1}**
-
-    Since $\hat V^{\hat π^*} = \hat V^*$, we have
-    $$\begin{align}
-      \| V^* - \hat V^{*} \|_∞ 
-      &\stackrel{(a)}\le
-      \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
-      c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \notag \\
-      & 
-      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
-      - 
-      \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^*(s') \Biggr| 
-      \notag \\
-      &\stackrel{(b)}\le
-      \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
-      c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \notag \\
-      & 
-      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
-      - 
-      \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) {\color{red} V^*(s')} \Biggr| 
-      \notag \\
-      & \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
-      \Biggl| \sum_{s' \in \ALPHABET S} 
-      \biggl[ \hat P(s'|s,a) V^*(s') - \hat P(s'|s,a) \hat V^*(s')\biggr] \Biggr| 
-      \notag \\
-      &\stackrel{(c)}\le γ Δ \ALPHABET B V^* + γ \| V^* - \hat V^* \|_∞
-      \label{eq:ineq-1}
-    \end{align}$$
-    where $(a)$ follows from the fact that $| \min f(x) - \min g(x) | \le \max
-    | f(x) - g(x) |$, $(b)$ follows from triangle inequality, and $(c)$
-    follows from the definition of $Δ$. Rearranging terms
-    in \\eqref{eq:ineq-1}, gives us
-    $$\begin{equation}
-    \| V^* - \hat V^* \|_∞ \le \frac{ γ Δ \ALPHABET B V^*}{1 - γ}.
-    \label{eq:ineq-2}\end{equation}$$
-    This is the first value of $Δ_1$.
-
-    Now, another way to bound the first term of \\eqref{eq:triangle-1} is as
-    follows:
-    $$\begin{align}
-      \| V^* - \hat V^{*} \|_∞ 
-      &\stackrel{(d)}\le
-      \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
-      c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \notag \\
-      & 
-      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
-      - 
-      \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^*(s') \Biggr| 
-      \notag \\
-      &\stackrel{(e)}\le
-      \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|
-      c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) \color{red}{\hat
-      V^*(s')} \notag \\
-      & 
-      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \Biggl|}
-      - 
-      \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^*(s') \Biggr| 
-      \notag \\
-      & \quad + γ \max_{s \in \ALPHABET S, a \in \ALPHABET A}
-      \Biggl| \sum_{s' \in \ALPHABET S} 
-      \biggl[ P(s'|s,a) V^*(s') - P(s'|s,a) \hat V^*(s')\biggr] \Biggr| 
-      \notag \\
-      &\stackrel{(f)}\le γ Δ \ALPHABET B  \hat V^* + γ \| V^* - \hat V^* \|_∞
-      \label{eq:ineq-11}
-    \end{align}$$
-    where $(d)$ follows from the fact that $| \min f(x) - \min g(x) | \le \max
-    | f(x) - g(x) |$, $(e)$ follows from triangle inequality, and $(f)$
-    follows from the definition of $Δ$. Rearranging terms
-    in \\eqref{eq:ineq-11}, gives us
-    $$\begin{equation}
-    \| V^* - \hat V^* \|_∞ \le \frac{ γ Δ \ALPHABET B \hat V^*}{1 - γ}.
-    \label{eq:ineq-12}\end{equation}$$
-    This is the second value of $Δ_1$. 
-
-2. **Bounds on the second term of \\eqref{eq:triangle-1}**
-
-    We have
-    $$\begin{align}
-      \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
-      &\le
-      \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
-      c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^{\hat π^*}(s') \notag \\
-      & 
-      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
-      - 
-      \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^{\hat π^*}(s') \Biggr| 
-      \notag \\
-      &\stackrel{(g)}\le
-      \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
-      c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^{\hat π^*}(s') \notag \\
-      & 
-      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
-      - 
-      \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) {\color{red} V^{\hat π^*}(s')} \Biggr| 
-      \notag \\
-      & \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
-      \Biggl| \sum_{s' \in \ALPHABET S} 
-      \biggl[ \hat P(s'|s,a) V^{\hat π^*}(s') - \hat P(s'|s,a) \hat V^{\hat π^*}(s)\biggr] \Biggr| 
-      \notag \\
-      &\stackrel{(h)}\le γ Δ \ALPHABET B V^{\hat π^*} + γ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
-      \label{eq:ineq-3}
-    \end{align}$$
-    where $(g)$ follows from triangle inequality and $(h)$ follows from the
-    definition of $ε$ and $Δ$. Rearranging terms in \\eqref{eq:ineq-3} gives
-    us
-    $$\begin{equation}
-    \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ \le \frac{γ Δ \ALPHABET B V^{\hat
-    π^*}}{1 - γ}.
-    \label{eq:ineq-4}\end{equation}$$
-    This gives the first bound on $Δ_2$.
-
-
-    Now, another way to bound the second term of \\eqref{eq:triangle-1} is as
-    follows:
-    $$\begin{align}
-      \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
-      &\le
-      \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
-      c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^{\hat π^*}(s') \notag \\
-      & 
-      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
-      - 
-      \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^{\hat π^*}(s') \Biggr| 
-      \notag \\
-      &\stackrel{(d)}\le
-      \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
-      c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) {\color{red} \hat V^{\hat
-      π^*}(s')} \notag \\
-      & 
-      \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
-      - 
-      \hat c(s,a) + γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^{\hat π^*}(s') \Biggr| 
-      \notag \\
-      & \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
-      \Biggl| \sum_{s' \in \ALPHABET S} 
-      \biggl[ P(s'|s,a) V^{\hat π^*}(s') - P(s'|s,a) \hat V^{\hat π^*}(s)\biggr] \Biggr| 
-      \notag \\
-      &\stackrel{(e)}\le γ Δ \ALPHABET B \hat V^{\hat π^*} + γ \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
-      \label{eq:ineq-13}
-    \end{align}$$
-    where $(d)$ follows from triangle inequality and $(e)$ follows from the
-    definition of $ε$ and $Δ$. Rearranging terms in \\eqref{eq:ineq-13} gives
-    us
-    $$\begin{equation}
-    \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ \le \frac{γ Δ \ALPHABET B
-    \hat V^{\hat π^*}}{1 - γ}.
-    \label{eq:ineq-14}\end{equation}$$
-    This gives the second bound on $Δ_2$.
-
+The result then follows by bounding the first term using @lem:bound-opt and
+the second term using @lem:bound-policy.
 
 </div>
 </details>
+
+Note that depending on how we pick $Δ_1$ and $Δ_2$, we get four possible upper
+bounds and can bound $α$ by the tightest of them, i.e., 
+\begin{equation}\label{eq:combined}
+  α \le \frac{γ}{1 - γ} \min\bigl\{
+  Δ \ALPHABET B V^* + Δ \ALPHABET B V^{\hat π^*}, \space 
+  Δ \ALPHABET B V^* + Δ \ALPHABET B \hat V^*, \space
+  Δ \ALPHABET B \hat V^* + Δ \ALPHABET B V^{\hat π^*}, \space 
+  2Δ \ALPHABET B \hat V^* \bigr\}
+\end{equation}
+where we have used the fact that $\hat V^{\hat π^*} = \hat V^*$ to simplify
+some of the terms. 
+
+Ideally, we want an upper bound that just depends on the original model or
+just on the approximate model. The last bound in \\eqref{eq:combined} depends
+just on the approximate model. We state it separately for ease of reference.
+
+::: highlight :::
+
+Corollary #cor:ais-bound
+
+:   The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
+    \begin{equation}
+        α := \| V^* - V^{\hat π^*} \|_∞ \le
+        \frac{2γ}{1-γ} \ALPHABET B \hat V^*. 
+    \end{equation}
+
+::::
+
+
+In the next lemma, we 
+develop a bound that depends just on the original model. 
+
+::: highlight :::
+
+Theorem #thm:ais-bound2
+
+:   The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
+    \begin{equation}
+        α := \| V^* - V^{\hat π^*} \|_∞ \le
+        \frac{2γ}{(1-γ)^2} \ALPHABET B V^*. 
+    \end{equation}
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+As before, we consider the following bound by triangle inequality.
+\begin{equation} \label{eq:triangle-2}
+  \| V^* - V^{\hat π^*} \|_∞ \le
+  \| V^* - \hat V^{\hat π^*} \|_∞ 
+  + 
+  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
+\end{equation}
+We will bound the first term of \\eqref{eq:triangle-2} by @lem:bound-opt.
+But instead of bounding the second term of \\eqref{eq:triangle-2} by
+@lem:bound-policy, we consider the following:
+\begin{align}
+  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
+  &\le
+  \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) V^{\hat π^*}(s') \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) \hat V^{\hat π^*}(s') \Biggr| 
+  \notag \\
+  &\stackrel{(a)}\le
+  \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|
+  c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) {\color{red} V^{*}(s')} \notag \\
+  & 
+  \hphantom{= \max_{s \in \ALPHABET S, a \in \ALPHABET A} \sum_{a \in \ALPHABET A} \hat π^*(a | s) \Biggl|}
+  - 
+  \hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) {\color{red} V^{*}(s')} \Biggr| 
+  \notag \\
+  & \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
+  \Biggl| \sum_{s' \in \ALPHABET S} 
+  \biggl[ P(s'|s,a) V^{\hat π*}(s') - P(s'|s,a) V^{*}(s)\biggr] \Biggr| 
+  \notag \\
+  & \quad + γ \max_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \hat π^*(a|s) 
+  \Biggl| \sum_{s' \in \ALPHABET S} 
+  \biggl[ \hat P(s'|s,a) V^{*}(s') - \hat P(s'|s,a) \hat V^{\hat π^*}(s)\biggr] \Biggr| 
+  \notag \\
+  &\stackrel{(b)}\le γ Δ \ALPHABET B V^{*} + γ \| V^{*} - V^{\hat π^*} \|_∞
+  + γ \| V^{*} - \hat V^{*} \|_∞
+  \label{eq:ineq-21}.
+\end{align}
+where $(a)$ follows from triangle inequality and $(b)$ follows from the
+definition of $Δ \ALPHABET B$ and (for the last term of $(b)$) that $\hat
+V^{\hat π^*} = \hat V^*$. 
+
+Substituting \\eqref{eq:ineq-21} in \\eqref{eq:triangle-2} and rearranging
+terms, we get
+\begin{align}
+  \| V^* - V^{\hat π^*} \|_∞ 
+  &\le
+  \frac{γ}{1-γ} \ALPHABET  B V^*
+  + 
+  \frac{1+γ}{1-γ} \| V^* - \hat V^* \|_∞
+  \notag \\
+  &\le
+  \frac{γ}{1-γ} \ALPHABET  B V^*
+  + 
+  \frac{γ(1+γ)}{(1-γ)^2} \ALPHABET B V^* 
+  \notag \\
+  &= \frac{2γ}{(1-γ)^2} \ALPHABET B V^*. 
+\end{align}
+where the second inequality follows from @lem:bound-opt.
+</div>
+</details><!--}}}-->
+
+Remark #rem:comparison
+
+:   Note that the bound of @cor:ais-bound is tighter by a factor of $1/(1-γ)$, but
+    this bound is in terms of $\hat V^*$. In some settings, we prefer a bound
+    in terms of $V^*$. Using @thm:ais-bound2 in such settings leads to scaling
+    by $1/(1-γ)$. 
