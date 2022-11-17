@@ -43,7 +43,7 @@ We are interested in two questions:
 
 # Bounds for model approximation
 
-## Bounding the error for value function approximation
+## Bounding the error for value function approximation {#value-error}
 
 Let $\ALPHABET B^π$ and $\ALPHABET B^*$ denote the Bellman operator for policy
 $π$ and the optimality Bellman operator for model $\ALPHABET M$. Let $\hat
@@ -264,11 +264,11 @@ approximate model. We state it separately for ease of reference.
 Corollary #cor:ais-bound
 
 :   The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
-    \begin{equation}
+    $$
         α := \| V^* - V^{\hat π^*} \|_∞ \le
         \frac{1}{1-γ} \bigl[ Δ \ALPHABET B^* \hat V^* + Δ \ALPHABET B^{\hat
         π^*} \hat V^* \bigr]. 
-    \end{equation}
+    $$
 
 ::::
 
@@ -279,12 +279,19 @@ In the next lemma, we develop a bound that depends just on the value function tr
 Theorem #thm:policy-bound2
 
 :   The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
-    \begin{equation}
+    $$
         α := \| V^* - V^{\hat π^*} \|_∞ \le
         \frac{1}{1-γ} Δ \ALPHABET  B^{\hat π^*} V^*
         + 
         \frac{(1+γ)}{(1-γ)^2} Δ \ALPHABET B^* V^* .
-    \end{equation}
+    $$
+
+    Moreover, if both $Δ \ALPHABET B^{\hat π^*} V^*$ and $Δ \ALPHABET B^* V^*$
+    are upper bounded by a common upper bound, say $Δ \bar {\ALPHABET B} V^*$,
+    then,
+    $$
+        α \le \frac{2}{(1-γ)^2} Δ \bar {\ALPHABET B} V^*. 
+    $$
 
 :::
 
@@ -344,6 +351,7 @@ where the second inequality follows from @thm:value-bound.
 </div>
 </details><!--}}}-->
 
+
 Remark #rem:comparison
 
 :   Note that the bound of @cor:ais-bound is tighter by a factor of $1/(1-γ)$, but
@@ -377,7 +385,7 @@ function $\phi \colon \ALPHABET S \to \hat {\ALPHABET S}$ which maps all
 points in $\ALPHABET S_i$ to the representative element $\hat s_i$. 
 
 We consider a finite state MDP $\widehat {\ALPHABET M} = \langle \hat
-{\ALPHABET S}, \ALPHABET A, \hat P, \hat c\rangle$, where $\hat c$ is the
+{\ALPHABET S}, \ALPHABET A, \hat P, \hat c, γ\rangle$, where $\hat c$ is the
 restriction of $c$ onto $\hat {\ALPHABET S}$, and $\hat P$ is given by 
 
 $$\hat P(\hat s_j | \hat s_i, a) =
@@ -397,7 +405,7 @@ compare models $\ALPHABET M$ and $\widehat {\ALPHABET M}$
 ## An intermediate model
 
 Define a model $\overline {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, 
-\bar p, \bar c \rangle$, where
+\bar p, \bar c, γ \rangle$, where
 $$
   \bar c(s,a) = c(\phi(s,a))
 $$
@@ -569,9 +577,17 @@ Under this assumption, we have
     c(\phi(s), a) - γ \int_{\ALPHABET S} p(s'|\phi(s), a) V^*(s') ds' 
   \biggr|
   \notag \\
+  &\le  L_c \max_{s \in \ALPHABET S}d(s, \phi(s)) 
+  + 
+  γ K(p(\cdot | s, a), p(\cdot | \phi(s), a)) \NORM{V^*}_L )
+  \notag \\
   &\le ( L_c  + γ L_p \NORM{V^*}_L ) 
   \underbrace{\max_{s \in \ALPHABET S}d(s, \phi(s)) }_{=: D}
 \end{align*}
+where the second inequality uses [Lemma 1 from the notes on Lipschitz
+MDP][Lemma 1].
+
+[Lemma 1]: ../lipschitz-mdp#lemma:Kantorovich
 
 Thus, we have the following:
 
