@@ -1,0 +1,114 @@
+---
+title: "Theory: Sample complexity"
+weight: 05
+categories: 
+  - RL
+tags:
+  - infinite horizon
+  - discounted cost
+  - sample complexity
+  - Hoeffding inequality
+  - generative model
+---
+
+An important consideration in model-based RL is to determine how many
+samples are needed to identify an $α$-approximate solution (for a pre-specified
+accuracy level $α$). This is known as _sample complexity_ of learning and is typically analyzed under the assumption that the learning agent has access to a
+generative model, i.e., a black box simulator that takes the current state and
+action profile as input and generates samples of the next state as output.
+
+The simplest approach in this setting is to use a _plug-in estimator_ (or the
+_certainty equivalent controller_), i.e., estimating the transition matrix
+using the generated samples and using the optimal policy corresponding to the
+estimated model in the true system. In this section, we characterize the
+sample complexity of using the plug-in estimator. 
+
+Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c,
+γ \rangle$. Suppose the components $\langle \ALPHABET S, \ALPHABET A, c, γ
+\rangle$ are known but the transition matrix $P$ is not known. We assume that
+Gwe have access to a _generative model_, i.e., a black box simulator that
+provides samples $S_+ \sim P(\,\cdot \mid s,a)$ of the next state $S_+$ for
+any given state-action pair $(s,a)$ as input. Suppose we call the simulator
+$N$ times at each state-action pair and estimate the emperical model $\hat
+P_N$ as $\hat P_N(s'|s,a) = \text{count}(s'|s,a)/N$, where
+$\text{count}(s'|s,a)$ is the number of times $s'$ is sampled with input
+$(s,a)$. The model $\widehat {\ALPHABET M}_N = \langle \ALPHABET S, \ALPHABET
+A, \hat P_N, c, γ \rangle$ may be viewed as an approximation of
+model $\ALPHABET M$. 
+
+We also assume that we have a _planning oracle_, which takes the approximate
+model $\widehat {\ALPHABET M}_N$ as input and generates an
+optimal policy $\hat π_N$. We are interested in the following question. Given
+a $α > 0$ and $p > 0$, how many samples $N$ are needed from the generative
+model such that the policy $\hat π_N$ is $α$-optimal for model $\ALPHABET M$
+with probability at least $1 - p$. This is called _sample complexity_ of
+learning. 
+
+# Hoeffding-Type Bound
+
+We use the policy approximation bounds derived in the notes for [model
+approximation][approx] by treating model $\widehat {\ALPHABET M}_N$ as an
+approximation of model $\ALPHABET M$. Recall the definitions of Bellman
+mismatch operators given in the [notes on model approximation][mismatch]. In
+our setting, since the cost function is known, we can upper bound both as
+follows. 
+\begin{align}
+  Δ \ALPHABET B^π V^* &= \| \ALPHABET B^π V^* - \hat {\ALPHABET B}^π V^* \|_∞
+  \notag \\
+  &\le γ \max_{s \in \ALPHABET S} \biggl|
+  \sum_{a \in \ALPHABET A} π(a|s) 
+  \sum_{s' \in \ALPHABET S} \Bigl[
+  P(s'|s,a) V^*(s') - \hat P_N(s'|s,a) V^*(s')
+  \Bigr] \biggr|
+  \notag \\
+  &\le γ 
+  \max_{s \in \ALPHABET S, a \in \ALPHABET A} \biggl|
+  \sum_{s' \in \ALPHABET S} \Bigl[
+  P(s'|s,a) V^*(s') - \hat P_N(s'|s,a) V^*(s')
+  \Bigr] \biggr|
+  \notag \\
+  &=: γ Δ_N
+  \label{eq:bound-1}
+\end{align}
+
+By a similar argument, 
+\begin{align}
+  Δ \ALPHABET B^* V^* &= \| \ALPHABET B^* V^* - \hat {\ALPHABET B}^* V^* \|_∞
+  \notag \\
+  &\le γ \max_{s \in \ALPHABET S, a \in \ALPHABET A} \biggl|
+  \sum_{s' \in \ALPHABET S} \Bigl[
+  P(s'|s,a) V^*(s') - \hat P_N(s'|s,a) V^*(s')
+  \Bigr] \biggr|
+  \notag \\
+  &= γ Δ_N
+  \label{eq:bound-2}
+\end{align}
+where the first inequality follows from the fact that $| \min f(x) - \min g(x)
+| \le \max | f(x) - g(x) |$. 
+
+[approx]: ../../inf-mdp/model-approximation#thm:policy-bound2
+[mismatch]: ../../inf-mdp/model-approximation#value-error
+
+Therefore, using the second bound in [policy approximation bound][approx], we
+get
+
+$$
+  \| V^* - V^{\hat π_N} \| \le \frac{2γ}{(1-γ)^2} Δ_N.
+$$
+
+
+Let $H = \text{span}(V^*)$. By Hoeffding's inequality, we have that for any given
+state action pair $(s,a)$ and any constant $\bar Δ > 0$, 
+$$
+\PR\biggl( \Biggl| \sum_{s'\in \ALPHABET S} \hat P_N(s'|s,a) V^*(s') 
+- \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \Biggr| \ge c \biggr)
+\le 2 \exp\biggl( - \frac{2 N c^2}{H^2} \biggr).
+$$
+
+Therefore, by union bound, we have 
+$$
+\PR\biggl( \max_{s \in \ALPHABET S, a \in \ALPHABET  A} \Biggl| \sum_{s'\in \ALPHABET S} \hat P_N(s'|s,a) V^*(s') 
+- \sum_{s' \in \ALPHABET S} P(s'|s,a) V^*(s') \Biggr| \ge c \biggr)
+\le 2 |\ALPHABET S|\,|\ALPHABET A| \exp\biggl( - \frac{2 N c^2}{H^2} \biggr).
+$$
+

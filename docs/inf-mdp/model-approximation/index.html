@@ -57,7 +57,7 @@
 <li><p><strong>Error in policy approximation:</strong> What is the error if the policy <span class="math inline">\(\hat π^*\)</span> is used instead of the optimal policy <span class="math inline">\(π^*\)</span></p></li>
 </ol>
 <h1 data-number="1" id="bounds-for-model-approximation"><span class="header-section-number">1</span> Bounds for model approximation</h1>
-<h2 data-number="1.1" id="bounding-the-error-for-value-function-approximation"><span class="header-section-number">1.1</span> Bounding the error for value function approximation</h2>
+<h2 data-number="1.1" id="value-error"><span class="header-section-number">1.1</span> Bounding the error for value function approximation</h2>
 <p>Let <span class="math inline">\(\ALPHABET B^π\)</span> and <span class="math inline">\(\ALPHABET B^*\)</span> denote the Bellman operator for policy <span class="math inline">\(π\)</span> and the optimality Bellman operator for model <span class="math inline">\(\ALPHABET M\)</span>. Let <span class="math inline">\(\hat {\ALPHABET B}^π\)</span> and <span class="math inline">\(\hat {\ALPHABET B}^*\)</span> denote the corresponding quantiites for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>. Define the <em>Bellman mismatch operator</em> <span class="math inline">\(Δ \ALPHABET B^π\)</span> and <span class="math inline">\(Δ \ALPHABET B^*\)</span> as follows: <span class="math display">\[\begin{align*}
   Δ \ALPHABET B^π v &amp;= \| \ALPHABET B^π v - \hat {\ALPHABET B}^π v \|_∞, 
   \\
@@ -215,11 +215,11 @@
 <dl>
 <dt><span id="cor:1"></span><span id="cor:ais-bound" class="pandoc-numbering-text cor"><strong>Corollary 1</strong></span></dt>
 <dd>
-<p>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[\begin{equation}
+<p>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
     α := \| V^* - V^{\hat π^*} \|_∞ \le
     \frac{1}{1-γ} \bigl[ Δ \ALPHABET B^* \hat V^* + Δ \ALPHABET B^{\hat
     π^*} \hat V^* \bigr]. 
-\end{equation}\]</span></p>
+\]</span></p>
 </dd>
 </dl>
 </div>
@@ -228,12 +228,15 @@
 <dl>
 <dt><span id="thm:3"></span><span id="thm:policy-bound2" class="pandoc-numbering-text thm"><strong>Theorem 3</strong></span></dt>
 <dd>
-<p>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[\begin{equation}
+<p>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
     α := \| V^* - V^{\hat π^*} \|_∞ \le
     \frac{1}{1-γ} Δ \ALPHABET  B^{\hat π^*} V^*
     + 
     \frac{(1+γ)}{(1-γ)^2} Δ \ALPHABET B^* V^* .
-\end{equation}\]</span></p>
+\]</span></p>
+<p>Moreover, if both <span class="math inline">\(Δ \ALPHABET B^{\hat π^*} V^*\)</span> and <span class="math inline">\(Δ \ALPHABET B^* V^*\)</span> are upper bounded by a common upper bound, say <span class="math inline">\(Δ \bar {\ALPHABET B} V^*\)</span>, then, <span class="math display">\[
+    α \le \frac{2}{(1-γ)^2} Δ \bar {\ALPHABET B} V^*. 
+\]</span></p>
 </dd>
 </dl>
 </div>
@@ -290,13 +293,13 @@
 <h1 data-number="2" id="example-state-aggregation-or-discretization-or-quantization"><span class="header-section-number">2</span> Example: State aggregation (or discretization or quantization)</h1>
 <p>Consider an MDP <span class="math inline">\(\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, p, c, γ \rangle\)</span>, with large (or possibly continuous) state space. For simplicity, we assume that <span class="math inline">\(\ALPHABET S\)</span> is continuous (and compact), and that the <span class="math inline">\(p\)</span> is the density of the transition kernel. Note that we are using the term “probability density” in the engineering sense (so, it may be a combination of a continuous function and delta functions) rather than in the precise measure theoretic sense (where it is the Radon-Nikodym derivative with respect to the Lebesque measure).</p>
 <p>If exact computations were possible, we can find an optimal solution by solving a dynamic program. However, since the state space is continuous, we cannot compute the value functions exactly. The simplest way to proceed is to discretize or quantize the state space <span class="math inline">\(\ALPHABET S\)</span>. In particular, let <span class="math inline">\(\{\ALPHABET S_1, \dots \ALPHABET S_n\}\)</span> denote a partition of <span class="math inline">\(\ALPHABET S\)</span> (i.e., <span class="math inline">\(\bigcup_{i=1}^n \ALPHABET S_i = \ALPHABET S\)</span> and for any <span class="math inline">\(i \neq j\)</span>, <span class="math inline">\(\ALPHABET S_i \cap \ALPHABET S_j = \emptyset\)</span>). Pick a representative point <span class="math inline">\(\hat s_i \in \ALPHABET S_i\)</span>. We can think of the “grid points” <span class="math inline">\(\hat {\ALPHABET S} = \{\hat s_1, \dots, \hat s_n\}\)</span> as quantization of the state space <span class="math inline">\(\ALPHABET S\)</span>. To simplify the notation, we define a quantization function <span class="math inline">\(\phi \colon \ALPHABET S \to \hat {\ALPHABET S}\)</span> which maps all points in <span class="math inline">\(\ALPHABET S_i\)</span> to the representative element <span class="math inline">\(\hat s_i\)</span>.</p>
-<p>We consider a finite state MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c\rangle\)</span>, where <span class="math inline">\(\hat c\)</span> is the restriction of <span class="math inline">\(c\)</span> onto <span class="math inline">\(\hat {\ALPHABET S}\)</span>, and <span class="math inline">\(\hat P\)</span> is given by</p>
+<p>We consider a finite state MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c, γ\rangle\)</span>, where <span class="math inline">\(\hat c\)</span> is the restriction of <span class="math inline">\(c\)</span> onto <span class="math inline">\(\hat {\ALPHABET S}\)</span>, and <span class="math inline">\(\hat P\)</span> is given by</p>
 <p><span class="math display">\[\hat P(\hat s_j | \hat s_i, a) =
 \int_{\ALPHABET S_j} P(s&#39; | \hat s_i, a) dy = P(\ALPHABET S_j | \hat s_i, a).
 \]</span></p>
 <p>Since model <span class="math inline">\(\widehat {\ALPHABET M}\)</span> is discrete, we can find the optimal value function and policy using dynamic programming. We are interested in the questions of quantifying the errors in value approximation and policy approximation in this setup. Since the quantized model is defined on a state space <span class="math inline">\(\hat {\ALPHABET S}\)</span> that is different from the original state space, the approximation bounds derived above are not directly applicable. Below we present two intermediate models, to be able to compare models <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span></p>
 <h2 data-number="2.1" id="an-intermediate-model"><span class="header-section-number">2.1</span> An intermediate model</h2>
-<p>Define a model <span class="math inline">\(\overline {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \bar p, \bar c \rangle\)</span>, where <span class="math display">\[
+<p>Define a model <span class="math inline">\(\overline {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \bar p, \bar c, γ \rangle\)</span>, where <span class="math display">\[
   \bar c(s,a) = c(\phi(s,a))
 \]</span> and <span class="math display">\[
   \bar p(s&#39;|s,a) = p(s&#39;|\phi(s),a).
@@ -419,9 +422,13 @@
     c(\phi(s), a) - γ \int_{\ALPHABET S} p(s&#39;|\phi(s), a) V^*(s&#39;) ds&#39; 
   \biggr|
   \notag \\
+  &amp;\le  L_c \max_{s \in \ALPHABET S}d(s, \phi(s)) 
+  + 
+  γ K(p(\cdot | s, a), p(\cdot | \phi(s), a)) \NORM{V^*}_L )
+  \notag \\
   &amp;\le ( L_c  + γ L_p \NORM{V^*}_L ) 
   \underbrace{\max_{s \in \ALPHABET S}d(s, \phi(s)) }_{=: D}
-\end{align*}\]</span></p>
+\end{align*}\]</span> where the second inequality uses <a href="../lipschitz-mdp#lemma:Kantorovich">Lemma 1 from the notes on Lipschitz MDP</a>.</p>
 <p>Thus, we have the following:</p>
 <div class="highlight">
 <dl>
@@ -451,7 +458,7 @@
 <p class="categories">
 This entry 
 
- was last updated on 14 Nov 2022
+ was last updated on 17 Nov 2022
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/mdp">
