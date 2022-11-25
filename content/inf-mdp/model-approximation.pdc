@@ -56,6 +56,22 @@ operator_ $\ALPHABET D^π$ and $\ALPHABET D^*$ as follows:
   \ALPHABET D^* v &= \| \ALPHABET B^* v - \hat {\ALPHABET B}^* v \|_∞ .
 \end{align*}
 
+Also define the _maximum Bellman mismatch_ as
+\begin{align*}
+  \bar{\ALPHABET D} v &= \max_{π \in Π} \ALPHABET D^π v
+  \\
+  &\le
+  \max_{(s,a) \in \ALPHABET S, A} \biggl\{
+    c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a)v(s')  \notag \\
+  & \hskip 6em 
+   -\hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) v(s')
+   \biggr\}.
+\end{align*}
+where $Π$ is the set of all (possibly randomized) Markov policies, and the
+second inequality follows from triangle inequality. It is easy to see 
+that $\ALPHABET D^* v \le \bar {\ALPHABET D} v$. Thus $\bar {\ALPHABET D}v$ is
+an upper bound for $\ALPHABET D^* v$ and $\ALPHABET D^π v$ for all $π \in Π$.
+
 The Bellman mismatch operators can be used to bound the performance difference of
 a policy between the true and approximate models.
 
@@ -211,13 +227,13 @@ Theorem #thm:policy-bound
 :   The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
     $$\begin{equation} \label{eq:bound}
     α := \| V^* - V^{\hat π^*} \|_∞ \le
-    \frac{1}{1 - γ}\bigl[ \ALPHABET D_1 + \ALPHABET D_2 \bigr]
+    \frac{1}{1 - γ}\bigl[ Δ_1 +Δ_2 \bigr]
     \end{equation}$$
     where
     $$
-     \ALPHABET D_1 \le \min\{ \ALPHABET D^* V^*, \ALPHABET D^* \hat V^* \}
+     Δ_1 \le \min\{ \ALPHABET D^* V^*, \ALPHABET D^* \hat V^* \}
      \quad\text{and}\quad
-     \ALPHABET D_2 \le \min\{ \ALPHABET D^{\hat π^*} V^{\hat π^*}, \ALPHABET D^{\hat π^*}\hat V^{\hat π^*} \}.
+     Δ_2 \le \min\{ \ALPHABET D^{\hat π^*} V^{\hat π^*}, \ALPHABET D^{\hat π^*}\hat V^{\hat π^*} \}.
     $$
 
 :::
@@ -268,9 +284,9 @@ Corollary #cor:ais-bound
         \frac{1}{1-γ} \bigl[ \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat
         π^*} \hat V^* \bigr]. 
     $$
-    Moreover, if both $\ALPHABET D^{\hat π^*} \hat V^*$ and $\ALPHABET D^*
-    \hat V^*$ are upper bounded by a common upper bound, say $\bar {\ALPHABET
-    D} \hat V^*$, then,
+    Moreover, since $\bar {\ALPHABET D} \hat V^*$ is an upper bound for both
+    $\ALPHABET D^{\hat π^*} \hat V^*$ and $\ALPHABET D^*
+    \hat V^*$, we have
     $$
         α \le \frac{2}{(1-γ)}  \bar {\ALPHABET D}  \hat V^*. 
     $$
@@ -291,9 +307,8 @@ Theorem #thm:policy-bound2
         \frac{(1+γ)}{(1-γ)^2} \ALPHABET D^* V^* .
     $$
 
-    Moreover, if both $\ALPHABET D^{\hat π^*} V^*$ and $\ALPHABET D^* V^*$
-    are upper bounded by a common upper bound, say $\bar {\ALPHABET D} V^*$,
-    then,
+    Moreover, since $\bar {\ALPHABET D} V^*$ is an upper bound for
+    both $\ALPHABET D^{\hat π^*} V^*$ and $\ALPHABET D^* V^*$, we have
     $$
         α \le \frac{2}{(1-γ)^2}  \bar {\ALPHABET D}  V^*. 
     $$
@@ -556,7 +571,7 @@ Therefore, from @thm:value-bound, we have
 
 Proposition #prop:value-aggregation
 
-:   $$ \| V^* - V^{\bar π^*} \|_∞ \le \frac{H_{\max}}{1-γ}. $$
+:   $$ \| V^* - \bar V^{\bar π^*} \|_∞ \le \frac{H_{\max}}{1-γ}. $$
 
 :::
 
@@ -574,7 +589,7 @@ Assumpt. #ass:lip
 Under this assumption, we have
 
 \begin{align*}
-  \ALPHABET D^{\hat π^*} V^* &\le \max_{s \in \ALPHABET S}
+  \ALPHABET D^{\bar π^*} V^* &\le \max_{s \in \ALPHABET S}
   \sum_{a \in \ALPHABET A} \bar π^*(a | s) \biggl|
     c(s,a) + γ \int_{\ALPHABET S} p(s'|s,a) V^*(s')ds'
   \notag \\
