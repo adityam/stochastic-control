@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Bernoulli process,Poisson process" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2022
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Poisson processes</div>
+
+<h1 data-number="1" id="prelude-bernoulli-process"><span class="header-section-number">1</span> Prelude: Bernoulli process</h1>
+<p>A Bernoulli process is a sequence <span class="math inline">\(\{Z_n\}_{n \ge 1}\)</span> of i.i.d. binary random variables. Let <span class="math inline">\(p = \PR(Z_n = 1)\)</span> and <span class="math inline">\(q = 1 - p = \PR(Z_n = 0)\)</span>.</p>
+<p>An example would be i.i.d. coin tosses where we can think of <span class="math inline">\(\{Z_n = 1\}\)</span> as the event that the <span class="math inline">\(h\)</span>-th outcome is a head and <span class="math inline">\(\{Z_n = 0\}\)</span> to be the event that the <span class="math inline">\(n\)</span>-th outcome is a tail.</p>
+<p>Given a Bernoulli process, define <span class="math inline">\(X_1\)</span> to be the first time <span class="math inline">\(n\)</span> such that <span class="math inline">\(Z_n = 1\)</span>; <span class="math inline">\(X_2\)</span> to be the first time <span class="math inline">\(n\)</span> after <span class="math inline">\(X_1\)</span> such that <span class="math inline">\(Z_n = 1\)</span>, etc. The sequence <span class="math inline">\(\{X_n\}_{n \ge 1}\)</span> is called <em>inter-arrival times</em>. It is easy to see that <span class="math display">\[
+  P_{X_1}(k) = (1 - p)^{k-1} p.
+\]</span> Due to the independence of the outcomes, we can also argue that <span class="math display">\[
+  P_{X_2}(k) = (1-p)^{k-1} p,
+\]</span> and so on for all <span class="math inline">\(X_n\)</span>. Thus, <span class="math inline">\(X_n \sim \text{Geo}(p)\)</span>.</p>
+<p>Now consider the partial sums <span class="math display">\[
+  N(n) = \sum_{i=1}^n Z_i
+\]</span> which denote the number of arrivals up to and including time <span class="math inline">\(n\)</span>. From elementary probability, we know that <span class="math inline">\(N(n) \sim \text{Binomial}(n,p)\)</span>.</p>
+<p>An alternative way to view the Bernoulli process is as follows. Define <span class="math display">\[
+  S_n = \sum_{i=1}^n X_i
+\]</span> to be the time of the <span class="math inline">\(n\)</span>-th arrival. Note that the process <span class="math inline">\(\{S_n\}_{n \ge 1}\)</span> is a sequence of increasing random variables. Such a sequence is called an <em>arrival process</em>. Given an arrival process, we can construct inter-arrival times as <span class="math inline">\(X_n = S_n - S_{n-1}\)</span>. Then, the Bernoulli process is an arrival process with geometric (or, equivalently, memoryless) interarrival times.</p>
+<p>Note that the arrival times <span class="math inline">\(\{S_n\}_{n \ge 1}\)</span> take integer values. If we allow the arrival times to take continuous values, we get a Poisson process.</p>
+<h1 data-number="2" id="poisson-processes"><span class="header-section-number">2</span> Poisson Processes</h1>
+<p>A Poisson process is an arrival process <span class="math inline">\(\{S_n\}_{n \ge 1}\)</span> (i.e., an increasing sequence of random variables) such that the inter-arrival times <span class="math inline">\(\{X_n\}_{n \ge 1}\)</span>, where <span class="math inline">\(X_n = S_n - S_{n-1}\)</span>, are independent and memoryless. Since a non-negative continuous time random variable which is memoryless must have an exponential distribution (see <a href="#ex:poisson" title="Exercise 1"><span class="pandoc-numbering-link ex">Exercise 1</span></a> below), we can equivalently say that a Poisson process is an arrival process where the inter-arrival times are independent and have an exponential distribution.</p>
+<dl>
+<dt><span id="ex:1"></span><span id="ex:poisson" class="pandoc-numbering-text ex"><strong>Exercise 1</strong></span></dt>
+<dd>
+<p>Let <span class="math inline">\(X\)</span> be a non-negative and continous random variable which is memoryless, i.e., for any <span class="math inline">\(t, τ &gt; 0\)</span>, <span class="math display">\[
+    \PR(X &gt; t + τ \mid X &gt; τ) = \PR(X &gt; t).
+\]</span> Then, <span class="math inline">\(X\)</span> has an exponential distribution.</p>
+</dd>
+</dl>
+<details>
+<!--{{{ Solution -->
+<summary>
+<h4 class="unnumbered" id="solution">Solution</h4>
+</summary>
+<div>
+<p>The definition of memoryless random variable implies that <span class="math display">\[    
+      \PR(X &gt; t + τ) = \PR(X &gt; t) \PR(X &gt; τ).
+  \]</span> Let <span class="math inline">\(\bar F_X(t)\)</span> denote the complementary CDF of <span class="math inline">\(X\)</span>, i.e., <span class="math inline">\(\bar F_X(t) = 1  - F_X(t)\)</span>. Then, the above equation says that <span class="math display">\[
+    \bar F_X(t + τ) = \bar F_X(t) \bar F_X(τ).
+  \]</span> Taking logs of both sides, we have <span class="math display">\[ 
+    \log (\bar F_X(t + τ)) = \log(\bar F_X(t)) + \log(\bar F_X(τ)).
+  \]</span> Thus, <span class="math inline">\(\log(\bar F_X(t))\)</span> is linear function of <span class="math inline">\(t\)</span>, say <span class="math inline">\(-λt\)</span> (we use <span class="math inline">\(-λ\)</span> instead of <span class="math inline">\(λ\)</span> because we know that <span class="math inline">\(\log(\bar F_X(t)) &lt; 0\)</span>). Thus, <span class="math display">\[
+    \bar F_X(t) = e^{-λt}
+    \quad\text{or}\quad
+    F_X(t) = 1 - e^{-λt}.
+  \]</span> Thus, <span class="math inline">\(X\)</span> is an exponential random variable.</p>
+</div>
+</details>
+<!--}}}-->
+<p>Thus, we say that a Poisson process <span class="math inline">\(\{S_n\}_{n \ge 1}\)</span> has a <em>rate</em> <span class="math inline">\(λ\)</span> to mean that the inter-arrival times <span class="math inline">\(\{X_n\}_{n \ge 1}\)</span> have <span class="math inline">\(\text{Exponential}(λ)\)</span> distribution.</p>
+<p>As for the Bernoulli process, we define the counting process <span class="math inline">\(N(t)\)</span> as the total number of arrivals until time <span class="math inline">\(t\)</span>, i.e., the event <span class="math inline">\(\{N(t) \ge n \}\)</span> is the same as the event <span class="math inline">\(\{S_n \le t\}\)</span>. It can be shown that <span class="math inline">\(N(t)\)</span> is has a <span class="math inline">\(\text{Poisson}(λt)\)</span> distribution, i.e., <span class="math display">\[
+    P_{N(t)}(n) = \frac{ (λt)^n \exp(-λ t)}{n!}.
+\]</span></p>
+<h1 data-number="3" id="adding-and-splitting-of-poisson-processes"><span class="header-section-number">3</span> Adding and splitting of Poisson processes</h1>
+<p>Suppose we have two poisson processes, process 1 with rate <span class="math inline">\(λ_1\)</span> and process 2 with rate <span class="math inline">\(λ_2\)</span>. Consider a new process formed by adding the two processes. This means that the new process has an arrival whenever either of process 1 or process 2 has an arrival, i.e., <span class="math inline">\(N(t) = N_1(t) + N_2(t)\)</span>. Then, the combined process is Poisson with rate <span class="math inline">\(λ_1 + λ_2\)</span>.</p>
+<p>To prove this property recall that <span class="math inline">\(N_1(t)\)</span> and <span class="math inline">\(N_2(t)\)</span> are Poisson and the sum of two Poisson random variables is Poisson. Therefore, <span class="math inline">\(N(t)\)</span> is also Poisson.</p>
+<p>Now, consider a Poisson process. Suppose, we split the arrival into <span class="math inline">\(k\)</span> streams as follows. When an arrival comes, it goes into streams <span class="math inline">\(i\)</span> with probability <span class="math inline">\(p_i\)</span>. Then, each of the streams are also Poisson, with stream <span class="math inline">\(i\)</span> being Poisson with rate <span class="math inline">\(p_i λ\)</span>.</p>
+<p>We provide a proof of this when <span class="math inline">\(k=2\)</span>, and each arrival is split into stream 1 with probability <span class="math inline">\(p\)</span> and stream 2 with probability <span class="math inline">\(1-p\)</span>. Let <span class="math inline">\(N(t)\)</span> denote the number of arrivals in the original process and <span class="math inline">\(N_1(t)\)</span> and <span class="math inline">\(N_2(t)\)</span> denote the number of arrivals in output processes 1 and 2.</p>
+<p>Suppose <span class="math inline">\(N(t) = m + k\)</span> and during the splitting processes <span class="math inline">\(m\)</span> arrivals are sent to steam 1 and <span class="math inline">\(k\)</span> are sent to stream 2. From a basic counting argument, we should have <span class="math display">\[
+  \PR(N_1(t) = m, N_2(t) = k \mid N(t) = m + k) 
+  = 
+  \frac{(m+k)!}{m!k!} p^m (1-p)^k.
+\]</span> Thus, <span class="math display">\[\begin{align*}
+  \PR(N_1(t) = m, N_2(t) = k) 
+  &amp;=
+  \PR(N_1(t) = m, N_2(t) = k \mid N(t) = m + k) 
+  \PR(N(t) = m + k)
+  \\
+  &amp;= 
+  \frac{(m+k)!}{m!k!} p^m (1-p)^k
+  \frac{(λt)^{m+k} e^{-λt}}{(m+k)!}
+  \\
+  &amp;=
+  \frac{(pλt)^m}{m!} e^{-λpt} \,
+  \frac{((1-p)λt)^m}{m!} e^{-λ(1-p)t}.
+\end{align*}\]</span> Separately marginalizing over <span class="math inline">\(N_1(t)\)</span> and <span class="math inline">\(N_2(t)\)</span>, we get that <span class="math display">\[
+  \PR(N_1(t) = m) 
+  =
+  \frac{(pλt)^m}{m!} e^{-λpt} 
+  \quad\text{and}\quad
+  \PR(N_2(t) = k)
+  = 
+  \frac{((1-p)λt)^m}{m!} e^{-λ(1-p)t}
+\]</span> Thus, <span class="math inline">\(N_1(t)\)</span> has <span class="math inline">\(\text{Poisson}(λp)\)</span> distribution and <span class="math inline">\(N_2(t)\)</span> has <span class="math inline">\(\text{Poisson}(λ(1-p))\)</span> distribition. Moreover, <span class="math display">\[
+  \PR(N_1(t) = m, N_2(t) = k) = \PR(N_1(t) = m) \PR(N_2(t) = k),
+\]</span> so the two processes are independent.</p>
+<h1 class="unnumbered" id="exercises">Exercises</h1>
+<ol type="1">
+<li><p>Suppose requests arrive at a web-server at rate <span class="math inline">\(λ = 10\)</span> per minute.</p>
+<ol type="a">
+<li><p>What is the expected time at which the 100-th request arrives?</p></li>
+<li><p>What is the probability that the time elapsed between the 100-th and the 101-st request exceeds 1 day?</p></li>
+<li><p>If each request is from Canada with probability <span class="math inline">\(\tfrac 15\)</span>, what is the probability that there is no request from Canada in the next two minutes?</p></li>
+</ol></li>
+<li><p>Suppose there is only one arrival in a Poisson process in the interval <span class="math inline">\([0,T]\)</span>. Conditioned on this event, what is the conditional distribution of <span class="math inline">\(X_1\)</span> (the time of the first arrival)?</p></li>
+<li><p>Consider two independent poisson processes with rates <span class="math inline">\(λ_1\)</span> and <span class="math inline">\(λ_2\)</span>. What is the probability of having an arrival from process 1 before an arrival from process 2?</p></li>
+</ol>
+
+
+<p class="categories">
+This entry 
+</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
