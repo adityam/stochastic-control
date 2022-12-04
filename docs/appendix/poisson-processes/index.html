@@ -135,17 +135,89 @@
 <li><p>Suppose requests arrive at a web-server at rate <span class="math inline">\(λ = 10\)</span> per minute.</p>
 <ol type="a">
 <li><p>What is the expected time at which the 100-th request arrives?</p></li>
-<li><p>What is the probability that the time elapsed between the 100-th and the 101-st request exceeds 1 day?</p></li>
+<li><p>What is the probability that the time elapsed between the 100-th and the 101-st request exceeds 1 minute?</p></li>
 <li><p>If each request is from Canada with probability <span class="math inline">\(\tfrac 15\)</span>, what is the probability that there is no request from Canada in the next two minutes?</p></li>
-</ol></li>
-<li><p>Suppose there is only one arrival in a Poisson process in the interval <span class="math inline">\([0,T]\)</span>. Conditioned on this event, what is the conditional distribution of <span class="math inline">\(X_1\)</span> (the time of the first arrival)?</p></li>
-<li><p>Consider two independent poisson processes with rates <span class="math inline">\(λ_1\)</span> and <span class="math inline">\(λ_2\)</span>. What is the probability of having an arrival from process 1 before an arrival from process 2?</p></li>
+</ol>
+<details>
+<!--{{{ Solution -->
+<summary>
+<h4 id="solution-1" class="unnumbered">Solution</h4>
+</summary>
+<div>
+<ol type="a">
+<li><p>The expected time for the 100-th request is given by <span class="math display">\[\begin{align*}
+\EXP[X_1 + \cdots + X_{100}] 
+&amp;= \EXP[X_1] + \cdots + \EXP[X_{100}]
+\\
+&amp;= \frac{100}{λ} = 10~\text{minutes}.
+\end{align*}\]</span></p></li>
+<li><p>We know that <span class="math inline">\(X_{101}\)</span> has a <span class="math inline">\(\text{Goemetric}(λ)\)</span> distribution. Therefore, <span class="math display">\[
+  \PR(X_{101} &gt; 1) = e^{-λ} = e^{-10} \approx 4.54 × 10^{-5}.
+\]</span></p></li>
+<li><p>Let <span class="math inline">\(N_c(t)\)</span> denote the number of arrivals from Canada. We know that <span class="math inline">\(N_c\)</span> is a Poisson process with rate <span class="math inline">\(λ/5 = 2\)</span> per minute. Therefore, <span class="math display">\[  
+  \PR(N(2) = 0) = e^{2 \cdot 2} \approx 0.0183.
+\]</span></p></li>
+</ol>
+</div>
+</details>
+<!--}}}--></li>
+<li><p>Suppose there is only one arrival in a Poisson process in the interval <span class="math inline">\([0,t]\)</span>. Conditioned on this event, what is the conditional distribution of <span class="math inline">\(X_1\)</span> (the time of the first arrival)?</p>
+<details>
+<!--{{{ Solution -->
+<summary>
+<h4 id="solution-2" class="unnumbered">Solution</h4>
+</summary>
+<div>
+<p>We will compute the CDF of <span class="math inline">\(X_1\)</span>. We know that <span class="math inline">\(X_1 \le t\)</span>. So, for any <span class="math inline">\(τ &lt; t\)</span>, consider <span class="math inline">\(\PR(X_1 &lt; τ \mid N(t) = 1)\)</span>. We have <span class="math display">\[\begin{align*}
+  \PR(X_1 &lt; τ \mid N(t) = 1) &amp;= 
+  \frac{\PR(X_1 &lt; τ, N(t) = 1)}{\PR(N(t) = 1)}
+  \\
+  &amp;=
+  \frac{ \PR(N(s) = 1, N(t) - N(s) = 0) }{ \PR(N(t) = 1) }
+  \\
+  &amp;\stackrel{(a)}=
+  \frac{ \PR(N(s) = 1)\PR(N(t) - N(s) = 0) }{ \PR(N(t) = 1) }
+  \\
+  &amp;= \frac{ (λs) e^{-λs}}{1!} \cdot e^{λ(t-s)} \cdot \frac{1}{(λt)e^{-λt}}
+  \\
+  &amp;= \frac{s}{t},
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> uses the fact that a Poisson process has independent increments. Thus, the conditional density of <span class="math inline">\(X_1\)</span> given <span class="math inline">\(N(t)\)</span> is given by <span class="math display">\[
+  f_{X_1 | N(t)}(s|1) = \frac{1}{t}, \quad 0 \le s \le t.
+\]</span> Thus, <span class="math inline">\(X_1\)</span> given <span class="math inline">\(N(t) = 1\)</span> is uniform in <span class="math inline">\([0,t]\)</span>.</p>
+</div>
+</details>
+<!--}}}--></li>
+<li><p>Consider two independent poisson processes with rates <span class="math inline">\(λ_1\)</span> and <span class="math inline">\(λ_2\)</span>. What is the probability of having an arrival from process 1 before an arrival from process 2?</p>
+<details>
+<!--{{{ Solution -->
+<summary>
+<h4 id="solution-3" class="unnumbered">Solution</h4>
+</summary>
+<div>
+<p>The probability that there is an arrival from process 1 before an arrival from process 2 is given by <span class="math inline">\(\PR(X_1 &lt; X_2)\)</span>. We have <span class="math display">\[\begin{align*}
+\PR(X_1 &lt; X_2) &amp;= \int_{0}^∞ \PR(X_1 &lt; X_2 \mid X_2 = t) f_{X_2}(t) dt 
+\\
+&amp;= \int_{0}^∞ \PR(X_1 &lt; t \mid X_2 = t) f_{X_2}(t) dt 
+\\
+&amp;\stackrel{(a)}= \int_{0}^∞ \PR(X_1 &lt; t) f_{X_2}(t) dt
+\\
+&amp;= \int_0^∞ (1 - e^{-λ_1t}) λ_2 e^{-λ_2 t} dt
+\\
+&amp;= λ_2 \biggl[ \frac{e^{-λ_2 t}}{λ_2} - \frac{e^{-(λ_1 + λ_2) t} }{λ_1 + λ_2}
+\biggr] \biggr|_{0}^∞
+\\
+&amp;= \frac{λ_1}{λ_1 + λ_2},
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the fact that the two processes are independent.</p>
+</div>
+</details>
+<!--}}}--></li>
 </ol>
 
 
 <p class="categories">
 This entry 
-</p>
+
+ was last updated on 03 Dec 2022</p>
 
 
 

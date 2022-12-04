@@ -180,17 +180,99 @@ so the two processes are independent.
    (a) What is the expected time at which the 100-th request arrives?
 
    (b) What is the probability that the time elapsed between the 100-th and
-   the 101-st request exceeds 1 day?
+   the 101-st request exceeds 1 minute?
 
    (c) If each request is from Canada with probability $\tfrac 15$, what is
    the probability that there is no request from Canada in the next two
    minutes?
 
+   <details><!--{{{ Solution -->
+   <summary>
+   #### Solution {-}
+   </summary>
+   <div>
+   (a) The expected time for the 100-th request is given by 
+   \begin{align*}
+   \EXP[X_1 + \cdots + X_{100}] 
+   &= \EXP[X_1] + \cdots + \EXP[X_{100}]
+   \\
+   &= \frac{100}{λ} = 10~\text{minutes}.
+   \end{align*}
+
+   (b) We know that $X_{101}$ has a $\text{Goemetric}(λ)$ distribution.
+   Therefore,
+   $$
+     \PR(X_{101} > 1) = e^{-λ} = e^{-10} \approx 4.54 × 10^{-5}.
+   $$
+
+   (c) Let $N_c(t)$ denote the number of arrivals from Canada. We know that $N_c$
+   is a Poisson process with rate $λ/5 = 2$ per minute. Therefore,
+   $$  
+     \PR(N(2) = 0) = e^{2 \cdot 2} \approx 0.0183.
+   $$
+   </div>
+   </details><!--}}}-->
 
 2. Suppose there is only one arrival in a Poisson process in the interval
-   $[0,T]$. Conditioned on this event, what is the conditional distribution of
+   $[0,t]$. Conditioned on this event, what is the conditional distribution of
    $X_1$ (the time of the first arrival)?
+
+   <details><!--{{{ Solution -->
+   <summary>
+   #### Solution {-}
+   </summary>
+   <div>
+   We will compute the CDF of $X_1$. We know that $X_1 \le t$. So, for any
+   $τ < t$, consider $\PR(X_1 < τ \mid N(t) = 1)$. We have
+   \begin{align*}
+     \PR(X_1 < τ \mid N(t) = 1) &= 
+     \frac{\PR(X_1 < τ, N(t) = 1)}{\PR(N(t) = 1)}
+     \\
+     &=
+     \frac{ \PR(N(s) = 1, N(t) - N(s) = 0) }{ \PR(N(t) = 1) }
+     \\
+     &\stackrel{(a)}=
+     \frac{ \PR(N(s) = 1)\PR(N(t) - N(s) = 0) }{ \PR(N(t) = 1) }
+     \\
+     &= \frac{ (λs) e^{-λs}}{1!} \cdot e^{λ(t-s)} \cdot \frac{1}{(λt)e^{-λt}}
+     \\
+     &= \frac{s}{t},
+   \end{align*}
+   where $(a)$ uses the fact that a Poisson process has independent increments.
+   Thus, the conditional density of $X_1$ given $N(t)$ is given by
+   $$
+     f_{X_1 | N(t)}(s|1) = \frac{1}{t}, \quad 0 \le s \le t.
+   $$
+   Thus, $X_1$ given $N(t) = 1$ is uniform in $[0,t]$.
+   </div>
+   </details><!--}}}-->
+
 
 3. Consider two independent poisson processes with rates $λ_1$ and $λ_2$. What
    is the probability of having an arrival from process 1 before an arrival
    from process 2?
+
+   <details><!--{{{ Solution -->
+   <summary>
+   #### Solution {-}
+   </summary>
+   <div>
+   The probability that there is an arrival from process 1 before an arrival from
+   process 2 is given by $\PR(X_1 < X_2)$. We have
+   \begin{align*}
+   \PR(X_1 < X_2) &= \int_{0}^∞ \PR(X_1 < X_2 \mid X_2 = t) f_{X_2}(t) dt 
+   \\
+   &= \int_{0}^∞ \PR(X_1 < t \mid X_2 = t) f_{X_2}(t) dt 
+   \\
+   &\stackrel{(a)}= \int_{0}^∞ \PR(X_1 < t) f_{X_2}(t) dt
+   \\
+   &= \int_0^∞ (1 - e^{-λ_1t}) λ_2 e^{-λ_2 t} dt
+   \\
+   &= λ_2 \biggl[ \frac{e^{-λ_2 t}}{λ_2} - \frac{e^{-(λ_1 + λ_2) t} }{λ_1 + λ_2}
+   \biggr] \biggr|_{0}^∞
+   \\
+   &= \frac{λ_1}{λ_1 + λ_2},
+   \end{align*}
+   where $(a)$ follows from the fact that the two processes are independent.
+   </div>
+   </details><!--}}}-->
