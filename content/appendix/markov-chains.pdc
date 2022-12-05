@@ -1,0 +1,145 @@
+---
+title: Markov chain
+weight: 1001
+category: probability
+tags: 
+  - Markov chain
+---
+
+A time-homogeneous Markov chain $\{X_n\}_{n \ge 1}$, $X_n \in \ALPHABET X$, is
+a stochastic process that satisfies the following property: for all $x_{1:n+1}
+\in \ALPHABET X$, 
+$$
+  \PR(X_{n+1} = x_{n+1} \mid X_{1:n} = x{1:n}) 
+  =
+  \PR(X_{n+1} = x_{n+1} \mid X_n = x_n).
+$$
+The transition probability can be written succinctly using a transition matrix
+$P$, where $P_{ij} = \PR(X_{n+1} = j | X_n = i)$. 
+
+Let $π_n$ denote the PMF of the state of the Markov chain at time $n$. Then,
+we have that
+$$  π_{n} = π_{n - 1} P = \cdots = π_0 P^n. $$
+
+An important question is to understand when does $π_n$ converge to a limit
+that does not depend on the initial state $π_0$. 
+
+# Classification of states
+
+We say that a state $j$ is _accessible from_ $i$ (abbreviated as $i
+\rightsquigarrow j$) if there is an ordered string of notes $(i_0, \dots, i_m)$
+such that $i_0 = i$ and $i_m = j$ and $P_{i_k i_{k+1}} > 0$. Note that
+accessibility is an transitive relationship, i.e., if $i \rightsquigarrow j$
+and $j \rightsquigarrow k$ implies that $i \rightsquigarrow k$. 
+
+The states in a finite-state Markov chain can be partitioned into two sets:
+_recurrent states_ and _transient states_. A state is recurrent if it is
+accessible from all states that is accessible from it (i.e., $i$ is recurrent
+if $i \rightsquigarrow j$ implies that $j \rightsquigarrow i$). States that
+are not recurrent are _transient_. 
+
+Two distinct states $i$ and $j$ are said to _communicate_ (abbreviated to $i
+\leftrightsquigarrow j$ if $i$ is accessible from $j$ (i.e., $j
+\rightsquigarrow i$) and $j$ is accessible
+from $i$ ($i \rightsquigarrow j$). An important fact about communicating
+states is that if $i \leftrightsquigarrow j$ and $j \leftrightsquigarrow k$,
+then $i \leftrightsquigarrow k$. 
+
+A _class_ $\ALPHABET C$ of states is a non-empty set of states such that for
+each $i \in \ALPHABET C$ satisfies that for each $j \in \ALPHABET C$, $i
+\leftrightsquigarrow j$ and for each $j \not\in \ALPHABET C$, $i
+\not\leftrightsquigarrow j$. In a finite-state Markov chain, all states in a
+state are either recurrent or transient. 
+
+[In class, I did not formally define when a Markov chain is periodic. We can
+define it as follows.]
+
+The _period of a state_ $i$, denoted by $d(i)$, is the greatest common divisor
+of those values of $n$ for which $P^n_{ii} > 0$. If the period is $1$, the
+state is _aperiodic_, and if the period is $2$ or more, the state is periodic.
+It can be shown that all states in the same class have the same period. 
+
+A Markov chain is said to be _ergodic_ if it has only one recurrent class that
+is also aperiodic. 
+
+# Steady-state distribution
+
+A Markov chain is said to have a _steady state distribution_ if $π_n$
+converges to a limit as $n \to ∞$ and the limit does not depend on the initial
+distribution $π_0$. 
+
+A Markov chain has a steady state distribution if it is ergodic. We can find
+the steady state distribution by solving the _balance equation_: $π = π P$. 
+
+# Expected first-passage time
+
+Let's start with a simple example. Suppose we toss a coin multiple times and
+stop at a heads. What are the expected number of tosses until stopping?
+
+From elementary probability we know that the number of tosses until stopping
+is a geometric random variable. However, we will model this using a Markov
+chain where the state denotes the number of consecutive heads so far. Let $p$
+denote the probability of heads and $q = 1-p$ denote the probability of tails.
+Then, the Markov chain model is as follows.
+
+
+   <figure style='max-width:20em;' id="fig1">
+   <img src="examples-0.png" />
+   </figure>
+
+Let $v_i$ denote the expected number of tosses until stopping when starting at
+state $i$. Then, we have
+\begin{align*}
+  v_0 &= 1 + q v_0 + p v_1, \\
+  v_1 &= 0.
+\end{align*}
+Solving this system of equations, we get $v_0 = 1/(1-q) = 1/p$. 
+
+Now, let's try a variation of the above model. Suppose we toss a coin multiple
+times and stop at two heads. What are the expected number of tosses until
+stopping. 
+
+We can model this in the same manner as the before, where the state denotes
+the number of consecutive heads so far. The Markov chain is as follows:
+
+   <figure style='max-width:20em;' id="fig2">
+   <img src="examples-1.png" />
+   </figure>
+
+As before, let $v_i$ denote the expected number of tosses until stopping when
+starting at state $i$. Then, we have
+\begin{align*}
+  v_0 &= 1 + q v_0 + p v_1, \\
+  v_1 &= 1 + q v_0 + p v_2, \\
+  v_2 &= 0.
+\end{align*}
+Solving this system of equations, we get $v_0 = 1/(1-p)$. 
+
+We can generalize these ideas to find time of hitting a state.
+
+# Absorption probabilities
+
+Consider a gambler's ruin problem, where we start at state $1$ and stop if we
+hit state $0$ or $3$.
+
+
+   <figure style='max-width:20em;' id="fig3">
+   <img src="examples-2.png" />
+   </figure>
+
+Let $v_i$ denote the probability of getting absorbed in state $0$ before $3$.
+Then, we can write the following system of equations to describe the
+absorption probabilities:
+\begin{align*}
+  v_0 &= 1, \\
+  v_1 &= q v_0 + p v_2, \\
+  v_2 &= q v_1 + p v_3, \\
+  v_3 &= 0.
+\end{align*}
+Eliminating $v_0$ and $v_3$, we get:
+\begin{align*}
+  v_1 &= q  + p v_2, \\
+  v_2 &= q v_1 . \\
+\end{align*}
+We can solve this system of equations to find $v_1$ and $v_2$.
+

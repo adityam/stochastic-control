@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Markov chain" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2022
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Markov chain</div>
+
+<p>A time-homogeneous Markov chain <span class="math inline">\(\{X_n\}_{n \ge 1}\)</span>, <span class="math inline">\(X_n \in \ALPHABET X\)</span>, is a stochastic process that satisfies the following property: for all <span class="math inline">\(x_{1:n+1} \in \ALPHABET X\)</span>, <span class="math display">\[
+  \PR(X_{n+1} = x_{n+1} \mid X_{1:n} = x{1:n}) 
+  =
+  \PR(X_{n+1} = x_{n+1} \mid X_n = x_n).
+\]</span> The transition probability can be written succinctly using a transition matrix <span class="math inline">\(P\)</span>, where <span class="math inline">\(P_{ij} = \PR(X_{n+1} = j | X_n = i)\)</span>.</p>
+<p>Let <span class="math inline">\(π_n\)</span> denote the PMF of the state of the Markov chain at time <span class="math inline">\(n\)</span>. Then, we have that <span class="math display">\[  π_{n} = π_{n - 1} P = \cdots = π_0 P^n. \]</span></p>
+<p>An important question is to understand when does <span class="math inline">\(π_n\)</span> converge to a limit that does not depend on the initial state <span class="math inline">\(π_0\)</span>.</p>
+<h1 data-number="1" id="classification-of-states"><span class="header-section-number">1</span> Classification of states</h1>
+<p>We say that a state <span class="math inline">\(j\)</span> is <em>accessible from</em> <span class="math inline">\(i\)</span> (abbreviated as <span class="math inline">\(i \rightsquigarrow j\)</span>) if there is an ordered string of notes <span class="math inline">\((i_0, \dots, i_m)\)</span> such that <span class="math inline">\(i_0 = i\)</span> and <span class="math inline">\(i_m = j\)</span> and <span class="math inline">\(P_{i_k i_{k+1}} &gt; 0\)</span>. Note that accessibility is an transitive relationship, i.e., if <span class="math inline">\(i \rightsquigarrow j\)</span> and <span class="math inline">\(j \rightsquigarrow k\)</span> implies that <span class="math inline">\(i \rightsquigarrow k\)</span>.</p>
+<p>The states in a finite-state Markov chain can be partitioned into two sets: <em>recurrent states</em> and <em>transient states</em>. A state is recurrent if it is accessible from all states that is accessible from it (i.e., <span class="math inline">\(i\)</span> is recurrent if <span class="math inline">\(i \rightsquigarrow j\)</span> implies that <span class="math inline">\(j \rightsquigarrow i\)</span>). States that are not recurrent are <em>transient</em>.</p>
+<p>Two distinct states <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> are said to <em>communicate</em> (abbreviated to <span class="math inline">\(i \leftrightsquigarrow j\)</span> if <span class="math inline">\(i\)</span> is accessible from <span class="math inline">\(j\)</span> (i.e., <span class="math inline">\(j \rightsquigarrow i\)</span>) and <span class="math inline">\(j\)</span> is accessible from <span class="math inline">\(i\)</span> (<span class="math inline">\(i \rightsquigarrow j\)</span>). An important fact about communicating states is that if <span class="math inline">\(i \leftrightsquigarrow j\)</span> and <span class="math inline">\(j \leftrightsquigarrow k\)</span>, then <span class="math inline">\(i \leftrightsquigarrow k\)</span>.</p>
+<p>A <em>class</em> <span class="math inline">\(\ALPHABET C\)</span> of states is a non-empty set of states such that for each <span class="math inline">\(i \in \ALPHABET C\)</span> satisfies that for each <span class="math inline">\(j \in \ALPHABET C\)</span>, <span class="math inline">\(i \leftrightsquigarrow j\)</span> and for each <span class="math inline">\(j \not\in \ALPHABET C\)</span>, <span class="math inline">\(i \not\leftrightsquigarrow j\)</span>. In a finite-state Markov chain, all states in a state are either recurrent or transient.</p>
+<p>[In class, I did not formally define when a Markov chain is periodic. We can define it as follows.]</p>
+<p>The <em>period of a state</em> <span class="math inline">\(i\)</span>, denoted by <span class="math inline">\(d(i)\)</span>, is the greatest common divisor of those values of <span class="math inline">\(n\)</span> for which <span class="math inline">\(P^n_{ii} &gt; 0\)</span>. If the period is <span class="math inline">\(1\)</span>, the state is <em>aperiodic</em>, and if the period is <span class="math inline">\(2\)</span> or more, the state is periodic. It can be shown that all states in the same class have the same period.</p>
+<p>A Markov chain is said to be <em>ergodic</em> if it has only one recurrent class that is also aperiodic.</p>
+<h1 data-number="2" id="steady-state-distribution"><span class="header-section-number">2</span> Steady-state distribution</h1>
+<p>A Markov chain is said to have a <em>steady state distribution</em> if <span class="math inline">\(π_n\)</span> converges to a limit as <span class="math inline">\(n \to ∞\)</span> and the limit does not depend on the initial distribution <span class="math inline">\(π_0\)</span>.</p>
+<p>A Markov chain has a steady state distribution if it is ergodic. We can find the steady state distribution by solving the <em>balance equation</em>: <span class="math inline">\(π = π P\)</span>.</p>
+<h1 data-number="3" id="expected-first-passage-time"><span class="header-section-number">3</span> Expected first-passage time</h1>
+<p>Let’s start with a simple example. Suppose we toss a coin multiple times and stop at a heads. What are the expected number of tosses until stopping?</p>
+<p>From elementary probability we know that the number of tosses until stopping is a geometric random variable. However, we will model this using a Markov chain where the state denotes the number of consecutive heads so far. Let <span class="math inline">\(p\)</span> denote the probability of heads and <span class="math inline">\(q = 1-p\)</span> denote the probability of tails. Then, the Markov chain model is as follows.</p>
+<figure style="max-width:20em;" id="fig1">
+<img src="examples-0.png" />
+</figure>
+<p>Let <span class="math inline">\(v_i\)</span> denote the expected number of tosses until stopping when starting at state <span class="math inline">\(i\)</span>. Then, we have <span class="math display">\[\begin{align*}
+  v_0 &amp;= 1 + q v_0 + p v_1, \\
+  v_1 &amp;= 0.
+\end{align*}\]</span> Solving this system of equations, we get <span class="math inline">\(v_0 = 1/(1-q) = 1/p\)</span>.</p>
+<p>Now, let’s try a variation of the above model. Suppose we toss a coin multiple times and stop at two heads. What are the expected number of tosses until stopping.</p>
+<p>We can model this in the same manner as the before, where the state denotes the number of consecutive heads so far. The Markov chain is as follows:</p>
+<figure style="max-width:20em;" id="fig2">
+<img src="examples-1.png" />
+</figure>
+<p>As before, let <span class="math inline">\(v_i\)</span> denote the expected number of tosses until stopping when starting at state <span class="math inline">\(i\)</span>. Then, we have <span class="math display">\[\begin{align*}
+  v_0 &amp;= 1 + q v_0 + p v_1, \\
+  v_1 &amp;= 1 + q v_0 + p v_2, \\
+  v_2 &amp;= 0.
+\end{align*}\]</span> Solving this system of equations, we get <span class="math inline">\(v_0 = 1/(1-p)\)</span>.</p>
+<p>We can generalize these ideas to find time of hitting a state.</p>
+<h1 data-number="4" id="absorption-probabilities"><span class="header-section-number">4</span> Absorption probabilities</h1>
+<p>Consider a gambler’s ruin problem, where we start at state <span class="math inline">\(1\)</span> and stop if we hit state <span class="math inline">\(0\)</span> or <span class="math inline">\(3\)</span>.</p>
+<figure style="max-width:20em;" id="fig3">
+<img src="examples-2.png" />
+</figure>
+<p>Let <span class="math inline">\(v_i\)</span> denote the probability of getting absorbed in state <span class="math inline">\(0\)</span> before <span class="math inline">\(3\)</span>. Then, we can write the following system of equations to describe the absorption probabilities: <span class="math display">\[\begin{align*}
+  v_0 &amp;= 1, \\
+  v_1 &amp;= q v_0 + p v_2, \\
+  v_2 &amp;= q v_1 + p v_3, \\
+  v_3 &amp;= 0.
+\end{align*}\]</span> Eliminating <span class="math inline">\(v_0\)</span> and <span class="math inline">\(v_3\)</span>, we get: <span class="math display">\[\begin{align*}
+  v_1 &amp;= q  + p v_2, \\
+  v_2 &amp;= q v_1 . \\
+\end{align*}\]</span> We can solve this system of equations to find <span class="math inline">\(v_1\)</span> and <span class="math inline">\(v_2\)</span>.</p>
+
+
+<p class="categories">
+This entry 
+</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
