@@ -1,0 +1,895 @@
+---
+title: "Prelim: Strategic Games"
+weight: 01
+categories:
+  - games
+tags:
+  - strategic games
+  - Equilibrium in dominant strategies
+  - Iterative elimination of dominated strategies
+---
+
+So far, we have considered models with a single decision maker. As mentioned
+in the notes on [stochastic optimization], the simplest decision problem is as
+follows. A decision maker has to choose an action $a \in \ALPHABET A$. Upon
+choosing the action $a$, the decision maker incurs a cost $c(a)$ (or,
+equivalently, receives a payoff or a utility $u(a)$). What action should the
+decision maker pick to minimize the cost (or, equivalently, maximize the
+payoff). 
+
+[stochastic optimization]: ../../stochastic/stochastic-optimization
+
+However, the situation is different when there are multiple players with
+_different_ utilities. Such settings are called games. We'll start with the
+simplest setting of two player games. 
+
+Consider a decision problem where there are two players. Player 1 ($P_1$ from
+now on) chooses an action $a_1 \in \ALPHABET A_1$ and player 2 ($P_2$ from now
+on) chooses an action $a_2 \in \ALPHABET A_2$. Once both players have chosen
+their actions, $P_1$ receives a payoff of $u_1(a_1, a_2)$ and $P_2$ receives a
+payoff of $u_2(a_1,a_2)$. How should the players behave?
+
+We start with a few examples.
+
+# Examples
+
+## Prisoner's dilemma.
+
+This is perhaps the most popular example of a game. 
+
+_Two criminals are arrested for a crime but the prosecutors have evidence to
+only charge them for a lesser crime but not enough to charge them for the main
+crime. The prisoners are kept in separate cells with no means to communicate.
+The prosecutors simultaneously offer the following bargain to both prisoners:
+serve as a witness that the other criminal committed the crime and walk free;
+unless the other also confesses in which case both get sentenced. If both
+criminals confess, both get a reduced sentenced for the main crime (2 years in
+prison). If only one confesses, the criminal who confessed walks free while
+the other gets a full sentence for the main crime (10 years in prison). If
+neither prisoner takes the bargain, then both get charged for the lesser crime
+(1 year in prison)._
+
+This example can be modeled as a two player game as follow. The action sets of
+both players are $\ALPHABET A_1 = \ALPHABET A_2 = \{ \mathsf{A}, \mathsf{R}
+\}$, where $\mathsf{A}$ means that the player accepts the bargain and
+$\mathsf{R}$ means that the player rejects the bargain. The utility functions
+can be represented compactly as follows, which is called the _bimatrix
+representation_ of the game. 
+
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{A}$</td>
+    <td colspan="2">$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{A}$</td>
+    <td>$-2$</td>
+    <td>$-2$</td>
+    <td>$0$</td>
+    <td>$-3$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{R}$</td>
+    <td>$-3$</td>
+    <td>$0$</td>
+    <td>$-1$</td>
+    <td>$-1$</td>
+  </tr>
+</table>
+
+## Battle of sexes
+
+_A couple wants to go out for the evening and there are two events taking
+place: a football game and an opera. One person (player 1) prefers to go to the
+football game while the other player (player 2) prefers to go the opera. But
+they want to go together and are miserable if they go to separate events._
+
+This example can be modeled as a two player game as follows. The action sets
+of both players are $\ALPHABET A_1 = \ALPHABET A_2 = \{\mathsf{F},
+\mathsf{O}\}$, and the payoff matrices are given as follows.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{F}$</td>
+    <td colspan="2">$\mathsf{O}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{F}$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{O}$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+
+
+## Chicken (also called Hawk-Dove)
+
+_Two drivers are headed for a single lane bridge from opposite directions. The
+first to swerve away yields the bridge to the other and is called 'chicken'
+(i.e., a coward). If neither swerve, both are involved in a head-on
+collision._
+
+In this example $\ALPHABET A_1 = \ALPHABET A_2 = \{ \mathsf{C}, \mathsf{H} \}$
+and the payoff matrices are as follows.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{C}$</td>
+    <td colspan="2">$\mathsf{H}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{C}$</td>
+    <td>$3$</td>
+    <td>$3$</td>
+    <td>$1$</td>
+    <td>$10$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$10$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+  </tr>
+</table>
+
+
+## Matching pennies
+
+This model a parlor game played between two players. _Each player has a penny
+and must secretly turn the penny to heads or tails. The players reveal their
+choices simultaneously. If the pennies match (both heads or both tails),
+player 1 wins. If they don't player 2 wins._
+
+In this example $\ALPHABET A_1 = \ALPHABET A_2 = \{ \mathsf{H}, \mathsf{T} \}$
+and the payoff matrices are as follows.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{H}$</td>
+    <td colspan="2">$\mathsf{T}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$1$</td>
+    <td>$-1$</td>
+    <td>$-1$</td>
+    <td>$1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$-1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$-1$</td>
+  </tr>
+</table>
+
+## Discussion
+
+In the games described above, there is a conflict between the players. We
+cannot simply assert that the players should take an action which maximizes
+their utility because the utility of a player depends on the actions of other
+players, who have different incentives. The objective of game theory is to
+understand how to make decisions in such scenarios. 
+
+# Modeling Strategic Games
+
+The above examples described games between two players. General $n$-player
+games can be modeled as follows.
+
+::: highlight :::
+Definition 
+
+:  A strategic game is described by a tuple $\mathscr{G} = \langle N,
+   (\ALPHABET A_i)_{i \in N}, (u_i)_{i \in N} \rangle$, where
+
+   * $N$ is a (finite) set of players
+   * $\ALPHABET A_i$ is a non-empty set of actions for player $i$, $i \in N$.
+     Define $\ALPHABET A = \prod_{i \in N}$ as the strategy space of the game
+     $\mathscr{G}$. 
+   * $u_i \colon \ALPHABET A \to \reals$ is the utility function of player
+     $i$, $i \in N$. 
+
+::: 
+
+Remarks
+
+:   * When all $\ALPHABET A_i$ are finite, the game is called a _finite game_.
+* To play the game, each player chooses a (pure) _strategy_ $a_i \in
+  \ALPHABET A_i$. 
+* The collection $a = (a_i)_{i \in N}$ is called the _strategy profile_.
+* Given a profile $x = (x_i)_{i \in N}$ (not necessarily strategy profile,
+  but any list of elements, one for each player), $x_{-i}$ denotes the
+  list $(x_j)_{j \in N \setminus \{i\}}$. We will write $x = (x_i,
+  x_{-i})$. 
+
+## Dominated strategies
+
+We now define the notion of dominance, which can be used to provide a solution
+concept for some games. 
+
+::: highlight :::
+
+Definition
+
+:  **(Dominance)** Consider a game $\mathscr{G}$ with standard notation. Let
+   $a_i, b_i \in \ALPHABET A_i$ be two strategies of player $i$. We say,
+   strategy $a_i$ _strictly dominates_ $b_i$ if
+   $$
+    u_i(a_i, a_{-i}) \mathbin{\color{red}>} u_i(b_i, a_{-i}),
+    \quad \forall a_{-i} \in \ALPHABET A_{-i}.
+   $$
+   We say that $a_i$ _weakly dominates_ $b_i$ if
+   $$
+    u_i(a_i, a_{-i}) \mathbin{\color{red}\ge} u_i(b_i, a_{-i}),
+    \quad \forall a_{-i} \in \ALPHABET A_{-i}.
+   $$
+
+       We will also use the phrase "$b_i$ is (strongly or weakly) dominated by $a_i$"
+       to denote the same fact. 
+
+:::
+
+A strategy $a_i \in \ALPHABET A_i$ is called (strongly or weakly) __dominant
+strategy__ if it (strongly or weakly) dominates all other strategies $b_i \in
+\ALPHABET A_i \setminus \{a_i\}$.
+
+We now impose some assumptions on the players. 
+
+::: highlight :::
+
+Assumption #ass:strict
+
+:   A rational player will not choose a strictly dominated strategy.
+
+:::
+
+Note that we have not formally defined rationality. That is more of a
+philosophical discussion, and for the purpose of this course, we will not
+present a formal definition but rather go with the colloquial meaning of the
+word. 
+
+::: highlight :::
+
+Assumption #
+
+:   All players in a game are rational.
+
+:::
+
+Irrespective of the definition of rationality, this assumption is often
+violated in practice. Human decision makers are almost never rational. Even
+when decisions are made by algorithms, the decisions may not be rational.
+There is a whole branch of decision theory which considers players with
+bounded rationality. However, in this course, we will make the simplifying
+assumption that the players are rational. 
+
+## Dominant strategy equilibrium
+
+We now present the simplest solution concept for a game.
+
+::: proclaim :::
+
+**Dominant strategy equilibrium** is a strategy profile in which each player
+is playing a dominant strategy.
+
+:::
+
+For example, consider the game of prisoner's dilemma. Note that, for $P_1$,
+\begin{align*}
+  u_1(\mathsf{A}, \cdot) &= \begin{bmatrix} -2 & 0 \end{bmatrix}, \\
+  u_1(\mathsf{R}, \cdot) &= \begin{bmatrix} -3 & -1 \end{bmatrix}.
+\end{align*}
+Thus $\mathsf{A}$ is a dominant strategy for $P_1$. 
+
+Similarly, for $P_2$, 
+\begin{align*}
+  u_2(\cdot, \mathsf{A}) &= \begin{bmatrix} -2 \\ 0 \end{bmatrix}, 
+  & 
+  u_2(\cdot, \mathsf{R}) &= \begin{bmatrix} -3 \\ -1 \end{bmatrix}.
+\end{align*}
+Thus, $\mathsf{A}$ is a dominant strategy for $P_2$. 
+
+Therefore, $(\mathsf{A}, \mathsf{A})$ is a dominant strategy equilibrium. Note
+that both players play $\mathsf{A}$ even though $(\mathsf{R}, \mathsf{R})$
+gives a better outcome for both of them!
+
+--- 
+
+Note that a game may not have a dominant strategy equilibrium. For example,
+there are no dominant strategies in the battle of sexes and matching pennies.
+So, dominant strategy equilibrium is not a useful solution concept because it
+does not always exist. One option is to generalize the notion of dominance as
+explained next. 
+
+## Rationalizable equilibrium
+
+First, we return to the assumptions imposed on the players. Consider the
+following game.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+    <td colspan="2">$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$0$</td>
+    <td>$3$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+    <td>$0$</td>
+  </tr>
+</table>
+
+Strategy $\mathsf{R}$ is strictly dominated for player 2 (by strategy
+$\mathsf{M}$). So, if $P_2$ is rational, he will never choose $\mathsf{R}$.
+Can we eliminate strategy $\mathsf{R}$ from consideration?
+
+The argument is not so simple. If $P_1$ does not know that $P_2$ is rational,
+he is liable to believe that $P_2$ might choose strategy $\mathsf{R}$, in
+which case it would be in $P_1$'s interest to player strategy $\mathsf{B}$. 
+
+However, if we postulate that
+
+* $P_2$ is rational, and
+* $P_1$ knows that $P_2$ is rational.
+
+Then, $P_1$ knows that $P_2$ will not player strategy $\mathsf{R}$. However,
+$P_2$ doesn't know that $P_1$ knows that $P_2$ is rational. Therefore, $P_2$
+doesn't know that $P_1$ knows that $P_2$ will not play strategy $\mathsf{R}$.
+Thus, we need to assume that
+
+* $P_2$ knows that $P_1$ knows that $P_2$ is rational. 
+
+Continuing this way, we can argue that we we need to assume that
+
+* $P_1$ knows that $P_2$ knows that $P_1$ knows that $P_2$ is rational. 
+* and so on. 
+
+If statements of this type hold for infinite depth, we say that the fact that
+$P_2$ is rational is __common knowledge__. We will revisit common knowledge
+later in the course. For now, we assume the following.
+
+::: highlight :::
+
+Assumption #
+
+:  It is common knowledge that all players are rational.
+
+:::
+
+Under the assumption of common knowledge of rationality, we can assume that
+the players will eliminate strictly dominated strategies. For example, in the
+previous example, both players can eliminate strategy $\mathsf{R}$ from
+consideration and simplify the original game $\mathscr{G}$ to game
+$\mathscr{G}_1$ shown below. 
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+    <td colspan="2">$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$0$</td>
+    <td>$3$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+    <td>$0$</td>
+  </tr>
+</table>
+<figcaption>
+Original game $\mathscr{G}$
+</figcaption>
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$0$</td>
+    <td>$3$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+  </tr>
+</table>
+<figcaption>
+Reduced game $\mathscr{G}_1$
+</figcaption>
+
+We can continue this reasoning. In the reduced game $\mathscr{G}_1$, strategy
+$\mathsf{B}$ for $P_1$ is dominated by strategy $\mathsf{T}$. So, we obtain
+the reduced game $\mathscr{G}_2$ shown below.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+<figcaption>
+Reduced game $\mathscr{G}_2$
+</figcaption>
+
+Finally, we can eliminate strategy $\mathsf{L}$ for $P_1$, which is strictly
+dominated by $\mathsf{M}$ to obtain game $\mathscr{G}_3$ shown below.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{M}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+<figcaption>
+Reduced game $\mathscr{G}_3$
+</figcaption>
+
+This procedure is called **IEDS (Iterative elimination of dominated
+strategies)**. If the procedure gives a unique strategy, that strategy is
+called a **rationalizable strategy**.
+
+Remarks
+
+:  * In general, IEDS may not lead to a solution (i.e., we may be left with a
+game which is not $1 × 1$ where no strategy is dominated). 
+* At each step, there may be more than one strictly dominated strategy. If
+ so, we can simultaneously eliminate all of them. 
+* Irrespective of the order in which strategies are eliminated, IEDS gives
+ the same simplified game. 
+
+
+Rationalizable equilibrium are derived under the assumption of common
+knowledge of rationality, which appears to be a benign assumption but is not.
+To see why common knowledge of rationality is a strong assumption, consider
+the following example, which is known as the _beauty contest game_.
+
+_Each player picks a real number between 0 and 100. The person who was closest
+to the average of the group wins a prize_. 
+
+How will you play this game?
+    
+## Iterative elimination of weakly dominated strategies
+
+We can extend the notion of IEDS to IE**W**DS (Iterative elimination of
+_weakly_ dominated strategies) if we make the following assumption.
+
+::: highlight :::
+
+Assumption #ass:weak
+
+:  A rational player never plays a weakly dominated strategy.
+
+:::
+
+@ass:weak is less compelling than @ass:strict. Nonetheless, it allows us to
+find solutions of games where IEDS doesn't work (see the second price auction
+example below). If IEWDS gives us a unique solution, we call the resulting
+strategy as a **rationalizable strategy**
+
+
+However, unlike IEDS where the order of elimination of
+strategies does not matter, in IEWDS we can end up with different games
+depending on the order of elimination of strategies. For example, consider the
+following game:
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+    <td colspan="2">$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+
+Note that both strategies $\mathsf{L}$ and $\mathsf{R}$ are weakly dominated
+by $\mathsf{M}$. 
+
+If we eliminate $\mathsf{L}$, we obtain the following reduction.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{M}$</td>
+    <td colspan="2">$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+
+Now, for $P_1$, strategy $\mathsf{T}$ is dominated by strategy $\mathsf{B}$.
+Eliminating $\mathsf{T}$ we get
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{M}$</td>
+    <td colspan="2">$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+<figcaption>Game $\mathscr{G}_L$</figcaption>
+
+If we eliminate $\mathsf{R}$ in the original game, we get the following
+reduction.
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+
+Here, for $P_1$, strategy $\mathsf{B}$ is weakly dominated by strategy
+$\mathsf{T}$. Eliminating $\mathsf{B}$, we get
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+  </tr>
+</table>
+<figcaption>Game $\mathscr{G}_R$</figcaption>
+
+Note that games $\mathscr{G}_L$ and $\mathscr{G}_R$ cannot be reduced further.
+The resulting payoffs are also different.
+
+## Second price auction
+
+We will study auctions in detail later in the course, but here we use the
+concept of dominance to identify a rationalizable strategy in what are
+knows as sealed bid, second price auctions. This is an example of a game with
+continuous action spaces. 
+
+Sealed bid second price auctions work as follows:
+
+[add details from notes]
+
+# Dominance by mixed strategies
+
+Consider a strategic game $\mathscr{G} = \langle N, (\ALPHABET A_i)_{i \in N},
+(u_i)_{i \in N} \rangle$ where $\ALPHABET A_i = \{a_{i1}, \dots, a_{ik}\}$.
+Then a mixed strategy for player $i$ is a probability distribution
+$$
+  α_i = (α_{i1}, \dots, α_{ik}),
+  \quad
+  α_{i\ell} \in [0,1],
+  \quad
+  \sum_{\ell=1}^k α_{i\ell} = 1
+$$
+over the (pure) strategies of player $i$. 
+
+For example, suppose $\ALPHABET A = \{1,2,3\}$ and $α_i = (0.2, 0.3, 0.5)$.
+This means that player $i$ chooses action $1$ with probability $0.2$, action
+$2$ with probability $0.3$, and action $3$ with probability $0.5$. 
+
+When other players are playing pure strategies $a_{-i}$ and player $i$ is
+playing a mixed strategy $α_i$, then the **expected payoff** to player $i$ is
+$$
+  U_i(α_i, a_{-i}) = \sum_{\ell=1}^k α_{i\ell} u_i(a_{i\ell}, a_{-i}).
+$$
+
+For example, consider the matching pennies game where $α_1 = (p, 1-p)$. Then,
+
+\begin{align*}
+U_1(α_1, H) &= p - (1-p) = 2p - 1, \\
+U_1(α_1, T) &= -q + (1-p) = 1 - 2p.
+\end{align*}
+
+We can think of a mixed strategy as a _virtual row_ or _virtual column_ in the
+bimatrix representation of the game as follows:
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{H}$</td>
+    <td colspan="2">$\mathsf{T}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$1$</td>
+    <td>$-1$</td>
+    <td>$-1$</td>
+    <td>$1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$-1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$-1$</td>
+  </tr>
+  <tr>
+    <td>$α_1$</td>
+    <td>$2q-1$</td>
+    <td>$\bullet$</td>
+    <td>$1-2q$</td>
+    <td>$\bullet$</td>
+  </tr>
+</table>
+
+We will revisit mixed strategies later in the course. For now, we will simply
+use the idea of mixed strategies to extend the notion of IEDS and IEWDS. For
+example consider the game shown below (where $\bullet$ means that the value is
+not specified because it is not important for the discussion)
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+    <td colspan="2">$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$\bullet$</td>
+    <td>$3$</td>
+    <td>$\bullet$</td>
+    <td>$1$</td>
+    <td>$\bullet$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$\bullet$</td>
+    <td>$0$</td>
+    <td>$\bullet$</td>
+    <td>$1$</td>
+    <td>$\bullet$</td>
+    <td>$3$</td>
+  </tr>
+</table>
+
+Note that none of the strategies of $P_2$ are dominated. However, if we
+consider the mixed strategy $α_2 = (0.5, 0, 0.5)$, then
+
+$$ U_2(\cdot, α_2) = \begin{bmatrix} 1.5 \\ 1.5 \end{bmatrix} $$
+which dominates $\mathsf{C}$. So we can eliminate strategy $\mathsf{C}$. 
+
+# Never best response
+
+::: highlight :::
+
+Definition
+
+:   **(Best Response)** The best response (in pure strategies) of player $i$ to
+    strategy profile $a_{-i}$ is a strategy $a_i$ that yields the highest
+    utility, i.e.,
+    $$
+      u_i(a_i, a_{-i}) \ge u_i(b_i, a_{-i}), \quad \forall b_i \in \ALPHABET
+      A_i.
+    $$
+    We say that $a_i$ is _strongly_ best response if the inequality is strict
+    for all $b_i \neq a_i$. 
+
+::: 
+
+An idea related to dominance is never best response. 
+
+::: highlight :::
+
+Definition
+
+:  **(Never best response)** A pure strategy $a_i$ is never best response if
+   for all mixed strategies $α_{-i}$ there exists a mixed strategy $α_i$ such
+   that
+   $$ U_i(α_i, α_{-i}) > U_i(a_i, α_{-i}). $$
+
+:::
+
+Let's reconsider the game discussed above
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{L}$</td>
+    <td colspan="2">$\mathsf{M}$</td>
+    <td colspan="2">$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$\bullet$</td>
+    <td>$3$</td>
+    <td>$\bullet$</td>
+    <td>$1$</td>
+    <td>$\bullet$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$\bullet$</td>
+    <td>$0$</td>
+    <td>$\bullet$</td>
+    <td>$1$</td>
+    <td>$\bullet$</td>
+    <td>$3$</td>
+  </tr>
+</table>
+
+Now consider a mixed strategy $α_1 = (p, 1-p)$ for player 1. Then, the payoff
+to player 2 is
+$$ U_2(α_1, \cdot) = \begin{bmatrix} 3p & 1 & 3(1-p) \end{bmatrix} $$
+
+Note that $\max\{ 3p, 3(1-p) \} \ge \frac 32$. Thus, for all values of $p$,
+either $\mathsf{L}$ or $\mathsf{R}$ is better than $M$. 
+
+We can generalize IEDS to eliminate neverBR strategies to obtain
+rationalizable strategies (in some cases). 
+
+## Relationship between dominated strategies and never BR strategies
+
+By definition, a strictly dominated strategy is never BR. In general, the
+converse is not true when there are more than 3 players. 
+
+[Add example from notes]
+
+## Cournot competition
+
+This is a model from economics and we will study it because of its simplicity.
+It is based on a model proposed by Cournot in 1839. The model describes the
+strategic interaction between firms in an oligopoly market (i.e., a market
+where a few sellers serve the entire market; both monopoly and duopoly are
+special cases of oligopoly). 
+
+Formally, the Cournot competition model considers a _homogeneous-goods_ market
+with $n$ first. A homogeneous-goods market is a market where all firms produce
+a homogeneous product which are perfect substitutes (e.g., consider a
+commodities market such as metal or oil or electricity). 
+
+Each firm decides how much to produce. Let $a_i \in \reals_{\ge 0}$ denote the
+production of firm $i$ and $a = \sum_{i = 1}^n a_i$ denote aggregate
+production. The price of the product depends on the aggregate production. We
+capture this relationship using a generic function $p \colon \reals_{\ge 0}
+\to \reals_{\ge 0}$, i.e., price of product is $p(a)$ when the aggregate
+production is $a$. 
+
+Furthermore, there is a cost $c$ to produce one unit of goods. For simplicity,
+we assume that the cost is the same for all firms, though it is possible to
+consider the model this cost depends on the firm. Thus, the utility of firm
+$i$ is
+$$
+  u_i(a_i, a_{-i}) = a_i \cdot p(a) - a_i \cdot c.
+$$
+We will analyze this game in the special case when the price function is 
+$$
+  p(a) = \max \{ M - a, 0 \}
+$$
+where $M$ is the market capacity. Thus, we are assuming that prices are
+proportional to marginal demand. 
+
+[complete based on notes]
+
+# Exercises {-}
+
+1. Simplify the following games using IEDS or IEWDS. Clearly explain the
+   intermediate steps. 
+
+2. Consider the following two player game: $\ALPHABET A_1 = \ALPHABET A_2 =
+   \{1, \dots, 100 \}$ and
+   $$
+    u(a_1, a_2) = \begin{cases}
+    (a_1, a_2), & \text{if $a_1 + a_2 < 100$} \\
+    (a_1, 100-a_1), & \text{if $a_1 + a_2 > 100$ and $a_1 < a_2$}\\
+    (100-a_2, a_2), & \text{if $a_1 + a_2 > 100$ and $a_2 < a_1$}\\
+    (50,50), & \text{if $a_1 + a_2 > 100$ and $a_1 = a_2$}
+    \end{cases}$$
+    Find the rationalizable strategies using IEWDS.
