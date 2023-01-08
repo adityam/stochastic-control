@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="zero-sum games" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2022
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Theory: Security and zero-sum games</div>
+
+<p>As we saw, the notion of rationalizability is attractive, but it makes strong assumptions about other players and does not always prescribe a solution. We will now describe a notion of rationality of a player that does not rely on rationality of other players, and even makes the most pessimistic assessment of their potential behavior.</p>
+<p>As an example, consider the game shown below.</p>
+<table class="game" align="center">
+<tr>
+<td>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{L}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{R}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(-20\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{M}\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(-10\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{B}\)</span>
+</td>
+<td>
+<span class="math inline">\(-100\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+</tr>
+</table>
+<p>In this game <span class="math inline">\(\mathsf{T}\)</span> is an attractive strategy for the row player because it guarantees a payoff of <span class="math inline">\(2\)</span> and also ensures that the “risky” payoffs of <span class="math inline">\(-10\)</span> and <span class="math inline">\(-100\)</span> are avoided. Similarly, the column player may prefer strategy <span class="math inline">\(\mathsf{L}\)</span> because it guarantees a payoff of <span class="math inline">\(\mathsf{L}\)</span> and avoids the risky outcome of <span class="math inline">\(-20\)</span>.</p>
+<p>This motivates the following question: <em>What is the minimum payoff that player <span class="math inline">\(i\)</span> can guarantee for himself?</em></p>
+<p>If player <span class="math inline">\(i\)</span> chooses strategy <span class="math inline">\(a_i\)</span>, the worst payoff he can get is <span class="math display">\[ \min_{a_{-i} \in \ALPHABET A_{-i}} u_i(a_i, a_{-i}). \]</span> Player <span class="math inline">\(i\)</span> can choose the strategy <span class="math inline">\(a_i\)</span> to maximize this value. In other words, disregarding the possible rationality (or irrationality) of other players, <span class="math inline">\(P_i\)</span> can guarantee himself a payoff of <span class="math display">\[ \underline v_i := \max_{a_i \in \ALPHABET A_i}
+  \min_{a_{-i} \in \ALPHABET A_{-i}} u_i(a_i, a_{-i}). \]</span></p>
+<p>This quantity is called the <strong>maximin value</strong> of player <span class="math inline">\(i\)</span> (sometimes also called the <strong>security level</strong>). The strategy <span class="math inline">\(a^*_i\)</span> that guarantees this value is called a <strong>maxmin strategy</strong>.</p>
+<p>The maxmin strategy satisfies <span class="math display">\[\begin{equation}\label{eq:maxmin}
+  \min_{a_{-i} \in \ALPHABET A_{-i}} u_i(a_i^*, a_{-i}) 
+  \ge
+  \min_{a_{-i} \in \ALPHABET A_{-i}} u_i(a_i, a_{-i}),
+  \quad \forall a_i \in \ALPHABET A_i
+\end{equation}\]</span> which is equivalent to <span class="math display">\[
+  u_i(a_i^*, a_{-i}) \ge \underline v_i,
+  \quad \forall a_{-i} \in \ALPHABET A_{-i}.
+\]</span></p>
+<p>Returning to our example, we have</p>
+<table class="game" align="center">
+<tr>
+<td>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{L}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{R}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\min\limits_{a_2 \in \ALPHABET A_2} u_1(a_1, a_2)\)</span>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(-20\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(2\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{M}\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(-10\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(-10\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{B}\)</span>
+</td>
+<td>
+<span class="math inline">\(-100\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(-100\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\min\limits_{a_1 \in \ALPHABET A_1} u_2(a_1, a_2)\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(0\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(-20\)</span>
+</td>
+<td style="background-color:lightgreen;">
+<span class="math inline">\(2\)</span>
+</td>
+<td style="background-color:lightgreen;">
+<span class="math inline">\(0\)</span>
+</td>
+</tr>
+</table>
+<ul>
+<li>The maxmin value of <span class="math inline">\(P_1\)</span> is <span class="math inline">\(2\)</span> (guaranteed by strategy <span class="math inline">\(\mathsf{T}\)</span>).</li>
+<li>The maxmin value of <span class="math inline">\(P_2\)</span> is <span class="math inline">\(0\)</span> (guaranteed by strategy <span class="math inline">\(\mathsf{L}\)</span>).</li>
+<li>If both players play their maxmin strategy, the outcome is <span class="math inline">\((\mathsf{T}, \mathsf{L})\)</span> which gives a payoff of <span class="math inline">\((2,1)\)</span>.</li>
+<li>Note that the payoff of <span class="math inline">\(P_2\)</span> obtained above is higher than his maxmin value.</li>
+</ul>
+<p>In general, a player may have several maxmin strategies. In such a case, when the players play their maxmin strategies, the payoff depends on which strategy they choose. As an example, consider the following game.</p>
+<table class="game" align="center">
+<tr>
+<td>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{L}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{R}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\min\limits_{a_2 \in \ALPHABET A_2} u_1(a_1, a_2)\)</span>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(4\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(0\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{B}\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(1\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\min\limits_{a_1 \in \ALPHABET A_1} u_2(a_1, a_2)\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(1\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(\bullet\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(1\)</span>
+</td>
+<td style="background-color:lightgreen;">
+<span class="math inline">\(1\)</span>
+</td>
+<td style="background-color:lightgreen;">
+<span class="math inline">\(1\)</span>
+</td>
+</tr>
+</table>
+<ul>
+<li>The maxmin value of <span class="math inline">\(P_1\)</span> is <span class="math inline">\(1\)</span>, guaranteed by strategy <span class="math inline">\(\mathsf{B}\)</span>.</li>
+<li>The maxmin value of <span class="math inline">\(P_2\)</span> is <span class="math inline">\(1\)</span>, guaranteed by either strategy <span class="math inline">\(\mathsf{L}\)</span> or <span class="math inline">\(\mathsf{R}\)</span>.</li>
+<li>When the two players implement their maxmin strategy, the payoff might be <span class="math inline">\((2,3)\)</span> or <span class="math inline">\((1,1)\)</span> depending on what strategy <span class="math inline">\(P_2\)</span> uses.</li>
+</ul>
+<div class="highlight">
+<dl>
+<dt><span id="thm:1"></span><span id="thm:dominant" class="pandoc-numbering-text thm"><strong>Theorem 1</strong></span></dt>
+<dd>
+<p>A (strict or weakly) dominant strategy of a player is also a maxmin strategy.</p>
+</dd>
+</dl>
+</div>
+<details>
+<summary>
+<h4 class="unnumbered" id="proof">Proof</h4>
+</summary>
+<div>
+<p>Fix a player, say player <span class="math inline">\(i\)</span>. Suppose <span class="math inline">\(a_i^*\)</span> is a (strong or weakly) dominant strategy for <span class="math inline">\(P_i\)</span>. Then, for any <span class="math inline">\(a_{-i} \in \ALPHABET A_{-i}\)</span>, we have <span class="math display">\[
+    u_i(a_i^*, a_{-i}) \ge
+    u_i(a_i, a_{-i}) ,
+    \quad \forall a_i \in \ALPHABET A_i.
+\]</span> Minimizing both sides over <span class="math inline">\(a_{-i}\)</span>, we get that Eq. \eqref{eq:maxmin} is satisfied. Therefore, <span class="math inline">\(a_i^*\)</span> is also a maxmin strategy for <span class="math inline">\(P_i\)</span>.</p>
+</div>
+</details>
+<p>As an example, consider sealed-bid second price auctions. <a href="#thm:dominant" title="Theorem 1"><span class="pandoc-numbering-link thm">Theorem 1</span></a> shows that truthful bidding is also a maxmin strategy for all players.</p>
+<p>Note that strategies obtained by iterative elimination are not maxmin strategies. (Construct an example to show that!)</p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:2"></span><span id="thm:strict" class="pandoc-numbering-text thm"><strong>Theorem 2</strong></span></dt>
+<dd>
+<p>A dominant strategy equilibrium is the unique vector of maxmin strategies.</p>
+</dd>
+</dl>
+</div>
+<details>
+<summary>
+<h4 class="unnumbered" id="proof-1">Proof</h4>
+</summary>
+<div>
+<p>A strictly dominant strategy is the unique BR to any strategy of other players. Hence, following the argument of the proof of <a href="#thm:strict" title="Theorem 2"><span class="pandoc-numbering-link thm">Theorem 2</span></a>, it is the unique maxmin strategy of the player.</p>
+</div>
+</details>
+<p>As an example, consider prisoner’s dilemma. <a href="#thm:strict" title="Theorem 2"><span class="pandoc-numbering-link thm">Theorem 2</span></a> implies that the strategy <span class="math inline">\((\mathsf{A}, \mathsf{A})\)</span> is the unique maxmin strategy profile of the game.</p>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/games">
+  Games</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/zero-sum-games">zero-sum games</a>.</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
