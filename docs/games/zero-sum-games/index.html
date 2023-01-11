@@ -368,11 +368,406 @@
 </div>
 </details>
 <p>As an example, consider prisoner’s dilemma. <a href="#thm:strict" title="Theorem 2"><span class="pandoc-numbering-link thm">Theorem 2</span></a> implies that the strategy <span class="math inline">\((\mathsf{A}, \mathsf{A})\)</span> is the unique maxmin strategy profile of the game.</p>
+<h1 data-number="1" id="strict-competition-and-zero-sum-games"><span class="header-section-number">1</span> Strict competition and zero-sum games</h1>
+<p>Recall the game of matching pennies.</p>
+<table class="game" align="center">
+<tr>
+<td>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{H}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{H}\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+</tr>
+</table>
+<p>This game has the property that for any strategy profile <span class="math inline">\((a_1, a_2) \in \ALPHABET A\)</span>, we have <span class="math display">\[
+  u_1(a_1, a_2) + u_2(a_1, a_2) = 0.
+\]</span> A game with such a property is called a <strong>zero-sum game</strong>. In this course, we will focus on two player zero-sum games.</p>
+<dl>
+<dt>Remark</dt>
+<dd>
+<ul>
+<li>Many classical games such as chess, checkers, Go, etc. are two player zero-sum games.</li>
+<li>Zero-sum games are highly restrictive. Therefore, they are much easier to analyze as compared to general-sum games.</li>
+<li>Zero-sum games emerge in many engineering applications when we consider worst case performance guarantees. Such scenarios can be considered as games against nature.</li>
+<li>When we consider the maxmin value (or the security level) of a player in a general game, we are effectively doing worst case analysis. This means that each player is conidering an auxiliary zero-sum game in whic all other players collude and act as a single opponent who tries to minimize the payoff of the player. Thus, zero-sum games can be useful even when analyzing non-zero sum games.</li>
+</ul>
+</dd>
+</dl>
+<p>For two player zero-sum games, we can simplify notation. Since <span class="math inline">\(u_2(a_1, a_2) = - u_1(a_1, a_2)\)</span>, instead of specifying the payoff of both players, we can just specify the playoff of player <span class="math inline">\(P_1\)</span>.</p>
+<table style="border:none;" align="center">
+<tr>
+<td style="padding-right:1.5em;">
+<table class="game">
+<tr>
+<td>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{H}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{H}\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+</tr>
+</table>
+</td>
+<td style="padding-right:1.5em;">
+vs
+</td>
+<td>
+<table class="game1">
+<tr>
+<td>
+</td>
+<td>
+<span class="math inline">\(\mathsf{H}\)</span>
+</td>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{H}\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<p>Here we can think of <span class="math inline">\(P_1\)</span> as the “maximizing player” and <span class="math inline">\(P_2\)</span> as the “minimizing player”. Thus, instead of a bimatrix representation, we will specify the payoffs by a matrix and assume that the row player is the maximizer and the column player is the minimizer. Moreover we will use <span class="math display">\[
+  u(a_1, a_2) 
+  \text{ to denote }
+  u_1(a_1, a_2)
+  \text{ and }
+  -u_2(a_1, a_2).
+\]</span></p>
+<p>Now, recall that the safety levels of the two players are: <span class="math display">\[\begin{alignat*}{3}
+  \underline v_1 &amp;= 
+  \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u_1(a_1, a_2)
+  &amp; &amp;=
+  {\color{red} \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u(a_1, a_2)}
+  , \\
+  \underline v_2 &amp;= 
+  \max_{a_2 \in \ALPHABET A_2} \min_{a_1 \in \ALPHABET A_1} u_2(a_1, a_2)
+  &amp; &amp;=
+  {\color{red}- \min_{a_2 \in \ALPHABET A_2} \max_{a_1 \in \ALPHABET A_1} u(a_1, a_2)}
+  .
+\end{alignat*}\]</span></p>
+<p>For zero-sum games, we use a simpler notation: <span class="math display">\[\begin{alignat*}{3}
+  \text{Maxmin value:}&amp; \quad &amp; 
+  \underline v &amp;= 
+  \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u(a_1, a_2),
+  \\
+  \text{Minmax value:}&amp; \quad &amp; 
+  \overline v &amp;= 
+  \min_{a_2 \in \ALPHABET A_2} \max_{a_1 \in \ALPHABET A_1}  u(a_1, a_2).
+\end{alignat*}\]</span></p>
+<p>Let’s consider the following examples.</p>
+<p>[Add examples]</p>
+<div class="highlight">
+<dl>
+<dt><span id="thm:3"></span><span id="thm:ZSG" class="pandoc-numbering-text thm"><strong>Theorem 3</strong></span></dt>
+<dd>
+<p>In a two player zero-sum game, <span class="math inline">\(\underline v \le \overline v\)</span>.</p>
+</dd>
+</dl>
+</div>
+<h4 class="unnumbered" id="proof-2">Proof</h4>
+<p>[Add proof]</p>
+<div class="highlight">
+<dl>
+<dt>Definition</dt>
+<dd>
+<p>In a two player zero-sum game, if <span class="math inline">\(\underline v = \overline v\)</span>, then the qunatity <span class="math inline">\(v := \underline v = \overline v\)</span> is called the <strong>value</strong> of the game. Any (maxmin, minmax) strategy of the players is also called the <strong>optimal strategy</strong>.</p>
+</dd>
+</dl>
+</div>
+<p>As an example, consider the following game.</p>
+<table class="game1" align="center">
+<tr>
+<td>
+</td>
+<td>
+<span class="math inline">\(\mathsf{L}\)</span>
+</td>
+<td>
+<span class="math inline">\(\mathsf{M}\)</span>
+</td>
+<td>
+<span class="math inline">\(\mathsf{R}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(-2\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{C}\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{B}\)</span>
+</td>
+<td>
+<span class="math inline">\(-2\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+</tr>
+</table>
+<p>We compute the maxmin and the minmax value of the game.</p>
+<table class="game1" align="center">
+<tr>
+<td>
+</td>
+<td>
+<span class="math inline">\(\mathsf{L}\)</span>
+</td>
+<td>
+<span class="math inline">\(\mathsf{M}\)</span>
+</td>
+<td>
+<span class="math inline">\(\mathsf{R}\)</span>
+</td>
+<td>
+<span class="math inline">\(\min\limits_{a_2 \in \ALPHABET A_2} u(a_1, a_2)\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{T}\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(-2\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(-2\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{C}\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(0\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{B}\)</span>
+</td>
+<td>
+<span class="math inline">\(-2\)</span>
+</td>
+<td>
+<span class="math inline">\(-1\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(-2\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\max\limits_{a_1 \in \ALPHABET A_1} u(a_1, a_2)\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(2\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(0\)</span>
+</td>
+<td style="background-color:lightgray;">
+<span class="math inline">\(2\)</span>
+</td>
+<td style="background-color:lightgreen;">
+<span class="math inline">\((0,0)\)</span>
+</td>
+</table>
+<p>Thus, <span class="math inline">\(\underline v = 0\)</span> and <span class="math inline">\(\overline v = 0\)</span>. Thus, the game has a value <span class="math inline">\(v = 0\)</span> and the strategy <span class="math inline">\((\mathsf{C}, \mathsf{M})\)</span> is an optimal strategy.</p>
+<dl>
+<dt>Remarks</dt>
+<dd>
+<ul>
+<li>As we saw in the previous examples, not all zero-sum games have a value in (pure strategies).</li>
+</ul>
+</dd>
+</dl>
+<div class="highlight">
+<dl>
+<dt><span id="prop:1"></span><span id="prop:multiple" class="pandoc-numbering-text prop"><strong>Proposition 1</strong></span></dt>
+<dd>
+<p>Suppose a zero-sum game has two optimal strategies <span class="math inline">\((a_1^*, a_2^*)\)</span> and <span class="math inline">\((b_1^*, b_2^*)\)</span>, where <span class="math inline">\(a_1^* \neq b_1^*\)</span> and <span class="math inline">\(a_2^* \neq b_2*\)</span>, such that both strategy profiles satisfy <span class="math display">\[
+  \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u(a_1, a_2)
+  =
+  \min_{a_2 \in \ALPHABET A_2} \max_{a_1 \in \ALPHABET A_1}  u(a_1, a_2).
+  \]</span> Then, <span class="math display">\[ u(a_1^*, a_2^*) = u(a_1^*, b_2^*) = u(b_1^*, b_2^*) = 
+ u(a_1^*, b_2^*).
+  \]</span> Thus, the strategy profile in which each player is playing one of its optimal straegies is also optimal.</p>
+</dd>
+</dl>
+</div>
+<details>
+<summary>
+<h4 class="unnumbered" id="proof-3">Proof</h4>
+</summary>
+<div>
+<p>Left as an exercise.</p>
+</div>
+</details>
+<p>A key implication of <a href="#prop:multiple" title="Proposition 1"><span class="pandoc-numbering-link prop">Proposition 1</span></a> is that when a zero sum game has a value, each player can separately pick an optimal strategy and the resulting strategy profile is optimal.</p>
+<p>The value of a game has a nice geometric interpretation.</p>
+<div class="highlight">
+<dl>
+<dt>Definition</dt>
+<dd>
+<p>Let <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET Y\)</span> be sets and <span class="math inline">\(f \colon \ALPHABET X × \ALPHABET Y \to \reals\)</span>. A point <span class="math inline">\((x^*, y^*) \in \ALPHABET X × \ALPHABET Y\)</span> is said to be a <strong>saddle point of <span class="math inline">\(f\)</span></strong> if <span class="math display">\[\begin{align*}
+  f(x^*, y^*) &amp;\ge f(x, y^*), 
+  \quad \forall x \in \ALPHABET X, \\
+  f(x^*, y^*) &amp;\le f(x^*, y), 
+  \quad \forall y \in \ALPHABET Y.
+\end{align*}\]</span></p>
+</dd>
+</dl>
+</div>
+<p>The term <em>saddle point</em> comes from the fact that the typical two dimensional example of a saddle point looks like a saddle of a horse (curves up in one direction and curves down in the other).</p>
+<p>A key property of optimal strategy is the following.</p>
 
 
 <p class="categories">
 This entry 
 
+ was last updated on 07 Jan 2023
  and posted in 
 
 <a href="https://adityam.github.io/stochastic-control/categories/games">
