@@ -5,6 +5,11 @@ categories:
   - games
 tags:
   - zero-sum games
+  - maxmin value
+  - security level
+  - mixed strategies
+scripts:
+  - geogebra
 ---
 
 As we saw, the notion of rationalizability is attractive, but it makes strong
@@ -232,4 +237,630 @@ unique maxmin strategy of the player.
 As an example, consider prisoner's dilemma. @thm:strict implies that
 the strategy $(\mathsf{A}, \mathsf{A})$ is the unique maxmin strategy profile
 of the game.
+
+# Strict competition and zero-sum games
+
+Recall the game of matching pennies.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{H}$</td>
+    <td colspan="2">$\mathsf{T}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$1$</td>
+    <td>$-1$</td>
+    <td>$-1$</td>
+    <td>$1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$-1$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$-1$</td>
+  </tr>
+</table>
+
+This game has the property that for any strategy profile $(a_1, a_2) \in
+\ALPHABET A$, we have
+$$
+  u_1(a_1, a_2) + u_2(a_1, a_2) = 0.
+$$
+A game with such a property is called a **zero-sum game**. In this course, we
+will focus on two player zero-sum games. 
+
+Remark
+
+: * Many classical games such as chess, checkers, Go, etc. are two player
+zero-sum games.
+* Zero-sum games are highly restrictive. Therefore, they are much easier to
+  analyze as compared to general-sum games.
+* Zero-sum games emerge in many engineering applications when we consider
+  worst case performance guarantees. Such scenarios can be considered as games
+  against nature. 
+* When we consider the maxmin value (or the security level) of a player in a
+  general game, we are effectively doing worst case analysis. This means that
+  each player is conidering an auxiliary zero-sum game in whic all other
+  players collude and act as a single opponent who tries to minimize the
+  payoff of the player. Thus, zero-sum games can be useful even when analyzing
+  non-zero sum games. 
+
+For two player zero-sum games, we can simplify notation. Since $u_2(a_1, a_2)
+= - u_1(a_1, a_2)$, instead of specifying the payoff of both players, we can
+just specify the playoff of player $P_1$. 
+
+<table style="border:none;" align="center">
+<tr>
+  <td style="padding-right:1.5em;">
+  <table class="game">
+    <tr>
+      <td></td>
+      <td colspan="2">$\mathsf{H}$</td>
+      <td colspan="2">$\mathsf{T}$</td>
+    </tr>
+    <tr>
+      <td>$\mathsf{H}$</td>
+      <td>$1$</td>
+      <td>$-1$</td>
+      <td>$-1$</td>
+      <td>$1$</td>
+    </tr>
+    <tr>
+      <td>$\mathsf{T}$</td>
+      <td>$-1$</td>
+      <td>$1$</td>
+      <td>$1$</td>
+      <td>$-1$</td>
+    </tr>
+  </table>
+  </td>
+  <td style="padding-right:1.5em;">
+    vs
+  </td>
+  <td>
+  <table class="game1">
+    <tr>
+      <td></td>
+      <td>$\mathsf{H}$</td>
+      <td>$\mathsf{T}$</td>
+    </tr>
+    <tr>
+      <td>$\mathsf{H}$</td>
+      <td>$1$</td>
+      <td>$-1$</td>
+    </tr>
+    <tr>
+      <td>$\mathsf{T}$</td>
+      <td>$-1$</td>
+      <td>$1$</td>
+    </tr>
+  </table>
+  </td>
+</tr>
+</table>
+
+Here we can think of $P_1$ as the "maximizing player" and $P_2$ as the
+"minimizing player". Thus, instead of a bimatrix representation, we will
+specify the payoffs by a matrix and assume that the row player is the
+maximizer and the column player is the minimizer. Moreover we will use
+$$
+  u(a_1, a_2) 
+  \text{ to denote }
+  u_1(a_1, a_2)
+  \text{ and }
+  -u_2(a_1, a_2).
+$$
+
+Now, recall that the safety levels of the two players are:
+\begin{alignat*}{3}
+  \underline v_1 &= 
+  \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u_1(a_1, a_2)
+  & &=
+  {\color{red} \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u(a_1, a_2)}
+  , \\
+  \underline v_2 &= 
+  \max_{a_2 \in \ALPHABET A_2} \min_{a_1 \in \ALPHABET A_1} u_2(a_1, a_2)
+  & &=
+  {\color{red}- \min_{a_2 \in \ALPHABET A_2} \max_{a_1 \in \ALPHABET A_1} u(a_1, a_2)}
+  .
+\end{alignat*}
+
+For zero-sum games, we use a simpler notation:
+\begin{alignat*}{3}
+  \text{Maxmin value:}& \quad & 
+  \underline v &= 
+  \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u(a_1, a_2),
+  \\
+  \text{Minmax value:}& \quad & 
+  \overline v &= 
+  \min_{a_2 \in \ALPHABET A_2} \max_{a_1 \in \ALPHABET A_1}  u(a_1, a_2).
+\end{alignat*}
+
+Let's consider the following examples. 
+
+#### Example 1 {-}
+
+<table class="game1" align="center">
+  <tr>
+    <td></td>
+    <td>$\mathsf{L}$</td>
+    <td>$\mathsf{R}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$-2$</td>
+    <td>$5$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$3$</td>
+    <td>$0$</td>
+  </tr>
+</table>
+
+For this game, $\underline v = 0$ (guaranteed by $\mathsf{B}$) and $\overline
+v = 3$ (guaranteed by $\mathsf{L}$).
+
+#### Example 2 {-}
+
+<table class="game1" align="center">
+  <tr>
+    <td></td>
+    <td>$\mathsf{H}$</td>
+    <td>$\mathsf{T}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$1$</td>
+    <td>$-1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$-1$</td>
+    <td>$1$</td>
+  </tr>
+</table>
+
+For this game, $\underline v = -1$ (guaranteed by either strategy) and $\overline
+v = 1$ (guaranteed by either strategy).
+
+::: highlight :::
+Theorem #thm:ZSG
+
+: In a two player zero-sum game, $\underline v \le \overline v$.
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Let $a_1^*$ be a maxmin strategy for $P_1$ and $a_2^*$ be a maxmin strategy
+for $P_2$. Then,
+$$
+  \underline v 
+  = \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u(a_1, a_2)
+  = \min_{a_2 \in \ALPHABET A_2} u({\color{red} a_1^*}, a_2).
+$$
+Thus, for any $a_2 \in \ALPHABET A_2$, 
+\begin{equation}\label{eq:v-1}
+  \underline v \le u(a_1^*, a_2).
+\end{equation}
+
+Similarly, 
+$$
+  \overline v 
+  = \min_{a_2 \in \ALPHABET A_2} \max_{a_1 \in \ALPHABET A_1} u(a_1, a_2)
+  = \max_{a_1 \in \ALPHABET A_1} u(a_1^*, {\color{red} a_2}).
+$$
+Thus, for any $a_1 \in \ALPHABET A_1$, 
+\begin{equation}\label{eq:v-2}
+  \overline v \ge u(a_1, a_2^*).
+\end{equation}
+
+Now, Eq. \\eqref{eq:v-1} implies that 
+\begin{equation} \label{eq:v-3}
+  \underline v \le u(a_1^*, a^*2).
+\end{equation}
+Similarly, Eq. \\eqref{eq:v-2} implies that
+\begin{equation} \label{eq:v-4}
+  \overline v \ge u(a_1^*, a_2^*).
+\end{equation}
+Combining \\eqre{eq:v-3} and \\eqref{eq:v-3}, we have
+$$
+  \underline v \le u(a_1^*, a_2^*) \le \overline v.
+$$
+</div>
+</details>
+
+In some games, $\underline v = \overline v$, which have a special
+interpretation.
+
+
+
+
+::: highlight :::
+
+Definition
+
+: In a two player zero-sum game, if $\underline v = \overline v$, then the
+qunatity $v := \underline v = \overline v$ is called the **value** of the
+game. Any (maxmin, minmax) strategy of the players is also called the
+**optimal strategy**. 
+
+:::
+
+As an example, consider the following game.
+
+<table class="game1" align="center">
+<tr>
+  <td></td>
+  <td>$\mathsf{L}$</td>
+  <td>$\mathsf{M}$</td>
+  <td>$\mathsf{R}$</td>
+</tr>
+<tr>
+  <td>$\mathsf{T}$</td>
+  <td>$2$</td>
+  <td>$-1$</td>
+  <td>$-2$</td>
+</tr>
+<tr>
+  <td>$\mathsf{C}$</td>
+  <td>$1$</td>
+  <td>$0$</td>
+  <td>$1$</td>
+</tr>
+<tr>
+  <td>$\mathsf{B}$</td>
+  <td>$-2$</td>
+  <td>$-1$</td>
+  <td>$2$</td>
+</tr>
+</table>
+
+We compute the maxmin and the minmax value of the game.
+
+
+<table class="game1" align="center">
+<tr>
+  <td></td>
+  <td>$\mathsf{L}$</td>
+  <td>$\mathsf{M}$</td>
+  <td>$\mathsf{R}$</td>
+  <td>$\min\limits_{a_2 \in \ALPHABET A_2} u(a_1, a_2)$</td>
+</tr>
+<tr>
+  <td>$\mathsf{T}$</td>
+  <td>$2$</td>
+  <td>$-1$</td>
+  <td>$-2$</td>
+  <td style="background-color:lightgray;">$-2$</td>
+</tr>
+<tr>
+  <td>$\mathsf{C}$</td>
+  <td>$1$</td>
+  <td>$0$</td>
+  <td>$1$</td>
+  <td style="background-color:lightgray;">$0$</td>
+</tr>
+<tr>
+  <td>$\mathsf{B}$</td>
+  <td>$-2$</td>
+  <td>$-1$</td>
+  <td>$2$</td>
+  <td style="background-color:lightgray;">$-2$</td>
+</tr>
+<tr>
+  <td>$\max\limits_{a_1 \in \ALPHABET A_1} u(a_1, a_2)$</td>
+  <td style="background-color:lightgray;">$2$</td>
+  <td style="background-color:lightgray;">$0$</td>
+  <td style="background-color:lightgray;">$2$</td>
+  <td style="background-color:lightgreen;">$(0,0)$</td>
+</table>
+
+Thus, $\underline v = 0$ and $\overline v = 0$. Thus, the game has a value $v
+= 0$ and the strategy $(\mathsf{C}, \mathsf{M})$ is an optimal strategy.
+
+Remarks
+
+: * As we saw in the previous examples, not all zero-sum games have a value in
+(pure strategies). 
+
+::: highlight :::
+
+Proposition #prop:multiple
+
+: Suppose a zero-sum game has two optimal strategies 
+  $(a_1^*, a_2^*)$ and $(b_1^*, b_2^*)$, where 
+  $a_1^* \neq b_1^*$ and $a_2^* \neq b_2*$, such that both strategy profiles satisfy
+  $$
+      \max_{a_1 \in \ALPHABET A_1} \min_{a_2 \in \ALPHABET A_2} u(a_1, a_2)
+      =
+      \min_{a_2 \in \ALPHABET A_2} \max_{a_1 \in \ALPHABET A_1}  u(a_1, a_2).
+  $$
+  Then,
+  $$ u(a_1^*, a_2^*) = u(a_1^*, b_2^*) = u(b_1^*, b_2^*) = 
+     u(a_1^*, b_2^*).
+  $$
+  Thus, the strategy profile in which each player is playing one of its
+  optimal straegies is also optimal.
+
+:::
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Left as an exercise. 
+</div>
+</details>
+
+
+A key implication of @prop:multiple is that when a zero sum game has a value,
+each player can separately pick an optimal strategy and the resulting strategy
+profile is optimal.
+
+The value of a game has a nice geometric interpretation. 
+
+::: highlight :::
+
+Definition
+
+: Let $\ALPHABET X$ and $\ALPHABET Y$ be sets and $f \colon \ALPHABET X ×
+\ALPHABET Y \to \reals$. A point $(x^*, y^*) \in \ALPHABET X × \ALPHABET Y$ is
+said to be a **saddle point of $f$** if
+\begin{align*}
+  f(x^*, y^*) &\ge f(x, y^*), 
+  \quad \forall x \in \ALPHABET X, \\
+  f(x^*, y^*) &\le f(x^*, y), 
+  \quad \forall y \in \ALPHABET Y.
+\end{align*}
+
+:::
+
+The term _saddle point_ comes from the fact that the typical two dimensional
+example of a saddle point looks like a saddle of a horse (curves up in one
+direction and curves down in the other). 
+
+A key property of optimal strategy is the following. 
+
+::: highlight :::
+Theorem #thm:saddle
+
+In a two player zero-sum game, $(a_1^*. a_2^*)$ is a saddle point of the
+utility function $u$ if and only if $a_1^*$ is an optimal strategy for $P_1$
+and $a_2^*$ is an optimal strategy for $P_2$. In this case $u(a_1^*, a_2^*)$
+is the value of the game.
+
+:::
+
+#### Proof {-}
+Left as an exercise.
+
+# Zero-sum games on the unit square
+
+As an intermediate step to mixed strategies, we consider two player zero-sum
+games on the unit square, i.e., games in which $\ALPHABET A_1 = \ALPHABET A_2
+= [0,1]$. For the ease of notation, we will use $\ALPHABET X = [0,1]$ and
+$\ALPHABET Y = [0,1]$ to denote the strategy spaces of the players. 
+
+To fix ideas, we consider an example with 
+$$
+    u(x,y) = 4xy - 2x - y + 3,
+    \quad \forall x \in \ALPHABET X, y \in \ALPHABET Y.
+$$
+Does the game have a value?
+
+To check that, we need to compute
+$$
+   \underline v = \max_{x \in \ALPHABET X} \min_{y \in \ALPHABET Y} u(x,y)
+   \quad\text{and}\quad
+   \overline v = \min_{y \in \ALPHABET Y} \max_{x \in \ALPHABET X} u(x,y)
+$$
+and check if they are equal.
+
+Consider
+\begin{align*}
+  \min_{y \in \ALPHABET Y} u(x,y) &=
+  \min_{y \in [0,1]} \bigl\{ 4xy - 2x - y + 3 \bigr\} \\
+  &= 
+  \min_{y \in [0,1]} \bigl\{ (4x-1)y - 2x + 3 \bigr\}.
+\end{align*}
+For a fixed $x$, this is a linear in $y$. Therefore, the minimizer depends on
+the slope.
+
+* If the slope is positive, then the function is increasing in $y$, and $y =
+  0$ is the minimizer.
+* If the slope is negative, then the function is decreasing in $y$, and $y =
+  1$ is the minimizer.
+
+[Add a curve]
+
+Therefore, we have the following:
+$$
+    \min_{y \in [0,1]} u(x,y) = 
+    \begin{cases}
+      2x + 2, & \text{if $x \le \tfrac14$} \\
+      -2x + 3, & \text{if $x \ge \tfrac14$}
+    \end{cases}
+$$
+
+Note that the first piece, the value is increasing in $x$ and in the second piece the
+value is decreasing in $x$. Therefore, the value is maximum when $x = \tfrac
+14$, i.e, 
+$$
+    \underline v = 
+    \max_{x \in [0,1]} \min_{y \in [0,1]} u(x,y) = 2 \cdot \tfrac 14 + 2 
+    = -2 \tfrac 14 + 3 = 2.5.
+$$
+
+Similarly, now cosider
+\begin{align*}
+  \max_{x \in \ALPHABET X} u(x,y) &=
+  \max_{x \in [0,1]} \bigl\{ 4xy - 2x - y + 3 \bigr\} \\
+  &= 
+  \max_{x \in [0,1]} \bigl\{ (4y - 2)x - y + 3 \bigr\}.
+\end{align*}
+By the same argument as above, we have
+$$
+  \max_{x \in \ALPHABET X} u(x,y) =
+  \begin{cases}
+    -y + 3, & \text{if $y \le \tfrac 12$} \\
+    3y + 1, & \text{if $y \ge \tfrac 12$}
+  \end{cases}
+$$
+
+Note that the first piece is decreasing in $y$ and the second piece is
+increasing in $y$. So, the minimum with respect to $y$ occurs when $y = \tfrac
+12$, i.e.,
+$$
+  \overline v = \min_{y \in [0,1]} \max_{x \in \ALPHABET X} u(x,y) =
+  -\tfrac 12 + 3 = 3\cdot \tfrac 12 + 1 = 2.5.
+$$
+
+We can also visualize this result graphically. We first plot $\min_{y \in
+[0,1]} u(x,y)$, as shown in Fig. 1. As can be seen from the figure,
+$\underline v = 2.5$.
+
+
+We now plot $\max_{x \in [0,1]} u(x,y)$, which is shown in Fig. 2. As can be
+seen from the figure, $\overline v = 2.5$.
+
+[Add Plots]
+
+Thus, both analytically and geometrically, we have shown that $\underline v =
+\overline v = 2.5$. Hence, the game has a value of $2.5$ and $(\tfrac 14,
+\tfrac 12)$ is the unique optimal strategy.
+
+---
+
+The above example is an illustration of what are known as minimax theorems.
+One of the foundational results of game theory is the von Neumann minimax
+theorem (1928).
+
+Recall that a function $f \colon \ALPHABET X × \ALPHABET Y \to \reals$is
+called **bilinear** if it is a linear in each argument separately, i.e.,
+
+* $f(x_1 + x_2, y) = f(x_1, y) + f(x_2, y)$ and $f(α x,y) = α f(x,y)$
+* $f(x,y_1 + y_2) = f(x, y_1) + f(x, y_2)$ and $f(x,α y) = α f(x,y)$
+
+Note that the utility function in the previous example is bilinear.
+
+::: highlight :::
+
+Theorem #thm:minimax
+
+Let $\ALPHABET X$ and $\ALPHABET Y$ be compact (i.e., closed and bounded)
+subsets of Euclidean space and $f \colon \ALPHABET X × \ALPHABET Y \to \reals$
+is a bilinear function. Then,
+
+$$
+\max_{x \in \ALPHABET X} \min_{y \in \ALPHABET Y} f(x,y)
+=
+\min_{y \in \ALPHABET Y} \max_{x \in \ALPHABET X} f(x,y).
+$$
+
+:::
+
+For a historical discussion of this result, see @Kjeldsen2001. 
+
+In the previous example, since the utility function is bilinear, we could have
+used von Neumann's minimax theorem to conclude that the game has a value,
+without doing any calculations. A useful generalization of von Neumann's
+minimax theorem is the following.
+
+::: highlight :::
+
+Theorem #thm:minimax2
+
+Let $\ALPHABET X$ and $\ALPHABET Y$ be compact (i.e., closed and bounded)
+subsets of Euclidean space and $f \colon \ALPHABET X × \ALPHABET Y \to \reals$
+is a concave-convex function, i.e., 
+
+* for any fixed $y$, $f(\cdot, y) \colon \ALPHABET X \to \reals$ is concave.
+* for any fixed $x$, $f(x, \cdot) \colon \ALPHABET Y \to \reals$ is convex.
+
+Then,
+
+$$
+\max_{x \in \ALPHABET X} \min_{y \in \ALPHABET Y} f(x,y)
+=
+\min_{y \in \ALPHABET Y} \max_{x \in \ALPHABET X} f(x,y).
+$$
+
+:::
+
+# Mixed strategies in finite games
+
+Now we revisit the notion of mixed strategies in finite games. Recall that
+given a finite game $\mathscr{G} = \langle N, (\ALPHABET A_i)_{i \in N},
+(u_i)_{i \in N} \rangle$ and mixed strategy profile $α = (α_i)_{i \in N}$ for
+the players, the expected utility is defined as
+$$
+ U_i(α) = \sum_{(a_1, \dots, a_n) \in \ALPHABET A}
+  α_1(a_1) \cdots α_n(a_n) u_i(a_1, \dots, a_n)
+$$
+or, more compactly for two player games
+$$
+  U_i(α_1, α_2) = \sum_{a_1 \in \ALPHABET A_1} \sum_{a_2 \in \ALPHABET A_2}
+  α_1(a_1) α_2(a_2) u_i(a_1, a_2).
+$$
+
+A game in which all players are playing mixed strategies may be viewed as
+another game, called the **mixed extension**, in which all players have
+continuous action spaces and are playing pure strategies. 
+
+::: highlight :::
+
+Definition
+
+: Given a game $\mathscr{G} = \langle N, (\ALPHABET A_i)_{i \in N},
+(u_i)_{i \in N} \rangle$, its mixed extension is a game $\mathscr{G}^* =
+\langle N, (Δ(\ALPHABET A_i))_{i \in N}, (U_i)_{i \in N} \rangle$, where
+
+* $Δ(\ALPHABET A_i)$ is the set of probability distributions over $\ALPHABET
+  A_i$.
+* $U_i \colon \prod_{j \in N} Δ(\ALPHABET A_j) \to \reals$ is the expected
+  utility function defined above.
+
+::: 
+
+For a fascinating discussion of different interpretations of mixed strategies,
+see Sec. 3.2 of Osborne and Rubinstein. 
+
+Observe that if the original game $\mathscr{G}$ is a two player zero-sum game,
+then its mixed extension $\mathscr{G}^*$ is also a two player zero-sum game.
+This is because, for any mixed strategy $(α_1, α_2)$, 
+$$
+  U_1(α_1, α_2) + U_2(α_1, α_2) = 
+  \sum_{(a_1, a_2) \in \ALPHABET A} α_1(a) α_2(a) 
+  \underbrace{\bigl[ u_1(a_1, a_2) + u_2(a_1, a_2) \bigr]}_{=0}.
+$$
+
+Thus, we may simply use $U$ to denote the expected utility of $P_1$ with the
+understanding that the expected utility of $P_2$ is $-U$. Furthermore observe
+that $U$ is bilinear. Thus, we can conclude the following from von Neumann's
+minimax theorem.
+
+::: highlight :::
+
+Theorem #thm:ZSG
+
+For any finite zero sum game $\mathscr{G}$, its mixed extension
+$\mathscr{G}^*$ has a value. 
+
+:::
+
+We will call this value of game $\mathscr{G}$ in mixed strategies. Thus, if
+mixed strategies are allowed, every two player zero-sum game has a value.
+Thus, we finally have a solution concept that always exists, albeit for a
+special class of games. 
+
+# References {-}
 
