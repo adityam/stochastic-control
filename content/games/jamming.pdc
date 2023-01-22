@@ -1,0 +1,332 @@
+---
+title: "Example: Jamming Games"
+weight: 12
+categories:
+  - games
+tags:
+  - zero-sum games
+  - maxmin value
+  - jamming
+---
+
+Radio frequenccy (RF) jamming is the act of blocking or causing interference
+to radio or wireless communication by transmitting noise to decrease the
+signal to noise ration. Jamming of radio transmission originated in World War
+II and is even used today in military and civilian conflicts. See [wikipedia
+article on jamming][jamming] for details.
+
+[jamming]: https://en.wikipedia.org/wiki/Radio_jamming
+
+We will consider a simple model of jamming and obtain a using using tools from
+zero sum games. Consider aline of sight communication link between a
+transmitter and a receiver. There is a jammer who wants to dirupt the
+communication.
+
+[Add block diagram]
+
+The communication link consists of $m$ orthogonal frequency bands, each of
+bandwidth $B$. For each band $i \in \ALPHABET M =: \{ 1, \dots, m\}$, let
+
+* $σ_i \in \reals_{\ge 0}$ denote the background noise power.
+* $x_i \in \reals_{\ge 0}$ denote the signal power of the transmitter.
+* $y_i \in \reals_{\ge 0}$ denote the interference power of the jammer. 
+
+It is assumed that both he transmitter and the jammer have constraints on the
+total power that the can use. In particular
+\begin{equation}\label{eq:constraint}
+  \sum_{i \in \ALPHABET M} x_i \le P_T
+  \quad\text{and}\quad
+  \sum_{i \in \ALPHABET M} y_i \le P_J.
+\end{equation}
+
+Let
+$$
+  \ALPHABET X = \biggl\{ x_i \in \reals^m_{\ge 0} : \sum_{i \in \ALPHABET M}
+  x_i \le P_T \biggr\}
+$$
+and
+$$
+  \ALPHABET Y = \biggl\{ y_i \in \reals^m_{\ge 0} : \sum_{i \in \ALPHABET M}
+  y_i \le P_J \biggr\}
+$$
+Then, the constraints \\eqref{eq:constraint} may be written as 
+$$
+  x = (x_1, \dots, x_m) \in \ALPHABET X
+  \quad\text{and}\quad
+  y = (y_1, \dots, y_m) \in \ALPHABET Y.
+$$
+
+A basic result from communication theory is that the capacity of a narrow band
+channel with bandwidth $B$ and signal to noise ration $\text{SNR}$ is 
+$$
+  C = B \log(1 + \text{SNR}).
+$$
+Using this expression, the capacity of the transmitter when the transmiter
+uses power $x \in \ALPHABET X$ and the jammer user power $y \in \ALPHABET Y$
+is
+$$
+  u(x,y) = \sum_{i \in \ALPHABET M} B \log\left(1 + \frac{x_i}{y_i + σ_i}\right).
+$$
+Thus, we can consider a zero-sum jamming game between the transmitter and the
+jammer where the transmitter chooses $x \in \ALPHABET X$ to maximize $u(x,y)$
+while the jammer users $y \in \ALPHABET Y$ to minimize $u(x,y)$.
+
+::: highlight :::
+Theorem #thm:value
+
+: The two player zero-sum game formulated above has a value in pure
+strategies.
+
+:::
+
+[Add the proof]
+
+Now that we know that the game has a value in pure strategies, we will search
+for the optimal strategies by solving
+\begin{equation} \label{eq:value}
+  v = \min_{y \in \ALPHABET Y} \max_{x \in \ALPHABET X} u(x,y).
+\end{equation}
+
+### Step 1: The inner optimization problem {-}
+
+We first consider the inner optimization problem: the transmitter knows the
+noise powers $(σ_i)_{i \in \ALPHABET M}$ and the jammer power $(y_i)_{i \in
+\ALPHABET  M}$ and needs to choose its own transmit power $(x_i)_{i \in
+\ALPHABET M}$ to maximize the transmission rate. Since the jammer's
+transmission appear as noise to the transmitter, the power allocation problem
+at the transmitter standard problem in communication systems. The optimal
+solution in this case is known as the _water filling solution_. For the sake
+of completeness, we provide the complete solution here.
+
+The optimization problem at the transmitter is as follows. For a given $y \in \ALPHABET Y$, compute 
+$\max_{x \in \ALPHABET X} u(x,y)$, or
+$$
+  \max_{x \in \reals^m} \sum_{i \in \ALPHABET M} B \log\left( 1 +
+  \frac{x_i}{y_i + σ_i} \right)
+$$
+such that
+\begin{align*}
+  \sum_{i \in \ALPHABET M} x_i &\le P_t \\
+  x_i &\ge 0, \quad \forall i \in \ALPHABET M.
+\end{align*}
+
+This is a constrained maximization problem with a concave objective and a
+convex constraint set. So, we can find the optimal solution using KKT
+conditions.
+
+Let us consider the Lagrange multiplier $λ$ for the first constraint and
+multipliers $α_i$ for the non-negativity constraints. The Lagrange relaxation
+is
+$$
+  \mathcal L = \sum_{i \in M} B \log\left( 1 + \frac{x_i}{y_i + σ_i} \right)
+  - λ \left( \sum_{i \in M} x_i - P_T \right)
+  + σ_i x_i.
+$$
+The KKT conditions are as follows:
+
+* Optimality equation
+$\displaystyle \frac{∂\mathcal{L}}{∂x_i} = \frac{B}{x_i + y_i + σ_i} - λ + α_i
+= 0$
+* Complementary slackness conditions:
+    - $α_i \ge 0$ and $α_i x_i = 0$
+    - $λ_i \ge 0$ and $λ(\sum_{i \in \ALPHABET M} x_i - P_T) = 0$.
+
+We can simplify these as follows. The optimality equation implies that
+\begin{equation}\label{eq:alpha-i}
+  α_i = λ - \frac{B}{x_i + y_i + σ_i}.
+\end{equation}
+Combining \\eqref{eq:alpha-i} with the first complementary slackness
+condition, we get
+\begin{equation}\label{eq:slackness-1}
+  λ \ge \frac{B}{x_i + y_i + σ_i}
+  \quad\text{and}\quad
+  x_i\left(λ - \frac{B}{x_i + y_i + σ_i} \right) = 0.
+\end{equation}
+
+Note that we have the following:
+
+* If $λ < B/(y_i + σ_i)$, then
+  $$ x_i > 0
+  \quad\text{and}\quad
+  λ = \frac{B}{x_i + y_i + σ_i}.
+  $$
+  Thus, 
+  $$
+    x_i = λ^{-1}B - y_i - σ_i.
+  $$
+
+* If $λ \ge B/(y_i + σ_i)$, then
+  $$
+    λ - \frac{B}{x_i + y_i + σ_i} 
+    >
+    λ - \frac{B}{y_i + σ_i} 
+    \ge 0.
+  $$
+  Thus, \\eeqref{eq:slackness-1} implies that $x_i = 0$.
+
+Combining the two cases above, we have
+\begin{equation}\label{eq:opt-x}
+  x_i^* = \bigl[ λ^{-1} B - y_i - σ_i \bigr]^{+}.
+\end{equation}
+
+Note that if $λ > 0$, then the complementary slackness conditions imply that
+the power constraint must be satisfied with equality:
+\begin{equation}\label{eq:transmit-power}
+  \sum_{i \in \ALPHABET M} 
+   \bigl[ λ^{-1} B - y_i - σ_i \bigr]^{+}
+   = P_T.
+\end{equation}
+Since the LHS of \\eqref{eq:transmit-power} is a piecewise increasing function
+of $λ^{-1}$, given that $λ > 0$, we can always find a value of $λ$ that
+satisfies \\eqref{eq:transmit-power}.
+  
+This is called a **water filling solution**. 
+
+[Add figure]
+
+### Step 2: The outer optimization problem {-}
+
+We now return to the minmax problem \\eqref{eq:value}, where the inner
+optimization problem has been solved. The outer optimization problem can be
+written as: 
+$
+  \min_{y \in \ALPHABET Y} u(x^*, y)
+$,
+or
+$$
+   \min_{y \in \reals^m} 
+   \sum_{i \in \ALPHABET M} B \log\left(1 + \frac{x^*}{y_i + σ_i}\right)
+$$
+such that
+\begin{align*}
+   \sum_{i \in \ALPHABET M} y_i &\le P_J \\
+   y_i &\ge 0, \quad \forall i \in \ALPHABET M.
+\end{align*}
+
+Again, this is a constrained minimization problem with a convex objective and
+a convex constraint set. So, we can find the optimal solution using KKT
+conditions. 
+
+Let us consider the Lagrange multiplier $μ$ for the first constraint and
+multipliers $β_i$ for the non-negativity constraint. The Lagrange relaxation
+is
+$$
+\mathcal{L} = \sum_{i \in \ALPHABET M} B \log(x_i^* + y_i + σ_i)
+- \sum_{i \in \ALPHABET M} B \log(y_i + σ_i) 
++ μ \left( \sum_{i \in \ALPHABET M} y_i - P_J \right)
+- β_i y_i.
+$$
+
+The KKT conditions are as follows:
+
+* Optimality equation: 
+  $ \displaystyle \frac{∂L}{∂y_i} = \frac{B}{x^*_i + y_i + σ_i} - 
+  \frac{B}{y_i + σ_i} + μ - β_i = 0. 
+  $
+
+* Complementary slackness conditions:
+  - $β_i \ge 0$ and $β_i y_i = 0$
+  - $μ \ge 0$ and $μ(\sum_{i \in \ALPHABET M} y_i - P_J)$ 
+
+We can simplify these as follows. We will assume that $μ > 0$. 
+
+* Consider a channel where $x^*_i = 0$. Then, the optimality condition implies
+  that $β_i = μ > 0$. The complementary slackness condition then implies that
+  $y_i^* = 0$. 
+
+* Consider a channel where $x^*_i > 0$. Note that \\eqref{eq:opt-x} implies
+  that for this case $x_i^* + y_i + σ_i = λ^{-1}B$. Thus, the optimality
+  condition simplifies to 
+  \begin{equation}\label{eq:opt-2}
+     λ + μ = β_i + \frac{B}{y_i + σ_i}.
+  \end{equation}
+
+We will simplify \\eqref{eq:opt-2} for two separate cases:
+
+* Consider the case $λ + μ > B/σ_i$. This implies that
+  $$
+     β_i = λ + μ - \frac{B}{y_i + σ_i} 
+         > λ + μ - \frac{B}{σ_i} > 0.
+  $$
+  So, the complementary slackness condition implies that $y_i^* = 0$. 
+
+* Consider the case when $λ + μ < B/σ_i$. First observe that the complementary
+  slackness combined with \\eqref{eq:opt-2} implies that
+  \begin{equation}\label{eq:opt-3}
+    λ + μ \ge \frac{B}{y_i + σ_i} 
+  \end{equation}
+  Rearranging the terms, we get
+  $$
+     y_i \ge \frac{B}{λ+μ} - σ_i \ge 0
+  $$
+  Thus, complementary slackness condition implies that $β_i = 0$. Hence,
+  \\eqref{eq:opt-3} holds with equality and 
+  $$
+     y_i^* = (λ + μ)^{-1}B - σ_i.
+  $$
+
+Combining the two cases above, we have
+\begin{equation}\label{eq:opt-y}
+  y_i^* = \bigl[ (λ+μ)^{-1} B - σ_i \bigr]^{+}.
+\end{equation}
+
+Since we are considering $μ > 0$, we can find $(λ+μ)^{-1}$ by solving
+\begin{equation}\label{eq:jammer-power}
+  \sum_{i \in M}
+  \bigl[ (λ+μ)^{-1} B - σ_i \bigr]^{+}
+  = P_J
+\end{equation}
+
+### Final solution {-}
+
+Thus, we can summarize the solution as follows. 
+
+1. Determine $(λ + μ)$ which satisfies \\eqref{eq:jammer-power}:
+   $$
+    \sum_{i \in M}
+    \bigl[ (λ+μ)^{-1} B - σ_i \bigr]^{+}
+    = P_J
+   $$
+
+2. Set $y^*_i = \bigl[ (λ+μ)^{-1} B - σ_i \bigr]^{+}$. 
+
+3. Determine $λ$ which satisfies \\eqref{eq:transmit-power}:
+   $$
+    \sum_{i \in \ALPHABET M} 
+     \bigl[ λ^{-1} B - y_i - σ_i \bigr]^{+}
+     = P_T.
+   $$
+
+4. Set $x^*_i = \bigl[ λ^{-1} B - y_i - σ_i \bigr]^{+}$. 
+
+The power allocated to a channel depends on the noise power $σ_i$. We have 3
+cases:
+
+1. $σ_i > λ^{-1}B \implies x_i^* = 0$ and $y_i^* = 0$.
+
+      The channel is so bad that the transmitter does not transmit on it and
+      the jammer does not jam it.
+
+2. $(λ + μ)^{-1} B < σ_i < λ^{-1}B \implies x^*_i > 0$ and $y^*_i = 0$. 
+
+      The channel is bad enough that the jammer doesn't deteriorate it further
+      (because it worse than what the jammer can do to all channels combined).
+
+3. $σ_i < (λ + μ)^{-1}B \implies x_i^* > 0$ and $y_i^* > 0$. 
+
+      The channel is good and the jammer deteriorates it but the transmitter
+      still uses it for communication.
+
+
+[ Add figure ]
+
+# References {-}
+
+The material of these notes has been adapted from @Fasoulakis2019.
+    
+
+
+
+
+
+
