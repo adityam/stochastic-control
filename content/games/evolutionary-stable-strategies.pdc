@@ -1,0 +1,293 @@
+---
+title: "Theory: Evolutionary stable strategies"
+weight: 31
+categories:
+  - games
+tags:
+  - evolutionary stable strategies
+  - evolutionary dynamics
+---
+
+As we saw earlier, one of the interpretations of mixed strategy Nash
+equlibrium it determines the fraction of population playing a certain pure
+action. @MaynardSmith1973 used this interpretation to propose an evolutionary
+mechanism via which agents can change their behavior across generations.
+For a facinating (non-technical) introduction to this area, see
+@MaynardSmith1982 and @Dawkins1976.
+
+The key idea in what is now called Evolutionary Game theory is that of
+evolutionary stable strategies, which we discuss here. For a detailed
+treatment of the subject, see @Sandholm2010.
+
+To understand evolutionary stability, consider the following variant of the
+Hawk-Dove game.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{D}$</td>
+    <td colspan="2">$\mathsf{H}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{D}$</td>
+    <td>$4$</td>
+    <td>$4$</td>
+    <td>$2$</td>
+    <td>$8$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$8$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+  </tr>
+</table>
+
+Note that this is a symmetric game. Now suppose that there is a large
+population comprising of 80% doves and 20% hawks. Thus, we are considering a
+population state $α = (0.8, 0.2)$. We assume that there are repeated
+interactions between the agents in the population. At state $α$
+described above, a generic agent will encounter a dove with probability $0.8$
+and a hawk with probability $0.2$. Thus, if this agent is a dove, his
+payoff is
+$$
+  U(\mathsf{D},α) = 0.8×4 + 0.2×2 = 3.6.
+$$
+If this agent is a hawk, then his payoff is
+$$
+  U(\mathsf{H},α) = 0.8×8 + 0.2×1 = 6.6
+$$
+
+@MaynardSmith1982 argues that in this situation, the population of Hawks have
+an evolutionary advtange. So, over time, the fraction of hawks will increase.
+Thus, the population state $α^*$ where no trait has an advantage is
+$$
+  U(\mathsf{D},α^*) = U(\mathsf{H},α^*),
+$$
+which is precisely the Nash equilibrium of the game. 
+
+# Evolutionary stable strategies
+
+The key difference in this interpretation from that of Nash equilibrium is hwo
+we determine if an equilibrium is sustainable. In particular, consider a
+symmetric two player game $\mathscr{G} = \langle 2, (\ALPHABET B, \ALPHABET
+B), (u_1, u_2) \rangle$ where $u(a_1, a_2) = u(a_2, a_1)$. We will denote the
+payoff function as $u \colon \ALPHABET B × \ALPHABET B \to  \reals$ where
+$$
+  u(a,b) = u_1(a,b) = u_2(b,a).
+$$
+Now consider a symmetric mixed strategy $α^*$, i.e., we have a large
+population where $α^*(a_i)$ is the fraction of the population that plays
+strategy $a_i$ and so on. 
+
+Suppose a fraction $ε$ of the population _mutates_ and starts playing another
+strategy $α$. Thuis, the new state of the population is 
+$$
+  \bar α = (1-ε)α^* + ε α.
+$$
+The expected payoff of "normal" player (playing against the new mixed
+population) is
+$$
+  U(α^*, \bar α) = (1-ε)U(α^*, α^*) + ε U (α^*, α).
+$$
+Similarly, the payoff of a mutated player (playing against the new mixed
+population) is
+$$
+  U(α, \bar α) = (1-ε)U(α, α^*) + ε U (α, α).
+$$
+
+::: highlight :::
+Definition
+
+: A population state $α^*$ is said to be an **evolutionary stable strategy
+(ESS)** if for all mutations $α \in Δ(\ALPHABET B)$, $α \neq α^*$, there
+exists a $ε_\circ = ε_\circ(α) > 0$ such that for all $ε \in (0, ε_\circ)$,
+and $\bar α_{ε} = (1-ε)α^* + ε α$, we have
+$$
+  U(α^*, \bar α) > U(α, \bar α)
+$$
+i.e.,
+\begin{equation}\label{eq:ESS}
+  (1-ε)U(α^*, α^*) + ε U (α^*, α).
+  > 
+  (1-ε)U(α, α^*) + ε U (α, α).
+\end{equation}
+
+:::
+
+Remark
+
+: If we take the limit of $ε \to 0$ in the definition of ESS, we get that an ESS
+has to be a (symmetric) Nash equilibrium. 
+
+## An example to illustrate that all Nash equilibria are not ESS
+
+Consider a variation of the Hawk-Dove game
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{D}$</td>
+    <td colspan="2">$\mathsf{H}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{D}$</td>
+    <td>$4$</td>
+    <td>$4$</td>
+    <td>$2$</td>
+    <td>$2$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$2$</td>
+    <td>$2$</td>
+    <td>$2$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+
+This game has two equilibria in pure strategies $(\mathsf{D}, \mathsf{D})$ and
+$(\mathsf{H}, \mathsf{H})$. We now verify if each of them is an ESS or not.
+
+### Verification for $(\mathsf{D}, \mathsf{D})$ {-}
+
+In this case $α^* = (1,0)$. Consider any mutation $α = (p, 1-p)$ with $p \neq
+1$. Then
+\begin{align*}
+  U(α^*, α^*) &= 4 \\
+  U(α^*, α) &= 4p + 2(1-p) = 2p + 2 \\
+  U(α, α^*) &= 4p + 2(1-p) = 2p + 2 \\
+  U(α,α) &= 4p^2 + 2(1-p^2) = 2p^2 + 2 
+\end{align*}
+Thus, 
+$$
+  U(α^*, \bar α) = (1-ε)4 + ε(2p+2) = 4 - 2ε (1-p)
+$$
+and 
+$$
+  U(α, \bar α) = (1-ε)(2p+2) + ε(2p^2 + 2) = (2p+2) - 2pε(1-p)
+$$
+Now consider
+\begin{align*}
+  U(α^*, \bar α) - U(α, \bar α) &= 2(1-p) - 2ε(1-p)^2 \\
+  &= 2(1-p)[ 1 - ε(1-p) ]
+\end{align*}
+Since $p \neq 1$ and $ε(1-p) < 1$, we get that $U(α^*, \bar α) > U(α, \bar
+α)$. Hence $α^*$ is an ESS. 
+
+### Verification for $(\mathsf{H}, \mathsf{H})$ {-}
+
+In this case $α^* = (0,1)$. Consider any mutation $α = (p, 1-p)$ with $p \neq
+0$. Then
+\begin{align*}
+  U(α^*, α^*) &= 2 \\
+  U(α^*, α) &= 4p + 2(1-p) = 2 \\
+  U(α, α^*) &= 4p + 2(1-p) = 2 \\
+  U(α,α) &= 4p^2 + 2(1-p^2) = 2p^2 + 2 
+\end{align*}
+Thus, 
+$$
+  U(α^*, \bar α) = (1-ε)2 + ε2 = 2
+$$
+and 
+$$
+  U(α, \bar α) = (1-ε)2 + ε(2p^2 + 2) = 2 + 2εp^2
+$$
+Now consider
+\begin{align*}
+  U(α^*, \bar α) - U(α, \bar α) &= -2εp^2 < 0
+\end{align*}
+since $p \neq 0$. Hence $α^*$ is **not** an ESS. 
+
+
+## An easier to verify characterization of ESS
+
+::: highlight :::
+
+Theorem #thm:ESS
+
+: A strategy $α^*$ is ESS iff for every $α \neq α^*$, one of the following
+conditions is true:
+
+    1) $U(α^*, α^*) > U(α, α^*)$
+    2) $U(α^*, α^*) = U(α, α^*)$ and $U(α^*, α) > U(α,α)$.
+
+:::
+
+Condition 1 states that if a mutation deviates from $α^*$, it will lose in its
+encounters with the normal population. Condition 2 states that if the payoff
+that a mutation receives from encountering a normal individual is equal to the
+pay off a normal individual receives when encountering a normal individual,
+that mutation will receive a smaller payoff if it encounters the same mutation
+that a normal individual would in the encounter. 
+
+[ Add Proof ]
+
+
+As an example, let's revist the game considered above. 
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{D}$</td>
+    <td colspan="2">$\mathsf{H}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{D}$</td>
+    <td>$4$</td>
+    <td>$4$</td>
+    <td>$2$</td>
+    <td>$8$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$8$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+  </tr>
+</table>
+
+We can verity that $α^* = (\frac 15, \frac 45)$ is the unique Nash
+equilibirum. Now consider a mutation $α = (p, 1-p)$. To check if $α^*$ is ESS,
+we first check condition 1 of @thm:ESS. Since $α^*$ is a Nash equilibirum with
+support $\{\mathsf{H},\mathsf{D}\}$, we must have
+$$
+  U(\mathsf{H},α^*) = U(\mathsf{D},α^*).
+$$
+Therefore, for any strategy $α$
+$$
+  U(α, α^*) = U(α^*,α^*).
+$$
+So condition (1) is not satisfied. Condition (2) will be statisfied if
+\begin{align*}
+ && U(α^*, α) &> U(α,α) \\
+ &\iff& 
+ 4 \cdot \frac p5 + 2 \cdot \frac {(1-p)}{5} + 5 \cdot \frac{4p}{5} + 1 \cdot
+   \frac{4(1-p)}{5} 
+  &>
+ 4p^2 + 2p(1-p) + 8(1-p)p + (1-p)^2
+ \\
+ &\iff& (5p-1)^2 &> 0
+\end{align*}
+which holds for all $p \neq \frac 15$. Thus, $α^*$ is an ESS. 
+
+## ESS for arbitrary two player symmetric games
+
+[ Add details and examples ]
+
+# Evolutionary dynamics
+
+Consider a two player symmetric $m × m$ game with $\ALPHABET A_1 = \ALPHABET
+A_2 = \{1, \dots, m \}$. Let
+$$
+  Δ^m = \bigl\{ (p_1, \dots, p_m) : \sum_{i=1}^m p_i = 1
+  \text{ and } p_i \in [0, 1] \bigr\}.
+$$
+denote the set of mixed strategies. We will use $p = (p_1, \dots, p_m)$
+(instead of $α$ used earlier) to denote a mixed strategy. 
+
+
+
+# References {-}
