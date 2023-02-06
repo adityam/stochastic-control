@@ -5,11 +5,10 @@ categories:
   - games
 tags:
   - evolutionary stable strategies
-  - evolutionary dynamics
 ---
 
 As we saw earlier, one of the interpretations of mixed strategy Nash
-equlibrium it determines the fraction of population playing a certain pure
+equlibrium is that it determines the fraction of population playing a certain pure
 action. @MaynardSmith1973 used this interpretation to propose an evolutionary
 mechanism via which agents can change their behavior across generations.
 For a facinating (non-technical) introduction to this area, see
@@ -119,7 +118,8 @@ i.e.,
 Remark
 
 : If we take the limit of $ε \to 0$ in the definition of ESS, we get that an ESS
-has to be a (symmetric) Nash equilibrium. 
+has to be a (symmetric) Nash equilibrium. The next example illustrates that
+the reverse is not always true.
 
 ## An example to illustrate that all Nash equilibria are not ESS
 
@@ -201,7 +201,7 @@ Now consider
 since $p \neq 0$. Hence $α^*$ is **not** an ESS. 
 
 
-## An easier to verify characterization of ESS
+# An easier to verify characterization of ESS
 
 ::: highlight :::
 
@@ -222,7 +222,63 @@ pay off a normal individual receives when encountering a normal individual,
 that mutation will receive a smaller payoff if it encounters the same mutation
 that a normal individual would in the encounter. 
 
-[ Add Proof ]
+<details>
+<summary>
+#### Proof that ESS implies conditions (1) and (2) {-}
+</summary>
+<div>
+Let $α^*$ be an ESS. As argued earlier, this implies that $α^*$ is also a Nash
+equilibrium. Thus,
+$$
+  U(α^*, α^*) \ge U(α, α^*), \quad \forall α \in Δ(\ALPHABET B).
+$$
+Now suppose that neither conditions (1) nor (2) hold. Then, there must exist
+an $α \neq α^*$ such that
+$$
+  U(α^*, α^*) = U(α, α^*) 
+  \quad\text{and}\quad
+  U(α^*, α) \le U(α,α).
+$$
+This implies that for any $ε \in (0,1)$,
+$$
+  (1-ε)U(α^*,α^*) + εU(α^*, α) \le
+  (1-ε)U(α,  α^*) + εU(α,   α),
+$$
+which contradicts the fact that $α^*$ is ESS.
+</div>
+</details>
+
+<details>
+<summary>
+#### Proof that conditions (1) and (2) imply ESS {-}
+</summary>
+<div>
+Suppose a mutation $α$ satisfies Condition (1). Let $D = U(α^*,α^*) -
+U(α,α^*)$. Then,
+\begin{align*}
+  U(α^*, \bar α) - U(α, \bar α) &= 
+  (1-ε)\bigl[ U(α^*, α^*) - U(α, α^*) \bigr]
+  - 
+  ε \bigl[ U(α, α) - U(α^*, α) \bigr]
+  \\
+  &\ge (1 - ε) D - ε M 
+\end{align*}
+where $M = \SPAN(u) := \max_{a,b} u(a,b) - \min_{a,b} u(a,b)$. Now, for any
+$ε < D/(D + M)$, we have that $U(α^*, \bar α) - U(α, \bar α) > 0$. Thus, $α^*$
+is an ESS. 
+
+Now suppose that a mutation $α$ satisfies condition (2). Then,
+\begin{align*}
+  U(α^*, \bar α) - U(α, \bar α) &= 
+  (1-ε)\underbrace{\bigl[ U(α^*, α^*) - U(α, α^*) \bigr]}_{=0}
+  + 
+  ε \underbrace{\bigl[ U(α^*, α) - U(α, α) \bigr]}_{\ge 0}
+  \\
+  &> 0, \quad \forall ε \in (0,1).
+\end{align*}
+Thus, $α^*$ is an ESS
+</div>
+</details>
 
 
 As an example, let's revist the game considered above. 
@@ -250,8 +306,8 @@ As an example, let's revist the game considered above.
 </table>
 
 We can verity that $α^* = (\frac 15, \frac 45)$ is the unique Nash
-equilibirum. Now consider a mutation $α = (p, 1-p)$. To check if $α^*$ is ESS,
-we first check condition 1 of @thm:ESS. Since $α^*$ is a Nash equilibirum with
+equilibrium. Now consider a mutation $α = (p, 1-p)$. To check if $α^*$ is ESS,
+we first check condition 1 of @thm:ESS. Since $α^*$ is a Nash equilibrium with
 support $\{\mathsf{H},\mathsf{D}\}$, we must have
 $$
   U(\mathsf{H},α^*) = U(\mathsf{D},α^*).
@@ -273,21 +329,197 @@ So condition (1) is not satisfied. Condition (2) will be statisfied if
 \end{align*}
 which holds for all $p \neq \frac 15$. Thus, $α^*$ is an ESS. 
 
-## ESS for arbitrary two player symmetric games
+# ESS for arbitrary two player symmetric games
 
-[ Add details and examples ]
+Consider a symmetric game of the form
 
-# Evolutionary dynamics
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{T}$</td>
+    <td colspan="2">$\mathsf{B}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$a$</td>
+    <td>$a$</td>
+    <td>$b$</td>
+    <td>$c$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$c$</td>
+    <td>$b$</td>
+    <td>$d$</td>
+    <td>$d$</td>
+  </tr>
+</table>
 
-Consider a two player symmetric $m × m$ game with $\ALPHABET A_1 = \ALPHABET
-A_2 = \{1, \dots, m \}$. Let
+We will assume that $b \neq d$ and $a \neq c$. Let $α^* = (p, 1-p)$ be a
+symmetric (strictly) mixed strategy equilibrium. By the indifference
+principle, we must have
 $$
-  Δ^m = \bigl\{ (p_1, \dots, p_m) : \sum_{i=1}^m p_i = 1
-  \text{ and } p_i \in [0, 1] \bigr\}.
+  a p + b(1-p) = cp + d(1-p)
+  \implies
+  p = \frac{b-d}{(b+c) - (a+d)}
 $$
-denote the set of mixed strategies. We will use $p = (p_1, \dots, p_m)$
-(instead of $α$ used earlier) to denote a mixed strategy. 
+This $p$ is a valid probability distribution if:
+
+* **Case 1**: $\text{num} > 0$, $\text{den} > 0$, and $\text{num} <
+  \text{den}$.
+
+      Thus, $b > d$ and $c > a$. 
+
+* **Case 2**: $\text{num} < 0$, $\text{den} < 0$, and $|\text{num}| <
+  |\text{den}|$.
+
+      Thus, $b < d$ and $c < a$. 
 
 
+::: highlight :::
+
+Proposition #prop:ESS
+
+: A symmetric mixed strategy in a symmetric two player two action game is an
+ESS if $b > d$ and $c > a$. 
+
+:::
+
+Remark
+
+:  When $b > d$ and $c > a$, the anti-symmetric strategies with payoffs
+$(b,c)$ and $(c,a)$ are Nash equilibria.
+
+<details>
+<summary>
+#### Proof {-}
+</summary>
+<div>
+Since $p \in (0,1)$, for any other strategy $α = (q, 1-q)$, we will have
+$U(α,α^*) = U(α^*, α^*)$. So, we need to check condition (2) of #thm:ESS. 
+
+\begin{align*}
+  U(α,α^*), U(α,α) &=
+  p\bigl[ qa + (1-q) b \bigr] + (1-p) \bigl[ q c + (1-q) d \bigr]
+  \\
+  &-
+  q\bigl[ qa + (1-q) b \bigr] - (1-q) \bigl[ q c + (1-q) d \bigr]
+  \\
+  &= (p-q) \bigl[ qa + (1-q) b - q c - (1-q) d \bigr]
+  \\
+  &= (p-q) \bigl[ (b-d) - q( (b+d) - (a+d) ) \bigr]
+  \\
+  &= (p-q)^2 \bigl[ (b+c) - (a+d) \bigr]
+  \\
+  &> 0.
+\end{align*}
+Thus, when $b > d$ and $c > a$, the mixed strategy equilibrium is an ESS. 
+</div>
+</details>
+
+# Examples
+
+## Robotics
+
+Consider the [robotics example](../nash-equilibrium/#robotics) where $r_b/2 <
+r_s < r_b$.
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{B}$</td>
+    <td colspan="2">$\mathsf{S}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{B}$</td>
+    <td>$\tfrac {1}{2}r_b$</td>
+    <td>$\tfrac {1}{2}r_b$</td>
+    <td>$r_b$</td>
+    <td>$r_s$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{S}$</td>
+    <td>$r_s$</td>
+    <td>$r_b$</td>
+    <td>$\tfrac {1}{2}r_s$</td>
+    <td>$\tfrac {1}{2}r_s$</td>
+  </tr>
+</table>
+
+In the notes on [Nash equilibrium](../nash-equilibrium/#robotics), we computed
+a symmetric mixed strategy Nash equilibrium with 
+$$
+  p = \frac{2r_b - r_s}{r_b + r_s}.
+$$
+Since $r_b > \frac{1}{2} r_s$ and $r_s > \frac{1}{2} r_b$, this is also ESS. 
+
+## Medium access control
+
+Consider the [example of medium access
+control](../nash-equilibrium/#medium-access-control) where $c < v$. 
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{T}$</td>
+    <td colspan="2">$\mathsf{D}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$-c$</td>
+    <td>$-c$</td>
+    <td>$v-c$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{D}$</td>
+    <td>$0$</td>
+    <td>$v-c$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+  </tr>
+</table>
+
+The symmetric mixed strategy Nash equilibrium in this case is 
+$$
+  p = 1 - \frac{c}{v}
+$$
+
+Since $v - c > 0$ and $0 > -c$, this is also an ESS.
+
+## Medium access control with lost opportunity cost
+
+Consider the [example of medium access
+control with lost opportunity
+cost](../nash-equilibrium/#medium-access-control-with-lost-opportunity-cost) where $c < v$. 
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{T}$</td>
+    <td colspan="2">$\mathsf{D}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{T}$</td>
+    <td>$-c$</td>
+    <td>$-c$</td>
+    <td>$v-c$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{D}$</td>
+    <td>$0$</td>
+    <td>$v-c$</td>
+    <td>$-d$</td>
+    <td>$-d$</td>
+  </tr>
+</table>
+
+The symmetric mixed strategy Nash equilibrium in this case is 
+$$
+  p = 1 - \frac{c}{v+d}
+$$
+
+Since $v - c > -d$ and $0 > -c$, this is also an ESS.
 
 # References {-}
