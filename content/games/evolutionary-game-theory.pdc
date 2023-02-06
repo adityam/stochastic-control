@@ -1,0 +1,212 @@
+---
+title: "Theory: Evolutionary Game Theory"
+weight: 32
+categories:
+  - games
+tags:
+  - evolutionary dynamics
+---
+
+Consider a two player symmetric $m × m$ game with $\ALPHABET A_1 = \ALPHABET
+A_2 = \ALPHABET B := \{1, \dots, m \}$. Let
+$$
+  Δ^m = \bigl\{ (p_1, \dots, p_m) : \sum_{i=1}^m p_i = 1
+  \text{ and } p_i \in [0, 1] \bigr\}.
+$$
+denote the set of mixed strategies. We will use $p = (p_1, \dots, p_m)$
+(instead of $α$ used earlier) to denote a mixed strategy. 
+
+Evolutionary Game Theory provides "revision protocols" that explain how a
+population state $p$ evolves over time. The simplest revision protocol is what
+is called **replicator dynamics**. 
+
+# Replicator Dynamics
+
+Let the population size by $N$ and let $n_i = p_i N$ denote the number of
+agents playing pure strategy $i$. Now suppose $r_i$ is the rate of growth of
+$n_i$. Thus,
+$$
+  \dot n_i = r_i n_i
+$$
+Thus,
+$$
+  \dot N = \sum_{i =1}^n \dot n_i = \bar r N
+$$
+where $\bar r = \sum_{i \in \ALPHABET B} r_i p_i$. Since $p_i = n_i/N$, we have
+\begin{align*}
+  \dot p_i &= \frac{\dot n_i N - n_i \dot N}{N^2} 
+  = \frac{r_i n_i N - n_i \bar r N}{N^2}
+  \\
+  &= p_i(r_i - \bar r).
+\end{align*}
+
+Thus, the differential equation
+$$
+  \dot p_i = p_i(r_i - \bar r)
+$$
+tells us how the population state changes over time. The simplest assumption
+is that $r_i = U(i,p)$, i.e., the rate of growth of a population is equal to
+its fitness function (as is the case in the theory of evolution). Note that
+$$
+  \bar r= \sum_{i \in \ALPHABET B} r_i p_i 
+  = \sum_{i \in \ALPHABET B} U(i,p) p_i = U(p,p).
+$$
+Thus, we get
+\begin{equation}\label{eq:replicator}
+  \dot p_i = p_i \bigl[ U(i,p) - U(p,p) \bigr],
+  \quad i \in \{1, \dots, m\}
+\end{equation}
+This differential equation is called **replicator dynamics**.
+
+A stationary point of replicator dynamics is one where $\dot p_i = 0$ for all
+$i \in \ALPHABET B$. This means that 
+$$
+  p_i = 0
+  \quad\text{or}\quad
+  U(i,p) = U(p,p).
+$$
+Thus, any Nash equilibrium of the game is a stationary point of the replicator
+dynamics but the converse is not true. 
+
+The next question is whether the stationary point is stable. There are three
+notions of stability in differential equations. Consider a differential
+equation 
+$$
+  \dot x = f(x)
+$$
+and let $x_e$ be an equilibrium point (i.e., $f(x_e) = 0$). 
+
+* **Lyapunov stability**: if the initial state lies in a small neighborhood of
+  $x_e$, then it remains in the neighborhood.
+
+* **Local asymptotic stability**: If the initial state lies in a neighborhood
+  of $x_e$, then it converges to $x_e$.
+
+* **Global asymptotic stability**: For any initial state, the trajectory
+  converges to $x_e$. 
+
+The main result for replicator dynamics is the following.
+
+::: highlight :::
+
+Theorem #thm:replicator
+
+: An ESS $p^*$ is a locally asymptotically stable stationary point of the
+  replicator dynamics. Furthermore, an ESS $p^*$ in the interior of $Δ^m$ is a
+  globally asymptotically stable stationary point of the replicator dynamics.
+
+:::
+
+The proof uses $V(p) = \prod_{i \in \ALPHABET B} p_i^{p_i^*}$ as a Lyapunov
+function. See @Hofbauer1979 for details.
+
+# Other evolutionary dynamics
+
+Replicator dynamics are not ideal because they have the following property: if
+$p_i = 0$ at some point then $p_i = 0$ for all times in the future. Various
+other forms of evolutionary dynamics have been proposed in the literature and
+we list a few of them here. 
+
+* **Best response dynamics**
+  
+    $$ \dot p_i \in B_i(p) - p_i, \quad i \in \ALPHABET B. $$
+
+    Since the best response is not unique, this gives a _differential
+    inclusion_ rather than a differential equation.
+
+* **Smoothed best response dynamics**
+
+    $$ \dot p_i \in σ_i(p) - p_i, \quad i \in \ALPHABET B. $$
+
+    where $σ_i$ is the sigmoid or softmax function:
+
+    $$
+      σ_i(p) = \frac{\exp(η U(i,p))}{\sum_{j \in \ALPHABET B} \exp( η U(j,p)) } 
+    $$
+
+* **Brown-von Neumann-Nash (BNN) dynamics**
+
+    $$ \dot p_i = \hat U_i(p) - p_i \sum_{j \in \ALPHABET B} \hat U_j(p) $$
+
+    where
+
+    $$ \hat U_i(p) = \max\{ U(i,p) - U(p,p), 0 \}. $$
+
+There are various stability results for these dynamics. To explain that, we
+need the notion of negative definite games. 
+
+Let $Q_{ij} = u(i,j)$ denote the payoff when playing strategies $i$ and $j$.
+Note that
+$$
+  U(i,p) = \sum_{j \in \ALPHABET B} u(i,j) p_j = [ Q p]_i
+$$
+and
+$$
+  U(q,p) = \sum_{i \in \ALPHABET B} q_i U(i,p) = q^\TRANS Q p.
+$$
+This simply says that $Q(q,p)$ is biliear. 
+
+We can use this matrix representation to define Nash equilibrium and ESS:
+
+* **Nash equilibrium**: $p$ is a Nash equilibrium if for all $q \in Δ^m$:
+  $$ p^\TRANS Q p \ge q^\TRANS Q p. $$
+
+* **ESS**: $p$ is ESS if for all $q \in Δ^m$, $q \neq p$, either
+  
+    1. $p^\TRANS Q p > q^\TRANS Q p$
+    2. $p^\TRANS Q p = q^\TRANS Q p$ and $p^\TRANS Q p > q^\TRANS Q q$.
+
+We say that a game is **negative semidefinite** if
+$$
+  q^\TRANS Q q \le q, \quad 
+  \forall q \in \reals^{m}_0 := \{ q^m \in \reals^m : \sum_{i \in \ALPHABET B} q_i = 0.
+$$
+When the inequality is strict, the game is called **negative definite**. 
+
+It can be shown that a negative definite game has a unique Nash equilibrium
+(possibly at the boundary) which is also ESS. 
+
+A negative semidefinite game does not have a unique Nash equilibrium, but the
+set of equilibrium is a non-empty convex subset of $Δ^m$. These Nash
+equilibrium may not be ESS.
+
+An interesting example is rock-paper-scissors with the payoff
+$$
+  Q = \begin{bmatrix} 0 & -b & a \\ a & 0 & -b \\ -b & a & 0 \end{bmatrix},
+  \quad a,b > 0.
+$$
+The unique Nash equilibrium of this is $p^* = (\tfrac 13, \tfrac 13, \tfrac
+13)$. 
+
+Now take a $q \in \reals^m_0$, i.e., $q_1 + q_2 + q_3 = 0$. Then, 
+\begin{align*}
+  q^\TRANS Q q &= (a-b)(q_1 q_2 + q_2 q_3 + q_3 q_1) \\
+  &= \frac{b-a}{2}(q_1^2 + q_2^2 + q_3^2)
+\end{align*}
+where the last equality uses the fact that $(q_1 + q_2)^2 = q_3^2$. So $q_1q_2
+= (q_3^2 - q_1^2 - q_2^2)/2$. 
+
+Thus, 
+
+* if $0 < b < a$, the game is negative definite
+* if $0 < a < b$, the game is positive definite
+
+The result of #thm:replicator can be restated as follows: for negative
+definite games (which have a unique NE that is also an ESS), the unique NE is
+globally asymptotically stable under replicator dynamics.
+
+Thus, if $b < a$ in RPS, replicator dynamics will converge to the unique Nash
+equilibrium. However, if $b = a$, replicator dynamics will not converge (as in
+this case, the Nash equilibrium is not ESS).
+
+The big advantage of the modified dynamics is that for negative
+_semi_-definite games, the convex set of Nash equilibrium is globally
+asymptotically stable for best response and BNN dynamics. Thus, in RPS, best
+response and BNN converge even when $b = a$. 
+
+The smoothed best response dynamics have the advantage that they are always
+globally asymptotically stable but their stationary points are not Nash
+equilibrium but something called perturbed Nash equilibrium. See @Sandholm2010
+for more details on evolutionary dynamics.
+
+# References {-}
