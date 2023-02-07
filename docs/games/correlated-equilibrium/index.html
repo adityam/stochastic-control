@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="correlated equilibrium,coarse correlated equilibrium" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2022
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Theory: Correlated equilibrium</div>
+
+<p>Cosider the following “traffic stop” game:</p>
+<table class="game" align="center">
+<tr>
+<td>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{Stop}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{Go}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{Stop}\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{Go}\)</span>
+</td>
+<td>
+<span class="math inline">\(1\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(-100\)</span>
+</td>
+<td>
+<span class="math inline">\(-100\)</span>
+</td>
+</tr>
+</table>
+<p>There are two pure strategy Nash equilibria: <span class="math inline">\((\mathsf{Stop}, \mathsf{Go})\)</span> and <span class="math inline">\((\mathsf{Go}, \mathsf{Stop})\)</span>. In both equilibria, one player gets a payoff of~<span class="math inline">\(1\)</span> and the other gets a payoff of~<span class="math inline">\(0\)</span>.</p>
+<p>In addition, there is a mixed strategy Nash equilibrium <span class="math inline">\((\tfrac {100}{101}, \tfrac{1}{101})\)</span>. The mixed strategy equilibrium seems to be worse off for both players: on average <em>both</em> of them get a payoff of <span class="math inline">\(0\)</span> but risk a huge negative penalty of <span class="math inline">\(-100\)</span>.</p>
+<p>The mixed strategy Nash equilibrium induces the following probability distribution on the action profiles</p>
+<table class="game1" align="center">
+<tr>
+<td>
+</td>
+<td>
+<span class="math inline">\(\mathsf{Stop}\)</span>
+</td>
+<td>
+<span class="math inline">\(\mathsf{Go}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{Stop}\)</span>
+</td>
+<td>
+<span class="math inline">\(0.98\)</span>
+</td>
+<td>
+<span class="math inline">\(0.1\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{Go}\)</span>
+</td>
+<td>
+<span class="math inline">\(0.1\)</span>
+</td>
+<td>
+<span class="math inline">\(0.01\)</span>
+</td>
+</tr>
+</table>
+<p>A better solution is to do a randomization between the pure Nash equilibrium strategies, i.e., use the following probability distribution on the action profiles:</p>
+<table class="game1" align="center">
+<tr>
+<td>
+</td>
+<td>
+<span class="math inline">\(\mathsf{Stop}\)</span>
+</td>
+<td>
+<span class="math inline">\(\mathsf{Go}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{Stop}\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(0.5\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{Go}\)</span>
+</td>
+<td>
+<span class="math inline">\(0.5\)</span>
+</td>
+<td>
+<span class="math inline">\(01\)</span>
+</td>
+</tr>
+</table>
+<p>This is consistent with how we resolve the conflict in real-life: by using a traffic light which tells which user should go and which should stop. Once a traffic light is making a joint recommendation to both players, it is in the best interest of the players to follow that recommendation.</p>
+<p>It is not always possible to achieve such a “coordination” via mixed strategies. The reason is that, in mixed strategies, the players are randomizing independently: so the joint distribution of the form above cannot be achieved.</p>
+<h1 data-number="1" id="correlated-equilibrium"><span class="header-section-number">1</span> Correlated equilibrium</h1>
+<p>Consider a strategic game <span class="math inline">\(\mathscr{G} = \langle \ALPHABET N, (\ALPHABET A_i)_{i \in \ALPHABET N}, (u_i)_{i \in \ALPHABET N} \rangle\)</span>. A <strong>correlated strategy</strong> <span class="math inline">\(π\)</span> is a joint probability distribution on all the pure strategies of the game. For example, consider any <span class="math inline">\(2×2\)</span> two-player game. Then, a correlated strategy is of the form <span class="math display">\[
+  π = \begin{bmatrix} π_{11} &amp; π_{12} \\ π_{21} &amp; π_{22} \end{bmatrix},
+  \quad π_{ij} \ge 0, 
+  \quad \sum_{i,j} π_{ij} = 1.
+\]</span></p>
+<p>The expected payoff of any correlated strategy is given by <span class="math display">\[
+  \EXP^{π}[ u(A) ] = \sum_{a \in \ALPHABET A} π(a) u_i(a).
+\]</span></p>
+<p>One way to interpret correlated strategies is to assume that there is a <em>mediator</em>, who choses joint strategies <span class="math inline">\(a \in \ALPHABET A\)</span> according to the PMF <span class="math inline">\(π\)</span>. The mediator commuicates strategy <span class="math inline">\(a_i\)</span> to player <span class="math inline">\(i\)</span>. A <strong>correlated equilibirum</strong> is a correlated strategy where each player has no incentive to deviate from the recommendation of the mediator.</p>
+<div class="highlight">
+<dl>
+<dt>Definition</dt>
+<dd>
+<p>Give a strategic game <span class="math inline">\(\mathscr{G} = \langle \ALPHABET N, (\ALPHABET A_i)_{i \in \ALPHABET N}, (u_i)_{i \in \ALPHABET N} \rangle\)</span>, a correlated equilibrium is a is a correlated strategy <span class="math inline">\(π\)</span> such that <span class="math display">\[\begin{equation}\label{eq:corr}
+   \EXP^{π}[ u(a_i, A_{-i}) \mid A_i = a_i ] 
+   \ge
+   \EXP^{π}[ u(a_i, A_{-i}) \mid A_i = b_i ] 
+   , \quad
+   \forall b_i \in \ALPHABET A_i,
+   \forall i \in \ALPHABET N.
+\end{equation}\]</span></p>
+</dd>
+</dl>
+</div>
+<p>To understand this definition, we restrict attetion to two player games. Consider a correlated strategy <span class="math inline">\(π\)</span>. Then the conditional distribution of <span class="math inline">\(A_2\)</span> given <span class="math inline">\(A_1 = a_1\)</span> is <span class="math display">\[
+  \PR(A_2 = a_2 \mid A_1 = a_1) = 
+  \frac{π(a_1, a_2)}{\sum_{b_2 \in \ALPHABET A_2} π(a_1, b_2)}.
+\]</span> Note that the denominator is the same for both sides of the expectation in \eqref{eq:corr}. So, we can rewrite \eqref{eq:corr} as <span class="math display">\[\begin{equation}\label{eq:corr2}
+  \sum_{a_j \in \ALPHABET A_j} π(a_i, a_j)
+  \bigl[ u_i(a_i, a_j) - u_i(b_i, a_j) \bigr],
+  \quad \forall a_i, b_i \in \ALPHABET A_i, 
+  \quad \forall i \in \{1,2\}.
+\end{equation}\]</span></p>
+<p>Note that \eqref{eq:corr2} are a set of linear inequalities. Therefore, the set of all correlated equilibria is convex and can be obtained by identifying the feasibility region of a linear program.</p>
+<h1 data-number="2" id="examples"><span class="header-section-number">2</span> Examples</h1>
+<h1 data-number="3" id="a-hawk-dove-game"><span class="header-section-number">3</span> A Hawk-Dove game</h1>
+<p>Consider the following variation of “hawk-dove” game:</p>
+<table class="game" align="center">
+<tr>
+<td>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{D}\)</span>
+</td>
+<td colspan="2">
+<span class="math inline">\(\mathsf{H}\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{D}\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(2\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="math inline">\(\mathsf{H}\)</span>
+</td>
+<td>
+<span class="math inline">\(3\)</span>
+</td>
+<td>
+<span class="math inline">\(0\)</span>
+</td>
+<td>
+<span class="math inline">\(-10\)</span>
+</td>
+<td>
+<span class="math inline">\(-10\)</span>
+</td>
+</tr>
+</table>
+<p>We can verify that this game has two pure strategies Nash equilibria <span class="math inline">\((\mathsf{D}, \mathsf{H})\)</span> and <span class="math inline">\((\mathsf{H}, \mathsf{D})\)</span>. In addition, there is a symmetric mixed strategy Nash equilibrium <span class="math inline">\((\tfrac {10}{11}, \tfrac{1}{11})\)</span> which has a payoff of <span class="math inline">\((\tfrac{40}{11}, \tfrac{40}{11})\)</span>.</p>
+<p>We claim that the following is a correlated equilibrium for the game: <span class="math display">\[
+  π = \begin{bmatrix}
+    \frac {10}{12} &amp; \frac{1}{12} \\ \frac{1}{12} &amp; 0 
+  \end{bmatrix}
+\]</span></p>
+<p>We first verify the conditions in \eqref{eq:corr2} and then verify the conditions in \eqref{eq:corr}.</p>
+<h3 data-number="3.0.1" id="verification-of-eqrefeqcorr2"><span class="header-section-number">3.0.1</span> Verification of \eqref{eq:corr2}</h3>
+<p>We consider each case separately:</p>
+<p><span class="math display">\[
+\def\D{\mathsf{D}}
+\def\H{\mathsf{H}}
+\]</span></p>
+<ul>
+<li><p><span class="math inline">\(i = 1\)</span>, <span class="math inline">\(a_1 = \D\)</span>, <span class="math inline">\(a_2 = \H\)</span>: <span class="math display">\[\begin{align*}
+    \hskip 2em &amp; \hskip -2em
+    π(\D,\D)[ u_1(\D,\D) - u_1(\H,\D) ] + 
+    π(\D,\H)[ u_1(\D,\H) - u_1(\H,\H) ] 
+    \\
+    &amp;= 
+    \frac{10}{12}[ 2 - 3 ] + \frac{1}{12}[ 0 + 10]
+    \\
+    &amp;= 0 \ge 0.
+ \end{align*}\]</span></p></li>
+<li><p><span class="math inline">\(i = 1\)</span>, <span class="math inline">\(a_1 = \H\)</span>, <span class="math inline">\(a_2 = \D\)</span>: <span class="math display">\[\begin{align*}
+    \hskip 2em &amp; \hskip -2em
+    π(\H,\D)[ u_1(\H,\D) - u_1(\D,\D) ] + 
+    π(\H,\H)[ u_1(\H,\H) - u_1(\D,\H) ] 
+    \\
+    &amp;= 
+    \frac{1}{12}[ 3 - 2 ] + 0 [ -10 + 0]
+    \\
+    &amp;= \frac{1}{12} \ge 0.
+ \end{align*}\]</span></p></li>
+<li><p>Same for <span class="math inline">\(i = 2\)</span> …</p></li>
+</ul>
+<h1 class="unnumbered" id="refereces">Refereces</h1>
+<p>The notion of correlated equilibrium is due to <span class="citation" data-cites="Aumann1974">Aumann (<a href="#ref-Aumann1974" role="doc-biblioref">1974</a>)</span>. Also see <span class="citation" data-cites="Aumann1987">Aumann (<a href="#ref-Aumann1987" role="doc-biblioref">1987</a>)</span>.</p>
+<p>The discussion in this section is adapted from <span class="citation" data-cites="Amir2017">Amir et al. (<a href="#ref-Amir2017" role="doc-biblioref">2017</a>)</span></p>
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-Amir2017" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Amir, R., Belkov, S., and Evstigneev, I.V.</span> 2017. Correlated equilibrium in a nutshell. <em>Theory and Decision</em> <em>83</em>, 4, 457–468. DOI: <a href="https://doi.org/10.1007/s11238-017-9609-9">10.1007/s11238-017-9609-9</a>.
+</div>
+<div id="ref-Aumann1974" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Aumann, R.J.</span> 1974. Subjectivity and correlation in randomized strategies. <em>Journal of Mathematical Economics</em> <em>1</em>, 1, 67–96. DOI: <a href="https://doi.org/10.1016/0304-4068(74)90037-8">10.1016/0304-4068(74)90037-8</a>.
+</div>
+<div id="ref-Aumann1987" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Aumann, R.J.</span> 1987. Correlated equilibrium as an expression of bayesian rationality. <em>Econometrica</em> <em>55</em>, 1, 1. DOI: <a href="https://doi.org/10.2307/1911154">10.2307/1911154</a>.
+</div>
+</div>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/games">
+  Games</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/correlated-equilibrium">correlated equilibrium</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/coarse-correlated-equilibrium">coarse correlated equilibrium</a>.</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+

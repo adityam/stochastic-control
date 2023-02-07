@@ -1,0 +1,243 @@
+---
+title: "Theory: Correlated equilibrium"
+weight: 41
+categories:
+  - games
+tags:
+  - correlated equilibrium
+  - coarse correlated equilibrium
+---
+
+Cosider the following "traffic stop" game:
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{Stop}$</td>
+    <td colspan="2">$\mathsf{Go}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{Stop}$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{Go}$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$-100$</td>
+    <td>$-100$</td>
+  </tr>
+</table>
+
+There are two pure strategy Nash equilibria: $(\mathsf{Stop}, \mathsf{Go})$
+and $(\mathsf{Go}, \mathsf{Stop})$. In both equilibria, one player gets a
+payoff of~$1$ and the other gets a payoff of~$0$. 
+
+In addition, there is a mixed strategy Nash equilibrium $(\tfrac {100}{101},
+\tfrac{1}{101})$. The mixed strategy equilibrium seems to be worse off for
+both players: on average _both_ of them get a payoff of $0$ but risk a huge
+negative penalty of $-100$. 
+
+The mixed strategy Nash equilibrium induces the following probability
+distribution on the action profiles
+
+<table class="game1" align="center">
+  <tr>
+    <td></td>
+    <td>$\mathsf{Stop}$</td>
+    <td>$\mathsf{Go}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{Stop}$</td>
+    <td>$0.98$</td>
+    <td>$0.1$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{Go}$</td>
+    <td>$0.1$</td>
+    <td>$0.01$</td>
+  </tr>
+</table>
+
+A better solution is to do a randomization between the pure Nash
+equilibrium strategies, i.e., use the following probability distribution on
+the action profiles:
+
+<table class="game1" align="center">
+  <tr>
+    <td></td>
+    <td>$\mathsf{Stop}$</td>
+    <td>$\mathsf{Go}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{Stop}$</td>
+    <td>$0$</td>
+    <td>$0.5$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{Go}$</td>
+    <td>$0.5$</td>
+    <td>$01$</td>
+  </tr>
+</table>
+
+This is consistent with how we resolve the conflict in real-life: by using a
+traffic light which tells which user should go and which should stop. Once a
+traffic light is making a joint recommendation to both players, it is in the
+best interest of the players to follow that recommendation. 
+
+It is not always possible to achieve such a "coordination" via mixed
+strategies. The reason is that, in mixed strategies, the players are
+randomizing independently: so the joint distribution of the form above cannot
+be achieved. 
+
+# Correlated equilibrium
+
+Consider a strategic game $\mathscr{G} = \langle \ALPHABET N, (\ALPHABET A_i)_{i
+\in \ALPHABET N}, (u_i)_{i \in \ALPHABET N} \rangle$. A **correlated
+strategy** $π$ is a joint probability distribution on all the pure strategies
+of the game. For example, consider any $2×2$ two-player game. Then, a
+correlated strategy is of the form
+$$
+  π = \begin{bmatrix} π_{11} & π_{12} \\ π_{21} & π_{22} \end{bmatrix},
+  \quad π_{ij} \ge 0, 
+  \quad \sum_{i,j} π_{ij} = 1.
+$$
+
+The expected payoff of any correlated strategy is given by
+$$
+  \EXP^{π}[ u(A) ] = \sum_{a \in \ALPHABET A} π(a) u_i(a).
+$$
+
+One way to interpret correlated strategies is to assume that there is a
+_mediator_, who choses joint strategies $a \in \ALPHABET A$ according to the
+PMF $π$. The mediator commuicates strategy $a_i$ to player $i$. A **correlated
+equilibirum** is a correlated strategy where each player has no incentive to
+deviate from the recommendation of the mediator. 
+
+::: highlight :::
+
+Definition 
+
+: Give a strategic game $\mathscr{G} = \langle \ALPHABET N, (\ALPHABET A_i)_{i
+\in \ALPHABET N}, (u_i)_{i \in \ALPHABET N} \rangle$, a correlated equilibrium
+is a is a correlated strategy $π$ such that 
+\begin{equation}\label{eq:corr}
+   \EXP^{π}[ u(a_i, A_{-i}) \mid A_i = a_i ] 
+   \ge
+   \EXP^{π}[ u(a_i, A_{-i}) \mid A_i = b_i ] 
+   , \quad
+   \forall b_i \in \ALPHABET A_i,
+   \forall i \in \ALPHABET N.
+\end{equation}
+
+:::
+
+To understand this definition, we restrict attetion to two player games.
+Consider a correlated strategy $π$. Then the conditional distribution of $A_2$
+given $A_1 = a_1$ is
+$$
+  \PR(A_2 = a_2 \mid A_1 = a_1) = 
+  \frac{π(a_1, a_2)}{\sum_{b_2 \in \ALPHABET A_2} π(a_1, b_2)}.
+$$
+Note that the denominator is the same for both sides of the expectation in
+\\eqref{eq:corr}. So, we can rewrite \\eqref{eq:corr} as
+\begin{equation}\label{eq:corr2}
+  \sum_{a_j \in \ALPHABET A_j} π(a_i, a_j)
+  \bigl[ u_i(a_i, a_j) - u_i(b_i, a_j) \bigr],
+  \quad \forall a_i, b_i \in \ALPHABET A_i, 
+  \quad \forall i \in \{1,2\}.
+\end{equation}
+
+Note that \\eqref{eq:corr2} are a set of linear inequalities. Therefore, the
+set of all correlated equilibria is convex and can be obtained by identifying
+the feasibility region of a linear program.
+
+# Examples
+
+# A Hawk-Dove game
+
+Consider the following variation of "hawk-dove" game:
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{D}$</td>
+    <td colspan="2">$\mathsf{H}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{D}$</td>
+    <td>$2$</td>
+    <td>$2$</td>
+    <td>$0$</td>
+    <td>$3$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{H}$</td>
+    <td>$3$</td>
+    <td>$0$</td>
+    <td>$-10$</td>
+    <td>$-10$</td>
+  </tr>
+</table>
+
+We can verify that this game has two pure strategies Nash equilibria
+$(\mathsf{D}, \mathsf{H})$ and $(\mathsf{H}, \mathsf{D})$. In addition, there
+is a symmetric mixed strategy Nash equilibrium $(\tfrac {10}{11},
+\tfrac{1}{11})$ which has a payoff of $(\tfrac{40}{11}, \tfrac{40}{11})$. 
+
+We claim that the following is a correlated equilibrium for the game:
+$$
+  π = \begin{bmatrix}
+    \frac {10}{12} & \frac{1}{12} \\ \frac{1}{12} & 0 
+  \end{bmatrix}
+$$
+
+We first verify the conditions in \\eqref{eq:corr2} and then verify the
+conditions in \\eqref{eq:corr}.
+
+### Verification of \\eqref{eq:corr2}
+
+We consider each case separately:
+
+$$
+\def\D{\mathsf{D}}
+\def\H{\mathsf{H}}
+$$
+
+* $i = 1$, $a_1 = \D$, $a_2 = \H$:
+   \begin{align*}
+      \hskip 2em & \hskip -2em
+      π(\D,\D)[ u_1(\D,\D) - u_1(\H,\D) ] + 
+      π(\D,\H)[ u_1(\D,\H) - u_1(\H,\H) ] 
+      \\
+      &= 
+      \frac{10}{12}[ 2 - 3 ] + \frac{1}{12}[ 0 + 10]
+      \\
+      &= 0 \ge 0.
+   \end{align*}
+
+* $i = 1$, $a_1 = \H$, $a_2 = \D$:
+   \begin{align*}
+      \hskip 2em & \hskip -2em
+      π(\H,\D)[ u_1(\H,\D) - u_1(\D,\D) ] + 
+      π(\H,\H)[ u_1(\H,\H) - u_1(\D,\H) ] 
+      \\
+      &= 
+      \frac{1}{12}[ 3 - 2 ] + 0 [ -10 + 0]
+      \\
+      &= \frac{1}{12} \ge 0.
+   \end{align*}
+
+* Same for $i = 2$ ...
+
+
+# Refereces {-}
+
+The notion of correlated equilibrium is due to @Aumann1974. Also see
+@Aumann1987.
+
+The discussion in this section is adapted from @Amir2017
