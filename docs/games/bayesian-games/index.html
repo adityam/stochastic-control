@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Aditya Mahajan" />
+  <meta name="title" content="ECSE 506: Stochastic Control and Decision Theory" />
+  <title>ECSE 506: Stochastic Control and Decision Theory</title>
+  
+  <meta content="Bayesian games,games with incomplete information" name="keywords" />
+  
+
+  <link rel="stylesheet" href="https://adityam.github.io/stochastic-control//css/style.css" type="text/css" /><script type="text/javascript"
+    src="https://adityam.github.io/stochastic-control/js/mathjax-local.js" defer>
+  </script>
+  <script type="text/javascript" id="MathJax-script" defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+  </script>
+
+  <script type="module" defer
+    src="//instant.page/3.0.0"
+    integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1">
+  </script>
+
+  <script>var clicky_site_ids = clicky_site_ids || []; clicky_site_ids.push(101261731);</script>
+  <script async src="//static.getclicky.com/js"></script>
+
+</head>
+<body>
+<div id="content">
+<div class="title">
+  <h1>ECSE 506: Stochastic Control and Decision Theory </h1>
+  <h2><a href="http://www.cim.mcgill.ca/~adityam/">Aditya Mahajan</a> <br/>
+      Winter 2022
+  </h2>
+  <h3><a href="https://adityam.github.io/stochastic-control/ ">About</a>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//lectures">Lectures</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//notes">Notes</a></span>
+	&nbsp;<small><small>|</small></small>&nbsp;
+    <a href="https://adityam.github.io/stochastic-control//coursework">Coursework</a>
+</h3>
+</div>
+
+
+
+<div class="h1-title">Theory: Bayesian games</div>
+
+<h1 data-number="1" id="bayesian-games-with-discrete-actions"><span class="header-section-number">1</span> Bayesian games with discrete actions</h1>
+<p>We consider the following variant of battle of sexes, where there are two states of nature: <span class="math inline">\(Ω = \{ω_1, ω_2 \}\)</span>. In <span class="math inline">\(ω_1\)</span>, player 2 wants to meet player 1, and in <span class="math inline">\(ω_2\)</span> player 2 wants to avoid player <span class="math inline">\(1\)</span>. The payoffs of the game are:</p>
+<p>We assume that the prior beliefs are <span class="math display">\[
+  p(ω_1) = \tfrac 12
+  \quad
+  p(ω_2) = \tfrac 12.
+\]</span></p>
+<p>The types (or information structure) of the players is</p>
+<h1 data-number="2" id="bayesian-games-with-continuous-actions"><span class="header-section-number">2</span> Bayesian games with continuous actions</h1>
+<p>We now present a few examples of Bayesian games with continuous action spaces.</p>
+<h2 data-number="2.1" id="sealed-bid-first-price-auctions-first-price-auctions"><span class="header-section-number">2.1</span> Sealed bid first price auctions {first-price-auctions}</h2>
+<p>Two players bid for one object. Let <span class="math inline">\(v_i \in [0,1]\)</span> denote the value that player <span class="math inline">\(i\)</span> assigns to the object. This is the player’s private information. Each player places a bid <span class="math inline">\(b_i\)</span> on the object. The player with the highest bid wins.</p>
+<p>We can model this as a Bayesian game where <span class="math inline">\(v_i\)</span> are the player’s types. We model them as random variables, taking values in <span class="math inline">\(Ω = [0,1]^2\)</span> and assume a uniform distribution on <span class="math inline">\(Ω\)</span>. The utility of player <span class="math inline">\(i\)</span> is: <span class="math display">\[
+  u_i(b_i, b_j, v_i, v_j) = 
+  \begin{cases}
+      v_i - b_i, &amp; \text{if } b_i &gt; b_j \\
+      \frac{v_i - b_i}{2}, &amp; \text{if } b_i = b_j \\
+      0, &amp;\text{if } b_i &lt; b_j.
+  \end{cases}
+\]</span></p>
+<hr />
+<p>We will search for a Bayesian Nash equilibrium in the class of linear strategies, i.e., we will assume that <span class="math display">\[
+  s_i(v_i) = α_i v_i
+\]</span> and try to find <span class="math inline">\(α_i\)</span>.</p>
+<p>For games with continuous action spaces, it is always better to take the interim approach. So, we construct the interim expected utility: <span class="math display">\[\begin{align*}
+  U_i(b_i, s_j \mid v_i) &amp;=
+  \int_{0}^1 u_i(v_i, v_j, b_i, s_j(v_j), f(v_j|v_i) d v_j \\
+  &amp;\stackrel{(a)}=
+  \underbrace{\int_{0}^{(b_i/α_j)^-} (v_i - b_i) dv_j}_{\text{Bid $i$ is bigger}}
+  +
+  \underbrace{\int_{(b_i/a_j)^{-}}^{(b_i/a_j)^{+}} \frac{(v_i - b_i)}{2} dv_j}_
+  {\text{Both bids are equal}}
+  + 
+  \underbrace{\int_{(b_i/a_j)^{+}}^1 0 dv_j}_{\text{Bid $i$ is smaller}}
+  \\
+  &amp;= (v_i - b_i) \frac{b_i}{α_j}
+\end{align*}\]</span> where in <span class="math inline">\((a)\)</span> we have used the fact that the conditional density <span class="math inline">\(f(v_j|v_i) = 1\)</span>. Note that <span class="math inline">\(U_i\)</span> is concave in <span class="math inline">\(b_i\)</span>. Thus, the interim best response can be obtained by the first order optimality condition: <span class="math display">\[
+  \frac{∂ U_i(b_i, s_j \mid v_i)}{∂b_i} = 0
+\]</span> which implies <span class="math display">\[
+  b_i = \frac{v_i}{2}.
+\]</span></p>
+<p>Thus, Bayesian Nash equilibrium is <strong>efficient</strong> because the player with the highest valuation wins.</p>
+<hr />
+<p>By a similar argument, we can show that in <span class="math inline">\(n\)</span>-player auctions, the Bayesian Nash equilibrium is to bid <span class="math display">\[
+  b_i = \left(1 - \frac 1n\right) v_i.
+\]</span> Thus, the players shade their bid below their valuation to balance the profit when they win against the risk of not winning. The more the players in the auction, the less they can afford to shade their bid.</p>
+<h2 data-number="2.2" id="sealed-bid-second-price-auctions-second-price-auctions"><span class="header-section-number">2.2</span> Sealed bid second price auctions {second-price-auctions}</h2>
+<p>We had considered second price autions earlier but had assumed that the valuations of all players were common knowledge. Now we consider the case where the players know their own valuation but not the valuation of others.</p>
+<p>We consider the two player setup similar to first price auctions but, in the case of second price auctions, the valuation function is given by <span class="math display">\[
+  u_i(b_i, b_j, v_i, v_j) = 
+  \begin{cases}
+      v_i - {\color{red} b_j}, &amp; \text{if } b_i &gt; b_j \\
+      \frac{v_i - {\color{red} b_j}}{2}, &amp; \text{if } b_i = b_j \\
+      0, &amp;\text{if } b_i &lt; b_j.
+  \end{cases}
+\]</span> Again, we search for equilibrium in the class of linear strategies <span class="math inline">\(s_i(v_i) = α_i v_i\)</span>. As before <span class="math display">\[\begin{align*}
+  U_i(b_i, s_j \mid v_i) &amp;=
+  \int_{0}^1 u_i(v_i, v_j, b_i, s_j(v_j), f(v_j|v_i) d v_j \\
+  &amp;\stackrel{(a)}=
+  \underbrace{\int_{0}^{(b_i/α_j)^-} (v_i - {\color{red} α_j v_j}) dv_j}_{\text{Bid $i$ is bigger}}
+  +
+  \underbrace{\int_{(b_i/a_j)^{-}}^{(b_i/a_j)^{+}} \frac{(v_i - {\color{red} α_j v_j})}{2} dv_j}_
+  {\text{Both bids are equal}}
+  + 
+  \underbrace{\int_{(b_i/a_j)^{+}}^1 0 dv_j}_{\text{Bid $i$ is smaller}}
+  \\
+  &amp;= \frac{v_i b_i}{α_j} - \frac{b_i^2}{2α_j}
+\end{align*}\]</span> where in <span class="math inline">\((a)\)</span> we have used the fact that the conditional density <span class="math inline">\(f(v_j|v_i) = 1\)</span>. Note that <span class="math inline">\(U_i\)</span> is concave in <span class="math inline">\(b_i\)</span>. Thus, the interim best response can be obtained by the first order optimality condition: <span class="math display">\[
+  \frac{∂ U_i(b_i, s_j \mid v_i)}{∂b_i} = 0
+\]</span> which implies <span class="math display">\[
+  b_i = v_i.
+\]</span> Thus, truthful bidding is a Bayesian Nash equilibrium.</p>
+<h2 data-number="2.3" id="first-price-sealed-bid-auctions-with-common-value"><span class="header-section-number">2.3</span> First price sealed bid auctions with common value</h2>
+<h2 data-number="2.4" id="double-auctions"><span class="header-section-number">2.4</span> Double auctions</h2>
+
+
+<p class="categories">
+This entry 
+
+ and posted in 
+
+<a href="https://adityam.github.io/stochastic-control/categories/games">
+  Games</a>
+and tagged
+<a href="https://adityam.github.io/stochastic-control/tags/bayesian-games">bayesian games</a>,
+<a href="https://adityam.github.io/stochastic-control/tags/games-with-incomplete-information">games with incomplete information</a>.</p>
+
+
+
+    </div>
+  </body>
+</html>
+
+
