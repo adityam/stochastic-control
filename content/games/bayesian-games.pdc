@@ -1,0 +1,482 @@
+---
+title: "Theory: Bayesian games"
+weight: 51
+categories:
+  - games
+tags:
+  - Bayesian games
+  - games with incomplete information
+---
+
+# Bayesian games with discrete actions
+
+## Example: Modified battle of sexes
+We consider the following variant of battle of sexes, where there are two
+states of nature: $Ω = \{ω_1, ω_2 \}$. In $ω_1$, player 2 wants to meet
+player 1, and in $ω_2$ player 2 wants to avoid player $1$. The payoffs of the
+game are: $\def\O{\mathsf{O}} \def\F{\mathsf{F}}$
+
+<table style="border:none; border-collapse:collapse">
+<tr>
+<td>
+```{=html}
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{F}$</td>
+    <td colspan="2">$\mathsf{O}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{F}$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{O}$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+```
+<td style="padding-left:4em">
+```{=html}
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{F}$</td>
+    <td colspan="2">$\mathsf{O}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{F}$</td>
+    <td>$2$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$2$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{O}$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+  </tr>
+</table>
+```
+</td>
+</tr>
+<tr align="center">
+<td>$ω_1$</td>
+<td style="padding-left:4em">$ω_2$</td>
+</tr>
+</table>
+
+We assume that the prior beliefs are 
+$$
+  p(ω_1) = \tfrac 12
+  \quad
+  p(ω_2) = \tfrac 12.
+$$
+
+
+The types (or information structure) of the players is
+
+<figure id="fig1">
+<img src="examples-1.svg" />
+</figure>
+
+Thus,
+
+* $\ALPHABET T_1 = \{1\}$ and $τ_1(ω_1) = 1$, $τ_1(ω_2) = 1$
+* $\ALPHABET T_2 = \{1,2\}$ and $τ_1(ω_1) = 1$, $τ_2(ω_2) = 2$.
+
+The set of strategies are
+
+* $\ALPHABET S_1 \colon \ALPHABET T_1 \to \{\O, \F\} \equiv \{\O, \F\}$
+* $\ALPHABET S_2 \colon \ALPHABET T_2 \to \{\O, \F\} \equiv \{\O\O, \O\F,
+  \F\O, \F\F\}$.
+
+### Method 1: Ex-ante view
+
+Construct a two player game at the strategy level
+
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\F\F$</td>
+    <td colspan="2">$\F\O$</td>
+    <td colspan="2">$\O\F$</td>
+    <td colspan="2">$\O\O$</td>
+  </tr>
+  <tr>
+    <td>$\F$</td>
+    <td>$2$</td>
+    <td>$\tfrac 12$</td>
+    <td>$1$</td>
+    <td>$\tfrac 32$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+  </tr>
+  <tr>
+    <td>$\O$</td>
+    <td>$0$</td>
+    <td>$\tfrac 12$</td>
+    <td>$\tfrac 12$</td>
+    <td>$0$</td>
+    <td>$\tfrac 12$</td>
+    <td>$\tfrac 32$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+  </tr>
+</table>
+
+The values in this table are constructed by computing the expected utilities,
+e.g.:
+
+\begin{align*}
+  U(\F, \F\F) &= p(ω_1)u(ω_1,\F,\F) + p(ω_2)u(ω_2,\F,\F) \\
+  &= \tfrac 12 (2,1) + \tfrac 12 (2,0) \\
+  &= (2, \tfrac 12)
+\end{align*}
+and
+\begin{align*}
+  U(\F, \F\O) &= p(ω_1)u(ω_1,\F,\F) + p(ω_2)u(ω_2,\F,\O) \\
+  &= \tfrac 12 (2,1) + \tfrac 12 (0,3) \\
+  &= (1, \tfrac 32)
+\end{align*}
+and so on.
+
+We can now compute the pure and mixed strategies NE of the above game as
+for standard two player games.
+
+Remark
+
+: Note that the strategy set is exponential in the number of types and recall
+that computing NE of a strategic game is exponential in the number of
+strategies. Therefore, the overall complexity is double exponential in the
+number of types. So, this method can be computationally very expensive.
+
+### Method 2: Interim view
+
+Consider each $(i,t_i)$ as a separate player:
+
+* Player 1.1 (only payoffs of player 1 are specified)
+
+  ```{=html}
+  <table class="game1">
+  <tr>
+     <td></td>
+     <td>$\F\F$</td>
+     <td>$\F\O$</td>
+     <td>$\O\F$</td>
+     <td>$\O\O$</td>
+  </tr>
+  <tr>
+    <td>$\F$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\O$</td>
+    <td>$0$</td>
+    <td>$\tfrac 12$</td>
+    <td>$\tfrac 12$</td>
+    <td>$1$</td>
+  </tr>
+  </table>
+  ```
+
+* Player 2.1 (only payoffs of player 2 are specified)
+
+  ```{=html}
+  <table class="game1">
+  <tr>
+     <td></td>
+     <td>$\F$</td>
+     <td>$\O$</td>
+  </tr>
+  <tr>
+    <td>$\F$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\O$</td>
+    <td>$0$</td>
+    <td>$2$</td>
+  </tr>
+  </table>
+  ```
+* Player 2.2 (only payoffs of player 2 are specified)
+
+  ```{=html}
+  <table class="game1">
+  <tr>
+     <td></td>
+     <td>$\F$</td>
+     <td>$\O$</td>
+  </tr>
+  <tr>
+    <td>$\F$</td>
+    <td>$0$</td>
+    <td>$2$</td>
+  </tr>
+  <tr>
+    <td>$\O$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+  </tr>
+  </table>
+  ```
+
+This can be viewed as a three player game. Player 2.1 does not care what
+player 2.2 does and vice versa. But player 1.1's strategy depends on both
+player 2.1 and 2.2, which indirectly couples the two players. 
+
+---
+
+We now describe how to compute BNE using interm approach. 
+
+We first consider the case when P1 is playing a pure strategy.
+
+* If P1.1 is playing $\F$, BR of P2.1 is $\F$ and BR of P2.2 is $\O$. 
+* If P2 is playing $\F\O$, BR of P1.1 is $\F$. Hence $(\F,\F\O)$ is NE.
+
+<!-- -->
+
+* If P1.1 is playing $\O$, BR of P2.1 is $\O$ and BR of P2.2 is $\F$.
+* If P2 is playing $\O\F$, BR of P1.1 is $\F$. Hence, there is no NE in which
+  P1 is playing $\O$. 
+
+Thus, the only pure strategy NE is $(\F,\F\O)$. This can also be verified in
+the ex-anti representation.
+
+---
+
+We now consider the case when P1 is playing a mixed strategy $α_1 = (p, 1-p)$.
+Consider a mixed strategy $α_{2.1} = (q_1, 1-q_1)$ and $α_{2.2} = (q_2,
+1-q_2)$. Note that we have assumed that $p \in (0,1)$ but $q_1, q_2 \in
+[0,1]$. 
+
+* If $q_1 \in (0,1)$, then by the indifference principle, we have
+  $$ U_2(α_1, \F \mid t_2 = 1) = U_2(α_1, \O \mid t_2 = 1)$$
+  Hence,
+  $$ p = 2(1-p) \implies p = \frac 23. $$
+
+* If $q_2 \in (0,1)$, then by the indifference principle, we have
+  $$ U_2(α_1, \F \mid t_2 = 2) = U_2(α_1, \O \mid t_2 = 2)$$
+  Hence,
+  $$ (1-p) = 2p \implies p = \frac 13. $$
+
+But, **only one of these can be true.**. Thus, either
+$$
+    \bigl\{ q_1 \in (0,1) \text{ and } q_2 \in \{0, 1\} \bigr\}
+    \quad\text{or}\quad
+    \bigl\{ q_1 \in \{0,1\} \text{ and } q_2 \in (0, 1) \bigr\}
+$$
+
+We will consider both cases separately.
+
+#### Case 1: $q_1 \in (0,1)$, $q_2 \in \{0,1\}$, $p = \tfrac 23$. {-}
+
+Note that
+$$
+  U_2(α_1, \F \mid t_2 = 2) = \tfrac 13 ,
+  \quad
+  U_2(α_1, \O \mid t_2 = 2) = \tfrac 43.
+$$
+Thus, the best response of P2.2 to $α_1$ is $\O$. Then, the strategy of P2 is
+$α_2 = (0, q_1, 0, 1-q_1)$. Since P1 is playing a mixed strategy, by the
+invariance principle 
+$$
+  U_1(\F, α_2 \mid t_1 = 1) = U_1(\O, α_2 \mid t_1 = 1)
+$$
+Hence,
+$$ q_1 = \tfrac 12 q_1 + (1-q_1) \implies q_1 = \tfrac 23. $$
+We have already checked that P2.2 is playing a BR. Hence,
+$$
+  α_1 = (\tfrac 23, \tfrac 13),
+  \quad
+  q_{2.1} = (\tfrac 23, \tfrac 13), 
+  \quad
+  α_{2.2} = (0, 1)
+$$
+is a mixed strategy NE.
+
+Remark
+
+: We can also check that 
+$$α_1 = (\tfrac 23, \tfrac 13), 
+  \quad
+  α_2 = (0, \tfrac 23, 0, \tfrac 13)
+$$ 
+is a mixed strategy NE of the ex-ante game.
+
+#### Case 2: $q_1 \in \{0,1\}$, $q_2 \in (0,1)$, $p = \tfrac 13$. {-}
+  
+Note that
+$$
+  U_2(α_1, \F \mid t_2 = 1) = \tfrac 13 ,
+  \quad
+  U_2(α_1, \O \mid t_2 = 1) = \tfrac 43.
+$$
+Thus, the best response of P2.1 to $α_1$ is $\O$. Then, the strategy of P2 is
+$α_2 = (0, 0, q_2,1-q_1)$. Since P1 is playing a mixed strategy, by the
+invariance principle 
+$$
+  U_1(\F, α_2 \mid t_1 = 1) = U_1(\O, α_2 \mid t_1 = 1)
+$$
+Hence,
+$$ q_2 = \tfrac 12 q_2 + (1-q_1) \implies q_1 = \tfrac 23. $$
+We have already checked that P2.2 is playing a BR. Hence,
+$$
+  α_1 = (\tfrac 13, \tfrac 23),
+  \quad
+  α_{2.1} = (0, 1)
+  \quad
+  q_{2.2} = (\tfrac 23, \tfrac 13), 
+$$
+is a mixed strategy NE.
+
+Remark
+
+: We can also check that 
+$$α_1 = (\tfrac 23, \tfrac 13), 
+  \quad
+  α_2 = (0, 0, \tfrac 23, \tfrac 13)
+$$ 
+is a mixed strategy NE of the ex-ante game.
+
+
+## Example: More information can hurt
+
+## Example: Inflection
+
+   
+# Bayesian games with continuous actions
+
+We now present a few examples of Bayesian games with continuous action spaces.
+
+## Example: Sealed bid first price auctions {#first-price-auctions}
+
+Two players bid for one object. Let $v_i \in [0,1]$ denote the value that
+player $i$ assigns to the object. This is the player's private information.
+Each player places a bid $b_i$ on the object. The player with the highest bid
+wins.
+
+We can model this as a Bayesian game where $v_i$ are the player's types. We
+model them as random variables, taking values in $Ω = [0,1]^2$ and assume a
+uniform distribution on $Ω$. The utility of player $i$ is:
+$$
+  u_i(b_i, b_j, v_i, v_j) = 
+  \begin{cases}
+      v_i - b_i, & \text{if } b_i > b_j \\
+      \frac{v_i - b_i}{2}, & \text{if } b_i = b_j \\
+      0, &\text{if } b_i < b_j.
+  \end{cases}
+$$
+
+---
+
+We will search for a Bayesian Nash equilibrium in the class of linear
+strategies, i.e., we will assume that 
+$$
+  s_i(v_i) = α_i v_i
+$$
+and try to find $α_i$.
+
+For games with continuous action spaces, it is always better to take the
+interim approach. So, we construct the interim expected utility:
+\begin{align*}
+  U_i(b_i, s_j \mid v_i) &=
+  \int_{0}^1 u_i(v_i, v_j, b_i, s_j(v_j), f(v_j|v_i) d v_j \\
+  &\stackrel{(a)}=
+  \underbrace{\int_{0}^{(b_i/α_j)^-} (v_i - b_i) dv_j}_{\text{Bid $i$ is bigger}}
+  +
+  \underbrace{\int_{(b_i/a_j)^{-}}^{(b_i/a_j)^{+}} \frac{(v_i - b_i)}{2} dv_j}_
+  {\text{Both bids are equal}}
+  + 
+  \underbrace{\int_{(b_i/a_j)^{+}}^1 0 dv_j}_{\text{Bid $i$ is smaller}}
+  \\
+  &= (v_i - b_i) \frac{b_i}{α_j}
+\end{align*}
+where in $(a)$ we have used the fact that the conditional density $f(v_j|v_i)
+= 1$. Note that $U_i$ is concave in $b_i$. Thus, the interim best response can
+be obtained by the first order optimality condition:
+$$
+  \frac{∂ U_i(b_i, s_j \mid v_i)}{∂b_i} = 0
+$$
+which implies
+$$
+  b_i = \frac{v_i}{2}.
+$$
+
+Thus, Bayesian Nash equilibrium is **efficient** because the player with the
+highest valuation wins.
+
+---
+
+By a similar argument, we can show that in $n$-player auctions, the Bayesian
+Nash equilibrium is to bid
+$$
+  b_i = \left(1 - \frac 1n\right) v_i.
+$$
+Thus, the players shade their bid below their valuation to balance the profit
+when they win against the risk of not winning. The more the players in the
+auction, the less they can afford to shade their bid. 
+
+## Example: Sealed bid second price auctions {#second-price-auctions}
+
+We had considered second price autions earlier but had assumed that the
+valuations of all players were common knowledge. Now we consider the case
+where the players know their own valuation but not the valuation of others. 
+
+We consider the two player setup similar to first price auctions but, in the
+case of second price auctions, the valuation function is given by
+$$
+  u_i(b_i, b_j, v_i, v_j) = 
+  \begin{cases}
+      v_i - {\color{red} b_j}, & \text{if } b_i > b_j \\
+      \frac{v_i - {\color{red} b_j}}{2}, & \text{if } b_i = b_j \\
+      0, &\text{if } b_i < b_j.
+  \end{cases}
+$$
+Again, we search for equilibrium in the class of linear strategies $s_i(v_i) =
+α_i v_i$. As before
+\begin{align*}
+  U_i(b_i, s_j \mid v_i) &=
+  \int_{0}^1 u_i(v_i, v_j, b_i, s_j(v_j), f(v_j|v_i) d v_j \\
+  &\stackrel{(a)}=
+  \underbrace{\int_{0}^{(b_i/α_j)^-} (v_i - {\color{red} α_j v_j}) dv_j}_{\text{Bid $i$ is bigger}}
+  +
+  \underbrace{\int_{(b_i/a_j)^{-}}^{(b_i/a_j)^{+}} \frac{(v_i - {\color{red} α_j v_j})}{2} dv_j}_
+  {\text{Both bids are equal}}
+  + 
+  \underbrace{\int_{(b_i/a_j)^{+}}^1 0 dv_j}_{\text{Bid $i$ is smaller}}
+  \\
+  &= \frac{v_i b_i}{α_j} - \frac{b_i^2}{2α_j}
+\end{align*}
+where in $(a)$ we have used the fact that the conditional density $f(v_j|v_i)
+= 1$. Note that $U_i$ is concave in $b_i$. Thus, the interim best response can
+be obtained by the first order optimality condition:
+$$
+  \frac{∂ U_i(b_i, s_j \mid v_i)}{∂b_i} = 0
+$$
+which implies
+$$
+  b_i = v_i.
+$$
+Thus, truthful bidding is a Bayesian Nash equilibrium.
+
+## Example: First price sealed bid auctions with common value
+
+## Example: Double auctions
+
+
