@@ -8,7 +8,195 @@ tags:
   - games with incomplete information
 ---
 
-# Bayesian games with discrete actions
+So far we have assumed that all players know all the relevant information
+about each other. Such games are known as **games with complete information**.
+In this section, we consider **games with incomplete information**, i.e.,
+games where players have private information about something relevant to their
+decision making. 
+
+Consider the following variation of battle of sexes. There are two players.
+As before, player 1 wants to go out with player 2 and prefers to go watch a
+football game over watching opera. However, there are two _types_ of player 2:
+type 1 or type 2. Player 2 of type 1 wants to go out with player 1 and prefers
+to go to opera over football. On the other hand, player 2 of type 2 does not
+want to go out with player 1 and prefers opera over football. Player two knows
+his type (i.e., knows his preferences). Player 1 knows that there are two
+types of player 2, but does not know if he is playing against player 2 of type
+1 or player 2 of type 2.
+
+The above situation can be modeled as follows:
+<table style="border:none; border-collapse:collapse">
+<tr>
+<td>
+```{=html}
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{F}$</td>
+    <td colspan="2">$\mathsf{O}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{F}$</td>
+    <td>$2$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{O}$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$2$</td>
+  </tr>
+</table>
+```
+<td style="padding-left:4em">
+```{=html}
+<table class="game" align="center">
+  <tr>
+    <td></td>
+    <td colspan="2">$\mathsf{F}$</td>
+    <td colspan="2">$\mathsf{O}$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{F}$</td>
+    <td>$2$</td>
+    <td>$0$</td>
+    <td>$0$</td>
+    <td>$2$</td>
+  </tr>
+  <tr>
+    <td>$\mathsf{O}$</td>
+    <td>$0$</td>
+    <td>$1$</td>
+    <td>$1$</td>
+    <td>$0$</td>
+  </tr>
+</table>
+```
+</td>
+</tr>
+<tr align="center">
+<td>P2 of type 1</td>
+<td style="padding-left:4em">P2 of type 2</td>
+</tr>
+</table>
+
+In order to complete the description of the game, we need to provide a
+probability distribution on the types of player 2. In this particular example,
+we need to assume that player 1 has a belief on the type of player 2 and
+assume that this belief is common knowledge between the two players. 
+
+When both players have multiple types, the situation is more complicated.
+Suppose player 1 has a belief on the types of player 2, and player 2 has a
+belief on the types of player 1 and both these beliefs are common knowledge.
+This leads to some conceptual intricacies. Suppose there is a random event in
+nature and player 1 and player 2 have different beliefs on this random event.
+Now suppose the beliefs of both players are made common knowledge. Each player
+will then update their beliefs to incorporate the knoweldge of the other
+player's belief. Can the posterior beliefs disagree on the probability of an
+event? @Aumann1976 showed that players _cannot agree to disagree_. 
+
+In light of Aumann's [-@Aumann1976] result, we start with the assumption that
+there is a joint probability measure on the types of all players (and that
+measure is common knowledge). This leads to the following definition of
+Bayesian game.
+
+::: highlight :::
+
+Definition
+
+: A Bayesian game is a tuple 
+  $\langle \ALPHABET N, (\ALPHABET A_i)_{i \in \ALPHABET N}, (T_i)_{i \in
+  \ALPHABET N}, p, (u_i)_{i \in \ALPHABET N} \rangle$ where
+
+    * $\ALPHABET N$ is the set of players.
+    * $\ALPHABET A_i$, $i \in \ALPHABET N$, is the set of actions for player
+      $i$. As before, we use $\ALPHABET A = \prod_{i \in \ALPHABET N} \ALPHABET
+      A_i$ to denote the set of joint action of all players.
+    * $\ALPHABET T_i$, $i \in \ALPHABET N$, the the set of _types_ of player
+      $i$. We use $\ALPHABET T = \prod_{i \in \ALPHABET N}$ to denote the set of
+      joint types of all players. 
+    * $p$ is probability measure on the joint types $\ALPHABET T$, which
+      satisfies $\sum_{t_{-i} \in \ALPHABET T_{-i}} p(t_i, t_{-i}) > 0$ for
+      all $t_i \in \ALPHABET T_i$. 
+    * $u_i \colon \ALPHABET A × \ALPHABET T \to \reals$ is the utility function
+      of player $i$ which depends on the action profile and the type profile of
+      all players. 
+
+:::
+
+As in the case of complete-information games, it is assumed that all of the
+components of the game are common knowledge to all players. The game proceeds
+as follows:
+
+* A chance move (or nature) chooses a type vector $t = (t_1, \dots, t_n) \in
+  \ALPHABET T$ according to probabilty distribution $p$. 
+* Each player $i$ knows that type $i$ has been selected for him (i.e., his own
+  type), but does not know the type $t_{-i}$ of other players. 
+* The players select their actions simultaneously; each player $i$ knowing his
+  type $t_i$ selects an action $a_i \in \ALPHABET A_i$. 
+* Each player $i$ receives a payoff $u_i(a,t)$ where $a = (a_1, \dots, a_n)$
+  is the action profile of all players. 
+
+A pure strategy in Bayesian game is a mapping from the player type to his
+action space, i.e., 
+$$
+  s_i \colon \ALPHABET T_i \to \ALPHABET A_i.
+$$
+A mixed strategy, as usual, is a probability distribution over pure strategies
+(i.e., a probability distribution over functions!). Given a strategy profile
+$s=(s_i, s_{-i})$ and a type profile $t = (t_i, t_{-i})$, we use the notation 
+$s_i(t_i), s_{-i}(t_{-i}))$ to denote the action profile generated when
+players of type profile $t$ play strategy profile $s$. 
+
+We can divide a Bayesian game into three phases:
+
+1. **Ex-ante phase**, where no player knows his type or the types of any other
+   player. When we reason about a strategy in this phase, we use the following
+   expected utility:
+   $$
+      U_i(s_i, s_{-i}) = \sum_{t \in \ALPHABET T}p(t)u_i(s_i(t_i), s_{-i}(t_{-i})).
+   $$
+
+2. **Interim phase**, where the players know there own type but not the types
+   of other players. When we reason about this phase, we use the following
+   expected utility:
+   $$
+      U_i(a_i, s_{-i} \mid t_i) = 
+      \sum_{t_{-i} \in \ALPHABET T_{-i}} p(t_{-i}|t_i) u_i(a_i, s_{-i}(t_{-i})) 
+   $$
+   where 
+   $$
+    p(t_{-i} \mid t_i) = \frac{p(t_i, t_{-i})}{ \sum\limits_{t'_i \in \ALPHABET T_i}
+    p(t'_i, t_{-i}) }
+  $$
+  is the posterior belief of player $i$ on the types $t_{-i}$ of other players
+  given his own type $t_i$.
+
+3. **Ex-post phase**, where the players know their own types and the types of
+   every other player. When we reason about this phase, we use the following
+   utility:
+   $$
+      u_i(s_i(t_i), s_{-i}(t_{-i})).
+   $$
+
+# Bayesian Nash equilibrium
+
+Based on the three interpretation of the games, we can define three notions of
+equilibrium fro Bayesian games. We discuss the first two here and will talk
+about the third one later.
+
+[ Definition of ex-ante Bayesian equilibrium ]
+
+[ Definition of interim Bayesian equilibrium ] 
+
+
+Both are equal (add proof) see https://cs.brown.edu/courses/cs1951k/lectures/2020/bayesian_games.pdf
+
+
+# Examples of Bayesian games with discrete actions
 
 ## Example: Modified battle of sexes
 We consider the following variant of battle of sexes, where there are two
@@ -360,7 +548,7 @@ is a mixed strategy NE of the ex-ante game.
 ## Example: Inflection
 
    
-# Bayesian games with continuous actions
+# Examples of Bayesian games with continuous actions
 
 We now present a few examples of Bayesian games with continuous action spaces.
 
