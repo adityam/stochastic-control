@@ -58,7 +58,13 @@
 <p>Let <span class="math inline">\(Ψ\)</span> denote the simulator, where we use the notation <span class="math inline">\(S_{+} \sim Ψ(s,a)\)</span> to denote that the next state <span class="math inline">\(S_{+}\)</span> is sampled using the simulator with the current state input <span class="math inline">\(s\)</span> and action <span class="math inline">\(a\)</span>. Now, consider the following stochastic approximation algorithm: <span class="math display">\[\begin{equation} \label{eq:QL}
 Q_{k+1}(s,a) = Q_k(s,a) + a_k\bigl[
   c(s,a) + γ \min_{a&#39; \in \ALPHABET A} Q_k(Ψ(s,a), a&#39;)  - Q_k(s,a) \bigr]
-\end{equation} \]</span> <span class="math inline">\(s \in \ALPHABET S\)</span>, <span class="math inline">\(a \in \ALPHABET A\)</span>, where <span class="math inline">\(Ψ(s,a)\)</span> is an independently sampled next state from the simulator. Note that in the above equation we are assuming that we update the <span class="math inline">\(Q\)</span> function for all values of state action pairs <span class="math inline">\((s,a)\)</span> at each iteration.</p>
+\end{equation} \]</span> <span class="math inline">\(s \in \ALPHABET S\)</span>, <span class="math inline">\(a \in \ALPHABET A\)</span>, where <span class="math inline">\(Ψ(s,a)\)</span> is an independently sampled next state from the simulator.</p>
+<dl>
+<dt>Remark</dt>
+<dd>
+<p>Note that in the above equation we are assuming that we update the <span class="math inline">\(Q\)</span> function for all values of state action pairs <span class="math inline">\((s,a)\)</span> at each iteration. In the next section, we will provide a proof of a <em>single sample-path</em> version of Q-learning.</p>
+</dd>
+</dl>
 <p>The iteration \eqref{eq:QL} may be viewed as a <a href="../stochastic-approximation">stochastic approximation</a> algorithm where <span class="math inline">\(θ_k = Q_k \in \reals^{n×m}\)</span> and <span class="math inline">\(f \colon \reals^{n×m} \to \reals^{n×m}\)</span> given by <span class="math inline">\(f(Q) = [ f_{sa}(Q) ]\)</span> where <span class="math display">\[
   f_{sa}(Q) = c(s,a) + γ \sum_{s&#39; \in \ALPHABET S}
   P_{ss&#39;}(a) \min_{a&#39; \in \ALPHABET A} Q(s&#39;,a&#39;) - Q(s,a). 
@@ -94,8 +100,12 @@ Q_{k+1}(s,a) = Q_k(s,a) + a_k\bigl[
 </dd>
 </dl>
 </div>
-<p>This was originally proved in <span class="citation" data-cites="Borkar1997">Borkar and Soumyanatha (<a href="#ref-Borkar1997" role="doc-biblioref">1997</a>)</span> .</p>
+<p>This was originally proved in <span class="citation" data-cites="Borkar1997">Borkar and Soumyanatha (<a href="#ref-Borkar1997" role="doc-biblioref">1997</a>)</span>. We provide a complete proof below.</p>
+<details>
+<summary>
 <h4 class="unnumbered" id="proof">Proof</h4>
+</summary>
+<div>
 <p>Let <span class="math inline">\(\text{sgn}(θ)\)</span> denote the sign function that is <span class="math inline">\(+1\)</span> is <span class="math inline">\(θ &gt; 0\)</span>, <span class="math inline">\(0\)</span> if <span class="math inline">\(θ = 0\)</span>, and <span class="math inline">\(-1\)</span> is <span class="math inline">\(θ &lt; 0\)</span>. Assume that <span class="math inline">\(1 \le p &lt; ∞\)</span>. By the chain rule</p>
 <p><span class="math display">\[\begin{align*}
   \frac{dL(θ)}{dt} &amp;= \sum_{i=1}^d \frac{∂L}{∂θ_i} \frac{dθ_i}{dt} \\
@@ -116,12 +126,13 @@ Q_{k+1}(s,a) = Q_k(s,a) + a_k\bigl[
   \biggl[ \sum_{i=1}^d \bigl( T_i(θ) - T_i(θ^*) \bigr)^p \biggr]^{1/p}
   \\
   &amp;= \| θ - θ^* \|_{[}^{p-1}\, \| T(θ) - T(θ^*) \|_{p}.
-\end{align*}\]</span> Subsituting this in the previous equation, we get <span class="math display">\[ \frac{dL(θ)}{dt} \le \| T(θ) - T(θ^*)\|_p - \| θ - θ^* \|_{p}. \]</span></p>
-<p>Note that we can subsitute <span class="math inline">\(p=∞\)</span> in the above expression because <span class="math inline">\(\|z\|_p \to \|z \|_{∞}\)</span> uniformly on compact sets. Since <span class="math inline">\(T\)</span> is a <span class="math inline">\(p\)</span>-norm contraction, <span class="math display">\[ \| T(θ) - T(θ^*) \|_{p} \le γ \| θ - θ^* \|_{p}. \]</span> Substituting this in the previous equation, we get <span class="math display">\[
+\end{align*}\]</span> Substituting this in the previous equation, we get <span class="math display">\[ \frac{dL(θ)}{dt} \le \| T(θ) - T(θ^*)\|_p - \| θ - θ^* \|_{p}. \]</span></p>
+<p>Note that we can substitute <span class="math inline">\(p=∞\)</span> in the above expression because <span class="math inline">\(\|z\|_p \to \|z \|_{∞}\)</span> uniformly on compact sets. Since <span class="math inline">\(T\)</span> is a <span class="math inline">\(p\)</span>-norm contraction, <span class="math display">\[ \| T(θ) - T(θ^*) \|_{p} \le γ \| θ - θ^* \|_{p}. \]</span> Substituting this in the previous equation, we get <span class="math display">\[
   \frac{dL(θ)}{dt} \le 
   \le - (1-γ) \| θ(t) - θ^* \|_p = -(1-γ) L(θ).
 \]</span> Thus, <span class="math inline">\(L(θ) \to 0\)</span> (or equivalently, <span class="math inline">\(\| θ(t) - θ^* \|_{p} \to 0\)</span> as <span class="math inline">\(t \to ∞\)</span>. <span class="math inline">\(\Box\)</span></p>
-<hr />
+</div>
+</details>
 <p>Define the operator <span class="math inline">\(F(Q) = [F_{sa}(Q)]\)</span> by <span class="math display">\[ \begin{equation} \label{eq:F}
   F_{sa}(Q) = c(s,a) + γ \sum_{s&#39; \in \ALPHABET S} P_{ss&#39;}(a) \min_{a&#39;} Q(s&#39;,a&#39;),
 \end{equation} \]</span> which may be thought as an analogue of the Bellman operator for the <span class="math inline">\(Q\)</span>-function. Similarly define <span class="math inline">\(F_∞(Q) = [F_{∞}(Q)]_{sa}\)</span> by <span class="math display">\[
