@@ -1,0 +1,314 @@
+---
+title: Inventory Management
+tags:
+  - inventory management
+  - post-decision state
+  - base-stock policy
+  - structural results
+---
+
+::: {.column-margin}
+![Image credit:
+https://hbr.org/2015/06/inventory-management-in-the-age-of-big-data][inventory]
+
+[inventory]: ../images/banners/inventory.jpg "How to manage inventory" { width=100% style='max-width:30em;' }
+:::
+
+:::{.callout-note icon=false appearance="simple"}
+# <i class="bi bi-journal-text text-primary"></i> Summary
+The inventory management example illustrates that a dynamic programming formulation is useful even when a closed form solution does not exist. This model also introduces the idea of *post-decision state*, which is useful in many contexts.
+:::
+
+Imagine a retail store that stockpiles products in its warehouse to
+meet random demand. Suppose the store procures new stocks at the end of each
+day (and that there is no lead time and stocks are available next morning).
+Let 
+
+* $S_t \in \integers$ denote the amount of stock at the beginning of day $t$,
+* $A_t \in \integers_{\ge 0}$ denote the stock ordered (and immediately delivered) at the beginning of day $t$, and
+* $W_t \in \integers_{\ge 0}$ denote the demand during day $t$. 
+
+The random variables $\{W_t\}_{t \ge 1}$ are i.i.d. with known probability
+distribution. 
+
+Excess demand is backlogged and filled when new inventory becomes available.
+Thus, the stock evolves according to
+$$S_{t+1} = S_t + A_t - W_t,$$
+where negative stock denotes backlogged demand. 
+
+The cost incurred during day $t$ consists of two components:
+
+*   A procurement cost of $p A_t$, where $p$ is the cost per unit. 
+*   At the end of the day, if the stock $S_{t+1}$ is positive, then there is a
+    holding cost of $c_h S_{t+1}$ for storing excess inventory; if $S_{t+1}$ is
+    negative, then a shortage cost of $-c_s S_{t+1}$ for unfilled demand. 
+
+      We denote this cost by $h(S_{t+1})$, where
+      $$ h(s) = \begin{cases} 
+         c_h s, & \text{if } s \ge 0 \\
+        -c_s s, & \text{if } s < 0
+      \end{cases}$$
+
+## Dynamic programming decomposition
+
+$\def\S{\mathbb{S}}$ 
+
+The above model is a Markov decision process.[^cost] Therefore, the optimal solution is given by dynamic programming. 
+
+Instead of $\integers$, we use $\S$ to denote the possible values of states. The reason is that we will later consider the case when the state space is the set of reals, and we can still use the same equations.
+
+[^cost]: Part of the per-step cost depends on the _future_ state $S_{t+1}$.
+  It is easy to show that the standard MDP model works even when the per-step
+  cost is a function of $(S_t, A_t, S_{t+1})$
+
+:::{#prp-inventory-DP}
+## Dynamic programming
+Define the following value functions $V_t \colon \S \to \reals$ 
+$$V_{T+1}(s) = 0$$
+and for $t \in \{T, \dots, 1\}$
+$$ Q_t(s, a) = p a + \EXP[ h(s + a - W_t) + V_{t+1}( s + a - W_t ) ]$$
+and
+$$ \begin{align*}
+  V_t(s) &= \min_{a \in \S_{\ge 0}} Q_t(s,a) \\
+  π_t(s) &= \arg \min_{a \in \S_{\ge 0}} Q_t(s,a) 
+  \end{align*}
+$$
+Then the strategy $π = (π_1, \dots, π_T)$ is optimal. 
+::: 
+
+It is possible to simplify the above dynamic program by exploiting a feature
+of the model. Notice that the dynamics can be split into two parts: 
+$$ \begin{align*}
+    Z_t &= S_t + A_t,  \\
+    S_{t+1} &= Z_t - W_t.
+   \end{align*}
+$$
+The first part, $Z_t$, depends only on the current state and action. The
+second part depends only on $Z_t$ and a primitive random variable. 
+In this particular model, $Z_t$ is a deterministic function of $S_t$ and
+$A_t$; but, in general, it could be stochastic as well; what is important is
+that the second part should only depend on $Z_t$ and a primitive random
+variable. The variable $Z_t$ is sometimes called the __post-decision state__. 
+
+Now write the dynamic program in terms of the post-decision state as follows.
+Define
+$$ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z-W) ].$$
+Then the value function and optimal policy at time $t$ can be written as:
+$$ \begin{align*}
+  V_t(s) &= \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}, \\
+  π_t(s) &= \arg \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}.
+\end{align*} $$
+
+Note that the problem at each step is similar to the [newsvendor] problem. So,
+similar to that model, we try to see if we can establish qualitative
+properties of the optimal solution.
+
+[newsvendor]: ../../stochastic/newsvendor
+
+To fix ideas, let's solve this dynamic program for a specific instance. We
+consider $p = 5$, $c_h = 4$, $c_s = 2$, and assume that the demand is distributed
+according to a Binomial(10,0.4) distribution, as shown in Figure 1.
+
+::: {.column-margin}
+<figure style='max-width:20em;' id="fig1">
+<div id="observablehq-demand_plot-d2dc6ce7"></div>
+<figcaption><b>Figure 1</b><br />
+Demand distribution</figcaption>
+</figure>
+::: 
+
+We consider a horizon $T = 15$, and solve the dynamic program shown above. The
+optimal value function and policy are shown below:
+
+<figure style='max-width:40em;'>
+<div id="observablehq-viewof-time-d2dc6ce7"></div>
+<table>
+<tr>
+<td id="observablehq-value_plot-d2dc6ce7"></td>
+<td id="observablehq-action_plot-d2dc6ce7"></td>
+</tr>
+<tr> 
+<td> Value function </td>
+<td> Optimal policy </td>
+</table>
+<figcaption><b>Figure 2</b><br/>
+The value function and the optimal policy for the example shown
+above</figcaption>
+</figure>
+
+The plots above suggest that the optimal policy has a structure. Play around
+with the value of the purchase cost to see if that structure is retained.
+
+<div id="observablehq-viewof-p-d2dc6ce7"></div>
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "action_plot") return new Inspector(document.querySelector("#observablehq-action_plot-d2dc6ce7"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-d2dc6ce7"));
+  if (name === "demand_plot") return new Inspector(document.querySelector("#observablehq-demand_plot-d2dc6ce7"));
+  if (name === "viewof time") return new Inspector(document.querySelector("#observablehq-viewof-time-d2dc6ce7"));
+  if (name === "value_plot") return new Inspector(document.querySelector("#observablehq-value_plot-d2dc6ce7"));
+  return ["DP"].includes(name);
+});
+</script>
+
+We will now see how to prove the structure of optimal policy.
+
+## Structure of optimal solution
+
+For ease of exposition, we assume that the state space $\S$ is equal to
+$\reals$ (instead of $\integers$). See exercise 1 at the end to extend the
+argument to $\integers$.
+
+For this setting, the optimal policy is then characterized as follows.
+
+:::{#thm-inventory-structure}
+Define 
+$$ s^*_t = \arg \min_{z \in \reals} \bigl\{ p z + H_t(z) \bigr\} . $$
+Then, 
+\begin{equation} \label{eq:V}
+V_t(s) = \begin{cases}
+  H_t(s_t) + p (s_t - s), &\text{if } s \le s^*_t \\
+  H_t(s)   , & \text{otherwise }
+\end{cases} 
+\end{equation}
+and
+\begin{equation}\label{eq:pi}
+  π_t(s) = \begin{cases}
+  s^*_t - s, &\text{if } s \le s^*_t \\
+  0, & \text{otherwise }
+\end{cases}\end{equation}
+
+Furthermore, for all $t$, $H_t(z)$ and $V_t(s)$ are convex in $z$
+and $s$, respectively. 
+:::
+
+::: {.callout-tip collapse="false"}
+
+## Base-stock policy
+The optimal policy given by \\eqref{eq:pi} is called a _base-stock_
+policy. It states that there is a base-stock level $\{s^*_t\}_{t \ge 1}$
+for every time step. If, at the beginning of time $t$, the value of the
+current stock is below the base stock level $s^*_t$, then the optimal
+decision is to order more goods so that the level of the stock equals the
+base stock level. 
+:::
+
+We first establish some preliminary results.
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/@adityam/properties-of-convex-functions.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "average_plot") return new Inspector(document.querySelector("#observablehq-average_plot-11079710"));
+  if (name === "minimum_plot") return new Inspector(document.querySelector("#observablehq-minimum_plot-11079710"));
+});
+</script>
+
+1. For any convex function $f \colon \reals \to \reals$, 
+   $F(s) = \EXP[ f(s - W) ]$ is convex.
+
+   **Proof** For any realization of $W$, $f(s - w)$ is convex in $s$.
+   The expectation w.r.t. $W$ is simply the sum of convex functions and is,
+   therefore, convex. 
+
+      <figure style='max-width:40em;'>
+        <div id="observablehq-average_plot-11079710"></div>
+        <figcaption><b>Figure 3</b><br />
+        An example showing that the average of convex functions is convex.
+        </figcaption>
+      </figure>
+
+
+2. For any convex function $f \colon \reals \to \reals$, 
+   let $s^* =  \arg \min_{s \in \reals} f(s)$. Then,
+   $$\arg \min_{a \in \reals_{\ge 0}} f(s + a) = \begin{cases}
+   0, & \text{if } s > s^*, \\
+   s^* - s, & \text{if } s \le s^*
+   \end{cases}$$
+   and
+   $$F(s) = \min_{a \in \reals_{\ge 0}} f(s+a) = \begin{cases}
+    f(s), & \text{if } s > s^* \\
+    f(s^*), & \text{if } s \le s^*
+    \end{cases}$$
+    and $F(s)$ is convex in $s$.
+
+
+     We first see an illustration of $F(s) = \min\{ f(s), f(s+1), f(s+2) \}$. Note
+     that the resulting function is not convex because $a$ takes only discrete
+     values. But the plot shows that the minimum will look like when we allow
+     $a$ to take continuous values. 
+     <figure style='max-width:40em;'>
+       <div id="observablehq-minimum_plot-11079710"></div>
+       <figcaption><b>Figure 4</b><br />
+       An example showing that the minimum of $f(s)$, $f(s+1)$, $f(s+2)$. 
+       </figcaption>
+     </figure>
+
+
+     If there were no constraint on $a$, then the minimizer will be $a = s^* -
+     s$. If $s \le s^*$, then $a = s^* -s \in \reals_{\ge 0}$ is the minimizer for
+     the constrained problem as well. On the other hand, if $s \ge s^*$, then
+     the function $f(s + a)$ is increasing as a function of $a$. Hence,
+     the minimizer for the constrained problem is $a = 0$. 
+     See the figures below.
+
+
+::: {.callout-note collapse="true"}
+#### Proof of the structural result {-}
+Now to prove the result, we define 
+$$ f_t(z) = py + H_t(z). $$
+Then,
+$$ V_t(s) = \min_{a \in \reals_{\ge 0}} \bigl\{ p(s + a) + H_t(s + a)
+\bigr\} - p s 
+= \min_{a \in \reals_{\ge 0}} f_t(s+a) - p s.
+$$
+As usual, we prove the result by backward induction. For $t=T$, 
+$$\bar Q_T(z) = \EXP[ h(z - W) ] $$
+which is convex because $h(z)$ is convex. $f_T(z) = p z + Q_T(z)$ is the
+sum of a linear function and convex function and is, therefore, convex. 
+Then, by fact 2 above,
+$$π_T(s) = \arg \min_{a \in \reals_{\ge 0}} f_T(s+a) = \max(s^*_T - s, 0)
+$$
+and
+$$V_T(s) = \min_{a \in \reals_{\ge 0}} f_T(s + a) - px = 
+  \begin{cases}
+    f_T(s) - p s, & \text{if } s > s^*_T \\
+    f_T(s^*_T) - px, & \text{if } s \le s^*_T.
+  \end{cases}
+$$
+Substituting $f_t(z) = p z + H_t(z)$, we get that both
+$V_T$ and $π_T$ have the desired form and $V_T$ is convex. This forms the basis of
+induction.
+
+Now assume that $V_{t+1}(s)$ is convex and of the form \\eqref{eq:V}. Now note
+that, by fact 1,
+$$ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z - W) ]$$
+is convex. Hence, $f_t(z)$ is convex. Therefore, 
+by fact 2 above,
+$$ π_t(s) = \max(s^*_t - s, 0)$$
+and $V_t(s)$ is of the desired form and convex. 
+
+Thus, the result is holds by induction.
+:::
+
+## Exercises {-}
+
+::: {#exr-inventory-discrete}
+Consider the setting when $\S = \integers$. Show that there
+exists a sequence $\{s_t\}_{t \ge 1}$ of numbres such that policy given by
+$$ π_t(s) = \begin{cases}
+   n, & \text{if } s_t - n \le s \le s_t - n + 1, \\
+   0, & \text{if } s_t \ge s_t.
+  \end{cases} $$
+is optimal.
+:::
+
+## Notes {-}
+
+Inventory management models with deterministic demand were introduced by @Harris1913. The mathematical model of inventory management considered here was originally proposed by @Arrow1951. The optimality of base-stock policy was established by @Bellman1955. See the notes on [infinite horizon](inventory-management-revisited.html) version of this model to see how to find the threshold in closed form. 
+
+The problem for Exercise 1 is from @Veinott1965. See @Tsitsiklis1984 for a partial characterization of the optimal policy with non-zero ordering costs.
+

@@ -1,0 +1,374 @@
+---
+title: Infinite horizon MDPs
+tags:
+  - infinite horizon
+  - discounted cost
+  - Bellman operator
+---
+
+A common way to approximate systems that run for a very large horizon
+is to assume that they run for an infinite horizon. There is an inherent
+homogeneity over time for infinite horizon system: the future depends only on the
+current state and not on the current time. Due to this homogeneity over time,
+we expect that the optimal policy should also be time-homogeneous. Therefore,
+the optimal policy for an infinite-horizon system should be easier to
+implement than the optimal policy for a finite horizon system, especially so
+when the horizon is large. This is one of the motivations for studying
+infinite horizon models. 
+
+The most common formulation for infinite horizon models is the discounted
+setup, where the cost function is assumed to be 
+$$ J(π) = \EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} c_t(S_t, A_t) \Bigr] $$
+where $γ \in (0,1)$ is called the discount factor.
+
+:::{.callout-tip}
+#### Discount Factor
+
+There are two interpretations of the discount factor $γ$. The first
+interpretation is an economic interpretation to determine the _present value_
+of a utility that will be received in the future. For example, suppose a
+decision maker is indifferent between receiving 1 dollar today or $s$ dollars
+tomorrow. This means that the decision maker discounts the future at a rate
+$1/s$, so $γ = 1/s$.
+
+The second interpretation is that of an absorbing state. Suppose we
+are operating a machine that generates a value of \$1 each day. However,
+there is a probability $p$ that the machine will break down at the end of
+the day. Thus, the expected return for today is \$1 while the expected
+return for tomorrow is $(1-p)$ (which is the probability that the machine
+is still working tomorrow). In this case, the discount factor is defined
+as $(1-p)$. See @Shwartz2001 for a detailed discussion of this alternative.
+:::
+
+In the remainder of this section, we will study how to obtain a solution for
+such infinite horizon discounted cost models. 
+
+_Note_: Throughout this section, we assume that $\ALPHABET S$ and $\ALPHABET A$ are
+finite and $|\ALPHABET S|= n$ and $|\ALPHABET A| = m$. 
+
+## Performance of a time-homogeneous Markov policy
+
+For any $π \colon \ALPHABET S \to \ALPHABET A$, consider the time homogeneous
+policy $(π, π, \dots)$. For ease of notation, we denote this policy simply by
+$π$. The expected discounted cost under this policy is given by
+$$ V_π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
+\bigg].$$
+
+To get a compact expression for this, define a $n × 1$ vector $c_π$ and a $n
+× n$ matrix $P_π$ as follows:
+$$ [c_π]_s = c(s, π(s))
+   \quad\text{and}\quad
+   [P_π]_{ss'} = P_{ss'}(π(s)).
+$$
+Then the dynamics under policy $π$ are Markovian with transition probability
+matrix $P_π$ and a cost function $c_π$. Then
+$$ \begin{align*}
+\EXP^π\big[ c(S_t, π(S_t)) \bigm| S_1 = s \big]
+  &= \sum_{s' \in \ALPHABET S} \PR^π(S_t = s' | S_1 = s) c(s', π(s'))
+  \\
+  &= \sum_{s' \in \ALPHABET S} [P_π^{t-1}]_{ss'} [c_π]_y
+  \\
+  &= δ_s P_π^{t-1} c_π.
+\end{align*} $$
+
+Let $V_π$ denote the $n × 1$ vector given by $[V_π]_s = V_π(s)$. Then,
+$$ \begin{align*}
+V_π &= c_π + γ P_π c_π + γ^2 P_π^2 c_π + \cdots \\
+    &= c_π + γ P_π \big( c_π + γ P_π c_π + \cdots \big) \\
+    &= c_π + γ P_π V_π,
+\end{align*} $$
+which can be rewritten as
+$$ (I - γ P_π) V_π = c_π. $$
+
+The [:spectral radius] $ρ(γ P_d)$ of a matrix is upper bounded by its [:spectral
+norm] $\lVert γ P_d \rVert = γ < 1$. Therefore, the matrix $(I - γ P_π)$ has an inverse and by left multiplying both sides by $(I - γ P_π)^{-1}$, we get
+$$ V_π = (I - γP_π)^{-1} c_π. $$
+
+[:spectral radius]: https://en.wikipedia.org/wiki/Spectral_radius
+[:spectral norm]: https://en.wikipedia.org/wiki/Matrix_norm
+
+The equation 
+$$ V_π = c_π + γ P_π V_π $$
+is sometimes also written as
+$$ V_π = \mathcal B_π V_π $$
+where the operator $\mathcal B_π$, which is called the _Bellman operator_,
+is an operator from $\reals^n$ to $\reals^n$
+given by
+$$ \mathcal B_π v = c_π + γ P_π v.$$
+
+## Bellman operators
+
+:::{#def-Bellman-operator}
+Define the _Bellman operator_ $\mathcal B : \reals^n \to \reals^n$ as
+follows: for any $v \in \reals^n$
+$$ [\mathcal B v]_s = \min_{a \in \ALPHABET A}
+\Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v_y \Big\}.
+$$
+:::
+
+Note that the above may also be written as[^1]
+$$ \mathcal B v = \min_{π \in \Pi} \mathcal B_π v, $$
+where $\Pi$ denotes the set of all deterministic Markov policies. 
+
+[^1]: This is true for general models only when the arg min at each state
+  exists.
+
+:::{#prp-Bellman-contraction}
+For any $v \in \reals^n$, define the norm $\NORM{V} := \sup_{s \in
+\ALPHABET S} \ABS{V_s}$. Then, the Bellman operator is a contraction,
+i.e., for any $v, w \in \reals^n$,
+$$ \NORM{\mathcal B v - \mathcal B w} \le γ \NORM{v - w}. $$
+:::
+
+
+:::{.callout-note collapse="true"}  
+#### Proof {-}
+
+Fix a state $s \in \ALPHABET S$ and consider $[\mathcal B v](s) - [\mathcal B
+w](s)$. In particular, let $a^*$ be the optimal action in the right hand side
+of $[\mathcal B w](s)$. Then,
+$$\begin{align*}
+  [\mathcal B v - \mathcal B w](s) &= 
+  \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
+  P_{ss'}(a) v(s') \bigr\} - 
+  \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
+  P_{ss'}(a) w(s') \bigr\} 
+  \\
+  &\le c(s,a^*) + γ \sum_{s'\in \ALPHABET S} P_{ss'}(a^*) v(s') -
+       c(s,a^*) - γ \sum_{s'\in \ALPHABET S} P_{ss'}(a^*) w(s')
+  \\
+  &\le γ \sum_{s' \in \ALPHABET S} P_{ss'}(a^*) \| v - w \|
+  \\
+  &= γ \| v - w \|.
+\end{align*} $$
+
+By a similar argument, we can show that $[\mathcal B w - \mathcal B v](s) \le
+γ \| v - w \|$, which proves the other side of the inequality. 
+:::
+
+An immediate consequence of the contraction property is the following.
+
+:::{#thm-Bellman-fixed-point}
+There is a unique bounded $V^* \in \reals^n$ that satisfies the 
+_Bellman equation_
+$$ V = \mathcal B V $$
+
+Moreover, if we start from any $V_0 \in \reals^n$ and recursively define
+$$ V_n = \mathcal B V_{n-1} $$
+then
+$$ \lim_{n \to ∞} V_n = V^*. $$
+:::
+
+:::{.callout-note collapse="false"} 
+#### Proof {-}
+This follows immediately from the [Banach fixed point theorem](https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem).
+:::
+
+## Optimal time-homogeneous policy
+
+<!--
+::: highlight :::
+Prop.
+
+:   Let $μ$ be any (possibly randomized) history dependent policy. Then,      
+    there exists a randomized Markov policy $π$ that has the same performance
+    as $μ$.
+:::
+
+#### Proof {-}
+
+For any policy $μ$, define the _occupation measure_
+$$ \mu(s,a | s^∘; μ) 
+  := \EXP^μ \bigg[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
+  \biggm| S_1 = s^∘ \bigg]
+$$
+Then 
+$$ J(s^∘; μ) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
+   μ(s,a | s^∘; μ) c(s,a).
+$$ {#eq:performance}
+
+Now, define a randomized Markov policy $π$ as follows:
+$$\PR(A_t = a | S_t = s; π) = \frac{ μ(s, a| s^∘; μ) } { μ(s | s^∘; μ) }$$
+where $μ(s|s^∘;μ) = \sum_{a \in \ALPHABET A} μ(s,a | s^∘; μ)$. Then, by
+construction, 
+$ μ(s,a | s^∘; π) = μ(s,a | s^∘; μ) $
+and therefore by \\eqref{eq:performance}, we have that $J(s^∘; π) = J(s^∘; μ).$
+
+-->
+
+
+:::{#prp-value-optimal}
+Define 
+$$ V^{\text{opt}}_∞(s) := \min_{π} \EXP^π \bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) 
+\biggm| S_1 = s \bigg], $$
+where the minimum is over all (possibly randomized) history dependent
+policies. Then, 
+$$ V^{\text{opt}}_∞ = V^*, $$
+where $V^*$ is the solution of the Bellman equation.
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+
+Since the state and action space are finite, without loss of optimality, we
+can assume that $0 \le c(s,a) \le M$. 
+
+Consider the finite horizon truncation 
+$$ V^{\text{opt}}_T(s) =  \min_{π} \EXP^π\bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) | S_1 = s \bigg].
+$$
+From the results for finite horizon MDP, we have that
+$$ V^{\text{opt}}_T = \mathcal B^T V_0 $$
+where $V_0$ is the all zeros vector. 
+
+Now by construction, 
+$$V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [\mathcal B^T V_0](s). $$
+Taking limit as $T \to ∞$, we get that
+$$\begin{equation}\label{eq:1}
+  V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [\mathcal B^T V_0](s) = V^*(s). 
+\end{equation}$$
+
+Since $0 \le c(s,a) \le M$,  for any $T$,
+$$ \begin{align*}
+V^{\text{opt}}_∞(s) &\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) 
+\biggm| S_1 = s \bigg] + \sum_{t=T+1}^∞ γ^{t-1} M \\
+&= V^{\text{opt}}_T(s) + γ^T M / (1 - γ) \\
+&= [\mathcal B^T V_0](s) + γ^T M / (1-γ). 
+\end{align*} $$
+Taking limit as $T \to ∞$, we get that
+$$\begin{equation}\label{eq:2}
+  V^{\text{opt}}_∞(s) \le \lim_{T \to ∞}
+  \big\{ [\mathcal B^T V_0](s) + γ^T M / (1-γ) \big\} = V^*(s). 
+\end{equation}$$
+
+From \\eqref{eq:1} and \\eqref{eq:2}, we get that $V^{\text{opt}}_∞ = V^*$. 
+:::
+
+## Properties of Bellman operator
+
+:::{#prp-Bellamn-properties}
+The Bellman operator satisfies the following properties
+
+* _Monotonicity_. For any $v, w \in \reals^n$, if $v \le w$, then
+  $\mathcal B_π v \le \mathcal B_π w$ and 
+  $\mathcal B v \le \mathcal B w$. 
+* _Discounting_. For any $v \in \reals^n$ and $m \in \reals$, 
+  $\mathcal B_π (v + m \ONES) = \mathcal B_π v + γ m \ONES$
+  and 
+  $\mathcal B (v + m \ONES) = \mathcal B v + γ m \ONES$.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof of monotonicity property {-}
+Recall that
+$$ \mathcal B_π v = c_π + γ P_π v. $$
+So, monotonicity of $\mathcal B_π$ follows immediately from monotonicity of
+matrix multiplication for positive matrices. 
+
+Let $μ$ be such that $\mathcal B w = \mathcal B_μ w$. 
+Then,
+$$ \mathcal B v \le \mathcal B_μ v 
+\stackrel{(a)} \le \mathcal B_μ w = \mathcal B w,
+$$
+where $(a)$ uses the monotonicity of $\mathcal B_μ$. 
+:::
+
+:::{.callout-note collapse="true"}  
+#### Proof of discounting property {-}
+Recall that
+$$ \mathcal B_π v = c_π + γ P_π v. $$
+Thus,
+$$ \mathcal B_π(v+m \ONES) = c_π + γ P_π (v+m \ONES) = c_π + γ P_π v + γ m
+\ONES = \mathcal B_π
+v + γ m \ONES.$$ 
+Thus, $\mathcal B_π$ is discounting. Now consider 
+$$ \mathcal B (v + m \ONES ) = \min_{π} \mathcal B_π (v+m \ONES)
+= \min_π \mathcal (B_π v + γ m \ONES) = \mathcal B v + γ m \ONES.$$
+Thus, $\mathcal B$ is discounting.
+:::
+
+:::{#prp-Bellman-coarse-bounds}
+For any $V \in \reals^n$,
+
+* If $V \ge \mathcal B V$, then $V \ge V^*$;
+* If $V \le \mathcal B V$, then $V \le V^*$;
+* If $V = \mathcal B V$, then $V$ is the only vector with this property
+  and $V = V^*$.
+
+The same bounds are true when $(\mathcal B, V^*)$ is replaced with
+$(\mathcal B_π, V_π)$. 
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+We prove the first part. The proof of the other parts is similar.
+
+We are given that
+$$V \ge \mathcal B V.$$ 
+Then, by monotonicity of the Bellman operator, 
+$$ \mathcal B V \ge \mathcal B^2 V.$$ 
+Continuing this way, we get
+$$ \mathcal B^k V \ge \mathcal B^{k+1} V.$$
+Adding the above equations, we get
+$$ V \ge \mathcal B^{k+1} V.$$
+Taking limit as $k \to ∞$, we get 
+$$V \ge V^*.$$
+:::
+
+:::{#prp-Bellman-bounds}
+For any $V \in \reals^n$ and $m \in \reals$, 
+
+* If $V + m \ONES \ge \mathcal B V$, then $V  + m \ONES/(1-γ) \ge V^*$;
+* If $V + m \ONES \le \mathcal B V$, then $V  + m \ONES/(1-γ) \le V^*$;
+
+The same bounds are true when $(\mathcal B, V^*)$ is replaced with
+$(\mathcal B_π, V_π)$. 
+:::
+
+:::{.callout-tip}
+#### Remark
+The above result can also be stated as follows:
+
+* $\displaystyle \| V_π - V \| \le \frac{1}{1-γ}\| \mathcal B_π V - V \|$.
+* $\displaystyle \| V^* - V \| \le \frac{1}{1-γ}\| \mathcal B V - V \|$.
+:::
+
+:::{.callout-note collapse="true"}  
+#### Proof {-}
+Again, we only prove the first part. The proof of the second part is the same. We have that
+$$ V + m \ONES \ge \mathcal B V. $$
+From discounting and monotonicity properties, we get
+$$ \mathcal B V + γ m \ONES \ge \mathcal B^2 V. $$
+Again, from discounting and monotonitiy properties, we get
+$$ \mathcal B^2 V + γ^2 m \ONES \ge \mathcal B^3 V. $$
+Continuing this way, we get
+$$ \mathcal B^k V + γ^k m \ONES \ge \mathcal B^{k+1} V. $$
+Adding all the above equations, we get
+$$ V + \sum_{\ell = 0}^k γ^\ell m \ONES \ge \mathcal B^{k+1} V. $$
+Taking the limit as $k \to ∞$, we get
+$$ V + m \ONES/(1-γ) \ge V^*. $$
+:::
+
+## Exercises {-}
+
+:::{#exr-one-step-lookahead-errors}
+## One-step look-ahead error bounds.
+
+Given any $V \in \reals^n$, let $π$ be such that $\mathcal B V = \mathcal
+B_π V$. Moreover, let $V^*$ denote the unique fixed point of $\mathcal B$
+and $V_π$ denote the unique fixed point of $\mathcal B_π$.
+Then, show that
+
+a. $$ \| V^* - V \| \le \frac{1}{1-γ} \| \mathcal B V - V \|. $$
+b. $$ \| V^* - \mathcal B V \| \le \frac{γ}{1-γ} \| \mathcal B V - V \|. $$
+c. $$ \| V_π - V \| \le \frac{1}{1-γ} \| \mathcal B_π V - V \|. $$
+d. $$ \| V_π - \mathcal B_π V \| \le \frac{γ}{1-γ} \| \mathcal B_π V - V \|. $$
+e. $$ \| V_π - V^* \| \le \frac{2}{1-γ} \| \mathcal B V - V \|. $$
+f. $$ \| V_π - V^* \| \le \frac{2γ}{1 - γ} \| V - V^* \|. $$
+
+:::
+
+
+## Notes{-}
+
+
+The material included here is referenced from different sources. Perhaps the best sources to study this material are the books by @Puterman2014, @Whittle1982, and @Bertsekas:book.

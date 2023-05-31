@@ -1,0 +1,319 @@
+---
+title: Computational complexity of value interation
+tags:
+  - infinite horizon
+  - discounted cost
+  - computational complexity
+  - value iteration
+---
+
+How many computations are needed to run the value or policy iteration
+algorithm to obtain a policy that in within $ε$ of the optimal? In this
+section, we provide an answer for this question for the value iteration
+algorithm. 
+
+Conisder an MDP with a finite state space $\ALPHABET S = \{1, \dots, n \}$
+with a finite non-empty set of actions $\ALPHABET A(s)$ available at each $s
+\in \ALPHABET S$. Each action set consists of $M_s$ actions with a total
+number of $M = \sum_{s=1}^n M_s$ actions. This number can be interpreted as
+the total number of state-action pairs. Let $γ \in (0, 1)$ be the discount
+factor. We present the value iteration algorithm from the [notes on MDP algorithms][discounted] to achieve a pre-specified accuracy $ε$.
+
+:::{.callout-important icon="false"}
+# <i class="bi bi-cpu text-important"></i> Value Iteration Algorithm
+
+For given MDP, discount factor $γ \in (0,1)$, and constant $ε > 0$
+
+1. Start with any $V_0 \in \reals^n$.
+2. Recursively compute $V_{k} = \mathcal B V_{k-1} = \mathcal B_{π_{k-1}} V_{k-1}.$
+3. Define 
+   $$ Δ_k = \max\{ V_k(s) - V_{k-1}(s) \} - \min \{ V_k(s) - V_{k-1}(s) \}. $$
+4. If $Δ_k > \frac{1 - γ}{γ} ε$, continue to step 2. Else carry out one more
+   step of value update and choose the policy $π_k$. 
+   
+:::  
+
+As established in the [notes on MDP algorithms][discounted], the algorithm stops in a finite number of iterations and the resulting policy is $ε$-optimal. engine
+
+[discounted]: mdp-algorithms.html#value-iteration-algorithm
+
+## Span norm contraction
+
+Let $\SPAN(v) = \max(v) - \min(v)$ denotes the span semi-norm. We start by
+stating some basic properties of span semi-norm.
+
+1. $\SPAN(v) \ge 0$ for all $v \in \reals^n$
+2. $\SPAN(v + w) \le \SPAN(v) + \SPAN(w)$ for all $v, w \in \reals^n$.
+3. $\SPAN(m v) \le |m| \SPAN(v)$ for all $v \in \reals^n$ and $m \in \reals$.
+4. $\SPAN(v + m \mathbf{1}) = \SPAN(v)$ for all $m \in \reals$.
+5. $\SPAN(v) = \SPAN(-v)$.
+6. $\SPAN(v) \le 2\|v\|$. 
+
+Properties 1--3 imply that $\SPAN(v)$ is a semi-norm. However, it is not a
+norm because of property 4; that is, $\SPAN(v) = 0$ does not imply that $v =
+0$. If $\SPAN(v) = 0$, then $v = m \mathbf{1}$ for some scalar $m$. 
+
+A basic result for our analysis is the following:
+
+:::{#prp-span-matrix}
+
+Let $v \in \reals^n$ and $P$ be any matrix of compatible dimensions. Then,
+$$ \SPAN(P v) \le β_P \SPAN(v), $$
+where
+$$\begin{equation} \label{eq:span-matrix}
+  β_P = 1 - \min_{s, s' \in \ALPHABET S}
+  \sum_{z \in \ALPHABET S} \min\{ P_{sz}, P_{s'z} \}.
+\end{equation}$$
+Furhermore, $β_P \in [0, 1]$ and there exists a $v \in \reals^n$ such that
+$\SPAN(Pv) = β_P \SPAN(v)$.
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+
+Note that for any $v \in \reals^n$
+\begin{align*}
+\SPAN(Pv) &= \max_{s \in \ALPHABET S} \sum_{z \in \ALPHABET S} P_{sz} v_z 
+- \min_{s' \in \ALPHABET S} \sum_{z \in \ALPHABET S} P_{s'z} v_z \\
+&= \max_{s, s' \in \ALPHABET S} 
+  \sum_{z \in \ALPHABET S} P_{sz} v_z - \sum_{z \in \ALPHABET S} P_{s'z} v_z 
+\end{align*}
+Let $B(z; s,s') = \min\{ P_{sz}, P_{s'z} \}$. Then consider
+\begin{align*}
+  \sum_{z \in \ALPHABET S} P_{sz} v_z - \sum_{z \in \ALPHABET S} P_{s'z} v_z 
+  &=
+  \sum_{z \in \ALPHABET S} [ P_{sz} - B(z; s,s') ] v_z - 
+  \sum_{z \in \ALPHABET S} [ P_{s'z} - B(z; s,s') ] v_z \\
+  &\le 
+  \sum_{z \in \ALPHABET S} [ P_{sz} - B(z; s,s') ] \max(v) -
+  \sum_{z \in \ALPHABET S} [ P_{s'z} - B(z; s,s') ] \min(v) 
+  \\
+  &= \biggl[ 1 - \sum_{z \in \ALPHABET S} B(z; s, s') \biggr] \SPAN(v).
+\end{align*}
+Hence,
+$$ \SPAN(Pv) \le \max_{s, s' \in \ALPHABET S} \biggl[
+  1 - \sum_{z \in \ALPHABET S} B(z; s, ) \biggr] \SPAN(v). $$
+
+Now we show that there exists a $v$ such that \\eqref{eq:span-matrix} holds
+with equality. If $β_P = 0$, then $P$ has equal rows, so
+that $\SPAN(Pv) = 0 = 0 \cdot \SPAN(v)$ for all $v \in \reals^n$. Suppose $β_P
+> 0$. Using the identity $[ a - b]^{+} = a - \min(a,b)$, we can write
+$$
+β_P = \max_{s,s' \in \ALPHABET S} 
+\sum_{z \in \ALPHABET  S} \bigl[ P_{sz} - P_{s'z} \bigr]^{+}.
+$$
+Let $s^*$ and $s'^*$ be such that
+$$
+  β_P = \sum_{z \in \ALPHABET S}  
+\sum_{z \in \ALPHABET  S} \bigl[ P_{s^*z} - P_{s'^*z} \bigr]^{+}.
+$$
+Define $v$ by
+$$ 
+  v_z = \IND\{ P_{s^*z} > P_{s'^*z} \}.
+$$
+Then, note that $\SPAN(v) = 1$ and 
+\begin{align*}
+  \SPAN(Pv) &\ge 
+  \sum_{z \in \ALPHABET S} P_{s^* z} v_z - 
+  \sum_{z \in \ALPHABET S} P_{s'^* z} v_z \\
+  &=
+  \sum_{z \in \ALPHABET  S} \bigl[ P_{s^*z} - P_{s'^*z} \bigr]^{+}
+  \\
+  &= β_P \SPAN(v).
+\end{align*}
+Combining with \\eqref{eq:span-matrix}, we get $\SPAN(Pv) = β_P
+\SPAN(v)$.
+:::
+
+@prp-span-matrix illustrates the "averaging" property of a transition matrix. By
+multiplying a vector by a transition matrix, the resulting vector has
+components which are more nearly equal. When $P$ is a square matrix, the
+quantity $β_P$ is called the **ergodicity coefficient**, which is often written in
+an alternative form by using the relation $|a - b| = (a + b) - 2 \min(a,b)$:
+$$
+  β_P = \frac12
+  \max_{s,s' \in \ALPHABET S} \sum_{z \in \ALPHABET S}
+  \bigl| P_{sz} - P_{s'z} \bigr|. $$
+The ergodicity coefficient is an upper bound on the second largest eigenvalue
+of $P$. $β_P$ equals $0$ if all rows of $P$ are equal and equals $1$ if at
+least two rows of $P_d$ are orthogonal. From a different perspective, $β_P <
+1$ if for each pair of states there exists at least one state which they both
+can reach with positive probability in one step. 
+
+:::{.callout-tip}
+### Remark
+
+Note that
+\begin{equation}\label{eq:ergodicity-bound}
+β_P \le 1 - \sum_{z \in \ALPHABET S} \min_{s \in \ALPHABET S} P_{sz} 
+=: β_P'
+\end{equation}
+which is easier to compute. 
+:::
+
+Define the contraction factor
+$$\begin{equation}\label{eq:contraction}
+  β = \max_{\substack{ s,s' \in \ALPHABET S \\ a \in \ALPHABET A(s), w \in
+  \ALPHABET A(s')}}
+  \biggl[ 1 - \sum_{z \in \ALPHABET S} 
+    \min\{ P(z | s,a), P(z | s', w) \biggr].
+\end{equation}$$
+Note that $β \in [0, 1]$. 
+
+:::{#thm-span-contraction}
+For any $V_1, V_2 \in \reals^n$, 
+$$ \SPAN(\mathcal B V_1 - \mathcal B V_2) \le γ β\, \SPAN(V_1 - V_2). $$
+:::
+
+:::{.callout-note collapse="true"}  
+#### Proof {-}
+
+Let $π_i$ be such that $\mathcal B V_i = \mathcal B_{π_i}V_i$. 
+Let 
+\begin{align*}
+  s^* &= \arg \max_{s \in \ALPHABET S}(\mathcal B V_1(s) - \mathcal B V_2(s)), 
+  \\
+  s_* &= \arg \min_{s \in \ALPHABET S}(\mathcal B V_1(s) - \mathcal B V_2(s)),
+\end{align*}
+Then, 
+$$
+  \mathcal B V_1(s^*) - \mathcal B V_2(s^*) \le 
+  \mathcal B_{π_2} V_1(s^*) - \mathcal B_{π_2} V_2(s^*) 
+  = γ P_{π_2}(V_1 - V_2)(s^*)
+$$
+and
+$$
+  \mathcal B V_1(s_*) - \mathcal B V_2(s_*) \ge 
+  \mathcal B_{π_1} V_1(s^*) - \mathcal B_{π_1} V_2(s^*) 
+  = γ P_{π_1}(V_1 - V_2)(s^*).
+$$
+Therefore, 
+\begin{align*}
+  \SPAN(\mathcal B V_1 - \mathcal B V_2) &\le
+  γ P_{π_2}(V_1 - V_2)(s^*) - γ P_{π_1}(V_1 - V_2)(s_*) \\
+  &\le \max_{s \in \ALPHABET S} γ P_{π_2} (V_1 - V_2)(s) -
+  \min_{s \in \ALPHABET S} γ P_{π_1}(V_1 - V_2)(s)
+  \\
+  &\le \SPAN(γ\, \ROWS(P_{π_2}, P_{π_1})(V_1 - V_2).
+\end{align*}
+By applying @prp-span-matrix, we get
+$$ \SPAN(\mathcal B V_1 - \mathcal B V_2) \le γβ_{\bar P} \SPAN(V_1 - V_2), $$
+where $β_{\bar P}$ is given by \\eqref{eq:span-matrix} with $\bar P =
+\ROWS(P_{π_2}, P_{π_1})$. The result follows by noting that $β_{\bar P}$ is at most $β$.
+:::
+
+## Computational complexity of value iteration
+
+Note that $β \in [0, 1]$. We will first rule out the case $β = 0$. If $β = 0$,
+then $P(z | s, a) = P(z | s', w)$ for all $s, s', z \in \ALPHABET S$ and $a \in
+\ALPHABET A(s)$ and $w \in \ALPHABET A(s')$, which implies that all
+deterministic policies have the same transition probabilities. Therefore, a
+deterministic policy $π$ is optimal if and only if it minimize the one-step
+cost. Thus, the case with $β = 0$ is trivial. So, in the rest of the analysis,
+we assume that $β \in (0, 1)$.
+
+
+::: {#thm-VI-computational}
+
+Start with an abritrary $V_0$. If $Δ_1 = 0$, then we obtain an optimal
+policy in iteration 1. Otherwise, for
+any $ε > 0$, value iteration finds an $ε$-optimal policy in no more than
+$K^*(γ)$ iterations, where
+$$\begin{equation}\label{eq:K*}
+  K^*(γ) =  \left\lceil
+  \frac{ \log \frac{(1-γ) ε β}{Δ_1} } {\log(γβ)}
+  \right\rceil.
+\end{equation}$$
+In addition, each iteration uses at most $O(nM)$
+operations.
+
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+
+If follows from the definition of Bellman operator that each iteration uses at most $O(nM)$ iterations (to compute the $Q$ function, for each state-action pair, we need to compute a sum over $n$ terms).
+
+From @thm-span-contraction, we get that $Δ_k \le (γβ)^{k-1} Δ_1$.
+Therefore, the minimum number of iterations required to achieve $Δ_k \le
+\frac{1-γ}{γ}ε$ is given $K^*(γ)$. $\Box$ 
+:::
+
+
+:::{.callout-warning} 
+#### Remark
+Note that finding the value of $β$ requires computing the sum
+in \\eqref{eq:contraction} for all couples $\{ (s,a), (s',b) \}$ of state
+action pairs such that $(s,a) \neq (s',b)$. The total number of such pairs are
+$M(M-1)/2 = O(M^2)$. Therefore, the number of arithematic operators
+in \\eqref{eq:contraction}, which are additions, is $n$ for each couple.
+Therefore, computation of $β$ requires $O(nM^2)$ operations, which can be
+significantly larger than the complexity of computing an $ε$-optimal policy
+which is given by @thm-VI-computational! Based on \\eqref{eq:ergodicity-bound} we can replace $β$ by
+in \\eqref{eq:K*} by
+$$
+  β' = 1 - \sum_{z \in \ALPHABET S} \min_{s \in \ALPHABET S, a \in \ALPHABET A}
+       P(z | s,a)
+$$
+which requies $O(nM)$ operations. 
+:::
+
+## The bound may be exact
+
+We now present an example (due to @Feinberg2020) to show that the bound in
+@thm-VI-computational may be exact. Consider an MDP with $\ALPHABET S = \{1, 2,
+3\}$, $\ALPHABET A = \{1,2 \}$, with $\ALPHABET A(1) = \{1, 2\}$ and
+$\ALPHABET A(2) = \ALPHABET A(3) = \{1\}$. The per-step transitions are
+$$
+  P(1) = \MATRIX{0 & 0 & 1 \\ 0 & 1 & 0 \\ 0 & 0 & 1 },
+  \quad\text{and}\quad
+  P(2) = \MATRIX{0 & 1 & 0 \\ * & * & * \\ * & * & *},
+$$
+where $*$ indicates that the corresponding action is infeasible. The _reward_
+matrix is
+$$
+  r = \MATRIX{1 & 0 \\ 1 & * \\ -1 & *}.
+$$
+
+Suppose we start with an initial $V_0 = \VEC(1, 2, -2)$. Then elementary
+calculations show that 
+$$
+  V_k = \MATRIX{ γ^k \\ γ^k \\ -γ^k} + 
+  \MATRIX{ \sum_{\ell = {\color{red} 1}}^{k} γ^\ell \\
+           \sum_{\ell = 0}^{k} γ^\ell \\
+           \sum_{\ell = 0}^{k} γ^\ell }.
+$$
+Thus,
+$$
+  V_k - V_{k-1} = \MATRIX{ 
+  2 γ^k - γ^{k-1} \\
+  2 γ^k - γ^{k-1} \\
+  - 2 γ^k + γ^{k-1} }.
+$$
+Hence, 
+$$
+\SPAN(V_k - V_{k-1}) = 2γ^{k-1} |2γ - 1| = γ^{k-1} \SPAN(V_1 - V_0).
+$$
+
+Thus, for this model, the expression \\eqref{eq:K*} is exact.
+
+:::{.callout-caution}
+### Remark 
+
+The exact number of iterations need not be monotone in $γ$! In the above
+example, let $ε = 0.02$, then 
+$$
+  K^*(0.24) = 3, \quad
+  K^*(0.47) = 4, \quad
+  K^*(0.48) = 3.
+$$
+
+Thus, the number of iterations is not monotone in $γ$.
+:::
+
+## Notes {-}
+
+The discussion on span semi-norm and @thm-span-contraction is from
+@Puterman2014. @thm-VI-computational is from @Feinberg2020.
+
+

@@ -1,0 +1,514 @@
+---
+title: Lipschitz MDPs
+keywords:
+   - MDPs
+   - discounted MDPs
+   - lipschitz continuity
+---
+
+## Preliminaries
+
+### Lipschitz continuous functions {-}
+
+Given two metric spaces $(\ALPHABET X, d_X)$ and $(\ALPHABET Y, d_Y)$, the
+Lipschitz constant of function $f \colon \ALPHABET X \to \ALPHABET Y$ is
+defined by 
+$$ \| f\|_{L} = \sup_{x_1 \neq x_2} 
+    \left\{ \frac{ d_Y(f(x_1), f(x_2)) } { d_X(x_1, x_2) } : 
+    x_1, x_2 \in \ALPHABET X \right\} \in [0, ∞]. $$
+The function is called _Lipschitz continuous_ if its Lipschitz constant is
+finite. 
+
+Intuitively, a Lipschitz continuous function is limited by how fast it can
+change. For example, the following image from Wikipedia shows that for a Lipschitz continuous function, there exists a double cone (white) whose origin can be moved along the graph so that the whole graph always stays outside the double cone.
+
+![Image credit: https://en.wikipedia.org/wiki/File:Lipschitz_Visualisierung.gif][lipschitz] 
+
+[lipschitz]: https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Lipschitz_Visualisierung.gif/523px-Lipschitz_Visualisierung.gif "Lipschitz continuous function" { width=50% }
+
+Let $\ALPHABET Z$ be an arbitrary set. A function $f \colon \ALPHABET X ×
+\ALPHABET Z \to \ALPHABET Y$ is said to be _uniformly Lipschitz_ in $u$ if 
+$$ \sup_{z \in \ALPHABET Z} \| f(\cdot, z) \|_L  =
+  \sup_{z \in \ALPHABET Z} \sup_{x_1 \neq x_2}
+  \dfrac{ d_Y(f(x_1,z), f(x_2, z)) }{ d_X(x_1, x_2) } < ∞. $$
+
+### Some examples {-}
+
+A function $f \colon \reals \to \reals$ is Lipschitz continuous if and only if
+it has bounded first derivative. The Lipschitz constant of such a function is
+equal to the maximum absolute value of the derivative. 
+
+Here are some examples of Lipschitz continuous functions: 
+
+1. The function $f(x) = \sqrt{x^2 + 1}$ defined over $\reals$ is Lipschitz
+   continuous because it is everywhere differentiable and the maximum value of
+   the derivative is $L = 1$. 
+
+2. The function $f(x) = |x|$ defined over $\reals$ is Lipschitz continuous
+   with Lipschitz constant equal to $1$. Note that this function is continuous
+   but not differentiable. 
+
+3. The function $f(x) = x + \sin x$ defined over $\reals$ is Lipschitz
+   continuous with a Lipschitz constant equal to $1$. 
+
+3. The function $f(x) = \sqrt{x}$ defined over $[0,1]$ is _not_ Lipschitz
+   continuous because the function becomes infinitely steep as $x$ approaches
+   $0$. 
+
+4. The function $f(x) = x^2$ defined over $\reals$ is _not_ Lipschitz
+   continuous because it becomes arbitrarily steep as $x$ approaches infinity. 
+
+5. The function $f(x) = \sin(1/x)$ is bounded but _not_ Lipschitz because
+   becomes infinitely steep as $x$ approaches $0$. 
+
+### Properties of Lipschitz functions {-}
+
+:::{#prp-lipschitz}
+Lipschitz continuous functions have the following properties:
+
+
+a. If a function $f \colon (\ALPHABET X, d_X) \to (\ALPHABET Y, d_Y)$ is
+Lipschitz continuous, then $f$ is uniformly continuous and measurable. 
+
+b. $\| f\|_L = 0$ if and only if $f$ is a constant. 
+
+c. If $f \colon (\ALPHABET X, d_X) \to  (\ALPHABET Y, d_Y)$ and $g \colon
+(\ALPHABET Y, d_Y) \to (\ALPHABET Z, d_Z)$ are Lipschitz continuous, then
+$$ \| f \circ g \|_L \le \| f \|_L \cdot \| g \|_L. $$
+
+d. The $\| \cdot \|_{L}$ is a seminorm on the vector space of Lipschitz
+functions from a metric space $(\ALPHABET X, d_X)$ to $(\ALPHABET Y, d_Y)$. In
+particular, $\| \cdot \|_L$ has the following properties: $\| f \|_L \in [0,
+∞]$, $\| α f\|_L = |α| \cdot \|f\|_L$ for any $α \in \reals$, and $\| f_1 +
+f_2 \|_L \le \|f_1 \|_L + \|f_2 \|_L$. 
+
+e. Given a family of functions $f_i$, $i \in I$, on the same metric space such
+that $\sup_{i \in I} f_i < ∞$, 
+$$ \| \sup_{i \in I} f_i \|_{L} \le \sup_{i \in I} \| f_i \|_{L}. $$
+
+f. Let $f_n$, $n \in \integers_{\ge 1}$, and $f$ be functions from $(\ALPHABET
+X, d_X)$ to $(\ALPHABET Y, d_Y)$. If $f_n$ converges pointwise to $f$ for $n
+\to ∞$, then 
+$$ \| f \|_{L} \le \lim\inf_{n \to ∞} \| f_i \|_{L}. $$
+
+:::
+
+## Kantorovich distance
+
+Let $\mu$ and $\nu$ be probability measures on $(\ALPHABET X, d_X)$. The
+_Kantorovich distance_ between distributions $\mu$ and $\nu$ is defined as:
+$$ K(\mu,\nu) = \sup_{f : \| f\|_L \le 1 }
+   \left| \int_{\ALPHABET X} f\, d\mu - \int_{\ALPHABET X} f\, d\nu \right|. $$
+
+The next results follow immediately from the definition of Kantorovich
+distance.
+
+:::{#prp-Kantorovich}
+For any Lipschitz function $f \colon (\ALPHABET X, d_X) \to (\reals,
+\lvert \cdot \rvert)$, and $μ,ν$ are probability measures on $(\ALPHABET X,
+d_X)$,
+$$ \left| 
+  \int_{\ALPHABET X} f\, dμ - \int_{\ALPHABET X} f\, dν \right| \le
+  \| f \|_L \cdot K(μ,ν). $$
+:::
+
+
+### Some examples {-}
+
+1. Let $(\ALPHABET X, d_X)$ be a metric space and for any $x,y \in \ALPHABET X$,
+  let $δ_x$ and $δ_y$ denote the Dirac delta distributions centered at $x$
+  and $y$. Then,
+  $$ K(δ_x, δ_y) = d_X(x,y). $$
+
+2. Let $(\ALPHABET X, d_X)$ be a Euclidean space with Euclidean norm. Let $μ
+   \sim \mathcal{N}(m_1, \Sigma_1)$ and $ν \sim \mathcal{N}(m_2, \Sigma_2)$ be
+   two Gaussian distributions on $\ALPHABET X$. Then,
+   $$K(μ,ν) = \sqrt{ \| m_1 - m_2 \|_2^2 
+   + \text{Tr}( \Sigma_1 + \Sigma_2 - 2(\Sigma_2^{1/2} \Sigma_1 \Sigma_2^{1/2})^{1/2} ) }. $$
+   If the two covariances commute, i.e. $\Sigma_1\Sigma_2 = \Sigma_2
+   \Sigma_1$, then, 
+   $$K(μ,ν) = \sqrt{ \| m_1 - m_2 \|_2^2 
+   + \| \Sigma_1^{1/2} - \Sigma_2^{1/2} \|^2_F},$$
+   where $\| ⋅ \|_{F}$ denotes the [Frobeinus norm] of a matrix. 
+
+   When $\Sigma_1 = \Sigma_2$, we have
+   $$K(μ,ν) = \| m_1 - m_2 \|_2. $$
+
+3. If $\ALPHABET X = \reals$ and $d_X = | \cdot |$, then for any two
+   distributions $μ$ and $ν$, 
+   $$ K(μ,ν) = \int_{-∞}^∞ \left| F_μ(x) - F_ν(x) \right| dx, $$
+   where $F_μ$ and $F_ν$ denote the CDF of $μ$ and $ν$. 
+
+   Furthermore, if $μ$ is stochastically dominated by $ν$, then $F_μ(x) \ge
+   F_ν(x)$. Thus, 
+   $$ K(μ, ν) = \bar μ - \bar ν $$
+   where $\bar μ$ and $\bar ν$ are the means of $μ$ and $ν$. 
+
+
+[Frobeinus norm]: https://en.wikipedia.org/wiki/Matrix_norm#Frobenius_norm
+
+## Lipschitz MDPs
+
+Now consider an MDP where the state and action spaces are Metric spaces. We
+denote the corresponding metric by $d_S$ and $d_A$ respectively. For ease of
+exposition, we define a metric $d$ on $\ALPHABET S × \ALPHABET A$ by
+$$ d( (s_1, a_1), (s_2, a_2) ) = d_S(s_1, s_2) + d_A(a_1, a_2). $$
+
+We allow for randomized policies. Thus, given any state $s \in \ALPHABET S$,
+$π(\cdot | s)$ is a probability distribution on $\ALPHABET A$. We say that a
+(possibly) randomized policy $π$ has a Lipschitz constant of $L_π$ if for any
+$s_1, s_2 \in \ALPHABET S$,
+$$ K(π(\cdot| s_1), π(\cdot | s_2)) \le L_π d_S(s_1, s_2). $$
+
+Note that if $π$ is deterministic, then due to property of Kantorovich
+distance between delta distributions, the above relationship simplifies to
+$$ d_A(π(s_1), π(s_2)) \le L_π d_S(s_1, s_2). $$
+
+:::{#def-lipschitz-mdp}
+An MDP is $(L_c, L_p)$-Lipschitz if for all $s_1, s_2 \in \ALPHABET S$ and
+$a_1, a_2 \in \ALPHABET A$, 
+
+* $| c(s_1, a_1) - c(s_2, a_2) | \le L_c\bigl( d_S(s_1, s_2) + d_A(a_1,
+  a_2) \bigr)$. 
+* $K(p(\cdot | s_1, a_1), p(\cdot | s_2, a_2)) \le L_p\bigl( d_S(s_1, s_2)
+  + d_A(a_1, a_2) \bigr)$. 
+:::
+
+### Lipschitz continuity of Bellman updates {-}
+
+We now prove a series of results for the Lipschitz continuity of Bellman
+updates. 
+
+:::{#lem-lipschitz-LQ}
+Let $V \colon \ALPHABET S \to \reals$ be $L_V$-Lipschitz continuity.
+Define
+$$ Q(s,a) = c(s,a) + γ \int V(y) p(y|s,a)dy. $$
+Then $Q$ is $(L_c + γ L_p L_V)$-Lipschitz continuous.
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+Consider,
+$$\begin{align*}
+ | Q(s_1, a_1) - Q(s_2, a_2) | &\stackrel{(a)}\le
+ | c(s_1, a_1) - c(s_2, a_2) | \\
+ & \quad + 
+ \beta \left|\int V(y) p(y|s_1, a_1) dy -
+             \int V(y) p(y|s_2, a_2) dy \right|
+  \\
+  &\stackrel{(b)}\le  L_c d( (s_1, a_1), (s_2, a_2) ) + 
+  \beta L_V L_p d( (s_1, a_1), (s_2, a_2) ),
+\end{align*}$$
+where $(a)$ follows from the triangle inequality and $(b)$ follows from 
+@prp-Kantorovich. Thus, $L_Q = L_c + γ L_p L_V$.
+:::
+
+:::{#lem-lipschitz-LV-opt}
+Let $Q \colon \ALPHABET S × \ALPHABET A \to \reals$ be $L_Q$-Lipschitz
+continuous. Define
+$$V(s) = \min_{a \in \ALPHABET A} Q(s,a).$$
+Then $V$ is $L_Q$-Lipschitz continuous. 
+::: 
+
+:::{.callout-note collapse="true"}  
+#### Proof {-}
+
+Consider $s_1, s_2 \in \ALPHABET S$ and let $a_1$ and $a_2$ denote the
+corresponding optimal action. Then,
+$$ \begin{align*}
+V(s_1) - V(s_2) &= Q(s_1, a_1) - Q(s_2, a_2) \\
+&\stackrel{(a)}\le Q(s_1, a_2) - Q(s_2, a_2) \\
+&\stackrel{(b)}\le L_Q( d_S(s_1, s_2) + d_A(a_2, a_2) )\\
+&= L_Q d_S(s_1, s_2). 
+\end{align*} $$
+
+By symmetry, 
+$$ V(s_2) - V(s_1) \le L_Q d_S(s_2, s_1). $$
+Thus,
+$$ | V(s_1) - V(s_2) | \le L_Q d_S(s_1, s_2). $$
+Thus, $V$ is $L_Q$-Lipschitz continuous.
+:::
+
+:::{#lem-lipschitz-LV}
+Let $Q \colon \ALPHABET S × \ALPHABET A \to \reals$ be $L_Q$-Lipschitz
+continuous and $π$ be a (possibly randomized) $L_π$-Lipschitz policy.
+Define $$V_π(s) = \int Q(s, a) π(a | s) du.$$ Then, $V_π$ is $L_Q( 1 +
+L_π)$-Lipschitz continuous.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+
+For any $s_1, s_2 \in \ALPHABET S$, consider
+$$ \begin{align}
+| V_π(s_1) - V_π(s_2) | &=
+\left| \int Q(s_1, a) π(a | s_1) du - \int Q(s_2, a) π(a | s_2) du \right|
+\notag \\
+&\stackrel{(a)}\le 
+\left| \int Q(s_1, a) π(a | s_1) du - \int Q(s_2, a) π(a | s_1) du \right|
+\notag \\
+& \quad + 
+\left| \int Q(s_2, a) π(a | s_1) du - \int Q(s_2, a) π(a | s_2) du \right|
+\label{eq:split}
+\end{align} $$
+where $(a)$ follows from the triangle inequality. Now we consider both terms
+separately. 
+
+The first term of \\eqref{eq:split} simplifies as follows:
+$$\begin{align}
+\left| \int Q(s_1, a) π(a | s_1) du - \int Q(s_2, a) π(a | s_1) du \right|
+&\stackrel{(b)}\le
+\int \left|Q(s_1, a) - Q(s_2, a)\right| π(a | s_1) du \notag \\
+&\stackrel{(c)}\le 
+\int L_Q d_S(s_1, s_2) π(a | s_1) du \notag \\
+&= L_Q d_S(s_1, s_2), \label{eq:first}
+\end{align} $$
+where $(b)$ follows from the triangle inequality and $(c)$ follows from
+Lipschitz continuity of $Q$. 
+
+The second term of \\eqref{eq:split} simplifies as follows:
+$$ \begin{align}
+  \left| \int Q(s, a) π(a | s_1) du - \int Q(s,a) π(a | s_2) du \right|
+  &\stackrel{(d)}\le L_Q K (π(\cdot | s_1), π(\cdot | s_2)) 
+  \notag \\
+  &\stackrel{(e)}\le L_Q L_π d_S(s_1, s_2),
+  \label{eq:second}
+  \end{align} 
+$$
+where the $(d)$ inequality follows from @prp-Kantorovich and
+$(e)$ follows from the definition of Lipschitz continuous policy. 
+
+Substituting \\eqref{eq:first} and \\eqref{eq:second} in \\eqref{eq:split}, we
+get
+$$ \begin{align*}
+| V_π(s_1) - V_π(s_2) | &\le L_Q d_S(s_1, s_2) + L_Q L_π d_S(s_1, s_2)
+\\
+&= L_Q(1 + L_π) d_S(s_1, s_2).
+\end{align*} $$
+Thus, $V$ is Lipschitz continuous with Lipschitz constant $L_Q(1 +
+L_π)$.
+:::
+
+## Lipschitz continuity of value iteration
+
+:::{#lem-lipschitz-V-iteration}
+Consider a discounted infinite horizon MDP which is $(L_c, L_p)$-Lipschitz.
+Start with $V^{(0)} = 0$ and recursively define
+
+* $\displaystyle Q^{(n+1)}(s,a) = c(s,a) + γ \int V^{(n)}(y) p(y|s,a) dy.$
+* $\displaystyle V^{(n+1)}(s) = \min_{a \in \ALPHABET A} Q^{(n+1)}(s,a).$
+
+Then, $V^{(n)}$ is Lipschitz continuous and its Lipschitz constant
+$L_{V^{(n)}}$ satisfies the following recursion:
+$$L_{V^{(n+1)}} = L_c + γ L_p L_{V^{(n)}}.$$
+::: 
+
+:::{.callout-note collapse="true"} 
+#### Proof  {-}
+
+We prove the result by induction. For $n=1$, $Q^{(1)}(s,a) = c(s,a)$, which is
+Lipschitz with Lipschitz constant $L_{Q^{(1)}} = L_c$. Then, by 
+@lem-lipschitz-LV-opt, $V^{(1)}$ is Lipschitz with Lipschitz constant
+$L_{V^{(1)}} = L_{Q^{(1)}} = L_c$. This forms the basis of induction. Now
+assume that $V^{(n)}$ is $L_{V^{(n)}}$-Lipschitz. Then, by 
+@lem-lipschitz-LQ, $Q^{(n+1)}$ is $(L_c + γL_p L_{V^{(n)}})$-Lipschitz.
+Therefore, by @lem-lipschitz-LV-opt, $V^{(n+1)}$ is Lipschitz with constant
+$$ L_{V^{(n+1)}} = L_c + γ L_p L_{V^{(n)}}. \space\Box$$
+:::
+
+:::{#lem-lipschitz-LQ-update}
+Consider a discounted infinite horizon MDP which is $(L_c, L_p)$-Lipschitz
+and let $π$ be any randomized time-homogeneous policy which is
+$L_π$-Lipschitz. Start with $V^{(0)} = 0$ and then recursively define
+
+ * $V^{(n)}_π(s) = \int Q^{(n)}_π(s,a)π(a|s) du.$
+ * $\displaystyle Q^{(n+1)}_π(s,a) = c(s,a) + γ \int V^{(n)}_π(y) p(y|s,a) dy.$
+
+Then, then $Q^{(n)}_π$ is Lipschitz continuous and its Lipschitz constant
+$L_{Q^{(n)}_π}$ satisfies the follwoing recursion:
+$$ L_{Q^{(n+1)}_π} + L_c + \beta(1 + L_π)L_p L_{Q^{(n)}_π}. $$
+::: 
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+
+We prove the result by induction. For $n=1$, $Q^{(1)}_π(s,a) = c(s,a)$, which
+is Lipschitz with Lipschitz constant $L_{Q^{(1)}_π} = L_c$. This forms the
+basis of induction. Now assume that $Q^{(n)}_π$ is $L_{Q^{(n)}_π}$-Lipschitz.
+Then, by @lem-lipschitz-LV, $V^{(n)}_π$ is Lipschitz with Lipschitz
+constant $L_{V^{(n)}_π} = L_{Q^{(n)}_π}(1 + L_π)$ and by 
+@lem-lipschitz-LQ, $Q^{(n+1)}_π$ is Lipschitz with Lipschitz constant 
+$L_{Q^{(n+1)}_π} = L_c + γL_p L_{V^{(n)}_π}.$ Combining these two we get
+$$ L_{Q^{(n+1)}_π} + L_c + \beta(1 + L_π)L_p L_{Q^{(n)}_π}. $$
+:::
+
+:::{#thm-lipschitz-opt}
+Given any $(L_c, L_p)$-Lipschitz MDP, if $\beta L_p < 1$,
+then the infinite horizon $\beta$-discounted value function $V$
+is Lipschitz continuous with Lipschitz constant
+$$ L_{V} = \frac{L_c}{1 - γ L_p} $$
+and the action-value function $Q$ is Lipschitz with Lipschitz constant
+$$ L_Q = L_V = \frac{L_c}{1 - γ L_p}. $$
+:::
+:::{.callout-note collapse="true"}
+#### Proof {-}
+
+Consider the sequence of $L_n = L_{V^{(n)}}$ values. For simplicity write $α =
+γ L_p$. Then the sequence $\{L_n\}_{n \ge 1}$ is given by: $L_1 = L_c$ and for
+$n \ge 1$, 
+$$ L_{n+1} = L_c + α L_n. $$
+Hence,
+$$ L_n = L_c + α L_c + \dots + α^{n-1} L_c = \frac{1 - α^n}{1 - α} L_c. $$
+This sequence converges if $|α| < 1$. Since $α$ is non-negative, this is
+equivalent to $α < 1$, which is true by hypothesis. Hence $L_n$ is a
+convergent sequence. At convergence, the limit $L_V$ must satisfy the fixed
+point of the recursion relationship introduced in @lem-lipschitz-V-iteration,
+hence
+$$ L_V = L_c + γ L_p L_V. $$
+Consequently, the limit is equal to
+$$ L_V = \frac{L_c}{1 - γ L_p}. $$
+The Lipschitz constant of $Q$ follows from @lem-lipschitz-LQ.
+:::
+
+
+:::{#thm-lipschitz}
+Given any $(L_c, L_p)$-Lipschitz MDP and an $L_π$-Lipschitz (possibly
+randomized) time-homogeneous policy $π$, if $\beta (1 + L_π) L_p < 1$,
+then the infinite horizon $\beta$-discounted value-action function $Q_π$
+is Lipschitz continuous with Lipschitz constant
+$$ L_{Q_π} = \frac{L_c}{1 - γ(1 + L_π) L_p} $$
+and the value function $V_π$ is Lipschitz with Lipschitz constant
+$$ L_{V_π} = L_{Q_π}(1 + L_π) = 
+   \frac{L_c(1 + L_π)}{1 - γ(1 + L_π) L_p}. $$
+:::
+
+:::{.callout-tip}
+#### Remark
+The restrictive assumption in the result is that $γ(1 + L_π)L_p < 1$. For a specific model, even when this assumption does not hold, it may be possible to directly check if the $Q$-function is Lipschitz continuous. Such a direct check often gives a better Lipschitz constant.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+
+Consider the sequence of $L_n = L_{Q^{(n)}_π}$ values. For simplicity,
+write $α = γ(1 + L_π)L_p$. Then, the sequence $\{L_n\}_{n \ge 1}$ is given by:
+$L_1 = L_c$ and for $n \ge 1$, 
+$$L_{n+1} = L_c + α L_n. $$
+Hence, 
+$$ L_n = L_c + α L_c + \dots + α^{n-1} L_c = \frac{1 - α^n}{1 - α} L_c. $$
+This sequence converges if $|α| < 1$. Since $α$ is non-negative, this is
+equivalent to $α < 1$, which is true by hypothesis. Hence $L_n$ is a
+convergent sequence. At convergence, the limit $L_{Q_π}$ must satisfy the
+fixed point of the recursion relationship introduced in
+@lem-lipschitz-LQ-update, hence
+$$ L_{Q_π} = L_c + γ(1 + L_π)L_p L_{Q_π}. $$
+Consequently, the limit is equal to 
+$$ L_{Q_π} = \frac{L_c}{1 - γ(1 + L_π) L_p}. $$
+
+The Lipschitz constant of $V_π$ follows from @lem-lipschitz-LV. 
+:::
+
+## Influence Radius
+
+When the $Q$-function of an MDP is Lipschitz continuous, then the optimal
+action does not change too abruptly. More precisely, suppose an action $a$ is
+optimal at state $s$. Then, we can identify a hyperball $B(s, ρ(s))$ of radius
+$ρ(s)$ centered around $s$ such that $a$ is guaranteed to be the dominating
+action in $ρ(s)$. This radius $ρ(s)$ is called the _influence radius_. 
+
+Let $π$ denote the optimal policy, i.e., 
+$$ π(s) = \arg \min_{a \in \ALPHABET A} Q(s,a) $$
+and $h$ denote the second best action, i.e., 
+$$ h(s) = \arg \min_{a \in \ALPHABET A \setminus \{π(s)\}} Q(s,a). $$
+Define the _domination value_ of state $s$ to be
+$$ Δ(s) = Q(s, h(s)) - Q(s, π(s)). $$
+
+:::{#thm-lipschitz-influence}
+For a Lipschitz continuous $Q$-function, the influence radius at state $s$ is given by
+$$ ρ(s) = \frac{ Δ(s) }{ 2 L_Q }. $$
+:::
+
+:::{.callout-tip}
+#### Remark 
+Combining @thm-lipschitz and @thm-lipschitz-influence
+implies that under the condition of @thm-lipschitz, the
+influence radius at state $s$ is at least
+$$ ρ(s) = Δ(s)(1 - γ(1 + L_π)L_p)/2L_c. $$
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+
+The intuition behind the proof is the following. The value of the action
+$π(s)$ can only decrease by $L_Q ρ(s)$ in $B(s, ρ(s))$, while the value of the
+second best action $h(s)$ can only increase by $L_Q ρ(s)$. So, the shortest
+distance $ρ(s)$ from $s$ needed for an action $h(s)$ to "catch-up" with action $π(s)$
+should satisfy $2 L_Q ρ(s) = Δ(s)$ or $ρ(s) = Δ(s)/2L_Q$. 
+
+Formally, for any $s' \in B(s,ρ(s))$, $d_S(s,s') \le ρ(s)$. Thus, for any
+action $a \in \ALPHABET A$, 
+$$ | Q(s,a) - Q(s',a)| \le L_Q d_S(s,s') \le L_Q ρ(s). $$
+Equivalently, 
+$$ Q(s,a) - L_Q ρ(s) \le Q(s',a) \le Q(s,a) + L_Q ρ(s) $$
+which states that as $s'$ moves away from $s$, the value of $Q(s',a)$ remains
+within a symmetric bound that depends on the radius $ρ(s)$. Since this bound
+holds for all $a$, they also hold for $a = π(s)$. Thus,
+$$ Q(s, π(s)) - L_Q ρ(s) \le Q(s', π(s)) \le Q(s, π(s)) + L_Q ρ(s). $$
+
+Since $π(s)$ is the optimal action, for any other action $a \neq π(s)$, 
+$$ Q(s,π(s)) \le Q(s,a). $$ 
+Thus, the action $π(s)$ is optimal as long as the upper bound on $Q(s', π(s))$
+is lower than the lower bound on $Q(s',a)$, i.e.,
+$$ Q(s, π(s)) + L_Q ρ(s) \le Q(s,a) - L_Q ρ(s).  $$
+Thus, the maximum value of $ρ(s)$ is when the relationship holds with
+equality, i.e., 
+$$ ρ(s) = \frac{Q(s,a) - Q(s,π(s))}{2 L_Q} \ge \frac{Δ(s)}{2 L_Q}. $$
+:::
+
+---
+
+## Exercises {-}
+
+:::{#exr-kantorovich-delta}
+Let $(\ALPHABET S, d_S)$ be a metric space and $s, s' \in \ALPHABET S$.
+   Consider two Bernoulli measures
+   $$ μ = a δ_s + (1-a) δ_{s'}, \qquad
+      ν = b δ_s + (1-b) δ_{s'}. $$
+
+   Show that
+   $$ K(μ,ν) = |a - b| d(s,s'). $$
+:::
+
+<!-- Does not work 
+1. Let $\ALPHABET S = \reals$ and $d_S = |⋅|$. Let $μ$ and $ν$ be two
+   distributions over $\reals$ with CDF $M$ and $N$. It can be shown that
+   $$ K(μ, ν) = \int_{-∞}^{∞} | M(s) - N(s)| dx. $$
+
+   Now suppose $\bar μ$ and $\bar ν$ be truncation of $μ$ and $ν$ to the
+   interval $[-B, B]$ and let $\bar M$ and $\bar N$ denote the CDF of $\bar μ$
+   and $\bar ν$. Thus,
+   $$ \bar M(s) = \begin{cases}
+    0, & s \le -B \\
+    M(-B), & s = -B \\
+    M(s), & -B < s < B \\
+    1, & B \le s
+   \end{cases} $$
+   and similar interpretation holds for $\bar N(s)$. 
+
+   Show that
+   $$ K(\bar μ, \bar ν) \le K(μ, ν). $$
+
+   _Hint_: First show that
+   $$ \left| M(-B) - N(-B) \right| 
+   \le \int_{-∞}^{-B} \left| M(s) - N(s) \right| dx. $$
+
+   Then, split $K(μ,ν)$ and $K(\bar μ, \bar ν)$ into 
+   $$\int_{-∞}^{-B} \cdots dx + \int_{-B}^B \cdots dx + \int_{B}^∞ \cdots dx, $$
+   and compare the three terms individually.
+
+-->
+
+## Notes {-}
+ 
+The material in this section is taken from @Rachelson2010 and @Hinderer2005.
+

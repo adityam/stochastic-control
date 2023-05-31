@@ -1,0 +1,668 @@
+---
+title: Introduction
+keywords:
+   - POMDPs
+   - Dynamic programming
+   - Information state
+format:
+  html:
+    include-in-header: 
+     - ../../static/html/geogebra.html
+---
+
+So far, we have considered a setup where the decision maker perfectly observes
+the state of the system. In many applications, the decision maker may not
+directly observe the state of the system but only observe a noisy version of
+it. Such systems are modeled as partially observable Markov decision processes
+(POMDPs). We will describe the simplest model of POMDPs, which builds upon the
+[model of MDPs descibed earlier][MDP].
+
+[MDP]: ../mdps/intro.html
+
+We assume that the system has a state $S_t \in \ALPHABET S$, control input
+$A_t \in \ALPHABET A$, and process noise $W_t \in \ALPHABET W$. The state
+evolves as
+\begin{equation} \label{eq:state}
+  S_{t+1} = f_t(S_t, A_t, W_t)
+\end{equation}
+However, unlike the MDP setup, the assumption is that the decision maker does
+not observe $S_t$; rather, the observation of the decision maker at time $t$
+is given by
+\begin{equation} \label{eq:obs}
+  Y_t = \ell_t(S_t, N_t)
+\end{equation}
+where $Y_t \in \ALPHABET Y$ is the observation and $N_t \in \ALPHABET N$ is
+called the observation noise. As in the case of MDPs, we assume that the
+_primitive random varaibles_ $(S_1, W_1, \dots, W_T$, $N_1, \dots, N_T)$ are
+defined on a common probability space and are mutually independent. This
+assumption is critical for the results to go through.  
+
+As in the case of MDPs, we assume that the controller can be as sophisticated
+as we want. It can analyze the entire history of observations and control
+actions to choose the current control action. Thus, the control action can be
+written as
+$$
+  A_t = π_t(Y_{1:t}, A_{1:t-1}).
+$$
+
+At each time, the system incurs a cost $c_t(S_t, A_t)$ which depends on the
+current state and the current action. The system operates for a finite horizon
+$T$ and incurs a total cost
+$$
+  \sum_{t=1}^T c_t(S_t, A_t).
+$$
+
+Given the above system model, we want to choose a _control strategy_ $π =
+(π_1, \dots, π_T)$ to minimize the expected total cost
+$$
+  J(π) := \EXP\Bigl[ \sum_{t=1}^T c_t(S_t, A_t) \Bigr].
+$$
+How should we proceed?
+
+Note that the only difference from the MDP model is decision maker observes
+$Y_t$ instead of $S_t$. Apart from this, the other modeling assumptions are
+the same. So, the conceptual difficulties of the model are the same as that of
+MDPs:
+
+:::{.callout-warning icon=false}
+# <i class="bi bi-patch-question text-warning"></i> Key conceptual question
+The data $(Y_{1:t}, A_{1:t-1})$ available at the controller is increasing
+with time. Therefore, the number of possible control laws at time $t$ are
+increasing exponentially with time. How can we search for efficiently search
+for optimal control strategies?
+:::
+
+Recall that for MDPs, we first showed that there is no loss of optimality in
+restricting attention to Markov strategies. That structural result was
+instrumental in developing an efficient search algorithm (dynamic
+programming). So, what is the equivalent result for POMDPs?
+
+## History dependent dynamic program
+
+Our first step to develop an efficient dynamic programming decomposition is to
+simply ignore efficiency and develop _a_ dynamic programming decomposition.
+We start by deriving a recursive formula to compute the performance of a
+generic history dependent strategy $π = (π_1, \dots, π_T)$. 
+
+
+### Performance of history-dependent strategies {-}
+
+Let $H_t = (Y_{1:t}, A_{1:t-1})$ denote all the information available to the
+decision maker at time $t$. Thus, given any history dependent strategy $π$, we
+can write $A_t = π_t(H_t)$. Define _the cost-to-go functions_ as follows:
+$$
+  J_t(h_t; π) = \EXP^π\biggl[ \sum_{s=t}^T c_s(S_s, A_s) \biggm| H_t = h_t
+  \biggr].
+$$
+Note that $J_t(h_t; π)$ only depends on the future strategy $(π_t, \dots,
+π_T)$. These functions can be computed recursively as follows: 
+\begin{align*}
+  J_t(h_t; π) &= \EXP^π\biggl[ \sum_{s=t}^T c_s(H_s, π_s(H_s)) \biggm|
+    H_t = h_t \biggr] \\
+    &\stackrel{(a)}= \EXP^π \biggl[ c_t(h_t, π_t(h_t)) + \EXP^π\biggl[ 
+    \sum_{s=t+1}^T c_s(S_s, π_s(S_s)) \biggm| H_{t+1} \biggr] \biggm| 
+    H_t = h_t \biggr]  \\
+    &= \EXP^π[ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid H_t = h_t ],
+\end{align*}
+where $(a)$ follows from the towering property of conditional expectation and
+the fact that $H_t \subseteq H_{t+1}$. 
+
+Thus, we can use the following dynamic program to recursively compute the
+performance of a history-dependent strategy: $J_{T+1}(h_{T+1}) = 0$ and for $t
+\in \{T, \dots, 1\}$, 
+$$
+J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
+  H_t = h_t ].
+$$
+
+### History-dependent dynamic programming decomposition{-}
+We can use the above recursive formulation for performance evaluation to
+derive a history-dependent dynamic program.
+
+::: {#thm-pomdp-history-dp}
+Recursively define _value functions $\{V_t\}_{t = 1}^{T+1}$, where $V_t
+\colon \ALPHABET H_t \to \reals$ as follows:
+\begin{equation}
+  V_{T+1}(h_{T+1}) = 0 
+\end{equation}
+and for $t \in \{T, \dots, 1\}$: 
+\begin{align}
+  Q_t(h_t, a_t) &= \EXP[ c_t(S_t, a_t) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = a_t ] \\
+  V_t(h_t) &= \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t)
+\end{align}
+Then, a history-dependent policy $π$ is optimal if and only if it
+satisfies
+\begin{equation} \label{eq:history-verification}
+  π_t(h_t) \in \arg \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t).
+\end{equation}
+:::
+
+The proof idea is similar to the proof for MDPs. Instead of proving the above
+result, we prove a related result.
+
+::: {#thm-pomdp-history-comparison}
+#### The comparison principle
+
+For any history-dependent strategy $π$
+$$ J_t(h_t; π) \ge V_t(h_t) $$
+with equality at $t$ if and only if the _future_ straegy $π_{t:T}$
+satisfies the verification step \\eqref{eq:history-verification}.
+::: 
+
+Note that the comparison principle immediately implies that the strategy
+obtained using dynamic program of @thm-pomdp-history-dp is optimal. The proof of
+the comparison principle is almost identical to the proof for MDPs.
+
+:::{.callout-note collapse="true"}
+#### Proof of the comparison principle
+
+The proof proceeds by backward induction. Consider any history dependent
+policy $π = (π_1, \dots, π_T)$. For $t = T+1$, the comparison principle is
+satisfied by definition and this forms the basis of induction. We assume that
+the result holds for time $t+1$, which is the induction hypothesis. Then for
+time $t$, we have 
+\begin{align*}
+  V_t(h_t) &= \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t) \\
+  &\stackrel{(a)}= \min_{a_t \in \ALPHABET A}
+   \EXP^π[ c_t(S_t, π_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = π_t(h_t) ] 
+  \\
+  &\stackrel{(b)}\le 
+   \EXP^π[ c_t(S_t, π_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = π_t(h_t)] 
+  \\
+  &\stackrel{(c)}\le
+   \EXP^π[ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
+  H_t = h_t, A_t = π_t(h_t)] 
+  \\
+  &= J_t(h_t, π).
+\end{align*}
+where $(a)$ follows from the definition of the $Q$-function; $(b)$ follows
+from the definition of minimization; and $(c)$ follows from the induction
+hyothesis. We have the equality at step $(b)$ iff $π_t$ satisfies the
+verification step \\eqref{eq:history-verification} and have the equality in step $(c)$
+iff $π_{t+1:T}$ is optimal (this is part of the induction hypothesis). Thus,
+the result is true for time $t$ and, by the principle of induction, is true
+for all time.
+:::
+
+## The notion of an information state
+
+Now that we have obtained a dynamic programming decomposition, let's try to
+simplify it. To do so, we define the notion of an _information state_. 
+
+:::{.callout-tip}
+### Information state
+A stochastic process $\{Z_t\}_{t = 1}^T$, $Z_t \in \ALPHABET Z$, is called an
+_information state_ if $Z_t$ be a function of $H_t$ (which we denote by $Z_t =
+φ_t(H_t)$) and satisfies the following two properties:
+
+**P1. Sufficient for performance evaluation**, i.e., 
+    $$ \EXP^π[ c_t(S_t, A_t) \mid H_t = h_t, A_t = a_t] 
+    =  \EXP[ c_t(S_t, A_t) \mid Z_t = φ_t(h_t), A_t = a_t ] $$
+
+**P2. Sufficient to predict itself**, i.e., for any Borel measurable subset
+    $B$ of $\ALPHABET Z$, we have
+    $$ \PR^π(Z_{t+1} \in B \mid H_t = h_t, A_t = a_t) = 
+       \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), A_t = a_t).
+    $$
+
+:::
+    
+Instead of (P2), the following sufficient conditions are easier to verify in
+some models:
+
+:::{.callout-tip}
+### An equivalent characterization
+
+**P2a. Evolves in a state-like manner**, i.e., there exist measurable
+     functions $\{ψ_t\}_{t=1}^T$ such that
+     $$ Z_{t+1} = ψ_t(Z_t, Y_{t+1}, A_t). $$
+
+**P2b. Is sufficient for predicting future observations**, i.e., for any Borel
+     subset $B$ of $\ALPHABET Y$, 
+     $$ \PR^π(Y_{t+1} \in B | H_t = h_t, A_t = a_t) = 
+        \PR(Y_{t+1} \in B | Z_t = φ_t(h_t), A_t = a_t). 
+     $$
+
+:::
+
+:::{.callout-caution}
+# Remark
+
+The right hand sides of (P1) and (P2) as well as (P2a) and (P2b) do not depend on the choice of the policy $π$.
+:::
+
+::: {#prp-info-state}
+:  (P2a) and (P2b) imply (P2).
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof 
+
+For any Borel measurable subset $B$ of $\ALPHABET Z$, we have
+\begin{align*}
+  \hskip 1em & \hskip -1em 
+  \PR(Z_{t+1} \in B \mid H_t = h_t, A_t = a_t)  
+  \stackrel{(a)}= \sum_{y_{t+1} \in \ALPHABET Y} \PR(Y_{t+1} = y_{t+1}, Z_{t+1} \in B
+  \mid H_t = h_t, A_t = a_t ] 
+  \\
+  &\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \}
+  \PR(Y_{t+1} = y_{t+1} \mid H_t = h_t, A_t = a_t) 
+  \\
+  &\stackrel{(c)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \}
+  \PR(Y_{t+1} = y_{t+1} \mid Z_t = φ_t(h_t), A_t = a_t) 
+  \\
+  &\stackrel{(d)}=
+  \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t), A_t = a_t)  
+\end{align*}
+where $(a)$ follows from the law of total probability, $(b)$ follows from
+(P2a), $(c)$ follows from (P2b), and $(d)$ from the law of total probability. 
+:::
+
+
+## Examples of an information state
+
+We start by define the _belief state_ $b_t \in Δ(\ALPHABET
+S)$ as follows: for any $s \in \ALPHABET S$
+$$ b_t(s) = \PR^π(S_t = s \mid H_t = h_t). $$
+The belief state is a function of the history $h_t$. When we want to
+explicitly show the dependence of $b_t$ on $h_t$, we write it as $b_t[h_t]$.
+
+::: {#lem-pomdp-belief-independence}
+   The belief state $b_t$ does not depend on the policy $π$.
+:::
+
+:::{.callout-important}
+This is an extremely important result which has wide-ranging implications in
+stochastic control. For a general discussion of this point, see
+@Witsenhausen1975.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof 
+From the law of total probability and Bayes rule, we have
+\begin{equation} \label{eq:belief}
+  \PR(s_t | y_{1:t}, a_{1:t-1}) 
+  = \sum_{s_{1:t-1}} \PR(s_{1:t} | y_{1:t}, a_{1:t-1}) 
+  = \sum_{s_{1:t-1}}
+   \frac{\PR(s_{1:t}, y_{1:t}, a_{1:t-1})}
+   {\sum_{s'_{1:t}} \PR(s'_{1:t}, y_{1:t}, a_{1:t-1})}
+\end{equation}
+
+Now consider
+\begin{align*}
+  \PR(s_{1:t}, y_{1:t}, a_{1:t-1}) &=
+  \PR(s_1) \PR(y_1 | s_1) \IND\{ a_1 = π_1(y_1) \} \\
+  & \times
+  \PR(s_2 | s_1, a_1) \PR(y_2 | s_2) \IND \{ a_2 = π_2(y_{1:2}, a_1)\} \\
+  & \times \cdots \\
+  & \times
+  \PR(s_{t-1} | s_{t-2}, a_{t-2}) \PR(y_{t-1} | s_{t-1}) \IND \{ a_{t-1} =
+  π_{t-1}(y_{1:t-1}, a_{1:t-2}) \} \\
+  & \times
+  \PR(s_{t} | s_{t-1}, a_{t-1}) \PR(y_{t} | s_{t}).
+\end{align*}
+Substitute the above expression in both the numerator and the denominator of
+\\eqref{eq:belief}. Observe that the terms of the form $\IND\{ a_s =
+π_s(y_{1:s}, a_{1:s-1})$ are common to both the numerator and the denominator
+and cancel each other. Thus,
+\begin{equation} \label{eq:belief-fn}
+  \PR(s_t | y_{1:t}, a_{1:t-1}) = \sum_{s_{1:t-1}}
+  \frac{ \prod_{s=1}^t \PR(s_s \mid s_{s-1}, a_{s-1}) \PR(y_s \mid s_s) }
+  { \sum_{s'_{1:t}} \prod_{s=1}^t \PR(s'_s \mid s'_{s-1}, a_{s-1}) \PR(y_s \mid s'_s) }.
+\end{equation}
+None of the terms here depend on the policy $π$. Hence, the belief state does
+not depend on the policy $π$.
+:::
+
+:::{#lem-pomdp-belief-update}
+The belief state $b_t$ updates in a state like manner. In particular, for
+any $s_{t+1} \in \ALPHABET S$, we have
+$$
+  b_{t+1}(s_{t+1}) = \sum_{s_t \in \ALPHABET S}
+  \frac{ \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+   { \sum_{s'_{t:t+1}} \PR(y_{t+1} | s'_{t+1}) \PR(s'_{t+1} | s'_t, a_t) b_t(s'_t) }.
+$$
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof 
+For any $s_{t+1} \in \ALPHABET S$, consider
+
+\begin{align}
+b_{t+1}(s_{t+1}) &= \PR(s_{t+1} | y_{1:t+1}, a_{1:t}) \notag \\
+&= \sum_{s_t} \PR(s_{t:t+1} | y_{1:t+1}, a_{1:t}) \notag \\
+&= \sum_{s_t} \frac{ \PR(s_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) }
+  {\sum_{s'_{t:t+1}}\PR(s'_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) }.
+\label{eq:update-1}
+\end{align}
+
+Now consider
+\begin{align}
+\hskip 1em & \hskip -1em 
+\PR(s_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) \notag \\
+&= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) 
+   \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
+   \PR(s_t | y_{1:t}, a_{1_t-1}) \notag \\
+&= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) 
+   \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
+   b_t(s_t). \label{eq:belief-2}
+\end{align}
+Substitute the above expression in both the numerator and the denominator of
+\\eqref{eq:update-1}. Observe that $\IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}$
+is common to both the numerator and the denominator and cancels out. Thus, we
+get the result of the lemma.
+:::
+
+Now, we present three examples of information state here. See the
+[Exercises](#exercises) for more examples. 
+
+:::{#exm-pomdp-history}
+The complete history $H_t$ is an information state.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof 
+
+We will prove that $Z_t = H_t$ satisfies properties (P1), (P2a), and (P2b).
+
+P1. $\displaystyle \EXP^π[ c_t(S_t, A_t) | H_t = h_t, A_t = a_t ] 
+= \sum_{s_t \in \ALPHABET S} c_t(s_t, a_t) b_t[h_t](s_t)$.
+
+P2a. $H_{t+1} = (H_t, Y_{t+1}, A_t)$
+
+P2b. $\displaystyle \PR^π(y_{t+1} | y_{1:t}, a_{1:t}) 
+= \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR( s_{t+1} | s_t, a_t) \PR(s_t |
+y_{1:t}, a_{1:t})$. Note that in the last term $\PR^π(s_t | y_{1:t}, a_{1:t})$
+we can drop $a_t$ from the conditioning because it is a function of $(y_{1:t},
+a_{1:t-1})$. Thus, 
+$$ \PR^π(s_t | y_{1:t}, a_{1:t}) = \PR^π(s_t | y_{1:t}, a_{1:t-1}) =
+b_t[h_t](s_t).$$ 
+Note that in the last step, we have used @lem-pomdp-belief-independence.
+Thus,
+$\displaystyle \PR^π(y_{t+1} | y_{1:t}, a_{1:t}) 
+= \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR( s_{t+1} | s_t, a_t)
+b_t[h_t](s_t)$. 
+
+:::
+
+:::{#exm-pomdp-belief}
+The belief state $b_t$ is an information state.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+The belief state $b_t$ is a function of the history $h_t$. (The exact form of
+this function is given by \\eqref{eq:belief-fn}). In the proof of
+@exm-pomdp-history, we have already shown that $b_t$ satisfies (P1) and (P2b).
+Moreover @lem-pomdp-belief-update implies that the belief update satisfies (P2a).
+:::
+
+:::{.callout-tip}
+#### Remark 
+Both the above information states are generic information states which work
+for all models. For specific models, it is possible to identify other
+information states as well. We present some examples of such an information
+state below.
+:::
+
+:::{#exm-pomdp-mdp}
+An MDP is a special case of a POMDP where $Y_t = S_t$. For an MDP $Z_t = S_t$ is an information state.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+We will show that $Z_t = S_t$ satisfies (P1) and (P2).
+
+(P1) is satisfied because the per-step cost is a function of the $(S_t, A_t)$.
+(P2) is equivalent to the control Markov property.
+:::
+
+## Information state based dynamic program
+
+The main feature of an information state is that one can always write a
+dynamic program based on an information state. 
+
+:::{#thm-info-state}
+Let $\{Z_t\}_{t=1}^T$ be any information state, where $Z_t = φ_t(H_t)$.
+Recursively define value functions $\{ \hat V_t \}_{t=1}^T$, where $\hat V_t
+\colon \ALPHABET Z \to \reals$, as follows: 
+$$ \hat V_{T+1}(z_{T+1}) = 0 $$
+and for $t \in \{T, \dots, 1\}$: 
+\begin{align}
+  \hat Q_t(z_t, a_t) &= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}(Z_{t+1}) \mid
+  Z_t = z_t, A_t = a_t] \\
+  \hat V_t(z_t) &= \min_{a_t \in \ALPHABET A} \hat Q_t(z_t, a_t).
+\end{align}
+Then, we have the following: for any $h_t$ and $a_t$,
+\begin{equation} \label{eq:history-info}
+  Q_t(h_t, a_t) = \hat Q_t(φ_t(h_t), a_t)
+  \quad\text{and}\quad
+  V_t(h_t) = \hat V_t(φ_t(h_t)).
+\end{equation}
+Any strategy $\hat π = (\hat π_1, \dots, \hat π_T)$, where $\hat π_t \colon
+\ALPHABET Z \to \ALPHABET A$, is optimal if and only if 
+\begin{equation}\label{eq:info-verification}
+    \hat π_t(z_t) \in \arg\min_{a_t \in \ALPHABET A} \hat Q_t(z_t, a_t).
+\end{equation}
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+
+As usual, we prove the result by backward induction. By construction,
+Eq. \\eqref{eq:history-info} is true at time $T+1$. This forms the basis of
+induction. Now assume that \\eqref{eq:history-info} is true at time $t+1$ and
+consider the system at time $t$. Then, 
+\begin{align*}
+Q_t(h_t, a_t) &= \EXP[ c_t(S_t, A_t) + V_{t+1}(H_{t+1}) | H_t = h_t, A_t = a_t
+] \\
+&\stackrel{(a)}= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | H_t =
+h_t, A_t = a_t ]  \\
+&\stackrel{(b)}= \EXP[ c_t(S_t, A_t) + \hat V_{t+1}( φ_t(H_{t+1}) ) | Z_t =
+φ_t(h_t), A_t = a_t ]  \\
+&\stackrel{(c)}= \hat Q_t(φ_t(h_t), a_t),
+\end{align*}
+where $(a)$ follows from the induction hypothesis, $(b)$ follows from the
+properties (P1) and (P2) of the information state, and $(c)$ follows from the
+definition of $\hat Q_t$. This shows that the action value functions are
+equal. By minimizing over the actions, we get that the value functions are
+also equal.
+:::
+
+## Belief state based dynamic program 
+
+As shown in @exm-pomdp-belief, the belief state $b_t$ is an information state.
+Therefore, @thm-info-state implies that we can write a dynamic program
+based on $b_t$. This is an important and commonly used formulation, so we
+study it separately and present some properties of the value functions. The
+belief state based dynamic program is given by: $V_{T+1}(b_{T+1}) = 0$ and for
+$t \in \{T, \dots, 1\}$, 
+$$
+  Q_t(b_t, a_t) = 
+  \EXP [ c_t(S_t, A_t) + V_{t+1}(B_{t+1}) \mid B_t = b_t, A_t = a_t ].
+$$
+and 
+$$ V_t(b_t) = \min_{a_t \in \ALPHABET A} Q_t(b_t, a_t). $$ 
+
+Define
+$$ \PR(y_{t+1} | b_t, a_t) = 
+   \sum_{s_{t:t+1}} \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) b_t(s_t).
+$$
+Then, the belief update expression in @lem-pomdp-belief-update can be written as:
+$$
+  b_{t+1}(s_{t+1}) = 
+  \frac{ \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+  { \PR(y_{t+1} | b_t, a_t) }.
+$$
+For the ease of notation, we write this expression as $b_{t+1} = ψ(b_t,
+y_{t+1}, a_t)$.  
+\begin{align*}
+  Q_t(b_t, a_t) &= \sum_{s_t \in \ALPHABET S} c_t(s_t, a_t) b_t(s_t) \\
+  & \quad +  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
+  V_{t+1}( φ(b_t, y_{t+1}, a_t) ).
+\end{align*}
+
+A key property of the belief-state based value functions is the following.
+
+:::{#thm-belief-PWLC}
+The belief-state based value functions are piecewise linear and concave.
+:::
+
+  <figure>
+  <div style="width:800px;height:600px;display:block" id="applet_container"></div>
+  <figcaption>An illustration of a piecewise linear and concave function.
+  Move the points around to see how the shape of the function changes.</figcaption>
+  </figure>
+
+  <script type="text/javascript">
+      var params = {
+        filename: "../www/geogebra/pomdp-pwlc.ggb",
+        enableShiftDragZoom: false,
+        width: 800,
+        height: 600,
+      }
+
+      var applet = new GGBApplet(params, true);
+
+      window.onload = function() {
+          applet.inject('applet_container');
+      }
+  </script>
+
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+As usual, we prove the result using backward induction. For any $a_T$,
+$$ Q_T(b_T, a_T) = \sum_{s_T \in \ALPHABET S} c_T(s_T, a_T) b_T(s_T) $$
+is linear in $b_T$. Therefore, 
+$$ V_T(b_T) = \min_{a_T \in \ALPHABET A} Q_T(b_T, a_T) $$
+is the minimum of a finite number of linear functions. Hence $V_T(b_T)$ is
+piecewise linear and concave. 
+
+Now assume that $V_{t+1}(b_{t+1})$ is piecewise linear and concave (PWLC). Any
+PWLC function can be represented as a minimum of a finite number of
+hyperplanes. Therefore, we can find a finite set of vectors $\{ A_i
+\}_{i \in I}$ indexed by finite set $I$ such that
+$$
+  V_{t+1}(b) = \min_{i \in I} \langle A_i, b \rangle.
+$$
+
+We need to show that $V_t(b_t)$ is piecewise linear and concave (PWLC). We
+first show that $Q_t(b_t, a_t)$ is PWLC. For any fixed $a_t$, the first term
+$\sum_{s_t} c_t(s_t, a_t) b_t(s_t)$ is linear in $b_t$. Now consider the
+second term:
+\begin{align*}
+  \hskip 1em & \hskip -1em
+  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
+  V_{t+1}( φ(b_t, y_{t+1}, a_t) ) \\
+  &= 
+  \sum_{y_{t+1} \in \ALPHABET Y} \PR(y_{t+1} | b_t, a_t)
+  \min_{i \in I} 
+  \left\langle A_i, 
+  \frac{ \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
+  { \PR(y_{t+1} | b_t, a_t) } \right\rangle \\
+  &=
+  \sum_{y_{t+1} \in \ALPHABET Y} 
+  \min_{i \in I} 
+  \Big\langle A_i, 
+   \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t) 
+   \Big\rangle
+\end{align*}
+which is the sum of PWLC functions of $b_t$ and therefore PWLC in $b_t$. 
+
+Thus, $Q_t(b_t, a_t)$ is PWLC. Hence, $V_t(b_t)$ which is the pointwise
+minimum of PWLC functions is PWLC. Hence, the result holds due to principle of
+induction.
+:::
+
+:::{.callout-tip icon=false}
+# Remark
+
+Since the value function is PWLC, we can identify a finite index set
+$I_t$, and a set of vectors $\{ A^i_t \}_{i \in I_t}$ such that
+$$
+    V_t(b) = \min_{i \in I_t} \langle A^i_t, b \rangle.
+$$
+@Smallwood1973 presented a "one-pass" algorithm to recursively compute $I_t$ and 
+$\{ A^i_t \}_{i \in I_t}$ which allows us to exactly compute the value
+function. Various efficient refinements of these algorithms have been
+presented in the literature, e.π., the linear-support algorithm
+[@Cheng1988], the witness algorithm [@Cassandra1994], incremental pruning
+[@Zhang1996; @Cassandra1997], duality based approach [@Zhang2009], and
+others. See [https://pomdp.org/](http://pomdp.org) for an accessible introduction to these algorithms. 
+:::
+
+## Exercises {-}
+
+:::{#exr-info-state-folding}
+Consider an MDP where the state space $\ALPHABET S$ is a symmetric subset
+of integers of the form $\{-L, -L + 1, \dots, L -1 , L\}$ and the action
+space $\ALPHABET A$ is discrete. Suppose the transition matrix $P(a)$ and
+the cost function $c_t(s,a)$ satisfy properties (A1) and (A2) of @exr-folded-monotonicity. Show that $Z_t = |S_t|$ is an information state.
+:::
+
+:::{#exr-info-state-lqg}
+Consider a linear system with state $x_t \in \reals^n$, observations
+$y_t \in \reals^p$,  and action $u_t \in \reals^m$. Note that we will
+follow the standard notation of linear systems and denote the system
+variables by lower case letters $(x,u)$ rather than upper case letter
+$(S,A)$. The dynamics
+of the system are given by 
+\begin{align*}
+  x_{t+1} &= A x_t + B u_t + w_t  \\
+  y_t &= C x_t + n_t 
+\end{align*}
+where $A$, $B$, and $C$ are matrices of appropriate dimensions. The
+per-step cost is given by 
+$$
+  c(x_t, u_t) = x_t^\TRANS Q x_t + u_t^\TRANS R u_t,
+$$
+where $Q$ is a positive semi-definite matrix and $R$ is a positive definite
+matrix. We make the standard assumption that the primitive random variables
+$\{s_1, w_1, \dots, w_T, n_1, \dots, n_T \}$ are independent. 
+
+Show that if the primitive variables are Guassian, then the conditional
+estimate of the state 
+$$
+  \hat x_t = \EXP[ x_t | y_{1:t}, u_{1:t-1} ]
+$$ 
+is an information state. 
+:::
+
+:::{#exr-machine-repair}
+Consider a machine which can be in one of $n$ ordered state where the first
+state is the best and the last state is the worst. The production cost
+increases with the state of the machine. The state evolves in a Markovian
+manner. At each time, an agent has the option to either run the machine or
+stop and inspect it for a cost. After inspection, the agent may either
+repair the machine (at a cost that depends on the state) or replace it (at
+a fixed cost). The objective is to identify a maintenance policy to
+minimize the cost of production, inspection, repair, and replacement. 
+
+Let $τ$ denote the time of last inspection and $S_τ$ denote the state of
+the machine after inspection, repair, or replacement. Show that $(S_τ,
+t-τ)$ is an information state.
+:::
+
+## Notes {-}
+
+The discussion in this section is taken from @Subramanian2022.
+Information state may be viewed as a generalization of the
+traditional notion of state @Nerode1958, which is defined as a
+statistic (i.e., a function of the observations) sufficient for input-output
+mapping. In contrast, we define an information state as a statistic sufficient
+for performance evaluation (and, therefore, for dynamic programming). Such a
+definition is hinted in @Witsenhausen1976. The notion of information
+state is also related to sufficient statistics for optimal control defined in
+@Striebel1965 for systems with state space models. 
+
+As far as we are aware, the informal definition of information state was first
+proposed by @Kwakernaak1965 for adaptive control systems. Formal
+definitions for linear control systems were given by @Bohlin1970 for
+discrete time systems and by @DavisVaraiya1972 for continuous time
+systems. @KumarVaraiya1986 define an information state as a compression of
+past history which satisfies property (P2a) but do not formally show that
+such an information state always leads to a dynamic programming decomposition.

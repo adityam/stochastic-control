@@ -1,0 +1,304 @@
+---
+title: Power-delay tradeoff in wireless communication
+keywords:
+   - MDPs
+   - stochastic monotonicity
+   - structural results
+execute:
+  echo: false
+---
+
+:::{.callout-note icon=false appearance="simple"}
+# <i class="bi bi-journal-text text-primary"></i> Summary
+In this section, a stylized example of power-delay trade-off in wireless communications is presented. The results illustrate that the dynamic programming formulation can be used to identify qualitative properties of the value function and optimal policies.
+:::
+
+In a cell phone, higher layer applications such as voicecall, email, browsers,
+etc. generate data packets. These packets are buffered in a queue and the
+transmission protocol decides how many packets to transmit at each time
+depending the number of packets in the queue and the quality of the wireless
+channel.
+
+Let $X_t \in \integers_{\ge 0}$ denote the number of packets buffered at time
+$t$ and $A_t \in \integers_{\ge 0}$, $A_t \le X_t$, denote the number of
+packets transmitted at time $t$. The remaining $X_t - A_t$ packets incur a
+delay penalty given by $d(X_t - A_t)$, where $d(\cdot)$ is a _strictly_
+increasing and $L^{\#}$ convex function where $d(0) = 0$. 
+
+::: {.callout-tip collapse="true"}
+
+# $L^{\#}$ convexity
+
+A function $f \colon \integers \to \reals$ is called convex (or $L^{\#}$
+convex) if for any $x \in \integers$,
+  $$ f(x+1) + f(x-1) \ge 2 f(x), $$
+  or, equivalently, for any $x, y \in \integers$
+  $$ f(x) + f(y) \ge 
+  f\Bigl(\Bigl\lfloor \frac{x+y}{2} \Bigr\rfloor\Bigr)
+  +
+  f\Bigl(\Bigl\lceil \frac{x+y}{2} \Bigr\rceil\Bigr).$$
+:::
+
+During time $t$, $W_t \in \integers_{\ge 0}$ additional packets arrive and 
+$$ X_{t+1} = X_t - A_t + W_t.$$
+We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d. process.
+
+The packets are transmitted over a wireless fading channel. Let $S_t \in
+\ALPHABET S$ denote the state of the fading channel. We assume that
+the states are ordered such that a lower value of state denotes a better
+channel quality. 
+
+If the channel has two states, say GOOD and BAD, we typically expect that 
+$$ \PR(\text{GOOD} \mid \text{GOOD}) \ge \PR(\text{GOOD} \mid \text{BAD}). $$
+This means that the two state transition matrix is [stochastically
+monotone][monotone]. So, in general (i.e., when the channel has more than two
+states), we assume that $\{S_t\}_{t \ge 1}$ is a
+[stochastically monotone][monotone] Markov process that is independent of
+$\{W_t\}_{t \ge 1}$.
+
+<!--FIXME-->
+[monotone]: ../../theory/stochastic-dominance#stochastic-monotonicity
+
+The transmission protocol sets the transmit power such that the signal to
+noise ratio (SNR) at the receiver is above a desired threshold. It can be
+shown that for additive white Gaussian channels (AWGN), the transmitted power
+is of the form
+$$p(A_t) q(S_t),$$
+where 
+
+* $p(\cdot)$ is a strictly increasing and convex function where $p(0) = 0$;
+* $q(\cdot)$ is a strictly increasing function.
+
+The objective is to choose a transmission policy $A_t = π_t(X_t, S_t)$ to
+minimize the weighted sum of transmitted power and delay
+$$ \EXP\bigg[ \sum_{t=1}^T \big[ p(A_t) q(S_t) + \lambda d(X_t - A_t) \big]
+\bigg],$$
+where $\lambda$ may be viewed as a Lagrange multiplier corresponding to a
+constrained optimization problem. 
+
+## Dynamic program
+
+We can assume $Y_t = X_t - A_t$ as a post-decision state in the above model
+and write the dynamic program as follows:
+
+$$ V_{T+1}(x,s) = 0 $$
+and for $t \in \{T, \dots, 1\}$, 
+$$\begin{align*}
+  H_t(y,s) &= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
+  V_t(x,s) &= \min_{0 \le a \le x} \big\{ p(a) q(s) + H_t(x-a, s) \big\}
+\end{align*}$$
+
+### Monotonicity of value functions
+
+::: {#lem-power-delay-increasing}
+
+For all $t$, $V_t(x,s)$ and $H_t(y,s)$ are increasing in both variables.
+:::
+
+::: {.callout-note collapse="true"}
+# Proof
+First note that the constraint set $\ALPHABET A(x) = \{0, \dots, x\}$
+satisfies the conditions that generalize the result of monotonicity to
+constrained actions. 
+
+We prove the two monotonicity properties by backward induction. First note
+that $V_{T+1}(x,s)$ is trivially monotone. This forms the basis of induction.
+Now suppose $V_{t+1}(x,s)$ is increasing in $x$ and $s$. Since
+$\{S_t\}_{t \ge 1}$ is stochastically monotone, 
+$$H_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ]$$
+is increasing in $s$. Moreover, since both $d(y)$ and $V_{t+1}(y + w, s)$ are
+increasing in $y$, so is $H_t(y,s)$.
+
+Now, for every $a$, $p(a) q(s)$ and $H_t(x-a, s)$ is increasing in $x$ and
+ $s$. So, the pointwise minima over $a$ is also increasing in $x$
+and $s$.
+:::
+
+### Convexity of value functions
+
+::: {#lem-power-delay-convex}
+
+For all time $t$ and channel state $s$, $V_t(x,s)$ and $H_t(y,s)$ are convex in the first variable.
+:::
+
+::: {.callout-note collapse="true"}
+# Proof
+We proceed by backward induction. First note that $V_{T+1}(x,s)$ is trivially
+convex in $x$. Now assume that $V_{t+1}(x,s)$ is convex in $x$. Then,
+$\EXP[V_{t+1}(y + W_t, S_{t+1}) | S_t = s]$ is weighted sum of convex functions
+and is, therefore, convex in $y$. Therefore, $H_t(y,s)$ is a sum of two convex
+functions and, therefore, convex in $y$. 
+
+We cannot directly show the convexity of $V_t(x,s)$ because the pointwise
+minimum of convex functions is not convex. So, we consider the following
+argument. Fix $s$ and pick $x > 1$. Let $\underline a = π^*_t(x-1,s)$ and
+$\bar a = π^*_t(x+1,s)$. Let $\underline v = \lfloor (\underline a + \bar a)/2
+\rfloor$ and $\bar v = \lceil (\underline a + \bar a)/2
+\rceil$. Note that both $\underline v$ and $\bar v$ are feasible at $x$. Then,
+$$ \begin{align*}
+  \hskip 2em & \hskip -2em
+  V_t(x-1, s) + V_t(x+1, s)
+  \\
+  &= 
+  [ p(\underline a) + p(\bar a) ] q(s) + H_t(x - 1 - \underline a, s)
+  + H_t(x + 1 - \bar a, s)
+  \\
+  &\stackrel{(a)}\ge [ p(\underline v) + p(\bar v)] q(s) + 
+    H_t(x - \underline v, s) + H_t(x - \bar v, s) \\
+  &\ge 2 \min_{a \le x} \big\{ p(a) q(s) + H_t(x-a, s) \\
+  &= 2 V_t(x,s),
+\end{align*} $$
+where $(a)$ follows from convexity of $p(\cdot)$ and $H_t(\cdot, s)$. Thus,
+$V_t(x,s)$ is convex in $x$. This completes the induction step.
+:::
+
+### Monotonicity of optimal policy in queue length
+
+::: {#thm-power-delay-monotone-queue}
+
+For all time $t$ and channel state s$s$, there is an optimal strategy $π^*_t(x,s)$ which is increasing in the queue length $x$.
+:::
+
+::: {.callout-note collapse="true"}
+# Proof
+In the previous lemma, we have shown that $H_t(y,s)$ is convex
+in $y$. Therefore, $H_t(x-a, s)$ is submodular in $(x,a)$.
+
+[One can show submodularity by finite difference, but for simplicity, we assume that
+$H_t(y,s)$ is twice differentiable. Then, $\partial^2 H_t(x - a, s)/ \partial
+x \partial a \le 0$ (by convexity of $H_t$).]{.aside}
+
+Thus, for a fixed $s$, $p(a)q(s) + H_t(x-a, s)$ is submodular in $(x,a)$.
+Therefore, the optimal policy is increasing in $x$.
+:::
+
+### Monotonicity of optimal policy in channel state
+
+It is natural to expect that for a fixed $x$ the optimal policy is decreasing
+in $s$. However, it is not possible to obtain the monotonicity of optimal
+policy in channel state in general. To see why this is difficult, let us
+impose a mild assumption on the arrival distribution.
+
+::: {#asm-power-delay-density}
+
+The packet arrival distribution is weakly decreasing, i.e., for any $v,w
+\in \integers_{\ge 0}$ such that $v \le w$, we have that $P_W(v) \ge
+P_W(w)$. 
+
+:::
+
+We first start with a slight generalization of stochastic monotonicity result.
+
+::: {#lem-littlewood}
+
+Let $\{p_i\}_{i \ge 0}$ and $\{q_i\}_{i \ge 0}$ be real-valued non-negative
+sequences satisfying
+$$ \sum_{i \le j} p_i \le \sum_{i \le j} q_i, \quad \forall j.$$
+Then, for any increasing sequence $\{v_i\}_{i \ge 0}$, we have
+$$ \sum_{i = 0}^\infty p_i v_i \ge \sum_{i=0}^\infty q_i v_i. $$
+
+:::
+
+The proof is similar to the proof for stochastic monotonicity. 
+
+::: {#lem-power-delay-submodular}
+
+Under @asm-power-delay-density, for all $t$, $H_t(y,s)$ is supermodular in $(y,s)$. 
+
+:::
+
+::: {.callout-note collapse="true"}
+# Proof
+<!--FIXME -->
+The idea of the proof is similar to [Lemma 1] of the notes on monotone MDPs.
+
+[Lemma 1]: ../monotonicity/#lem:sufficient
+
+Fix $y^+, y^- \in \integers_{\ge 0}$ and $s^+, s^- \in \ALPHABET S$ such that
+$y^+ > y^-$ and $s^+ > s^-$. Now, for any $y' \in \integers_{\ge 0}$ and $s'
+\in \ALPHABET S$ define
+$$\begin{align*}
+  π(y',s') = P_W(y' - y^+)P_S(s'|s^+) + 
+             P_W(y' - y^-)P_S(s'|s^-), 
+             \\
+  μ(y',s') = P_W(y' - y^-)P_S(s'|s^+) + 
+             P_W(y' - y^+)P_S(s'|s^-).
+\end{align*}$$
+
+Since $P_S$ is stochastically monotone, we have that for any $σ \in \ALPHABET
+S$, 
+$$ \sum_{s'=1}^{σ} P_S(s'|s^+) \le \sum_{s'=1}^{σ} P_S(s'|s^-). $$
+Moreover, due to @asm-power-delay-density, we have that $P_W(y' - y^-)
+\le P_W(y' - y^+)$. Thus, 
+$$ [P_W(y' - y^+) - P_W(y' - y^-)] \sum_{s'=1}^{σ} P_S(s'|s^+) 
+\le [P_W(y' - y^+) - P_W(y' - y^-)]\sum_{s'=1}^{σ} P_S(s'|s^-). $$
+Rearranging terms, we get 
+$$ \sum_{s'=1}^σ π(y',s') \le \sum_{s'=1}^σ μ(y',s'). $$
+Thus, for any $y'$, the sequence $π(y',s')$ and $ν(y',s')$ satisfy the
+condition of @lem-littlewood. 
+
+Now, in @lem-power-delay-increasing, we have established that for any $y'$,
+$V_{t+1}(y',s')$ is increasing in $s'$. Thus, from @lem-littlewood,
+we have
+$$  \sum_{s' \in \ALPHABET S} π(y', s') V_{t+1}(y', s') 
+\ge \sum_{s' \in \ALPHABET S} μ(y', s') V_{t+1}(y', s'), $$
+Summing up over $y'$, we get
+$$  \sum_{y' \in \integers_{\ge 0}} \sum_{s' \in \ALPHABET S} π(y', s') V_{t+1}(y', s') 
+\ge \sum_{y' \in \integers_{\ge 0}} \sum_{s' \in \ALPHABET S} μ(y', s') V_{t+1}(y', s'), $$
+Or equivalently, 
+$$\begin{align*}
+\hskip 2em & \hskip -2em
+\EXP[ V_{t+1}(y^+ + W, S_{t+1}) | S_t = s^+) ] 
++ 
+\EXP[ V_{t+1}(y^- + W, S_{t+1}) | S_t = s^-) ] 
+\\
+& \ge 
+\EXP[ V_{t+1}(y^- + W, S_{t+1}) | S_t = s^+) ] 
++ 
+\EXP[ V_{t+1}(y^+ + W, S_{t+1}) | S_t = s^-) ] .
+\end{align*}$$
+Thus, $H_t(y,s)$ is supermodular in $(y,s)$. 
+:::
+  
+
+
+::: {.callout-important }
+# Even under @asm-power-delay-density, we cannot establish the monotonicity of $π^*_t(x,s)$ is $s$.
+
+Note that we have established that $H_t(y,s)$ is supermodular in $(y,s)$. Thus,
+for any fixed $x$, $H_t(x-a,s)$ is submodular in $(a,s)$. Furthermore the
+function $p(a)q(s)$ is increasing in both variables and therefore supermodular
+in $(a,s)$. Therefore, we cannot say anything specific about
+$p(a)q(s) + H_t(x-a, s)$ which is a sum of submodular and supermodular
+functions.
+:::
+
+## Exercises {-}
+
+::: {#exr-power-delay-monotone}
+
+In this exercise, we provide sufficient conditions for the optimal policy
+to be monotone in the channel state. Suppose that the channel state
+$\{S_t\}_{t \ge 1}$ is an i.i.d. process. Then prove that for all time $t$
+and queue state $x$, there is an optimal strategy $π^*_t(x,s)$ which is
+decreasing in channel state $s$.
+
+:::
+
+## Notes {-}
+
+The mathematical model of power-delay trade-off is taken from @Berry2000,
+where the monotonicty results were proved using first principles.
+More detailed characterization of the optimal transmission strategy when the
+average power or the average delay goes to zero are provided in @Berry2002 and
+@Berry2013. A related model is presented in @Ding2016.
+
+For a broader overview of power-delay trade offs in wireless communication,
+see @Berry2012 and @Yeh2012.
+
+The remark after @lem-power-delay-submodular shows the difficulty in establishing monotonicity of optimal policies for a multi-dimensional state space. In fact, sometimes even when monotonicity appears to be intuitively obvious, it may not hold. See @Sayedana2020a for an example. For general discussions on monotonicity for multi-dimensional state spaces, see @Topkis1998 and @Koole2006. As an example of using such general conditions to establish monotonicity, see @Sayedana2020. 
+
+
+
+
+

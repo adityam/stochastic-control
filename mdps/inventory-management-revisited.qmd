@@ -1,0 +1,199 @@
+---
+title: Inventory management (revisted)
+tags:
+  - inventory management
+  - base-stock policy
+  - reward shaping
+  - structural results
+  - stochastic optimization
+  - infinite horizon
+  - discounted cost
+---
+
+:::{.callout-note icon=false appearance="simple"}
+# <i class="bi bi-journal-text text-primary"></i> Summary
+One of the potential benefits of modeling a system as infinite horizon discounted cost MDP is that it can be simpler to identify an optimal policy. We illustrate this using the inventory management example.
+:::
+
+Consider the model for [inventory management] and assume that it runs for an
+infinite horizon. We assume that the per-step cost is given by
+$$c(s,a,s_{+}) = p a + γ h(s), $$
+where 
+$$ h(s) = \begin{cases}
+  c_h s, & \text{if $s \ge 0$} \\
+  -c_s s, & \text{if $s < 0$},
+\end{cases}$$
+where $a$ is the per-unit holding cost, $b$ is the per-unit shortage cost, and
+$p$ is the per-unit procurement cost. Note that in the per-step cost, we are
+assuming that the holding or shortage cost is dicounted because this cost is
+incurred at the end of the time period.  
+
+Recall that in the finite horizon setting, the optimal policy was a
+_base-stock_ policy characterized by thresholds $\{s^*_t\}_{t \ge 1}$. In the
+infinite horizon discounted setting, we expect the optimal policy to be
+time-homogeneous, i.e., the thresholds $\{s^*_t\}_{t \ge 1}$ be a constant
+$s^*$ and not to depend on time.
+
+As an illustration, let's reconsider the example used for the [finite horizon
+setting][finite] (where $p=5$, $c_h = 4$, $c_s = 2$, and the demand is
+Binomial(10,0.4)). We consider the discount factor $γ = 0.9$. The value
+function and optimal policy is this case are shown below.
+
+[finite]: inventory-management.html#fig1
+
+<figure style='max-width:40em;'>
+<div id="observablehq-viewof-discount-a7f21f8f"></div>
+<table>
+<tr>
+<td id="observablehq-inf_value_plot-a7f21f8f"></td>
+<td id="observablehq-inf_action_plot-a7f21f8f"></td>
+</tr>
+<tr> 
+<td> Value function </td>
+<td> Optimal policy </td>
+</table>
+<figcaption><b>Figure 1</b><br/>
+The value function and the optimal policy for the example</figcaption>
+</figure>
+
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "demand_CDF_plot") return new Inspector(document.querySelector("#observablehq-demand_CDF_plot-a7f21f8f"));
+  if (name === "inf_value_plot") return new Inspector(document.querySelector("#observablehq-inf_value_plot-a7f21f8f"));
+  if (name === "inf_action_plot") return new Inspector(document.querySelector("#observablehq-inf_action_plot-a7f21f8f"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-a7f21f8f"));
+  if (name === "viewof discount") return new Inspector(document.querySelector("#observablehq-viewof-discount-a7f21f8f"));
+  return ["DP","value_plot","action_plot","infDP","F_opt"].includes(name);
+});
+</script>
+
+---
+
+We are interested in the following question: _Is it possible to identify the optimal threshold of the base-stock policy without explicitly solving the dynamic program?_ In this section, we show that the answer is affirmative.
+
+As a first step, we modify the per-step cost using [reward shaping]. In
+particular, we consider the following potential function
+
+$$\varphi(s) = h(s) + \frac1{γ} p s - \frac{1}{1-γ}p\mu,$$
+where $\mu = \EXP[W]$ is the expected number of arrivals at each time period. 
+
+Now consider a new cost function
+$$\begin{align*}
+  c'(s,a,s_{+}) &= c(s,a,s_{+}) + \varphi(s) - γ \varphi(s_{+}) \\
+  &= pa + γ h(s_{+}) + h(s) + \frac{1}{γ} p s - \frac{1}{1-γ} p \mu
+  - γ h(s_{+}) - p s_{+} - \frac{γ}{1-γ} p \mu \\
+  &= h(s) + \frac{1-γ}{γ} ps + p w - p \mu.
+\end{align*} $$
+Note that 
+$$ \EXP[ c'(s,a,S_{+}) | S = s, A = a ] = h(s) + \frac{1-γ}{γ} ps 
+=: c^*(s). $$
+Thus, the optimal policy of the original model is the same as that in which
+the per-step cost is given by $c^*(s)$. 
+
+Recall that the optimal policy in the original model was a base stock 
+policy. For the infinite horizon model, the threshold will become
+time-invariant. Thus, the optimal policy will be of the form
+$$
+  π(s) = \begin{cases}
+  s^* - s, & \text{if $s \le s^*$} \\
+  0, & \text{otherwise}.
+\end{cases}$$
+
+The infinite horizon dynamic programming with this modified cost is given by 
+$$\begin{equation}\label{eq:DP}
+  V(s) = \min_{a \in \reals_{\ge 0}} 
+   \bigl\{ c^*(s) + γ \EXP[ V(s + a - W) ] \bigr\}. 
+\end{equation}$$
+
+Using the structure of the optimal policy identified above, we have two
+properties. First,
+$$\begin{equation}\label{eq:opt}
+V(s) = c^*(s) + γ \EXP[ V(s^* - W) ], \qquad s \le s^*.
+\end{equation}$$
+Second, at $s = 0$, $π(0) = s^*$ (and recall that $c^*(0) = 0$). Therefore,
+$$\begin{equation}\label{eq:opt-policy}
+  s^* = \arg\min_{a \in \reals_{\ge 0}} γ \EXP[V(a - W)]
+\end{equation}$$
+
+Let $F(s^*)$ denote $\EXP[V(s^*-W)]$. Then, substituting $s = s^* - W$ in 
+\\eqref{eq:opt} and taking expectations, we get
+$$F(s^*) = \EXP[ c^*(s^* - W) ] + γ F(s^*).$$
+Thus, 
+$$ \EXP[V(s^* - W)] = F(s^*) = \frac{1}{1-γ} \EXP[ c^*(s^*-W) ]. $$
+
+Substituting the above in \\eqref{eq:opt-policy}, we get
+$$ s^* = \arg\min_{s^* \ge 0} \frac{γ}{1-γ} \EXP[ c^*(s^* - W) ].$$
+Consequently, we have the following:
+
+::: {#thm-inventory-inf}
+The optimal threshold $s^*$ is given by the value of $s^*$ which minimizes $\EXP[ c^*(s^*-W) ]$. In particular, if $F$ denotes the CDF of the demand, then
+$$\begin{equation}
+ s^* = F^{-1}\left( \frac{c_s - p(1-γ)/γ}{c_h + c_s} \right).
+ \label{eq:opt-threshold}
+\end{equation}$$
+
+::: 
+
+::: {.callout-note collapse="true"}
+#### Proof {-}
+The proof idea is the same approach as that used for the [newsvendor
+problem](../stochastic/newsvendor.html). In particular, let $f$ denote the
+distribution of $W$, $F$ denote the CDF, and $μ = \EXP[W]$. Then,
+$$\begin{align}
+\EXP[c^*(s^*-W)] &= \EXP[h(s^*-W)] + \frac{1-γ}{γ}p(s^* - μ) 
+\notag \\
+&= \int_{0}^{s^*} c_h(s^*-w)f(w)dw + 
+   \int_{s^*}^{∞} c_s(w-s^*)f(w)dw + \frac{1-γ}{γ}p(s^* - μ) \notag
+\end{align}$$
+Thereore, 
+$$\begin{align}
+\frac{∂ \EXP[c^*(s^*-W)]}{∂s^*} &=
+  \int_{0}^{s^*} c_h f(w)dw
++ \int_{s^*}^{\infty}[-c_s] f(w)dw 
++ \frac{1-γ}{γ}p \notag \\
+&= c_h F(s^*) - c_s(1 - F(s^*))
++ \frac{1-γ}{γ}p \notag \\
+\end{align}$$
+To find the optimal threshold, we set the derivative to $0$ and simplify to
+obtain \\eqref{eq:opt-threshold}.
+</div>
+</details>
+:::
+
+We can use \\eqref{eq:opt-threshold} to find the optimal threshold for the
+example used above. In particular, we need to find the value of $s^*$ at which
+the CDF of the demand equals the value $(c_s - p(1-γ)/γ)/(c_h + c_s)$, as
+shown in Fig. 2 below.
+
+<figure style='max-width:40em;'>
+<div id="observablehq-viewof-p-a7f21f8f"></div>
+<div id="observablehq-demand_CDF_plot-a7f21f8f"></div>
+<figcaption><b>Figure 2</b><br/>
+The optimal threshold for the numerical example shown above</figcaption>
+</figure>
+
+---
+
+## Exercises {-}
+
+:::{#exr-inventory-exponential}
+Suppose that the arrival process is exponential with rate $1/\mu$, i.e.,
+the density of $W$ is given by $e^{-s/\mu}/\mu$. Show that the optimal
+threshold is given by
+$$ s^* = \mu \log \left[ \frac{ c_h + c_s} { c_h + p (1-γ)/γ} \right]. $$
+
+ _Hint_: Recall that the CDF the exponential distribution is
+ $F(s) = 1 - e^{-s/μ}$.
+:::
+
+## Notes {-}
+
+The idea of using [reward shaping] to derive a closed form expression for inventory management is taken from @Whittle1982. It is interesting to note that @Whittle1982 uses the idea of reward shaping more than 17 years before the paper by @Ng1999 on reward shaping. It is possible that Whittle was using the results of @Porteus1975. 
+
+
+[inventory management]: inventory-management.html
+[reward shaping]: reward-shaping.html
+
+

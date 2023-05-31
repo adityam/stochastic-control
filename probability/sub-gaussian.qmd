@@ -1,0 +1,504 @@
+---
+title: Sub-Gaussian random variables
+---
+
+## Prelim: Concentration inequality of sum of Gaussian random variables
+
+Let $\phi(\cdot)$ denote the density of $\mathcal{N}(0,1)$ Gaussian random
+variable:
+$$ \phi(x) = \frac{1}{\sqrt{2π}} \exp\biggl( - \frac{x^2}{2} \biggr). $$
+
+Note that if $X \sim \mathcal{N}(μ,σ^2)$, then the density of $X$ is 
+$$
+\frac{1}{σ}\phi\biggl( \frac{x-μ}{σ} \biggr) 
+= \frac{1}{\sqrt{2π}\,σ} \exp\biggl( - \frac{(x-μ)^2}{2 σ^2} \biggr). $$
+
+The tails of Gaussian random variables decay fast which can be quantified
+using the following inequality.
+
+:::{#prp-mills-inequality}
+## Mills inequality
+
+If $X \sim \mathcal{N}(0, 1)$, then for any $t > 0$,
+$$ \PR( |X| > t ) \le \frac{2\phi(t)}{t}  $$
+
+More generally, if $X \sim \mathcal{N}(0, σ^2)$, then for any $t > 0$, 
+$$ \PR( |X| > t ) \le 2\frac{σ}{t} \phi\biggl(\frac{t}{σ}\biggr) =
+ \sqrt{\frac{2}{π} } \frac{σ}{t} 
+  \exp\biggl( - \frac{t^2}{2σ^2} \biggr). $$
+
+::: 
+
+
+:::{.callout-tip}
+## Remark
+
+In the communication theory literature, this bound is sometimes known as
+the bound on the [erfc] or [$Q$ function][Q].
+
+[erfc]: https://en.wikipedia.org/wiki/Error_function
+[Q]: https://en.wikipedia.org/wiki/Q-function
+
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+
+We'll first prove the result for unit variance random variable. 
+Note that $X$ is symmetric around origin. Therefore,
+$$ \PR(|X| > t) = 2\PR(X > t). $$
+
+Now, by using an idea similar to the proof of Markov's inequality, we have
+$$\begin{align*}
+t \cdot \PR( |X| > t) &= t \int_{t}^∞ \phi(x) dx  \\
+& \le \int_{t}^∞ x \phi(x) dx \\
+& = \int_{t}^∞ \frac{1}{\sqrt{2π}} x \exp\biggl( - \frac{x^2}{2} \biggr) dx \\
+&= \frac{1}{\sqrt{2π}} \int_{t}^∞ - \frac{∂}{∂x} \exp\biggl( -\frac{x^2}{2}
+\biggr) dx \\
+& = \frac{1}{\sqrt{2π}} \exp\biggl( - \frac{t^2}{2} \biggr)
+\end{align*}$$
+
+The proof for the general case follows by observing that
+$$
+\PR(|X| > t) = \PR\biggl( \biggl| \frac{X}{σ} \biggr| > \frac{t}{σ} \biggr)
+$$
+where $X/σ \sim \mathcal{N}(0,1)$.
+:::
+
+The fact that a Gaussian random variable has tails that decay to zero
+exponentially fast can be be seen in the moment generating function:
+$$
+  M(s) = \EXP[ \exp(sX) ] = \exp\bigl( sμ + \tfrac12 s^2 σ^2\bigr).
+$$
+
+
+A useful application of Mills inequality is the following concentration
+inequality.
+
+:::{#prp-gaussian-concentration}
+
+## Concentration inequality. 
+Let $X_i \sim \mathcal{N}(0, σ^2)$ (not necessarily independent). Then, for any $t > 0$, 
+$$
+  \PR\Bigl( \max_{1 \le i \le n} |X_i| > t\Bigr) \le 
+  2n \frac{σ}{t} \phi\biggl( \frac{t}{σ} \biggr). 
+$$
+:::
+
+:::{.callout-note}
+#### Proof {-}
+This follows immediately from Mills inequality and the union bound.
+:::
+
+Another useful result is the following:
+
+:::{#prp-gaussian-max}
+
+## Max of Gaussian random variables.
+
+Let $X_i \sim \mathcal{N}(0,σ^2)$ (not necessarily independent). Then,
+$$
+  \EXP\Bigl[ \max_{1 \le i \le n} X_i \Bigr] \le σ \sqrt{2 \log n}
+$$
+and
+$$
+  \EXP\Bigl[ \max_{1 \le i \le n} |X_i| \Bigr] \le σ \sqrt{2 \log 2n}.
+$$
+:::
+
+See [these notes](http://www.gautamkamath.com/writings/gaussian_max.pdf) for a
+lower bound with the same rate!
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+
+We prove the first inequality. The second follows by considering $2n$ random variables $X_1, \dots, X_n$, $-X_1, \dots, -X_n$. 
+
+For any $s > 0$, 
+$$\begin{align*}
+\EXP\Bigl[ \max_{1 \le i \le n} X_i \Bigr] &=
+\frac{1}{s} 
+\EXP\Bigl[ \log \Bigl( \exp\Bigl( s \max_{1 \le i \le n} X_i \Bigr) \Bigr) \Bigr]
+\\
+&\stackrel{(a)}\le
+\frac{1}{s} 
+\log \Bigl( \EXP\Bigl[ \exp\Bigl( s \max_{1 \le i \le n} X_i \Bigr) \Bigr] \Bigr)
+\\
+&\stackrel{(b)}=
+\frac{1}{s} 
+\log \Bigl( \EXP\Bigl[ \max_{1 \le i \le n} \exp( s X_i ) \Bigr] \Bigr)
+\\
+&\stackrel{(c)}\le
+\frac{1}{s} 
+\log \Bigl(\sum_{i=1}^n \EXP\bigl[ \exp( s X_i ) \bigr] \Bigr)
+\\
+&\stackrel{(d)}=
+\log \Bigl( \sum_{i=1}^n\exp\Bigl( \frac{s^2 σ^2}{2} \Bigr) \Bigr) 
+\\
+&= \frac{\log n}{s} + \frac{s^2 σ^2}{2}
+\end{align*}$$
+where $(a)$ follows from Jensen's inequality, $(b)$ follows from monotonicity
+of $\exp(\cdot)$, $(c)$ follows from definition of max, $(d)$ follows from the
+definition of moment generating function of Gaussian random variables. We get
+the result by setting $s = \sqrt{2 \log n}/σ$ (which minimizes the upper
+bound).
+:::
+
+:::{.callout-tip}
+## Remark
+We have stated and proved these inequalities for real-valued random
+variables. But a version of them continue to
+hold for vector valued Gaussian variables as well. For a complete treatment, see @Picard2007.
+:::
+
+## Sub-Gaussian random variables
+
+It turns out that the concentration inequalities of the form above continue to
+hold for more general distributions than the Gaussian. In particular, consider
+the bound on the max of Gaussian random variables that we established above.
+The only step which depends on the assumption that the random variables $X_i$
+were Gaussian in step $(d)$. Thus, as long as $\EXP[ \exp(s X_i) ] \le
+\exp(\tfrac12 s^2 σ^2)$, the result will continue to hold! This motivates the
+definition of sub-Gaussian random variables. 
+
+:::{#def-sub-gaussian}
+## Sub-Gaussian random variable 
+A random variable $X \in \reals$ is said to be _sub-Gaussian_ with variance
+proxy $σ^2$ if $\EXP[X] = 0$ and its moment generating function satisfies
+$$ \EXP[ \exp(sX) ] \le \exp( \tfrac12 s^2 σ^2),
+\quad \forall s \in \reals. $$
+
+:::
+
+The reason the parameter $σ^2$ is called a variance proxy is because by a
+straight forward application of Taylor series expansion and comparing
+coefficients, it can be shown that $\text{var}(X) \le σ^2$. See
+@Rivasplata2012 for a proof.
+
+This definition can be generalized to random vectors and matrices. A random
+vector $X \in \reals^d$ is said the be _sub-Gaussian_ with variance proxy
+$σ^2$ if $\EXP[X] = 0$ and for any unit vector $u \in \reals^d$, $u^\TRANS X$
+is sub-Gaussian with variance proxy $σ^2$. 
+
+Similarly, a random matrix $X \in \reals^{d_1 × d_2}$ is said to be
+_sub-Gaussian_ with variance proxy $σ^2$ if $\EXP[X] = 0$ and for any unit
+vectors $u \in \reals^{d_1}$ and $v \in \reals^{d_2}$, $u^\TRANS X v$ is 
+sub-Gaussian with variance proxy $σ^2$. 
+
+We will use the phrase "$σ$-sub-Gaussian" as a short form of "sub-Gaussian
+with variance proxy $σ^2$".
+One typically writes $X \sim \text{subG}(σ^2)$ to denote a random variable
+with sub-Gaussian distribution with variance proxy $σ^2$. (Strictly speaking,
+this notation is a bit ambiguous since $\text{subG}(σ^2)$ is a class of
+distributions rather than a single distribution.)
+
+## Examples of sub-Gaussian distributions
+
+1. If $X$ be a Rademacher random variable, i.e., $X$ takes the values $\pm 1$
+   with probability $1/2$. Then, 
+   $$ \EXP[ \exp(sX) ] = \frac12 e^{-s} + \frac12 e^s = \cosh s \le 
+   \exp(\tfrac12 s^2), $$
+   so $X$ is 
+
+2. If $X$ is uniformly distributed over $[-a, a]$. Then, for any $s \neq 0$, 
+   $$ \EXP[ \exp(s X) ] = \frac{1}{2as}[ e^{as} - e^{-as} ]
+      = \sum_{n=0}^∞ \frac{(as)^{2n}}{(2n+1)!}. $$
+   Using the inequality $(2n+1)! \ge n!2^n$, we get that $X$ is
+   $a$-sub-Gaussian.
+
+3. It can be shown that (see @Rivasplata2012 ) if $X$ is a random variable
+   with $\EXP[X] = 0$ and $|X| < 1$ a.s., then
+   $$ \EXP[ \exp(sX) ] \le \cosh s, \quad \forall s \in \reals. $$
+   Therefore, $X$ is 1-sub-Gaussian.
+
+4. An immediate corollary of the previous example is that if $X$ is a random
+   variable with $\EXP[X] = 0$ and $|X| \le b$ a.s., then $X$ is
+   $b$-sub-Gaussian.
+
+5. By a similar arguement, we can show that if $X$ is a zero mean random
+   variable supported on some interval $[a,b]$, then $X$ is $(b-a)/2$
+   sub-Gaussian.
+
+6. If $X$ is $σ^2$ sub-Gaussian, then for any $α \in \reals$, $α X$ is
+   $|α|σ$-sub-Gaussian.
+
+7. If $X_1$ and $X_2$ are $σ_1$ and $σ_2$-sub-Gaussian, then $X_1 + X_2$
+   is $\sqrt{σ_1^2 + σ_2^2}$-sub-Gaussian.
+
+## Characterization of sub-Gaussian random variables
+
+Sub-Gaussian random variables satisfy a concentration result similar to Mills
+inequality.
+
+:::{#lem-sub-gaussian-tail}
+Let $X \in \reals$ be $σ$-sub-Gaussian. Then,
+for any $t > 0$, 
+$$\begin{equation}\label{eq:sG-tail-bounds}
+  \PR(X > t) \le \exp\biggl( - \frac{t^2}{2σ^2} \biggr)
+  \quad\text{and}\quad
+  \PR(X < t) \le \exp\biggl( - \frac{t^2}{2σ^2} \biggr)
+\end{equation}$$
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+This follows from Chernoff's bound and the definition of
+sub-Gaussianity. In particular, for any $s > 0$
+$$
+\PR(X > t) = \PR(\exp(sX) > \exp(st)) \le \frac{ \EXP[\exp(sX) ]} { \exp(st) }
+\le \exp\biggl( \frac{s^2 σ^2}{2} - st \biggr).
+$$
+Now, to find the tightest possible bound, we minimize the above bound with respect to $s$, which is attained at $s = t/σ^2$. Substituting this in the above bound, we get the first inequality. The second inequality follows from a similar argument.
+:::
+
+Recall that the moments of $Z \sim \mathcal{N}(0,σ^2)$ are
+given by
+$$
+  \EXP[ |Z|^k ] = \frac{1}{\sqrt{π}} (2σ^2)^{k/2} Γ\biggl(\frac{k+1}{2}\biggr),
+$$
+where $Γ(\cdot)$ denotes the [Gamma function][Gamma]. The next result shows
+that the tail bounds \\eqref{eq:sG-tail-bounds} are sufficient to show that
+the absolute moments of $X \sim \text{subG}(σ^2)$ can be bounded by those of
+$Z \sim \mathcal{N}(0,σ^2)$ up to multiplicative constants.
+
+[Gamma]: https://en.wikipedia.org/wiki/Gamma_function
+
+:::{#lem-sub-gaussian-moment}
+Let $X$ be a random variable such that
+$$ \PR( |X| > t) \le 2 \exp\biggl(- \frac{t^2}{2σ^2} \biggr),$$
+then for any positive integer $k \ge 1$, 
+$$ \EXP[ |X|^k ] \le (2σ^2)^{k/2} k Γ(k/2). $$
+:::
+
+Note that for the special case of $k=1$, the above bound implies $\EXP[ |X| ]
+\le σ \sqrt{2π}$ and for $k=2$, $\EXP[|X|^2] \le 4σ^2$.
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+This is a simple application of the tail bound.
+$$\begin{align*}
+\EXP[ |X|^k ] &= \int_{0}^∞ \PR( |X|^k > t ) dt \\
+&= \int_{0}^∞ \PR( |X| > t^{1/k}) dt \\
+&\le 2 \int_{0}^∞ \exp\biggl( - \frac{t^{2/k}}{2σ^2} \biggr) dt \\
+&= (2σ^2)^{k/2} k \int_{0}^∞ e^{-u} u^{k/2 - 1} du, 
+\qquad u = \frac{t^{2/k}}{2σ^2} \\
+&= (2σ^2)^{k/2}k Γ(k/2).
+\end{align*}$$
+
+The result for $k=1$ follows from $Γ(1/2) = \sqrt{π/2}$.
+:::
+
+Using moments, we can bound the moment generating function in terms of the tail bounds. 
+
+:::{#lem-sub-gaussian-mgf}
+Let $X$ be a random variable such that
+$$ \PR( |X| > t) \le 2 \exp\biggl(- \frac{t^2}{2σ^2} \biggr)$$
+then,
+$$\EXP[ \exp(sX) ] \le \exp(4 s^2 σ^2). $$
+:::
+
+For this reason, sometimes it is stated that $X \sim \text{subG}(s^2)$ when it
+satisfies the tail bound \\eqref{eq:sG-tail-bounds}. 
+
+The proof follows from the following Taylor series bound on the exponential
+function.
+$$ 
+\exp(sX) \le 1 + \sum_{k=2}^∞ \frac{s |X|^k}{k!}
+$$
+and apply the result of @lem-sub-gaussian-moment. See @MIT18.S997 for details.
+
+## Properties of sub-Gaussian random vectors
+
+:::{#thm-sub-gaussian-vector}
+Let $X = (X_1, \dots, X_n)$ be a vector of independent $σ$-sub-Gaussian random variables. Then, the random vector $X$ is $σ$-sub-Gaussian. 
+:::
+
+:::{.callout-note collapse="true"}  
+#### Proof {-}
+For any unit vector $u \in \reals^n$, and any $s \in \reals$
+$$\begin{align*}
+\EXP[ \exp( s u^\TRANS X) ] &= \prod_{i=1}^n \EXP[ \exp(s u_i X_i) ] \\
+&\le \prod_{i=1}^n \exp\bigl( \tfrac{1}{2} s^2 u_i^2 σ^2 \bigr) \\
+&= \exp\bigl( \tfrac{1}{2} s^2 \| u \|^2 σ^2 \bigr) \\
+&= \exp\bigl( \tfrac{1}{2} s^2 σ^2 \bigr). 
+\end{align*}$$
+:::
+
+## Concentration inequalities
+
+Recall that if $X_1$ and $X_2$ and $σ_1$ and $σ_2$-sub-Gaussian, then $X_1 +
+X_2$ is sub-Gaussian with variance proxy $σ_1^2 + σ_2^2$. An immediate
+implication of this property is the following:
+
+:::{#prp-sub-gaussian-hoeffding}
+## Hoeffding inequality
+
+Suppose that variables $X_i$, $i \in \{1,\dots,n\}$,
+are independent and $X_i$ has mean $μ_i$ and $σ_i$-sub-Gaussian. Then, for all $t > 0$, we have
+
+$$ \PR\biggl( \sum_{i=1}^n( X_i - μ_i) \ge t \biggr)
+   \le \exp\biggl( - \frac{t^2}{2 \sum_{i=1}^n σ_i^2 } \biggr).
+$$
+:::
+
+The Hoeffding inequality is often stated for the special case of bounded
+random variables. In particular, if $X_i \in [a,b]$, then we know that $X_i$
+is sub-Gaussian with parameter $σ = (b-a)/2$, so we obtain the bound
+$$ \PR\biggl( \sum_{i=1}^n( X_i - μ_i) \ge t \biggr)
+   \le \exp\biggl( - \frac{2t^2}{\sum_{i=1}^n n(b-a)^2 } \biggr).
+$$
+
+The Hoeffding inequality can be generalized to Martingales. Recall that a
+sequence $\{ (D_i, \mathcal F_i)\}_{i \ge 1}$ is called a _martingale
+difference sequence_ is for all $i \ge 1$, $D_i$ is $\mathcal{F}_i$
+measurable, 
+$$ \EXP[ |D_i| ] < ∞ \quad\text{and}\quad
+   \EXP[ D_{i+1} \mid \mathcal{F}_i ] = 0. $$
+
+:::{#prp-asuma}
+## Asuma-Hoeffding Inequality.
+Let $\{ (D_i, \mathcal{F}_i)\}_{i \ge 1}$ be a martingale difference
+sequence and suppose that $|D_i| \le b_i$ almost surely for all $i \ge 1$.
+Then for all $t \ge 0$
+$$ \PR\biggl( \biggl| \sum_{i=1}^n D_i \biggr| \ge t \biggr)
+   \le 2 \exp\biggl( - \frac{t^2}{2 \sum_{i=1}^n b_i^2 } \biggr). 
+$$
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+
+Since $|D_i| \le b_i$, $D_i$ is $b_i$-subGaussian. Using the smoothing
+property of conditional expectation, we have
+$$\begin{align}
+\EXP\biggl[ \exp\biggl( s \biggl( \sum_{i=1}^n D_i \biggr) \biggr) \biggl]
+&= 
+\EXP\biggl[ \exp\biggl( s \biggl( \sum_{i=1}^{n-1} D_i \biggr) \biggr) \biggl]
+\,
+\EXP\bigl[ \exp\bigl( s D_n \bigr) \bigm| \mathcal{F}_{n-1} \bigl]
+\notag \\
+&\le 
+\EXP\biggl[ \exp\biggl( s \biggl( \sum_{i=1}^{n-1} D_i \biggr) \biggr) \biggl]
+\, \exp\bigl( \tfrac12 s^2 b_n^2 \bigr),
+\end{align}$$
+where the inequality followed from $D_n$ being $b_n$-subGaussian. Iterating
+backwards this way, we get 
+$$ \PR\biggl(  \sum_{i=1}^n D_i  \ge t \biggr)
+   \le  \exp\biggl( - \frac{t^2}{2 \sum_{i=1}^n b_i^2 } \biggr). 
+$$
+By a symmetric argument, we can show that
+$$ \PR\biggl(  \sum_{i=1}^n D_i  \le -t \biggr)
+   \le  \exp\biggl( - \frac{t^2}{2 \sum_{i=1}^n b_i^2 } \biggr). 
+$$
+Conbining these two, we get the stated result.
+:::
+
+Note that we can easily generalize the above inequality to the case when $D_k
+\in [a_i, b_i]$ because in that case $D_k$ will be $(b_i - a_i)/2$
+sub-Gaussian.
+
+
+## Maximal inequalities
+
+As we explained in the motivation for the definition of sub-Gaussian random
+variables, the definition implies that sub-Gaussian random variables will
+satisfy the concentration and maximal inequalities for Gaussian random
+variables. In particular, we have the following general result.
+
+:::{#thm-gub-gaussian-maximal}
+Let $X_i \in \reals$ be $σ$-sub-Gaussian random variables (not necessarily
+independent). Then, 
+$$
+  \EXP\Bigl[ \max_{1 \le i \le n} X_i \Bigr] \le σ \sqrt{2 \log n}
+\quad\text{and}\quad
+  \EXP\Bigl[ \max_{1 \le i \le n} |X_i| \Bigr] \le σ \sqrt{2 \log 2n}.
+$$
+Moreover, for any $t > 0$,
+$$
+  \PR\Bigl( \max_{1 \le i \le n} X_i > t\Bigr) \le 
+  n \exp\biggl( -\frac{t^2}{2σ^2} \biggr)
+\quad\text{and}\quad
+  \PR\Bigl( \max_{1 \le i \le n} |X_i| > t\Bigr) \le 
+  2n \exp\biggl( -\frac{t^2}{2σ^2} \biggr).
+$$
+:::
+
+The proof is exactly the same as the Gaussian case!
+
+Now we state two generalizations without proof. See @MIT18.S997 for proof.
+
+### Maximum over a convex polytope {-}
+
+:::{#thm-gub-gaussian-polytope}
+ Let $\mathsf{P}$ be a polytope with $n$ vertices $v^{(1)}, \dots, v^{(n)} \in
+ \reals^d$ and let $X \in \reals^d$ be a random variable such that $[
+ v^{(i)} ]^\TRANS X$, $i \in \{1, \dots, n\}$ are $σ$-sub-Gaussian random
+ variables. Then, 
+$$
+  \EXP\Bigl[ \max_{θ \in \mathsf{P}} θ^\TRANS X \Bigr] \le σ \sqrt{2 \log n}
+\quad\text{and}\quad
+  \EXP\Bigl[ \max_{θ \in \mathsf{P}} | θ^\TRANS X | \Bigr] \le σ \sqrt{2 \log 2n}.
+$$
+Moreover, for any $t > 0$,
+$$
+  \PR\Bigl(  \max_{θ \in \mathsf{P}} θ^\TRANS X > t\Bigr) \le 
+  n \exp\biggl( -\frac{t^2}{2σ^2} \biggr)
+\quad\text{and}\quad
+  \PR\Bigl(  \max_{θ \in \mathsf{P}} |θ^\TRANS X| > t\Bigr) \le 
+  2n \exp\biggl( -\frac{t^2}{2σ^2} \biggr).
+$$
+:::
+
+### Maximum over the $\ell_2$ ball {-}
+
+:::{#thm-sub-gassian-ball}
+Let $X \in \reals^d$ be a $σ$-sub-Gaussian random variable. Then,
+$$ \EXP[ \max_{ \| θ \| \le 1 } θ^\TRANS X ] = 
+   \EXP[ \max_{ \| θ \| \le 1 } | θ^\TRANS X | ] \le 4σ \sqrt{d}.
+$$
+Moreover, for any $t > 0$
+$$ \PR( \max_{ \| θ \| \le 1 } θ^\TRANS X > t) = 
+   \PR( \max_{ \| θ \| \le 1 } | θ^\TRANS X | > t ) \le 
+  6^d \exp\biggl(- \frac{t^2}{8σ^2} \biggr).
+$$
+:::
+
+:::{.callout-tip}
+### Remark
+For any $δ > 0$, take $t = σ\sqrt{8d \log 6} + 2σ\sqrt{2 \log(1/δ)}$, we
+obtain that with probability less than $1-δ$, it holds that
+$$
+  \max_{\|θ\| \le 1} θ^\TRANS X 
+  =
+  \max_{\|θ\| \le 1} | θ^\TRANS X |
+  \le 4σ\sqrt{d} + 2σ \sqrt{2\log(1/δ)}.
+ $$
+:::
+
+## Lipschitz functions of Gaussian variables.
+
+Recall that a function $f \colon \reals^d \to \reals$ is $L$-Lipschitz with respect to the Eucledian norm if
+$$
+  | f(x) - f(y) | \le L \| x - y \|_2,
+  \quad \forall x, y \in \reals^d.
+$$
+
+The following results shows that any Lipschitz function of a Gaussian random
+variable is $L$-sub-Gaussian.
+
+:::{#thm-sub-gaussian-lipschitz}
+Let $X = (X_1, \dots, X_n)$ be a vector of i.i.d.\ standard Gaussian random
+variables and let $f \colon \reals^n \to \reals$ be $L$-Lipschitz with
+respect to the Euclidean norm. Then, the variable $f(X) - \EXP[ f(X) ]$ is
+$L$-sub-Gaussian and therefore
+$$
+  \PR\bigl[ \bigl| f(X) - \EXP[f(X)] \bigr| \ge t \bigr] 
+  \le 2 \exp\biggl(- \frac{t^2}{2L^2} \biggr).
+$$
+:::
+
+This result is remarkable because it guarantees that any $L$-Lipschitz
+function of a standard Gaussian random vector, irrespective of the dimension,
+exhibits concetration like a scalar Gaussian variable with variance $L^2$.
+
+For a proof, see Chapter 2 of @Wainwright2019.

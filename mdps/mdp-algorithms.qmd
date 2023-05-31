@@ -1,0 +1,224 @@
+---
+title: MDP algorithms
+---
+
+
+## Value Iteration Algorithm
+
+:::{.callout-important icon="false"}
+# <i class="bi bi-cpu text-important"></i> Value Iteration Algorithm
+1. Start with any $V_0 \in \reals^n$.
+2. Recursively compute $V_{k+1} = \mathcal B V_k = \mathcal B_{π_k} V_k.$
+3. Define 
+   $$ \begin{align*}
+      \underline δ_k &= \frac{γ}{1-γ} \min_s \{ V_k(s) - V_{k-1}(s) \}, \\
+      \bar δ_k &=       \frac{γ}{1-γ} \max_s \{ V_k(s) - V_{k-1}(s) \}.
+    \end{align*} $$
+
+Then, for all $k$
+
+1. $V_k + \underline δ_k \ONES \le V^* \le V_k + \bar δ_k \ONES$.
+2. $(\underline δ_k - \bar δ_k) \ONES  \le V_{π_k} - V^* \le (\bar δ_k -
+   \underline δ_k) \ONES.$
+:::  
+
+:::{.callout-note collapse="true"}  
+#### Proof {-}
+By construction, 
+$$ \begin{align*} 
+   \mathcal B V_k - V_k &= \mathcal B V_k - \mathcal B V_{k-1} \\ 
+   & \le \mathcal B_{π_{k-1}} V_k - \mathcal B_{π_{k-1}} V_{k-1}\\
+   & \le γ P_{π_{k-1}}[ V_k - V_{k-1} ] \\
+   &= (1-γ) \bar δ_k \ONES.
+\end{align*} $$
+Thus, by @prp-Bellman-bounds, we have
+$$\begin{equation} \label{eq:VI-1}
+  V^* \le V_k + \bar δ_k \ONES.
+\end{equation}$$
+Note that $\mathcal B V_k = \mathcal B_{π_k} V_k$. So, we have also show that
+$\mathcal B_{π_k} V_k - V_k \le (1-γ) \bar δ_k \ONES$. Thus, again by
+@prp-Bellman-bounds, we have
+$$\begin{equation}\label{eq:VI-2}
+  V_{π_k} \le V_k + \bar δ_k \ONES. 
+\end{equation}$$
+
+By a similar argument, we can show
+$$\begin{equation}\label{eq:VI-3}
+  V^* \ge V_k + \underline δ_k \ONES
+\quad\text{and}\quad
+ V_{π_k} \ge V_k + \underline δ_k \ONES. 
+\end{equation}$$
+
+Eq. \\eqref{eq:VI-1} and \\eqref{eq:VI-3} imply the first relationship of the
+result. To establish the second relationship, note that the triangle
+inequality
+$$ \max\{ V_{π_k} - V^* \} \le 
+   \max\{ V_{π_k} - V_k \} + \max\{ V_{k} - V^* \}
+   \le (\bar δ_k - \underline δ_k) \ONES.
+$$
+Similarly,
+$$ 
+  \max\{ V^* - V_{π_k} \} \le
+   \max \{ V^* - V_k \} + \max\{ V_k - V_{π_k} \}
+   \le (\bar δ_k - \underline δ_k) \ONES.
+$$
+Combining the above two equation, we get the second relationship of the
+result. 
+:::
+
+## Policy Iteration Algorithm
+
+
+:::{#lem-policy-improvement}
+
+### Policy improvement 
+Suppose $V_π$ is the fixed point of $\mathcal B_π$ and
+$$\mathcal B_{μ} V_π = \mathcal B V_π. $$
+Then,
+$$V_{μ}(s) \le V_π(s), \quad \forall s \in \ALPHABET S. $$
+Moreover, if $π$ is not optimal, then at least one inequality is strict. 
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+
+$$ V_π = \mathcal B_π V_π \ge \mathcal B V_π = \mathcal B_{μ} V_π.$$
+Thus,
+$$ V_π \ge V_{μ}. $$
+
+Finally, suppose $V_μ = V_π$. Then, 
+$$ V_μ = \mathcal B_μ V_μ = \mathcal B_μ V_π = \mathcal B V_π = \mathcal B
+V_μ. $$
+Thus, $V_μ$ (and $V_π$) is the unique fixed point of $\mathcal B$. Hence $μ$
+and $π$ are optimal.
+:::
+
+:::{.callout-important icon=false}
+# <i class="bi bi-cpu text-important"></i> Policy Iteration Algorithm
+
+1. Start with an arbitrary policy $π_0$. Compute $V_0 = \mathcal B_{π_0} V_0$.
+2. Recursively compute a policy $π_k$ such that
+   $$\mathcal B V_{k-1} = \mathcal B_{π_k} V_{k-1}$$
+   and compute the performance of the policy using
+   $$ V_k = \mathcal B_{π_k} V_k.$$ 
+
+3. Stop if $V_k = V_{k-1}$ (or $π_k = π_{k-1}$). 
+:::
+
+The policy improvement lemma (@lem-policy-improvement) implies that $V_{k-1} \ge
+V_k$. Since the state and action spaces are finite, there are only a finite
+number of policies. The value function improves at each step. So the process
+must converge in finite number of iterations. At convergence, $V_k = V_{k-1}$
+and the policy improvement lemma implies that the corresponding policies $π_k$
+or $π_{k-1}$ are optimal. 
+
+### Policy iteration as Newton-Raphson algoritm
+
+<!-- Taken from Pg 58 of Whittle, Optimal Control: Basics and Beyond -->
+
+Recall that the main idea behind Newton-Raphson is as follows.
+Suppose we want to solve a fixed point equation $V = \mathcal B V$ and we have
+an approximate solution $V_k$. Then we can search for an improved soluiton
+$V_{k+1} = V_k + Δ_k$ by setting
+$$\begin{equation} \label{eq:NR}
+V_k + Δ_k = \mathcal{B}( V_k + Δ_k ), 
+\end{equation} $$
+expanding the right-hand side as far as first-order terms in $Δ_k$ and solving
+the consequent linear equation for $Δ_k$. 
+
+Now, let's try to apply this idea to find the fixed point of the Bellman
+equation. Suppose we have identified a guess $V_k$ and $\mathcal B V_k =
+\mathcal B_{π_{k+1}} V_k$. Because the choice of control action $a$ is
+optimization out in $\mathcal B$, the varation of $a$ induced by the variation
+$Δ_k$ of $V_k$ has no first-order effect on the value of $\mathcal B(V_k +
+Δ_k)$. Therefore,
+$$
+  \mathcal{B}(V_k + Δ_k) = \mathcal B_{π_{k+1}}(V_k + Δ_k) + o(Δ_k).
+$$
+It follows that the linearized version of \\eqref{eq:NR} is just
+$$ 
+  V_{k+1} = \mathcal B_{π_{k+1}} V_{k+1}.
+$$
+That is, $V_{k+1}$ is just the value function for the policy $π_{k+1}$, where
+$π_{k+1}$ was deduced from the value function $V_k$ exactly by the policy
+improvement procedure. Therefore, we can conclude the following.
+
+:::{#thm-PI-NR}
+The policy improvement algorithm is equivalent to the application of
+Newton-Raphson algorithm to the fixed point equation $V = \mathcal B V$ of
+dynamic programming. 
+
+:::
+
+The equivalence between policy iteration and Newton-Raphson partily explains
+why policy iteration approaches converge in few iterations. 
+
+## Optimistic Policy Iteration
+
+:::{.callout-important icon="false"}
+# <i class="bi bi-cpu text-important"></i> Optimistic Policy Iteration Algorithm
+
+1. Fix a sequence of integers $\{\ell_k\}_{k \in \integers_{\ge 0}}$. 
+
+2. Start with an initial guess $V_0 \in \reals^n$. 
+
+3. For $k=0, 1, 2, \dots$, recursively compute a policy $π_k$ such that
+   $$ \mathcal B_{π_k} V_k = \mathcal B V_k $$
+   and then update the value function
+   $$ V_{k+1} = \mathcal B_{π_k}^{\ell_k} V_k. $$
+:::
+
+Note that if $\ell_k = 1$, the optimistic policy iteration is equivalent to
+value iteration and if $\ell_k = \infty$, then optimistic policy iteration is
+equal to policy iteration. 
+
+In the remainder of this section, we state the modifications of the main
+results to establish the convergence bounds for optimistic policy iteration. 
+
+:::{#prp-multi-step-PI}
+For any $V \in \reals^n$ and $m \ONES \in \reals_{\ge 0}$ 
+
+* If $V + m \ONES \ge \mathcal B V = \mathcal B_π V$, then for any $\ell \in \integers_{> 0}$, 
+  $$ \mathcal B V + \frac{γ}{1 - γ} m \ONES \ge \mathcal B_π^\ell V $$
+  and
+  $$ \mathcal B_π^\ell V + γ^\ell m \ONES \ge \mathcal B( \mathcal B_π^\ell V). $$
+
+:::
+
+The proof is left as an exercise.
+
+:::{#prp-PI-optimistic-bound}
+Let $\{(V_k, π_k)\}_{k \ge 0}$ be generated as per the optimistic policy
+iteration algorithm. Define
+$$ \alpha_k = \begin{cases}
+  1, & \text{if } k = 0 \\
+  γ^{\ell_0 + \ell_1 + \dots + \ell_{k-1}}, & \text{if } k > 0.
+ \end{cases}$$
+ Suppose there exists an $m \in \reals$ such that 
+ $$ \| V_0 - \mathcal B V_0 \| \le m. $$
+ Then, for all $k \ge 0$,
+ $$ \mathcal B V_{k+1} - \alpha_{k+1} m \le V_{k+1} \le 
+ \mathcal B V_k + \frac{γ}{1-γ} \alpha_k m.
+ $$
+ Moreover,
+ $$ V_{k} - \frac{(k+1) γ^k}{1-γ} m \le
+    V^* \le 
+    V_k + \frac{\alpha_k}{1 - γ} m \le 
+    V_k + \frac{γ^k}{1 - γ} m. $$
+::: 
+
+## Exercises {-}
+
+:::{#exr-VI-bounds}
+Show that the error bound for value iteration is monotone with the number
+ of iterations, i.e,
+ $$ V_k + \underline δ_k \ONES \le V_{k+1} + \underline δ_{k+1} \ONES
+ \le V^* 
+ \le V_{k+1} + \bar δ_{k+1} \ONES \le V_k + \bar δ_k \ONES. $$
+:::
+
+<!-- TODO: Add the example of policy improvement for the harvesting example
+from Page 61 of Whittle, Optimal Control: Basics and Beyond --> 
+
+# References {-}
+The techniques for value iteration and policy improvement were formalized by @Howard1960. The equivalence of policy improvement and the Newton-Raphson algorithm was demonstrated in the LQ case by @Whittle1988a, for which it holds in a tighter sense. 

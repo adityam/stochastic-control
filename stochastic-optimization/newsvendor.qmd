@@ -1,0 +1,439 @@
+---
+title: The newsvendor problem
+keywords:
+   - stochastic optimization
+   - newsvendor problem
+execute:
+  echo: false
+---
+
+::: {.column-margin}
+![Image credit: https://americangallery.wordpress.com/category/cafferty-james-h/][newsboy]
+
+[newsboy]: ../images/banners/newsboy.jpg "To buy or not to buy" {width=100% style='max-width:40em;'}
+:::
+
+:::{.callout-note icon=false appearance="simple"}
+# <i class="bi bi-journal-text text-primary"></i> Summary
+The newsvendor problem is a simple model of stochastic optimization problem where a decision has to be made when there is uncertainty about the outcome. It also shows that for some stochastic optimization problems it is possible to obtain the qualitative properties of the nature of optimal solution.
+:::
+
+Each morning, a newsvendor has to decide how many newspapers to buy before
+knowing the demand during the day. The newsvendor purchases a newspaper at
+a cost of $\$p$ per newspaper and sells them at a cost of $\$q$ per newspaper,
+where $q > p$. Any unsold newspapers at the end of the day have no salvage
+value.
+
+Let $a$ denote the number of newspapers bought and $W$ denotes
+the demand. If $W < a$, then the newsvendor will sell $W$ newspapers and
+receive a total earnings of $q W - p a$. If $W \ge a$, then the newsvendor will
+sell $a$ newspapers and receive a total earning of $q a - p a$. Thus, the
+_reward_ is $r(a,W)$, where
+
+$$r(a, w) = \begin{cases}
+   q w - p a, & \text{if } w < a, \\
+   q a - p a, & \text{if } w \ge a. 
+\end{cases} $$
+
+## Interlude with continuous version
+
+The problem above has discrete action and discrete demand. To build 
+intuition, we first consider the case where both the actions and demand are
+continuous. Let $f(w)$ denote the probability density of the demand and $F(w)$
+denote the cumulative probability density. Then, the expected reward is
+$$ \begin{equation} \label{eq:J}
+J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw. 
+\end{equation}$$
+
+To fix ideas, we consider an example where $p = 0.5$, $q = 1$, and the demand is a [:Kumaraswamy distribution] with parameters $(a,b) = (2,5)$ and support $[0,100]$. The performance of a function of action is shown below. 
+
+[:Kumaraswamy distribution]: https://en.wikipedia.org/wiki/Kumaraswamy_distribution
+
+```{ojs}
+p = 0.5
+q = 1
+r = function(w,a){ if(w<=a) { return q*w - p*a } else { return q*a - p*a } }
+
+a_opt = inverseCDF( (q-p)/q )
+
+config = ({
+  // Kumaraswamy Distribution: https://en.wikipedia.org/wiki/Kumaraswamy_distribution
+  a: 2,
+  b: 5,
+  max: 100
+})
+
+pdf = {
+  const a = config.a
+  const b = config.b
+
+  return function(x) {
+    var normalized = x/config.max
+    return a*b*normalized**(a-1)*(1 - normalized**a)**(b-1)
+  }
+}
+
+inverseCDF= {
+  const a = config.a
+  const b = config.b
+  return function(y) {
+     // Closed form expression for inverse CDF of Kumaraswamy distribution 
+     return config.max * (1 - (1-y)**(1/b))**(1/a)
+  }
+}
+
+points = { 
+  const n = 1000
+  var points = new Array(n)
+  for (var i = 0 ; i < n; i++) {
+    var x = config.max * i/n
+    points[i] = {x: x, y: pdf(x), reward: r(x,action) }
+  }
+  return points
+}
+
+cost_values = {
+  const n = 1000
+  var points = new Array(n)
+  for (var i = 0 ; i < n; i++) {
+    var x = config.max * i/n
+    points[i] = {x: x, y: J(x)}
+  }
+  return points
+}
+
+J = {
+  const a = config.a
+  const b = config.b
+
+  return function(action) {
+    const n = 1000
+    var cost = 0
+    var w = 0
+    for (var i = 0; i < n; i++) {
+      w = config.max*i/n
+      if (w <= action) {
+        cost += (q*w - p*action)*pdf(w)/n
+      } else {
+        cost += (q*action - p*action)*pdf(w)/n
+      }
+    }
+    return cost
+  }
+}
+```
+
+
+```{ojs}
+viewof action = Inputs.range([0, 100], {value: 45, step: 0.01, label: "a"})
+
+cost = Math.round(J(action)*100)/100
+```
+
+```{ojs}
+//| layout-ncol: 3
+//| label: fig-newsvendor
+//| fig-cap: "An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shared region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function $r(a,\\cdot)$, which depends on the values of $p$ and $q$."
+//| fig-subcap:
+//|     - "Performance: ${cost}"
+//|     - "PDF of demand"
+//|     - "reward (as a function of demand)"
+//| column: page
+
+plotJ = Plot.plot({
+    grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.dot([ [action, J(action)] ], {fill: "blue", r:4}),
+    Plot.dot([ [a_opt, J(a_opt)] ], {fill: "red", r:4}),
+    Plot.line(cost_values, {x:"x", y:"y"})
+  ]
+})
+
+plotPDF = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line([ [action,0], [action, pdf(action)] ], {stroke: "blue"}),
+    Plot.line(points,{x:"x", y:"y"}),
+    Plot.areaY(points.filter(pt => pt.x <= action),{x:"x", y:"y", fill: "lightblue"}),
+    Plot.areaY(points.filter(pt => pt.x > action),{x:"x", y:"y", fill: "pink"})
+  ]
+})
+
+plotReward = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(points, {x:"x", y:"reward"})
+  ]
+})
+```
+
+In @fig-newsvendor(a), the plot of $J(a)$ is concave. We can verify that this is true in general.
+
+::: {.callout-note collapse="true"}
+# Verify that $J(a)$ is concave
+
+To verify that the function $J(a)$ is concave,  we compute the second derivative:
+$$
+  \frac{d^2 J(a)}{da^2} = - p f(a) - (q - p) f(a) = -q f(a) \le 0.
+$$
+:::
+
+
+This suggests that we can use calculus to find
+the optimal value. In particular, to find the optimal action, we need to compute the $a$ such that $dJ(a)/da = 0$. 
+
+::: {#prp-newsvendor-cts}
+  For the newsvendor problem with continuous demand, the optimal action is
+  $$
+    a = F^{-1}\left( 1 - \frac{p}{q} \right).
+  $$
+  In the literature, the quantity $1 - (p/q)$ is called the _critical fractile_.
+:::
+
+::: {.callout-note collapse="true"}
+# Proof
+
+::: {.callout-tip collapse="true"}
+# Leibniz integral rule
+
+$$ \dfrac{d}{dx} \left( \int_{p(x)}^{q(x)} f(x,t) dt \right)
+   = f(x, q(x)) \cdot \dfrac {d}{dx} q(x) 
+   - f(x, p(x)) \cdot \dfrac {d}{dx} p(x) 
+   + \int_{p(x)}^{q(x)} \dfrac{\partial}{\partial x} f(x,t) dt.
+$$
+:::
+
+Using the Leibniz integral rule, the derivative of the first term of \eqref{eq:J} is
+$$ [q a - p a ] f(a) + \int_{0}^a [ -p ] f(w) dw 
+ = [q a - p a ] f(a) - p F(a).
+$$
+
+Similarly, the derivative of the second term of \eqref{eq:J} is
+$$ - [q a - p a] f(a) + \int_{a}^{\infty} (q-p)f(w)dw 
+ = - [q a - p a] f(a) + (q -p)[ 1 - F(a)].
+$$
+
+Combining the two, we get that
+$$ \dfrac{dJ(a)}{da} = - p F(a) + (q - p) [ 1 - F(a) ]. $$ 
+
+Equating this to $0$, we get
+$$ F(a) = \dfrac{ q - p }{ q}
+\quad\text{or}\quad
+a = F^{-1} \left( 1 - \dfrac{  p }{ q } \right).
+$$
+:::
+
+## Back to discrete version
+
+Now, we come back to the problem with discrete actions and discrete demand.
+Suppose $W$ takes the values $\ALPHABET W = \{ w_1, w_2, \dots, w_k \}$ (where $w_1 < w_2 <
+\cdots < w_k$) with probabilities $\{ μ_1, μ_2, \dots, μ_k \}$. It is ease to
+see that in this case the action $a$ should be in the set $\{ w_1, w_2, \dots,
+w_k \}$. 
+
+To fix ideas, we repeat the above numerical example when $\ALPHABET W = \{0, 1, \dots, 100\}$.
+
+
+```{ojs}
+pointsD = { 
+  const n = 100
+  var points = new Array(n)
+  for (var i = 0 ; i < n; i++) {
+    var x = config.max * i/n
+    points[i] = {x: x, y: pdf(x), reward: r(x,actionD) }
+  }
+  return points
+}
+
+cost_valuesD = {
+  const n = 100
+  var points = new Array(n)
+  for (var i = 0 ; i < n; i++) {
+    var x = config.max * i/n
+    points[i] = {x: x, y: J(x)}
+  }
+  return points
+}
+
+
+a_optD = Math.round(a_opt*100)/100
+```
+
+```{ojs}
+viewof actionD = Inputs.range([0, 100], {value: 45, step: 0.01, label: "a"})
+
+costD = Math.round(J(actionD)*100)/100
+```
+
+
+```{ojs}
+//| layout-ncol: 3
+//| label: fig-newsvendorD
+//| fig-cap: "An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shared region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function $r(a,\\cdot)$, which depends on the values of $p$ and $q$."
+//| fig-subcap:
+//|     - "Performance: ${costD}"
+//|     - "PDF of demand"
+//|     - "reward (as a function of demand)"
+//| column: page
+
+plotJD = Plot.plot({
+    grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.dot([ [actionD, J(actionD)] ], {fill: "blue", r:4}),
+    Plot.dot([ [a_optD, J(a_optD)] ], {fill: "red", r:4}),
+    Plot.line(cost_valuesD, {x:"x", y:"y", curve: "step-after"})
+  ]
+})
+
+plotPDFD = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line([ [actionD,0], [actionD, pdf(actionD)] ], {stroke: "blue"}),
+    Plot.line(pointsD,{x:"x", y:"y", curve:"step-after"}),
+    Plot.areaY(points.filter(pt => pt.x <= actionD),{x:"x", y:"y", curve: "step-after", fill: "lightblue"}),
+    Plot.areaY(points.filter(pt => pt.x > actionD),{x:"x", y:"y", curve: "step-after", fill: "pink"})
+  ]
+})
+
+plotRewardD = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(pointsD, {x:"x", y:"reward", curve: "step-after"})
+  ]
+})
+```
+
+
+In the discrete case, the brute force search is easier (because there are a
+finite rather than continuous number of values). We cannot directly use the
+ideas from calculus because functions over discrete domain are not
+differentiable. But we can use a very similar idea. Instead of checking if
+$dJ(a)/da = 0$, we check the sign of $J(w_{i+1}) - J(w_i)$.
+
+::: {#prp-newsvendor-discrete}
+  Let $\{M_i\}_{i \ge 1}$ denote the cumulative mass function of the demand. Then, the optimal action is the largest value of $w_i$ such that
+  $$
+    M_i \le 1 - \frac{p}{q}.
+  $$
+:::
+
+::: {.callout-note collapse="true"}
+# Proof
+
+The expected reward for choice $w_i$ is
+$$ \begin{align*} J(w_i) &=
+\sum_{j < i} μ_j [ q w_j - p w_i ] + \sum_{j \ge i} μ_j [q w_i - p w_i]
+\\
+&= -p w_i + q \Bigl[ \sum_{j < i}  μ_j w_j + \sum_{j \ge i} μ_j w_i \Bigr].
+\end{align*}$$
+
+Thus,
+$$ \begin{align*}
+  J(w_{i+1}) - J(w_i) &= 
+  -p w_{i+1} + q \Bigl[ \sum_{j < i+1}  μ_j w_j + \sum_{j \ge i+1} μ_j w_{i+1} \Bigr]
+  \\
+  &\quad + p w_i - q \Bigl[ \sum_{j < i}  μ_j w_j + \sum_{j \ge i} μ_j w_i \Bigr]
+  \\
+  &= -p (w_{i+1} - w_i) + q \Bigl[ \sum_{j \ge i + 1} μ_j ( w_{i+1} - w_i) \Bigr] 
+  \\
+  &= \big( - p + q [ 1 - M_i ] \big) (w_{i+1} - w_i).
+\end{align*}$$
+Note that 
+$$ 
+M_i \le \dfrac{q-p}{q}
+\iff
+-p + q [ 1 - M_i ] \ge 0.
+$$
+Thus, for all $i$ such that $M_i \le (q-p)/q$, we have $J(w_{i+1}) \ge J(w_i)$. On the
+other hand, for all $i$ such that $M_i > (q-p)/q)$, we have $J(w_{i+1}) < J(w_i)$.
+Thus, the optimal amount to order is the largest $w_i$ such that $M_i \le
+(q-p)/q$. 
+:::
+
+::: {.callout-important}
+# Remark
+
+Note that the structure of the optimal solution is the same for continuous and
+discrete demand distributions. 
+:::
+
+## Exercises {-}
+
+::: {#exr-newsvendor-qualitative}
+
+# Qualitative properties of optimal solution
+
+Intuitively, we expect that if the purchase price of the newspaper increases but the selling price remains the same, then the newsvendor should buy less newspapers. Formally prove this statement.
+
+_Hint_: The CDF of a distribution is a weakly increasing function.
+
+:::
+
+::: {#exr-newsvendor-monotonicity}
+
+# Monotonicity of optimal action
+
+Consider two scenarios for the case with continuous demand and actions. In scenario 1, the demand is distributed according to PDF $f_1$. In scenario 2, it is distributed according to PDF $f_2$. Suppose $F_1(w) \le F_2(w)$ for all $w$. Show that the optimal action $a_1$ for scenario 1 is greater than the optimal action $a_2$ for scenario 2. 
+
+ _Hint_: Plot the two CDFs and try to interpret the optimal decision rule graphically.
+
+:::
+
+::: {#exr-newsvendor-wind}
+# Selling random wind
+
+The amount $W$ of power generated by the wind turbine is a positive real-valued random variable with probability density function $f$. The operator of the wind turbine has to commit to provide a certain amount of power in the day-ahead market. The price of power is $\$p$ per MW. 
+
+If the operator commits to provide $a$ MW of power and the wind generation $W$ is less than $a$, then he has to buy the balance $a - W$ from a reserves market at the cost of $\$ q$ per unit, where $q > p$. Thus, the reward of the operator is $r(a,W)$ where
+$$ r(a, w) = \begin{cases}
+  p a, & \text{if } w > a \\
+  p a - q (a  - w), & \text{if } w < a.
+\end{cases}$$
+
+Find the value of commitment $a$ that maximizes the expected reward.
+
+:::
+
+## Notes {-}
+
+Perhaps the earliest model of the newsvendor problem appeared in
+@Edgeworth1888 in the context of a bank setting the level of cash reserves to
+cover demands from its customers. The solution to the basic model presented
+above and some of its variants was provided in @Morse1951; @Arrow1951;
+@Whitin1953. See @Porteus2008 for an accessible introduction. 
+
+The property $F_1(w) \le F_2(w)$ used in Exercise 2 is called [stochastic dominance].
+Later in the course, we
+will study how stochastic dominance is useful to establish [monotonicity
+properties of general MDPs][monotonicity].
+
+<!--FIXME-->
+[stochastic dominance]: ../../mdp/stochastic-dominance
+[monotonicity]: ../../mdp/monotonicity
+
+The example of selling random wind in @exr-newsvendor-wind is taken from @Bitar2012.
+

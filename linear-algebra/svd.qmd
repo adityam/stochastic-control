@@ -1,0 +1,140 @@
+---
+title: Singular value decomposition
+---
+
+::: {.callout-tip}
+# Eigendecomposition of a matrix
+A symmetric $n × n$ matrix has real eigenvlaues. When the eigenvalues are distinct, then the eigenvectors are linearly independent. Let $λ_1, \dots, λ_n$ denote the eigenvalues and let $v_1, \dots, v_n$ be the corresponding eigenvectors. Define $V = [ v_1, \dots, v_n ]$ and $D = \diag(λ_1, \dots, λ_n)$. Then, 
+$$
+  A = V D V^{-1}.
+$$
+:::
+
+If we choose the eigenvectors to be orthonormal, then $V^\TRANS V = I$, so we can alternatively write the eigendecomposition of $A$ as
+$$
+  A = V D V^\TRANS.
+$$
+
+The **singular value decomposition (SVD)** is a generalization of this where $A$ is a $n × d$ matrix.
+
+## Singular values
+
+Let $A$ be a $n × d$ matrix. Then, the matrix $A^\TRANS A$ is a symmetric $d × d$ matrix, so its eigenvalues are real. Moreover, $A^\TRANS A$ is positive semi-definite, so the eigen values are non-negative. Let $\{ λ_1, \dots, λ_d \}$ denote the eigenvalues of $A^\TRANS A$, with repetitions. Order then so
+that $λ_1 \ge λ_2 \ge \dots \ge λ_d \ge 0$. Let $σ_i = \sqrt{λ_i}$, so that
+$σ_1 \ge σ_2 \ge \dots σ_d \ge 0$. These numbers are called the **singular
+values** of $A$. 
+
+### Properties of singular values {-}
+
+1. The number of non-zero singular values of $A$ equals to the rank of $A$. In
+   particular, if $A$ is $n × d$ where $n < d$, then $A$ has at most $n$
+   nonzero singular values.
+
+2. It can be shown that
+
+   $$ σ_1 = \max_{\|x\| = 1}  \| A x \| . $$
+
+   Let $v_1$ denote the arg-max of the above optimization. $v_1$ is called the
+   first singular vector of $A$. Then,
+
+   $$ σ_2 = \max_{ x \perp v_1, \|x \| = 1}  \| A x\|. $$
+
+   Let $v_2$ denote the arg-max of the above optimization. $v_2$ is called the
+   second singular vector of $A$, and so on.
+
+3. Let $A$ be a $n × d$ matrix and $v_1, \dots, v_r$ be the singular vectors,
+   where $r = \text{rank}(A)$. Then for any $k \in \{1, \dots, r\}$, let $V_k$
+   be the subspace spanned by $\{v_1, \dots, v_k\}$. Then, $V_k$ is the best
+   $k$-dimensional subspace for $A$. 
+
+4. For any matrix $A$, 
+   $$ \sum_{i =1}^r σ_i^2(A) = \| A \|_{F}^2 
+      := \sum_{j,k} a_{jk}^2. $$
+
+5. Any vector $v$ can be written as a linear combination of $v_1, \dots, v_r$
+   and a vector perpendicular to $V_r$ (defined above). Now, $Av$ can be
+   written as the same linear combination of $Av_1, Av_2, \dots, Av_r$. So,
+   $Av_1, \dots, Av_r$ form a fundamental set of vectors associated with $A$.
+   We normalize them to length one by
+   $$ u_i = \frac{1}{σ_i(A)} A v_i. $$
+   The vectors $u_1, \dots, u_r$ are called the _left singular vectors_ of
+   $A$. The $v_i$ are called the _right singular vectors_. 
+
+6. Both the left and the right singular vectors are orthogonal.
+
+::: {.callout-important }
+
+# Singular value decomposition
+
+For any matrix $A$, 
+$$ A = \sum_{i=1}^r σ_i u_i v_i^\TRANS $$
+where $u_i$ and $v_i$ are the left and right singular vectors, and $σ_i$ are the singular values.
+
+Equivalently, in matrix notation:
+$$ A = U D V^\TRANS $$
+where the columns of $U$ and $V$ consist of the left and right singular vectors, respectively, and $D$ is a diagonal matrix whose diagonal entries are the singular values of $A$.
+:::
+
+If $A$ is a positive definite square matrix, then the SVD and the
+eigen-decomposition coincide.
+
+
+# Best rank-$k$ approximations
+
+There are two important matrix norms, the Frobenius norm which is defined as
+$$ 
+  \| A \|_{F} = \sqrt{ \sum_{i,j} a_{ij}^2 }
+$$
+and the induced norm which is defined as
+$$
+  \| A \|_2 = \max_{\|x \| = 1} \| A x \|.
+$$
+
+Note that the Frobenius norm is equal to the square root of the sum of squares
+of the singular values and the $2$-norm is the largest singular value. 
+
+Let $A$ be an $n × d$ matrix and think of $A$ as the $n$ points in
+$d$-dimensional space. The Frobenius norm of $A$ is the square root of the sum
+of squared distance of the points to the origin. The induced norm is the square root
+of the sum of squared distances to the origin along the direction that
+maximizes this quantity. 
+
+::: {#prp-svd}
+
+# Best rank-$k$ approximation
+
+Let 
+$$ A = \sum_{i = 1}^r σ_i u_i v_i^\TRANS $$
+be the SVD of $A$. For $k \in \{1, \dots, r\}$, let
+$$ A_k = \sum_{i=1}^k σ_i u_i v_i^\TRANS $$
+be the sum truncated after $k$ terms. 
+
+Then, $A_k$ is the best rank $k$ approximation to $A$, when the
+error is measured in either the induced norm or the Frobenius norm. 
+
+:::
+
+::: {.callout-note collapse="true}
+
+# Proof outline
+
+This result is established by showing the following properties:
+
+1. The rows of $A_k$ are the projections of the rows of $A$ onto the subspace
+   $V_k$ spanned by the first $k$ right singular vectors of $A$. 
+
+2. For any matrix $B$ of rank at most $k$
+   $$ \| A - A_k \|_{F} \le \|A - B \|_{F}. $$
+
+3. $\| A - A_k\|_2^2 = σ_{k+1}^2.$
+
+4. For any matrix $B$ of rank at most $k$
+   $$ \| A - A_k \|_{2} \le \|A - B \|_{2}. $$
+
+:::
+
+## Notes {-}
+
+The [chapter on SVD] in @Hopcroft2012 contains a nice intuitive explanation of SVD.
+
+[chapter on SVD]: https://www.cs.cmu.edu/~venkatg/teaching/CStheory-infoage/book-chapter-4.pdf

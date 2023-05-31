@@ -1,0 +1,238 @@
+---
+title: Reproducing Kernel Hilbert Space
+---
+
+## Review of Linear Operators
+
+::: {.callout-tip}
+
+# Linear Operator
+Let $\mathcal F$ and $\mathcal G$ be normed vector
+spaces over $\reals$. A function $A \colon \mathcal F \to \mathcal G$ is
+called a **linear operator** if it satisfies the following properties:
+ 
+* *Honogeneity:* For any $α \in \reals$ and $f \in \mathcal F$, $A(αf) =
+α (Af)$. 
+* *Additivity:* For any $f,g \in \mathcal F$, $A(f + g) = Af + Ag$. 
+
+The **operator norm** of a linear operator is defined as
+$$ \NORM{A} = \sup_{f \in \mathcal F} \frac{ \NORM{A f}_{\mathcal G}}
+{\NORM{f}}_{\mathcal F}. $$
+
+If $\NORM{A} < ∞$, then the operator is said to be a bounded operator. 
+
+:::
+
+As an example, suppose $\mathcal F$ is an inner product space. For a $g \in
+\mathcal F$, the operator $A_g \colon \mathcal F \to \reals$ defined by
+$A_g(f) = \langle f, g \rangle$ is a linear operator. Such scalar valued
+operators are called _functionals_ on $\mathcal F$. 
+
+Linear operators satisfy the following property.
+
+::: {#thm-linear-operator}
+
+If $A \colon \mathcal F \to \mathcal G$ is a linear operator, then the
+following three conditions are equivalent:
+
+1. $A$ is a bounded operator.
+2. $A$ is continuous on $\mathcal F$.
+3. $A$ is continious at one point of $\mathcal F$.
+
+:::
+
+## Dual of a linear operator
+
+There are two notions of _dual_ of a linear operator: _algebraic dual_ and
+_topological dual_. If $\mathcal F$ is a normed space, then the space of all
+_linear_ functionals $A \colon \mathcal F \to \reals$ is the _algebraic dual_
+space of $\mathcal F$; the space of all _continuous linear_ functions $A \colon
+\mathcal F \to \reals$ is the _topological dual_ space of $\mathcal F$.
+
+In finite-dimensional space, the two notions of dual spaces coincide (every
+linear operator on a normed, finite dimensional space is bounded). But this is
+not the case for infinite dimensional spaces.
+
+::: {#thm-riesz}
+
+# Riesz representation
+
+In a Hilbert space $\mathcal F$, all continuous
+linear functionals are of the form $\langle\cdot, g\rangle$, for some $g
+\in \mathcal F$. 
+
+:::
+
+Two Hilbert spaces $\mathcal F$ and $\mathcal G$ are said to be
+**isometrically isomorphic** if there is a linear bijective map $U \colon
+\mathcal F \to \mathcal G$ which preserves the inner product, i.e., $\langle
+f_1, f_2 \rangle_{\mathcal F} = \langle U f_1, U f_2 \rangle_{\mathcal G}$. 
+
+Note that Riesz representation theorem gives a natural isometric isomorphism
+$\psi \colon g \mapsto \langle \cdot, g \rangle_{\mathcal F}$ between
+$\mathcal F$ and its topological dual $\mathcal F'$, whereby
+$\NORM{ψ(g)}_{\mathcal F'} = \NORM{g}_{\mathcal F}$. 
+
+## Reproducing kernel Hilbert space
+
+Let $\mathcal H$ be a Hilbert space of functions mapping from some non-empty
+set $\ALPHABET X$ to $\reals$. Note that for every $x \in \ALPHABET X$, there
+is a very special functional on $\mathcal H$: the one that assigns to each $f
+\in \mathcal H$, its value at $x$. This is called the **evaluation
+functional** and denoted by $δ_x$. In particular, $δ_x \colon \mathcal H \to
+\reals$, where $δ_x \colon f \mapsto f(x)$. 
+
+::: {.callout-tip}
+
+# Reproducing kernel Hilbert space (RKHS)
+
+A Hilbert space $\mathcal H$ of functions $f \colon \ALPHABET X \to \reals$ defined on a non-empty set $\ALPHABET X$ is said to be a RKHS if $δ_x$ is continuous for all $x \in \ALPHABET X$.
+
+:::
+
+In view of @thm-linear-operator, an equivalent definition is that a Hilbert space
+$\mathcal H$ is RKHS if the evaluation functionals $δ_x$ are bounded, i.e.,
+for every $x \in \ALPHABET X$, there exists a $M_x$ such that
+$$ | δ_x | = | f(x) | \le M_x \| f \|_{\mathcal H}, \quad \forall f \in \mathcal H$$
+
+An immediate implication of the above property is that two functions which
+agree in RKHS norm agree at every point:
+$$ | f(x) - g(x) | = | δ_x(f - g) | \le M_x \| f - g \|_{\mathcal H},
+   \quad \forall f,g \in \mathcal H. $$
+
+For example, the $L_2$ space of square integrable functions i.e.,
+$\int_{\reals^n} f(x)^2 dx < ∞$ with inner product $\int_{\reals^n} f(x)
+g(x)dx$ is a Hilbert space, but not an RKHS because the delta function, which
+has the reproducing property
+$$ f(x) = \int_{\reals^n} δ(x - y) f(y) dy $$
+is not bounded.
+
+RKHS are particularly well behaved. In particular, if we have a sequence of
+functions $\{f_n\}_{n \ge 1}$ which converges to a limit $f$ in the
+Hilbert-space norm, i.e., $\lim_{n \to ∞} \NORM{f_n - f}_{\mathcal H} = 0$,
+then they also converge pointwise, i.e., $\lim_{n \to ∞} f_n(x) = f(x)$ for
+all $x \in \ALPHABET X$. 
+
+## Properties of RHKS
+
+RKHS has many useful properties:
+
+1. For any RKHS, there exists a _unique_ kernel $k \colon \ALPHABET X ×
+   \ALPHABET X \to \reals$ such that 
+  
+      * for any $x \in \ALPHABET X$, $k(\cdot, x) \in \mathcal H$,
+      * for any $x \in \ALPHABET X$ and $f \in \mathcal H$, 
+        $\langle f, k(\cdot, x) \rangle = f(x)$ (the reproducing property).
+
+      In particular, for any $x,y \in \ALPHABET X$, 
+      $$ k(x,y) = \langle k(\cdot, x), k(\cdot, y) \rangle. $$
+      Thus, the kernel is a symmetric function.
+
+2. The kernel is positive definite, i.e., for any $n \ge 1$, for all $(a_1,
+   \dots, a_n) \in \reals^n$ and $(x_1, \dots, x_n) \in \ALPHABET X^n$, 
+   $$ \sum_{i=1}^n \sum_{j=1}^n a_i a_i h(x_i, x_j) \ge 0 $$
+
+     A conseuqence of positive definiteness is that
+     $$| k(x, y)|^2 \le k(x, x) k(y, y). $$
+
+
+3. **(Moore-Aronszajn Theorem)**
+   For every positive definite kernel $K$ on $\ALPHABET X × \ALPHABET X$,
+   there is a unique RKHS on $\ALPHABET X$ with $K$ as its reproducing kernel. 
+
+## Examples of kernels
+
+Some common examples of symmetric positive definite kernels for $\ALPHABET
+X = \reals^n$ are as follows:
+
+1. **Linear kernel** 
+   $$ k(x,y) = \langle x, y \rangle$$
+
+2. **Gaussian kernel**
+   $$ k(x,y) = \exp\biggl( - \frac{\| x - y \|^2}{σ^2} \biggr), 
+      \quad σ > 0. $$
+
+3. **Polynomail kernel**
+   $$ k(x,y) = \bigl( 1 + \langle x, y \rangle \bigr)^d, 
+      \quad d \in \integers_{> 0}. $$
+
+## Properties of kernels
+
+1. Suppose $φ \colon \ALPHABET X \to \reals^n$ is a feature map, then 
+   $$ k(x,y) := \langle φ(x), φ(y) \rangle $$
+   is a kernel. 
+
+   Note that there are no conditions on $\ALPHABET X$ (e.g., $\ALPHABET X$
+   doesn't need to be an inner product space). 
+
+2. If $k$ is a kernel on $\ALPHABET X$, then for any $α > 0$, $αk$ is also a
+   kernel.
+
+3. If $k_1$ and $k_2$ are kernels on $\ALPHABET X$, then $k_1 + k_2$ is also a
+   kernel.
+
+4. If $\ALPHABET X$ and $\ALPHABET Y$ be arbitrary sets and $A \colon
+   \ALPHABET X \to \ALPHABET Y$ is a map. Let $k$ be a kernel on $\ALPHABET
+   Y$. Then, $k(A(x_1), A(x_2))$ is a kernel on $\ALPHABET X$. 
+
+5. If $k_1 \colon \ALPHABET X_1 × \ALPHABET X_1 \to \reals$ is a kernel on
+   $\ALPHABET X_1$ and $k_2 \colon \ALPHABET X_2 × \ALPHABET X_2 \to \reals$
+   is a kernel on $\ALPHABET X_2$, then 
+   $$ k( (x_1, x_2), (y_1, y_2) ) = k_1(x_1, y_1) k_2(x_2, y_2) $$
+   is a kernel on $\ALPHABET X_1 × \ALPHABET X_2$.  
+
+6. **(Mercer-Hilber-Schmit theorems)** If $k$ is positive definite kernel
+   (that is continous with finite trace), then there exists an infinite
+   sequence of eiegenfunctions $\{ φ_i \colon \ALPHABET X \to \reals
+   \}_{i \ge 1}$ and real eigenvalues $\{λ_i\}_{i \ge 1}$ such that we can
+   write $k$ as:
+   $$ k(x,y) = \sum_{i=1}^∞ λ_i φ_i(x) φ_i(y). $$
+   This is analogous to the expression of a matrix in terms of its eigenvector
+   and eigenvalues, except in this case we have functions and an infinity of
+   them.
+
+   Using this property, we can define the inner product of RKHS in a simpler
+   form. First, for any $f \in \mathcal H$, define
+   $$ f_i = \langle f, φ_i \rangle.$$
+   Then, for any $f, g \in \mathcal H$, 
+   $$ \langle f, g \rangle = \sum_{i=1}^∞ \frac{ f_i g_i } { λ_i }. $$
+
+## Kernel ridge regression
+
+Given labelled data $\{ (x_i, y_i) \}_{i=1}^n$, and a feature map $φ \colon
+\ALPHABET X \to \ALPHABET Z$, define the RKHS $\ALPHABET H$ of functions from
+$\ALPHABET Z \to \reals$ with the kernel $k(x,y) = \langle φ(x), φ(y)
+\rangle_{\mathcal H}$. Now, consider the problem of minimizing
+
+$$f^* = \arg \min_{f \in \ALPHABET H}
+\biggl( 
+  \sum_{i=1}^n \bigl( y_i - \langle f, φ(x_i) \rangle_{\mathcal{H}} \bigr)^2 + 
+  λ \NORM{f}^2_{\mathcal H}
+\bigr).$$
+
+::: {#thm-RKHS-represter}
+
+# The representer theoreom (simple version) 
+
+Given a loss function $\ell \colon \ALPHABET Z^n \to \reals$
+and a penalty function $Ω \colon \reals \to \reals$, there is as a solution of
+$$ f^* = \arg \min_{f \in \mathcal H} \ell(f(x_1), \dots, f(x_n)) 
+        + Ω(\NORM{f}^2_{\mathcal H}). $$
+that takes the the form
+$$ f^* = \sum_{i=1}^n α_i k(\cdot, x_i).$$
+
+If $Ω$ is strictly increasing, all solutions have this form.
+:::
+
+Using the representer theorem, we know that the solution is of the form
+$$ f = \sum_{i=1}^n α_i φ(x_i). $$
+Then,
+$$
+\sum_{i=1}^n \bigl( y_i - \langle f, φ_i(x_i) \rangle_{\mathcal H} \bigr)^2
+  + λ \NORM{f}_{\mathcal H}^2 
+= \NORM{ y - K α}^2 + λ α^\TRANS K α. $$
+
+Differentiating wrt $α$ and setting this to zero, we get
+$$ 
+  α^* = (K + λI_n)^{-1} y. 
+$$
