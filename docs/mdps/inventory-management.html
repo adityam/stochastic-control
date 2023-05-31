@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-05-31">
+<meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
+
+<title>Course Notes - 6&nbsp; Inventory Management</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../mdps/monotone-mdps.html" rel="next">
+<link href="../mdps/gambling.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/nutshell-1.0.6/nutshell.js"></script>
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true,
+    tags: "ams",
+    macros: {
+      PR: "\\mathbb{P}",
+      EXP: "\\mathbb{E}",
+      IND: "\\mathbb{I}",
+      ONES: "\\mathbb{1}",
+      reals: "\\mathbb{R}",
+      integers: "\\mathbb{Z}",
+      BLANK: "\\mathfrak{E}",
+      TRANS: "\\intercal",
+      VEC: "\\operatorname{vec}",
+      diag: "\\operatorname{diag}",
+      ROWS: "\\operatorname{vec}",
+      TR: "\\operatorname{Tr}",   
+      SPAN: "\\operatorname{sp}",   
+      ALPHABET: ["\\mathcal{#1}", 1],
+      MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+      NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+      ABS: ["\\left\\lvert #1 \\right\\rvert", 1]
+    },
+    autoload: {
+      color: ['color'],
+    },
+  },
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  },
+};
+</script>
+<script async="" data-id="101261731" src="//static.getclicky.com/js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../stochastic-control/index.html">
+ <span class="menu-text">Stochastic Control</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../multi-agent-systems/index.html">
+ <span class="menu-text">Multi-Agent Systems</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Inventory Management</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Static Stochastic Optimization</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Markov decision processes</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/gambling.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Optimal gambling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Inventory Management</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/monotone-mdps.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Monotonicity of value function and optimal policies</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/power-delay-tradeoff.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Power-delay tradeoff in wireless communication</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/reward-shaping.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Reward Shaping</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inf-horizon.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">MDP algorithms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mobile-edge-computing.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/computational-complexity-vi.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Computational complexity of value interation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/linear-programming.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Linear programming formulation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/lipschitz-mdps.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">Approximate Dynamic Programming</span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">Risk sensitive Markov decision processes</span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">Partially observable Markov decision processes</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../pomdps/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Introduction</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">Reinforcement Learning</span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">Linear Quadratic Control</span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true">Probability Appendix</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/sub-gaussian.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true">Linear Algebra Appendix</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/postive-definite-matrix.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true">Assignments</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../assignments/01.html" class="sidebar-item-text sidebar-link">Assignment 1</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#dynamic-programming-decomposition" id="toc-dynamic-programming-decomposition" class="nav-link active" data-scroll-target="#dynamic-programming-decomposition"><span class="toc-section-number">6.1</span>  Dynamic programming decomposition</a></li>
+  <li><a href="#structure-of-optimal-solution" id="toc-structure-of-optimal-solution" class="nav-link" data-scroll-target="#structure-of-optimal-solution"><span class="toc-section-number">6.2</span>  Structure of optimal solution</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Inventory Management</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Updated</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 31, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center" style="max-width:30em;">
+<figure class="figure">
+<figure class="figure">
+<img src="../images/banners/inventory.jpg" title="How to manage inventory" class="img-fluid figure-img" style="width:100.0%">
+</figure>
+<p></p><figcaption class="figure-caption">Image credit: https://hbr.org/2015/06/inventory-management-in-the-age-of-big-data</figcaption><p></p>
+</figure>
+</div>
+</div></div><div class="callout-note callout callout-style-simple no-icon callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+<i class="bi bi-journal-text text-primary"></i> Summary
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The inventory management example illustrates that a dynamic programming formulation is useful even when a closed form solution does not exist. This model also introduces the idea of <em>post-decision state</em>, which is useful in many contexts.</p>
+</div>
+</div>
+<p>Imagine a retail store that stockpiles products in its warehouse to meet random demand. Suppose the store procures new stocks at the end of each day (and that there is no lead time and stocks are available next morning). Let</p>
+<ul>
+<li><span class="math inline">\(S_t \in \integers\)</span> denote the amount of stock at the beginning of day <span class="math inline">\(t\)</span>,</li>
+<li><span class="math inline">\(A_t \in \integers_{\ge 0}\)</span> denote the stock ordered (and immediately delivered) at the beginning of day <span class="math inline">\(t\)</span>, and</li>
+<li><span class="math inline">\(W_t \in \integers_{\ge 0}\)</span> denote the demand during day <span class="math inline">\(t\)</span>.</li>
+</ul>
+<p>The random variables <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are i.i.d. with known probability distribution.</p>
+<p>Excess demand is backlogged and filled when new inventory becomes available. Thus, the stock evolves according to <span class="math display">\[S_{t+1} = S_t + A_t - W_t,\]</span> where negative stock denotes backlogged demand.</p>
+<p>The cost incurred during day <span class="math inline">\(t\)</span> consists of two components:</p>
+<ul>
+<li><p>A procurement cost of <span class="math inline">\(p A_t\)</span>, where <span class="math inline">\(p\)</span> is the cost per unit.</p></li>
+<li><p>At the end of the day, if the stock <span class="math inline">\(S_{t+1}\)</span> is positive, then there is a holding cost of <span class="math inline">\(c_h S_{t+1}\)</span> for storing excess inventory; if <span class="math inline">\(S_{t+1}\)</span> is negative, then a shortage cost of <span class="math inline">\(-c_s S_{t+1}\)</span> for unfilled demand.</p>
+<p>We denote this cost by <span class="math inline">\(h(S_{t+1})\)</span>, where <span class="math display">\[ h(s) = \begin{cases}
+     c_h s, &amp; \text{if } s \ge 0 \\
+    -c_s s, &amp; \text{if } s &lt; 0
+  \end{cases}\]</span></p></li>
+</ul>
+<section id="dynamic-programming-decomposition" class="level2 page-columns page-full" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="dynamic-programming-decomposition"><span class="header-section-number">6.1</span> Dynamic programming decomposition</h2>
+<p><span class="math inline">\(\def\S{\mathbb{S}}\)</span></p>
+<div class="page-columns page-full"><p>The above model is a Markov decision process.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Therefore, the optimal solution is given by dynamic programming.</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Part of the per-step cost depends on the <em>future</em> state <span class="math inline">\(S_{t+1}\)</span>. It is easy to show that the standard MDP model works even when the per-step cost is a function of <span class="math inline">\((S_t, A_t, S_{t+1})\)</span></p></li></div></div>
+<p>Instead of <span class="math inline">\(\integers\)</span>, we use <span class="math inline">\(\S\)</span> to denote the possible values of states. The reason is that we will later consider the case when the state space is the set of reals, and we can still use the same equations.</p>
+<div id="prp-inventory-DP" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 6.1 (Dynamic programming) </strong></span>Define the following value functions <span class="math inline">\(V_t \colon \S \to \reals\)</span> <span class="math display">\[V_{T+1}(s) = 0\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span> <span class="math display">\[ Q_t(s, a) = p a + \EXP[ h(s + a - W_t) + V_{t+1}( s + a - W_t ) ]\]</span> and <span class="math display">\[ \begin{align*}
+  V_t(s) &amp;= \min_{a \in \S_{\ge 0}} Q_t(s,a) \\
+  π_t(s) &amp;= \arg \min_{a \in \S_{\ge 0}} Q_t(s,a)
+  \end{align*}
+\]</span> Then the strategy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> is optimal.</p>
+</div>
+<p>It is possible to simplify the above dynamic program by exploiting a feature of the model. Notice that the dynamics can be split into two parts: <span class="math display">\[ \begin{align*}
+    Z_t &amp;= S_t + A_t,  \\
+    S_{t+1} &amp;= Z_t - W_t.
+   \end{align*}
+\]</span> The first part, <span class="math inline">\(Z_t\)</span>, depends only on the current state and action. The second part depends only on <span class="math inline">\(Z_t\)</span> and a primitive random variable. In this particular model, <span class="math inline">\(Z_t\)</span> is a deterministic function of <span class="math inline">\(S_t\)</span> and <span class="math inline">\(A_t\)</span>; but, in general, it could be stochastic as well; what is important is that the second part should only depend on <span class="math inline">\(Z_t\)</span> and a primitive random variable. The variable <span class="math inline">\(Z_t\)</span> is sometimes called the <strong>post-decision state</strong>.</p>
+<p>Now write the dynamic program in terms of the post-decision state as follows. Define <span class="math display">\[ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z-W) ].\]</span> Then the value function and optimal policy at time <span class="math inline">\(t\)</span> can be written as: <span class="math display">\[ \begin{align*}
+  V_t(s) &amp;= \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}, \\
+  π_t(s) &amp;= \arg \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}.
+\end{align*} \]</span></p>
+<p>Note that the problem at each step is similar to the <a href="../../stochastic/newsvendor">newsvendor</a> problem. So, similar to that model, we try to see if we can establish qualitative properties of the optimal solution.</p>
+<p>To fix ideas, let’s solve this dynamic program for a specific instance. We consider <span class="math inline">\(p = 5\)</span>, <span class="math inline">\(c_h = 4\)</span>, <span class="math inline">\(c_s = 2\)</span>, and assume that the demand is distributed according to a Binomial(10,0.4) distribution, as shown in Figure&nbsp;1.</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<figure style="max-width:20em;" id="fig1" class="figure">
+<div id="observablehq-demand_plot-d2dc6ce7">
+
+</div>
+<figcaption class="figure-caption">
+<b>Figure&nbsp;1</b><br> Demand distribution
+</figcaption>
+</figure>
+</div></div><p>We consider a horizon <span class="math inline">\(T = 15\)</span>, and solve the dynamic program shown above. The optimal value function and policy are shown below:</p>
+<figure style="max-width:40em;" class="figure">
+<div id="observablehq-viewof-time-d2dc6ce7">
+
+</div>
+
+<table>
+<tbody><tr>
+<td id="observablehq-value_plot-d2dc6ce7">
+</td>
+<td id="observablehq-action_plot-d2dc6ce7">
+</td>
+</tr>
+<tr>
+<td>
+Value function
+</td>
+<td>
+Optimal policy
+</td>
+
+</tr></tbody></table>
+<figcaption class="figure-caption">
+<b>Figure 2</b><br> The value function and the optimal policy for the example shown above
+</figcaption>
+</figure>
+<p>The plots above suggest that the optimal policy has a structure. Play around with the value of the purchase cost to see if that structure is retained.</p>
+<div id="observablehq-viewof-p-d2dc6ce7">
+
+</div>
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "action_plot") return new Inspector(document.querySelector("#observablehq-action_plot-d2dc6ce7"));
+  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-d2dc6ce7"));
+  if (name === "demand_plot") return new Inspector(document.querySelector("#observablehq-demand_plot-d2dc6ce7"));
+  if (name === "viewof time") return new Inspector(document.querySelector("#observablehq-viewof-time-d2dc6ce7"));
+  if (name === "value_plot") return new Inspector(document.querySelector("#observablehq-value_plot-d2dc6ce7"));
+  return ["DP"].includes(name);
+});
+</script>
+<p>We will now see how to prove the structure of optimal policy.</p>
+</section>
+<section id="structure-of-optimal-solution" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="structure-of-optimal-solution"><span class="header-section-number">6.2</span> Structure of optimal solution</h2>
+<p>For ease of exposition, we assume that the state space <span class="math inline">\(\S\)</span> is equal to <span class="math inline">\(\reals\)</span> (instead of <span class="math inline">\(\integers\)</span>). See exercise&nbsp;1 at the end to extend the argument to <span class="math inline">\(\integers\)</span>.</p>
+<p>For this setting, the optimal policy is then characterized as follows.</p>
+<div id="thm-inventory-structure" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 6.1 </strong></span>Define <span class="math display">\[ s^*_t = \arg \min_{z \in \reals} \bigl\{ p z + H_t(z) \bigr\} . \]</span> Then, <span class="math display">\[\begin{equation} \label{eq:V}
+V_t(s) = \begin{cases}
+  H_t(s_t) + p (s_t - s), &amp;\text{if } s \le s^*_t \\
+  H_t(s)   , &amp; \text{otherwise }
+\end{cases}
+\end{equation}\]</span> and <span class="math display">\[\begin{equation}\label{eq:pi}
+  π_t(s) = \begin{cases}
+  s^*_t - s, &amp;\text{if } s \le s^*_t \\
+  0, &amp; \text{otherwise }
+\end{cases}\end{equation}\]</span></p>
+<p>Furthermore, for all <span class="math inline">\(t\)</span>, <span class="math inline">\(H_t(z)\)</span> and <span class="math inline">\(V_t(s)\)</span> are convex in <span class="math inline">\(z\)</span> and <span class="math inline">\(s\)</span>, respectively.</p>
+</div>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Base-stock policy
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>The optimal policy given by \eqref{eq:pi} is called a <em>base-stock</em> policy. It states that there is a base-stock level <span class="math inline">\(\{s^*_t\}_{t \ge 1}\)</span> for every time step. If, at the beginning of time&nbsp;<span class="math inline">\(t\)</span>, the value of the current stock is below the base stock level <span class="math inline">\(s^*_t\)</span>, then the optimal decision is to order more goods so that the level of the stock equals the base stock level.</p>
+</div>
+</div>
+</div>
+<p>We first establish some preliminary results.</p>
+<script type="module">
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+import define from "https://api.observablehq.com/@adityam/properties-of-convex-functions.js?v=3";
+new Runtime().module(define, name => {
+  if (name === "average_plot") return new Inspector(document.querySelector("#observablehq-average_plot-11079710"));
+  if (name === "minimum_plot") return new Inspector(document.querySelector("#observablehq-minimum_plot-11079710"));
+});
+</script>
+<ol type="1">
+<li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, <span class="math inline">\(F(s) = \EXP[ f(s - W) ]\)</span> is convex.</p>
+<p><strong>Proof</strong> For any realization of <span class="math inline">\(W\)</span>, <span class="math inline">\(f(s - w)\)</span> is convex in <span class="math inline">\(s\)</span>. The expectation w.r.t. <span class="math inline">\(W\)</span> is simply the sum of convex functions and is, therefore, convex.</p>
+<figure style="max-width:40em;" class="figure">
+<div id="observablehq-average_plot-11079710">
+
+</div>
+<figcaption class="figure-caption">
+<p><b>Figure 3</b><br> An example showing that the average of convex functions is convex.</p>
+</figcaption>
+</figure></li>
+<li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, let <span class="math inline">\(s^* = \arg \min_{s \in \reals} f(s)\)</span>. Then, <span class="math display">\[\arg \min_{a \in \reals_{\ge 0}} f(s + a) = \begin{cases}
+0, &amp; \text{if } s &gt; s^*, \\
+s^* - s, &amp; \text{if } s \le s^*
+\end{cases}\]</span> and <span class="math display">\[F(s) = \min_{a \in \reals_{\ge 0}} f(s+a) = \begin{cases}
+f(s), &amp; \text{if } s &gt; s^* \\
+f(s^*), &amp; \text{if } s \le s^*
+\end{cases}\]</span> and <span class="math inline">\(F(s)\)</span> is convex in <span class="math inline">\(s\)</span>.</p>
+<p>We first see an illustration of <span class="math inline">\(F(s) = \min\{ f(s), f(s+1), f(s+2) \}\)</span>. Note that the resulting function is not convex because <span class="math inline">\(a\)</span> takes only discrete values. But the plot shows that the minimum will look like when we allow <span class="math inline">\(a\)</span> to take continuous values.</p>
+<figure style="max-width:40em;" class="figure">
+<div id="observablehq-minimum_plot-11079710">
+
+</div>
+<figcaption class="figure-caption">
+<p><b>Figure 4</b><br> An example showing that the minimum of <span class="math inline">\(f(s)\)</span>, <span class="math inline">\(f(s+1)\)</span>, <span class="math inline">\(f(s+2)\)</span>.</p>
+</figcaption>
+</figure>
+<p>If there were no constraint on <span class="math inline">\(a\)</span>, then the minimizer will be <span class="math inline">\(a = s^* -  s\)</span>. If <span class="math inline">\(s \le s^*\)</span>, then <span class="math inline">\(a = s^* -s \in \reals_{\ge 0}\)</span> is the minimizer for the constrained problem as well. On the other hand, if <span class="math inline">\(s \ge s^*\)</span>, then the function <span class="math inline">\(f(s + a)\)</span> is increasing as a function of <span class="math inline">\(a\)</span>. Hence, the minimizer for the constrained problem is <span class="math inline">\(a = 0\)</span>. See the figures below.</p></li>
+</ol>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Proof of the structural result
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Now to prove the result, we define <span class="math display">\[ f_t(z) = py + H_t(z). \]</span> Then, <span class="math display">\[ V_t(s) = \min_{a \in \reals_{\ge 0}} \bigl\{ p(s + a) + H_t(s + a)
+\bigr\} - p s
+= \min_{a \in \reals_{\ge 0}} f_t(s+a) - p s.
+\]</span> As usual, we prove the result by backward induction. For <span class="math inline">\(t=T\)</span>, <span class="math display">\[\bar Q_T(z) = \EXP[ h(z - W) ] \]</span> which is convex because <span class="math inline">\(h(z)\)</span> is convex. <span class="math inline">\(f_T(z) = p z + Q_T(z)\)</span> is the sum of a linear function and convex function and is, therefore, convex. Then, by fact 2 above, <span class="math display">\[π_T(s) = \arg \min_{a \in \reals_{\ge 0}} f_T(s+a) = \max(s^*_T - s, 0)
+\]</span> and <span class="math display">\[V_T(s) = \min_{a \in \reals_{\ge 0}} f_T(s + a) - px =
+  \begin{cases}
+    f_T(s) - p s, &amp; \text{if } s &gt; s^*_T \\
+    f_T(s^*_T) - px, &amp; \text{if } s \le s^*_T.
+  \end{cases}
+\]</span> Substituting <span class="math inline">\(f_t(z) = p z + H_t(z)\)</span>, we get that both <span class="math inline">\(V_T\)</span> and <span class="math inline">\(π_T\)</span> have the desired form and <span class="math inline">\(V_T\)</span> is convex. This forms the basis of induction.</p>
+<p>Now assume that <span class="math inline">\(V_{t+1}(s)\)</span> is convex and of the form \eqref{eq:V}. Now note that, by fact 1, <span class="math display">\[ H_t(z) = \EXP[ h(z - W) + V_{t+1}(z - W) ]\]</span> is convex. Hence, <span class="math inline">\(f_t(z)\)</span> is convex. Therefore, by fact 2 above, <span class="math display">\[ π_t(s) = \max(s^*_t - s, 0)\]</span> and <span class="math inline">\(V_t(s)\)</span> is of the desired form and convex.</p>
+<p>Thus, the result is holds by induction.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<div id="exr-inventory-discrete" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 6.1 </strong></span>Consider the setting when <span class="math inline">\(\S = \integers\)</span>. Show that there exists a sequence <span class="math inline">\(\{s_t\}_{t \ge 1}\)</span> of numbres such that policy given by <span class="math display">\[ π_t(s) = \begin{cases}
+   n, &amp; \text{if } s_t - n \le s \le s_t - n + 1, \\
+   0, &amp; \text{if } s_t \ge s_t.
+  \end{cases} \]</span> is optimal.</p>
+</div>
+</section>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p>Inventory management models with deterministic demand were introduced by <span class="citation" data-cites="Harris1913">Harris (<a href="../references.html#ref-Harris1913" role="doc-biblioref">1913</a>)</span>. The mathematical model of inventory management considered here was originally proposed by <span class="citation" data-cites="Arrow1951">Arrow et al. (<a href="../references.html#ref-Arrow1951" role="doc-biblioref">1952</a>)</span>. The optimality of base-stock policy was established by <span class="citation" data-cites="Bellman1955">Bellman et al. (<a href="../references.html#ref-Bellman1955" role="doc-biblioref">1955</a>)</span>. See the notes on <a href="inventory-management-revisited.html">infinite horizon</a> version of this model to see how to find the threshold in closed form.</p>
+<p>The problem for Exercise 1 is from <span class="citation" data-cites="Veinott1965">Veinott (<a href="../references.html#ref-Veinott1965" role="doc-biblioref">1965</a>)</span>. See <span class="citation" data-cites="Tsitsiklis1984">Tsitsiklis (<a href="../references.html#ref-Tsitsiklis1984" role="doc-biblioref">1984</a>)</span> for a partial characterization of the optimal policy with non-zero ordering costs.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography" style="display: none">
+<div id="ref-Arrow1951" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Arrow, K.J., Harris, T., and Marschak, J.</span> 1952. Optimal inventory policy. <em>Econometrica</em> <em>20</em>, 1, 250–272. DOI: <a href="https://doi.org/10.2307/1907830">10.2307/1907830</a>.
+</div>
+<div id="ref-Bellman1955" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Bellman, R., Glicksberg, I., and Gross, O.</span> 1955. On the optimal inventory equation. <em>Management Science</em> <em>2</em>, 1, 83–104. DOI: <a href="https://doi.org/10.1287/mnsc.2.1.83">10.1287/mnsc.2.1.83</a>.
+</div>
+<div id="ref-Harris1913" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Harris, F.W.</span> 1913. How many parts to make at once. <em>The magazine of management</em> <em>10</em>, 2, 135–152. DOI: <a href="https://doi.org/10.1287/opre.38.6.947">10.1287/opre.38.6.947</a>.
+</div>
+<div id="ref-Tsitsiklis1984" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Tsitsiklis, J.N.</span> 1984. Periodic review inventory systems with continuous demand and discrete order sizes. <em>Management Science</em> <em>30</em>, 10, 1250–1254. DOI: <a href="https://doi.org/10.1287/mnsc.30.10.1250">10.1287/mnsc.30.10.1250</a>.
+</div>
+<div id="ref-Veinott1965" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Veinott, A.F.</span> 1965. The optimal inventory policy for batch ordering. <em>Operations Research</em> <em>13</em>, 3, 424–432. DOI: <a href="https://doi.org/10.1287/opre.13.3.424">10.1287/opre.13.3.424</a>.
+</div>
+</div>
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../mdps/gambling.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Optimal gambling</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../mdps/monotone-mdps.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Monotonicity of value function and optimal policies</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

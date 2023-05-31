@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-05-25">
+<meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
+
+<title>Course Notes - 13&nbsp; Service Migration in Mobile edge computing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../mdps/computational-complexity-vi.html" rel="next">
+<link href="../mdps/inventory-management-revisited.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/nutshell-1.0.6/nutshell.js"></script>
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true,
+    tags: "ams",
+    macros: {
+      PR: "\\mathbb{P}",
+      EXP: "\\mathbb{E}",
+      IND: "\\mathbb{I}",
+      ONES: "\\mathbb{1}",
+      reals: "\\mathbb{R}",
+      integers: "\\mathbb{Z}",
+      BLANK: "\\mathfrak{E}",
+      TRANS: "\\intercal",
+      VEC: "\\operatorname{vec}",
+      diag: "\\operatorname{diag}",
+      ROWS: "\\operatorname{vec}",
+      TR: "\\operatorname{Tr}",   
+      SPAN: "\\operatorname{sp}",   
+      ALPHABET: ["\\mathcal{#1}", 1],
+      MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+      NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+      ABS: ["\\left\\lvert #1 \\right\\rvert", 1]
+    },
+    autoload: {
+      color: ['color'],
+    },
+  },
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  },
+};
+</script>
+<script async="" data-id="101261731" src="//static.getclicky.com/js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../stochastic-control/index.html">
+ <span class="menu-text">Stochastic Control</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../multi-agent-systems/index.html">
+ <span class="menu-text">Multi-Agent Systems</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation docked overflow-auto">
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">index.html</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Static Stochastic Optimization</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">Markov decision processes</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/gambling.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Optimal gambling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Inventory Management</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/monotone-mdps.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Monotonicity of value function and optimal policies</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/power-delay-tradeoff.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Power-delay tradeoff in wireless communication</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/reward-shaping.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Reward Shaping</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inf-horizon.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">MDP algorithms</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mobile-edge-computing.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/computational-complexity-vi.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Computational complexity of value interation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/linear-programming.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Linear programming formulation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/lipschitz-mdps.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">Approximate Dynamic Programming</span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">Risk sensitive Markov decision processes</span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">Partially observable Markov decision processes</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../pomdps/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Introduction</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">Reinforcement Learning</span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">Linear Quadratic Control</span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true">Probability Appendix</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/sub-gaussian.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true">Linear Algebra Appendix</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/postive-definite-matrix.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../references.html" class="sidebar-item-text sidebar-link">References</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true">Assignments</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../assignments/01.html" class="sidebar-item-text sidebar-link">Assignment 1</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#structure-of-the-optimal-policy" id="toc-structure-of-the-optimal-policy" class="nav-link active" data-scroll-target="#structure-of-the-optimal-policy"><span class="toc-section-number">13.1</span>  Structure of the optimal policy</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Updated</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 25, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="callout-note callout callout-style-simple no-icon callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+<i class="bi bi-journal-text text-primary"></i> Summary
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Another benefit of infinite horizon models is that it is possible to prove structural properties of the optimal policy which might not hold for a finite horizon model. We illustrate this using a model for service migration in mobile edge computing.</p>
+</div>
+</div>
+<p>There are many mobile applications which consist of a front-end component running on a mobile device and a back-end component running on a cloud, where the cloud provides additional data processing and computing resources. Examples include real-time video processing, social networking, video games, etc. In such applications, communicating with the back-end server causes delay which can cause poor quality of service. This delay can be reduced by moving the computational server closer to the user giving rise to a architecture which is called <em>mobile edge computing (MEC)</em>. In an MEC, multiple edge servers are distributed across the networks which provide cloud services to the user. Ideally, a mobile user should be connected to the closest edge server. However, as the mobile user moves, the closest edge server may change. Moving the tasks from one server to another incur a setup cost. In this section, we study a stylized model of MEC from the point of view of the service provider who has to decide how to trade-off between the delay and migration cost in mobile edge computing.</p>
+<p>We assume that the network is a two-dimensional topology <span class="math inline">\(\ALPHABET X\)</span> with a distance metric <span class="math inline">\(\| \cdot \|\)</span>. The metric may either correspond to Eucledian distance or may depend on the network topology.</p>
+<p>Let <span class="math inline">\(X_t \in \ALPHABET X\)</span> denote the location of a mobile user at time <span class="math inline">\(t\)</span>. The user moves in <span class="math inline">\(\ALPHABET X\)</span> according to a Markovian motion model. There are a finite set <span class="math inline">\(\ALPHABET S\)</span> of mobile edge servers. Let <span class="math inline">\(S_t \in \ALPHABET S\)</span> denote the server to which the user is connected at time <span class="math inline">\(t\)</span>. The state of the system is given by the tuple <span class="math inline">\((X_t, S_t)\)</span>.</p>
+<p>At the beginning of each time slot, the MEC controller has the following control options:</p>
+<ul>
+<li><p>Migrate the service from server <span class="math inline">\(S_t\)</span> to some other server <span class="math inline">\(A_t \in \ALPHABET S\)</span>. This incurs a migration cost of <span class="math inline">\(b(\|S_t - A_t \|)\)</span>, where <span class="math inline">\(b(⋅)\)</span> is a weakly increasing function with <span class="math inline">\(b(0) = 0\)</span>. Furthermore, we assume that <span class="math inline">\(b \circ \| ⋅ \|\)</span> satisfies the triangle inequality, i.e., for any <span class="math inline">\(x, y, z \in \ALPHABET X\)</span>, <span class="math inline">\(b(\|x - y\|) + b(\|y - z \|) \ge b(\|x - z \|)\)</span>. Once the migration is complete, the state of the system is <span class="math inline">\((X_t, A_t)\)</span></p></li>
+<li><p>Do not migrate the service, which can be indicated by <span class="math inline">\(A_t = S_t\)</span>, in which case the migration cost is <span class="math inline">\(b(0) = 0\)</span>.</p></li>
+</ul>
+<p>In addition to migration, there is a data <em>transmission cost</em> incurred by the user for connecting to the currently active server. The transmission cost is related to the distance between the user and the server (after possible migration). The data transmission cost is given by <span class="math inline">\(c(\| X_t - A_t \|)\)</span>, where <span class="math inline">\(c(⋅)\)</span> is a weakyl increasing function with <span class="math inline">\(c(0) = 0\)</span>.</p>
+<p>We assume that the system runs for an infinite horizon. The objective is to choose a time-homogeneous control policy <span class="math inline">\(π \colon \ALPHABET X × \ALPHABET S \to \ALPHABET S\)</span> to minimize the infinite horizon discounted cost given by <span class="math display">\[
+  J(π) = \EXP^π \Bigl[ \sum_{t=1}^∞ γ^{t-1}
+  \bigl( b(\| S_t - A_t\|) + c( \| X_t - A_t \|) \bigr) \Bigr],
+\]</span> where <span class="math inline">\(γ \in (0,1)\)</span> is the discount factor.</p>
+<p>From the standard results in Markov decision theory, we know that the optimal policy is given by the unique fixed point of the following fixed-point equation:</p>
+<p><span class="math display">\[V(x,s) = \min_{a \in \ALPHABET S}
+\bigl\{ b(\|s - a\|) + c(\|a - x\|) + γ \sum_{y \in \ALPHABET X}
+  P_{xy} V(y, a) \bigr\}.
+\]</span></p>
+<section id="structure-of-the-optimal-policy" class="level2" data-number="13.1">
+<h2 data-number="13.1" class="anchored" data-anchor-id="structure-of-the-optimal-policy"><span class="header-section-number">13.1</span> Structure of the optimal policy</h2>
+<p>We provide a basic characterization of the optimal policy.</p>
+<div id="prp-mec-structure" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 13.1 </strong></span>Let <span class="math inline">\(π^*\)</span> denote the optimal policy. Then for any <span class="math inline">\((x,s) \in \ALPHABET X × \ALPHABET S\)</span>, we have <span class="math display">\[ \| x - π^*(x,s) \| \le \| x - s \|. \]</span></p>
+</div>
+<p><a href="#prp-mec-structure">Proposition&nbsp;<span>13.1</span></a> states that the optimal policy always migrates the user to a server which is closer than the one already serving the user.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We prove the result using an interchange argument. Suppose we are given a service migration policy <span class="math inline">\(π\)</span> such that the service is migrated to a location farther away from the user, i.e., <span class="math inline">\(\|x - a\| &gt; \| x - s \|\)</span>. We will show that for an arbitrary sample path of the user locations <span class="math inline">\(\{ x_t\}_{t \ge 1}\)</span>, we can find a (possibly history dependent) policy <span class="math inline">\(μ\)</span> that does not migrate to locations further away from the user in any time slot and performs no worse than policy <span class="math inline">\(π\)</span>.</p>
+<p>Given a arbitrary sample path of user locations <span class="math inline">\(\{x_t\}_{t \ge 1}\)</span> let <span class="math inline">\(t_0\)</span> denote the <em>first</em> timeslot in which the service is migrated to somewhere farther away from the user when following policy <span class="math inline">\(π\)</span>. The state of <span class="math inline">\(t_0\)</span> is <span class="math inline">\((x_{t_0}, s_{t_0})\)</span> and the policy <span class="math inline">\(π\)</span> moves the service to server <span class="math inline">\(a_{t_0} = π(x_{t_0}, s_{t_0})\)</span>, where <span class="math inline">\(\|x_{t_0} - a_{t_0}\| &gt; \| x_{t_0} - s_{t_0} \|\)</span>. Let <span class="math inline">\(\{a^π_t\}_{t \ge t_0}\)</span> denote the subsequent locations of the server (after migration) under policy <span class="math inline">\(π\)</span>.</p>
+<p>Now, we define a policy <span class="math inline">\(μ\)</span> such that the following conditions are satisfied for the given sample path <span class="math inline">\(\{x_t\}_{t \ge 1}\)</span> of the user locations as follows. The policy <span class="math inline">\(μ\)</span> chooses the same migration actions as policy <span class="math inline">\(π\)</span> in timeslots <span class="math inline">\(t &lt; t_0\)</span>.</p>
+<p>Now, suppose <span class="math display">\[\begin{equation} \label{eq:1}
+  \| x_{t} - s^π_{t_0} \| \le \| x_{t} - a^π_{t} \|, \quad \forall t &gt; t_0.
+\end{equation}\]</span> Then, the policy <span class="math inline">\(μ\)</span> does not choose any migrations from time <span class="math inline">\(t_0\)</span> onwards. Hence, <span class="math inline">\(a^h_t = s^π_{t_0}\)</span> for all <span class="math inline">\(t \ge t_0\)</span>. Note that from time <span class="math inline">\(t_0\)</span> onwards, policy <span class="math inline">\(μ\)</span> doesn’t incur any migration cost and always incurs a transmission cost which is less than <span class="math inline">\(π\)</span>. Hence, policy <span class="math inline">\(μ\)</span> performs at least as well as policy <span class="math inline">\(π\)</span>.</p>
+<p>Now suppose&nbsp;\eqref{eq:1} does not hold. Then define <span class="math inline">\(t_m\)</span> to be the <em>first</em> timeslot after <span class="math inline">\(t_0\)</span> such that <span class="math display">\[
+  \| x_{t_m} - s^π_{t_0} \| &gt; \| x_{t_m} - a^π_{t_m} \|.
+\]</span></p>
+<p>Now, we define policy <span class="math inline">\(μ\)</span> as a policy which does not specify any migrations for time <span class="math inline">\(t \in [t_0, t_m - 1]\)</span>, migrates to location <span class="math inline">\(a^π_{t_m}\)</span> at timeslot <span class="math inline">\(t_m\)</span>, and follows policy <span class="math inline">\(π\)</span> from <span class="math inline">\(t_m\)</span> onwards.</p>
+<p>Note that policies <span class="math inline">\(π\)</span> and <span class="math inline">\(μ\)</span> agree on <span class="math inline">\([1, t_0 -1]\)</span> and <span class="math inline">\([t_m + 1, ∞)\)</span>. In the interval <span class="math inline">\([t_0, t_m]\)</span>, <span class="math display">\[
+  \| x_{t} - a^h_t \| \le \| x_t - a^π_t \|.
+\]</span> Thus, the transmission cost of policy <span class="math inline">\(μ\)</span> is no more than the transmission cost of policy <span class="math inline">\(π\)</span>.</p>
+<p>Now, the migration cost incurred by policy <span class="math inline">\(π\)</span> in the interval <span class="math inline">\([t_0, t_m]\)</span> can be lower bounded by the migration cost incurred by policy <span class="math inline">\(μ\)</span> as follows: <span class="math display">\[\begin{align*}
+  \hskip 2em &amp; \hskip -2em
+  γ^{t_0 - 1}  b(\| s^π_{t_0} - a^π_{t_0} \|) +
+  γ^{t_0 } b(\| a^π_{t_0} - a^π_{t_0 + 1} \|) + \cdots  +
+  γ^{t_m - 1} b(\| a^π_{t_m -1} - a^π_{t_m} \|) \\
+  &amp;\ge
+  γ^{t_m - 1}\bigl[
+    b(\| s^π_{t_0} - a^π_{t_0} \|) +
+   b(\| a^π_{t_0} - a^π_{t_0 + 1} \|) + \cdots  +
+   b(\| a^π_{t_m -1} - a^π_{t_m} \|)  \bigr]
+  \\
+  &amp;\ge
+  γ^{t_m - 1} b(\| s^π_{t_0} - a^π_{t_m} \|),
+\end{align*}\]</span> where the first inequality follows because <span class="math inline">\(γ &lt; 1\)</span> and the second follows from the triangle inequality.</p>
+<p>Hence, policy <span class="math inline">\(μ\)</span> performs at least as well as policy <span class="math inline">\(π\)</span>. The above procedure can be repeated so that all the mitigation actions to a location farther away from the user can be removed without increasing the overall cost.&nbsp;</p>
+<p>Note that the policy <span class="math inline">\(μ\)</span> constructed above is a history dependent policy. From the result for <a href="inf-horizon.html">infinite horizon MDP</a>, we know that a history dependent policy cannot outperform Markovian policies. Therefore, there exists a Markovian policy that does not migrate to a location farther away from the user, which does not perform worse than <span class="math inline">\(π\)</span>.&nbsp;</p>
+</div>
+</div>
+</div>
+</section>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p>The model and results presented here are taken from <span class="citation" data-cites="Wang2019">Wang et al. (<a href="../references.html#ref-Wang2019" role="doc-biblioref">2019</a>)</span>. See <span class="citation" data-cites="Urgaonkar2015">Urgaonkar et al. (<a href="../references.html#ref-Urgaonkar2015" role="doc-biblioref">2015</a>)</span> for a variation of this model.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography" style="display: none">
+<div id="ref-Urgaonkar2015" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Urgaonkar, R., Wang, S., He, T., Zafer, M., Chan, K., and Leung, K.K.</span> 2015. Dynamic service migration and workload scheduling in edge-clouds. <em>Performance Evaluation</em> <em>91</em>, 205–228. DOI: <a href="https://doi.org/10.1016/j.peva.2015.06.013">10.1016/j.peva.2015.06.013</a>.
+</div>
+<div id="ref-Wang2019" class="csl-entry" role="doc-biblioentry">
+<span class="smallcaps">Wang, S., Urgaonkar, R., Zafer, M., He, T., Chan, K., and Leung, K.K.</span> 2019. Dynamic service migration in mobile edge computing based on <span>M</span>arkov decision process. <em><span>IEEE</span>/<span>ACM</span> Transactions on Networking</em> <em>27</em>, 3, 1272–1288. DOI: <a href="https://doi.org/10.1109/tnet.2019.2916577">10.1109/tnet.2019.2916577</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../mdps/inventory-management-revisited.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../mdps/computational-complexity-vi.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Computational complexity of value interation</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
