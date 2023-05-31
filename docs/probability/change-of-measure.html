@@ -7,10 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2023-05-31">
-<meta name="keywords" content="inventory management, base-stock policy, reward shaping, structural results, stochastic optimization, infinite horizon, discounted cost">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
-<title>Course Notes - 11&nbsp; Inventory management (revisted)</title>
+<title>Course Notes - 18&nbsp; Prelim: Change of Measure</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,25 +22,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1.6em;
   vertical-align: middle;
 }
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
 </style>
 
 
@@ -52,8 +32,8 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../mdps/mobile-edge-computing.html" rel="next">
-<link href="../mdps/mdp-algorithms.html" rel="prev">
+<link href="../linear-algebra/postive-definite-matrix.html" rel="next">
+<link href="../probability/sub-gaussian.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -151,7 +131,7 @@ window.MathJax = {
     </nav>
   <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
     <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></h1>
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Prelim: Change of Measure</span></h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -244,7 +224,7 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></a>
+  <a href="../mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -311,7 +291,7 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/change-of-measure.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Prelim: Change of Measure</span></a>
+  <a href="../probability/change-of-measure.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Prelim: Change of Measure</span></a>
   </div>
 </li>
       </ul>
@@ -370,8 +350,9 @@ window.MathJax = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link active" data-scroll-target="#exercises">Exercises</a></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#change-of-measure-of-a-single-random-variable." id="toc-change-of-measure-of-a-single-random-variable." class="nav-link active" data-scroll-target="#change-of-measure-of-a-single-random-variable."><span class="toc-section-number">18.1</span>  Change of measure of a single random variable.</a></li>
+  <li><a href="#conditional-expectation-under-change-of-measure" id="toc-conditional-expectation-under-change-of-measure" class="nav-link" data-scroll-target="#conditional-expectation-under-change-of-measure"><span class="toc-section-number">18.2</span>  Conditional expectation under change of measure</a></li>
+  <li><a href="#change-of-measure-for-a-process" id="toc-change-of-measure-for-a-process" class="nav-link" data-scroll-target="#change-of-measure-for-a-process"><span class="toc-section-number">18.3</span>  Change of measure for a process</a></li>
   </ul>
 </nav>
     </div>
@@ -380,7 +361,7 @@ window.MathJax = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title d-none d-lg-block"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></h1>
+<h1 class="title d-none d-lg-block"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Prelim: Change of Measure</span></h1>
 </div>
 
 
@@ -401,94 +382,70 @@ window.MathJax = {
 
 </header>
 
-<div class="callout-note callout callout-style-simple no-icon callout-captioned">
+<section id="change-of-measure-of-a-single-random-variable." class="level2" data-number="18.1">
+<h2 data-number="18.1" class="anchored" data-anchor-id="change-of-measure-of-a-single-random-variable."><span class="header-section-number">18.1</span> Change of measure of a single random variable.</h2>
+<div id="thm-change-of-measure" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 18.1 </strong></span>Let <span class="math inline">\((\Omega, \mathcal F, P)\)</span> be a probability space and <span class="math inline">\(\Lambda\)</span> be an almost surely non-negative random variable such that <span class="math inline">\(\EXP[\Lambda] = 1\)</span>. For any <span class="math inline">\(A \in \mathcal F\)</span>, define <span class="math display">\[ P^\dagger(A) = \int_A \Lambda(\omega) dP(\omega). \]</span> Then,</p>
+<ul>
+<li><span class="math inline">\(P^\dagger\)</span> is a probability measure.</li>
+<li>For any random variable <span class="math inline">\(X\)</span>, <span class="math display">\[ \EXP^\dagger[X] = \EXP[ \Lambda X]. \]</span></li>
+<li>If <span class="math inline">\(\Lambda\)</span> is almost surely positive, then <span class="math display">\[ \EXP[X] = \EXP^\dagger \left[ \frac{X}{\Lambda} \right]. \]</span></li>
+</ul>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
+<i class="callout-icon"></i>
 </div>
 <div class="callout-caption-container flex-fill">
-<i class="bi bi-journal-text text-primary"></i> Summary
+Proof
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>One of the potential benefits of modeling a system as infinite horizon discounted cost MDP is that it can be simpler to identify an optimal policy. We illustrate this using the inventory management example.</p>
+<p>By definition. <span class="math inline">\(P^\dagger(\emptyset) = 0\)</span> and <span class="math inline">\(P^\dagger(\Omega) = \EXP[ \Lambda] = 1\)</span>. Since <span class="math inline">\(\Lambda\)</span> is almost surely non-negative, <span class="math inline">\(P^\dagger(A) \ge 0\)</span>. Hence, <span class="math inline">\(P^\dagger\)</span> is a probability measure.</p>
+<p>The second and the third part follow from observing that <span class="math display">\[ dP^\dagger(\omega) = \Lambda(\omega) dP(\omega). \]</span></p>
 </div>
 </div>
-<p>Consider the model for <a href="inventory-management.html">inventory management</a> and assume that it runs for an infinite horizon. We assume that the per-step cost is given by <span class="math display">\[c(s,a,s_{+}) = p a + γ h(s), \]</span> where <span class="math display">\[ h(s) = \begin{cases}
-  c_h s, &amp; \text{if $s \ge 0$} \\
-  -c_s s, &amp; \text{if $s &lt; 0$},
-\end{cases}\]</span> where <span class="math inline">\(a\)</span> is the per-unit holding cost, <span class="math inline">\(b\)</span> is the per-unit shortage cost, and <span class="math inline">\(p\)</span> is the per-unit procurement cost. Note that in the per-step cost, we are assuming that the holding or shortage cost is dicounted because this cost is incurred at the end of the time period.</p>
-<p>Recall that in the finite horizon setting, the optimal policy was a <em>base-stock</em> policy characterized by thresholds <span class="math inline">\(\{s^*_t\}_{t \ge 1}\)</span>. In the infinite horizon discounted setting, we expect the optimal policy to be time-homogeneous, i.e., the thresholds <span class="math inline">\(\{s^*_t\}_{t \ge 1}\)</span> be a constant <span class="math inline">\(s^*\)</span> and not to depend on time.</p>
-<p>As an illustration, let’s reconsider the example used for the <a href="inventory-management.html#fig1">finite horizon setting</a> (where <span class="math inline">\(p=5\)</span>, <span class="math inline">\(c_h = 4\)</span>, <span class="math inline">\(c_s = 2\)</span>, and the demand is Binomial(10,0.4)). We consider the discount factor <span class="math inline">\(γ = 0.9\)</span>. The value function and optimal policy is this case are shown below.</p>
-<figure style="max-width:40em;" class="figure">
-<div id="observablehq-viewof-discount-a7f21f8f">
-
+<p>Given two measures <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\nu\)</span> on a measurable space <span class="math inline">\((\Omega, \mathcal F)\)</span>, we say that the measure <span class="math inline">\(\mu\)</span> is <em>absolutely continuous</em> with respect to <span class="math inline">\(\nu\)</span> (denoted by <span class="math inline">\(\mu \ll \nu\)</span>) if for any <span class="math inline">\(A \in \mathcal F\)</span>, <span class="math display">\[
+  \nu(A) = 0 \implies \mu(A) = 0.
+\]</span></p>
+<div id="thm-Radon-Nikodynm" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 18.2 (Radon-Nikodym) </strong></span>Given two probability measures <span class="math inline">\(P\)</span> and <span class="math inline">\(P^\dagger\)</span> on a measurable space, if <span class="math inline">\(P^\dagger\)</span> is absolutely continuous with respect to <span class="math inline">\(P\)</span>, then there exists an almost surely positive random variable <span class="math inline">\(\Lambda\)</span> such that <span class="math inline">\(\EXP[\Lambda] = 1\)</span> and for any <span class="math inline">\(A \in \mathcal F\)</span>, <span class="math display">\[
+  P^\dagger(A) = \int_A \Lambda(\omega) dP(\omega).
+\]</span> Such a <span class="math inline">\(\Lambda\)</span> is called the <em>Radon-Nikodym derivative</em> of <span class="math inline">\(P^\dagger\)</span> with respect to <span class="math inline">\(P\)</span>, and is written as <span class="math display">\[
+  \Lambda = \frac{ dP^\dagger } {dP}.
+\]</span></p>
 </div>
-
-<table>
-<tbody><tr>
-<td id="observablehq-inf_value_plot-a7f21f8f">
-</td>
-<td id="observablehq-inf_action_plot-a7f21f8f">
-</td>
-</tr>
-<tr>
-<td>
-Value function
-</td>
-<td>
-Optimal policy
-</td>
-
-</tr></tbody></table>
-<figcaption class="figure-caption">
-<b>Figure 1</b><br> The value function and the optimal policy for the example
-</figcaption>
-</figure>
-<script type="module">
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
-new Runtime().module(define, name => {
-  if (name === "demand_CDF_plot") return new Inspector(document.querySelector("#observablehq-demand_CDF_plot-a7f21f8f"));
-  if (name === "inf_value_plot") return new Inspector(document.querySelector("#observablehq-inf_value_plot-a7f21f8f"));
-  if (name === "inf_action_plot") return new Inspector(document.querySelector("#observablehq-inf_action_plot-a7f21f8f"));
-  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-a7f21f8f"));
-  if (name === "viewof discount") return new Inspector(document.querySelector("#observablehq-viewof-discount-a7f21f8f"));
-  return ["DP","value_plot","action_plot","infDP","F_opt"].includes(name);
-});
-</script>
-<hr>
-<p>We are interested in the following question: <em>Is it possible to identify the optimal threshold of the base-stock policy without explicitly solving the dynamic program?</em> In this section, we show that the answer is affirmative.</p>
-<p>As a first step, we modify the per-step cost using <a href="reward-shaping.html">reward shaping</a>. In particular, we consider the following potential function</p>
-<p><span class="math display">\[\varphi(s) = h(s) + \frac1{γ} p s - \frac{1}{1-γ}p\mu,\]</span> where <span class="math inline">\(\mu = \EXP[W]\)</span> is the expected number of arrivals at each time period.</p>
-<p>Now consider a new cost function <span class="math display">\[\begin{align*}
-  c'(s,a,s_{+}) &amp;= c(s,a,s_{+}) + \varphi(s) - γ \varphi(s_{+}) \\
-  &amp;= pa + γ h(s_{+}) + h(s) + \frac{1}{γ} p s - \frac{1}{1-γ} p \mu
-  - γ h(s_{+}) - p s_{+} - \frac{γ}{1-γ} p \mu \\
-  &amp;= h(s) + \frac{1-γ}{γ} ps + p w - p \mu.
-\end{align*} \]</span> Note that <span class="math display">\[ \EXP[ c'(s,a,S_{+}) | S = s, A = a ] = h(s) + \frac{1-γ}{γ} ps
-=: c^*(s). \]</span> Thus, the optimal policy of the original model is the same as that in which the per-step cost is given by <span class="math inline">\(c^*(s)\)</span>.</p>
-<p>Recall that the optimal policy in the original model was a base stock policy. For the infinite horizon model, the threshold will become time-invariant. Thus, the optimal policy will be of the form <span class="math display">\[
-  π(s) = \begin{cases}
-  s^* - s, &amp; \text{if $s \le s^*$} \\
-  0, &amp; \text{otherwise}.
-\end{cases}\]</span></p>
-<p>The infinite horizon dynamic programming with this modified cost is given by <span class="math display">\[\begin{equation}\label{eq:DP}
-  V(s) = \min_{a \in \reals_{\ge 0}}
-   \bigl\{ c^*(s) + γ \EXP[ V(s + a - W) ] \bigr\}.
-\end{equation}\]</span></p>
-<p>Using the structure of the optimal policy identified above, we have two properties. First, <span class="math display">\[\begin{equation}\label{eq:opt}
-V(s) = c^*(s) + γ \EXP[ V(s^* - W) ], \qquad s \le s^*.
-\end{equation}\]</span> Second, at <span class="math inline">\(s = 0\)</span>, <span class="math inline">\(π(0) = s^*\)</span> (and recall that <span class="math inline">\(c^*(0) = 0\)</span>). Therefore, <span class="math display">\[\begin{equation}\label{eq:opt-policy}
-  s^* = \arg\min_{a \in \reals_{\ge 0}} γ \EXP[V(a - W)]
-\end{equation}\]</span></p>
-<p>Let <span class="math inline">\(F(s^*)\)</span> denote <span class="math inline">\(\EXP[V(s^*-W)]\)</span>. Then, substituting <span class="math inline">\(s = s^* - W\)</span> in \eqref{eq:opt} and taking expectations, we get <span class="math display">\[F(s^*) = \EXP[ c^*(s^* - W) ] + γ F(s^*).\]</span> Thus, <span class="math display">\[ \EXP[V(s^* - W)] = F(s^*) = \frac{1}{1-γ} \EXP[ c^*(s^*-W) ]. \]</span></p>
-<p>Substituting the above in \eqref{eq:opt-policy}, we get <span class="math display">\[ s^* = \arg\min_{s^* \ge 0} \frac{γ}{1-γ} \EXP[ c^*(s^* - W) ].\]</span> Consequently, we have the following:</p>
-<div id="thm-inventory-inf" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 11.1 </strong></span>The optimal threshold <span class="math inline">\(s^*\)</span> is given by the value of <span class="math inline">\(s^*\)</span> which minimizes <span class="math inline">\(\EXP[ c^*(s^*-W) ]\)</span>. In particular, if <span class="math inline">\(F\)</span> denotes the CDF of the demand, then <span class="math display">\[\begin{equation}
-s^* = F^{-1}\left( \frac{c_s - p(1-γ)/γ}{c_h + c_s} \right).
-\label{eq:opt-threshold}
-\end{equation}\]</span></p>
+<dl>
+<dt>Remark</dt>
+<dd>
+<ul>
+<li><p>The Radon-Nikodym theorem provides the reverse property of <a href="#thm-change-of-measure">Theorem&nbsp;<span>18.1</span></a>. Given two measures <span class="math inline">\(μ \ll ν\)</span>, <span class="math display">\[
+  \int_{A} f dν = \int_A f \frac{dν}{dμ} dμ.
+\]</span> Thus, in <a href="#thm-change-of-measure">Theorem&nbsp;<span>18.1</span></a>, we are constructing a new probaility measure <span class="math inline">\(P^\dagger\)</span> such that <span class="math inline">\(dP^\dagger/dP = Λ\)</span>.</p></li>
+<li><p>The Radon-Nikodym Theorem is typically stated for <span class="math inline">\(σ\)</span>-finite measures. The above statement is a specialization of Radon-Nikodym Theorem to probability measures.</p></li>
+<li><p>In statistical signal processing literature, the Radon-Nikodym derivative is sometimes known as the likelihood ratio. In the reinforcement learning literature, it is called importance sampling.</p></li>
+<li><p>The density of a random variable is the Radon-Nikodym derivative with respect to the Lebesgue measure.</p></li>
+<li><p>The Radon-Nikodym derivative satisfies the product rule. If <span class="math inline">\(μ \ll ν \ll λ\)</span>, then <span class="math display">\[
+  \frac {dμ}{dλ} = \frac {dμ}{dν} \frac {dν}{dλ},
+  \quad λ~\text{a.s.}.
+\]</span></p></li>
+<li><p>The Kullback-Leibler divergence between two probability measures <span class="math inline">\(P\)</span> and <span class="math inline">\(Q\)</span> defined on <span class="math inline">\((\Omega, \mathcal F)\)</span> may be written as <span class="math display">\[
+  D_{\text{KL}}( P \| Q) = \int_\Omega \log \left ( \frac {dP}{dQ} \right)
+  dP.
+\]</span></p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="conditional-expectation-under-change-of-measure" class="level2" data-number="18.2">
+<h2 data-number="18.2" class="anchored" data-anchor-id="conditional-expectation-under-change-of-measure"><span class="header-section-number">18.2</span> Conditional expectation under change of measure</h2>
+<div id="thm-conditional-change-of-measure" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 18.3 </strong></span>Consider two probability measures <span class="math inline">\(P\)</span> and <span class="math inline">\(P^\dagger\)</span> on <span class="math inline">\((Ω, \mathcal F)\)</span> such that <span class="math inline">\(P^\dagger \ll P\)</span>. Let <span class="math inline">\(Λ\)</span> denote the Radon-Nikodym derivative of <span class="math inline">\(P^\dagger\)</span> with respect to <span class="math inline">\(P\)</span> and <span class="math inline">\(\mathcal G\)</span> be any sub sigma-field of <span class="math inline">\(\mathcal F\)</span>. Then, for any random variable <span class="math inline">\(X\)</span> <span class="math display">\[
+  \EXP^\dagger[ X | \mathcal G ] =
+  \dfrac{ \EXP[ Λ X | \mathcal G ] } { \EXP [ Λ | \mathcal G ] },
+  \quad P^\dagger~\text{a.s.}
+\]</span></p>
 </div>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
@@ -502,63 +459,83 @@ Proof
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-The proof idea is the same approach as that used for the <a href="../stochastic/newsvendor.html">newsvendor problem</a>. In particular, let <span class="math inline">\(f\)</span> denote the distribution of <span class="math inline">\(W\)</span>, <span class="math inline">\(F\)</span> denote the CDF, and <span class="math inline">\(μ = \EXP[W]\)</span>. Then, <span class="math display">\[\begin{align}
-\EXP[c^*(s^*-W)] &amp;= \EXP[h(s^*-W)] + \frac{1-γ}{γ}p(s^* - μ)
-\notag \\
-&amp;= \int_{0}^{s^*} c_h(s^*-w)f(w)dw +
-   \int_{s^*}^{∞} c_s(w-s^*)f(w)dw + \frac{1-γ}{γ}p(s^* - μ) \notag
-\end{align}\]</span> Thereore, <span class="math display">\[\begin{align}
-\frac{∂ \EXP[c^*(s^*-W)]}{∂s^*} &amp;=
-  \int_{0}^{s^*} c_h f(w)dw
-+ \int_{s^*}^{\infty}[-c_s] f(w)dw
-+ \frac{1-γ}{γ}p \notag \\
-&amp;= c_h F(s^*) - c_s(1 - F(s^*))
-+ \frac{1-γ}{γ}p \notag \\
-\end{align}\]</span> To find the optimal threshold, we set the derivative to <span class="math inline">\(0\)</span> and simplify to obtain \eqref{eq:opt-threshold}.
+<p>Let <span class="math inline">\(G \in \mathcal G\)</span>. Then:</p>
+<p><span class="math display">\[\begin{align*}
+  \int_G \EXP[ Λ X | \mathcal G] dP
+  &amp;\stackrel{(a)}= \int_G Λ X dP \\
+  &amp;\stackrel{(b)}= \int_G X dP^\dagger \\
+  &amp;\stackrel{(c)}= \int_G \EXP^\dagger[ X | \mathcal G] dP^\dagger \\
+  &amp;\stackrel{(d)}= \int_G \EXP^\dagger[ X | \mathcal G] Λ dP \\
+  &amp;\stackrel{(e)}= \int_G \EXP[ \EXP^\dagger[ X | \mathcal G]  Λ | \mathcal G] dP \\
+  &amp;\stackrel{(f)}= \int_G \EXP^\dagger[ X | \mathcal G]  \EXP[ Λ | \mathcal G] dP \\
+\end{align*}\]</span> where (a), (c), and (e) follow from the definition of conditional expectation, (b) and (d) follow from change of measures, and (f) follows because <span class="math inline">\(\EXP^\dagger[ X | \mathcal G]\)</span> is <span class="math inline">\(\mathcal G\)</span>-measurable. Thus,</p>
+<p><span class="math display">\[ \EXP[ Λ X | \mathcal G ] = \EXP^\dagger[ X | \mathcal G ] \EXP[ Λ | \mathcal G]. \]</span></p>
 </div>
-
-</div>
-</div>
-</main></div>
-<p>We can use \eqref{eq:opt-threshold} to find the optimal threshold for the example used above. In particular, we need to find the value of <span class="math inline">\(s^*\)</span> at which the CDF of the demand equals the value <span class="math inline">\((c_s - p(1-γ)/γ)/(c_h + c_s)\)</span>, as shown in Fig.&nbsp;2 below.</p>
-<figure style="max-width:40em;" class="figure">
-<div id="observablehq-viewof-p-a7f21f8f">
-
-</div>
-<div id="observablehq-demand_CDF_plot-a7f21f8f">
-
-</div>
-<figcaption class="figure-caption">
-<b>Figure 2</b><br> The optimal threshold for the numerical example shown above
-</figcaption>
-</figure>
-<hr>
-<section id="exercises" class="level2 unnumbered">
-<h2 class="unnumbered" data-anchor-id="exercises">Exercises</h2>
-<div id="exr-inventory-exponential" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 11.1 </strong></span>Suppose that the arrival process is exponential with rate <span class="math inline">\(1/\mu\)</span>, i.e., the density of <span class="math inline">\(W\)</span> is given by <span class="math inline">\(e^{-s/\mu}/\mu\)</span>. Show that the optimal threshold is given by <span class="math display">\[ s^* = \mu \log \left[ \frac{ c_h + c_s} { c_h + p (1-γ)/γ} \right]. \]</span></p>
-<p><em>Hint</em>: Recall that the CDF the exponential distribution is <span class="math inline">\(F(s) = 1 - e^{-s/μ}\)</span>.</p>
-</div>
-</section>
-<section id="notes" class="level2 unnumbered">
-<h2 class="unnumbered" data-anchor-id="notes">Notes</h2>
-<p>The idea of using <a href="reward-shaping.html">reward shaping</a> to derive a closed form expression for inventory management is taken from <span class="citation" data-cites="Whittle1982">Whittle (<a href="../references.html#ref-Whittle1982" role="doc-biblioref">1982</a>)</span>. It is interesting to note that <span class="citation" data-cites="Whittle1982">Whittle (<a href="../references.html#ref-Whittle1982" role="doc-biblioref">1982</a>)</span> uses the idea of reward shaping more than 17 years before the paper by <span class="citation" data-cites="Ng1999">Ng et al. (<a href="../references.html#ref-Ng1999" role="doc-biblioref">1999</a>)</span> on reward shaping. It is possible that Whittle was using the results of <span class="citation" data-cites="Porteus1975">Porteus (<a href="../references.html#ref-Porteus1975" role="doc-biblioref">1975</a>)</span>.</p>
-
-
-<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography" style="display: none">
-<div id="ref-Ng1999" class="csl-entry" role="doc-biblioentry">
-<span class="smallcaps">Ng, A.Y., Harada, D., and Russell, S.</span> 1999. Policy invariance under reward transformations: Theory and application to reward shaping. <em>ICML</em>, 278–287. Available at: <a href="http://aima.eecs.berkeley.edu/~russell/papers/icml99-shaping.pdf">http://aima.eecs.berkeley.edu/~russell/papers/icml99-shaping.pdf</a>.
-</div>
-<div id="ref-Porteus1975" class="csl-entry" role="doc-biblioentry">
-<span class="smallcaps">Porteus, E.L.</span> 1975. Bounds and transformations for discounted finite markov decision chains. <em>Operations Research</em> <em>23</em>, 4, 761–784. DOI: <a href="https://doi.org/10.1287/opre.23.4.761">10.1287/opre.23.4.761</a>.
-</div>
-<div id="ref-Whittle1982" class="csl-entry" role="doc-biblioentry">
-<span class="smallcaps">Whittle, P.</span> 1982. <em>Optimization over time: Dynamic programming and stochastic control. Vol. 1 and 2</em>. Wiley.
 </div>
 </div>
 </section>
+<section id="change-of-measure-for-a-process" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="change-of-measure-for-a-process"><span class="header-section-number">18.3</span> Change of measure for a process</h2>
+<p>Consider a probability space <span class="math inline">\((Ω, \mathcal F)\)</span> and let <span class="math inline">\(P\)</span> and <span class="math inline">\(P^\dagger\)</span> be two probability measures on <span class="math inline">\((Ω, \mathcal F)\)</span> such that <span class="math inline">\(P^\dagger \ll P\)</span>. Let <span class="math inline">\(Λ\)</span> denote the Radon-Nikodym derivative of <span class="math inline">\(P^\dagger\)</span> with respect to <span class="math inline">\(P\)</span>.</p>
+<p>Let <span class="math inline">\(\{\mathcal F_t\}_{t \ge 0}\)</span> be a filtration on <span class="math inline">\((Ω, \mathcal F)\)</span>. Then, we can define the <em>Radon-Nikodym derivative process</em> <span class="math display">\[
+  Λ_t = \EXP[ Λ | \mathcal F_t ].
+\]</span></p>
+<div id="thm-derivative-process" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 18.4 </strong></span>&nbsp;</p>
+<ul>
+<li><p>The Radon-Nikodym derivative process <span class="math inline">\(\{Λ_t\}_{t \ge 0}\)</span> is a martingale with respect to <span class="math inline">\(\{\mathcal F_t\}_{t \ge 0}\)</span>, i.e., for any <span class="math inline">\(s \le t\)</span>, <span class="math display">\[ \EXP[ Λ_t | \mathcal F_s ] = Λ_s. \]</span></p></li>
+<li><p>Let <span class="math inline">\(X_t\)</span> be an <span class="math inline">\(\mathcal F_t\)</span> measurable random variable. Then <span class="math display">\[ \EXP^\dagger[X_t] = \EXP[Λ X_t ] = \EXP[ Λ_t X_t ]. \]</span></p>
+<p>Thus, <span class="math inline">\(Λ_t\)</span> may be viewed as <span class="math inline">\(\dfrac {dP^\dagger}{dP} \Bigg|_{\mathcal F_t}\)</span>.</p></li>
+<li><p>Let <span class="math inline">\(X_t\)</span> be an <span class="math inline">\(\mathcal F_t\)</span> measurable random varaible. Then for any <span class="math inline">\(s &lt; t\)</span>, <span class="math display">\[ \EXP^\dagger[X_t | \mathcal F_s ] =
+   \dfrac{1}{Λ_s} \EXP[ Λ_t X_t | \mathcal F_s ] .
+\]</span></p></li>
+</ul>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The fact Radon-Nikodym derivate process is a martingale immediately follows from the towering property of conidtional expectation:</p>
+<p><span class="math display">\[
+\EXP[ Λ_t | \mathcal F_s ] = \EXP[ \EXP[ Λ | \mathcal F_t ] | \mathcal F_s ]
+= \EXP[ Λ | \mathcal F_s ] = Λ_s.
+\]</span></p>
+<p>By definition of Radon-Nikodym derivative, <span class="math inline">\(\EXP^\dagger[X_t] = \EXP[Λ X_t]\)</span>. Now, by the towering property of conditional expectation, we have <span class="math display">\[
+  \EXP[Λ X_t ] = \EXP[ \EXP[ Λ X_t | \mathcal F_t ] ]
+  = \EXP[ X_t \EXP[ Λ | \mathcal F_t ] ] = \EXP [Λ_t X_t].
+\]</span> This proves the second part.</p>
+<p>To prove the third part, <span class="citation" data-cites="thm:conditional-change-of-measure">(<a href="../references.html#ref-thm:conditional-change-of-measure" role="doc-biblioref"><strong>thm:conditional-change-of-measure?</strong></a>)</span> implies that</p>
+<p><span class="math display">\[\begin{equation}
+\EXP^\dagger[ X_t | \mathcal F_s ] =
+   \frac{ \EXP[ Λ X_t | \mathcal F_s ]} { \EXP[ Λ | \mathcal F_s ] } =
+   \frac{ \EXP[ Λ X_t | \mathcal F_s ]} { Λ_s }.
+   \label{eq:step-1}
+\end{equation}\]</span></p>
+<p>Now, consider the numerator:</p>
+<p><span class="math display">\[
+\EXP[ Λ X_t | F_s ] = \EXP[ \EXP [ Λ X_t | \mathcal F_t ] | \mathcal F_s ]
+= \EXP [ X_t \EXP[ Λ | \mathcal F_t ] ] = \EXP [ X_t Λ_t ] .
+\]</span> Substituting this in \eqref{eq:step-1} completes the proof of the third part.</p>
+</div>
+</div>
+</div>
+<p>An immediate implication of <a href="#thm-derivative-process">Theorem&nbsp;<span>18.4</span></a> is the following.</p>
+<div id="cor-derivate-process" class="theorem corollary">
+<p><span class="theorem-title"><strong>Corollary 18.1 </strong></span>A process <span class="math inline">\(\{X_t\}_{t \ge 0}\)</span> is a <span class="math inline">\(P^\dagger\)</span>-martingale with respect to <span class="math inline">\(\{\mathcal F_t\}_{t \ge 0}\)</span> if and only if the process <span class="math inline">\(\{ Λ_t X_t \}_{t \ge 0}\)</span> is a <span class="math inline">\(P\)</span>-martingale.</p>
+</div>
 
- <!-- /main -->
+
+</section>
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -694,17 +671,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../mdps/mdp-algorithms.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">MDP algorithms</span></span>
+      <a href="../probability/sub-gaussian.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../mdps/mobile-edge-computing.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../linear-algebra/postive-definite-matrix.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
- <!-- /content -->
+</div> <!-- /content -->
 
 
 
