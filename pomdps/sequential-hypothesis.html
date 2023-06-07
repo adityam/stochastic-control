@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.361">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-06-07">
+<meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
+
+<title>Course Notes - 18&nbsp; Sequential hypothesis testing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../probability/sub-gaussian.html" rel="next">
+<link href="../pomdps/intro.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/nutshell-1.0.6/nutshell.js"></script>
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true,
+    tags: "ams",
+    macros: {
+      PR: "\\mathbb{P}",
+      EXP: "\\mathbb{E}",
+      IND: "\\mathbb{I}",
+      ONES: "\\mathbb{1}",
+      reals: "\\mathbb{R}",
+      integers: "\\mathbb{Z}",
+      BLANK: "\\mathfrak{E}",
+      TRANS: "\\intercal",
+      VEC: "\\operatorname{vec}",
+      diag: "\\operatorname{diag}",
+      ROWS: "\\operatorname{vec}",
+      TR: "\\operatorname{Tr}",   
+      SPAN: "\\operatorname{sp}",   
+      ALPHABET: ["\\mathcal{#1}", 1],
+      MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+      NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+      ABS: ["\\left\\lvert #1 \\right\\rvert", 1]
+    },
+    autoload: {
+      color: ['color'],
+    },
+  },
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  },
+};
+</script>
+<script async="" data-id="101261731" src="//static.getclicky.com/js"></script>
+<script type="text/javascript" src="https://www.geogebra.org/apps/deployggb.js">
+</script>
+
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
+ <span class="menu-text">Stochastic Control</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../multi-agent-systems/index.html" rel="" target="">
+ <span class="menu-text">Multi-Agent Systems</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+    <a href="https://github.com/adityam/stochastic-control" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../pomdps/intro.html">POMDPs</a></li><li class="breadcrumb-item"><a href="../pomdps/sequential-hypothesis.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Sequential hypothesis testing</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">About the course</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Stochastic Optimization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">MDPs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/gambling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Optimal gambling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Inventory Management</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/monotone-mdps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Monotonicity of value function and optimal policies</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/power-delay-tradeoff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power-delay tradeoff in wireless communication</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/reward-shaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Reward Shaping</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inf-horizon.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">MDP algorithms</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mobile-edge-computing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/computational-complexity-vi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Computational complexity of value interation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/linear-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Linear programming formulation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/lipschitz-mdps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Approx DP</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../approx-mdps/model-approximation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Model approximation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Risk sensitive MDPs</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text">POMDPs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../pomdps/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../pomdps/sequential-hypothesis.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Sequential hypothesis testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">LQ systems</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">RL</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text">Probability Appendix</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/sub-gaussian.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/change-of-measure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Change of Measure</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text">Linear Algebra Appendix</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/postive-definite-matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true">
+ <span class="menu-text">Assignments</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../assignments/01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Assignment 1</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#dynamic-programming-decomposition" id="toc-dynamic-programming-decomposition" class="nav-link active" data-scroll-target="#dynamic-programming-decomposition"><span class="header-section-number">18.1</span> Dynamic programming decomposition</a></li>
+  <li><a href="#structure-of-the-optimal-policy" id="toc-structure-of-the-optimal-policy" class="nav-link" data-scroll-target="#structure-of-the-optimal-policy"><span class="header-section-number">18.2</span> Structure of the optimal policy</a></li>
+  <li><a href="#infinite-horizon-setup" id="toc-infinite-horizon-setup" class="nav-link" data-scroll-target="#infinite-horizon-setup"><span class="header-section-number">18.3</span> Infinite horizon setup</a></li>
+  <li><a href="#upper-bound-on-the-expected-number-of-measurements" id="toc-upper-bound-on-the-expected-number-of-measurements" class="nav-link" data-scroll-target="#upper-bound-on-the-expected-number-of-measurements"><span class="header-section-number">18.4</span> Upper bound on the expected number of measurements</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/pomdps/sequential-hypothesis.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Sequential hypothesis testing</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Updated</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 7, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>Consider a decision maker (DM) that makes a series of i.i.d. observations which may be distributed according to PDF <span class="math inline">\(f_0\)</span> or <span class="math inline">\(f_1\)</span>. Let <span class="math inline">\(Y_t\)</span> denote the observaion at time <span class="math inline">\(t\)</span>. The DM wants to differentiate between two hypothesis: <span class="math display">\[\begin{gather*}
+  h_0 : Y_t \sim f_0 \\
+  h_1 : Y_t \sim f_1
+\end{gather*}\]</span> Typically, we think of <span class="math inline">\(h_0\)</span> as the normal situation (or the null hypothesis) and <span class="math inline">\(h_1\)</span> as an anomaly. For example, the hypothesis may be <span class="math display">\[ h_0: Y_t \sim {\cal N}(0, σ^2) \quad h_1: Y_t \sim {\cal N}(μ, σ^2) \]</span> or <span class="math display">\[ h_0: Y_t \sim \text{Ber}(p) \quad h_1: Y_t \sim \text{Ber}(q). \]</span></p>
+<p>Let the random variable <span class="math inline">\(H\)</span> denote the value of the hypothesis. The a priori probability <span class="math inline">\(\PR(H = h_0) = p\)</span>.</p>
+<p>The system continues for a finite time <span class="math inline">\(T\)</span>. At each <span class="math inline">\(t &lt; T\)</span>, the DM has three options:</p>
+<ul>
+<li>stop and declare <span class="math inline">\(h_0\)</span></li>
+<li>stop and declare <span class="math inline">\(h_1\)</span></li>
+<li>continue and take another measurement</li>
+</ul>
+<p>At the terminal time step <span class="math inline">\(T\)</span>, the continuation option is not available. Each measurement has a cost <span class="math inline">\(c\)</span>. When the DM takes a stopping action <span class="math inline">\(ν\)</span>, it incurs a stopping cost <span class="math inline">\(\ell(ν, H)\)</span>.</p>
+<p>We typically assume <span class="math inline">\(\ell(h_0, h_0) = \ell(h_1, h_1) = 0\)</span>. The term <span class="math inline">\(\ell(h_1, h_0)\)</span> indicates that the DM declares an anomaly when everything is okay. This is called <em>false alarm penalty</em>. The term <span class="math inline">\(\ell(h_0, h_1)\)</span> indicates that DM declares everything is okay when there is an anomaly. This is called the <em>missed detection penalty</em>.</p>
+<p>Let <span class="math inline">\(τ\)</span> denote the time when the DM stops. Then the total cost of running the system is <span class="math inline">\(cτ + \ell(ν, H)\)</span>. The objective is to find the optimal stopping strategy that minimize the expected total cost.</p>
+<section id="dynamic-programming-decomposition" class="level2" data-number="18.1">
+<h2 data-number="18.1" class="anchored" data-anchor-id="dynamic-programming-decomposition"><span class="header-section-number">18.1</span> Dynamic programming decomposition</h2>
+<p>We use the belief-state as an information state to obtain a dynamic programming decomposition. Recall that the beief state is two-dimensional pdf where <span class="math display">\[ b_t(h) = \PR(H = h | Y_{1:t}), \quad h \in \{h_0, h_1\}. \]</span></p>
+<dl>
+<dt>Remarks</dt>
+<dd>
+<ul>
+<li><p>We are only conditioning on <span class="math inline">\(Y_{1:t}\)</span> and not adding <span class="math inline">\(A_{1:t-1}\)</span> in the conditioning. This is because we are taking the standard approach used in optimal stopping problems where we are only defining the state for case when the stopping decision hasn’t been taken so far and all previous actions are continue. Taking a continue action does not effect the observations. For this reason, we do not condition on <span class="math inline">\(A_{1:t-1}\)</span>.</p></li>
+<li><p>It is possible to exploit the fact that <span class="math inline">\(b_t = [p_t, 1 - p_t]^T\)</span> and write a simplified DP in terms of <span class="math inline">\(p_t\)</span>. In these notes, I don’t make this simplification so that we can see how these results will extend to the case of non-binary hypothesis.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The dynamic program for the above model is then given by <span class="math display">\[
+  V_T(b_T) = \min\{ \EXP[ \ell(h_0, H) | B_T = b_T],
+                    \EXP[ \ell(h_1, H) | B_T = b_T] \}
+\]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>, <span class="math display">\[ V_t(b_t) = \min \{ \EXP[ \ell(h_0, H) | B_t = b_t],
+                      \EXP[ \ell(h_1, H) | B_t = b_t],
+                     c + \EXP[V_{t+1}(ψ(b_t, Y_{t+1})) | B_t = b_t] \},
+\]</span> where <span class="math inline">\(ψ(b, y)\)</span> denotes the standard non-linear filtering update (there is no dependence on <span class="math inline">\(a\)</span> here because there are no state dynamics in this model).</p>
+<p>We introduce some notation to simplify the discussion. Define</p>
+<ul>
+<li><span class="math inline">\(L_i(b) = \EXP[ \ell(h_i, H) | B = b] = \sum_{h \in \{h_0, h_1\}} \ell(h_i, h) b(h)\)</span>.</li>
+<li><span class="math inline">\(W_t(b_t) = c + \EXP[V_{t+1}(ψ(b_t, Y_{t+1})) | B_t = b_t]\)</span>.</li>
+</ul>
+<p>Then, the above DP can be written as <span class="math display">\[
+  V_T(b_T) = \min\{ L_0(b_T), L_1(b_T) \}
+\]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>, <span class="math display">\[ V_t(b_t) = \min \{ L_0(b_t), L_1(b_t), W_t(b_t) \}. \]</span></p>
+</section>
+<section id="structure-of-the-optimal-policy" class="level2 page-columns page-full" data-number="18.2">
+<h2 data-number="18.2" class="anchored" data-anchor-id="structure-of-the-optimal-policy"><span class="header-section-number">18.2</span> Structure of the optimal policy</h2>
+<p>We start by establishing simple properties of the different functions defined above.</p>
+<div id="lem-hypothesis-concavity" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 18.1 </strong></span>The above functions statisfy the following properties:</p>
+<ul>
+<li><span class="math inline">\(L_i(b)\)</span> is linear in <span class="math inline">\(b\)</span>.</li>
+<li><span class="math inline">\(V_t(b)\)</span> and <span class="math inline">\(W_t(b)\)</span> is concave in <span class="math inline">\(b\)</span>.</li>
+<li><span class="math inline">\(V_t(b)\)</span> and <span class="math inline">\(W_t(b)\)</span> are increasing in <span class="math inline">\(t\)</span>.</li>
+</ul>
+</div>
+<figure class="figure">
+<div id="applet_container" style="width:800px;height:800px;display:block">
+
+</div>
+<figcaption class="figure-caption">
+An illustration of the minimum of two straight lines and a concave function. Move the points around to see how the shape of the function changes.
+</figcaption>
+</figure>
+<script type="text/javascript">
+      var params1 = {
+        filename: "../www/geogebra/pomdp-hypothesis-testing1.ggb",
+        enableShiftDragZoom: false,
+        width: 800,
+        height: 700,
+      }
+
+      var params2 = {
+        filename: "../www/geogebra/pomdp-hypothesis-testing2.ggb",
+        enableShiftDragZoom: false,
+        width: 800,
+        height: 700,
+      }
+
+      var applet1 = new GGBApplet(params1, true);
+      var applet2 = new GGBApplet(params2, true);
+
+      window.onload = function() {
+          applet1.inject('applet_container');
+          applet2.inject('applet_container2');
+      }
+  </script>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The linearity of <span class="math inline">\(L_i(b)\)</span> follows from definition. From the discussion on <a href="intro.html#thm-belief-PWLC">POMDPs</a>, we know that <span class="math inline">\(V_{t+1}(b)\)</span> is concave in <span class="math inline">\(b\)</span> and so is <span class="math inline">\(\EXP[V_{t+1}(ψ(b, Y_{t+1})) | B_t = b]\)</span>. Therefore <span class="math inline">\(W_t(b)\)</span> is concave in <span class="math inline">\(b\)</span>.</p>
+<p>Finally, by construction, we have that <span class="math inline">\(V_{T-1}(b) \le V_T(b)\)</span>. The monotonicity in time then follows from Q2 of <a href="../assignments/02.html">Assignment 2</a>. Sincen <span class="math inline">\(V_t\)</span> is monotone in time, it implies that <span class="math inline">\(W_t\)</span> is also monotone.</p>
+</div>
+</div>
+</div>
+<p>Now define stopping sets <span class="math inline">\(D_t(h) = \{ b \in Δ^2 : π_t(b) = h \}\)</span> for <span class="math inline">\(h \in \{h_0, h_1\}\)</span>. The key result is the following.</p>
+<div id="thm-hypothesis-convex" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 18.1 </strong></span>For all <span class="math inline">\(t\)</span> and <span class="math inline">\(h \in \{h_0, h_1\}\)</span>, the set <span class="math inline">\(D_t(h)\)</span> is convex. Moreover, <span class="math inline">\(D_t(h_i) \subseteq D_{t+1}(h_i)\)</span>.</p>
+</div>
+<figure class="figure">
+<div id="applet_container2" style="width:800px;height:800px;display:block">
+
+</div>
+<figcaption class="figure-caption">
+An illustration of the stopping sets. Move the points around to see how the shape of the stopping set changes.
+</figcaption>
+</figure>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Note that we can write <span class="math inline">\(D_t(h) = A_t(h) \cap B_t(h)\)</span>, where <span class="math display">\[ A_t(h_i) = \{ b \in Δ^2 : L_i(b)  \le L_j(b) \}
+   \quad\text{and}\quad
+   B_t(h_i) = \{ b \in Δ^2 : L_i(b) \le W_t(b)  \}. \]</span></p>
+<p><span class="math inline">\(A_t(h_i)\)</span> is a the set of <span class="math inline">\(b\)</span> where one linear function of <span class="math inline">\(b\)</span> is less than or equal to another linear function of <span class="math inline">\(b\)</span>. Therefore, <span class="math inline">\(A_t(h_i)\)</span> is a convex set.</p>
+<p>Similarly, <span class="math inline">\(B_t(h_i)\)</span> is the set of <span class="math inline">\(b\)</span> where a linear function of <span class="math inline">\(b\)</span> is less than or equal to a concave function of <span class="math inline">\(b\)</span>. Therefore <span class="math inline">\(B_t(h_i)\)</span> is also a convex set.</p>
+<p><span class="math inline">\(D_t(h_i)\)</span> is the intersection of two convex sets, and hence convex.</p>
+<p>The monotonicty of <span class="math inline">\(D_t(h_i)\)</span> in time follows from the monotonicity of <span class="math inline">\(W_t\)</span> in time.</p>
+</div>
+</div>
+</div>
+<div id="thm-hypothesis-corner" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 18.2 </strong></span>Suppose the stopping cost satisfy the following: <span class="math display">\[\begin{equation} \label{eq:cost-ass}
+\ell(h_0, h_0) \le c \le \ell(h_0, h_1)
+  \quad\text{and}\quad
+  \ell(h_1, h_1) \le c \le \ell(h_1, h_0).
+\end{equation}\]</span> Then, <span class="math inline">\(e_i \in D_t(h_i)\)</span>, where <span class="math inline">\(e_i\)</span> denotes the standard unit vector (i.e., <span class="math inline">\(e_0 = [1, 0]^T\)</span> and <span class="math inline">\(e_1 = [0, 1]^T\)</span>).</p>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remark
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The assumption on observation cost states that: (i) the cost of observation is greater than the cost incurred when the DM chooses the right hypothesis, and (ii) the cost of observation is less than the cost incurred when the DM chooses the wrong hypothesis. Both these assumptions are fairly natural.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Note that <span class="math inline">\(L_i(e_0) = \ell(h_i, h_0)\)</span> and <span class="math inline">\(L_i(e_1) = \ell(h_1, h_1)\)</span>. Moreover, by construction, <span class="math inline">\(W_t(b) \ge c\)</span>. Thus, under the above assumption on the cost, <span class="math display">\[ L_0(e_0) = \ell(h_0, h_0) \le c \le W_t(e_0) \]</span> and <span class="math display">\[ L_0(e_0) = \ell(h_0, h_0) \le \ell(h_1, h_0) = L_1(e_0). \]</span> Thus, <span class="math inline">\(e_0 \in D_t(h_0)\)</span>.</p>
+<p>By a symmetric argument, we can show that <span class="math inline">\(e_1 \in D_t(h_1)\)</span>.</p>
+</div>
+</div>
+</div>
+<p><a href="#thm-hypothesis-convex">Theorem&nbsp;<span>18.1</span></a> and <a href="#thm-hypothesis-corner">Theorem&nbsp;<span>18.2</span></a> imply that the optimal stopping regions are convex and include the “corner points” of the simplex. Note that although we formulated the problem for binary hypothesis, all the steps of the proof hold in general as well.</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<figure class="figure">
+<img src="images/general-stopping.png" title="Stopping regions" alt="Stopping regions" width="300" class="figure-img">
+<figcaption class="figure-caption">
+Stopping regions for multiple hypothesis
+</figcaption>
+</figure>
+</div></div><p>For binary hypothesis, we can present a more concerete characterizatin of the optimal policy. Note that the two-dimensional simplex is equivalent to the interval <span class="math inline">\([0,1]\)</span>. In particular, any <span class="math inline">\(b = Δ^2\)</span> is equal to <span class="math inline">\([p, 1-p]\)</span>, where <span class="math inline">\(p \in [0,1]\)</span>. Now define:</p>
+<ul>
+<li><span class="math inline">\(\displaystyle b_t = \min\left\{ p \in [0, 1] :  π_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_0 \right\}.\)</span></li>
+<li><span class="math inline">\(\displaystyle a_t = \max\left\{ p \in [0, 1] :  π_t\left(\begin{bmatrix} p \\ 1-p \end{bmatrix}\right) = h_1 \right\}.\)</span></li>
+</ul>
+<p>Then, by definition, the optimal policy has the following threshold property:</p>
+<div id="prp-hypothesis-threshold" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 18.1 </strong></span>Let <span class="math inline">\(\bar π_t(p) = π_t([p, 1-p]^T)\)</span>. Then, under \eqref{eq:cost-ass}, <span class="math display">\[ \bar π_t(p) = \begin{cases}
+   h_1, &amp; \text{if } p \le a_t \\
+   \mathsf{C}, &amp; \text{if } a_t &lt; p &lt; b_t \\
+   h_0, &amp; \text{if } b_t \le p.
+  \end{cases} \]</span></p>
+<p>Furthermore, the decision thresholds are monotone in time. In particular, for all <span class="math inline">\(t\)</span>, <span class="math display">\[ a_t \le a_{t+1} \le b_{t+1} \le b_t. \]</span></p>
+</div>
+<p>The above property is simplies stated slighted in terms of the likelihood ratio. In particular, define <span class="math inline">\(λ_t = b_t(0)/b_t(1) = p_t/(1 - p_t)\)</span>. Then, we have the following:</p>
+<div id="prp-hypothesis-likelihood" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 18.2 </strong></span>Let <span class="math inline">\(\hat π_t(λ) = π_t([λ/(1+λ), 1/(1+λ)]^T)\)</span>. Then, under \eqref{eq:cost-ass}, <span class="math display">\[ \hat π_t(λ) = \begin{cases}
+   h_1, &amp; \text{if } λ \le a_t/(1 - a_t) \\
+   \mathsf{C}, &amp; \text{if } a_t/(1 - a_t) &lt; λ &lt; b_t/(1 - b_t)_t \\
+   h_0, &amp; \text{if } b_t/(1 - b_t)_t \le λ.
+  \end{cases} \]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>For any <span class="math inline">\(a, b \in [0, 1]\)</span>, <span class="math display">\[ a \le b \iff \frac{a}{1-a} \le \frac{b}{1-b}.\]</span></p>
+</div>
+</div>
+</div>
+<p>The result of <a href="#prp-hypothesis-likelihood">Proposition&nbsp;<span>18.2</span></a> is called the <em>sequential</em> likelihood ratio test (SLRT) or <em>sequential</em> probability ratio test (SPRT) to contrast it with the standard <a href="https://en.wikipedia.org/wiki/Likelihood-ratio_test">:likelihood ratio test</a> in hypotehsis testing.</p>
+</section>
+<section id="infinite-horizon-setup" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="infinite-horizon-setup"><span class="header-section-number">18.3</span> Infinite horizon setup</h2>
+<p>Assume that <span class="math inline">\(T = ∞\)</span> so that the continuation alternative is always available. Then, we have the following.</p>
+<div id="thm-hypothesis-inf" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 18.3 </strong></span>Under \eqref{eq:cost-ass}, an optimal decision rule always exists, is time-homogeneous, and is given by the solution of the following DP: <span class="math display">\[ V(b) = \min\{ L_0(b) , L_1(b) , W(b) \} \]</span> where <span class="math display">\[ W(b) = c + \int_{y} [ pf_0(y) + (1-p)f_1(y)] V(ψ(b,y)) dy. \]</span></p>
+<p>Therefore, the optimal thresholds <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> are time-homogeneous.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The result follows from standard results on non-negative dynamic programming. We did not cover non-negative DP. Essentially it determines conditions under which undiscounted infinite horizon problems have a solution when the per-step cost is non-negative.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="upper-bound-on-the-expected-number-of-measurements" class="level2" data-number="18.4">
+<h2 data-number="18.4" class="anchored" data-anchor-id="upper-bound-on-the-expected-number-of-measurements"><span class="header-section-number">18.4</span> Upper bound on the expected number of measurements</h2>
+<p>For simplicity, we assume that <span class="math inline">\(\ell(h_0, h_0) = \ell(h_1, h_1) = 0\)</span>. For the infinite horizon model, we can get upper bound on the expected number of measurements that an optimal policy will take. Let <span class="math inline">\(τ\)</span> denote the number of measurements taken under policy <span class="math inline">\(π\)</span> and <span class="math inline">\(A_τ\)</span> denote the terminal action after stopping. Then, the performance of policy <span class="math inline">\(π\)</span> is given by <span class="math display">\[
+  J(π) = \EXP[ c τ + \ell(H, A_\tau) \mid \Pi = b ].
+\]</span> Note that <span class="math inline">\(\ell(H, A_\tau) \ge 0\)</span>. Therefore, the performance of the optimal policy is lower bounded by <span class="math display">\[
+  J^* \ge c\, \EXP^{π^*}[  τ \mid \Pi = b] .
+\]</span> Now, consider a policy <span class="math inline">\(\tilde π\)</span> which does not consider continuation action and takes the best stopping decision. The performance of <span class="math inline">\(\tilde π\)</span> is given by <span class="math display">\[ J(\tilde π) = \min \{ \ell(h_1, h_0) b_1, \ell(h_0, h_1) b_0 \}. \]</span> Since <span class="math inline">\(J(\tilde π) \ge J^*\)</span>, we get <span class="math display">\[
+  \EXP^{π^*}[ τ  \mid \Pi = b ] \le \frac 1c
+  \min \{ \ell(h_1, h_0) b_1, \ell(h_0, h_1) b_0 \}. \]</span></p>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<div id="exr-multi-hypothesis" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 18.1 </strong></span>Consider the following modification of the sequential hypothesis testing. As in the model discussed above, there are two hypothesis <span class="math inline">\(h_0\)</span> and <span class="math inline">\(h_1\)</span>. The a priori probability that the hypothesis is <span class="math inline">\(h_0\)</span> is <span class="math inline">\(p\)</span>.</p>
+<p>In contrast to the model discussed above, there are <span class="math inline">\(N\)</span> sensors. If the underlying hypothesis is <span class="math inline">\(h_i\)</span> and sensor <span class="math inline">\(m\)</span> is used at time <span class="math inline">\(t\)</span>, then the observation <span class="math inline">\(Y_t\)</span> is distrubted according to pdf (or pmf) <span class="math inline">\(f^m_i(y)\)</span>. The cost of using sensor <span class="math inline">\(m\)</span> is <span class="math inline">\(c_m\)</span>.</p>
+<p>Whenever the decision maker takes a measurement, he picks a sensor <span class="math inline">\(m\)</span> uniformly at random from <span class="math inline">\(\{1, \dots, N\}\)</span> and observes <span class="math inline">\(Y_t\)</span> according to the distribution <span class="math inline">\(f^m_i(\cdot)\)</span> and incurs a cost <span class="math inline">\(c_m\)</span>.</p>
+<p>The system continues for a finite time <span class="math inline">\(T\)</span>. At each time <span class="math inline">\(t &lt; T\)</span>, the decision maker has three options: stop and declare <span class="math inline">\(h_0\)</span>, stop and declare <span class="math inline">\(h_1\)</span>, or continue to take another measurement. At time <span class="math inline">\(T\)</span>, the continue alternative is unavailable.</p>
+<ol type="a">
+<li><p>Formulate the above problem as a POMDP. Identify an information state and write the dynamic programming decomposition for the problem.</p></li>
+<li><p>Show that the optimal control law has a threshold property, similar to the threshold propertly for the model described above.</p></li>
+</ol>
+</div>
+<div id="exr-approx-hypothesis" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 18.2 </strong></span>In this exercise, we will derive an approximate method to compute the performance of a given threshold based policy for infinite horizon sequential hypothesis testing problem. Let <span class="math display">\[ θ_i(π,p) = \EXP^{π}[ τ | H = h_i] \]</span> denote the expected number of samples when using stopping rule <span class="math inline">\(π\)</span> assuming that the true hypothesis is <span class="math inline">\(h_i\)</span>. Note that for any belief state based stopping rule, <span class="math inline">\(θ_i\)</span> depends on the initial belief <span class="math inline">\([p, 1-p]\)</span>. Furthermore, let <span class="math display">\[ ξ_i(h_k ;π, p) = \PR^π(A_τ = h_k | H = h_i) \]</span> denote the probability that the stopping action is <span class="math inline">\(h_k\)</span> when using stopping rule <span class="math inline">\(π\)</span> assuming that the true hypothesis is <span class="math inline">\(h_i\)</span>.</p>
+<ol type="a">
+<li><p>Argue that the performance of any policy <span class="math inline">\(π\)</span> can be written as <span class="math display">\[\begin{align*}
+  V_π(p) &amp;= c [ p θ_0(π, p) + (1-p) θ_1(π,p) ] \\
+  &amp; \quad + p \sum_{a \in \{h_0, h_1\}} \ell(a, h_0) ξ_0(a; π, p) \\
+  &amp; \quad + (1-p) \sum_{a \in \{h_0, h_1\}} \ell(a, h_1) ξ_1(a; π, p).
+  \end{align*}\]</span> Thus, approximately computing <span class="math inline">\(θ_i\)</span> and <span class="math inline">\(ξ_i\)</span> gives an approximate value of <span class="math inline">\(V_π(p)\)</span>.</p></li>
+<li><p>Now assume that the policy <span class="math inline">\(π\)</span> is of a threshold form with thresholds <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. To avoid trivial cases, we assume that <span class="math inline">\(p \in (a,b)\)</span>. The key idea to compute <span class="math inline">\(θ_i\)</span> and <span class="math inline">\(ξ_i\)</span> is that the evolution of <span class="math inline">\(p_t =  \PR(H = h_t | Y_{1:t})\)</span> is a Markov chain which starts at a state <span class="math inline">\(p  \in (a,b)\)</span> and stops the first time <span class="math inline">\(p_t\)</span> goes below <span class="math inline">\(a\)</span> or above <span class="math inline">\(b\)</span>.</p>
+<figure class="figure">
+<p><img src="images/discretization.png" title="Discretization of the state space" alt="Discretization of the state space" width="300" class="figure-img"></p>
+<figcaption class="figure-caption">
+<p>Discretization of the state space</p>
+</figcaption>
+</figure>
+<p>Suppose we discretize the state space space <span class="math inline">\([0, 1]\)</span> into <span class="math inline">\(n+1\)</span> grid points <span class="math inline">\(\ALPHABET D_n = \{0, \frac1n, \dots, 1\}\)</span>. Assume that <span class="math inline">\(p\)</span>, <span class="math inline">\(a\)</span>, and <span class="math inline">\(b\)</span> lie on this discrete grid. Discreteize <span class="math inline">\(p_t\)</span> to the closest grid point and let <span class="math inline">\(P_i\)</span> denote the transition matrix of the discretized <span class="math inline">\(p_t\)</span> when the true hypothesis is <span class="math inline">\(h_i\)</span>. Partition the <span class="math inline">\(P_i\)</span> as <span class="math display">\[ \left[\begin{array}{c|c|c}
+     A_i &amp; B_i &amp; C_i \\
+     \hline
+     D_i &amp; E_i &amp; F_i \\
+     \hline
+     G_i &amp; H_i &amp; J_i
+    \end{array}\right] \]</span> where the lines correspond to the index for <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. The transition matrix of the absorbing Markov chain is given by <span class="math display">\[ \hat P_i = \left[\begin{array}{c|c|c}
+       I &amp; 0 &amp; I \\
+       \hline
+       D_i &amp; E_i &amp; F_i \\
+       \hline
+       I &amp; 0 &amp; I
+      \end{array}\right] \]</span> Now suppose <span class="math inline">\(j\)</span> is the index of <span class="math inline">\(p\)</span> in <span class="math inline">\(\ALPHABET D_n\)</span>. Using properties of absorbing Markov chains, show that</p>
+<ul>
+<li><span class="math inline">\(ξ_i(h_0; \langle a, b \rangle, p) \approx  [ (I - E_i)^{-1} F_i \mathbf{1} ]_j\)</span></li>
+<li><span class="math inline">\(ξ_i(h_1; \langle a, b \rangle, p) \approx  [ (I - E_i)^{-1} D_i \mathbf{1} ]_j\)</span></li>
+<li><span class="math inline">\(θ_i(\langle a, b \rangle, p) \approx  [ (I - E_i)^{-1} \mathbf{1} ]_j\)</span></li>
+</ul></li>
+</ol>
+</div>
+</section>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p>For more details on sequential hypothesis testing, incuding an approximate method to determine the thresholds, see <span class="citation" data-cites="Wald1945">Wald (<a href="../references.html#ref-Wald1945" role="doc-biblioref">1945</a>)</span>. The optimal of sequential likelihood ratio test was proved in <span class="citation" data-cites="Wald1948">Wald and Wolfowitz (<a href="../references.html#ref-Wald1948" role="doc-biblioref">1948</a>)</span>. The model described above was first considered by <span class="citation" data-cites="Arrow1949">Arrow et al. (<a href="../references.html#ref-Arrow1949" role="doc-biblioref">1949</a>)</span>. See <span class="citation" data-cites="DeGroot1970">DeGroot (<a href="../references.html#ref-DeGroot1970" role="doc-biblioref">1970</a>)</span>.</p>
+<p>The upper bound on expected number of measurements is adapted from an argument presented in <span class="citation" data-cites="Hay2012">Hay et al. (<a href="../references.html#ref-Hay2012" role="doc-biblioref">2012</a>)</span>.</p>
+<p><a href="#exr-multi-hypothesis">Exercise&nbsp;<span>18.1</span></a> is from <span class="citation" data-cites="Bai2015">Bai et al. (<a href="../references.html#ref-Bai2015" role="doc-biblioref">2015</a>)</span>. <a href="#exr-approx-hypothesis">Exercise&nbsp;<span>18.2</span></a> is from <span class="citation" data-cites="Woodall1983">Woodall and Reynolds (<a href="../references.html#ref-Woodall1983" role="doc-biblioref">1983</a>)</span>.</p>
+<hr>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-Arrow1949" class="csl-entry" role="listitem">
+<span class="smallcaps">Arrow, K.J., Blackwell, D., and Girshick, M.A.</span> 1949. Bayes and minimax solutions of sequential decision problems. <em>Econometrica</em> <em>17</em>, 3/4, 213. DOI: <a href="https://doi.org/10.2307/1905525">10.2307/1905525</a>.
+</div>
+<div id="ref-Bai2015" class="csl-entry" role="listitem">
+<span class="smallcaps">Bai, C.-Z., Katewa, V., Gupta, V., and Huang, Y.-F.</span> 2015. A stochastic sensor selection scheme for sequential hypothesis testing with multiple sensors. <em>IEEE transactions on signal processing</em> <em>63</em>, 14, 3687–3699.
+</div>
+<div id="ref-DeGroot1970" class="csl-entry" role="listitem">
+<span class="smallcaps">DeGroot, M.</span> 1970. <em>Optimal statistical decisions</em>. Wiley-Interscience, Hoboken, N.J.
+</div>
+<div id="ref-Hay2012" class="csl-entry" role="listitem">
+<span class="smallcaps">Hay, N., Russell, S., Tolpin, D., and Shimony, S.E.</span> 2012. Selecting computations: Theory and applications. <em>UAI</em>. Available at: <a href="http://www.auai.org/uai2012/papers/123.pdf">http://www.auai.org/uai2012/papers/123.pdf</a>.
+</div>
+<div id="ref-Wald1945" class="csl-entry" role="listitem">
+<span class="smallcaps">Wald, A.</span> 1945. Sequential tests of statistical hypotheses. <em>The Annals of Mathematical Statistics</em> <em>16</em>, 2, 117–186. DOI: <a href="https://doi.org/10.1214/aoms/1177731118">10.1214/aoms/1177731118</a>.
+</div>
+<div id="ref-Wald1948" class="csl-entry" role="listitem">
+<span class="smallcaps">Wald, A. and Wolfowitz, J.</span> 1948. Optimum character of the sequential probability ratio test. <em>The Annals of Mathematical Statistics</em> <em>19</em>, 3, 326–339. DOI: <a href="https://doi.org/10.1214/aoms/1177730197">10.1214/aoms/1177730197</a>.
+</div>
+<div id="ref-Woodall1983" class="csl-entry" role="listitem">
+<span class="smallcaps">Woodall, W.H. and Reynolds, M.R.</span> 1983. A discrete markov chain representation of the sequential probability ratio test. <em>Communications in Statistics. Part C: Sequential Analysis</em> <em>2</em>, 1, 27–44. DOI: <a href="https://doi.org/10.1080/07474948308836025">10.1080/07474948308836025</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../pomdps/intro.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Introduction</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../probability/sub-gaussian.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

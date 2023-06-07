@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.361">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-06-07">
+<meta name="keywords" content="infinite horizon, discounted cost, Lipschitz continuity, approximation bounds, state aggregation">
+<meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
+
+<title>Course Notes - 16&nbsp; Model approximation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../pomdps/intro.html" rel="next">
+<link href="../mdps/lipschitz-mdps.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/nutshell-1.0.6/nutshell.js"></script>
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true,
+    tags: "ams",
+    macros: {
+      PR: "\\mathbb{P}",
+      EXP: "\\mathbb{E}",
+      IND: "\\mathbb{I}",
+      ONES: "\\mathbb{1}",
+      reals: "\\mathbb{R}",
+      integers: "\\mathbb{Z}",
+      BLANK: "\\mathfrak{E}",
+      TRANS: "\\intercal",
+      VEC: "\\operatorname{vec}",
+      diag: "\\operatorname{diag}",
+      ROWS: "\\operatorname{vec}",
+      TR: "\\operatorname{Tr}",   
+      SPAN: "\\operatorname{sp}",   
+      ALPHABET: ["\\mathcal{#1}", 1],
+      MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+      NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+      ABS: ["\\left\\lvert #1 \\right\\rvert", 1]
+    },
+    autoload: {
+      color: ['color'],
+    },
+  },
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  },
+};
+</script>
+<script async="" data-id="101261731" src="//static.getclicky.com/js"></script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
+ <span class="menu-text">Stochastic Control</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../multi-agent-systems/index.html" rel="" target="">
+ <span class="menu-text">Multi-Agent Systems</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+    <a href="https://github.com/adityam/stochastic-control" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../approx-mdps/model-approximation.html">Approx DP</a></li><li class="breadcrumb-item"><a href="../approx-mdps/model-approximation.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Model approximation</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">About the course</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Stochastic Optimization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">MDPs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/gambling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Optimal gambling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Inventory Management</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/monotone-mdps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Monotonicity of value function and optimal policies</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/power-delay-tradeoff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power-delay tradeoff in wireless communication</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/reward-shaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Reward Shaping</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inf-horizon.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">MDP algorithms</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mobile-edge-computing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/computational-complexity-vi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Computational complexity of value interation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/linear-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Linear programming formulation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/lipschitz-mdps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Approx DP</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../approx-mdps/model-approximation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Model approximation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Risk sensitive MDPs</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text">POMDPs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../pomdps/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../pomdps/sequential-hypothesis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Sequential hypothesis testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">LQ systems</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">RL</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text">Probability Appendix</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/sub-gaussian.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/change-of-measure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Change of Measure</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text">Linear Algebra Appendix</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/postive-definite-matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true">
+ <span class="menu-text">Assignments</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../assignments/01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Assignment 1</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#bounds-for-model-approximation" id="toc-bounds-for-model-approximation" class="nav-link active" data-scroll-target="#bounds-for-model-approximation"><span class="header-section-number">16.1</span> Bounds for model approximation</a>
+  <ul class="collapse">
+  <li><a href="#value-error" id="toc-value-error" class="nav-link" data-scroll-target="#value-error"><span class="header-section-number">16.1.1</span> Bounding the error for value function approximation</a></li>
+  <li><a href="#bounding-the-error-for-policy-approximation-error" id="toc-bounding-the-error-for-policy-approximation-error" class="nav-link" data-scroll-target="#bounding-the-error-for-policy-approximation-error"><span class="header-section-number">16.1.2</span> Bounding the error for policy approximation error</a></li>
+  </ul></li>
+  <li><a href="#example-state-aggregation-or-discretization-or-quantization" id="toc-example-state-aggregation-or-discretization-or-quantization" class="nav-link" data-scroll-target="#example-state-aggregation-or-discretization-or-quantization"><span class="header-section-number">16.2</span> Example: State aggregation (or discretization or quantization)</a>
+  <ul class="collapse">
+  <li><a href="#an-intermediate-model" id="toc-an-intermediate-model" class="nav-link" data-scroll-target="#an-intermediate-model"><span class="header-section-number">16.2.1</span> An intermediate model</a></li>
+  <li><a href="#approximation-bounds" id="toc-approximation-bounds" class="nav-link" data-scroll-target="#approximation-bounds"><span class="header-section-number">16.2.2</span> Approximation bounds</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/approx-mdps/model-approximation.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Model approximation</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Updated</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 7, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>There are many instances where approximate models are used. For example, in many applications with large state spaces, one often construct a simulation model of the system and use it to identify an optimal policy using simulation based methods (such as reinforcement learning). Often, the simulation model is only an approximation of the true model. In such instances, we want to know the error in using the policy obtained from the simulation model in the real world. In this section, we present bounds on such <em>sim-to-real</em> transfer.</p>
+<p>Consider an MDP <span class="math inline">\(\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, γ \rangle\)</span>. Suppose the components <span class="math inline">\(\langle \ALPHABET S, \ALPHABET A, γ \rangle\)</span> are known exactly but the components <span class="math inline">\((P,c)\)</span> are known approximately. Consider the approximate MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, γ \rangle\)</span>. We will call <span class="math inline">\(\ALPHABET M\)</span> to be the <em>true model</em> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span> to be the <em>approximate model</em>.</p>
+<p>Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions of the true model <span class="math inline">\(\ALPHABET M\)</span> and the approximate model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Moreover, let <span class="math inline">\(π^*\)</span> and <span class="math inline">\(\hat π^*\)</span> be optimal policies for the true model <span class="math inline">\(\ALPHABET M\)</span> and the approximate model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively.</p>
+<p>We are interested in two questions:</p>
+<ol type="1">
+<li><p><strong>Error in value approximation:</strong> What is the error if <span class="math inline">\(\hat V^*\)</span> is used as an approximation for <span class="math inline">\(V^*\)</span>?</p></li>
+<li><p><strong>Error in policy approximation:</strong> What is the error if the policy <span class="math inline">\(\hat π^*\)</span> is used instead of the optimal policy <span class="math inline">\(π^*\)</span></p></li>
+</ol>
+<section id="bounds-for-model-approximation" class="level2" data-number="16.1">
+<h2 data-number="16.1" class="anchored" data-anchor-id="bounds-for-model-approximation"><span class="header-section-number">16.1</span> Bounds for model approximation</h2>
+<section id="value-error" class="level3" data-number="16.1.1">
+<h3 data-number="16.1.1" class="anchored" data-anchor-id="value-error"><span class="header-section-number">16.1.1</span> Bounding the error for value function approximation</h3>
+<p>Let <span class="math inline">\(\ALPHABET B^π\)</span> and <span class="math inline">\(\ALPHABET B^*\)</span> denote the Bellman operator for policy <span class="math inline">\(π\)</span> and the optimality Bellman operator for model <span class="math inline">\(\ALPHABET M\)</span>. Let <span class="math inline">\(\hat {\ALPHABET B}^π\)</span> and <span class="math inline">\(\hat {\ALPHABET B}^*\)</span> denote the corresponding quantiites for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>. Define the <em>Bellman mismatch functional</em> <span class="math inline">\(\ALPHABET D^π\)</span> and <span class="math inline">\(\ALPHABET D^*\)</span> as follows: <span class="math display">\[\begin{align*}
+  \ALPHABET D^π v &amp;= \| \ALPHABET B^π v - \hat {\ALPHABET B}^π v \|_∞,
+  \\
+  \ALPHABET D^* v &amp;= \| \ALPHABET B^* v - \hat {\ALPHABET B}^* v \|_∞ .
+\end{align*}\]</span></p>
+<p>Also define the <em>maximum Bellman mismatch</em> as <span class="math display">\[\begin{align*}
+  \bar{\ALPHABET D} v &amp;= \max_{π \in Π} \ALPHABET D^π v
+  \\
+  &amp;\le
+  \max_{(s,a) \in \ALPHABET S, A} \biggl\lvert
+    c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a)v(s')  \notag \\
+  &amp; \hskip 6em
+   -\hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) v(s')
+   \biggr\rvert.
+\end{align*}\]</span> where <span class="math inline">\(Π\)</span> is the set of all (possibly randomized) Markov policies, and the second inequality follows from triangle inequality. It is easy to see that <span class="math inline">\(\ALPHABET D^* v \le \bar {\ALPHABET D} v\)</span>. Thus <span class="math inline">\(\bar {\ALPHABET D}v\)</span> is an upper bound for <span class="math inline">\(\ALPHABET D^* v\)</span> and <span class="math inline">\(\ALPHABET D^π v\)</span> for all <span class="math inline">\(π \in Π\)</span>.</p>
+<p>The Bellman mismatch functional can be used to bound the performance difference of a policy between the true and approximate models.</p>
+<div id="lem-mismatch-policy-bound" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 16.1 </strong></span>For any (possibly randomized) policy <span class="math inline">\(π\)</span>, <span class="math display">\[\begin{equation}\label{eq:bound-0}
+   \| V^{π} - \hat V^{π} \|_∞ \le
+   \frac{1}{1-γ} \min\{ \ALPHABET D^π V^{π}, \ALPHABET D^π \hat V^{π} \}.
+\end{equation}\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We bound the left hand side of \eqref{eq:bound-0} in two ways. The first way is as follows: <span class="math display">\[\begin{align}
+  \| V^{π} - \hat V^{π} \|_∞
+  &amp;=
+  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
+  \notag \\
+  &amp;\le
+  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π V^π \|_∞
+  +
+  \| \hat {\ALPHABET B}^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
+  \notag \\
+  &amp;\le
+  \ALPHABET D^π V^π + γ \| V^π - \hat V^π \|_∞
+  \label{eq:ineq-3}
+\end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-3} gives us <span class="math display">\[\begin{equation}
+\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \ALPHABET D^π V^{π}}{1 - γ}.
+\label{eq:ineq-4}\end{equation}\]</span> This gives the first bound.</p>
+<p>The second bound is symmetric and obtained by interchaning the roles of <span class="math inline">\(V^π\)</span> and <span class="math inline">\(\hat V^π\)</span>. <span class="math display">\[\begin{align}
+  \| V^{π} - \hat V^{π} \|_∞
+  &amp;=
+  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
+  \notag \\
+  &amp;\le
+  \| \ALPHABET B^π V^π - \ALPHABET  B^π \hat V^π \|_∞
+  +
+  \| \ALPHABET B^π \hat V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
+  \notag \\
+  &amp;\le
+  γ \| V^π - \hat V^π \|_∞
+  +
+  \ALPHABET D^π \hat V^π
+  \label{eq:ineq-13}
+\end{align}\]</span> Rearranging terms in&nbsp;\eqref{eq:ineq-13} gives us <span class="math display">\[\begin{equation}
+\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \ALPHABET D^π \hat V^{π}}{1 - γ}.
+\label{eq:ineq-14}\end{equation}\]</span> This gives the second bound.</p>
+</div>
+</div>
+</div>
+<p>Similar to the above, we can also bound the difference between the optimal value function of the true and approximate models.</p>
+<div id="thm-mismatch-value-bound" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 16.1 </strong></span>Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions for <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Then, <span class="math display">\[\begin{equation}\label{eq:bound-1}
+    \| V^* - \hat V^* \|_∞ \le
+    \frac{1}{1-γ} \min\{ \ALPHABET D^* V^*, \ALPHABET D^* \hat V^* \}
+\end{equation}\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The proof argument is almost the same as the proof argument for <a href="#lem-mismatch-policy-bound">Lemma&nbsp;<span>16.1</span></a>. The first was is as follows: <span class="math display">\[\begin{align}
+  \| V^{*} - \hat V^{*} \|_∞
+  &amp;=
+  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
+  \notag \\
+  &amp;\le
+  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* V^* \|_∞
+  +
+  \| \hat {\ALPHABET B}^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
+  \notag \\
+  &amp;\le
+  \ALPHABET D^* V^* + γ \| V^* - \hat V^* \|_∞
+  \label{eq:ineq-1}
+\end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-3} gives us <span class="math display">\[\begin{equation}
+\| V^* - \hat V^* \|_∞ \le \frac{  \ALPHABET D^* V^*}{1 - γ}.
+\label{eq:ineq-2}\end{equation}\]</span> This gives the first bound.</p>
+<p>The second bound is symmetric and obtained by interchaning the roles of <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span>. <span class="math display">\[\begin{align}
+  \| V^{*} - \hat V^{*} \|_∞
+  &amp;=
+  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
+  \notag \\
+  &amp;\le
+  \| \ALPHABET B^* V^* - \ALPHABET  B^* \hat V^* \|_∞
+  +
+  \| \ALPHABET B^* \hat V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
+  \notag \\
+  &amp;\le
+  γ \| V^* - \hat V^* \|_∞
+  +
+  \ALPHABET D^* \hat V^*
+  \label{eq:ineq-11}
+\end{align}\]</span> Rearranging terms in&nbsp;\eqref{eq:ineq-11} gives us <span class="math display">\[\begin{equation}
+\| V^{*} - \hat V^{*} \|_∞ \le \frac{ \ALPHABET D^* \hat V^{*}}{1 - γ}.
+\label{eq:ineq-12}\end{equation}\]</span> This gives the second bound.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="bounding-the-error-for-policy-approximation-error" class="level3" data-number="16.1.2">
+<h3 data-number="16.1.2" class="anchored" data-anchor-id="bounding-the-error-for-policy-approximation-error"><span class="header-section-number">16.1.2</span> Bounding the error for policy approximation error</h3>
+<div id="thm-mismatch-policy-bound" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 16.2 </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[\begin{equation} \label{eq:bound}
+α := \| V^* - V^{\hat π^*} \|_∞ \le
+\frac{1}{1 - γ}\bigl[ Δ_1 +Δ_2 \bigr]
+\end{equation}\]</span> where <span class="math display">\[
+Δ_1 \le \min\{ \ALPHABET D^* V^*, \ALPHABET D^* \hat V^* \}
+\quad\text{and}\quad
+Δ_2 \le \min\{ \ALPHABET D^{\hat π^*} V^{\hat π^*}, \ALPHABET D^{\hat π^*}\hat V^{\hat π^*} \}.
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>From triangle inequality we have <span class="math display">\[\begin{equation} \label{eq:triangle-1}
+  \| V^* - V^{\hat π^*} \|_∞ \le
+  \| V^* - \hat V^{\hat π^*} \|_∞
+  +
+  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
+\end{equation}\]</span> The result then follows by bounding the first term using <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>16.1</span></a> and the second term using <a href="#lem-mismatch-policy-bound">Lemma&nbsp;<span>16.1</span></a>.</p>
+</div>
+</div>
+</div>
+<p>Note that depending on how we pick <span class="math inline">\(\ALPHABET D_1\)</span> and <span class="math inline">\(\ALPHABET D_2\)</span>, we get four possible upper bounds and can bound <span class="math inline">\(α\)</span> by the tightest of them, i.e., <span class="math display">\[\begin{equation}\label{eq:combined}
+  α \le \frac{1}{1 - γ} \min\bigl\{
+  \ALPHABET D^* V^* + \ALPHABET D^{\hat π^*} V^{\hat π^*}, \space
+  \ALPHABET D^* V^* + \ALPHABET D^{\hat π^*} \hat V^*, \space
+  \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat π^*} V^{\hat π^*}, \space
+  \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat π^*} \hat V^{*} \bigr\}
+\end{equation}\]</span> where we have used the fact that <span class="math inline">\(\hat V^{\hat π^*} = \hat V^*\)</span> to simplify some of the terms.</p>
+<p>Ideally, we want an upper bound that just depends on the value function of true model or just on the value function of the approximate model. The last bound in \eqref{eq:combined} depends just on the value function of the approximate model. We state it separately for ease of reference.</p>
+<div id="cor-mismatch-combined-bound" class="theorem corollary">
+<p><span class="theorem-title"><strong>Corollary 16.1 </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
+    α := \| V^* - V^{\hat π^*} \|_∞ \le
+    \frac{1}{1-γ} \bigl[ \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat
+    π^*} \hat V^* \bigr].
+\]</span> Moreover, since <span class="math inline">\(\bar {\ALPHABET D} \hat V^*\)</span> is an upper bound for both <span class="math inline">\(\ALPHABET D^{\hat π^*} \hat V^*\)</span> and <span class="math inline">\(\ALPHABET D^* \hat V^*\)</span>, we have <span class="math display">\[
+    α \le \frac{2}{(1-γ)}  \bar {\ALPHABET D}  \hat V^*.
+\]</span></p>
+</div>
+<p>In the next lemma, we develop a bound that depends just on the value function true model.</p>
+<div id="thm-mismatch-policy-bound2" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 16.3 </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
+    α := \| V^* - V^{\hat π^*} \|_∞ \le
+    \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+    +
+    \frac{(1+γ)}{(1-γ)^2} \ALPHABET D^* V^* .
+\]</span></p>
+<p>Moreover, since <span class="math inline">\(\bar {\ALPHABET D} V^*\)</span> is an upper bound for both <span class="math inline">\(\ALPHABET D^{\hat π^*} V^*\)</span> and <span class="math inline">\(\ALPHABET D^* V^*\)</span>, we have <span class="math display">\[
+    α \le \frac{2}{(1-γ)^2}  \bar {\ALPHABET D}  V^*.
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As before, we consider the following bound by triangle inequality. <span class="math display">\[\begin{equation} \label{eq:triangle-2}
+  \| V^* - V^{\hat π^*} \|_∞ \le
+  \| V^* - \hat V^{\hat π^*} \|_∞
+  +
+  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
+\end{equation}\]</span> We will bound the first term of \eqref{eq:triangle-2} by <span class="citation" data-cites="thm:value-bound">(<a href="../references.html#ref-thm:value-bound" role="doc-biblioref"><strong>thm:value-bound?</strong></a>)</span>. But instead of bounding the second term of \eqref{eq:triangle-2} by <span class="citation" data-cites="lem:bound-policy">(<a href="../references.html#ref-lem:bound-policy" role="doc-biblioref"><strong>lem:bound-policy?</strong></a>)</span>, we consider the following: <span class="math display">\[\begin{align}
+  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
+  &amp;=
+  \| V^{\hat π^*} - \hat V^{*} \|_∞
+  = \| \ALPHABET B^{\hat π^*} V^{\hat π^*} -
+       \hat {\ALPHABET B}^{\hat π^*} \hat V^{*} \|_∞
+  \notag \\
+  &amp;\le \| \ALPHABET B^{\hat π^*} V^{\hat π^*} -
+          \ALPHABET B^{\hat π^*} V^{*} \|_∞
+    +  \| \ALPHABET B^{\hat π^*} V^{*} -
+       \hat {\ALPHABET B}^{\hat π^*} V^{*} \|_∞
+    +
+       \| \hat {\ALPHABET B}^{\hat π^*} V^{*} -
+       \hat {\ALPHABET B}^{\hat π^*} \hat V^{*} \|_∞
+  \notag \\
+  &amp;\le γ \| V^* - V^{\hat π^*} \|_∞ + \ALPHABET D^{\hat π^*} V^*
+  + γ \| V^* - \hat V^* \|_∞
+  \label{eq:ineq-21}.
+\end{align}\]</span> where the first inequality follows from the triangle inequality and the second inequality follows from the definition of Bellman mismatch functional and contraction property of Bellman operator.</p>
+<p>Substituting \eqref{eq:ineq-21} in \eqref{eq:triangle-2} and rearranging terms, we get <span class="math display">\[\begin{align}
+  \| V^* - V^{\hat π^*} \|_∞
+  &amp;\le
+  \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+  +
+  \frac{1+γ}{1-γ} \| V^* - \hat V^* \|_∞
+  \notag \\
+  &amp;\le
+  \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+  +
+  \frac{(1+γ)}{(1-γ)^2} \ALPHABET D^* V^* .
+\end{align}\]</span> where the second inequality follows from <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>16.1</span></a>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remark:
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Note that the bound of <a href="#cor-mismatch-combined-bound">Corollary&nbsp;<span>16.1</span></a> is tighter by a factor of <span class="math inline">\(1/(1-γ)\)</span>, but this bound is in terms of <span class="math inline">\(\hat V^*\)</span>. In some settings, we prefer a bound in terms of <span class="math inline">\(V^*\)</span>. Using <a href="#thm-mismatch-policy-bound2">Theorem&nbsp;<span>16.3</span></a> in such settings leads to scaling by <span class="math inline">\(1/(1-γ)\)</span>.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="example-state-aggregation-or-discretization-or-quantization" class="level2" data-number="16.2">
+<h2 data-number="16.2" class="anchored" data-anchor-id="example-state-aggregation-or-discretization-or-quantization"><span class="header-section-number">16.2</span> Example: State aggregation (or discretization or quantization)</h2>
+<p>Consider an MDP <span class="math inline">\(\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, p, c, γ \rangle\)</span>, with large (or possibly continuous) state space. For simplicity, we assume that <span class="math inline">\(\ALPHABET S\)</span> is continuous (and compact), and that the <span class="math inline">\(p\)</span> is the density of the transition kernel. Note that we are using the term “probability density” in the engineering sense (so, it may be a combination of a continuous function and delta functions) rather than in the precise measure theoretic sense (where it is the Radon-Nikodym derivative with respect to the Lebesque measure).</p>
+<p>If exact computations were possible, we can find an optimal solution by solving a dynamic program. However, since the state space is continuous, we cannot compute the value functions exactly. The simplest way to proceed is to discretize or quantize the state space <span class="math inline">\(\ALPHABET S\)</span>. In particular, let <span class="math inline">\(\{\ALPHABET S_1, \dots \ALPHABET S_n\}\)</span> denote a partition of <span class="math inline">\(\ALPHABET S\)</span> (i.e., <span class="math inline">\(\bigcup_{i=1}^n \ALPHABET S_i = \ALPHABET S\)</span> and for any <span class="math inline">\(i \neq j\)</span>, <span class="math inline">\(\ALPHABET S_i \cap \ALPHABET S_j = \emptyset\)</span>). Pick a representative point <span class="math inline">\(\hat s_i \in \ALPHABET S_i\)</span>. We can think of the “grid points” <span class="math inline">\(\hat {\ALPHABET S} = \{\hat s_1, \dots, \hat s_n\}\)</span> as quantization of the state space <span class="math inline">\(\ALPHABET S\)</span>. To simplify the notation, we define a quantization function <span class="math inline">\(\phi \colon \ALPHABET S \to \hat {\ALPHABET S}\)</span> which maps all points in <span class="math inline">\(\ALPHABET S_i\)</span> to the representative element <span class="math inline">\(\hat s_i\)</span>.</p>
+<p>We consider a finite state MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c, γ\rangle\)</span>, where <span class="math inline">\(\hat c\)</span> is the restriction of <span class="math inline">\(c\)</span> onto <span class="math inline">\(\hat {\ALPHABET S}\)</span>, and <span class="math inline">\(\hat P\)</span> is given by</p>
+<p><span class="math display">\[\hat P(\hat s_j | \hat s_i, a) =
+\int_{\ALPHABET S_j} P(s' | \hat s_i, a) dy = P(\ALPHABET S_j | \hat s_i, a).
+\]</span></p>
+<p>Since model <span class="math inline">\(\widehat {\ALPHABET M}\)</span> is discrete, we can find the optimal value function and policy using dynamic programming. We are interested in the questions of quantifying the errors in value approximation and policy approximation in this setup. Since the quantized model is defined on a state space <span class="math inline">\(\hat {\ALPHABET S}\)</span> that is different from the original state space, the approximation bounds derived above are not directly applicable. Below we present two intermediate models, to be able to compare models <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span></p>
+<section id="an-intermediate-model" class="level3" data-number="16.2.1">
+<h3 data-number="16.2.1" class="anchored" data-anchor-id="an-intermediate-model"><span class="header-section-number">16.2.1</span> An intermediate model</h3>
+<p>Define a model <span class="math inline">\(\overline {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \bar p, \bar c, γ \rangle\)</span>, where <span class="math display">\[
+  \bar c(s,a) = c(\phi(s),a)
+\]</span> and <span class="math display">\[
+  \bar p(s'|s,a) = p(s'|\phi(s),a).
+\]</span></p>
+<p>We have the following property for the <span class="math inline">\(\bar p\)</span> dynamics:</p>
+<div id="lem-aggregation-models" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 16.2 </strong></span>For any <span class="math inline">\(\hat V \colon \hat {\ALPHABET S} \to \reals\)</span>, let <span class="math inline">\(V \colon \ALPHABET S \to \reals\)</span> be its piecewise constant extrapolation from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span> (i.e., <span class="math inline">\(V(s) = \hat V(\phi(s)))\)</span>. Then, for any <span class="math inline">\(\hat s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>, we have <span class="math display">\[
+\int_{\ALPHABET S_j} \bar p(s'|\hat s, a) V(s') ds'
+=
+\hat P(\hat s_j | \hat s, a) \hat V(\hat s_j).
+\]</span> Therefore, <span class="math display">\[
+\int_{\ALPHABET S} \bar p(s'|\hat s, a) V(s') ds'
+=
+\sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | \hat s, a) \hat V(\hat s_j).
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Since <span class="math inline">\(V\)</span> is constant over <span class="math inline">\(\ALPHABET S_j\)</span>, we have <span class="math display">\[\begin{align*}
+  \int_{\ALPHABET S_j} \bar p(s'|\hat s,a) V(s') ds'
+  &amp;=
+  V(\hat s_j) \int_{\ALPHABET S_j} \bar p(s'|\hat s,a) ds'
+  \notag \\
+  &amp;= V(\hat s_j) \bar p(\ALPHABET S_j | \hat s, a)
+\end{align*}\]</span> The first result now follows from observing that <span class="math inline">\(\bar p(\ALPHABET S_j | \hat s, a) = p(\ALPHABET S_j | \hat s, a) = \hat P(\hat s_j | \hat s, a)\)</span>. The second result follows from the fact that for any <span class="math inline">\(f \colon \ALPHABET S \to \reals\)</span>, <span class="math display">\[
+  \int_{\ALPHABET S} f(s')  ds' = \int_{\ALPHABET S_1} f(s') ds' + \cdots +
+  \int_{\ALPHABET S_n} f(s') d(s').
+\]</span></p>
+</div>
+</div>
+</div>
+<p>Let <span class="math inline">\(\bar V^*\)</span>, and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions of models <span class="math inline">\(\overline {\ALPHABET M}\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Moreover, let <span class="math inline">\(\bar π^*\)</span> and <span class="math inline">\(\hat π^*\)</span> denote optimal policies of models <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, and <span class="math inline">\(\overline {\ALPHABET M}\)</span>, respectively. Then, these are related as follows.</p>
+<div id="lem-aggregation-equiv" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 16.3 </strong></span><span class="math inline">\(\bar V^*\)</span> is a piecewise constant extrapolation of <span class="math inline">\(\hat V^*\)</span> from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span>. Moreover, the piecewise constant extrapolation of <span class="math inline">\(\hat π^*\)</span> is optimal for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Let <span class="math inline">\(\bar V\)</span> be the piecewise constant extrapolation of <span class="math inline">\(\hat V^*\)</span> from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span>. <a href="#lem-aggregation-models">Lemma&nbsp;<span>16.2</span></a> implies that for any <span class="math inline">\(s \in \ALPHABET S\)</span>, the one step Bellman update of <span class="math inline">\(\bar V\)</span> (in model <span class="math inline">\(\overline {\ALPHABET M}\)</span>) is given by <span class="math display">\[\begin{align*}
+  \min_{a \in \ALPHABET S} \biggl\{
+    c(\phi(s),a) + γ \int_{\ALPHABET S} \bar p(s'|\phi(s),a) \bar V(s') ds'
+  \biggr\}
+  &amp;=
+  \min_{a \in \ALPHABET S} \biggl\{
+    \hat c(\phi(s),a) + γ \sum_{\hat s' \in \hat {\ALPHABET S}}
+    \hat P(\hat s' | \phi(s), a) \hat V^*(\hat s')
+  \biggr\}
+  \\
+  &amp;=
+  \hat V^*(\phi(s))
+  \\
+  &amp;= \bar V(s)
+\end{align*}\]</span> where the first equality follows from <a href="#lem-aggregation-models">Lemma&nbsp;<span>16.2</span></a>, the second equality follows from the fact that <span class="math inline">\(\hat V^*\)</span> is optimal for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, and the last equality follows from the definition of <span class="math inline">\(\bar V\)</span>. Thus, <span class="math inline">\(\bar V\)</span> is the fixed point of the Bellman optimality equation for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>. Hence, <span class="math inline">\(\bar V = \bar V^*\)</span>.</p>
+<p>The above equation also implies that the policy <span class="math inline">\(\hat π^*(\phi(s))\)</span>, which achieves the arg min in the second equality, is optimal for model <span class="math inline">\(\overline{\ALPHABET M}\)</span>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remark
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><a href="#lem-aggregation-equiv">Lemma&nbsp;<span>16.3</span></a> implies that the questions of value and policy approximation for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span> is the same as those for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>. The advantage of working with model <span class="math inline">\(\overline {\ALPHABET M}\)</span> is that it is defined on the same state space as model <span class="math inline">\(\ALPHABET M\)</span>, so we can directly use the results of <a href="#thm-mismatch-policy-bound">Theorem&nbsp;<span>16.2</span></a> and <a href="#thm-mismatch-policy-bound2">Theorem&nbsp;<span>16.3</span></a>.</p>
+</div>
+</div>
+</section>
+<section id="approximation-bounds" class="level3" data-number="16.2.2">
+<h3 data-number="16.2.2" class="anchored" data-anchor-id="approximation-bounds"><span class="header-section-number">16.2.2</span> Approximation bounds</h3>
+<p>Now to bound the value error between models <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\overline {\ALPHABET M}\)</span>, we need to compute <span class="math inline">\(\ALPHABET D^* V^*\)</span>, which is given by <span class="math display">\[\begin{align*}
+  \ALPHABET D^* V^* &amp;=
+  \max_{s \in \ALPHABET S}
+  \biggl|
+    \min_{a \in \ALPHABET A} \bigl\{
+    c(s,a) + γ \int_{\ALPHABET S} p(s'|s,a) V^*(s')ds'
+    \bigr\}
+    \notag \\
+  &amp;  \hskip 4em -
+    \min_{a \in \ALPHABET A} \bigl\{
+   c(\phi(s), a) + γ \int_{\ALPHABET S} p(s'|\phi(s), a) V^*(s') ds'
+    \bigr\}
+  \biggr|
+  \notag \\
+  &amp;= \max_{s \in \ALPHABET S} \bigl| V^*(s) - V^*(\phi(s)) \bigr|
+  =: H_{\max}.
+\end{align*}\]</span></p>
+<p>Therefore, from <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>16.1</span></a>, we have</p>
+<div id="prp-aggregation-value" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 16.1 </strong></span><span class="math display">\[ \| V^* - \bar V^{\bar π^*} \|_∞ \le \frac{H_{\max}}{1-γ}. \]</span></p>
+</div>
+<p>To bound the policy error, we also need to compute <span class="math inline">\(\ALPHABET D^{\hat π^*} V^*\)</span>. In order to compute this bound, we assume that the model is <span class="math inline">\((L_c, L_p)\)</span> Lipschitz.</p>
+<dl>
+<dt>Assumpt. #ass:lip</dt>
+<dd>
+<ul>
+<li>For every <span class="math inline">\(a \in \ALPHABET A\)</span>, <span class="math inline">\(c(s, a)\)</span> is <span class="math inline">\(L_c\)</span>-Lipschitz in <span class="math inline">\(s\)</span></li>
+<li>For every <span class="math inline">\(a \in \ALPHABET A\)</span>, <span class="math inline">\(p(\cdot | s, a)\)</span> is <span class="math inline">\(L_p\)</span>-Lipschitz in <span class="math inline">\(s\)</span> (with respect to the Kantorovich distance on probability measures).</li>
+</ul>
+</dd>
+</dl>
+<p>Under this assumption, we have</p>
+<p><span class="math display">\[\begin{align*}
+  \ALPHABET D^{\bar π^*} V^* &amp;\le \max_{s \in \ALPHABET S}
+  \sum_{a \in \ALPHABET A} \bar π^*(a | s) \biggl|
+    c(s,a) + γ \int_{\ALPHABET S} p(s'|s,a) V^*(s')ds'
+  \notag \\
+  &amp;  \hskip 4em -
+    c(\phi(s), a) - γ \int_{\ALPHABET S} p(s'|\phi(s), a) V^*(s') ds'
+  \biggr|
+  \notag \\
+  &amp;\le  L_c \max_{s \in \ALPHABET S}d(s, \phi(s))
+  +
+  γ K(p(\cdot | s, a), p(\cdot | \phi(s), a)) \NORM{V^*}_L )
+  \notag \\
+  &amp;\le ( L_c  + γ L_p \NORM{V^*}_L )
+  \underbrace{\max_{s \in \ALPHABET S}d(s, \phi(s)) }_{=: D}
+\end{align*}\]</span> where the second inequality uses <a href="../mdps/lipschitz-mdps.html#prp-Kantorovich">Proposition&nbsp;<span>15.2</span></a>.</p>
+<p>Thus, we have the following:</p>
+<div class="highlight">
+<dl>
+<dt>Proposition #prop:policy-aggregation</dt>
+<dd>
+<p>Under <span class="citation" data-cites="ass:lip">(<a href="../references.html#ref-ass:lip" role="doc-biblioref"><strong>ass:lip?</strong></a>)</span>, we have <span class="math display">\[\NORM{V^* - V^{\bar π^*}}_∞ \le
+  \frac{D}{1-γ} \biggl[ L_c + γ L_p \NORM{V^*}_L +
+  \frac{1 + γ}{1-γ} \NORM{V^*}_L \biggr]. \]</span></p>
+<p>Furthermore, if <span class="math inline">\(γ L_p &lt; 1\)</span>, then from <a href="../lipschitz-mdp#thm:Lipschitz-opt">Theorem 1 of Lipschitz MDPs</a> we know that <span class="math inline">\(\NORM{V^*}_L \le L_c/(1- γ L_p)\)</span>. Thus, <span class="math display">\[\NORM{V^{μ^*} - V^*}_∞ \le
+  \frac{2 D L_c }{ (1-γ)^2 (1-γ L_p) }. \]</span></p>
+</dd>
+</dl>
+</div>
+<details>
+<!--{{{ Proof -->
+<summary>
+<section id="proof-6" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="proof-6">Proof</h4>
+</section></summary>
+<div>
+<p>The first bound follows from <span class="citation" data-cites="thm:policy-bound2">(<a href="../references.html#ref-thm:policy-bound2" role="doc-biblioref"><strong>thm:policy-bound2?</strong></a>)</span>, with the additional observation that <span class="math inline">\(H_{\max} \le \NORM{V^*}_L D\)</span>.</p>
+<p>For the second result follows from simple algebra.</p>
+</div>
+</details>
+<!--}}}-->
+
+
+</section>
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../mdps/lipschitz-mdps.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../pomdps/intro.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Introduction</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.361">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-06-07">
+<meta name="keywords" content="MDPs, discounted MDPs, lipschitz continuity">
+<meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
+
+<title>Course Notes - 15&nbsp; Lipschitz MDPs</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../approx-mdps/model-approximation.html" rel="next">
+<link href="../mdps/linear-programming.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/nutshell-1.0.6/nutshell.js"></script>
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+    processEscapes: true,
+    tags: "ams",
+    macros: {
+      PR: "\\mathbb{P}",
+      EXP: "\\mathbb{E}",
+      IND: "\\mathbb{I}",
+      ONES: "\\mathbb{1}",
+      reals: "\\mathbb{R}",
+      integers: "\\mathbb{Z}",
+      BLANK: "\\mathfrak{E}",
+      TRANS: "\\intercal",
+      VEC: "\\operatorname{vec}",
+      diag: "\\operatorname{diag}",
+      ROWS: "\\operatorname{vec}",
+      TR: "\\operatorname{Tr}",   
+      SPAN: "\\operatorname{sp}",   
+      ALPHABET: ["\\mathcal{#1}", 1],
+      MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
+      NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
+      ABS: ["\\left\\lvert #1 \\right\\rvert", 1]
+    },
+    autoload: {
+      color: ['color'],
+    },
+  },
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  },
+};
+</script>
+<script async="" data-id="101261731" src="//static.getclicky.com/js"></script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
+ <span class="menu-text">Stochastic Control</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../multi-agent-systems/index.html" rel="" target="">
+ <span class="menu-text">Multi-Agent Systems</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+    <a href="https://github.com/adityam/stochastic-control" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/lipschitz-mdps.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">About the course</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Stochastic Optimization</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">MDPs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/gambling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Optimal gambling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Inventory Management</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/monotone-mdps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Monotonicity of value function and optimal policies</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/power-delay-tradeoff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power-delay tradeoff in wireless communication</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/reward-shaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Reward Shaping</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inf-horizon.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">MDP algorithms</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/mobile-edge-computing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/computational-complexity-vi.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Computational complexity of value interation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/linear-programming.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Linear programming formulation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../mdps/lipschitz-mdps.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Approx DP</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../approx-mdps/model-approximation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Model approximation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Risk sensitive MDPs</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text">POMDPs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../pomdps/intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../pomdps/sequential-hypothesis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Sequential hypothesis testing</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">LQ systems</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">RL</span></span>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text">Probability Appendix</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/sub-gaussian.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/change-of-measure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Change of Measure</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text">Linear Algebra Appendix</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/postive-definite-matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true">
+ <span class="menu-text">Assignments</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../assignments/01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Assignment 1</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#preliminaries" id="toc-preliminaries" class="nav-link active" data-scroll-target="#preliminaries"><span class="header-section-number">15.1</span> Preliminaries</a>
+  <ul class="collapse">
+  <li><a href="#lipschitz-continuous-functions" id="toc-lipschitz-continuous-functions" class="nav-link" data-scroll-target="#lipschitz-continuous-functions">Lipschitz continuous functions</a></li>
+  <li><a href="#some-examples" id="toc-some-examples" class="nav-link" data-scroll-target="#some-examples">Some examples</a></li>
+  <li><a href="#properties-of-lipschitz-functions" id="toc-properties-of-lipschitz-functions" class="nav-link" data-scroll-target="#properties-of-lipschitz-functions">Properties of Lipschitz functions</a></li>
+  </ul></li>
+  <li><a href="#kantorovich-distance" id="toc-kantorovich-distance" class="nav-link" data-scroll-target="#kantorovich-distance"><span class="header-section-number">15.2</span> Kantorovich distance</a>
+  <ul class="collapse">
+  <li><a href="#some-examples-1" id="toc-some-examples-1" class="nav-link" data-scroll-target="#some-examples-1">Some examples</a></li>
+  </ul></li>
+  <li><a href="#lipschitz-mdps" id="toc-lipschitz-mdps" class="nav-link" data-scroll-target="#lipschitz-mdps"><span class="header-section-number">15.3</span> Lipschitz MDPs</a>
+  <ul class="collapse">
+  <li><a href="#lipschitz-continuity-of-bellman-updates" id="toc-lipschitz-continuity-of-bellman-updates" class="nav-link" data-scroll-target="#lipschitz-continuity-of-bellman-updates">Lipschitz continuity of Bellman updates</a></li>
+  </ul></li>
+  <li><a href="#lipschitz-continuity-of-value-iteration" id="toc-lipschitz-continuity-of-value-iteration" class="nav-link" data-scroll-target="#lipschitz-continuity-of-value-iteration"><span class="header-section-number">15.4</span> Lipschitz continuity of value iteration</a></li>
+  <li><a href="#influence-radius" id="toc-influence-radius" class="nav-link" data-scroll-target="#influence-radius"><span class="header-section-number">15.5</span> Influence Radius</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/lipschitz-mdps.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Updated</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 7, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="preliminaries" class="level2" data-number="15.1">
+<h2 data-number="15.1" class="anchored" data-anchor-id="preliminaries"><span class="header-section-number">15.1</span> Preliminaries</h2>
+<section id="lipschitz-continuous-functions" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="lipschitz-continuous-functions">Lipschitz continuous functions</h3>
+<p>Given two metric spaces <span class="math inline">\((\ALPHABET X, d_X)\)</span> and <span class="math inline">\((\ALPHABET Y, d_Y)\)</span>, the Lipschitz constant of function <span class="math inline">\(f \colon \ALPHABET X \to \ALPHABET Y\)</span> is defined by <span class="math display">\[ \| f\|_{L} = \sup_{x_1 \neq x_2}
+    \left\{ \frac{ d_Y(f(x_1), f(x_2)) } { d_X(x_1, x_2) } :
+    x_1, x_2 \in \ALPHABET X \right\} \in [0, ∞]. \]</span> The function is called <em>Lipschitz continuous</em> if its Lipschitz constant is finite.</p>
+<p>Intuitively, a Lipschitz continuous function is limited by how fast it can change. For example, the following image from Wikipedia shows that for a Lipschitz continuous function, there exists a double cone (white) whose origin can be moved along the graph so that the whole graph always stays outside the double cone.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Lipschitz_Visualisierung.gif/523px-Lipschitz_Visualisierung.gif" title="Lipschitz continuous function" class="img-fluid figure-img" style="width:50.0%"></p>
+<figcaption class="figure-caption">Image credit: https://en.wikipedia.org/wiki/File:Lipschitz_Visualisierung.gif</figcaption>
+</figure>
+</div>
+<p>Let <span class="math inline">\(\ALPHABET Z\)</span> be an arbitrary set. A function <span class="math inline">\(f \colon \ALPHABET X × \ALPHABET Z \to \ALPHABET Y\)</span> is said to be <em>uniformly Lipschitz</em> in <span class="math inline">\(u\)</span> if <span class="math display">\[ \sup_{z \in \ALPHABET Z} \| f(\cdot, z) \|_L  =
+  \sup_{z \in \ALPHABET Z} \sup_{x_1 \neq x_2}
+  \dfrac{ d_Y(f(x_1,z), f(x_2, z)) }{ d_X(x_1, x_2) } &lt; ∞. \]</span></p>
+</section>
+<section id="some-examples" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="some-examples">Some examples</h3>
+<p>A function <span class="math inline">\(f \colon \reals \to \reals\)</span> is Lipschitz continuous if and only if it has bounded first derivative. The Lipschitz constant of such a function is equal to the maximum absolute value of the derivative.</p>
+<p>Here are some examples of Lipschitz continuous functions:</p>
+<ol type="1">
+<li><p>The function <span class="math inline">\(f(x) = \sqrt{x^2 + 1}\)</span> defined over <span class="math inline">\(\reals\)</span> is Lipschitz continuous because it is everywhere differentiable and the maximum value of the derivative is <span class="math inline">\(L = 1\)</span>.</p></li>
+<li><p>The function <span class="math inline">\(f(x) = |x|\)</span> defined over <span class="math inline">\(\reals\)</span> is Lipschitz continuous with Lipschitz constant equal to <span class="math inline">\(1\)</span>. Note that this function is continuous but not differentiable.</p></li>
+<li><p>The function <span class="math inline">\(f(x) = x + \sin x\)</span> defined over <span class="math inline">\(\reals\)</span> is Lipschitz continuous with a Lipschitz constant equal to <span class="math inline">\(1\)</span>.</p></li>
+<li><p>The function <span class="math inline">\(f(x) = \sqrt{x}\)</span> defined over <span class="math inline">\([0,1]\)</span> is <em>not</em> Lipschitz continuous because the function becomes infinitely steep as <span class="math inline">\(x\)</span> approaches <span class="math inline">\(0\)</span>.</p></li>
+<li><p>The function <span class="math inline">\(f(x) = x^2\)</span> defined over <span class="math inline">\(\reals\)</span> is <em>not</em> Lipschitz continuous because it becomes arbitrarily steep as <span class="math inline">\(x\)</span> approaches infinity.</p></li>
+<li><p>The function <span class="math inline">\(f(x) = \sin(1/x)\)</span> is bounded but <em>not</em> Lipschitz because becomes infinitely steep as <span class="math inline">\(x\)</span> approaches <span class="math inline">\(0\)</span>.</p></li>
+</ol>
+</section>
+<section id="properties-of-lipschitz-functions" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="properties-of-lipschitz-functions">Properties of Lipschitz functions</h3>
+<div id="prp-lipschitz" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 15.1 </strong></span>Lipschitz continuous functions have the following properties:</p>
+<ol type="a">
+<li><p>If a function <span class="math inline">\(f \colon (\ALPHABET X, d_X) \to (\ALPHABET Y, d_Y)\)</span> is Lipschitz continuous, then <span class="math inline">\(f\)</span> is uniformly continuous and measurable.</p></li>
+<li><p><span class="math inline">\(\| f\|_L = 0\)</span> if and only if <span class="math inline">\(f\)</span> is a constant.</p></li>
+<li><p>If <span class="math inline">\(f \colon (\ALPHABET X, d_X) \to (\ALPHABET Y, d_Y)\)</span> and <span class="math inline">\(g \colon (\ALPHABET Y, d_Y) \to (\ALPHABET Z, d_Z)\)</span> are Lipschitz continuous, then <span class="math display">\[ \| f \circ g \|_L \le \| f \|_L \cdot \| g \|_L. \]</span></p></li>
+<li><p>The <span class="math inline">\(\| \cdot \|_{L}\)</span> is a seminorm on the vector space of Lipschitz functions from a metric space <span class="math inline">\((\ALPHABET X, d_X)\)</span> to <span class="math inline">\((\ALPHABET Y, d_Y)\)</span>. In particular, <span class="math inline">\(\| \cdot \|_L\)</span> has the following properties: <span class="math inline">\(\| f \|_L \in [0, ∞]\)</span>, <span class="math inline">\(\| α f\|_L = |α| \cdot \|f\|_L\)</span> for any <span class="math inline">\(α \in \reals\)</span>, and <span class="math inline">\(\| f_1 + f_2 \|_L \le \|f_1 \|_L + \|f_2 \|_L\)</span>.</p></li>
+<li><p>Given a family of functions <span class="math inline">\(f_i\)</span>, <span class="math inline">\(i \in I\)</span>, on the same metric space such that <span class="math inline">\(\sup_{i \in I} f_i &lt; ∞\)</span>, <span class="math display">\[ \| \sup_{i \in I} f_i \|_{L} \le \sup_{i \in I} \| f_i \|_{L}. \]</span></p></li>
+<li><p>Let <span class="math inline">\(f_n\)</span>, <span class="math inline">\(n \in \integers_{\ge 1}\)</span>, and <span class="math inline">\(f\)</span> be functions from <span class="math inline">\((\ALPHABET X, d_X)\)</span> to <span class="math inline">\((\ALPHABET Y, d_Y)\)</span>. If <span class="math inline">\(f_n\)</span> converges pointwise to <span class="math inline">\(f\)</span> for <span class="math inline">\(n \to ∞\)</span>, then <span class="math display">\[ \| f \|_{L} \le \lim\inf_{n \to ∞} \| f_i \|_{L}. \]</span></p></li>
+</ol>
+</div>
+</section>
+</section>
+<section id="kantorovich-distance" class="level2" data-number="15.2">
+<h2 data-number="15.2" class="anchored" data-anchor-id="kantorovich-distance"><span class="header-section-number">15.2</span> Kantorovich distance</h2>
+<p>Let <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\nu\)</span> be probability measures on <span class="math inline">\((\ALPHABET X, d_X)\)</span>. The <em>Kantorovich distance</em> between distributions <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\nu\)</span> is defined as: <span class="math display">\[ K(\mu,\nu) = \sup_{f : \| f\|_L \le 1 }
+   \left| \int_{\ALPHABET X} f\, d\mu - \int_{\ALPHABET X} f\, d\nu \right|. \]</span></p>
+<p>The next results follow immediately from the definition of Kantorovich distance.</p>
+<div id="prp-Kantorovich" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 15.2 </strong></span>For any Lipschitz function <span class="math inline">\(f \colon (\ALPHABET X, d_X) \to (\reals, \lvert \cdot \rvert)\)</span>, and <span class="math inline">\(μ,ν\)</span> are probability measures on <span class="math inline">\((\ALPHABET X, d_X)\)</span>, <span class="math display">\[ \left|
+  \int_{\ALPHABET X} f\, dμ - \int_{\ALPHABET X} f\, dν \right| \le
+  \| f \|_L \cdot K(μ,ν). \]</span></p>
+</div>
+<section id="some-examples-1" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="some-examples-1">Some examples</h3>
+<ol type="1">
+<li><p>Let <span class="math inline">\((\ALPHABET X, d_X)\)</span> be a metric space and for any <span class="math inline">\(x,y \in \ALPHABET X\)</span>, let <span class="math inline">\(δ_x\)</span> and <span class="math inline">\(δ_y\)</span> denote the Dirac delta distributions centered at <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. Then, <span class="math display">\[ K(δ_x, δ_y) = d_X(x,y). \]</span></p></li>
+<li><p>Let <span class="math inline">\((\ALPHABET X, d_X)\)</span> be a Euclidean space with Euclidean norm. Let <span class="math inline">\(μ \sim \mathcal{N}(m_1, \Sigma_1)\)</span> and <span class="math inline">\(ν \sim \mathcal{N}(m_2, \Sigma_2)\)</span> be two Gaussian distributions on <span class="math inline">\(\ALPHABET X\)</span>. Then, <span class="math display">\[K(μ,ν) = \sqrt{ \| m_1 - m_2 \|_2^2
++ \text{Tr}( \Sigma_1 + \Sigma_2 - 2(\Sigma_2^{1/2} \Sigma_1 \Sigma_2^{1/2})^{1/2} ) }. \]</span> If the two covariances commute, i.e.&nbsp;<span class="math inline">\(\Sigma_1\Sigma_2 = \Sigma_2 \Sigma_1\)</span>, then, <span class="math display">\[K(μ,ν) = \sqrt{ \| m_1 - m_2 \|_2^2
++ \| \Sigma_1^{1/2} - \Sigma_2^{1/2} \|^2_F},\]</span> where <span class="math inline">\(\| ⋅ \|_{F}\)</span> denotes the <a href="https://en.wikipedia.org/wiki/Matrix_norm#Frobenius_norm">Frobeinus norm</a> of a matrix.</p>
+<p>When <span class="math inline">\(\Sigma_1 = \Sigma_2\)</span>, we have <span class="math display">\[K(μ,ν) = \| m_1 - m_2 \|_2. \]</span></p></li>
+<li><p>If <span class="math inline">\(\ALPHABET X = \reals\)</span> and <span class="math inline">\(d_X = | \cdot |\)</span>, then for any two distributions <span class="math inline">\(μ\)</span> and <span class="math inline">\(ν\)</span>, <span class="math display">\[ K(μ,ν) = \int_{-∞}^∞ \left| F_μ(x) - F_ν(x) \right| dx, \]</span> where <span class="math inline">\(F_μ\)</span> and <span class="math inline">\(F_ν\)</span> denote the CDF of <span class="math inline">\(μ\)</span> and <span class="math inline">\(ν\)</span>.</p>
+<p>Furthermore, if <span class="math inline">\(μ\)</span> is stochastically dominated by <span class="math inline">\(ν\)</span>, then <span class="math inline">\(F_μ(x) \ge F_ν(x)\)</span>. Thus, <span class="math display">\[ K(μ, ν) = \bar μ - \bar ν \]</span> where <span class="math inline">\(\bar μ\)</span> and <span class="math inline">\(\bar ν\)</span> are the means of <span class="math inline">\(μ\)</span> and <span class="math inline">\(ν\)</span>.</p></li>
+</ol>
+</section>
+</section>
+<section id="lipschitz-mdps" class="level2" data-number="15.3">
+<h2 data-number="15.3" class="anchored" data-anchor-id="lipschitz-mdps"><span class="header-section-number">15.3</span> Lipschitz MDPs</h2>
+<p>Now consider an MDP where the state and action spaces are Metric spaces. We denote the corresponding metric by <span class="math inline">\(d_S\)</span> and <span class="math inline">\(d_A\)</span> respectively. For ease of exposition, we define a metric <span class="math inline">\(d\)</span> on <span class="math inline">\(\ALPHABET S × \ALPHABET A\)</span> by <span class="math display">\[ d( (s_1, a_1), (s_2, a_2) ) = d_S(s_1, s_2) + d_A(a_1, a_2). \]</span></p>
+<p>We allow for randomized policies. Thus, given any state <span class="math inline">\(s \in \ALPHABET S\)</span>, <span class="math inline">\(π(\cdot | s)\)</span> is a probability distribution on <span class="math inline">\(\ALPHABET A\)</span>. We say that a (possibly) randomized policy <span class="math inline">\(π\)</span> has a Lipschitz constant of <span class="math inline">\(L_π\)</span> if for any <span class="math inline">\(s_1, s_2 \in \ALPHABET S\)</span>, <span class="math display">\[ K(π(\cdot| s_1), π(\cdot | s_2)) \le L_π d_S(s_1, s_2). \]</span></p>
+<p>Note that if <span class="math inline">\(π\)</span> is deterministic, then due to property of Kantorovich distance between delta distributions, the above relationship simplifies to <span class="math display">\[ d_A(π(s_1), π(s_2)) \le L_π d_S(s_1, s_2). \]</span></p>
+<div id="def-lipschitz-mdp" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 15.1 </strong></span>An MDP is <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz if for all <span class="math inline">\(s_1, s_2 \in \ALPHABET S\)</span> and <span class="math inline">\(a_1, a_2 \in \ALPHABET A\)</span>,</p>
+<ul>
+<li><span class="math inline">\(| c(s_1, a_1) - c(s_2, a_2) | \le L_c\bigl( d_S(s_1, s_2) + d_A(a_1, a_2) \bigr)\)</span>.</li>
+<li><span class="math inline">\(K(p(\cdot | s_1, a_1), p(\cdot | s_2, a_2)) \le L_p\bigl( d_S(s_1, s_2) + d_A(a_1, a_2) \bigr)\)</span>.</li>
+</ul>
+</div>
+<section id="lipschitz-continuity-of-bellman-updates" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="lipschitz-continuity-of-bellman-updates">Lipschitz continuity of Bellman updates</h3>
+<p>We now prove a series of results for the Lipschitz continuity of Bellman updates.</p>
+<div id="lem-lipschitz-LQ" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 15.1 </strong></span>Let <span class="math inline">\(V \colon \ALPHABET S \to \reals\)</span> be <span class="math inline">\(L_V\)</span>-Lipschitz continuity. Define <span class="math display">\[ Q(s,a) = c(s,a) + γ \int V(y) p(y|s,a)dy. \]</span> Then <span class="math inline">\(Q\)</span> is <span class="math inline">\((L_c + γ L_p L_V)\)</span>-Lipschitz continuous.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Consider, <span class="math display">\[\begin{align*}
+| Q(s_1, a_1) - Q(s_2, a_2) | &amp;\stackrel{(a)}\le
+| c(s_1, a_1) - c(s_2, a_2) | \\
+&amp; \quad +
+\beta \left|\int V(y) p(y|s_1, a_1) dy -
+             \int V(y) p(y|s_2, a_2) dy \right|
+  \\
+  &amp;\stackrel{(b)}\le  L_c d( (s_1, a_1), (s_2, a_2) ) +
+  \beta L_V L_p d( (s_1, a_1), (s_2, a_2) ),
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the triangle inequality and <span class="math inline">\((b)\)</span> follows from <a href="#prp-Kantorovich">Proposition&nbsp;<span>15.2</span></a>. Thus, <span class="math inline">\(L_Q = L_c + γ L_p L_V\)</span>.</p>
+</div>
+</div>
+</div>
+<div id="lem-lipschitz-LV-opt" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 15.2 </strong></span>Let <span class="math inline">\(Q \colon \ALPHABET S × \ALPHABET A \to \reals\)</span> be <span class="math inline">\(L_Q\)</span>-Lipschitz continuous. Define <span class="math display">\[V(s) = \min_{a \in \ALPHABET A} Q(s,a).\]</span> Then <span class="math inline">\(V\)</span> is <span class="math inline">\(L_Q\)</span>-Lipschitz continuous.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Consider <span class="math inline">\(s_1, s_2 \in \ALPHABET S\)</span> and let <span class="math inline">\(a_1\)</span> and <span class="math inline">\(a_2\)</span> denote the corresponding optimal action. Then, <span class="math display">\[ \begin{align*}
+V(s_1) - V(s_2) &amp;= Q(s_1, a_1) - Q(s_2, a_2) \\
+&amp;\stackrel{(a)}\le Q(s_1, a_2) - Q(s_2, a_2) \\
+&amp;\stackrel{(b)}\le L_Q( d_S(s_1, s_2) + d_A(a_2, a_2) )\\
+&amp;= L_Q d_S(s_1, s_2).
+\end{align*} \]</span></p>
+<p>By symmetry, <span class="math display">\[ V(s_2) - V(s_1) \le L_Q d_S(s_2, s_1). \]</span> Thus, <span class="math display">\[ | V(s_1) - V(s_2) | \le L_Q d_S(s_1, s_2). \]</span> Thus, <span class="math inline">\(V\)</span> is <span class="math inline">\(L_Q\)</span>-Lipschitz continuous.</p>
+</div>
+</div>
+</div>
+<div id="lem-lipschitz-LV" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 15.3 </strong></span>Let <span class="math inline">\(Q \colon \ALPHABET S × \ALPHABET A \to \reals\)</span> be <span class="math inline">\(L_Q\)</span>-Lipschitz continuous and <span class="math inline">\(π\)</span> be a (possibly randomized) <span class="math inline">\(L_π\)</span>-Lipschitz policy. Define <span class="math display">\[V_π(s) = \int Q(s, a) π(a | s) du.\]</span> Then, <span class="math inline">\(V_π\)</span> is <span class="math inline">\(L_Q( 1 + L_π)\)</span>-Lipschitz continuous.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>For any <span class="math inline">\(s_1, s_2 \in \ALPHABET S\)</span>, consider <span class="math display">\[ \begin{align}
+| V_π(s_1) - V_π(s_2) | &amp;=
+\left| \int Q(s_1, a) π(a | s_1) du - \int Q(s_2, a) π(a | s_2) du \right|
+\notag \\
+&amp;\stackrel{(a)}\le
+\left| \int Q(s_1, a) π(a | s_1) du - \int Q(s_2, a) π(a | s_1) du \right|
+\notag \\
+&amp; \quad +
+\left| \int Q(s_2, a) π(a | s_1) du - \int Q(s_2, a) π(a | s_2) du \right|
+\label{eq:split}
+\end{align} \]</span> where <span class="math inline">\((a)\)</span> follows from the triangle inequality. Now we consider both terms separately.</p>
+<p>The first term of \eqref{eq:split} simplifies as follows: <span class="math display">\[\begin{align}
+\left| \int Q(s_1, a) π(a | s_1) du - \int Q(s_2, a) π(a | s_1) du \right|
+&amp;\stackrel{(b)}\le
+\int \left|Q(s_1, a) - Q(s_2, a)\right| π(a | s_1) du \notag \\
+&amp;\stackrel{(c)}\le
+\int L_Q d_S(s_1, s_2) π(a | s_1) du \notag \\
+&amp;= L_Q d_S(s_1, s_2), \label{eq:first}
+\end{align} \]</span> where <span class="math inline">\((b)\)</span> follows from the triangle inequality and <span class="math inline">\((c)\)</span> follows from Lipschitz continuity of <span class="math inline">\(Q\)</span>.</p>
+<p>The second term of \eqref{eq:split} simplifies as follows: <span class="math display">\[ \begin{align}
+  \left| \int Q(s, a) π(a | s_1) du - \int Q(s,a) π(a | s_2) du \right|
+  &amp;\stackrel{(d)}\le L_Q K (π(\cdot | s_1), π(\cdot | s_2))
+  \notag \\
+  &amp;\stackrel{(e)}\le L_Q L_π d_S(s_1, s_2),
+  \label{eq:second}
+  \end{align}
+\]</span> where the <span class="math inline">\((d)\)</span> inequality follows from <a href="#prp-Kantorovich">Proposition&nbsp;<span>15.2</span></a> and <span class="math inline">\((e)\)</span> follows from the definition of Lipschitz continuous policy.</p>
+<p>Substituting \eqref{eq:first} and \eqref{eq:second} in \eqref{eq:split}, we get <span class="math display">\[ \begin{align*}
+| V_π(s_1) - V_π(s_2) | &amp;\le L_Q d_S(s_1, s_2) + L_Q L_π d_S(s_1, s_2)
+\\
+&amp;= L_Q(1 + L_π) d_S(s_1, s_2).
+\end{align*} \]</span> Thus, <span class="math inline">\(V\)</span> is Lipschitz continuous with Lipschitz constant <span class="math inline">\(L_Q(1 + L_π)\)</span>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="lipschitz-continuity-of-value-iteration" class="level2" data-number="15.4">
+<h2 data-number="15.4" class="anchored" data-anchor-id="lipschitz-continuity-of-value-iteration"><span class="header-section-number">15.4</span> Lipschitz continuity of value iteration</h2>
+<div id="lem-lipschitz-V-iteration" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 15.4 </strong></span>Consider a discounted infinite horizon MDP which is <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz. Start with <span class="math inline">\(V^{(0)} = 0\)</span> and recursively define</p>
+<ul>
+<li><span class="math inline">\(\displaystyle Q^{(n+1)}(s,a) = c(s,a) + γ \int V^{(n)}(y) p(y|s,a) dy.\)</span></li>
+<li><span class="math inline">\(\displaystyle V^{(n+1)}(s) = \min_{a \in \ALPHABET A} Q^{(n+1)}(s,a).\)</span></li>
+</ul>
+<p>Then, <span class="math inline">\(V^{(n)}\)</span> is Lipschitz continuous and its Lipschitz constant <span class="math inline">\(L_{V^{(n)}}\)</span> satisfies the following recursion: <span class="math display">\[L_{V^{(n+1)}} = L_c + γ L_p L_{V^{(n)}}.\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We prove the result by induction. For <span class="math inline">\(n=1\)</span>, <span class="math inline">\(Q^{(1)}(s,a) = c(s,a)\)</span>, which is Lipschitz with Lipschitz constant <span class="math inline">\(L_{Q^{(1)}} = L_c\)</span>. Then, by <a href="#lem-lipschitz-LV-opt">Lemma&nbsp;<span>15.2</span></a>, <span class="math inline">\(V^{(1)}\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(L_{V^{(1)}} = L_{Q^{(1)}} = L_c\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(V^{(n)}\)</span> is <span class="math inline">\(L_{V^{(n)}}\)</span>-Lipschitz. Then, by <a href="#lem-lipschitz-LQ">Lemma&nbsp;<span>15.1</span></a>, <span class="math inline">\(Q^{(n+1)}\)</span> is <span class="math inline">\((L_c + γL_p L_{V^{(n)}})\)</span>-Lipschitz. Therefore, by <a href="#lem-lipschitz-LV-opt">Lemma&nbsp;<span>15.2</span></a>, <span class="math inline">\(V^{(n+1)}\)</span> is Lipschitz with constant <span class="math display">\[ L_{V^{(n+1)}} = L_c + γ L_p L_{V^{(n)}}. \space\Box\]</span></p>
+</div>
+</div>
+</div>
+<div id="lem-lipschitz-LQ-update" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 15.5 </strong></span>Consider a discounted infinite horizon MDP which is <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz and let <span class="math inline">\(π\)</span> be any randomized time-homogeneous policy which is <span class="math inline">\(L_π\)</span>-Lipschitz. Start with <span class="math inline">\(V^{(0)} = 0\)</span> and then recursively define</p>
+<ul>
+<li><span class="math inline">\(V^{(n)}_π(s) = \int Q^{(n)}_π(s,a)π(a|s) du.\)</span></li>
+<li><span class="math inline">\(\displaystyle Q^{(n+1)}_π(s,a) = c(s,a) + γ \int V^{(n)}_π(y) p(y|s,a) dy.\)</span></li>
+</ul>
+<p>Then, then <span class="math inline">\(Q^{(n)}_π\)</span> is Lipschitz continuous and its Lipschitz constant <span class="math inline">\(L_{Q^{(n)}_π}\)</span> satisfies the follwoing recursion: <span class="math display">\[ L_{Q^{(n+1)}_π} + L_c + \beta(1 + L_π)L_p L_{Q^{(n)}_π}. \]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We prove the result by induction. For <span class="math inline">\(n=1\)</span>, <span class="math inline">\(Q^{(1)}_π(s,a) = c(s,a)\)</span>, which is Lipschitz with Lipschitz constant <span class="math inline">\(L_{Q^{(1)}_π} = L_c\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(Q^{(n)}_π\)</span> is <span class="math inline">\(L_{Q^{(n)}_π}\)</span>-Lipschitz. Then, by <a href="#lem-lipschitz-LV">Lemma&nbsp;<span>15.3</span></a>, <span class="math inline">\(V^{(n)}_π\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(L_{V^{(n)}_π} = L_{Q^{(n)}_π}(1 + L_π)\)</span> and by <a href="#lem-lipschitz-LQ">Lemma&nbsp;<span>15.1</span></a>, <span class="math inline">\(Q^{(n+1)}_π\)</span> is Lipschitz with Lipschitz constant <span class="math inline">\(L_{Q^{(n+1)}_π} = L_c + γL_p L_{V^{(n)}_π}.\)</span> Combining these two we get <span class="math display">\[ L_{Q^{(n+1)}_π} + L_c + \beta(1 + L_π)L_p L_{Q^{(n)}_π}. \]</span></p>
+</div>
+</div>
+</div>
+<div id="thm-lipschitz-opt" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 15.1 </strong></span>Given any <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz MDP, if <span class="math inline">\(\beta L_p &lt; 1\)</span>, then the infinite horizon <span class="math inline">\(\beta\)</span>-discounted value function <span class="math inline">\(V\)</span> is Lipschitz continuous with Lipschitz constant <span class="math display">\[ L_{V} = \frac{L_c}{1 - γ L_p} \]</span> and the action-value function <span class="math inline">\(Q\)</span> is Lipschitz with Lipschitz constant <span class="math display">\[ L_Q = L_V = \frac{L_c}{1 - γ L_p}. \]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Consider the sequence of <span class="math inline">\(L_n = L_{V^{(n)}}\)</span> values. For simplicity write <span class="math inline">\(α = γ L_p\)</span>. Then the sequence <span class="math inline">\(\{L_n\}_{n \ge 1}\)</span> is given by: <span class="math inline">\(L_1 = L_c\)</span> and for <span class="math inline">\(n \ge 1\)</span>, <span class="math display">\[ L_{n+1} = L_c + α L_n. \]</span> Hence, <span class="math display">\[ L_n = L_c + α L_c + \dots + α^{n-1} L_c = \frac{1 - α^n}{1 - α} L_c. \]</span> This sequence converges if <span class="math inline">\(|α| &lt; 1\)</span>. Since <span class="math inline">\(α\)</span> is non-negative, this is equivalent to <span class="math inline">\(α &lt; 1\)</span>, which is true by hypothesis. Hence <span class="math inline">\(L_n\)</span> is a convergent sequence. At convergence, the limit <span class="math inline">\(L_V\)</span> must satisfy the fixed point of the recursion relationship introduced in <a href="#lem-lipschitz-V-iteration">Lemma&nbsp;<span>15.4</span></a>, hence <span class="math display">\[ L_V = L_c + γ L_p L_V. \]</span> Consequently, the limit is equal to <span class="math display">\[ L_V = \frac{L_c}{1 - γ L_p}. \]</span> The Lipschitz constant of <span class="math inline">\(Q\)</span> follows from <a href="#lem-lipschitz-LQ">Lemma&nbsp;<span>15.1</span></a>.</p>
+</div>
+</div>
+</div>
+<div id="thm-lipschitz" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 15.2 </strong></span>Given any <span class="math inline">\((L_c, L_p)\)</span>-Lipschitz MDP and an <span class="math inline">\(L_π\)</span>-Lipschitz (possibly randomized) time-homogeneous policy <span class="math inline">\(π\)</span>, if <span class="math inline">\(\beta (1 + L_π) L_p &lt; 1\)</span>, then the infinite horizon <span class="math inline">\(\beta\)</span>-discounted value-action function <span class="math inline">\(Q_π\)</span> is Lipschitz continuous with Lipschitz constant <span class="math display">\[ L_{Q_π} = \frac{L_c}{1 - γ(1 + L_π) L_p} \]</span> and the value function <span class="math inline">\(V_π\)</span> is Lipschitz with Lipschitz constant <span class="math display">\[ L_{V_π} = L_{Q_π}(1 + L_π) =
+   \frac{L_c(1 + L_π)}{1 - γ(1 + L_π) L_p}. \]</span></p>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remark
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The restrictive assumption in the result is that <span class="math inline">\(γ(1 + L_π)L_p &lt; 1\)</span>. For a specific model, even when this assumption does not hold, it may be possible to directly check if the <span class="math inline">\(Q\)</span>-function is Lipschitz continuous. Such a direct check often gives a better Lipschitz constant.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Consider the sequence of <span class="math inline">\(L_n = L_{Q^{(n)}_π}\)</span> values. For simplicity, write <span class="math inline">\(α = γ(1 + L_π)L_p\)</span>. Then, the sequence <span class="math inline">\(\{L_n\}_{n \ge 1}\)</span> is given by: <span class="math inline">\(L_1 = L_c\)</span> and for <span class="math inline">\(n \ge 1\)</span>, <span class="math display">\[L_{n+1} = L_c + α L_n. \]</span> Hence, <span class="math display">\[ L_n = L_c + α L_c + \dots + α^{n-1} L_c = \frac{1 - α^n}{1 - α} L_c. \]</span> This sequence converges if <span class="math inline">\(|α| &lt; 1\)</span>. Since <span class="math inline">\(α\)</span> is non-negative, this is equivalent to <span class="math inline">\(α &lt; 1\)</span>, which is true by hypothesis. Hence <span class="math inline">\(L_n\)</span> is a convergent sequence. At convergence, the limit <span class="math inline">\(L_{Q_π}\)</span> must satisfy the fixed point of the recursion relationship introduced in <a href="#lem-lipschitz-LQ-update">Lemma&nbsp;<span>15.5</span></a>, hence <span class="math display">\[ L_{Q_π} = L_c + γ(1 + L_π)L_p L_{Q_π}. \]</span> Consequently, the limit is equal to <span class="math display">\[ L_{Q_π} = \frac{L_c}{1 - γ(1 + L_π) L_p}. \]</span></p>
+<p>The Lipschitz constant of <span class="math inline">\(V_π\)</span> follows from <a href="#lem-lipschitz-LV">Lemma&nbsp;<span>15.3</span></a>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="influence-radius" class="level2" data-number="15.5">
+<h2 data-number="15.5" class="anchored" data-anchor-id="influence-radius"><span class="header-section-number">15.5</span> Influence Radius</h2>
+<p>When the <span class="math inline">\(Q\)</span>-function of an MDP is Lipschitz continuous, then the optimal action does not change too abruptly. More precisely, suppose an action <span class="math inline">\(a\)</span> is optimal at state <span class="math inline">\(s\)</span>. Then, we can identify a hyperball <span class="math inline">\(B(s, ρ(s))\)</span> of radius <span class="math inline">\(ρ(s)\)</span> centered around <span class="math inline">\(s\)</span> such that <span class="math inline">\(a\)</span> is guaranteed to be the dominating action in <span class="math inline">\(ρ(s)\)</span>. This radius <span class="math inline">\(ρ(s)\)</span> is called the <em>influence radius</em>.</p>
+<p>Let <span class="math inline">\(π\)</span> denote the optimal policy, i.e., <span class="math display">\[ π(s) = \arg \min_{a \in \ALPHABET A} Q(s,a) \]</span> and <span class="math inline">\(h\)</span> denote the second best action, i.e., <span class="math display">\[ h(s) = \arg \min_{a \in \ALPHABET A \setminus \{π(s)\}} Q(s,a). \]</span> Define the <em>domination value</em> of state <span class="math inline">\(s\)</span> to be <span class="math display">\[ Δ(s) = Q(s, h(s)) - Q(s, π(s)). \]</span></p>
+<div id="thm-lipschitz-influence" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 15.3 </strong></span>For a Lipschitz continuous <span class="math inline">\(Q\)</span>-function, the influence radius at state <span class="math inline">\(s\)</span> is given by <span class="math display">\[ ρ(s) = \frac{ Δ(s) }{ 2 L_Q }. \]</span></p>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remark
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Combining <a href="#thm-lipschitz">Theorem&nbsp;<span>15.2</span></a> and <a href="#thm-lipschitz-influence">Theorem&nbsp;<span>15.3</span></a> implies that under the condition of <a href="#thm-lipschitz">Theorem&nbsp;<span>15.2</span></a>, the influence radius at state <span class="math inline">\(s\)</span> is at least <span class="math display">\[ ρ(s) = Δ(s)(1 - γ(1 + L_π)L_p)/2L_c. \]</span></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The intuition behind the proof is the following. The value of the action <span class="math inline">\(π(s)\)</span> can only decrease by <span class="math inline">\(L_Q ρ(s)\)</span> in <span class="math inline">\(B(s, ρ(s))\)</span>, while the value of the second best action <span class="math inline">\(h(s)\)</span> can only increase by <span class="math inline">\(L_Q ρ(s)\)</span>. So, the shortest distance <span class="math inline">\(ρ(s)\)</span> from <span class="math inline">\(s\)</span> needed for an action <span class="math inline">\(h(s)\)</span> to “catch-up” with action <span class="math inline">\(π(s)\)</span> should satisfy <span class="math inline">\(2 L_Q ρ(s) = Δ(s)\)</span> or <span class="math inline">\(ρ(s) = Δ(s)/2L_Q\)</span>.</p>
+<p>Formally, for any <span class="math inline">\(s' \in B(s,ρ(s))\)</span>, <span class="math inline">\(d_S(s,s') \le ρ(s)\)</span>. Thus, for any action <span class="math inline">\(a \in \ALPHABET A\)</span>, <span class="math display">\[ | Q(s,a) - Q(s',a)| \le L_Q d_S(s,s') \le L_Q ρ(s). \]</span> Equivalently, <span class="math display">\[ Q(s,a) - L_Q ρ(s) \le Q(s',a) \le Q(s,a) + L_Q ρ(s) \]</span> which states that as <span class="math inline">\(s'\)</span> moves away from <span class="math inline">\(s\)</span>, the value of <span class="math inline">\(Q(s',a)\)</span> remains within a symmetric bound that depends on the radius <span class="math inline">\(ρ(s)\)</span>. Since this bound holds for all <span class="math inline">\(a\)</span>, they also hold for <span class="math inline">\(a = π(s)\)</span>. Thus, <span class="math display">\[ Q(s, π(s)) - L_Q ρ(s) \le Q(s', π(s)) \le Q(s, π(s)) + L_Q ρ(s). \]</span></p>
+<p>Since <span class="math inline">\(π(s)\)</span> is the optimal action, for any other action <span class="math inline">\(a \neq π(s)\)</span>, <span class="math display">\[ Q(s,π(s)) \le Q(s,a). \]</span> Thus, the action <span class="math inline">\(π(s)\)</span> is optimal as long as the upper bound on <span class="math inline">\(Q(s', π(s))\)</span> is lower than the lower bound on <span class="math inline">\(Q(s',a)\)</span>, i.e., <span class="math display">\[ Q(s, π(s)) + L_Q ρ(s) \le Q(s,a) - L_Q ρ(s).  \]</span> Thus, the maximum value of <span class="math inline">\(ρ(s)\)</span> is when the relationship holds with equality, i.e., <span class="math display">\[ ρ(s) = \frac{Q(s,a) - Q(s,π(s))}{2 L_Q} \ge \frac{Δ(s)}{2 L_Q}. \]</span></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<div id="exr-kantorovich-delta" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 15.1 </strong></span>Let <span class="math inline">\((\ALPHABET S, d_S)\)</span> be a metric space and <span class="math inline">\(s, s' \in \ALPHABET S\)</span>. Consider two Bernoulli measures <span class="math display">\[ μ = a δ_s + (1-a) δ_{s'}, \qquad
+      ν = b δ_s + (1-b) δ_{s'}. \]</span></p>
+<p>Show that <span class="math display">\[ K(μ,ν) = |a - b| d(s,s'). \]</span></p>
+</div>
+<!-- Does not work 
+1. Let $\ALPHABET S = \reals$ and $d_S = |⋅|$. Let $μ$ and $ν$ be two
+   distributions over $\reals$ with CDF $M$ and $N$. It can be shown that
+   $$ K(μ, ν) = \int_{-∞}^{∞} | M(s) - N(s)| dx. $$
+
+   Now suppose $\bar μ$ and $\bar ν$ be truncation of $μ$ and $ν$ to the
+   interval $[-B, B]$ and let $\bar M$ and $\bar N$ denote the CDF of $\bar μ$
+   and $\bar ν$. Thus,
+   $$ \bar M(s) = \begin{cases}
+    0, & s \le -B \\
+    M(-B), & s = -B \\
+    M(s), & -B < s < B \\
+    1, & B \le s
+   \end{cases} $$
+   and similar interpretation holds for $\bar N(s)$. 
+
+   Show that
+   $$ K(\bar μ, \bar ν) \le K(μ, ν). $$
+
+   _Hint_: First show that
+   $$ \left| M(-B) - N(-B) \right| 
+   \le \int_{-∞}^{-B} \left| M(s) - N(s) \right| dx. $$
+
+   Then, split $K(μ,ν)$ and $K(\bar μ, \bar ν)$ into 
+   $$\int_{-∞}^{-B} \cdots dx + \int_{-B}^B \cdots dx + \int_{B}^∞ \cdots dx, $$
+   and compare the three terms individually.
+
+-->
+</section>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p>The material in this section is taken from <span class="citation" data-cites="Rachelson2010">Rachelson and Lagoudakis (<a href="../references.html#ref-Rachelson2010" role="doc-biblioref">2010</a>)</span> and <span class="citation" data-cites="Hinderer2005">Hinderer (<a href="../references.html#ref-Hinderer2005" role="doc-biblioref">2005</a>)</span>.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-Hinderer2005" class="csl-entry" role="listitem">
+<span class="smallcaps">Hinderer, K.</span> 2005. Lipschitz continuity of value functions in <span>M</span>arkovian decision processes. <em>Mathematical Methods of Operations Research</em> <em>62</em>, 1, 3–22. DOI: <a href="https://doi.org/10.1007/s00186-005-0438-1">10.1007/s00186-005-0438-1</a>.
+</div>
+<div id="ref-Rachelson2010" class="csl-entry" role="listitem">
+<span class="smallcaps">Rachelson, E. and Lagoudakis, M.G.</span> 2010. On the locality of action domination in sequential decision making. <em>Proceedings of 11th international symposium on artificial intelligence and mathematics</em>. Available at: <a href="https://oatao.univ-toulouse.fr/17977/">https://oatao.univ-toulouse.fr/17977/</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../mdps/linear-programming.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Linear programming formulation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../approx-mdps/model-approximation.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Model approximation</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
