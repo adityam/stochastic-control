@@ -466,26 +466,31 @@ window.MathJax = {
 <h2 data-number="16.1" class="anchored" data-anchor-id="bounds-for-model-approximation"><span class="header-section-number">16.1</span> Bounds for model approximation</h2>
 <section id="value-error" class="level3" data-number="16.1.1">
 <h3 data-number="16.1.1" class="anchored" data-anchor-id="value-error"><span class="header-section-number">16.1.1</span> Bounding the error for value function approximation</h3>
-<p>Let <span class="math inline">\(\ALPHABET B^π\)</span> and <span class="math inline">\(\ALPHABET B^*\)</span> denote the Bellman operator for policy <span class="math inline">\(π\)</span> and the optimality Bellman operator for model <span class="math inline">\(\ALPHABET M\)</span>. Let <span class="math inline">\(\hat {\ALPHABET B}^π\)</span> and <span class="math inline">\(\hat {\ALPHABET B}^*\)</span> denote the corresponding quantiites for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>. Define the <em>Bellman mismatch functional</em> <span class="math inline">\(\ALPHABET D^π\)</span> and <span class="math inline">\(\ALPHABET D^*\)</span> as follows: <span class="math display">\[\begin{align*}
-  \ALPHABET D^π v &amp;= \| \ALPHABET B^π v - \hat {\ALPHABET B}^π v \|_∞,
+<p>Let <span class="math inline">\(\BELLMAN^π\)</span> and <span class="math inline">\(\BELLMAN^*\)</span> denote the Bellman operator for policy <span class="math inline">\(π\)</span> and the optimality Bellman operator for model <span class="math inline">\(\ALPHABET M\)</span>. Let <span class="math inline">\(\hat {\BELLMAN}^π\)</span> and <span class="math inline">\(\hat {\BELLMAN}^*\)</span> denote the corresponding quantiites for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>. Define the <em>Bellman mismatch functional</em> <span class="math inline">\(\MISMATCH^π\)</span> and <span class="math inline">\(\MISMATCH^*\)</span> as follows: <span class="math display">\[\begin{align*}
+  \MISMATCH^π v &amp;= \| \BELLMAN^π v - \hat {\BELLMAN}^π v \|_∞,
   \\
-  \ALPHABET D^* v &amp;= \| \ALPHABET B^* v - \hat {\ALPHABET B}^* v \|_∞ .
+  \MISMATCH^* v &amp;= \| \BELLMAN^* v - \hat {\BELLMAN}^* v \|_∞ .
 \end{align*}\]</span></p>
 <p>Also define the <em>maximum Bellman mismatch</em> as <span class="math display">\[\begin{align*}
-  \bar{\ALPHABET D} v &amp;= \max_{π \in Π} \ALPHABET D^π v
-  \\
-  &amp;\le
+  \MISMATCH^{\max} v &amp;=
   \max_{(s,a) \in \ALPHABET S, A} \biggl\lvert
     c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a)v(s')  \notag \\
   &amp; \hskip 6em
    -\hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) v(s')
    \biggr\rvert.
-\end{align*}\]</span> where <span class="math inline">\(Π\)</span> is the set of all (possibly randomized) Markov policies, and the second inequality follows from triangle inequality. It is easy to see that <span class="math inline">\(\ALPHABET D^* v \le \bar {\ALPHABET D} v\)</span>. Thus <span class="math inline">\(\bar {\ALPHABET D}v\)</span> is an upper bound for <span class="math inline">\(\ALPHABET D^* v\)</span> and <span class="math inline">\(\ALPHABET D^π v\)</span> for all <span class="math inline">\(π \in Π\)</span>.</p>
+\end{align*}\]</span></p>
+<div id="lem-mismatch-bellman" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 16.1 </strong></span>The following inequalities hold:</p>
+<ul>
+<li><span class="math inline">\(\sup_{π \in Π} \MISMATCH^π v = \MISMATCH^{\max} v\)</span></li>
+<li><span class="math inline">\(\MISMATCH^* v \le \MISMATCH^{\max} v\)</span>.</li>
+</ul>
+</div>
 <p>The Bellman mismatch functional can be used to bound the performance difference of a policy between the true and approximate models.</p>
 <div id="lem-mismatch-policy-bound" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 16.1 </strong></span>For any (possibly randomized) policy <span class="math inline">\(π\)</span>, <span class="math display">\[\begin{equation}\label{eq:bound-0}
+<p><span class="theorem-title"><strong>Lemma 16.2 </strong></span>For any (possibly randomized) policy <span class="math inline">\(π\)</span>, <span class="math display">\[\begin{equation}\label{eq:bound-0}
    \| V^{π} - \hat V^{π} \|_∞ \le
-   \frac{1}{1-γ} \min\{ \ALPHABET D^π V^{π}, \ALPHABET D^π \hat V^{π} \}.
+   \frac{1}{1-γ} \min\{ \MISMATCH^π V^{π}, \MISMATCH^π \hat V^{π} \}.
 \end{equation}\]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -503,36 +508,36 @@ Proof
 <p>We bound the left hand side of \eqref{eq:bound-0} in two ways. The first way is as follows: <span class="math display">\[\begin{align}
   \| V^{π} - \hat V^{π} \|_∞
   &amp;=
-  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
+  \| \BELLMAN^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
   \notag \\
   &amp;\le
-  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π V^π \|_∞
+  \| \BELLMAN^π V^π - \hat {\ALPHABET  B}^π V^π \|_∞
   +
-  \| \hat {\ALPHABET B}^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
+  \| \hat {\BELLMAN}^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
   \notag \\
   &amp;\le
-  \ALPHABET D^π V^π + γ \| V^π - \hat V^π \|_∞
+  \MISMATCH^π V^π + γ \| V^π - \hat V^π \|_∞
   \label{eq:ineq-3}
 \end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-3} gives us <span class="math display">\[\begin{equation}
-\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \ALPHABET D^π V^{π}}{1 - γ}.
+\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \MISMATCH^π V^{π}}{1 - γ}.
 \label{eq:ineq-4}\end{equation}\]</span> This gives the first bound.</p>
 <p>The second bound is symmetric and obtained by interchaning the roles of <span class="math inline">\(V^π\)</span> and <span class="math inline">\(\hat V^π\)</span>. <span class="math display">\[\begin{align}
   \| V^{π} - \hat V^{π} \|_∞
   &amp;=
-  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
+  \| \BELLMAN^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
   \notag \\
   &amp;\le
-  \| \ALPHABET B^π V^π - \ALPHABET  B^π \hat V^π \|_∞
+  \| \BELLMAN^π V^π - \ALPHABET  B^π \hat V^π \|_∞
   +
-  \| \ALPHABET B^π \hat V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
+  \| \BELLMAN^π \hat V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
   \notag \\
   &amp;\le
   γ \| V^π - \hat V^π \|_∞
   +
-  \ALPHABET D^π \hat V^π
+  \MISMATCH^π \hat V^π
   \label{eq:ineq-13}
 \end{align}\]</span> Rearranging terms in&nbsp;\eqref{eq:ineq-13} gives us <span class="math display">\[\begin{equation}
-\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \ALPHABET D^π \hat V^{π}}{1 - γ}.
+\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \MISMATCH^π \hat V^{π}}{1 - γ}.
 \label{eq:ineq-14}\end{equation}\]</span> This gives the second bound.</p>
 </div>
 </div>
@@ -541,7 +546,7 @@ Proof
 <div id="thm-mismatch-value-bound" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 16.1 </strong></span>Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions for <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Then, <span class="math display">\[\begin{equation}\label{eq:bound-1}
     \| V^* - \hat V^* \|_∞ \le
-    \frac{1}{1-γ} \min\{ \ALPHABET D^* V^*, \ALPHABET D^* \hat V^* \}
+    \frac{1}{1-γ} \min\{ \MISMATCH^* V^*, \MISMATCH^* \hat V^* \}
 \end{equation}\]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -556,39 +561,39 @@ Proof
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The proof argument is almost the same as the proof argument for <a href="#lem-mismatch-policy-bound">Lemma&nbsp;<span>16.1</span></a>. The first was is as follows: <span class="math display">\[\begin{align}
+<p>The proof argument is almost the same as the proof argument for <a href="#lem-mismatch-policy-bound">Lemma&nbsp;<span>16.2</span></a>. The first was is as follows: <span class="math display">\[\begin{align}
   \| V^{*} - \hat V^{*} \|_∞
   &amp;=
-  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
+  \| \BELLMAN^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
   \notag \\
   &amp;\le
-  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* V^* \|_∞
+  \| \BELLMAN^* V^* - \hat {\ALPHABET  B}^* V^* \|_∞
   +
-  \| \hat {\ALPHABET B}^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
+  \| \hat {\BELLMAN}^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
   \notag \\
   &amp;\le
-  \ALPHABET D^* V^* + γ \| V^* - \hat V^* \|_∞
+  \MISMATCH^* V^* + γ \| V^* - \hat V^* \|_∞
   \label{eq:ineq-1}
 \end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-3} gives us <span class="math display">\[\begin{equation}
-\| V^* - \hat V^* \|_∞ \le \frac{  \ALPHABET D^* V^*}{1 - γ}.
+\| V^* - \hat V^* \|_∞ \le \frac{  \MISMATCH^* V^*}{1 - γ}.
 \label{eq:ineq-2}\end{equation}\]</span> This gives the first bound.</p>
 <p>The second bound is symmetric and obtained by interchaning the roles of <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span>. <span class="math display">\[\begin{align}
   \| V^{*} - \hat V^{*} \|_∞
   &amp;=
-  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
+  \| \BELLMAN^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
   \notag \\
   &amp;\le
-  \| \ALPHABET B^* V^* - \ALPHABET  B^* \hat V^* \|_∞
+  \| \BELLMAN^* V^* - \ALPHABET  B^* \hat V^* \|_∞
   +
-  \| \ALPHABET B^* \hat V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
+  \| \BELLMAN^* \hat V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
   \notag \\
   &amp;\le
   γ \| V^* - \hat V^* \|_∞
   +
-  \ALPHABET D^* \hat V^*
+  \MISMATCH^* \hat V^*
   \label{eq:ineq-11}
 \end{align}\]</span> Rearranging terms in&nbsp;\eqref{eq:ineq-11} gives us <span class="math display">\[\begin{equation}
-\| V^{*} - \hat V^{*} \|_∞ \le \frac{ \ALPHABET D^* \hat V^{*}}{1 - γ}.
+\| V^{*} - \hat V^{*} \|_∞ \le \frac{ \MISMATCH^* \hat V^{*}}{1 - γ}.
 \label{eq:ineq-12}\end{equation}\]</span> This gives the second bound.</p>
 </div>
 </div>
@@ -601,9 +606,9 @@ Proof
 α := \| V^* - V^{\hat π^*} \|_∞ \le
 \frac{1}{1 - γ}\bigl[ Δ_1 +Δ_2 \bigr]
 \end{equation}\]</span> where <span class="math display">\[
-Δ_1 \le \min\{ \ALPHABET D^* V^*, \ALPHABET D^* \hat V^* \}
+Δ_1 \le \min\{ \MISMATCH^* V^*, \MISMATCH^* \hat V^* \}
 \quad\text{and}\quad
-Δ_2 \le \min\{ \ALPHABET D^{\hat π^*} V^{\hat π^*}, \ALPHABET D^{\hat π^*}\hat V^{\hat π^*} \}.
+Δ_2 \le \min\{ \MISMATCH^{\hat π^*} V^{\hat π^*}, \MISMATCH^{\hat π^*}\hat V^{\hat π^*} \}.
 \]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -623,37 +628,37 @@ Proof
   \| V^* - \hat V^{\hat π^*} \|_∞
   +
   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
-\end{equation}\]</span> The result then follows by bounding the first term using <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>16.1</span></a> and the second term using <a href="#lem-mismatch-policy-bound">Lemma&nbsp;<span>16.1</span></a>.</p>
+\end{equation}\]</span> The result then follows by bounding the first term using <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>16.1</span></a> and the second term using <a href="#lem-mismatch-policy-bound">Lemma&nbsp;<span>16.2</span></a>.</p>
 </div>
 </div>
 </div>
-<p>Note that depending on how we pick <span class="math inline">\(\ALPHABET D_1\)</span> and <span class="math inline">\(\ALPHABET D_2\)</span>, we get four possible upper bounds and can bound <span class="math inline">\(α\)</span> by the tightest of them, i.e., <span class="math display">\[\begin{equation}\label{eq:combined}
+<p>Note that depending on how we pick <span class="math inline">\(\MISMATCH_1\)</span> and <span class="math inline">\(\MISMATCH_2\)</span>, we get four possible upper bounds and can bound <span class="math inline">\(α\)</span> by the tightest of them, i.e., <span class="math display">\[\begin{equation}\label{eq:combined}
   α \le \frac{1}{1 - γ} \min\bigl\{
-  \ALPHABET D^* V^* + \ALPHABET D^{\hat π^*} V^{\hat π^*}, \space
-  \ALPHABET D^* V^* + \ALPHABET D^{\hat π^*} \hat V^*, \space
-  \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat π^*} V^{\hat π^*}, \space
-  \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat π^*} \hat V^{*} \bigr\}
+  \MISMATCH^* V^* + \MISMATCH^{\hat π^*} V^{\hat π^*}, \space
+  \MISMATCH^* V^* + \MISMATCH^{\hat π^*} \hat V^*, \space
+  \MISMATCH^* \hat V^* + \MISMATCH^{\hat π^*} V^{\hat π^*}, \space
+  \MISMATCH^* \hat V^* + \MISMATCH^{\hat π^*} \hat V^{*} \bigr\}
 \end{equation}\]</span> where we have used the fact that <span class="math inline">\(\hat V^{\hat π^*} = \hat V^*\)</span> to simplify some of the terms.</p>
 <p>Ideally, we want an upper bound that just depends on the value function of true model or just on the value function of the approximate model. The last bound in \eqref{eq:combined} depends just on the value function of the approximate model. We state it separately for ease of reference.</p>
 <div id="cor-mismatch-combined-bound" class="theorem corollary">
 <p><span class="theorem-title"><strong>Corollary 16.1 </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
     α := \| V^* - V^{\hat π^*} \|_∞ \le
-    \frac{1}{1-γ} \bigl[ \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat
+    \frac{1}{1-γ} \bigl[ \MISMATCH^* \hat V^* + \MISMATCH^{\hat
     π^*} \hat V^* \bigr].
-\]</span> Moreover, since <span class="math inline">\(\bar {\ALPHABET D} \hat V^*\)</span> is an upper bound for both <span class="math inline">\(\ALPHABET D^{\hat π^*} \hat V^*\)</span> and <span class="math inline">\(\ALPHABET D^* \hat V^*\)</span>, we have <span class="math display">\[
-    α \le \frac{2}{(1-γ)}  \bar {\ALPHABET D}  \hat V^*.
+\]</span> Moreover, since <span class="math inline">\(\MISMATCH^{\max} \hat V^*\)</span> is an upper bound for both <span class="math inline">\(\MISMATCH^{\hat π^*} \hat V^*\)</span> and <span class="math inline">\(\MISMATCH^* \hat V^*\)</span>, we have <span class="math display">\[
+    α \le \frac{2}{(1-γ)}  \MISMATCH^{\max}  \hat V^*.
 \]</span></p>
 </div>
 <p>In the next lemma, we develop a bound that depends just on the value function true model.</p>
 <div id="thm-mismatch-policy-bound2" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 16.3 </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
     α := \| V^* - V^{\hat π^*} \|_∞ \le
-    \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+    \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
     +
-    \frac{(1+γ)}{(1-γ)^2} \ALPHABET D^* V^* .
+    \frac{(1+γ)}{(1-γ)^2} \MISMATCH^* V^* .
 \]</span></p>
-<p>Moreover, since <span class="math inline">\(\bar {\ALPHABET D} V^*\)</span> is an upper bound for both <span class="math inline">\(\ALPHABET D^{\hat π^*} V^*\)</span> and <span class="math inline">\(\ALPHABET D^* V^*\)</span>, we have <span class="math display">\[
-    α \le \frac{2}{(1-γ)^2}  \bar {\ALPHABET D}  V^*.
+<p>Moreover, since <span class="math inline">\(\MISMATCH^{\max} V^*\)</span> is an upper bound for both <span class="math inline">\(\MISMATCH^{\hat π^*} V^*\)</span> and <span class="math inline">\(\MISMATCH^* V^*\)</span>, we have <span class="math display">\[
+    α \le \frac{2}{(1-γ)^2}  \MISMATCH^{\max}  V^*.
 \]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -677,32 +682,32 @@ Proof
   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
   &amp;=
   \| V^{\hat π^*} - \hat V^{*} \|_∞
-  = \| \ALPHABET B^{\hat π^*} V^{\hat π^*} -
-       \hat {\ALPHABET B}^{\hat π^*} \hat V^{*} \|_∞
+  = \| \BELLMAN^{\hat π^*} V^{\hat π^*} -
+       \hat {\BELLMAN}^{\hat π^*} \hat V^{*} \|_∞
   \notag \\
-  &amp;\le \| \ALPHABET B^{\hat π^*} V^{\hat π^*} -
-          \ALPHABET B^{\hat π^*} V^{*} \|_∞
-    +  \| \ALPHABET B^{\hat π^*} V^{*} -
-       \hat {\ALPHABET B}^{\hat π^*} V^{*} \|_∞
+  &amp;\le \| \BELLMAN^{\hat π^*} V^{\hat π^*} -
+          \BELLMAN^{\hat π^*} V^{*} \|_∞
+    +  \| \BELLMAN^{\hat π^*} V^{*} -
+       \hat {\BELLMAN}^{\hat π^*} V^{*} \|_∞
     +
-       \| \hat {\ALPHABET B}^{\hat π^*} V^{*} -
-       \hat {\ALPHABET B}^{\hat π^*} \hat V^{*} \|_∞
+       \| \hat {\BELLMAN}^{\hat π^*} V^{*} -
+       \hat {\BELLMAN}^{\hat π^*} \hat V^{*} \|_∞
   \notag \\
-  &amp;\le γ \| V^* - V^{\hat π^*} \|_∞ + \ALPHABET D^{\hat π^*} V^*
+  &amp;\le γ \| V^* - V^{\hat π^*} \|_∞ + \MISMATCH^{\hat π^*} V^*
   + γ \| V^* - \hat V^* \|_∞
   \label{eq:ineq-21}.
 \end{align}\]</span> where the first inequality follows from the triangle inequality and the second inequality follows from the definition of Bellman mismatch functional and contraction property of Bellman operator.</p>
 <p>Substituting \eqref{eq:ineq-21} in \eqref{eq:triangle-2} and rearranging terms, we get <span class="math display">\[\begin{align}
   \| V^* - V^{\hat π^*} \|_∞
   &amp;\le
-  \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+  \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
   +
   \frac{1+γ}{1-γ} \| V^* - \hat V^* \|_∞
   \notag \\
   &amp;\le
-  \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+  \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
   +
-  \frac{(1+γ)}{(1-γ)^2} \ALPHABET D^* V^* .
+  \frac{(1+γ)}{(1-γ)^2} \MISMATCH^* V^* .
 \end{align}\]</span> where the second inequality follows from <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>16.1</span></a>.</p>
 </div>
 </div>
@@ -740,7 +745,7 @@ Remark:
 \]</span></p>
 <p>We have the following property for the <span class="math inline">\(\bar p\)</span> dynamics:</p>
 <div id="lem-aggregation-models" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 16.2 </strong></span>For any <span class="math inline">\(\hat V \colon \hat {\ALPHABET S} \to \reals\)</span>, let <span class="math inline">\(V \colon \ALPHABET S \to \reals\)</span> be its piecewise constant extrapolation from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span> (i.e., <span class="math inline">\(V(s) = \hat V(\phi(s)))\)</span>. Then, for any <span class="math inline">\(\hat s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>, we have <span class="math display">\[
+<p><span class="theorem-title"><strong>Lemma 16.3 </strong></span>For any <span class="math inline">\(\hat V \colon \hat {\ALPHABET S} \to \reals\)</span>, let <span class="math inline">\(V \colon \ALPHABET S \to \reals\)</span> be its piecewise constant extrapolation from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span> (i.e., <span class="math inline">\(V(s) = \hat V(\phi(s)))\)</span>. Then, for any <span class="math inline">\(\hat s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>, we have <span class="math display">\[
 \int_{\ALPHABET S_j} \bar p(s'|\hat s, a) V(s') ds'
 =
 \hat P(\hat s_j | \hat s, a) \hat V(\hat s_j).
@@ -777,7 +782,7 @@ Proof
 </div>
 <p>Let <span class="math inline">\(\bar V^*\)</span>, and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions of models <span class="math inline">\(\overline {\ALPHABET M}\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Moreover, let <span class="math inline">\(\bar π^*\)</span> and <span class="math inline">\(\hat π^*\)</span> denote optimal policies of models <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, and <span class="math inline">\(\overline {\ALPHABET M}\)</span>, respectively. Then, these are related as follows.</p>
 <div id="lem-aggregation-equiv" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 16.3 </strong></span><span class="math inline">\(\bar V^*\)</span> is a piecewise constant extrapolation of <span class="math inline">\(\hat V^*\)</span> from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span>. Moreover, the piecewise constant extrapolation of <span class="math inline">\(\hat π^*\)</span> is optimal for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>.</p>
+<p><span class="theorem-title"><strong>Lemma 16.4 </strong></span><span class="math inline">\(\bar V^*\)</span> is a piecewise constant extrapolation of <span class="math inline">\(\hat V^*\)</span> from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span>. Moreover, the piecewise constant extrapolation of <span class="math inline">\(\hat π^*\)</span> is optimal for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>.</p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
@@ -791,7 +796,7 @@ Proof
 </div>
 <div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Let <span class="math inline">\(\bar V\)</span> be the piecewise constant extrapolation of <span class="math inline">\(\hat V^*\)</span> from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span>. <a href="#lem-aggregation-models">Lemma&nbsp;<span>16.2</span></a> implies that for any <span class="math inline">\(s \in \ALPHABET S\)</span>, the one step Bellman update of <span class="math inline">\(\bar V\)</span> (in model <span class="math inline">\(\overline {\ALPHABET M}\)</span>) is given by <span class="math display">\[\begin{align*}
+<p>Let <span class="math inline">\(\bar V\)</span> be the piecewise constant extrapolation of <span class="math inline">\(\hat V^*\)</span> from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span>. <a href="#lem-aggregation-models">Lemma&nbsp;<span>16.3</span></a> implies that for any <span class="math inline">\(s \in \ALPHABET S\)</span>, the one step Bellman update of <span class="math inline">\(\bar V\)</span> (in model <span class="math inline">\(\overline {\ALPHABET M}\)</span>) is given by <span class="math display">\[\begin{align*}
   \min_{a \in \ALPHABET S} \biggl\{
     c(\phi(s),a) + γ \int_{\ALPHABET S} \bar p(s'|\phi(s),a) \bar V(s') ds'
   \biggr\}
@@ -805,7 +810,7 @@ Proof
   \hat V^*(\phi(s))
   \\
   &amp;= \bar V(s)
-\end{align*}\]</span> where the first equality follows from <a href="#lem-aggregation-models">Lemma&nbsp;<span>16.2</span></a>, the second equality follows from the fact that <span class="math inline">\(\hat V^*\)</span> is optimal for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, and the last equality follows from the definition of <span class="math inline">\(\bar V\)</span>. Thus, <span class="math inline">\(\bar V\)</span> is the fixed point of the Bellman optimality equation for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>. Hence, <span class="math inline">\(\bar V = \bar V^*\)</span>.</p>
+\end{align*}\]</span> where the first equality follows from <a href="#lem-aggregation-models">Lemma&nbsp;<span>16.3</span></a>, the second equality follows from the fact that <span class="math inline">\(\hat V^*\)</span> is optimal for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, and the last equality follows from the definition of <span class="math inline">\(\bar V\)</span>. Thus, <span class="math inline">\(\bar V\)</span> is the fixed point of the Bellman optimality equation for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>. Hence, <span class="math inline">\(\bar V = \bar V^*\)</span>.</p>
 <p>The above equation also implies that the policy <span class="math inline">\(\hat π^*(\phi(s))\)</span>, which achieves the arg min in the second equality, is optimal for model <span class="math inline">\(\overline{\ALPHABET M}\)</span>.</p>
 </div>
 </div>
@@ -820,14 +825,14 @@ Remark
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><a href="#lem-aggregation-equiv">Lemma&nbsp;<span>16.3</span></a> implies that the questions of value and policy approximation for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span> is the same as those for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>. The advantage of working with model <span class="math inline">\(\overline {\ALPHABET M}\)</span> is that it is defined on the same state space as model <span class="math inline">\(\ALPHABET M\)</span>, so we can directly use the results of <a href="#thm-mismatch-policy-bound">Theorem&nbsp;<span>16.2</span></a> and <a href="#thm-mismatch-policy-bound2">Theorem&nbsp;<span>16.3</span></a>.</p>
+<p><a href="#lem-aggregation-equiv">Lemma&nbsp;<span>16.4</span></a> implies that the questions of value and policy approximation for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span> is the same as those for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>. The advantage of working with model <span class="math inline">\(\overline {\ALPHABET M}\)</span> is that it is defined on the same state space as model <span class="math inline">\(\ALPHABET M\)</span>, so we can directly use the results of <a href="#thm-mismatch-policy-bound">Theorem&nbsp;<span>16.2</span></a> and <a href="#thm-mismatch-policy-bound2">Theorem&nbsp;<span>16.3</span></a>.</p>
 </div>
 </div>
 </section>
 <section id="approximation-bounds" class="level3" data-number="16.2.2">
 <h3 data-number="16.2.2" class="anchored" data-anchor-id="approximation-bounds"><span class="header-section-number">16.2.2</span> Approximation bounds</h3>
-<p>Now to bound the value error between models <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\overline {\ALPHABET M}\)</span>, we need to compute <span class="math inline">\(\ALPHABET D^* V^*\)</span>, which is given by <span class="math display">\[\begin{align*}
-  \ALPHABET D^* V^* &amp;=
+<p>Now to bound the value error between models <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\overline {\ALPHABET M}\)</span>, we need to compute <span class="math inline">\(\MISMATCH^* V^*\)</span>, which is given by <span class="math display">\[\begin{align*}
+  \MISMATCH^* V^* &amp;=
   \max_{s \in \ALPHABET S}
   \biggl|
     \min_{a \in \ALPHABET A} \bigl\{
@@ -847,7 +852,7 @@ Remark
 <div id="prp-aggregation-value" class="theorem proposition">
 <p><span class="theorem-title"><strong>Proposition 16.1 </strong></span><span class="math display">\[ \| V^* - \bar V^{\bar π^*} \|_∞ \le \frac{H_{\max}}{1-γ}. \]</span></p>
 </div>
-<p>To bound the policy error, we also need to compute <span class="math inline">\(\ALPHABET D^{\hat π^*} V^*\)</span>. In order to compute this bound, we assume that the model is <span class="math inline">\((L_c, L_p)\)</span> Lipschitz.</p>
+<p>To bound the policy error, we also need to compute <span class="math inline">\(\MISMATCH^{\hat π^*} V^*\)</span>. In order to compute this bound, we assume that the model is <span class="math inline">\((L_c, L_p)\)</span> Lipschitz.</p>
 <dl>
 <dt>Assumpt. #ass:lip</dt>
 <dd>
@@ -859,7 +864,7 @@ Remark
 </dl>
 <p>Under this assumption, we have</p>
 <p><span class="math display">\[\begin{align*}
-  \ALPHABET D^{\bar π^*} V^* &amp;\le \max_{s \in \ALPHABET S}
+  \MISMATCH^{\bar π^*} V^* &amp;\le \max_{s \in \ALPHABET S}
   \sum_{a \in \ALPHABET A} \bar π^*(a | s) \biggl|
     c(s,a) + γ \int_{\ALPHABET S} p(s'|s,a) V^*(s')ds'
   \notag \\
