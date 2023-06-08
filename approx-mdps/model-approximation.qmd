@@ -35,32 +35,33 @@ We are interested in two questions:
 
 ### Bounding the error for value function approximation {#value-error}
 
-Let $\ALPHABET B^π$ and $\ALPHABET B^*$ denote the Bellman operator for policy
+Let $\BELLMAN^π$ and $\BELLMAN^*$ denote the Bellman operator for policy
 $π$ and the optimality Bellman operator for model $\ALPHABET M$. Let $\hat
-{\ALPHABET B}^π$ and $\hat {\ALPHABET B}^*$ denote the corresponding
+{\BELLMAN}^π$ and $\hat {\BELLMAN}^*$ denote the corresponding
 quantiites for model $\widehat {\ALPHABET M}$. Define the _Bellman mismatch
-functional_ $\ALPHABET D^π$ and $\ALPHABET D^*$ as follows: 
+functional_ $\MISMATCH^π$ and $\MISMATCH^*$ as follows: 
 \begin{align*}
-  \ALPHABET D^π v &= \| \ALPHABET B^π v - \hat {\ALPHABET B}^π v \|_∞, 
+  \MISMATCH^π v &= \| \BELLMAN^π v - \hat {\BELLMAN}^π v \|_∞, 
   \\
-  \ALPHABET D^* v &= \| \ALPHABET B^* v - \hat {\ALPHABET B}^* v \|_∞ .
+  \MISMATCH^* v &= \| \BELLMAN^* v - \hat {\BELLMAN}^* v \|_∞ .
 \end{align*}
 
 Also define the _maximum Bellman mismatch_ as
 \begin{align*}
-  \bar{\ALPHABET D} v &= \max_{π \in Π} \ALPHABET D^π v
-  \\
-  &\le
+  \MISMATCH^{\max} v &= 
   \max_{(s,a) \in \ALPHABET S, A} \biggl\lvert
     c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a)v(s')  \notag \\
   & \hskip 6em 
    -\hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) v(s')
    \biggr\rvert.
 \end{align*}
-where $Π$ is the set of all (possibly randomized) Markov policies, and the
-second inequality follows from triangle inequality. It is easy to see 
-that $\ALPHABET D^* v \le \bar {\ALPHABET D} v$. Thus $\bar {\ALPHABET D}v$ is
-an upper bound for $\ALPHABET D^* v$ and $\ALPHABET D^π v$ for all $π \in Π$.
+
+:::{#lem-mismatch-bellman}
+The following inequalities hold:
+
+* $\sup_{π \in Π} \MISMATCH^π v = \MISMATCH^{\max} v$
+* $\MISMATCH^* v \le \MISMATCH^{\max} v$.
+:::
 
 The Bellman mismatch functional can be used to bound the performance difference of
 a policy between the true and approximate models.
@@ -69,7 +70,7 @@ a policy between the true and approximate models.
 For any (possibly randomized) policy $π$, 
 \begin{equation}\label{eq:bound-0}
    \| V^{π} - \hat V^{π} \|_∞ \le 
-   \frac{1}{1-γ} \min\{ \ALPHABET D^π V^{π}, \ALPHABET D^π \hat V^{π} \}. 
+   \frac{1}{1-γ} \min\{ \MISMATCH^π V^{π}, \MISMATCH^π \hat V^{π} \}. 
 \end{equation}
 :::
 
@@ -80,15 +81,15 @@ is as follows:
 \begin{align}
   \| V^{π} - \hat V^{π} \|_∞ 
   &=
-  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞ 
+  \| \BELLMAN^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞ 
   \notag \\
   &\le
-  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π V^π \|_∞ 
+  \| \BELLMAN^π V^π - \hat {\ALPHABET  B}^π V^π \|_∞ 
   + 
-  \| \hat {\ALPHABET B}^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞ 
+  \| \hat {\BELLMAN}^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞ 
   \notag \\
   &\le
-  \ALPHABET D^π V^π + γ \| V^π - \hat V^π \|_∞
+  \MISMATCH^π V^π + γ \| V^π - \hat V^π \|_∞
   \label{eq:ineq-3}
 \end{align}
 where the first inequality follows from the triangle inequality, and the
@@ -96,7 +97,7 @@ second inequality follows from the definition of the Bellman mismatch functional
 and the contraction property of Bellman operators. Rearranging terms
 in \\eqref{eq:ineq-3} gives us
 \begin{equation}
-\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \ALPHABET D^π V^{π}}{1 - γ}.
+\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \MISMATCH^π V^{π}}{1 - γ}.
 \label{eq:ineq-4}\end{equation}
 This gives the first bound.
 
@@ -105,23 +106,23 @@ and $\hat V^π$.
 \begin{align}
   \| V^{π} - \hat V^{π} \|_∞ 
   &=
-  \| \ALPHABET B^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞ 
+  \| \BELLMAN^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞ 
   \notag \\
   &\le
-  \| \ALPHABET B^π V^π - \ALPHABET  B^π \hat V^π \|_∞ 
+  \| \BELLMAN^π V^π - \ALPHABET  B^π \hat V^π \|_∞ 
   + 
-  \| \ALPHABET B^π \hat V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞ 
+  \| \BELLMAN^π \hat V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞ 
   \notag \\
   &\le
   γ \| V^π - \hat V^π \|_∞
   +
-  \ALPHABET D^π \hat V^π 
+  \MISMATCH^π \hat V^π 
   \label{eq:ineq-13}
 \end{align}
 Rearranging terms in \\eqref{eq:ineq-13} gives
 us
 $$\begin{equation}
-\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \ALPHABET D^π \hat V^{π}}{1 - γ}.
+\| V^{π} - \hat V^{π} \|_∞ \le \frac{ \MISMATCH^π \hat V^{π}}{1 - γ}.
 \label{eq:ineq-14}\end{equation}$$
 This gives the second bound.
 :::
@@ -135,7 +136,7 @@ Let $V^*$ and $\hat V^*$ denote the optimal value functions for $\ALPHABET
 M$ and $\widehat {\ALPHABET M}$, respectively. Then,
 \begin{equation}\label{eq:bound-1}
     \| V^* - \hat V^* \|_∞ \le 
-    \frac{1}{1-γ} \min\{ \ALPHABET D^* V^*, \ALPHABET D^* \hat V^* \} 
+    \frac{1}{1-γ} \min\{ \MISMATCH^* V^*, \MISMATCH^* \hat V^* \} 
 \end{equation}
 :::
 
@@ -146,15 +147,15 @@ The proof argument is almost the same as the proof argument for
 \begin{align}
   \| V^{*} - \hat V^{*} \|_∞ 
   &=
-  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞ 
+  \| \BELLMAN^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞ 
   \notag \\
   &\le
-  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* V^* \|_∞ 
+  \| \BELLMAN^* V^* - \hat {\ALPHABET  B}^* V^* \|_∞ 
   + 
-  \| \hat {\ALPHABET B}^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞ 
+  \| \hat {\BELLMAN}^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞ 
   \notag \\
   &\le
-  \ALPHABET D^* V^* + γ \| V^* - \hat V^* \|_∞
+  \MISMATCH^* V^* + γ \| V^* - \hat V^* \|_∞
   \label{eq:ineq-1}
 \end{align}
 where the first inequality follows from the triangle inequality, and the
@@ -162,7 +163,7 @@ second inequality follows from the definition of the Bellman mismatch functional
 and the contraction property of Bellman operators. Rearranging terms
 in \\eqref{eq:ineq-3} gives us
 \begin{equation}
-\| V^* - \hat V^* \|_∞ \le \frac{  \ALPHABET D^* V^*}{1 - γ}.
+\| V^* - \hat V^* \|_∞ \le \frac{  \MISMATCH^* V^*}{1 - γ}.
 \label{eq:ineq-2}\end{equation}
 This gives the first bound.
 
@@ -171,22 +172,22 @@ and $\hat V^*$.
 \begin{align}
   \| V^{*} - \hat V^{*} \|_∞ 
   &=
-  \| \ALPHABET B^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞ 
+  \| \BELLMAN^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞ 
   \notag \\
   &\le
-  \| \ALPHABET B^* V^* - \ALPHABET  B^* \hat V^* \|_∞ 
+  \| \BELLMAN^* V^* - \ALPHABET  B^* \hat V^* \|_∞ 
   + 
-  \| \ALPHABET B^* \hat V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞ 
+  \| \BELLMAN^* \hat V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞ 
   \notag \\
   &\le
   γ \| V^* - \hat V^* \|_∞
   +
-  \ALPHABET D^* \hat V^* 
+  \MISMATCH^* \hat V^* 
   \label{eq:ineq-11}
 \end{align}
 Rearranging terms in \\eqref{eq:ineq-11} gives us
 \begin{equation}
-\| V^{*} - \hat V^{*} \|_∞ \le \frac{ \ALPHABET D^* \hat V^{*}}{1 - γ}.
+\| V^{*} - \hat V^{*} \|_∞ \le \frac{ \MISMATCH^* \hat V^{*}}{1 - γ}.
 \label{eq:ineq-12}\end{equation}
 This gives the second bound.
 :::
@@ -201,9 +202,9 @@ $$\begin{equation} \label{eq:bound}
 \end{equation}$$
 where
 $$
- Δ_1 \le \min\{ \ALPHABET D^* V^*, \ALPHABET D^* \hat V^* \}
+ Δ_1 \le \min\{ \MISMATCH^* V^*, \MISMATCH^* \hat V^* \}
  \quad\text{and}\quad
- Δ_2 \le \min\{ \ALPHABET D^{\hat π^*} V^{\hat π^*}, \ALPHABET D^{\hat π^*}\hat V^{\hat π^*} \}.
+ Δ_2 \le \min\{ \MISMATCH^{\hat π^*} V^{\hat π^*}, \MISMATCH^{\hat π^*}\hat V^{\hat π^*} \}.
 $$
 :::
 
@@ -221,14 +222,14 @@ The result then follows by bounding the first term using @thm-mismatch-value-bou
 the second term using @lem-mismatch-policy-bound.
 :::
 
-Note that depending on how we pick $\ALPHABET D_1$ and $\ALPHABET D_2$, we get four possible upper
+Note that depending on how we pick $\MISMATCH_1$ and $\MISMATCH_2$, we get four possible upper
 bounds and can bound $α$ by the tightest of them, i.e., 
 \begin{equation}\label{eq:combined}
   α \le \frac{1}{1 - γ} \min\bigl\{
-  \ALPHABET D^* V^* + \ALPHABET D^{\hat π^*} V^{\hat π^*}, \space 
-  \ALPHABET D^* V^* + \ALPHABET D^{\hat π^*} \hat V^*, \space
-  \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat π^*} V^{\hat π^*}, \space 
-  \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat π^*} \hat V^{*} \bigr\}
+  \MISMATCH^* V^* + \MISMATCH^{\hat π^*} V^{\hat π^*}, \space 
+  \MISMATCH^* V^* + \MISMATCH^{\hat π^*} \hat V^*, \space
+  \MISMATCH^* \hat V^* + \MISMATCH^{\hat π^*} V^{\hat π^*}, \space 
+  \MISMATCH^* \hat V^* + \MISMATCH^{\hat π^*} \hat V^{*} \bigr\}
 \end{equation}
 where we have used the fact that $\hat V^{\hat π^*} = \hat V^*$ to simplify
 some of the terms. 
@@ -242,14 +243,14 @@ approximate model. We state it separately for ease of reference.
 The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
 $$
     α := \| V^* - V^{\hat π^*} \|_∞ \le
-    \frac{1}{1-γ} \bigl[ \ALPHABET D^* \hat V^* + \ALPHABET D^{\hat
+    \frac{1}{1-γ} \bigl[ \MISMATCH^* \hat V^* + \MISMATCH^{\hat
     π^*} \hat V^* \bigr]. 
 $$
-Moreover, since $\bar {\ALPHABET D} \hat V^*$ is an upper bound for both
-$\ALPHABET D^{\hat π^*} \hat V^*$ and $\ALPHABET D^*
+Moreover, since $\MISMATCH^{\max} \hat V^*$ is an upper bound for both
+$\MISMATCH^{\hat π^*} \hat V^*$ and $\MISMATCH^*
 \hat V^*$, we have
 $$
-    α \le \frac{2}{(1-γ)}  \bar {\ALPHABET D}  \hat V^*. 
+    α \le \frac{2}{(1-γ)}  \MISMATCH^{\max}  \hat V^*. 
 $$
 ::::
 
@@ -259,15 +260,15 @@ In the next lemma, we develop a bound that depends just on the value function tr
 The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
 $$
     α := \| V^* - V^{\hat π^*} \|_∞ \le
-    \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+    \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
     + 
-    \frac{(1+γ)}{(1-γ)^2} \ALPHABET D^* V^* .
+    \frac{(1+γ)}{(1-γ)^2} \MISMATCH^* V^* .
 $$
 
-Moreover, since $\bar {\ALPHABET D} V^*$ is an upper bound for
-both $\ALPHABET D^{\hat π^*} V^*$ and $\ALPHABET D^* V^*$, we have
+Moreover, since $\MISMATCH^{\max} V^*$ is an upper bound for
+both $\MISMATCH^{\hat π^*} V^*$ and $\MISMATCH^* V^*$, we have
 $$
-    α \le \frac{2}{(1-γ)^2}  \bar {\ALPHABET D}  V^*. 
+    α \le \frac{2}{(1-γ)^2}  \MISMATCH^{\max}  V^*. 
 $$
 :::
 
@@ -287,18 +288,18 @@ But instead of bounding the second term of \\eqref{eq:triangle-2} by
   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
   &= 
   \| V^{\hat π^*} - \hat V^{*} \|_∞ 
-  = \| \ALPHABET B^{\hat π^*} V^{\hat π^*} - 
-       \hat {\ALPHABET B}^{\hat π^*} \hat V^{*} \|_∞ 
+  = \| \BELLMAN^{\hat π^*} V^{\hat π^*} - 
+       \hat {\BELLMAN}^{\hat π^*} \hat V^{*} \|_∞ 
   \notag \\
-  &\le \| \ALPHABET B^{\hat π^*} V^{\hat π^*} - 
-          \ALPHABET B^{\hat π^*} V^{*} \|_∞
-    +  \| \ALPHABET B^{\hat π^*} V^{*} -
-       \hat {\ALPHABET B}^{\hat π^*} V^{*} \|_∞ 
+  &\le \| \BELLMAN^{\hat π^*} V^{\hat π^*} - 
+          \BELLMAN^{\hat π^*} V^{*} \|_∞
+    +  \| \BELLMAN^{\hat π^*} V^{*} -
+       \hat {\BELLMAN}^{\hat π^*} V^{*} \|_∞ 
     + 
-       \| \hat {\ALPHABET B}^{\hat π^*} V^{*} - 
-       \hat {\ALPHABET B}^{\hat π^*} \hat V^{*} \|_∞ 
+       \| \hat {\BELLMAN}^{\hat π^*} V^{*} - 
+       \hat {\BELLMAN}^{\hat π^*} \hat V^{*} \|_∞ 
   \notag \\
-  &\le γ \| V^* - V^{\hat π^*} \|_∞ + \ALPHABET D^{\hat π^*} V^* 
+  &\le γ \| V^* - V^{\hat π^*} \|_∞ + \MISMATCH^{\hat π^*} V^* 
   + γ \| V^* - \hat V^* \|_∞
   \label{eq:ineq-21}.
 \end{align}
@@ -311,14 +312,14 @@ terms, we get
 \begin{align}
   \| V^* - V^{\hat π^*} \|_∞ 
   &\le
-  \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+  \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
   + 
   \frac{1+γ}{1-γ} \| V^* - \hat V^* \|_∞
   \notag \\
   &\le
-  \frac{1}{1-γ} \ALPHABET D^{\hat π^*} V^*
+  \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
   + 
-  \frac{(1+γ)}{(1-γ)^2} \ALPHABET D^* V^* .
+  \frac{(1+γ)}{(1-γ)^2} \MISMATCH^* V^* .
 \end{align}
 where the second inequality follows from @thm-mismatch-value-bound.
 :::
@@ -484,9 +485,9 @@ model $\ALPHABET M$, so we can directly use the results of @thm-mismatch-policy-
 ### Approximation bounds
 
 Now to bound the value error between models $\ALPHABET M$ and $\overline
-{\ALPHABET M}$, we need to compute $\ALPHABET D^* V^*$, which is given by
+{\ALPHABET M}$, we need to compute $\MISMATCH^* V^*$, which is given by
 \begin{align*}
-  \ALPHABET D^* V^* &= 
+  \MISMATCH^* V^* &= 
   \max_{s \in \ALPHABET S}
   \biggl| 
     \min_{a \in \ALPHABET A} \bigl\{ 
@@ -509,7 +510,7 @@ Therefore, from @thm-mismatch-value-bound, we have
 $$ \| V^* - \bar V^{\bar π^*} \|_∞ \le \frac{H_{\max}}{1-γ}. $$
 :::
 
-To bound the policy error, we also need to compute $\ALPHABET D^{\hat π^*}
+To bound the policy error, we also need to compute $\MISMATCH^{\hat π^*}
 V^*$. In order to compute this bound, we assume that the model is $(L_c, L_p)$
 Lipschitz. 
 
@@ -523,7 +524,7 @@ Assumpt. #ass:lip
 Under this assumption, we have
 
 \begin{align*}
-  \ALPHABET D^{\bar π^*} V^* &\le \max_{s \in \ALPHABET S}
+  \MISMATCH^{\bar π^*} V^* &\le \max_{s \in \ALPHABET S}
   \sum_{a \in \ALPHABET A} \bar π^*(a | s) \biggl|
     c(s,a) + γ \int_{\ALPHABET S} p(s'|s,a) V^*(s')ds'
   \notag \\
