@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2023-06-08">
-<meta name="keywords" content="stochastic optimization, principle of irrelevant information">
+<meta name="keywords" content="reinforcement learning, stochastic approximation">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
-<title>Course Notes - 1&nbsp; Introduction</title>
+<title>Course Notes - 21&nbsp; Stochastic approximation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -52,8 +52,8 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../stochastic-optimization/newsvendor.html" rel="next">
-<link href="../index.html" rel="prev">
+<link href="../probability/sub-gaussian.html" rel="next">
+<link href="../risk-sensitive/risk-sensitive-utility.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -161,7 +161,7 @@ window.MathJax = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../stochastic-optimization/intro.html">Stochastic Optimization</a></li><li class="breadcrumb-item"><a href="../stochastic-optimization/intro.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../rl/stochastic-approximation.html">RL</a></li><li class="breadcrumb-item"><a href="../rl/stochastic-approximation.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Stochastic approximation</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -198,7 +198,7 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link active">
+  <a href="../stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
@@ -377,7 +377,7 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../rl/stochastic-approximation.html" class="sidebar-item-text sidebar-link">
+  <a href="../rl/stochastic-approximation.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Stochastic approximation</span></span></a>
   </div>
 </li>
@@ -468,20 +468,17 @@ window.MathJax = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#the-stochastic-optimization-problem" id="toc-the-stochastic-optimization-problem" class="nav-link active" data-scroll-target="#the-stochastic-optimization-problem"><span class="header-section-number">1.1</span> The stochastic optimization problem</a></li>
-  <li><a href="#key-simplifying-idea" id="toc-key-simplifying-idea" class="nav-link" data-scroll-target="#key-simplifying-idea"><span class="header-section-number">1.2</span> Key simplifying idea</a></li>
-  <li><a href="#blackwells-principle-of-irrelevant-information" id="toc-blackwells-principle-of-irrelevant-information" class="nav-link" data-scroll-target="#blackwells-principle-of-irrelevant-information"><span class="header-section-number">1.3</span> Blackwell’s principle of irrelevant information</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#ode-method-borkar-meyn-conditions" id="toc-ode-method-borkar-meyn-conditions" class="nav-link active" data-scroll-target="#ode-method-borkar-meyn-conditions"><span class="header-section-number">21.1</span> ODE Method (Borkar-Meyn conditions)</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/stochastic-optimization/intro.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/rl/stochastic-approximation.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></h1>
+<h1 class="title"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Stochastic approximation</span></h1>
 </div>
 
 
@@ -502,199 +499,84 @@ window.MathJax = {
 
 </header>
 
-<p>Let’s start with the simplest optimization problem. A decision maker has to choose an action <span class="math inline">\(a \in \ALPHABET A\)</span>. Upon choosing the action <span class="math inline">\(a\)</span>, the decision maker incurs a cost <span class="math inline">\(c(a)\)</span>. What action should the decision maker pick to minimize the cost?</p>
-<p>Formally, the above optimization problem may be written as <span class="math display">\[\begin{equation} \label{eq:basic}
-\min_{a \in \ALPHABET A} c(a).
-\end{equation}\]</span></p>
-<p>When the <em>action space</em> <span class="math inline">\(\ALPHABET A\)</span> is finite, say <span class="math inline">\(\ALPHABET A = \{1, \dots, m\}\)</span>, solving the optimization problem <span class="math inline">\(\eqref{eq:basic}\)</span> is conceptually straight-forward: enumerate the cost of all possible actions, i.e., enumerate the set <span class="math inline">\(C = \{ c(a) : a \in \ALPHABET A \}\)</span> and find the smallest element.</p>
-<p>When the action space <span class="math inline">\(\ALPHABET A\)</span> is continuous, say a compact subset of a Euclidean space, solving the optimization problem \eqref{eq:basic} is conceptually straight-forward only when the cost function <span class="math inline">\(c\)</span> satisfies some regularity conditions. For example, when <span class="math inline">\(c\)</span> is convex, the optimal action can be obtained for solving <span class="math display">\[ \dfrac {d c(a) }{ da } = 0. \]</span></p>
-<p>In the absence of appropriate regularity conditions, it is not possible to solve an optimization problem over continuous action spaces.</p>
-<section id="the-stochastic-optimization-problem" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="the-stochastic-optimization-problem"><span class="header-section-number">1.1</span> The stochastic optimization problem</h2>
-<p>Now consider the simplest stochastic optimization problem. A decision maker has to choose an action <span class="math inline">\(a \in \ALPHABET A\)</span>. Upon choosing the action <span class="math inline">\(a\)</span>, the decision maker incurs a cost <span class="math inline">\(c(a,W)\)</span>, where <span class="math inline">\(W \in \ALPHABET W\)</span> is a random variable with known probability distribution. Assume that the decision maker is <em>risk neutral</em> and, therefore, wants to minimize <span class="math inline">\(\EXP[ c(a, W) ]\)</span>, where the expectation is with respect to the random variable&nbsp;<span class="math inline">\(W\)</span>.</p>
-<p>Formally, the above optimization problem may be written as <span class="math display">\[\begin{equation} \label{eq:stochastic}
-  \min_{a \in \ALPHABET A} \EXP[ c(a, W) ].
-\end{equation}\]</span></p>
-<p>Define <span class="math inline">\(J(a) = \EXP[ c(a, W) ]\)</span>. Then Problem&nbsp;\eqref{eq:stochastic} is conceptually the same as Problem&nbsp;\eqref{eq:basic} with the cost function <span class="math inline">\(J(a)\)</span>. Numerically, Problem \eqref{eq:stochastic} is more difficult because computing <span class="math inline">\(J(a)\)</span> involves evaluating an expectation, but we ignore the computational complexity for the time being.</p>
-</section>
-<section id="key-simplifying-idea" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="key-simplifying-idea"><span class="header-section-number">1.2</span> Key simplifying idea</h2>
-<p>In the stochastic optimization problems considered above, the decision maker does not observe any data before making a decision. In many situations, the decision maker does observe some data, which is captured by the following model. Suppose a decision maker observes a random variable <span class="math inline">\(S \in \ALPHABET S\)</span> and then chooses an action <span class="math inline">\(A \in \ALPHABET A\)</span> as a function of his observation according to a <em>decision rule</em> <span class="math inline">\(π\)</span>, i.e., <span class="math display">\[ A = π(S). \]</span></p>
-<p>Upon choosing the action <span class="math inline">\(A\)</span>, the decision maker incurs a cost <span class="math inline">\(c(S,A,W)\)</span>, where <span class="math inline">\(W \in \ALPHABET W\)</span> is a random variable. We assume that the <em>primitive random variables</em> <span class="math inline">\((S,W)\)</span> are defined on a common probability space and have a known joint distribution. Assume that the decision maker is risk neutral and, therefore, wants to minimize <span class="math inline">\(\EXP[ c(S, π(S), W)]\)</span>, where the expectation is taken with respect to the joint probability distribution of <span class="math inline">\((S,W)\)</span>.</p>
-<p>Formally, the above optimization problem may be written as <span class="math display">\[\begin{equation} \label{eq:obs} \tag{P1}
-  \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
-\end{equation}\]</span></p>
-<p>Define <span class="math inline">\(J(π) = \EXP[ c(S, π(S), W) ]\)</span>. Then, Problem&nbsp;\eqref{eq:obs} is conceptually the same as Problem&nbsp;\eqref{eq:basic} with one difference: In Problem&nbsp;\eqref{eq:basic}, the minimization is over a parameter <span class="math inline">\(a\)</span>, while in Problem&nbsp;\eqref{eq:obs}, the minimization is over a function <span class="math inline">\(π\)</span>.</p>
-<p>When <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are finite sets, the optimal policy can be obtained by an exhaustive search over all policies as follows: for each policy <span class="math inline">\(π\)</span> compute the performance <span class="math inline">\(J(π)\)</span> and then pick the policy <span class="math inline">\(π\)</span> with the smallest expected cost.</p>
-<p>Such an exhaustive search is not satisfying for two reasons. First, it has a high computational cost. There are <span class="math inline">\(| \ALPHABET A |^{| \ALPHABET S |}\)</span> policies and, for each policy, we have to evaluate an expectation, which can be expensive. Second, the above enumeration procedure does not work when <span class="math inline">\(\ALPHABET S\)</span> or <span class="math inline">\(\ALPHABET A\)</span> are continuous sets.</p>
-<p>There is an alternative way of viewing the problem that simplifies it considerably. Instead of viewing the optimization problem before the system starts running (i.e., the <em>ex ante</em> view), imagine that the decision maker waits until they see the realization <span class="math inline">\(s\)</span> of <span class="math inline">\(S\)</span> (i.e., the <em>interim view</em>). they then asks what action <span class="math inline">\(a\)</span> should they take to minimize the expected <em>conditional</em> cost <span class="math inline">\(Q(s,a) := \EXP[ c(s,a, W) | S = s]\)</span>, i.e., they consider the problem</p>
-<p><span class="math display">\[\begin{equation} \label{eq:cond-1} \tag{P2}
-  \min_{a \in \ALPHABET A} \EXP[ c(s,a,W) | S = s], \quad
-  \forall s \in \ALPHABET S.
-\end{equation}\]</span></p>
-<p>Thus, Problem&nbsp;\eqref{eq:obs}, which is a functional optimization problem, has been reduced to a collection of parameter optimization problems (Problem&nbsp;\eqref{eq:cond-1}), one for each possible of <span class="math inline">\(s\)</span>.</p>
-<p>Now define <span class="math display">\[ \begin{equation} \label{eq:cond} \tag{P2-policy}
-  π^∘(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
-\end{equation} \]</span> where ties (in the minimization) are broken arbitrarily.</p>
-<div id="thm-fact" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 1.1 </strong></span>The decision rule <span class="math inline">\(π^∘\)</span> defined in \eqref{eq:cond} is optimal for Problem \ref{eq:basic}.</p>
-</div>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Remark
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>We restricted the proof to finite <span class="math inline">\(\ALPHABET S\)</span>, <span class="math inline">\(\ALPHABET A\)</span>, <span class="math inline">\(\ALPHABET W\)</span>. This is to avoid any measurability issues. If <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are continuous sets, we need to restrict to <em>measurable</em> <span class="math inline">\(π\)</span> in Problem \ref{eq:basic} (otherwise the expectation is not well defined; of course the cost <span class="math inline">\(c\)</span> also has to be measurable). However, it is not immediately obvious that <span class="math inline">\(π^∘\)</span> defined in \eqref{eq:cond} is measurable. Conditions that ensure this are known as <em>measurable selection theorems</em>.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Let <span class="math inline">\(π\)</span> be any other decision rule. Then, <span class="math display">\[ \begin{align*}
-  \EXP[ c(S, π(S), W) ] &amp;\stackrel{(a)}= \EXP[ \EXP[c(S, π(S), W) | S ] ] \\
-  &amp;\stackrel{(b)}\ge \EXP[\EXP[ c(S, π^∘(S), W) | S ] ] \\
-  &amp;\stackrel{(c)}= \EXP[ c(S, π^∘(S), W) ],
-\end{align*} \]</span> where <span class="math inline">\((a)\)</span> and <span class="math inline">\((c)\)</span> follow from the law of iterated expectations and <span class="math inline">\((b)\)</span> follows from the definition of <span class="math inline">\(π^∘\)</span> in \eqref{eq:cond}.</p>
-</div>
-</div>
-</div>
-<p>We can also provide a partial converse of <a href="#thm-fact">Theorem&nbsp;<span>1.1</span></a>.</p>
-<div id="thm-converse" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 1.2 </strong></span>If <span class="math inline">\(\PR(S = s) &gt; 0\)</span> for all <span class="math inline">\(s\)</span>, then any optimal policy <span class="math inline">\(π^∘\)</span> for Problem&nbsp;<span class="math inline">\(\ref{eq:basic}\)</span> must satisfy&nbsp;<span class="math inline">\(\eqref{eq:cond}\)</span>.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>We prove this by contradiction. Suppose <span class="math inline">\(π^*\)</span> is an optimal policy that does not satisfy \eqref{eq:cond}. By definition of <span class="math inline">\(π^∘\)</span>, it must be the case that for all states <span class="math display">\[\begin{equation}
-   \EXP[ c(s, π^∘(s), W) | S = s ]
-   \le
-   \EXP[ c(s, π^*(s), W) | S = s ] .
-   \label{eq:ineq:1}
-\end{equation}\]</span> Now, since <span class="math inline">\(π^*\)</span> does not satisfy \eqref{eq:cond}, there exists some state <span class="math inline">\(s^∘ \in \ALPHABET S\)</span> such that <span class="math display">\[\begin{equation}
-   \EXP[ c(s^∘, π^*(s^∘), W) | S = s^∘ ]
-   &gt;
-   \EXP[ c(s^∘, π^∘(s^∘), W) | S = s^∘ ] .
-   \label{eq:ineq:2}
-\end{equation}\]</span> Therefore, <span class="math display">\[\begin{align*}
-   \EXP[ c(S, π^*(S), W) ]
-   &amp;=
-   \sum_{s \in \ALPHABET S} \PR(S = s)
-   \EXP[ \EXP[ c(s, π^*(s), W) | S = s ] ]
-   \\
-   &amp; \stackrel{(a)}&gt;
-   \sum_{s \in \ALPHABET S} \PR(S = s)
-   \EXP[ \EXP[ c(s, π^∘(s), W) | S = s ] ]
-   \\
-   &amp;=
-   \EXP[ c(S, π^∘(S), W) ]
-\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from \eqref{eq:ineq:1} and \eqref{eq:ineq:2} and the inequality is strict becase <span class="math inline">\(\PR(S = s^∘) &gt; 0\)</span>. Thus, <span class="math inline">\(J(π^*) &gt; J(π^∘)\)</span> and, hence, <span class="math inline">\(π^*\)</span> cannot be an optimal policy.</p>
-</div>
-</div>
-</div>
-</section>
-<section id="blackwells-principle-of-irrelevant-information" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="blackwells-principle-of-irrelevant-information"><span class="header-section-number">1.3</span> Blackwell’s principle of irrelevant information</h2>
-<p>In many scenarios, the decision maker may observe data which is irrelevant for evaluating performance. In such instances, the decision maker may ignore such information without affecting performance. Formally, we have the following result, which is known as <strong>Blackwell’s principle of irrelevant information</strong>.</p>
-<div id="thm-blackwell" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 1.3 (Blackwell’s principle of irrelevant information) </strong></span>Let <span class="math inline">\(\ALPHABET S\)</span>, <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math inline">\(\ALPHABET W\)</span>, and <span class="math inline">\(\ALPHABET A\)</span> be standard Borel spaces and <span class="math inline">\(S \in \ALPHABET S\)</span>, <span class="math inline">\(Y \in \ALPHABET Y\)</span>, <span class="math inline">\(W \in \ALPHABET W\)</span> be random variables defined on a common probability space.</p>
-<p>A decision maker observes <span class="math inline">\((S,Y)\)</span> and chooses <span class="math inline">\(A = π(S,Y)\)</span> to minimize <span class="math inline">\(\EXP[c(S,A,W)]\)</span>, where <span class="math inline">\(c \colon \ALPHABET S \times \ALPHABET A \times \ALPHABET W \to \reals\)</span> is a measurable function.</p>
-<p><strong>Then, if <span class="math inline">\(W\)</span> is conditionally independent of <span class="math inline">\(Y\)</span> given <span class="math inline">\(S\)</span>, then there is no loss of optimality in choosing <span class="math inline">\(A\)</span> only as a function of <span class="math inline">\(S\)</span>.</strong></p>
-<p>Formally, there exists a <span class="math inline">\(π^* \colon \ALPHABET S \to \ALPHABET A\)</span> such that for all <span class="math inline">\(π \colon \ALPHABET S \times \ALPHABET Y \to \ALPHABET A\)</span>, <span class="math display">\[ \EXP[c(S, π^*(S), W)] \le \EXP[ c(S, π(S,Y), W) ]. \]</span></p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>We prove the result for the case when <span class="math inline">\(\ALPHABET S\)</span>, <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math inline">\(\ALPHABET W\)</span>, <span class="math inline">\(\ALPHABET A\)</span> are finite.</p>
-<p>Define <span class="math display">\[π^*(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]. \]</span> Then, by construction, for any <span class="math inline">\(s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>, we have that <span class="math display">\[ \EXP[ c(s, π^*(s), W ) | S = s]  \le \EXP[ c(s,a,W) | S = s]. \]</span> Hence, for any <span class="math inline">\(π \colon \ALPHABET S \times \ALPHABET Y \to \ALPHABET A\)</span>, and for any <span class="math inline">\(s \in \ALPHABET S\)</span> and <span class="math inline">\(y \in \ALPHABET Y\)</span>, we have <span class="math display">\[ \begin{equation} \label{eq:opt}
-  \EXP[ c(s, π^*(s), W) | S = s] \le \EXP[ c(s, π(s,y),W) | S = s].
-\end{equation} \]</span> The result follows by taking the expectation of both sides of \eqref{eq:opt}.</p>
-</div>
-</div>
-</div>
-<p>The above proof doesn’t work for general Borel spaces because <span class="math inline">\(π^*\)</span> defined above may not exist (inf vs min) or may not be measurable. See <span class="citation" data-cites="Blackwell1964">Blackwell (<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">1964</a>)</span> for a formal proof.</p>
-</section>
-<section id="exercises" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
-<div id="exr-stoc-optim-computing" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.1 (Computing optimal policies) </strong></span>Suppose <span class="math inline">\(\ALPHABET S = \{1, 2 \}\)</span>, <span class="math inline">\(\ALPHABET A = \{1, 2, 3\}\)</span>, and <span class="math inline">\(\ALPHABET W = \{1, 2, 3\}\)</span>. Let <span class="math inline">\((S,W)\)</span> be random variables taking values in <span class="math inline">\(\ALPHABET S × \ALPHABET W\)</span> with joint distribution <span class="math inline">\(P\)</span> shown below.</p>
-<p><span class="math display">\[ P = \MATRIX{ 0.25 &amp; 0.15 &amp; 0.05  \\ 0.30 &amp; 0.10 &amp; 0.15 } \]</span></p>
-<p>Here the row corresponds to the value of <span class="math inline">\(s\)</span> and the column corresponds to the value of <span class="math inline">\(w\)</span>. For example <span class="math inline">\(\PR(S=2, W=1) = P_{21} = 0.30\)</span>.</p>
-<p>The cost function <span class="math inline">\(c \colon \ALPHABET S \times \ALPHABET A \times \ALPHABET W \to \reals\)</span> is shown below</p>
-<p><span class="math display">\[
-c(\cdot,\cdot,1) = \MATRIX{3 &amp; 5 &amp; 1 \\ 2 &amp; 3 &amp; 1 }, \quad
-c(\cdot,\cdot,2) = \MATRIX{4 &amp; 3 &amp; 1 \\ 1 &amp; 2 &amp; 8 }, \quad
-c(\cdot,\cdot,3) = \MATRIX{1 &amp; 2 &amp; 2 \\ 4 &amp; 1 &amp; 3 }.
-\]</span></p>
-<p>Here the row corresponds to the value of <span class="math inline">\(s\)</span> and the column corresponds to the value of <span class="math inline">\(a\)</span>. For example <span class="math inline">\(c(s=1,a=2,w=1) = 5\)</span>.</p>
-<p>Find the policy <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span> that minimizes <span class="math inline">\(\EXP[ c(S, π(S), W) ]\)</span>.</p>
-</div>
-<div id="exr-stoc-optim-blackwell" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.2 (Blackwell’s principle) </strong></span>Suppose <span class="math inline">\(\ALPHABET S = \{1, 2\}\)</span>, <span class="math inline">\(\ALPHABET Y = \{1, 2\}\)</span>, <span class="math inline">\(\ALPHABET A = \{1, 2, 3\}\)</span>, and <span class="math inline">\(\ALPHABET W = \{1, 2, 3\}\)</span>. Let <span class="math inline">\((S,Y,W)\)</span> be random variables taking values in <span class="math inline">\(\ALPHABET S × \ALPHABET Y × \ALPHABET W\)</span>, with joint distribution <span class="math inline">\(Q\)</span> shown below. <span class="math display">\[
-Q_{Y = 1} = \MATRIX{0.15 &amp; 0.10 &amp; 0.00 \\ 0.15 &amp; 0.05 &amp; 0.10}
-\qquad
-Q_{Y = 2} = \MATRIX{0.10 &amp; 0.05 &amp; 0.05 \\ 0.15 &amp; 0.05 &amp; 0.05}
-\]</span> For a fixed value of <span class="math inline">\(y\)</span>, the row corresponds to the value of <span class="math inline">\(s\)</span> and the column corresponds to the value of <span class="math inline">\(w\)</span>. For example <span class="math inline">\(\PR(S = 1, Y = 1, W = 3) = 0\)</span>.</p>
-<p>The cost function <span class="math inline">\(c \colon \ALPHABET S × \ALPHABET A × \ALPHABET W \to \reals\)</span> is the same as the previous exercise.</p>
+<p>Suppose we have a function <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> is such that the equation <span class="math display">\[ f(θ) = 0 \]</span> has a unique root <span class="math inline">\(θ = θ^*\)</span>. There are many methods for determining the value of <span class="math inline">\(θ\)</span> by successive approximation where we start with an initial guess <span class="math inline">\(θ_0\)</span> and then recursively obtain a new value <span class="math inline">\(θ_{k+1}\)</span> as a function of the previously obtained <span class="math inline">\(θ_0, \dots, θ_{k}\)</span>, the values <span class="math inline">\(f(θ_1), \dots, f(θ_{k})\)</span>, and possibly those of the derivatives <span class="math inline">\(f'(θ_0), \dots, f'(θ_{k})\)</span>, etc. If <span class="math display">\[
+  \lim_{k \to ∞} θ_k = θ^*,
+\]</span> irrespective of the initial condition <span class="math inline">\(θ_0\)</span>, then the successive approximation method is effective.</p>
+<p>In many applications, the function <span class="math inline">\(f\)</span> may be unknown so it is not possible to obtain the value <span class="math inline">\(f(θ)\)</span>, but it may be possible to conduct an experiment to get the value of <span class="math inline">\(f(θ)\)</span> with noise. Stochastic approximation refers to recursive algorithms of the form <span class="math display">\[ \begin{equation} \label{eq:SA}
+  θ_{k+1} = θ_k + a_k[ f(x_k) + ξ_{k+1} ], \quad k \ge 0
+\end{equation} \]</span> where <span class="math inline">\(\{a_k\}_{k \ge 0}\)</span> is a sequence of positive numbers and the noise <span class="math inline">\(\{ξ_k\}_{k \ge 0}\)</span> is uncorrelated with zero mean.</p>
+<p>The key idea behind stochastic approximation is that under appropriate conditions, the iteration \eqref{eq:SA} almost surely converges to the equilibrium point of the ODE <span class="math display">\[ \begin{equation} \label{eq:ODE}
+  \dot θ(t) = f(θ(t))
+\end{equation} \]</span> with initial conditions <span class="math inline">\(θ(0) = θ_1\)</span>.</p>
+<p>In this section, we summarize these conditions (without proofs).</p>
+<section id="ode-method-borkar-meyn-conditions" class="level2" data-number="21.1">
+<h2 data-number="21.1" class="anchored" data-anchor-id="ode-method-borkar-meyn-conditions"><span class="header-section-number">21.1</span> ODE Method (Borkar-Meyn conditions)</h2>
+<p>Suppose the following conditions are satisfied:</p>
+<ol type="1">
+<li><p><strong>Conditions on the function <span class="math inline">\(f\)</span></strong>:</p>
 <ol type="a">
-<li><p>Find the policy <span class="math inline">\(π \colon \ALPHABET S × \ALPHABET Y \to \ALPHABET A\)</span> that minimizes <span class="math inline">\(\EXP[c(S, π(S,Y), W)]\)</span>.</p></li>
-<li><p>Compare the solution with the solution of the previous exercise in view of Blackwell’s principle of irrelevant information. Clearly explain your observations.</p></li>
+<li><p>The map <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> is <a href="../mdps/lipschitz-mdps.html">globally Lipschitz</a>: <span class="math inline">\(\| f(θ_1) - f(θ_2) \| \le L \| θ_1 - θ_2 \|\)</span> for some <span class="math inline">\(L \in (0, ∞)\)</span>.</p></li>
+<li><p>For any <span class="math inline">\(r \in \reals_{&gt; 0}\)</span>, define <span class="math inline">\(f_r(θ) = f(rθ)/r\)</span>. There exists a function <span class="math inline">\(f_∞ \colon \reals^d \to \reals^d\)</span> such that <span class="math display">\[
+\lim_{r \to ∞} f_r(θ) = f_∞(θ), \quad \forall θ \in \reals^d.
+   \]</span></p></li>
+<li><p>Origin is the asymptotically stable equilibrium of the ODE <span class="math display">\[
+   \dot θ(t) = f_∞(θ(t)).
+\]</span></p></li>
+</ol></li>
+<li><p><strong>Condition on the noise <span class="math inline">\(\{ξ_k\}_{k \ge 0}\)</span></strong>:</p>
+<ol type="a">
+<li><p><span class="math inline">\(\{ξ_k\}_{k \ge 0}\)</span> is a martingale difference sequence with respect to the increasing family of <span class="math inline">\(σ\)</span>-fields <span class="math inline">\(\mathcal F_k = σ(θ_{1:k}, ξ_{1:k})\)</span>. That is, <span class="math display">\[ \EXP[ ξ_k | \mathcal F_k ] = 0, \text{ a.s.}, \quad k \ge 0. \]</span></p></li>
+<li><p>Furthermore, <span class="math inline">\(\{ξ_k\}_{k \ge 0}\)</span> are square integrable with <span class="math display">\[ \EXP[ \| ξ_{k+1}\|^2 | \mathcal F_k ] \le C_0(1 + \|θ_k\|^2)
+\text{ a.s.}, \quad k \ge 0\]</span> for some constant <span class="math inline">\(C_0 \ge 0\)</span> and any initial condition <span class="math inline">\(θ_0\)</span>.</p></li>
+</ol></li>
+<li><p><strong>Condition on the step size <span class="math inline">\(\{a_k\}_{k \ge 0}\)</span></strong>:</p>
+<p>The sequence <span class="math inline">\(\{a_k\}_{k \ge 0}\)</span> is deterministic and assumed to satisfy one of the two following conditions:</p>
+<ol type="a">
+<li><p><strong>Tapering step sizes (TS)</strong>: <span class="math inline">\(a_k \in (0, 1)\)</span>, and <span class="math display">\[ \sum_{k=1}^∞ a_k = ∞, \qquad
+    \sum_{k=1}^∞ a_k^2 &lt; ∞. \]</span></p></li>
+<li><p><strong>Bounded step sizes (BS)</strong>: For some constants <span class="math inline">\(\underline a, \bar a \in (0, 1)\)</span>, we have <span class="math display">\[ \underline a \le a_k \le \bar a, \quad k \ge 0. \]</span></p></li>
+</ol></li>
 </ol>
+<p>Then, we have the following results. The first is under the (TS) condition on the step sizes.</p>
+<div id="thm-SA-tapering-steps" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 21.1 </strong></span>Assume conditions (1), (2), and (TS) hold. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
+<ul>
+<li><p>Asymptotic stability: <span class="math display">\[
+  \sup_{k} \| θ_k \| &lt; ∞, \text{ a.s.}.
+\]</span></p></li>
+<li><p>Convergence: If the ODE \eqref{eq:ODE} has a <em>unique</em> globally asymptotically stable equilibrium point <span class="math inline">\(θ^*\)</span>. Then, <span class="math display">\[
+  \lim_{k \to ∞} θ_k = θ^*, \text{ a.s.}
+\]</span></p></li>
+</ul>
 </div>
-<!-- From page 172 of Whittle, Optimal Control: Basics and Beyond -->
-<div id="exr-stoc-optim-pollution-monitoring" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.3 (Pollution monitoring) </strong></span>Consider the problem of monitoring the pollution level of a river. The river can have a high pollution level if there is a catastrophic failure of a factory upstream. There are then two “pollution states” indicating whether such a failure has not occured. We denote them by <span class="math inline">\(S = 0\)</span> (indicating no failure) and <span class="math inline">\(S = 1\)</span> (indicating catastrophic failure). Let <span class="math inline">\([p, 1-p]\)</span> denote the prior probability mass function of <span class="math inline">\(S\)</span>.</p>
-<p>The pollution monitoring system has a sensor which takes a measurement <span class="math inline">\(y\)</span> of the pollution level. Let <span class="math inline">\(f_s(y)\)</span> denote the probabiity density of the observation <span class="math inline">\(y\)</span> conditional on the value of <span class="math inline">\(s\)</span>, <span class="math inline">\(s \in \{0, 1\}\)</span>. Two actions are available at the monitoring system: raise an alarm or not raise an alarm. The cost of raising the alarm is <span class="math inline">\(C_0\)</span> if the state <span class="math inline">\(S\)</span> is <span class="math inline">\(0\)</span> or zero if the state <span class="math inline">\(S\)</span> is <span class="math inline">\(1\)</span>; the cost of not raising the alarm is zero if the state <span class="math inline">\(S\)</span> is <span class="math inline">\(0\)</span> or <span class="math inline">\(C_1\)</span> if the state <span class="math inline">\(S\)</span> is <span class="math inline">\(1\)</span>.</p>
-<p>Show that it is optimal to raise the alarm if <span class="math display">\[ p f_0(y) C_0 &lt; (1 - p) f_1(y) C_1. \]</span> That is, it is optimal to raise the alarm if the <em>likelihood ratio</em> <span class="math inline">\(f_1(y)/f_0(y)\)</span> exceeds the threshold value <span class="math inline">\(p C_0/(1-p) C_1\)</span>.</p>
+<p>The second is under the (BS) conditions on the step sizes.</p>
+<div id="thm-SA-bounded-steps" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 21.2 </strong></span>Assume conditions (1), (2), and (BS) hold. In addition, the ODE \eqref{eq:ODE} has a unique globally asymptotically stable equilibrium point <span class="math inline">\(θ^*\)</span>. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
+<ul>
+<li><p>Asymptotic stability: There exists a <span class="math inline">\(a^* &gt; 0\)</span> and <span class="math inline">\(C_1 &lt; ∞\)</span> such that for<br>
+all <span class="math inline">\(\bar a \in (0, a^*)\)</span> and <span class="math inline">\(θ_0 \in \reals^d\)</span>, <span class="math display">\[
+  \limsup_{n \to ∞} \EXP[ \| θ_k\|^2 ] \le C_1.
+\]</span></p></li>
+<li><p>Convergence in probability: For <span class="math inline">\(\bar a \le a^*\)</span> and any <span class="math inline">\(ε &gt; 0\)</span>, there exists a <span class="math inline">\(b_1 = b_1(ε) &lt; ∞\)</span> such that <span class="math display">\[
+  \limsup_{n \to ∞} \PR( \| θ_k - θ^* \| \ge ε ) \le b_1 \bar a.
+\]</span></p></li>
+<li><p>Mean square convergence: If <span class="math inline">\(θ^*\)</span> is <em>exponentially</em> asymptotically stable equilibrium point of the ODE \eqref{eq:ODE}, then there exists a <span class="math inline">\(b_2 &lt; ∞\)</span> such that for every initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, <span class="math display">\[
+  \limsup_{n \to ∞} \EXP[ \| θ_k - θ^*\|^2 ] \le b_2 \bar a.
+\]</span></p></li>
+</ul>
 </div>
 </section>
-<section id="notes" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p><a href="#thm-blackwell">Theorem&nbsp;<span>1.3</span></a> is due to <span class="citation" data-cites="Blackwell1964">Blackwell (<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">1964</a>)</span> in a short 2.5 page paper. A similar result was used by <span class="citation" data-cites="Witsenhausen1979">Witsenhausen (<a href="../references.html#ref-Witsenhausen1979" role="doc-biblioref">1979</a>)</span> to show the structure of optimal coding strategies in real-time communication. Also see the <a href="https://infostructuralist.wordpress.com/2010/11/08/deadly-ninja-weapons-blackwells-principle-of-irrelevant-information/">blog post</a> by Maxim Ragisnsky.</p>
-<p><a href="#exr-stoc-optim-pollution-monitoring">Exercise&nbsp;<span>1.3</span></a> is adaptive from <span class="citation" data-cites="Whittle1996">Whittle (<a href="../references.html#ref-Whittle1996" role="doc-biblioref">1996</a>)</span>. It is a special instance of Bayesian hypothesis testing problem. We will study a generalization of this model later in <a href="../../pomdp/sequential-hypothesis">sequential hypothesis testing</a></p>
-<hr>
+<section id="notes" class="level1 unnumbered">
+<h1 class="unnumbered">Notes</h1>
+<p>The stochastic approximation algorithm was introduced by <span class="citation" data-cites="Robbins1951">Robbins and Monro (<a href="../references.html#ref-Robbins1951" role="doc-biblioref">1951</a>)</span>. The results presented above are from <span class="citation" data-cites="Borkar2000">Borkar and Meyn (<a href="../references.html#ref-Borkar2000" role="doc-biblioref">2000</a>)</span>, which also provides rates of convergence of stochastic approximation under stronger assumptions.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
-<div id="ref-Blackwell1964" class="csl-entry" role="listitem">
-<span class="smallcaps">Blackwell, D.</span> 1964. Memoryless strategies in finite-stage dynamic programming. <em>The Annals of Mathematical Statistics</em> <em>35</em>, 2, 863–865. DOI: <a href="https://doi.org/10.1214/aoms/1177703586">10.1214/aoms/1177703586</a>.
+<div id="ref-Borkar2000" class="csl-entry" role="listitem">
+<span class="smallcaps">Borkar, V.S. and Meyn, S.P.</span> 2000. The o.d.e. Method for convergence of stochastic approximation and reinforcement learning. <em><span>SIAM</span> Journal on Control and Optimization</em> <em>38</em>, 2, 447–469. DOI: <a href="https://doi.org/10.1137/s0363012997331639">10.1137/s0363012997331639</a>.
 </div>
-<div id="ref-Whittle1996" class="csl-entry" role="listitem">
-<span class="smallcaps">Whittle, P.</span> 1996. <em>Optimal control: Basics and beyond</em>. Wiley.
-</div>
-<div id="ref-Witsenhausen1979" class="csl-entry" role="listitem">
-<span class="smallcaps">Witsenhausen, H.S.</span> 1979. On the structure of real-time source coders. <em>Bell System Technical Journal</em> <em>58</em>, 6, 1437–1451.
+<div id="ref-Robbins1951" class="csl-entry" role="listitem">
+<span class="smallcaps">Robbins, H. and Monro, S.</span> 1951. A stochastic approximation method. <em>The Annals of Mathematical Statistics</em> <em>22</em>, 3, 400–407. DOI: <a href="https://doi.org/10.1214/aoms/1177729586">10.1214/aoms/1177729586</a>.
 </div>
 </div>
 </section>
@@ -935,13 +817,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../index.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">About the course</span>
+      <a href="../risk-sensitive/risk-sensitive-utility.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Risk Sensitive Utility</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../stochastic-optimization/newsvendor.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../probability/sub-gaussian.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
