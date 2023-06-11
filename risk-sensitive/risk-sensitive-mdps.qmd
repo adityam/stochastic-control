@@ -1,0 +1,163 @@
+---
+title: "Risk Sensitive MDPs"
+keywords:
+  - risk sensitive
+  - dynamic programming
+---
+
+## Finite horizon setup
+
+Consider an MDP with state space $\ALPHABET
+X$, action space $\ALPHABET U$, per-step cost $c \colon \ALPHABET X ×
+\ALPHABET U \to \reals$, and controlled transition matrix $P$. However,
+instead of the risk neutral optimization criteria that we consider
+[previously][MDP], we consider a [risk-sensitive objective][risk-sensitive].
+In particular, the performance of any (possibly non-Markovian) strategy $g =
+(g_1, \dots, g_T)$ is given by 
+$$
+  \bar J_θ(g) = \frac{1}{θ} \log \EXP\Bigl[ \exp\Bigl(
+    θ \sum_{t=1}^T c(X_t, U_t) 
+  \Bigr) \Bigr].
+$$
+
+Recall that this is the effective cost for [an exponential disutility
+function][risk-sensitive]. Note that $J_θ(g) = \exp(θ \bar J(g))$ may be viewed as a
+multiplicative cost. Based on the argument for [multiplicative cost], we can
+write the dynamic program for $J_θ(g)$ as follows. 
+
+[MDP]: ../mdps/intro.qmd
+[risk-sensitive]: risk-sensitive-utility.qmd
+[multiplicative cost]: ../mdps/intro.qmd#multiplicative-cost
+
+:::{.callout-tip}
+## Dynamic program
+
+Initialize $V_{T+1}(x) = 1$ and recursively compute
+
+$$ \begin{align}
+    Q_t(x,u) &= \exp(θ c(x,u)) \sum_{y \in \ALPHABET X} P_{xy}(u) V_{t+1}(y),
+    \label{eq:DP-1}\\
+    V_t(x) &= \min_{u \in \ALPHABET X} Q_t(x,u).
+    \label{eq:DP-2}
+    \end{align} $$
+
+Or, equivalently, working with the effective cost value function:
+
+$$ \begin{align}
+    Q_t(x,u) &= \exp(θ c(x,u)) \sum_{y \in \ALPHABET X} P_{xy}(u) 
+    \exp(θ \bar V_{t+1}(y)),
+    \\
+    \bar V_t(x) &= \frac{1}{θ} \log \bigl( \min_{u \in \ALPHABET X} Q_t(x,u) \bigr).
+    \end{align} $$
+:::
+
+The dynamic program of \\eqref{eq:DP-1}--\\eqref{eq:DP-2} can be made to
+resemble the standard dynamic program by defining the _disutility matrix_
+$$
+    D_{xy}(u) = \exp(θ c(x,u)) P_{xy}(u).
+$$
+Note that the elements of $D$ are non-negative. The expression
+\\eqref{eq:DP-1} can then be written in "standard" form:
+$$
+  Q_{t+1}(x) = \sum_{y \in \ALPHABET X} D_{xy}(u) V_{t+1}(y).
+$$
+
+## Infinite horizon average cost setup
+
+The objective for infinite-horizon average cost setup is to minimize:
+$$
+  J^* = \inf_{g} \limsup_{T \to ∞}
+  \frac{1}{θT} \EXP \Bigl[ \exp\Bigl( 
+  θ \sum_{t=1}^T c(X_t, U_t) 
+  \Bigr) \Bigr].
+$$
+
+When the matrix $P(u)$ is irreducible and aperiodic for each $u$, the dynamic
+program for average cost MDP can be written as follows:
+
+:::{#thm-risk-sensitive-avg}
+
+Suppose there exist constant $J$ and a bounded function $v \colon \ALPHABET
+X \to \reals$ such that
+$$ \begin{equation} \label{eq:avg}
+  \exp(θ (J + v(x))) = 
+  \min_{u \in \ALPHABET U}
+   \sum_{y \in \ALPHABET X} P_{xy}(u) \exp( θ( c(x, u) + v(y)))
+\end{equation} $$
+Furthermore, let $g^* \colon \ALPHABET X \to \ALPHABET U$ denote the policy
+that achieves the arg min in the right hand side. Then, $J$ is the optimal
+performance and the time-homogeneous policy $g^*$ achieves that performance.
+:::
+
+The dynamic program of \\eqref{eq:avg} can be written in an alternative form
+using a Legendre-type transformation and the duality relationship between
+relative entropy function and the logarithmic moment generating function. 
+
+Let $Δ(\ALPHABET X)$ denote the set of probability vectors on $\ALPHABET X$.
+Then, for any $ν \in Δ(\ALPHABET X)$, the relative entropy $I(\cdot \| ν)
+\colon Δ(\ALPHABET X) \to \reals \cup \{+∞\}$ is by given by
+$$
+  I(μ \| ν) = \begin{cases}
+    \sum_{x \in \ALPHABET X} \log(λ(x)) μ(x), 
+    & \text{if } μ \ll ν, \\
+    +∞, & \text{otherwise}.
+  \end{cases} $$
+where
+$$ λ(x) = \begin{cases} 
+  \frac{μ(x)}{ν(x)}, & \text{if } ν(x) \neq 0, \\
+  1, & \text{otherwise}. 
+\end{cases}$$
+
+:::{#lem-legendre-mutual-info}
+
+Let $w \colon \ALPHABET X \to \reals$ be a bounded function and $ν \in
+Δ(\ALPHABET X)$.  Then,
+$$
+  \log \sum_{x \in \ALPHABET X} ν(x) \exp( w(x)) = 
+  \sup_{μ \in Δ(\ALPHABET X)} \Bigl\{
+     \sum_{x \in \ALPHABET X}  μ(x) w(x) - 
+    I(μ \| ν)
+  \Bigr\},
+$$
+where the supremum is attained at the unique probability measure $μ^*$
+given by
+$$
+  μ^*(x) = \frac{e^{θv(x)}}{\int e^{θv(x)}ν(x) dx} ν(x).
+$$
+:::
+
+:::{.callout-tip}
+### Remark
+
+Such a dual-representation is a fundamental property of all coherent risk
+measures and not just the entropic risk measure that we are working with here.
+See, for example, @Follmer2010.
+:::
+
+
+Using @lem-legendre-mutual-info, the dynamic program of \\eqref{eq:avg} can be
+written as
+$$ \begin{equation}
+  J + v(x) = \min_{u \in \ALPHABET U} \sup_{μ \in Δ(\ALPHABET X)}
+  \Bigl\{
+    c(x,u) + \sum_{y \in \ALPHABET X} μ(y) v(y) - \frac{1}{θ}
+    I(μ \| P(\cdot | x, u) ) 
+  \Bigr\}.
+\end{equation} $$
+This equation corresponds to the Issacs equation associated with a stochastic
+dynamic game with average cost-per unit time criterion.
+
+## Infinite horizon discounted cost setup
+
+@Whittle2002 has a discussion on why discounted cost setup for risk-sensitive
+MDP is tricky and the solution depends on the interpretation of discounting.
+
+## Notes {-}
+
+The basic risk-sensitive MDP was first considered in @Howard1972.
+See @Howard1972 for a policy iteration algorithm. It is also mentioned that a
+version of this result is presented in Bellman's book. 
+See @HernandezHernandez1996 and @HernandezHernandez1999 for a detailed treatment of the average cost case. 
+
+
+---
