@@ -31,6 +31,13 @@ A family of integrable random vabiables $\{X_t\}_{t \ge 1}$ adapted to a filtrat
 :::{.callout-tip}
 ### Intuition
 Property \\eqref{eq:martingale} has the interpretation that $X_s$ is the best predictor for $X_t$ based on the information available at time $s$. 
+
+The condition $\EXP[X_{t+1} \mid \mathcal F_t] = X_t$ may be thought of as a "fair-game" requirement. If we are playing a fair game, then we expect neither to win nor to lose moeny on average. Given the history of our fortunes up to time $s$, our expected fortune $X_{t}$ at a future time $t$ should just be the fortune $X_s$ that we have at time $s$. 
+:::
+
+:::{.callout-important}
+### Remark
+In the definition of a martingale (and its variants that we will define below), it is assumed that the random variables $\{X_t\}_{t \ge 1}$ are indegrable, i.e., $\EXP[X_t] < ∞$ for all $t$. Therefore, the conditional expectations used in the definitions are well defined.
 :::
 
 Several desirable properties of martingales are shared by families of random variables for which \\eqref{eq:martingale} is replaced by an inequality. 
@@ -45,10 +52,25 @@ Several desirable properties of martingales are shared by families of random var
     X_s \ge \EXP[X_{t} \mid \mathcal F_s], \quad \forall s < t. 
   \end{equation}
 
+:::{.callout-warning}
+### A note about the names
+Note the definitions of the inequalities:
+\begin{alignat*}{2}
+  \text{supermartingale:} &\quad & X_t &\ge \EXP[X_t \mid \mathcal F_t] \\
+  \text{submartingale:}   &\quad& X_t &\le \EXP[X_t \mid \mathcal F_t] 
+\end{alignat*}
+Thus, at each time, a *sub*martingale is *below* its future expected value, whereas a *supermartingale* is *above* its future expected value. 
+:::
+
 ## Examples
 
 1. **Martingales generalize the theory of sums of independent random variables.**
-   Let $ξ_1, ξ_2, \dots$ be indepdent, integrable random variables with $\EXP[ξ_t] = 0$ for $t \ge 1$. Define $X_0 = 0$ and $X_t = ξ_1 + \dots + ξ_t$. The sequence $\{X_t\}_{t \ge 1}$ is a martingale with respect to the natural filtration. 
+   Let $ξ_1, ξ_2, \dots$ be indepdent, integrable random variables. Define $X_0 = 0$ and $X_t = ξ_1 + \dots + ξ_t$. If $\EXP[X_t] = 0$ for $t \ge 1$, then the sequence $\{X_t\}_{t \ge 1}$ is a martingale with respect to the natural filtration:
+   $$
+   \EXP[X_{t+1} \mid X_{1:t}] = \EXP[X_t + ξ_{t+1} \mid X_{1:t}] = X_t.
+   $$
+
+   Similarly, if $ξ_t$ has positive mean, $\{X_t\}_{t \ge 1}$ is a submartingale, and if $ξ_t$ has negative mean, $\{X_t\}_{t \ge 1}$ is a supermartingale.
 
 2. Let $\{X_t\}_{t \ge 1}$ be martingale and let $f$ be a convex function for which each $f(X_t)$ is integrable. Then, a direct application of Jensen's inequality implies that $\{f(X_t)\}_{t \ge 1}$ is a submartingale.
 
@@ -68,17 +90,49 @@ Several desirable properties of martingales are shared by families of random var
 
 6. Suppose $X$ is an integrable random variable and $\{\mathcal F_t\}_{t \ge 1}$ is a filtration. Define $X_t \coloneqq \EXP[X \mid \mathcal F_t]$. Then $\{X_t\}_{t \ge 1}$ is a martingale with respect to the filtration (follows from the smoothing property of conditional expectations).
 
-7. A martingale $\{X_t\}_{t \ge 1}$ may be written as a sum of increments: $X_t = X_0 + ξ_1 + \dots + ξ_t$. The increments $\{ξ_t\}_{t \ge 1}$ are called **martingale differences**. Each $ξ_t$ is integrable and $\EXP[ξ_t \mid \mathcal F_{t-1}] = 0$ for all $t$.
+7. **Likelihood ratios are martingales.** Suppose $X_1$, $X_2$, \dots are independent random variables with density $f$. Imagine we are considering the alternative hypothesis that these random variables are independent with a different probability density $g$ (but they are *really* distributed according to the density $f$). We assume that $f$ and $g$ have the same support. Define the likelihood ratio
+   $$
+      Λ_t = \frac{g(X_1)}{f(X_1)} \dots \frac{g(X_t)}{f(X_t)}.
+   $$
+   Then, since $Λ_{t+1} = Λ_t g(X_{t+1})/f(X_{t+1})$, we have
+   \begin{align*}
+   \EXP[Λ_{t+1} \mid X_{1:t}] 
+   &= Λ_t \EXP\biggl[ \frac{g(X_{t+1})}{f(X_{t+1})} \biggm| X_{1:t} \biggr] \\
+   &= Λ_t \EXP\biggl[ \frac{g(X_{t+1})}{f(X_{t+1})} \biggr] \\
+   &= Λ_t \int\biggl( \frac{g(x)}{f(x)} \biggr) f(x)dx \\
+   &= Λ_t \int g(x)dx \\
+   &= Λ_t.
+  \end{align*}
+  Hence, $\{Λ_t\}_{t \ge 1}$ is a martingale.
+8. A martingale $\{X_t\}_{t \ge 1}$ may be written as a sum of increments: $X_t = X_0 + ξ_1 + \dots + ξ_t$. The increments $\{ξ_t\}_{t \ge 1}$ are called **martingale differences**. Each $ξ_t$ is integrable and $\EXP[ξ_t \mid \mathcal F_{t-1}] = 0$ for all $t$.
+
+
+## Doob's decomposition
 
 :::{#thm-doob-decomposition}
 ### Doob's decomposition
-  Every sequence $\{X_t\}_{t \ge 1}$ of integrable random variables adapted to a filtration $\{\mathcal F_t\}_{t \ge 1}$ can be decomposed into a sum of a martingale and an adapted process, i.e., 
+  Every sequence $\{X_t\}_{t \ge 1}$ of integrable random variables adapted to a filtration $\{\mathcal F_t\}_{t \ge 1}$ can be decomposed into a sum of a martingale and an integrable predictable process, i.e., 
   $$
     X_t = M_t + A_t
   $$
-  where $\{M_t\}_{t \ge 1}$ is a martingale and $\{A_t\}_{t \ge 1}$ is a predictable sequence. 
-
+  where $\{M_t\}_{t \ge 1}$ is a martingale and $\{A_t\}_{t \ge 1}$ is a predictable process 
 :::
+
+1. **Existence.** We can identify the Doob's decomposition by defining
+   $$ M_t = X_0 + \sum_{s=1}^{t}\bigl( X_s - \EXP[ X_s \mid \mathcal F_{s-1} \bigr],$$
+   and 
+   $$A_t = \sum_{s=1}^t \bigl( \EXP[ X_s \mid \mathcal F_{s-1} ] - X_{s-1} \bigr).$$
+
+2. **Uniqueness.** The decomposition is almost surely unique. If $X_t = M'_t + A'_t$ is another decomposition, then $Y_t = M_t - M'_t$ being the difference of martingales is a martingale. But $M_t - M'_t = A_t - A'_t$, which is a predictable process; combining this with the martingale property of $M_t - M'_t$ implies that
+   $$
+   A_t - A'_t = \EXP[ A_t - A'_t \mid \mathcal F_t] = 
+   \EXP[ M_t - M'_t \mid \mathcal F_t ] = M_{t-1} - M'_{t-1} = A_{t-1} - A'_{t-1}.
+   $$
+   Since $A_0 = A'_0 = 0$, we get that $A_t = A'_t$ for all $t \ge 1$. 
+
+3. A stochastic process $\{X_t\}_{t \ge 1}$ is a submartingale if and only if its Doob's decomposition gives a predictable process that is almost surely increasing. 
+
+4. A stochastic process $\{X_t\}_{t \ge 1}$ is a supermartingale if and only if its Doob's decomposition gives a predictable process that is almost surely decreasing 
 
 ## Convergence of nonnegative supermartingales
 
@@ -109,7 +163,7 @@ $$
 
 5. Let $\{X_t\}_{t \ge 1}$ be a nonnegative supermartingale. Then, for any stopping times $τ_1$ and $τ_2$, we have
    $$
-    X_{τ_1} \ge \EXP[ X_{τ_2} \mid \mathcal F_{τ_1},
+    X_{τ_1} \ge \EXP[ X_{τ_2} \mid \mathcal F_{τ_1}],
     \quad \text{ on } \{τ_1 \le τ_2 \}.
    $$
 
@@ -135,6 +189,74 @@ Then, for all $ω \in Ω_0$, we have that
 
 (i) $\lim_{t \to ∞} X_t(ω)$ exists and is finite
 (ii) $\sum_{t \ge 1} Z_t(ω) < ∞$.
+:::
+
+:::{.callout-note collapse="true"} 
+### Proof
+ The key idea is that we can fiddle with \\eqref{eq:almost-supermartingale} to make it a supermartingale. Let $b_t = 1/\prod_{\tau = 1}^{t-1} ( 1 + β_{τ} )$. Define the nonnegative processes $\{X'_t\}_{t \ge 1}$ $\{Y'_t\}_{t \ge 1}$ and $\{Z'_t\}_{t \ge 1}$, where 
+$$
+X'_t = b_t X_t,
+\quad
+Y'_t = b_{t+1} Y_t,
+\quad
+Z'_t = b_{t+1} Z_t.
+$$
+\begin{align}
+    \EXP[X'_{t+1} \mid \mathcal F_t] &= 
+    b_{t+1} \EXP[ X_{t+1} \mid \mathcal F_t] \notag \\
+    &\le b_{t+1}(1 + β_t) X_t + b_{t+1} Y_t  - b_{t+1} Z_t \notag \\
+    &= X'_t + Y'_t - Z'_t.
+    \label{eq:almost-supermartingale-st-1}
+\end{align}
+
+Define
+\begin{equation}\label{eq:almost-supermartingale-st-2}
+W_t = X'_t - \sum_{s = 1}^{t-1} (Y'_s - Z'_s) .
+\end{equation}
+From \\eqref{eq:almost-supermartingale-st-1} we have
+$$
+\EXP[W_{t+1} \mid \mathcal F_t] = 
+\EXP\biggl[ X'_{t+1} - \sum_{s=1}^t(Y'_s - Z'_s) \biggm| \mathcal F_t \biggr] 
+\le X_t - \sum_{s=1}^{t-1} (Y'_s - Z'_s) 
+= W_t.
+$$
+Therefore, $\{W_t\}_{t \ge 1}$ is a supermartingale, but we cannot immediately apply the supermartingale convergence theorem because we don't know that $W_t$ is bounded from below. 
+
+
+For an arbitrary $a > 0$, define the stopping time $τ = \inf \bigl\{ t : \sum_{s=1}^{t} Y_s > a \bigr\}.$ Then, the stopped sequence $\{W_{τ \wedge t}\}_{t \ge 1}$ is also a supermartingale because
+$$
+\EXP[ W_{τ \wedge (t+1)} \mid \mathcal F_t ]
+= W_t \IND\{ τ \le t \} + \EXP[ W_{t+1} \mid \mathcal F_t ] \IND\{ τ > t\}
+\le W_{τ \wedge t}.
+$$
+Moreover, $W_{τ \wedge t}$ is bounded from below since
+$$
+W_{t \wedge τ} \ge - \sum_{s = 1}^{τ \wedge (t-1)} Y_s 
+\ge -a,$$
+So, we can think of $W_{t \wedge τ} + a$ as a nonnegative supermartingale. Therefore, by the supermartingale convergence theorem, 
+$\lim_{t \to ∞} W_{τ \wedge t}$ exists and is finite a.s. 
+
+Therefore, on the set $\{ τ = ∞ \}$, i.e., the set $\{ \sum_{s = 1}^∞ Y'_s \le a \}$, $\lim_{t \to ∞} W_t$ exists and is finite.
+
+Since $a$ is arbitary, we have that $\lim_{t \to ∞} W_t$ exists and is finite on $\{ \sum_{s=1}^∞ Y'_s < ∞ \}$. But, we know that $Y'_s \le Y_s$. Therefore, for $ω \in Ω_0$, 
+$$\sum_{t \ge 1} Y'_t(ω) \le \sum_{t \ge 1} Y_t(ω) < ∞ . $$
+Consequently, for $ω \in Ω_0$, $\lim_{t \to ∞} W_t$ exists and is finite.
+
+Now \\eqref{eq:almost-supermartingale-st-2} implies that 
+$$
+  \lim_{t \to ∞} \biggl \{ X'_t - \sum_{s=1}^{t-1} (Y'_s - Z'_s) \biggr\} < ∞.
+$$
+Hence, on $Ω_0$, $\sum_{s=1}^∞ Z'_s < ∞$ and $\lim_{t \to ∞} X'_t$ exists and is finite. 
+
+From @exr-product-sum, it follows that for $ω \in Ω_0$, $b_t(ω)$ has a limit. 
+$$
+    X_t = X'_t/b'_t
+$$
+has a limit. Moreover, the inequality, 
+$$
+  Z_t \le Z'_t \prod_{s \ge 1} (1 + β_s)
+$$
+implies that $\sum_{t \ge 1} Z_t < ∞$ for $ω \in Ω_0$. 
 :::
 
 The following is a determinisitic version of the above result, taken from @Bertsekas2000.
@@ -165,6 +287,23 @@ The finiteness of $\sup_{t} \EXP[ S_{t}^{+}]$ is equivalent to the finiteness of
 
 ## Exercise {-}
 
+:::{#exr-product-sum}
+The purpose of this exercise is to establish the following: For a sequence of nonnegative real numbers $\{a_t\}_{t \ge 1}$
+$$\sum_{t \ge 1} a_t < ∞  \iff
+\prod_{t \ge 1} (1 + a_t) \text{ converges to a finite non-zero limit}.
+$$
+
+1. Show that $\sum_{t \ge 1}a_t \le \prod_{t \ge 1}(1 + a_t)$.
+
+      _Hint_: Expand the right hand side.
+
+2. Show that $\prod_{t \ge 1}(1 + a_t) \le \exp\Bigl(\sum_{t \ge 1} a_t\Bigr)$.
+
+      _Hint_: Use Taylor series expansion of $e^x$.
+
+:::
+
+
 :::{#exr-martingale-Robbins-Monroe}
   Consider a sequence $\{α_t\}_{t \ge 1}$ adapted to $\{\mathcal F_t\}$ such that
   $$
@@ -193,6 +332,6 @@ The finiteness of $\sup_{t} \EXP[ S_{t}^{+}]$ is equivalent to the finiteness of
 
 The material in the introduction is taken from @Pollard2002.
 
-@thm-almost-supermartingale is from @Robbins1971. A version of @thm-almost-supermartingale with $Z_t = 0$ is stated as Exercise II-4 of @Neveu1975.
+@thm-almost-supermartingale and its proof is from @Robbins1971. A version of @thm-almost-supermartingale with $Z_t = 0$ is stated as Exercise II-4 of @Neveu1975.
 
 @exr-martingale-Robbins-Monroe is from @Bertsekas2000.
