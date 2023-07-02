@@ -472,7 +472,9 @@ window.MathJax = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#notes" id="toc-notes" class="nav-link active" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#approximate-bellman-update" id="toc-approximate-bellman-update" class="nav-link active" data-scroll-target="#approximate-bellman-update"><span class="header-section-number">19.1</span> Approximate Bellman update</a></li>
+  <li><a href="#policy-loss-for-q-learning" id="toc-policy-loss-for-q-learning" class="nav-link" data-scroll-target="#policy-loss-for-q-learning"><span class="header-section-number">19.2</span> Policy loss for <span class="math inline">\(Q\)</span>-learning</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/approx-mdps/policy-loss.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
@@ -502,23 +504,142 @@ window.MathJax = {
 
 </header>
 
-<p>Consider a candidate value function <span class="math inline">\(\tilde V \colon \ALPHABET S \to \reals\)</span> which is approximately optimal, i.e., <span class="math display">\[
-  \| V^* - \tilde V \|_{∞} \le α.
-\]</span> Let <span class="math inline">\(π_{\tilde V}\)</span> be <em>a greedy policy</em> with respect to <span class="math inline">\(\tilde V\)</span>, i.e., <span class="math display">\[
-  π_{\tilde V}(s) \in \arg \min_{a \in \ALPHABET A}
-  \Bigl[ c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) \tilde V(s')
+<p>Consider a candidate value function <span class="math inline">\(\hat V \colon \ALPHABET S \to \reals\)</span> which is approximately optimal, i.e., <span class="math display">\[
+  \| V^* - \hat V \|_{∞} \le α.
+\]</span> Let <span class="math inline">\(π_{\hat V}\)</span> be <em>a greedy policy</em> with respect to <span class="math inline">\(\hat V\)</span>, i.e., <span class="math display">\[
+  π_{\hat V}(s) \in \arg \min_{a \in \ALPHABET A}
+  \Bigl[ c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) \hat V(s')
   \Bigr].
-\]</span> We are interested in bounding the loss in performance when using policy <span class="math inline">\(π_{\tilde V}\)</span> instead of the optimal policy, i.e., <span class="math inline">\(\| V^* - V^{π_{\tilde V}}\|_{∞}\)</span>. We call this <strong>the policy loss</strong>.</p>
+\]</span> We are interested in bounding the loss in performance when using policy <span class="math inline">\(π_{\hat V}\)</span> instead of the optimal policy, i.e., <span class="math inline">\(\| V^* - V_{π_{\hat V}}\|_{∞}\)</span>. We call this <strong>the policy loss</strong>.</p>
 <div id="thm-policy-loss" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 19.1 </strong></span><span class="math display">\[
-\| V^* - V^{π_{\tilde V}}\|_{∞}
+\| V^* - V_{π_{\hat V}}\|_{∞}
 \le
-\frac{2 γ}{1-γ} \| V^* - \tilde V\|_{∞}.
+\frac{2 γ}{1-γ} \| V^* - \hat V\|_{∞}.
 \]</span></p>
 </div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>From triangle inequality, we have <span class="math display">\[\begin{align*}
+  \| V^* - V_{π_{\hat V}}\|_{∞}
+  &amp;\le
+  \| \BELLMAN V^* - \BELLMAN \hat V \|_{∞}
+  +
+  \| \BELLMAN_{π_{\hat V}} \hat V - \BELLMAN_{π_{\hat V}} V^* \|_{∞}
+  +
+  \| \BELLMAN_{π_{\hat V}} V^* - \BELLMAN_{π_{\hat V}} V_{π_{\hat V}} \|_{∞}
+  \\
+  &amp;\le
+  γ \| V^* - \hat V \|_{∞}
+  +
+  γ \| \hat V -  V^* \|_{∞}
+  +
+  γ \| V^* -  V_{π_{\hat V}} \|_{∞}
+\end{align*}\]</span> where the first inequality uses the fact that <span class="math inline">\(\BELLMAN \hat V = \BELLMAN_{π_{\hat V}} V\)</span>. The result follows from rearranging the terms.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Practical upper bound
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The bound of <a href="#thm-policy-loss">Theorem&nbsp;<span>19.1</span></a> can be difficult to apply because <span class="math inline">\(\| V^* - \hat V\|_{∞}\)</span> is not always available. A more practical upper bound can be obtained by using the result from <a href="../mdps/inf-horizon.html#prp-Bellman-bounds">Proposition&nbsp;<span>9.5</span></a>, which implies that <span class="math display">\[
+\| V^* - \hat V\| \le \frac{1}{1-γ} \| \BELLMAN \hat V - \hat V\|_{∞}.
+\]</span> Hence, an upper bound on the result of <a href="#thm-policy-loss">Theorem&nbsp;<span>19.1</span></a> is <span class="math display">\[
+\| V^* - V_{π_{\hat V}}\|_{∞}
+\le
+\frac{2 γ}{(1-γ)^2} \| \BELLMAN \hat V - \hat V\|_{∞}.
+\]</span></p>
+</div>
+</div>
+<section id="approximate-bellman-update" class="level2" data-number="19.1">
+<h2 data-number="19.1" class="anchored" data-anchor-id="approximate-bellman-update"><span class="header-section-number">19.1</span> Approximate Bellman update</h2>
+<p>The definition of <span class="math inline">\(π_{\hat V}\)</span> assumes that we can perform a Bellman update exactly. Similar to the setup in <a href="../approx-mdps/approx-DP.html">approximate DP</a>, suppose all we can guarantee is a policy <span class="math inline">\(\hat π\)</span> such that <span class="math display">\[
+\| \BELLMAN \hat V - \BELLMAN_{\hat π} V\| \le ε
+\]</span> Then, we have the following.</p>
+<div id="thm-policy-loss-approx" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 19.2 </strong></span><span class="math display">\[
+\| V^* - V_{\hat π}\|_{∞}
+\le
+\frac{2 γ}{1-γ} \| V^* - \hat V\|_{∞}
++
+\frac{ε}{1-γ}
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>From triangle inequality, we have <span class="math display">\[\begin{align*}
+  \| V^* - V_{\hat π}\|_{∞}
+  &amp;\le
+  \| \BELLMAN V^* - \BELLMAN \hat V \|_{∞}
+  +
+  \textcolor{red}{\| \BELLMAN \hat V - \BELLMAN_{\hat π} \hat V\|_{∞}}
+  \notag \\
+  &amp; \quad
+  +
+  \| \BELLMAN_{\hat π} \hat V - \BELLMAN_{\hat π} V^* \|_{∞}
+  +
+  \| \BELLMAN_{\hat π} V^* - \BELLMAN_{\hat π} V_{\hat π} \|_{∞}
+  \\
+  &amp;\le
+  γ \| V^* - \hat V \|_{∞}
+  +
+  \textcolor{red}{ε}
+  +
+  γ \| \hat V -  V^* \|_{∞}
+  +
+  γ \| V^* -  V_{\hat π} \|_{∞}
+\end{align*}\]</span> The result follows from rearranging the terms.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="policy-loss-for-q-learning" class="level2" data-number="19.2">
+<h2 data-number="19.2" class="anchored" data-anchor-id="policy-loss-for-q-learning"><span class="header-section-number">19.2</span> Policy loss for <span class="math inline">\(Q\)</span>-learning</h2>
+<p>A related setting is what happens in <span class="math inline">\(Q\)</span>-learning. Suppose <span class="math inline">\(Q^*\)</span> is the optimal action-value function and we obtain an approximation <span class="math inline">\(\hat Q\)</span>. Let <span class="math inline">\(π_{\hat Q}\)</span> be the greedy policy with respect to <span class="math inline">\(\hat Q\)</span>, i.e., <span class="math display">\[
+  π_{\hat Q}(s) \in \arg \min_{a \in \ALPHABET A} \hat Q(s,a).
+\]</span> Then, we have the following.</p>
+<div id="thm-Q-learning-loss" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 19.3 </strong></span><span class="math display">\[
+\| V^* - V_{π_{\hat Q}}\|_{∞}
+\le
+\frac{2}{1-γ} \| V^* - \hat V\|_{∞}
+\]</span> where <span class="math display">\[
+  V^*(s) = Q^*(s,π^*(s))
+  \quad\text{and}\quad
+  \hat V(s) = \hat Q(s, π_{\hat Q}(s)).
+\]</span></p>
+</div>
+</section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>The material in this section is adapted from <span class="citation" data-cites="Singh1994">(<a href="../references.html#ref-Singh1994" role="doc-biblioref"><strong>Singh1994?</strong></a>)</span></p>
+<p>The material in this section is adapted from <span class="citation" data-cites="Singh1994">(<a href="../references.html#ref-Singh1994" role="doc-biblioref"><strong>Singh1994?</strong></a>)</span>. The proof of <a href="#thm-policy-loss">Theorem&nbsp;<span>19.1</span></a> is from <span class="citation" data-cites="Tsitsiklis1996">(<a href="../references.html#ref-Tsitsiklis1996" role="doc-biblioref"><strong>Tsitsiklis1996?</strong></a>)</span>.</p>
 
 
 </section>
