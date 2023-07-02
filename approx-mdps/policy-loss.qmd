@@ -2,28 +2,159 @@
 title: Upper bounds on policy loss
 ---
 
-Consider a candidate value function $\tilde V \colon \ALPHABET S \to \reals$ which is approximately optimal, i.e., 
+Consider a candidate value function $\hat V \colon \ALPHABET S \to \reals$ which is approximately optimal, i.e., 
 $$
-  \| V^* - \tilde V \|_{∞} \le α.
+  \| V^* - \hat V \|_{∞} \le α.
 $$
-Let $π_{\tilde V}$ be _a greedy policy_ with respect to $\tilde V$, i.e.,
+Let $π_{\hat V}$ be _a greedy policy_ with respect to $\hat V$, i.e.,
 $$
-  π_{\tilde V}(s) \in \arg \min_{a \in \ALPHABET A} 
-  \Bigl[ c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) \tilde V(s')
+  π_{\hat V}(s) \in \arg \min_{a \in \ALPHABET A} 
+  \Bigl[ c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) \hat V(s')
   \Bigr].
 $$
-We are interested in bounding the loss in performance when using policy $π_{\tilde V}$ instead of the optimal policy, i.e., 
-$\| V^* - V^{π_{\tilde V}}\|_{∞}$. We call this **the policy loss**.
+We are interested in bounding the loss in performance when using policy $π_{\hat V}$ instead of the optimal policy, i.e., 
+$\| V^* - V_{π_{\hat V}}\|_{∞}$. We call this **the policy loss**.
 
 :::{#thm-policy-loss}
 $$
-\| V^* - V^{π_{\tilde V}}\|_{∞} 
+\| V^* - V_{π_{\hat V}}\|_{∞} 
 \le
-\frac{2 γ}{1-γ} \| V^* - \tilde V\|_{∞}.
+\frac{2 γ}{1-γ} \| V^* - \hat V\|_{∞}.
 $$
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof
+From triangle inequality, we have
+\begin{align*}
+  \| V^* - V_{π_{\hat V}}\|_{∞} 
+  &\le 
+  \| \BELLMAN V^* - \BELLMAN \hat V \|_{∞}
+  + 
+  \| \BELLMAN_{π_{\hat V}} \hat V - \BELLMAN_{π_{\hat V}} V^* \|_{∞}
+  +
+  \| \BELLMAN_{π_{\hat V}} V^* - \BELLMAN_{π_{\hat V}} V_{π_{\hat V}} \|_{∞}
+  \\
+  &\le
+  γ \| V^* - \hat V \|_{∞}
+  + 
+  γ \| \hat V -  V^* \|_{∞}
+  + 
+  γ \| V^* -  V_{π_{\hat V}} \|_{∞}
+\end{align*}
+where the first inequality uses the fact that $\BELLMAN \hat V = \BELLMAN_{π_{\hat V}} V$. The result follows from rearranging the terms.
+:::
+
+:::{.callout-tip}
+#### Practical upper bound
+The bound of @thm-policy-loss can be difficult to apply because $\| V^* - \hat V\|_{∞}$ is not always available. A more practical upper bound can be obtained by using the result from @prp-Bellman-bounds, which implies that
+$$
+\| V^* - \hat V\| \le \frac{1}{1-γ} \| \BELLMAN \hat V - \hat V\|_{∞}. 
+$$
+Hence, an upper bound on the result of @thm-policy-loss is
+$$
+\| V^* - V_{π_{\hat V}}\|_{∞} 
+\le
+\frac{2 γ}{(1-γ)^2} \| \BELLMAN \hat V - \hat V\|_{∞}.
+$$
+:::
+
+## Approximate Bellman update
+
+The definition of $π_{\hat V}$ assumes that we can perform a Bellman update exactly. Similar to the setup in [approximate DP](approx-DP.qmd), suppose all we can guarantee is a policy $\hat π$ such that 
+$$
+\| \BELLMAN \hat V - \BELLMAN_{\hat π} V\| \le ε
+$$
+Then, we have the following.
+
+:::{#thm-policy-loss-approx}
+$$
+\| V^* - V_{\hat π}\|_{∞} 
+\le
+\frac{2 γ}{1-γ} \| V^* - \hat V\|_{∞}
++ 
+\frac{ε}{1-γ}
+$$
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof
+From triangle inequality, we have
+\begin{align*}
+  \| V^* - V_{\hat π}\|_{∞} 
+  &\le 
+  \| \BELLMAN V^* - \BELLMAN \hat V \|_{∞}
+  + 
+  \textcolor{red}{\| \BELLMAN \hat V - \BELLMAN_{\hat π} \hat V\|_{∞}}
+  \notag \\
+  & \quad 
+  +
+  \| \BELLMAN_{\hat π} \hat V - \BELLMAN_{\hat π} V^* \|_{∞}
+  +
+  \| \BELLMAN_{\hat π} V^* - \BELLMAN_{\hat π} V_{\hat π} \|_{∞}
+  \\
+  &\le
+  γ \| V^* - \hat V \|_{∞}
+  + 
+  \textcolor{red}{ε}
+  +
+  γ \| \hat V -  V^* \|_{∞}
+  + 
+  γ \| V^* -  V_{\hat π} \|_{∞}
+\end{align*}
+The result follows from rearranging the terms.
+:::
+
+## Policy loss for $Q$-learning
+
+A related setting is what happens in $Q$-learning. Suppose $Q^*$ is the optimal action-value function and we obtain an approximation $\hat Q$. Let $π_{\hat Q}$ be the greedy policy with respect to $\hat Q$, i.e.,
+$$
+  π_{\hat Q}(s) \in \arg \min_{a \in \ALPHABET A} \hat Q(s,a).
+$$
+Then, we have the following.
+
+:::{#thm-Q-learning-loss}
+$$
+\| V^* - V_{π_{\hat Q}}\|_{∞} 
+\le
+\frac{2}{1-γ} \| Q - \hat Q\|_{∞}
+$$
+:::
+:::{.callout-note collapse="true"} 
+#### Proof
+For ease of notation, we use $\hat π$ to denote $π_{\hat Q}$.
+Let $α = \| Q - \hat Q\|_{∞}$. 
+Now consider
+\begin{align}
+V_{\hat π}(s) - V^*(s)
+&=
+Q_{\hat π}(s, \hat π(s)) - Q^*(s, π^*(s))
+\notag \\
+&\le
+Q_{\hat π}(s, \hat π(s)) - Q^*(s, \hat π(s)) + 2 α
+\label{eq:policy-loss-QL-step1}
+\end{align}
+where the last inequality uses the fact that
+$$
+Q^*(s, \hat π(s)) - α 
+\le
+\hat Q(s, \hat π(s)) \le Q^*(s, π^*(s)).
+\le
+Q^*(s, π^*(s)) + α.
+$$
+Now observe that
+$$
+Q_{\hat π}(s, \hat π(s)) - Q^*(s, \hat π(s)) 
+=
+γ \sum_{s' \in \ALPHABET S}P(s'|s, \hat π(s)) [ V_{\hat π}(s') - V^*(s') ]
+\le 
+γ \| V_{\hat π} - V^* \|_{∞}.
+$$
+Substituting this in \\eqref{eq:policy-loss-QL-step1} and rearranging the terms gives us the result.
 :::
 
 
 ## Notes {-}
 
-The material in this section is adapted from @Singh1994
+The material in this section is adapted from @Singh1994. The proof of @thm-policy-loss is from @Tsitsiklis1996. 
+
