@@ -5,10 +5,7 @@ keywords:
   - stochastic approximation
 ---
 
-Suppose we have a function $f \colon \reals^d \to \reals^d$ is such that the
-equation
-$$ f(θ) = 0 $$
-has a unique root $θ = θ^*$. There are many methods for determining the value of
+Suppose $f \colon \reals^d \to \reals^d$ and it is desired to fina a solution $θ^*$ to the equation $f(θ) = 0$. There are many methods for determining the value of
 $θ$ by successive approximation where we start with an initial guess $θ_0$ and
 then recursively obtain a new value $θ_{k+1}$ as a function of the previously
 obtained $θ_0, \dots, θ_{k}$, the values $f(θ_1), \dots, f(θ_{k})$, and
@@ -24,10 +21,12 @@ obtain the value $f(θ)$, but it may be possible to conduct an experiment to
 get the value of $f(θ)$ with noise. Stochastic approximation refers to
 recursive algorithms of the form
 $$ \begin{equation} \label{eq:SA}
-  θ_{k+1} = θ_k + a_k[ f(x_k) + ξ_{k+1} ], \quad k \ge 0
+  θ_{t+1} = θ_t + a_t[ f(θ_t) + ξ_{t+1} ], \quad t \ge 0
 \end{equation} $$
-where $\{a_k\}_{k \ge 0}$ is a sequence of positive numbers and the noise
-$\{ξ_k\}_{k \ge 0}$ is uncorrelated with zero mean. 
+where $\{a_t\}_{t \ge 0}$ is a sequence of positive numbers and 
+$\{ξ_t\}_{t \ge 0}$ is a noise sequence.
+
+We are interested in the limit behavior of the sequence $\{θ_t\}_{t \ge 1}$. 
 
 The key idea behind stochastic approximation is that under appropriate
 conditions, the iteration \\eqref{eq:SA} almost surely converges to the
@@ -39,6 +38,98 @@ with initial conditions $θ(0) = θ_1$.
 
 In this section, we summarize these conditions (without proofs). 
 
+## List of assumptions
+
+Let $\mathcal F_t = σ(θ_{1:t}, ξ_{1:t})$. We state the following set of assumptions but note that not every assumption is needed for every result.
+
+### Assumptions on the function $f$
+
+**F1.** The equation $f(θ) = 0$ has a unique solution $θ^*$.
+
+**F2.** The function $f$ is globally Lipschitz-continuous with constant $L$, i.e., for any $θ_1, θ_2 \in \reals^d$,
+$$
+  \| f(θ_1) - f(θ_2) \|_{2} \le L \| θ_1 - θ_2 \|_2.
+$$
+**F2'.** The function $f$ is twice differentiable and is globally Lipschitz continuous with constant $L$. 
+
+:::{.callout-tip}
+### Implication
+Assumption (F2) implies that for each $θ \in \reals^d$, there is a unique function $s(\cdot, θ)$ that satisfies the ODE
+$$
+  \frac{ds(t,θ)}{dt} = f(s(t,θ)), \quad
+  s(0,θ) = θ.
+$$
+:::
+
+**F3.** The equilibrium $θ^*$ of the ODE $\dot θ = f(θ)$ is globally exponentially stable. Thus, there exists constants $μ \ge 1$ and $γ > 0$ such that
+$$
+\| s(t,θ) - θ^*\|_2 \le μ\|θ - θ^*\|_2 \exp(-γ t), 
+\quad
+\forall t \ge 0, \forall θ \in \reals^d.
+$$
+
+**F4.** There is a finite constant $K$ such that 
+$$
+\| \nabla^2 f_i(θ) \|_{S} \cdot \| θ - θ^*\|_2 \le K, 
+\quad
+\forall i \in \{1, \dots, d\}, 
+\forall θ \in \reals^d,
+$$
+where $\|\cdot\|_S$ denotes the spectral norm of a matrix (i.e., the largest singular value). 
+
+:::{.callout-tip}
+### Implication
+Assumption (F4) implies that 
+$$
+\left| \frac{∂^2 f_i(θ)}{∂θ_j ∂θ_k}\right| \cdot \| θ - θ^*\|_2 \le K,
+\forall i.j,k, \in \{1,\dots, d\},
+\forall θ \in \reals^d.
+$$
+:::
+
+### Conditions on the noise
+
+**N1.** $\{ξ_t\}_{t \ge 0}$ is a martingale difference sequence with respect to $\{ \mathcal F_t\}_{t \ge 1}$, i.e.,
+$$ \EXP[ ξ_{t+1} | \mathcal F_t ] = 0, \text{ a.s.}, \quad t \ge 1. $$
+
+**N2.** The noise $\{ξ_t\}_{t \ge 1}$ satisfies
+$$
+\EXP[ \| ξ_{t+1}^2 \|_2^2 \mid \mathcal F_t ] \le 
+σ^2( 1 + \| θ_t - θ^*\|_{2}^2), 
+\quad \text{a.s. } \forall t \ge 1
+$$
+for some finite constant $σ^2$. 
+
+## Gladyshev's result
+
+The following is a restatement of the result of @Gladyshev1965.
+
+:::{#thm-Gladyshev}
+Suppose assumptions (F1), (N1), and (N2) hold. In addition, the function $f(\cdot)$ is passive, i.e., for each $0 < ε < M < ∞$, 
+$$ \sup_{ε < \| θ - θ^*\|_2 < M} 
+  \langle θ - θ^*, f(θ) \rangle 
+ < 0$$
+ and
+ $$\|f(θ)\|_2 \le K \|θ - θ^*\|_2, \quad K < ∞.$$
+ Then,
+
+ 1. If $\sum_{t \ge 1} α_t^2 < ∞$, then $\{θ_t\}$ is bounded almost surely.
+ 2. If, in addition, $\sum_{t \ge 1} α_t = ∞$, then $θ_t \to θ^*$ almost surely as $t \to ∞$. 
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+From \\eqref{eq:SA}, we get
+\begin{align}
+  \EXP[ \|θ_{t+1} - θ^*\|_2^2 \mid \mathcal F_t] 
+   &\stackrel{(a)}= 
+  \|θ_t - θ^*\|_2^2 -2 α_t \langle θ_t - θ^*,  f(θ_t) \rangle 
+  + α_t^2 \bigl[ \| f(θ_t) \|_2^2 + ξ^2 \bigr]
+  \notag \\
+  &\stackrel{(b)}\le
+\end{align}
+where $(a)$ uses (N1)
+:::
 
 ## ODE Method (Borkar-Meyn conditions)
 
@@ -139,9 +230,11 @@ $θ^*$. Then for any initial condition $θ_0 \in \reals^d$, we have:
 [Lipschitz]: ../mdps/lipschitz-mdps.qmd
 
 
-# Notes {-}
+## Notes {-}
 
-The stochastic approximation algorithm was introduced by @Robbins1951. The
+The stochastic approximation algorithm was introduced by @Robbins1951. The discussion in the introduction is from @Vidyasagar2023.
+
+The
 results presented above are from @Borkar2000, which also provides rates of
 convergence of stochastic approximation under stronger assumptions. 
 
