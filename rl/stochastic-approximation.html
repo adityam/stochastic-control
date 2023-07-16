@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-06-08">
+<meta name="dcterms.date" content="2023-07-16">
 <meta name="keywords" content="reinforcement learning, stochastic approximation">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -492,7 +492,13 @@ window.MathJax = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#ode-method-borkar-meyn-conditions" id="toc-ode-method-borkar-meyn-conditions" class="nav-link active" data-scroll-target="#ode-method-borkar-meyn-conditions"><span class="header-section-number">23.1</span> ODE Method (Borkar-Meyn conditions)</a></li>
+  <li><a href="#list-of-assumptions" id="toc-list-of-assumptions" class="nav-link active" data-scroll-target="#list-of-assumptions"><span class="header-section-number">23.1</span> List of assumptions</a>
+  <ul class="collapse">
+  <li><a href="#assumptions-on-the-function-f" id="toc-assumptions-on-the-function-f" class="nav-link" data-scroll-target="#assumptions-on-the-function-f"><span class="header-section-number">23.1.1</span> Assumptions on the function <span class="math inline">\(f\)</span></a></li>
+  <li><a href="#conditions-on-the-noise" id="toc-conditions-on-the-noise" class="nav-link" data-scroll-target="#conditions-on-the-noise"><span class="header-section-number">23.1.2</span> Conditions on the noise</a></li>
+  </ul></li>
+  <li><a href="#gladyshevs-result" id="toc-gladyshevs-result" class="nav-link" data-scroll-target="#gladyshevs-result"><span class="header-section-number">23.2</span> Gladyshev’s result</a></li>
+  <li><a href="#ode-method-borkar-meyn-conditions" id="toc-ode-method-borkar-meyn-conditions" class="nav-link" data-scroll-target="#ode-method-borkar-meyn-conditions"><span class="header-section-number">23.3</span> ODE Method (Borkar-Meyn conditions)</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/rl/stochastic-approximation.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
@@ -513,7 +519,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 8, 2023</p>
+      <p class="date">July 16, 2023</p>
     </div>
   </div>
   
@@ -523,18 +529,119 @@ window.MathJax = {
 
 </header>
 
-<p>Suppose we have a function <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> is such that the equation <span class="math display">\[ f(θ) = 0 \]</span> has a unique root <span class="math inline">\(θ = θ^*\)</span>. There are many methods for determining the value of <span class="math inline">\(θ\)</span> by successive approximation where we start with an initial guess <span class="math inline">\(θ_0\)</span> and then recursively obtain a new value <span class="math inline">\(θ_{k+1}\)</span> as a function of the previously obtained <span class="math inline">\(θ_0, \dots, θ_{k}\)</span>, the values <span class="math inline">\(f(θ_1), \dots, f(θ_{k})\)</span>, and possibly those of the derivatives <span class="math inline">\(f'(θ_0), \dots, f'(θ_{k})\)</span>, etc. If <span class="math display">\[
+<p>Suppose <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> and it is desired to fina a solution <span class="math inline">\(θ^*\)</span> to the equation <span class="math inline">\(f(θ) = 0\)</span>. There are many methods for determining the value of <span class="math inline">\(θ\)</span> by successive approximation where we start with an initial guess <span class="math inline">\(θ_0\)</span> and then recursively obtain a new value <span class="math inline">\(θ_{k+1}\)</span> as a function of the previously obtained <span class="math inline">\(θ_0, \dots, θ_{k}\)</span>, the values <span class="math inline">\(f(θ_1), \dots, f(θ_{k})\)</span>, and possibly those of the derivatives <span class="math inline">\(f'(θ_0), \dots, f'(θ_{k})\)</span>, etc. If <span class="math display">\[
   \lim_{k \to ∞} θ_k = θ^*,
 \]</span> irrespective of the initial condition <span class="math inline">\(θ_0\)</span>, then the successive approximation method is effective.</p>
 <p>In many applications, the function <span class="math inline">\(f\)</span> may be unknown so it is not possible to obtain the value <span class="math inline">\(f(θ)\)</span>, but it may be possible to conduct an experiment to get the value of <span class="math inline">\(f(θ)\)</span> with noise. Stochastic approximation refers to recursive algorithms of the form <span class="math display">\[ \begin{equation} \label{eq:SA}
-  θ_{k+1} = θ_k + a_k[ f(x_k) + ξ_{k+1} ], \quad k \ge 0
-\end{equation} \]</span> where <span class="math inline">\(\{a_k\}_{k \ge 0}\)</span> is a sequence of positive numbers and the noise <span class="math inline">\(\{ξ_k\}_{k \ge 0}\)</span> is uncorrelated with zero mean.</p>
+  θ_{t+1} = θ_t + a_t[ f(θ_t) + ξ_{t+1} ], \quad t \ge 0
+\end{equation} \]</span> where <span class="math inline">\(\{a_t\}_{t \ge 0}\)</span> is a sequence of positive numbers and <span class="math inline">\(\{ξ_t\}_{t \ge 0}\)</span> is a noise sequence.</p>
+<p>We are interested in the limit behavior of the sequence <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span>.</p>
 <p>The key idea behind stochastic approximation is that under appropriate conditions, the iteration \eqref{eq:SA} almost surely converges to the equilibrium point of the ODE <span class="math display">\[ \begin{equation} \label{eq:ODE}
   \dot θ(t) = f(θ(t))
 \end{equation} \]</span> with initial conditions <span class="math inline">\(θ(0) = θ_1\)</span>.</p>
 <p>In this section, we summarize these conditions (without proofs).</p>
-<section id="ode-method-borkar-meyn-conditions" class="level2" data-number="23.1">
-<h2 data-number="23.1" class="anchored" data-anchor-id="ode-method-borkar-meyn-conditions"><span class="header-section-number">23.1</span> ODE Method (Borkar-Meyn conditions)</h2>
+<section id="list-of-assumptions" class="level2" data-number="23.1">
+<h2 data-number="23.1" class="anchored" data-anchor-id="list-of-assumptions"><span class="header-section-number">23.1</span> List of assumptions</h2>
+<p>Let <span class="math inline">\(\mathcal F_t = σ(θ_{1:t}, ξ_{1:t})\)</span>. We state the following set of assumptions but note that not every assumption is needed for every result.</p>
+<section id="assumptions-on-the-function-f" class="level3" data-number="23.1.1">
+<h3 data-number="23.1.1" class="anchored" data-anchor-id="assumptions-on-the-function-f"><span class="header-section-number">23.1.1</span> Assumptions on the function <span class="math inline">\(f\)</span></h3>
+<p><strong>F1.</strong> The equation <span class="math inline">\(f(θ) = 0\)</span> has a unique solution <span class="math inline">\(θ^*\)</span>.</p>
+<p><strong>F2.</strong> The function <span class="math inline">\(f\)</span> is globally Lipschitz-continuous with constant <span class="math inline">\(L\)</span>, i.e., for any <span class="math inline">\(θ_1, θ_2 \in \reals^d\)</span>, <span class="math display">\[
+  \| f(θ_1) - f(θ_2) \|_{2} \le L \| θ_1 - θ_2 \|_2.
+\]</span> <strong>F2’.</strong> The function <span class="math inline">\(f\)</span> is twice differentiable and is globally Lipschitz continuous with constant <span class="math inline">\(L\)</span>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Implication
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Assumption (F2) implies that for each <span class="math inline">\(θ \in \reals^d\)</span>, there is a unique function <span class="math inline">\(s(\cdot, θ)\)</span> that satisfies the ODE <span class="math display">\[
+  \frac{ds(t,θ)}{dt} = f(s(t,θ)), \quad
+  s(0,θ) = θ.
+\]</span></p>
+</div>
+</div>
+<p><strong>F3.</strong> The equilibrium <span class="math inline">\(θ^*\)</span> of the ODE <span class="math inline">\(\dot θ = f(θ)\)</span> is globally exponentially stable. Thus, there exists constants <span class="math inline">\(μ \ge 1\)</span> and <span class="math inline">\(γ &gt; 0\)</span> such that <span class="math display">\[
+\| s(t,θ) - θ^*\|_2 \le μ\|θ - θ^*\|_2 \exp(-γ t),
+\quad
+\forall t \ge 0, \forall θ \in \reals^d.
+\]</span></p>
+<p><strong>F4.</strong> There is a finite constant <span class="math inline">\(K\)</span> such that <span class="math display">\[
+\| \nabla^2 f_i(θ) \|_{S} \cdot \| θ - θ^*\|_2 \le K,
+\quad
+\forall i \in \{1, \dots, d\},
+\forall θ \in \reals^d,
+\]</span> where <span class="math inline">\(\|\cdot\|_S\)</span> denotes the spectral norm of a matrix (i.e., the largest singular value).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Implication
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Assumption (F4) implies that <span class="math display">\[
+\left| \frac{∂^2 f_i(θ)}{∂θ_j ∂θ_k}\right| \cdot \| θ - θ^*\|_2 \le K,
+\forall i.j,k, \in \{1,\dots, d\},
+\forall θ \in \reals^d.
+\]</span></p>
+</div>
+</div>
+</section>
+<section id="conditions-on-the-noise" class="level3" data-number="23.1.2">
+<h3 data-number="23.1.2" class="anchored" data-anchor-id="conditions-on-the-noise"><span class="header-section-number">23.1.2</span> Conditions on the noise</h3>
+<p><strong>N1.</strong> <span class="math inline">\(\{ξ_t\}_{t \ge 0}\)</span> is a martingale difference sequence with respect to <span class="math inline">\(\{ \mathcal F_t\}_{t \ge 1}\)</span>, i.e., <span class="math display">\[ \EXP[ ξ_{t+1} | \mathcal F_t ] = 0, \text{ a.s.}, \quad t \ge 1. \]</span></p>
+<p><strong>N2.</strong> The noise <span class="math inline">\(\{ξ_t\}_{t \ge 1}\)</span> satisfies <span class="math display">\[
+\EXP[ \| ξ_{t+1}^2 \|_2^2 \mid \mathcal F_t ] \le
+σ^2( 1 + \| θ_t - θ^*\|_{2}^2),
+\quad \text{a.s. } \forall t \ge 1
+\]</span> for some finite constant <span class="math inline">\(σ^2\)</span>.</p>
+</section>
+</section>
+<section id="gladyshevs-result" class="level2" data-number="23.2">
+<h2 data-number="23.2" class="anchored" data-anchor-id="gladyshevs-result"><span class="header-section-number">23.2</span> Gladyshev’s result</h2>
+<p>The following is a restatement of the result of <span class="citation" data-cites="Gladyshev1965">Gladyshev (<a href="../references.html#ref-Gladyshev1965" role="doc-biblioref">1965</a>)</span>.</p>
+<div id="thm-Gladyshev" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 23.1 </strong></span>Suppose assumptions (F1), (N1), and (N2) hold. In addition, the function <span class="math inline">\(f(\cdot)\)</span> is passive, i.e., for each <span class="math inline">\(0 &lt; ε &lt; M &lt; ∞\)</span>, <span class="math display">\[ \sup_{ε &lt; \| θ - θ^*\|_2 &lt; M}
+  \langle θ - θ^*, f(θ) \rangle
+&lt; 0\]</span> and <span class="math display">\[\|f(θ)\|_2 \le K \|θ - θ^*\|_2, \quad K &lt; ∞.\]</span> Then,</p>
+<ol type="1">
+<li>If <span class="math inline">\(\sum_{t \ge 1} α_t^2 &lt; ∞\)</span>, then <span class="math inline">\(\{θ_t\}\)</span> is bounded almost surely.</li>
+<li>If, in addition, <span class="math inline">\(\sum_{t \ge 1} α_t = ∞\)</span>, then <span class="math inline">\(θ_t \to θ^*\)</span> almost surely as <span class="math inline">\(t \to ∞\)</span>.</li>
+</ol>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>From \eqref{eq:SA}, we get <span class="math display">\[\begin{align}
+  \EXP[ \|θ_{t+1} - θ^*\|_2^2 \mid \mathcal F_t]
+   &amp;\stackrel{(a)}=
+  \|θ_t - θ^*\|_2^2 -2 α_t \langle θ_t - θ^*,  f(θ_t) \rangle
+  + α_t^2 \bigl[ \| f(θ_t) \|_2^2 + ξ^2 \bigr]
+  \notag \\
+  &amp;\stackrel{(b)}\le
+\end{align}\]</span> where <span class="math inline">\((a)\)</span> uses (N1)</p>
+</div>
+</div>
+</div>
+</section>
+<section id="ode-method-borkar-meyn-conditions" class="level2" data-number="23.3">
+<h2 data-number="23.3" class="anchored" data-anchor-id="ode-method-borkar-meyn-conditions"><span class="header-section-number">23.3</span> ODE Method (Borkar-Meyn conditions)</h2>
 <p>Suppose the following conditions are satisfied:</p>
 <ol type="1">
 <li><p><strong>Conditions on the function <span class="math inline">\(f\)</span></strong>:</p>
@@ -563,7 +670,7 @@ window.MathJax = {
 </ol>
 <p>Then, we have the following results. The first is under the (TS) condition on the step sizes.</p>
 <div id="thm-SA-tapering-steps" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 23.1 </strong></span>Assume conditions (1), (2), and (TS) hold. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
+<p><span class="theorem-title"><strong>Theorem 23.2 </strong></span>Assume conditions (1), (2), and (TS) hold. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
 <ul>
 <li><p>Asymptotic stability: <span class="math display">\[
   \sup_{k} \| θ_k \| &lt; ∞, \text{ a.s.}.
@@ -575,7 +682,7 @@ window.MathJax = {
 </div>
 <p>The second is under the (BS) conditions on the step sizes.</p>
 <div id="thm-SA-bounded-steps" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 23.2 </strong></span>Assume conditions (1), (2), and (BS) hold. In addition, the ODE \eqref{eq:ODE} has a unique globally asymptotically stable equilibrium point <span class="math inline">\(θ^*\)</span>. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
+<p><span class="theorem-title"><strong>Theorem 23.3 </strong></span>Assume conditions (1), (2), and (BS) hold. In addition, the ODE \eqref{eq:ODE} has a unique globally asymptotically stable equilibrium point <span class="math inline">\(θ^*\)</span>. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
 <ul>
 <li><p>Asymptotic stability: There exists a <span class="math inline">\(a^* &gt; 0\)</span> and <span class="math inline">\(C_1 &lt; ∞\)</span> such that for<br>
 all <span class="math inline">\(\bar a \in (0, a^*)\)</span> and <span class="math inline">\(θ_0 \in \reals^d\)</span>, <span class="math display">\[
@@ -590,17 +697,24 @@ all <span class="math inline">\(\bar a \in (0, a^*)\)</span> and <span class="ma
 </ul>
 </div>
 </section>
-<section id="notes" class="level1 unnumbered">
-<h1 class="unnumbered">Notes</h1>
-<p>The stochastic approximation algorithm was introduced by <span class="citation" data-cites="Robbins1951">Robbins and Monro (<a href="../references.html#ref-Robbins1951" role="doc-biblioref">1951</a>)</span>. The results presented above are from <span class="citation" data-cites="Borkar2000">Borkar and Meyn (<a href="../references.html#ref-Borkar2000" role="doc-biblioref">2000</a>)</span>, which also provides rates of convergence of stochastic approximation under stronger assumptions.</p>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p>The stochastic approximation algorithm was introduced by <span class="citation" data-cites="Robbins1951">Robbins and Monro (<a href="../references.html#ref-Robbins1951" role="doc-biblioref">1951</a>)</span>. The discussion in the introduction is from <span class="citation" data-cites="Vidyasagar2023">Vidyasagar (<a href="../references.html#ref-Vidyasagar2023" role="doc-biblioref">2023</a>)</span>.</p>
+<p>The results presented above are from <span class="citation" data-cites="Borkar2000">Borkar and Meyn (<a href="../references.html#ref-Borkar2000" role="doc-biblioref">2000</a>)</span>, which also provides rates of convergence of stochastic approximation under stronger assumptions.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Borkar2000" class="csl-entry" role="listitem">
 <span class="smallcaps">Borkar, V.S. and Meyn, S.P.</span> 2000. The o.d.e. Method for convergence of stochastic approximation and reinforcement learning. <em><span>SIAM</span> Journal on Control and Optimization</em> <em>38</em>, 2, 447–469. DOI: <a href="https://doi.org/10.1137/s0363012997331639">10.1137/s0363012997331639</a>.
 </div>
+<div id="ref-Gladyshev1965" class="csl-entry" role="listitem">
+<span class="smallcaps">Gladyshev, E.G.</span> 1965. On stochastic approximation. <em>Theory of Probability and Its Applications</em> <em>10</em>, 2, 275–278. DOI: <a href="https://doi.org/10.1137/1110031">10.1137/1110031</a>.
+</div>
 <div id="ref-Robbins1951" class="csl-entry" role="listitem">
 <span class="smallcaps">Robbins, H. and Monro, S.</span> 1951. A stochastic approximation method. <em>The Annals of Mathematical Statistics</em> <em>22</em>, 3, 400–407. DOI: <a href="https://doi.org/10.1214/aoms/1177729586">10.1214/aoms/1177729586</a>.
+</div>
+<div id="ref-Vidyasagar2023" class="csl-entry" role="listitem">
+<span class="smallcaps">Vidyasagar, M.</span> 2023. Convergence of stochastic approximation via martingale and converse <span>Lyapunov</span> methods. <em>Mathematics of Control, Signals, and Systems</em> <em>35</em>, 2, 351–374. DOI: <a href="https://doi.org/10.1007/s00498-023-00342-9">10.1007/s00498-023-00342-9</a>.
 </div>
 </div>
 </section>
