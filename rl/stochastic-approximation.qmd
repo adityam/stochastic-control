@@ -7,11 +7,11 @@ keywords:
 
 Suppose $f \colon \reals^d \to \reals^d$ and it is desired to fina a solution $θ^*$ to the equation $f(θ) = 0$. There are many methods for determining the value of
 $θ$ by successive approximation where we start with an initial guess $θ_0$ and
-then recursively obtain a new value $θ_{k+1}$ as a function of the previously
-obtained $θ_0, \dots, θ_{k}$, the values $f(θ_1), \dots, f(θ_{k})$, and
-possibly those of the derivatives $f'(θ_0), \dots, f'(θ_{k})$, etc. If 
+then recursively obtain a new value $θ_{t+1}$ as a function of the previously
+obtained $θ_0, \dots, θ_{k}$, the values $f(θ_1), \dots, f(θ_{t})$, and
+possibly those of the derivatives $f'(θ_0), \dots, f'(θ_{t})$, etc. If 
 $$
-  \lim_{k \to ∞} θ_k = θ^*,
+  \lim_{t \to ∞} θ_t = θ^*,
 $$
 irrespective of the initial condition $θ_0$, then the successive approximation
 method is effective. 
@@ -44,9 +44,11 @@ Let $\mathcal F_t = σ(θ_{1:t}, ξ_{1:t})$. We state the following set of assum
 
 ### Assumptions on the function $f$
 
-**F1.** The equation $f(θ) = 0$ has a unique solution $θ^*$.
+**F1.** $θ^*$ is a solution of the equation $f(θ) = 0$.
 
-**F2.** The function $f$ is globally Lipschitz-continuous with constant $L$, i.e., for any $θ_1, θ_2 \in \reals^d$,
+**F1'.** $θ^*$ is _the unique_ solution of the equation $f(θ) = 0$.
+
+**F2.** The function $f$ is [globally Lipschitz-continuous][Lipschitz] with constant $L$, i.e., for any $θ_1, θ_2 \in \reals^d$,
 $$
   \| f(θ_1) - f(θ_2) \|_{2} \le L \| θ_1 - θ_2 \|_2.
 $$
@@ -61,7 +63,9 @@ $$
 $$
 :::
 
-**F3.** The equilibrium $θ^*$ of the ODE $\dot θ = f(θ)$ is globally exponentially stable. Thus, there exists constants $μ \ge 1$ and $γ > 0$ such that
+**F3.** The equilibrium $θ^*$ of the ODE $\dot θ = f(θ)$ is globally asymptotically  stable. 
+
+**F3'.** The equilibrium $θ^*$ of the ODE $\dot θ = f(θ)$ is globally _exponentially_ stable. Thus, there exists constants $μ \ge 1$ and $γ > 0$ such that
 $$
 \| s(t,θ) - θ^*\|_2 \le μ\|θ - θ^*\|_2 \exp(-γ t), 
 \quad
@@ -82,6 +86,7 @@ where $\|\cdot\|_S$ denotes the spectral norm of a matrix (i.e., the largest sin
 Assumption (F4) implies that 
 $$
 \left| \frac{∂^2 f_i(θ)}{∂θ_j ∂θ_k}\right| \cdot \| θ - θ^*\|_2 \le K,
+\quad
 \forall i.j,k, \in \{1,\dots, d\},
 \forall θ \in \reals^d.
 $$
@@ -89,7 +94,7 @@ $$
 
 ### Conditions on the noise
 
-**N1.** $\{ξ_t\}_{t \ge 0}$ is a martingale difference sequence with respect to $\{ \mathcal F_t\}_{t \ge 1}$, i.e.,
+**N1.** $\{ξ_t\}_{t \ge 0}$ is a [martingale difference sequence][MDS] with respect to $\{ \mathcal F_t\}_{t \ge 1}$, i.e.,
 $$ \EXP[ ξ_{t+1} | \mathcal F_t ] = 0, \text{ a.s.}, \quad t \ge 1. $$
 
 **N2.** The noise $\{ξ_t\}_{t \ge 1}$ satisfies
@@ -100,12 +105,24 @@ $$
 $$
 for some finite constant $σ^2$. 
 
+[MDS]: ../probability/martingales.qmd#examples
+
+### Conditions on the learning rate
+
+**R1.** $\sum_{t \ge 1} α_t^2 < ∞$.
+
+**R2.** $\sum_{t \ge 1} α_t = ∞$.
+
+**R3.** There exists constants $\underline α, \bar α \in (0,1)$ such that
+    $\underline α \le α_t \le \bar α$ for all $t \ge 1$. 
+
+
 ## Gladyshev's result
 
 The following is a restatement of the result of @Gladyshev1965.
 
 :::{#thm-Gladyshev}
-Suppose assumptions (F1), (N1), and (N2) hold. In addition, the function $f(\cdot)$ is passive, i.e., for each $0 < ε < M < ∞$, 
+Suppose assumptions (F1'), (N1), and (N2) hold. In addition, the function $f(\cdot)$ is passive, i.e., for each $0 < ε < M < ∞$, 
 $$ \sup_{ε < \| θ - θ^*\|_2 < M} 
   \langle θ - θ^*, f(θ) \rangle 
  < 0$$
@@ -113,11 +130,17 @@ $$ \sup_{ε < \| θ - θ^*\|_2 < M}
  $$\|f(θ)\|_2 \le K \|θ - θ^*\|_2, \quad K < ∞.$$
  Then,
 
- 1. If $\sum_{t \ge 1} α_t^2 < ∞$, then $\{θ_t\}$ is bounded almost surely.
- 2. If, in addition, $\sum_{t \ge 1} α_t = ∞$, then $θ_t \to θ^*$ almost surely as $t \to ∞$. 
+ 1. If (R1) holds, then $\{θ_t\}$ is bounded almost surely.
+ 2. In addition, if (R2) holds, then $θ_t \to θ^*$ almost surely as $t \to ∞$. 
 :::
 
-:::{.callout-note collapse="false"}
+:::{.callout-tip}
+### Remark
+The second assumption $\|f(θ)\|_2 \le K \| θ - θ^*\|_2$ implies that $f(⋅)$ is continuous as $θ^*$, but it need not be continuous anywhere else.
+:::
+
+
+<!-- :::{.callout-note collapse="false"}
 #### Proof
 From \\eqref{eq:SA}, we get
 \begin{align}
@@ -129,112 +152,234 @@ From \\eqref{eq:SA}, we get
   &\stackrel{(b)}\le
 \end{align}
 where $(a)$ uses (N1)
+::: -->
+
+## Borkar-Meyn result
+
+The following is a restatement of the result of @Borkar2000.
+
+:::{#thm-borkar-meyn}
+Suppose assumptions (F2), (N1), and (N2) hold. In addition:
+
+a. There exists a limit function $f_{∞} \colon \reals^d \to \reals^d$ such that
+$$
+  \lim_{r \to ∞} \frac{f(r θ)}{r} = f_{∞}(θ), \quad
+  \forall θ \in \reals^d.
+$$
+
+b. Origin is asymptotically stable equilibrium of the ODE
+$$
+  \dot θ(t) = f_{∞}(θ(t)).
+$$
+
+Then, 
+
+1. If (R1) and (R2) hold, then $\{θ_t\}_{t \ge 1}$ is bounded almost surely. 
+2. In addition, if (F3) holds, then $θ_t \to θ^*$ almost surely as $t \to ∞$. 
+3. If (F3) and (R3) hold, then:
+    
+   - there exists a $α^* > 0$ and $C_1 < ∞$ such that if $\bar α \le α^*$ then 
+     $$ 
+        \limsup_{n \to ∞} \EXP[ \| θ_k\|^2 ] \le C_1.
+     $$
+
+   - if $\bar α \le α^*$ then $θ_t \to θ^*$ in probability. In particular, for any $ε > 0$, there exists a $b_1 = b_1(ε) < ∞$ such that 
+     $$
+        \limsup_{n \to ∞} \PR( \| θ_k - θ^* \| \ge ε ) \le b_1 \bar α.
+     $$
+
+   - In addition, if (F3') holds, then $θ_t \to θ^*$ in mean square. In particular, there exists a $b_2 < ∞$ such that for any initial condition $θ_0 \in \reals^d$, 
+     $$
+        \limsup_{n \to ∞} \EXP[ \| θ_k - θ^*\|^2 ] \le b_2 \bar α. 
+     $$
 :::
 
-## ODE Method (Borkar-Meyn conditions)
+:::{.callout-tip}
+### Rates of convergence
 
-Suppose the following conditions are satisfied:
-
-1. **Conditions on the function $f$**:
-
-    a. The map $f \colon \reals^d \to \reals^d$ is [globally
-    Lipschitz][Lipschitz]: $\| f(θ_1)
-       - f(θ_2) \| \le L \| θ_1 - θ_2 \|$ for some $L \in (0, ∞)$.
-
-    b. For any $r \in \reals_{> 0}$, define $f_r(θ) = f(rθ)/r$. There exists
-      a function $f_∞ \colon \reals^d \to \reals^d$ such that
-      $$
-        \lim_{r \to ∞} f_r(θ) = f_∞(θ), \quad \forall θ \in \reals^d.
-      $$
-
-    c. Origin is the asymptotically stable equilibrium of the ODE
-       $$
-          \dot θ(t) = f_∞(θ(t)).
-       $$
-
-2. **Condition on the noise $\{ξ_k\}_{k \ge 0}$**:
-
-    a. $\{ξ_k\}_{k \ge 0}$ is a martingale difference sequence with respect
-      to the increasing family of $σ$-fields 
-      $\mathcal F_k = σ(θ_{1:k}, ξ_{1:k})$.
-      That is,
-      $$ \EXP[ ξ_k | \mathcal F_k ] = 0, \text{ a.s.}, \quad k \ge 0. $$
-
-    b. Furthermore, $\{ξ_k\}_{k \ge 0}$ are square integrable with
-       $$ \EXP[ \| ξ_{k+1}\|^2 | \mathcal F_k ] \le C_0(1 + \|θ_k\|^2)
-       \text{ a.s.}, \quad k \ge 0$$
-       for some constant $C_0 \ge 0$ and any initial condition $θ_0$.
-
-3. **Condition on the step size $\{a_k\}_{k \ge 0}$**:
-
-    The sequence $\{a_k\}_{k \ge 0}$ is deterministic and assumed to satisfy
-    one of the two following conditions:
-
-    a. **Tapering step sizes (TS)**: $a_k \in (0, 1)$, and 
-        $$ \sum_{k=1}^∞ a_k = ∞, \qquad
-           \sum_{k=1}^∞ a_k^2 < ∞. $$
-
-    b. **Bounded step sizes (BS)**: For some constants $\underline a, \bar a
-       \in (0, 1)$, we have
-        $$ \underline a \le a_k \le \bar a, \quad k \ge 0. $$
-
-
-Then, we have the following results. The first is under the (TS) condition on
-the step sizes.
-
-:::{#thm-SA-tapering-steps}
-Assume conditions (1), (2), and (TS) hold. Then for any initial condition
-$θ_0 \in \reals^d$, we have:
-
-* Asymptotic stability:
- $$
-    \sup_{k} \| θ_k \| < ∞, \text{ a.s.}.
- $$
-
-* Convergence: If the ODE \\eqref{eq:ODE} has a _unique_ globally
- asymptotically stable equilibrium point $θ^*$. Then, 
- $$
-    \lim_{k \to ∞} θ_k = θ^*, \text{ a.s.}
-   $$
-:::
-
-The second is under the (BS) conditions on the step sizes. 
-
-:::{#thm-SA-bounded-steps}
-
-Assume conditions (1), (2), and (BS) hold. In addition, the ODE
-\\eqref{eq:ODE} has a unique globally asymptotically stable equilibrium point
-$θ^*$. Then for any initial condition $θ_0 \in \reals^d$, we have:
-
-* Asymptotic stability: There exists a $a^* > 0$ and $C_1 < ∞$ such that for   
- all $\bar a \in (0, a^*)$ and $θ_0 \in \reals^d$, 
- $$
-    \limsup_{n \to ∞} \EXP[ \| θ_k\|^2 ] \le C_1.
- $$
-
-* Convergence in probability: For $\bar a \le a^*$ and any $ε > 0$, there
-  exists a $b_1 = b_1(ε) < ∞$ such that
-  $$
-    \limsup_{n \to ∞} \PR( \| θ_k - θ^* \| \ge ε ) \le b_1 \bar a.
-  $$
-
-* Mean square convergence: If $θ^*$ is _exponentially_ asymptotically
-  stable equilibrium point of the ODE \\eqref{eq:ODE}, then there exists
-  a $b_2 < ∞$ such that for every initial condition $θ_0 \in \reals^d$, 
-  $$
-    \limsup_{n \to ∞} \EXP[ \| θ_k - θ^*\|^2 ] \le b_2 \bar a. 
-  $$
-
+@Borkar2000 also provides rates of convergence of stochastic approximation under stronger assumptions. 
 :::
 
 [Lipschitz]: ../mdps/lipschitz-mdps.qmd
 
+## Vidyasagar result
+
+The following is a restatement of the result of @Vidyasagar2023.
+
+:::{.callout-tip}
+#### Function classes
+Consider a continuous function $f \colon \reals_{\ge 0} \to \reals_{\ge 0}$. 
+
+* The function $f$ is said to belong to class $\mathcal K$ if $f(0) = 0$ and $f(\cdot)$ is strictly increasing.
+* The function $f \in \ALPHABET K$ is said to belong to class $\ALPHABET K \ALPHABET R$ if, in addition, $f(r) \to ∞$ as $s \to ∞$. 
+* The function $f$ is said to belong to class $\ALPHABET B$ if $f(0) = 0$ and, in iaddition for all $0 < ε < M < ∞$, we have
+  $$
+  \inf_{ε \le r \le M} f(r) > 0.
+  $$
+:::
+
+:::{#thm-vidyasagar-1}
+Suppose assumptions (F1), (F2), (N1), and (N2) hold. In addition, suppose that there exists a twice differentiable Lyapunov function $V \colon \reals^d \to \reals_{\ge 0}$ that satisfies the following conditions:
+
+* there exist constants $a, b > 0$ such that
+  \begin{equation}\label{eq:vidyasagar-cond-1}
+    a \| θ - θ^*\|_2^2 \le V(θ) \le b \| θ - θ^* \|_2^2, 
+    \quad \forall θ \in \reals^d.
+  \end{equation}
+
+* There is a finite constant $M$ such that
+  \begin{equation}\label{eq:vidyasagar-cond-2}
+  \| \GRAD^2 V(θ) \|_S \le 2M,
+    \quad \forall θ \in \reals^d.
+  \end{equation}
+Then,
+
+1. If $\dot V(θ) \coloneqq \langle \GRAD V(θ), f(θ) \rangle \le 0$ for all $θ \in \reals^d$ and (R1) holds, then the iterates $\{θ_t\}_{t \ge 1}$ are bounded almost surely.
+
+2. If, in addition, (R2) holds and there exists a function $\phi \in \ALPHABET B$ such that
+   $$
+    \dot V(θ) \le - \phi(\| θ - θ^*\|_2),
+    \quad \forall θ \in \reals^d.
+   $$
+   Then, $θ_t \to θ^*$ almost surely as $t \to ∞$. 
+:::
+
+:::{.callout-tip}
+#### Discussion of the conditions
+
+It is worthwhile to compare the conditions of @thm-borkar-meyn and @thm-vidyasagar-1. 
+
+1. In @thm-borkar-meyn, it is assumed that (F1') holds while in @thm-vidyasagar-1, it is assumed that (F1) holds. That is, there is no assumption that $θ^*$ is the unique solution of $f(θ) = 0$. 
+
+2. The assumptions on $\dot V$ in part 1 of @thm-vidyasagar-1 imply only that $θ^*$ is a _locally stable_ equilibrim of the ODE \\eqref{eq:ODE}. This is in contrast to @thm-borkar-meyn imply that $θ^*$ is _globally asymptotically stable_.
+
+3. The assumptions in part 2 of @thm-vidyasagar-2 ensure that $θ^*$ is globally asymptotically stable equilibrium of the ODE \\eqref{eq:ODE}. Therefore, assumption (F1') is implicit in the second part of @thm-vidyasagar-1.
+
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+We first start by establishing a bound on $\EXP[V(θ_{t+1} \mid \ALPHABET  F_t]$. To do so, observe that by Taylor series, we have
+$$
+  V(θ + η) = V(θ) + \langle \GRAD V(θ), η \rangle
+  + \frac 12 \langle η, \GRAD^2 V(θ + λη)η \rangle
+$$
+for some $λ \in [0,1]$. Since $\NORM{\GRAD^2 V(θ+λη)}_S \le 2M$, it follows that
+$$
+  V(θ + η) \le V(θ) + \langle \GRAD V(θ), η \rangle
+  + M \NORM{η}_2^2.
+$$
+Now apply the above bound with $θ = θ_t$ and $η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}$. This gives
+\begin{align*}
+V(θ_{t+1}) &\le V(θ_t) 
++ α_t \langle \GRAD V(θ_t), f(θ_t) \rangle
++ α_t \langle \GRAD V(θ_t), ξ_{t+1} \rangle
+  \notag \\
+&\quad  + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 + 
+2 \langle f(θ_t), ξ_{t+1} \rangle
+\bigr] 
+\end{align*}
+Recall that $\langle V(θ), f(θ) \rangle \eqqcolon \dot V(θ)$. 
+Now, we can bound $\EXP[V(θ_{t+1} \mid \ALPHABET F_t]$ using assumptions (N1) and (N2). 
+\begin{equation*}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] \le V(θ_t) 
++ α_t \dot V(θ_t)
+ + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + σ^2(1 + \NORM{θ_t - θ^*}_2^2)
+\bigr] 
+\end{equation*}
+Assumption (F1) and (F3) implies that 
+$$
+\NORM{f(θ_t)}_2^2 = \NORM{f(θ_t) - f(θ^*)}_2^2 \le L^2 \NORM{θ_t - θ^*}_2^2.
+$$
+Subsituting in the above bound, we get:
+\begin{equation}\label{eq:vidyasagar-1-pf-step-1}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] \le V(θ_t) 
++ α_t \dot V(θ_t)
++ M \bigl[ σ^2 + (σ^2 + L^2)\NORM{θ_t - θ^*}_2^2 \bigr].
+\end{equation}
+
+### Proof of part 1. {-}
+
+Under the stated assumptions, we can simplify \\eqref{eq:vidyasagar-1-pf-step-1}
+\begin{align*}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] 
+&\stackrel{(a)}\le 
+V(θ_t) 
++ M \bigl[ σ^2 + (σ^2 + L^2)\NORM{θ_t - θ^*}_2^2 \bigr]
+  \notag \\
+&\stackrel{(b)}\le 
+\biggl[ 1 + \frac{α_t^2 M}{a} (L^2 + σ^2) \biggr] V(θ_t) 
++ 
+  α_t^2 M σ^2
+\end{align*}
+where $(a)$ follows from the assumption that $\dot V(θ) < 0$ and 
+$(b)$ follows from $V(θ) \ge a \NORM{θ - θ^*}_2^2$. 
+
+Thus, $\{V(θ_t)\}_{t \ge 1}$ is an "almost" supermartingale. Apply @thm-almost-supermartingale with $X_t = V(θ_t)$, $β_t = α_t^2 M(L^2 + σ^2)/a$, $Y_t = α_t^2 M σ^2$, and $Z_t = 0$. Then, from (R2) it follows that $\lim_{t \to ∞} V(θ_t)$ exists almost surely and is finite. Condition \\eqref{eq:vidyasagar-cond-1} implies that $\{θ_t\}_{t \ge 1}$ is almost surely bounded. 
+
+### Proof of part 2. {-}
+
+Under the stated assumptions, we can simplify \\eqref{eq:vidyasagar-1-pf-step-1}
+\begin{align*}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] 
+&\stackrel{(c)}\le 
+\biggl[ 1 + \frac{α_t^2 M}{a} (L^2 + σ^2) \biggr] V(θ_t) 
++ 
+  α_t^2 M σ^2
+- α_t \phi(\NORM{θ_t - θ^*}_2)
+\end{align*}
+where the first two terms are simplified in the same way as above and the last term corresponds to the upper bound on $\dot V(θ_t) \le -\phi(\NORM{θ_t - θ^*}_2^2)$. 
+
+We can again apply @thm-almost-supermartingale with $X_t = V(θ_t)$, $β_t = α_t^2 M(L^2 + σ^2)/a$, $Y_t = α_t^2 M σ^2$, and $Z_t = α_t \phi(\NORM{θ_t - θ^*}_2)$. 
+Thus, we can conclude that 
+there exists a random variable $ζ$ such that $V(θ_t) \to ζ$ and
+\begin{equation}\label{eq:vidyasagar-1-pf-step-2}
+\sum_{t \ge 1} α_t \phi(\NORM{θ_t - θ^*}_2^2) < ∞,
+\quad \mathrm{a.s.}
+\end{equation}
+
+Let $Ω_1 \subset Ω$ denote the values of $ω$ for which
+$$
+  \sup_{t \ge 1} V(θ_t(ω)) < ∞,
+  \lim_{t \to ∞} V(θ_t(ω)) = ζ(ω),
+  \sum_{t \ge 1} α_t \phi(\NORM{θ_t(ω) - θ^*}_2) < ∞.
+$$
+From @thm-almost-supermartingale, we know that $P(Ω_1) = 1$. We will now show that $ζ(ω) = 0$ for all $ω \in Ω_1$ by contradiction. Assume that for some $ω \in Ω_1$, we have $ζ(ω) = 2 ε > 0$. Choose a $T$ such that $V(θ_t(ω)) \ge ε$ for all $t \ge T$. Define $V_M = \sup_{t \ge 1} V(θ_t(ω))$. Then, we have that
+$$
+  \sqrt{\frac{ε}{b}} \le \NORM{θ_t}_2 \le \sqrt{\frac{V_M}{a}},
+  \quad \forall t \ge T.
+$$
+
+Define $δ = \inf_{\sqrt{ε/b} \le r \le \sqrt{V_M/a}} \phi(r)$ and observe that $δ > 0$ because $\phi$ belongs to class $B$. Therefore,
+$$
+\sum_{t \ge T} α_t \phi(\NORM{θ_t - θ^*}_2) \ge
+\sum_{t \ge T} α_t δ = ∞,
+$$
+due to (R2). But this contraducts \\eqref{eq:vidyasagar-1-pf-step-2}. Hence, there is no $ω \in Ω_1$ such that $ζ(ω) > 0$. Therefore, $ζ = 0$ almost surely, i.e., $V(θ_t) \to 0$ almost surely. Finally, it follows from \\eqref{eq:vidyasagar-cond-1} that $θ_t \to θ^*$ almost surely as $t \to ∞$. 
+:::
+
+
+Sufficient conditions for the existence of a Lyaponov function which satisfies the conditions of @thm-vidyasagar-1 are given below.
+
+:::{#thm-vidyasagar-2} 
+Suppose assumptions (F1'), (F2'), (F3) and (F4) hold. Then, there exists a twice differentiable function $V \colon \reals^d \to \reals_{\ge 0}$ such that $V$ and its derivative $\dot V \colon \reals^d \to \reals_{\ge 0}$ defined as $\dot V(θ) \coloneqq \langle \langle \GRAD V(θ), f(θ) \rangle$ together satisfy the following conditions: there exist positive constants $a$, $b$, $c$, and a finite constant $M$ such that for all $θ \in \reals^d$:
+
+* $a\NORM{θ - θ^*}_2^2 \le V(θ) \le b\NORM{θ - θ^*}_2^2$,
+* $\dot V(θ) \le -c\NORM{θ - θ^*}_2^2$,
+* $\NORM{\GRAD^2 V(θ)}_S \le 2M$.
+:::
+
+Combining @thm-vidyasagar-1 and @thm-vidyasagar-2, we get the following "self-contained" theorem:
+
+:::{#thm-vidyasagar-3}
+Suppose assumptions (F1'), (F2'), (F3), and (F4) as well as assumptions (N1) and (N2) hold. Then,
+
+1. If (R1) holds then $\{θ_t\}_{t \ge 1}$ is bounded almost surely.
+2. If, in addition, (R2) holds then $\{θ_t\}_{t \ge 1}$ converges almost surely to $θ^*$ as $t \to ∞$. 
+:::
 
 ## Notes {-}
 
-The stochastic approximation algorithm was introduced by @Robbins1951. The discussion in the introduction is from @Vidyasagar2023.
+The stochastic approximation algorithm was introduced by @Robbins1951. The material in this section is adapted from @Vidyasagar2023.
 
-The
-results presented above are from @Borkar2000, which also provides rates of
-convergence of stochastic approximation under stronger assumptions. 
 
