@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-07-16">
+<meta name="dcterms.date" content="2023-07-17">
 <meta name="keywords" content="reinforcement learning, stochastic approximation">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -52,7 +52,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../probability/sub-gaussian.html" rel="next">
+<link href="../probability/convergence.html" rel="next">
 <link href="../risk-sensitive/risk-sensitive-mdps.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -112,7 +112,8 @@ window.MathJax = {
       ALPHABET: ["\\mathcal{#1}", 1],
       MATRIX: ["\\begin{bmatrix} #1 \\end{bmatrix}", 1],
       NORM: ["\\left\\lVert #1 \\right\\rVert", 1],
-      ABS: ["\\left\\lvert #1 \\right\\rvert", 1]
+      ABS: ["\\left\\lvert #1 \\right\\rvert", 1],
+      GRAD: "\\nabla"
     },
   },
   options: {
@@ -406,26 +407,32 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../probability/convergence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Convergence of random variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../probability/sub-gaussian.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span></a>
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../probability/change-of-measure.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Change of Measure</span></span></a>
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Change of Measure</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../probability/stochastic-stability.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
   </div>
 </li>
       </ul>
@@ -442,19 +449,19 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/postive-definite-matrix.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+ <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
   </div>
 </li>
       </ul>
@@ -496,9 +503,11 @@ window.MathJax = {
   <ul class="collapse">
   <li><a href="#assumptions-on-the-function-f" id="toc-assumptions-on-the-function-f" class="nav-link" data-scroll-target="#assumptions-on-the-function-f"><span class="header-section-number">23.1.1</span> Assumptions on the function <span class="math inline">\(f\)</span></a></li>
   <li><a href="#conditions-on-the-noise" id="toc-conditions-on-the-noise" class="nav-link" data-scroll-target="#conditions-on-the-noise"><span class="header-section-number">23.1.2</span> Conditions on the noise</a></li>
+  <li><a href="#conditions-on-the-learning-rate" id="toc-conditions-on-the-learning-rate" class="nav-link" data-scroll-target="#conditions-on-the-learning-rate"><span class="header-section-number">23.1.3</span> Conditions on the learning rate</a></li>
   </ul></li>
   <li><a href="#gladyshevs-result" id="toc-gladyshevs-result" class="nav-link" data-scroll-target="#gladyshevs-result"><span class="header-section-number">23.2</span> Gladyshev’s result</a></li>
-  <li><a href="#ode-method-borkar-meyn-conditions" id="toc-ode-method-borkar-meyn-conditions" class="nav-link" data-scroll-target="#ode-method-borkar-meyn-conditions"><span class="header-section-number">23.3</span> ODE Method (Borkar-Meyn conditions)</a></li>
+  <li><a href="#borkar-meyn-result" id="toc-borkar-meyn-result" class="nav-link" data-scroll-target="#borkar-meyn-result"><span class="header-section-number">23.3</span> Borkar-Meyn result</a></li>
+  <li><a href="#vidyasagar-result" id="toc-vidyasagar-result" class="nav-link" data-scroll-target="#vidyasagar-result"><span class="header-section-number">23.4</span> Vidyasagar result</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/rl/stochastic-approximation.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
@@ -519,7 +528,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 16, 2023</p>
+      <p class="date">July 17, 2023</p>
     </div>
   </div>
   
@@ -529,8 +538,8 @@ window.MathJax = {
 
 </header>
 
-<p>Suppose <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> and it is desired to fina a solution <span class="math inline">\(θ^*\)</span> to the equation <span class="math inline">\(f(θ) = 0\)</span>. There are many methods for determining the value of <span class="math inline">\(θ\)</span> by successive approximation where we start with an initial guess <span class="math inline">\(θ_0\)</span> and then recursively obtain a new value <span class="math inline">\(θ_{k+1}\)</span> as a function of the previously obtained <span class="math inline">\(θ_0, \dots, θ_{k}\)</span>, the values <span class="math inline">\(f(θ_1), \dots, f(θ_{k})\)</span>, and possibly those of the derivatives <span class="math inline">\(f'(θ_0), \dots, f'(θ_{k})\)</span>, etc. If <span class="math display">\[
-  \lim_{k \to ∞} θ_k = θ^*,
+<p>Suppose <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> and it is desired to fina a solution <span class="math inline">\(θ^*\)</span> to the equation <span class="math inline">\(f(θ) = 0\)</span>. There are many methods for determining the value of <span class="math inline">\(θ\)</span> by successive approximation where we start with an initial guess <span class="math inline">\(θ_0\)</span> and then recursively obtain a new value <span class="math inline">\(θ_{t+1}\)</span> as a function of the previously obtained <span class="math inline">\(θ_0, \dots, θ_{k}\)</span>, the values <span class="math inline">\(f(θ_1), \dots, f(θ_{t})\)</span>, and possibly those of the derivatives <span class="math inline">\(f'(θ_0), \dots, f'(θ_{t})\)</span>, etc. If <span class="math display">\[
+  \lim_{t \to ∞} θ_t = θ^*,
 \]</span> irrespective of the initial condition <span class="math inline">\(θ_0\)</span>, then the successive approximation method is effective.</p>
 <p>In many applications, the function <span class="math inline">\(f\)</span> may be unknown so it is not possible to obtain the value <span class="math inline">\(f(θ)\)</span>, but it may be possible to conduct an experiment to get the value of <span class="math inline">\(f(θ)\)</span> with noise. Stochastic approximation refers to recursive algorithms of the form <span class="math display">\[ \begin{equation} \label{eq:SA}
   θ_{t+1} = θ_t + a_t[ f(θ_t) + ξ_{t+1} ], \quad t \ge 0
@@ -545,8 +554,9 @@ window.MathJax = {
 <p>Let <span class="math inline">\(\mathcal F_t = σ(θ_{1:t}, ξ_{1:t})\)</span>. We state the following set of assumptions but note that not every assumption is needed for every result.</p>
 <section id="assumptions-on-the-function-f" class="level3" data-number="23.1.1">
 <h3 data-number="23.1.1" class="anchored" data-anchor-id="assumptions-on-the-function-f"><span class="header-section-number">23.1.1</span> Assumptions on the function <span class="math inline">\(f\)</span></h3>
-<p><strong>F1.</strong> The equation <span class="math inline">\(f(θ) = 0\)</span> has a unique solution <span class="math inline">\(θ^*\)</span>.</p>
-<p><strong>F2.</strong> The function <span class="math inline">\(f\)</span> is globally Lipschitz-continuous with constant <span class="math inline">\(L\)</span>, i.e., for any <span class="math inline">\(θ_1, θ_2 \in \reals^d\)</span>, <span class="math display">\[
+<p><strong>F1.</strong> <span class="math inline">\(θ^*\)</span> is a solution of the equation <span class="math inline">\(f(θ) = 0\)</span>.</p>
+<p><strong>F1’.</strong> <span class="math inline">\(θ^*\)</span> is <em>the unique</em> solution of the equation <span class="math inline">\(f(θ) = 0\)</span>.</p>
+<p><strong>F2.</strong> The function <span class="math inline">\(f\)</span> is <a href="../mdps/lipschitz-mdps.html">globally Lipschitz-continuous</a> with constant <span class="math inline">\(L\)</span>, i.e., for any <span class="math inline">\(θ_1, θ_2 \in \reals^d\)</span>, <span class="math display">\[
   \| f(θ_1) - f(θ_2) \|_{2} \le L \| θ_1 - θ_2 \|_2.
 \]</span> <strong>F2’.</strong> The function <span class="math inline">\(f\)</span> is twice differentiable and is globally Lipschitz continuous with constant <span class="math inline">\(L\)</span>.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -565,7 +575,8 @@ Implication
 \]</span></p>
 </div>
 </div>
-<p><strong>F3.</strong> The equilibrium <span class="math inline">\(θ^*\)</span> of the ODE <span class="math inline">\(\dot θ = f(θ)\)</span> is globally exponentially stable. Thus, there exists constants <span class="math inline">\(μ \ge 1\)</span> and <span class="math inline">\(γ &gt; 0\)</span> such that <span class="math display">\[
+<p><strong>F3.</strong> The equilibrium <span class="math inline">\(θ^*\)</span> of the ODE <span class="math inline">\(\dot θ = f(θ)\)</span> is globally asymptotically stable.</p>
+<p><strong>F3’.</strong> The equilibrium <span class="math inline">\(θ^*\)</span> of the ODE <span class="math inline">\(\dot θ = f(θ)\)</span> is globally <em>exponentially</em> stable. Thus, there exists constants <span class="math inline">\(μ \ge 1\)</span> and <span class="math inline">\(γ &gt; 0\)</span> such that <span class="math display">\[
 \| s(t,θ) - θ^*\|_2 \le μ\|θ - θ^*\|_2 \exp(-γ t),
 \quad
 \forall t \ge 0, \forall θ \in \reals^d.
@@ -588,6 +599,7 @@ Implication
 <div class="callout-body-container callout-body">
 <p>Assumption (F4) implies that <span class="math display">\[
 \left| \frac{∂^2 f_i(θ)}{∂θ_j ∂θ_k}\right| \cdot \| θ - θ^*\|_2 \le K,
+\quad
 \forall i.j,k, \in \{1,\dots, d\},
 \forall θ \in \reals^d.
 \]</span></p>
@@ -596,28 +608,168 @@ Implication
 </section>
 <section id="conditions-on-the-noise" class="level3" data-number="23.1.2">
 <h3 data-number="23.1.2" class="anchored" data-anchor-id="conditions-on-the-noise"><span class="header-section-number">23.1.2</span> Conditions on the noise</h3>
-<p><strong>N1.</strong> <span class="math inline">\(\{ξ_t\}_{t \ge 0}\)</span> is a martingale difference sequence with respect to <span class="math inline">\(\{ \mathcal F_t\}_{t \ge 1}\)</span>, i.e., <span class="math display">\[ \EXP[ ξ_{t+1} | \mathcal F_t ] = 0, \text{ a.s.}, \quad t \ge 1. \]</span></p>
+<p><strong>N1.</strong> <span class="math inline">\(\{ξ_t\}_{t \ge 0}\)</span> is a <a href="../probability/martingales.html#examples">martingale difference sequence</a> with respect to <span class="math inline">\(\{ \mathcal F_t\}_{t \ge 1}\)</span>, i.e., <span class="math display">\[ \EXP[ ξ_{t+1} | \mathcal F_t ] = 0, \text{ a.s.}, \quad t \ge 1. \]</span></p>
 <p><strong>N2.</strong> The noise <span class="math inline">\(\{ξ_t\}_{t \ge 1}\)</span> satisfies <span class="math display">\[
 \EXP[ \| ξ_{t+1}^2 \|_2^2 \mid \mathcal F_t ] \le
 σ^2( 1 + \| θ_t - θ^*\|_{2}^2),
 \quad \text{a.s. } \forall t \ge 1
 \]</span> for some finite constant <span class="math inline">\(σ^2\)</span>.</p>
 </section>
+<section id="conditions-on-the-learning-rate" class="level3" data-number="23.1.3">
+<h3 data-number="23.1.3" class="anchored" data-anchor-id="conditions-on-the-learning-rate"><span class="header-section-number">23.1.3</span> Conditions on the learning rate</h3>
+<p><strong>R1.</strong> <span class="math inline">\(\sum_{t \ge 1} α_t^2 &lt; ∞\)</span>.</p>
+<p><strong>R2.</strong> <span class="math inline">\(\sum_{t \ge 1} α_t = ∞\)</span>.</p>
+<p><strong>R3.</strong> There exists constants <span class="math inline">\(\underline α, \bar α \in (0,1)\)</span> such that <span class="math inline">\(\underline α \le α_t \le \bar α\)</span> for all <span class="math inline">\(t \ge 1\)</span>.</p>
+</section>
 </section>
 <section id="gladyshevs-result" class="level2" data-number="23.2">
 <h2 data-number="23.2" class="anchored" data-anchor-id="gladyshevs-result"><span class="header-section-number">23.2</span> Gladyshev’s result</h2>
 <p>The following is a restatement of the result of <span class="citation" data-cites="Gladyshev1965">Gladyshev (<a href="../references.html#ref-Gladyshev1965" role="doc-biblioref">1965</a>)</span>.</p>
 <div id="thm-Gladyshev" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 23.1 </strong></span>Suppose assumptions (F1), (N1), and (N2) hold. In addition, the function <span class="math inline">\(f(\cdot)\)</span> is passive, i.e., for each <span class="math inline">\(0 &lt; ε &lt; M &lt; ∞\)</span>, <span class="math display">\[ \sup_{ε &lt; \| θ - θ^*\|_2 &lt; M}
+<p><span class="theorem-title"><strong>Theorem 23.1 </strong></span>Suppose assumptions (F1’), (N1), and (N2) hold. In addition, the function <span class="math inline">\(f(\cdot)\)</span> is passive, i.e., for each <span class="math inline">\(0 &lt; ε &lt; M &lt; ∞\)</span>, <span class="math display">\[ \sup_{ε &lt; \| θ - θ^*\|_2 &lt; M}
   \langle θ - θ^*, f(θ) \rangle
 &lt; 0\]</span> and <span class="math display">\[\|f(θ)\|_2 \le K \|θ - θ^*\|_2, \quad K &lt; ∞.\]</span> Then,</p>
 <ol type="1">
-<li>If <span class="math inline">\(\sum_{t \ge 1} α_t^2 &lt; ∞\)</span>, then <span class="math inline">\(\{θ_t\}\)</span> is bounded almost surely.</li>
-<li>If, in addition, <span class="math inline">\(\sum_{t \ge 1} α_t = ∞\)</span>, then <span class="math inline">\(θ_t \to θ^*\)</span> almost surely as <span class="math inline">\(t \to ∞\)</span>.</li>
+<li>If (R1) holds, then <span class="math inline">\(\{θ_t\}\)</span> is bounded almost surely.</li>
+<li>In addition, if (R2) holds, then <span class="math inline">\(θ_t \to θ^*\)</span> almost surely as <span class="math inline">\(t \to ∞\)</span>.</li>
 </ol>
 </div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remark
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The second assumption <span class="math inline">\(\|f(θ)\|_2 \le K \| θ - θ^*\|_2\)</span> implies that <span class="math inline">\(f(⋅)\)</span> is continuous as <span class="math inline">\(θ^*\)</span>, but it need not be continuous anywhere else.</p>
+</div>
+</div>
+<!-- :::{.callout-note collapse="false"}
+#### Proof
+From \\eqref{eq:SA}, we get
+\begin{align}
+  \EXP[ \|θ_{t+1} - θ^*\|_2^2 \mid \mathcal F_t] 
+   &\stackrel{(a)}= 
+  \|θ_t - θ^*\|_2^2 -2 α_t \langle θ_t - θ^*,  f(θ_t) \rangle 
+  + α_t^2 \bigl[ \| f(θ_t) \|_2^2 + ξ^2 \bigr]
+  \notag \\
+  &\stackrel{(b)}\le
+\end{align}
+where $(a)$ uses (N1)
+::: -->
+</section>
+<section id="borkar-meyn-result" class="level2" data-number="23.3">
+<h2 data-number="23.3" class="anchored" data-anchor-id="borkar-meyn-result"><span class="header-section-number">23.3</span> Borkar-Meyn result</h2>
+<p>The following is a restatement of the result of <span class="citation" data-cites="Borkar2000">Borkar and Meyn (<a href="../references.html#ref-Borkar2000" role="doc-biblioref">2000</a>)</span>.</p>
+<div id="thm-borkar-meyn" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 23.2 </strong></span>Suppose assumptions (F2), (N1), and (N2) hold. In addition:</p>
+<ol type="a">
+<li><p>There exists a limit function <span class="math inline">\(f_{∞} \colon \reals^d \to \reals^d\)</span> such that <span class="math display">\[
+  \lim_{r \to ∞} \frac{f(r θ)}{r} = f_{∞}(θ), \quad
+  \forall θ \in \reals^d.
+\]</span></p></li>
+<li><p>Origin is asymptotically stable equilibrium of the ODE <span class="math display">\[
+  \dot θ(t) = f_{∞}(θ(t)).
+\]</span></p></li>
+</ol>
+<p>Then,</p>
+<ol type="1">
+<li><p>If (R1) and (R2) hold, then <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span> is bounded almost surely.</p></li>
+<li><p>In addition, if (F3) holds, then <span class="math inline">\(θ_t \to θ^*\)</span> almost surely as <span class="math inline">\(t \to ∞\)</span>.</p></li>
+<li><p>If (F3) and (R3) hold, then:</p>
+<ul>
+<li><p>there exists a <span class="math inline">\(α^* &gt; 0\)</span> and <span class="math inline">\(C_1 &lt; ∞\)</span> such that if <span class="math inline">\(\bar α \le α^*\)</span> then <span class="math display">\[
+   \limsup_{n \to ∞} \EXP[ \| θ_k\|^2 ] \le C_1.
+\]</span></p></li>
+<li><p>if <span class="math inline">\(\bar α \le α^*\)</span> then <span class="math inline">\(θ_t \to θ^*\)</span> in probability. In particular, for any <span class="math inline">\(ε &gt; 0\)</span>, there exists a <span class="math inline">\(b_1 = b_1(ε) &lt; ∞\)</span> such that <span class="math display">\[
+   \limsup_{n \to ∞} \PR( \| θ_k - θ^* \| \ge ε ) \le b_1 \bar α.
+\]</span></p></li>
+<li><p>In addition, if (F3’) holds, then <span class="math inline">\(θ_t \to θ^*\)</span> in mean square. In particular, there exists a <span class="math inline">\(b_2 &lt; ∞\)</span> such that for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, <span class="math display">\[
+   \limsup_{n \to ∞} \EXP[ \| θ_k - θ^*\|^2 ] \le b_2 \bar α.
+\]</span></p></li>
+</ul></li>
+</ol>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Rates of convergence
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="citation" data-cites="Borkar2000">Borkar and Meyn (<a href="../references.html#ref-Borkar2000" role="doc-biblioref">2000</a>)</span> also provides rates of convergence of stochastic approximation under stronger assumptions.</p>
+</div>
+</div>
+</section>
+<section id="vidyasagar-result" class="level2" data-number="23.4">
+<h2 data-number="23.4" class="anchored" data-anchor-id="vidyasagar-result"><span class="header-section-number">23.4</span> Vidyasagar result</h2>
+<p>The following is a restatement of the result of <span class="citation" data-cites="Vidyasagar2023">Vidyasagar (<a href="../references.html#ref-Vidyasagar2023" role="doc-biblioref">2023</a>)</span>.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Function classes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a continuous function <span class="math inline">\(f \colon \reals_{\ge 0} \to \reals_{\ge 0}\)</span>.</p>
+<ul>
+<li>The function <span class="math inline">\(f\)</span> is said to belong to class <span class="math inline">\(\mathcal K\)</span> if <span class="math inline">\(f(0) = 0\)</span> and <span class="math inline">\(f(\cdot)\)</span> is strictly increasing.</li>
+<li>The function <span class="math inline">\(f \in \ALPHABET K\)</span> is said to belong to class <span class="math inline">\(\ALPHABET K \ALPHABET R\)</span> if, in addition, <span class="math inline">\(f(r) \to ∞\)</span> as <span class="math inline">\(s \to ∞\)</span>.</li>
+<li>The function <span class="math inline">\(f\)</span> is said to belong to class <span class="math inline">\(\ALPHABET B\)</span> if <span class="math inline">\(f(0) = 0\)</span> and, in iaddition for all <span class="math inline">\(0 &lt; ε &lt; M &lt; ∞\)</span>, we have <span class="math display">\[
+\inf_{ε \le r \le M} f(r) &gt; 0.
+\]</span></li>
+</ul>
+</div>
+</div>
+<div id="thm-vidyasagar-1" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 23.3 </strong></span>Suppose assumptions (F1), (F2), (N1), and (N2) hold. In addition, suppose that there exists a twice differentiable Lyapunov function <span class="math inline">\(V \colon \reals^d \to \reals_{\ge 0}\)</span> that satisfies the following conditions:</p>
+<ul>
+<li><p>there exist constants <span class="math inline">\(a, b &gt; 0\)</span> such that <span class="math display">\[\begin{equation}\label{eq:vidyasagar-cond-1}
+  a \| θ - θ^*\|_2^2 \le V(θ) \le b \| θ - θ^* \|_2^2,
+  \quad \forall θ \in \reals^d.
+\end{equation}\]</span></p></li>
+<li><p>There is a finite constant <span class="math inline">\(M\)</span> such that <span class="math display">\[\begin{equation}\label{eq:vidyasagar-cond-2}
+\| \GRAD^2 V(θ) \|_S \le 2M,
+  \quad \forall θ \in \reals^d.
+\end{equation}\]</span> Then,</p></li>
+</ul>
+<ol type="1">
+<li><p>If <span class="math inline">\(\dot V(θ) \coloneqq \langle \GRAD V(θ), f(θ) \rangle \le 0\)</span> for all <span class="math inline">\(θ \in \reals^d\)</span> and (R1) holds, then the iterates <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span> are bounded almost surely.</p></li>
+<li><p>If, in addition, (R2) holds and there exists a function <span class="math inline">\(\phi \in \ALPHABET B\)</span> such that <span class="math display">\[
+\dot V(θ) \le - \phi(\| θ - θ^*\|_2),
+\quad \forall θ \in \reals^d.
+\]</span> Then, <span class="math inline">\(θ_t \to θ^*\)</span> almost surely as <span class="math inline">\(t \to ∞\)</span>.</p></li>
+</ol>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Discussion of the conditions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It is worthwhile to compare the conditions of <a href="#thm-borkar-meyn">Theorem&nbsp;<span>23.2</span></a> and <a href="#thm-vidyasagar-1">Theorem&nbsp;<span>23.3</span></a>.</p>
+<ol type="1">
+<li><p>In <a href="#thm-borkar-meyn">Theorem&nbsp;<span>23.2</span></a>, it is assumed that (F1’) holds while in <a href="#thm-vidyasagar-1">Theorem&nbsp;<span>23.3</span></a>, it is assumed that (F1) holds. That is, there is no assumption that <span class="math inline">\(θ^*\)</span> is the unique solution of <span class="math inline">\(f(θ) = 0\)</span>.</p></li>
+<li><p>The assumptions on <span class="math inline">\(\dot V\)</span> in part 1 of <a href="#thm-vidyasagar-1">Theorem&nbsp;<span>23.3</span></a> imply only that <span class="math inline">\(θ^*\)</span> is a <em>locally stable</em> equilibrim of the ODE \eqref{eq:ODE}. This is in contrast to <a href="#thm-borkar-meyn">Theorem&nbsp;<span>23.2</span></a> imply that <span class="math inline">\(θ^*\)</span> is <em>globally asymptotically stable</em>.</p></li>
+<li><p>The assumptions in part 2 of <a href="#thm-vidyasagar-2">Theorem&nbsp;<span>23.4</span></a> ensure that <span class="math inline">\(θ^*\)</span> is globally asymptotically stable equilibrium of the ODE \eqref{eq:ODE}. Therefore, assumption (F1’) is implicit in the second part of <a href="#thm-vidyasagar-1">Theorem&nbsp;<span>23.3</span></a>.</p></li>
+</ol>
+</div>
+</div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -626,81 +778,100 @@ Proof
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>From \eqref{eq:SA}, we get <span class="math display">\[\begin{align}
-  \EXP[ \|θ_{t+1} - θ^*\|_2^2 \mid \mathcal F_t]
-   &amp;\stackrel{(a)}=
-  \|θ_t - θ^*\|_2^2 -2 α_t \langle θ_t - θ^*,  f(θ_t) \rangle
-  + α_t^2 \bigl[ \| f(θ_t) \|_2^2 + ξ^2 \bigr]
+<p>We first start by establishing a bound on <span class="math inline">\(\EXP[V(θ_{t+1} \mid \ALPHABET F_t]\)</span>. To do so, observe that by Taylor series, we have <span class="math display">\[
+  V(θ + η) = V(θ) + \langle \GRAD V(θ), η \rangle
+  + \frac 12 \langle η, \GRAD^2 V(θ + λη)η \rangle
+\]</span> for some <span class="math inline">\(λ \in [0,1]\)</span>. Since <span class="math inline">\(\NORM{\GRAD^2 V(θ+λη)}_S \le 2M\)</span>, it follows that <span class="math display">\[
+  V(θ + η) \le V(θ) + \langle \GRAD V(θ), η \rangle
+  + M \NORM{η}_2^2.
+\]</span> Now apply the above bound with <span class="math inline">\(θ = θ_t\)</span> and <span class="math inline">\(η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}\)</span>. This gives <span class="math display">\[\begin{align*}
+V(θ_{t+1}) &amp;\le V(θ_t)
++ α_t \langle \GRAD V(θ_t), f(θ_t) \rangle
++ α_t \langle \GRAD V(θ_t), ξ_{t+1} \rangle
   \notag \\
-  &amp;\stackrel{(b)}\le
-\end{align}\]</span> where <span class="math inline">\((a)\)</span> uses (N1)</p>
-</div>
-</div>
-</div>
+&amp;\quad  + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 +
+2 \langle f(θ_t), ξ_{t+1} \rangle
+\bigr]
+\end{align*}\]</span> Recall that <span class="math inline">\(\langle V(θ), f(θ) \rangle \eqqcolon \dot V(θ)\)</span>. Now, we can bound <span class="math inline">\(\EXP[V(θ_{t+1} \mid \ALPHABET F_t]\)</span> using assumptions (N1) and (N2). <span class="math display">\[\begin{equation*}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] \le V(θ_t)
++ α_t \dot V(θ_t)
++ α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + σ^2(1 + \NORM{θ_t - θ^*}_2^2)
+\bigr]
+\end{equation*}\]</span> Assumption (F1) and (F3) implies that <span class="math display">\[
+\NORM{f(θ_t)}_2^2 = \NORM{f(θ_t) - f(θ^*)}_2^2 \le L^2 \NORM{θ_t - θ^*}_2^2.
+\]</span> Subsituting in the above bound, we get: <span class="math display">\[\begin{equation}\label{eq:vidyasagar-1-pf-step-1}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] \le V(θ_t)
++ α_t \dot V(θ_t)
++ M \bigl[ σ^2 + (σ^2 + L^2)\NORM{θ_t - θ^*}_2^2 \bigr].
+\end{equation}\]</span></p>
+<section id="proof-of-part-1." class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="proof-of-part-1.">Proof of part 1.</h3>
+<p>Under the stated assumptions, we can simplify \eqref{eq:vidyasagar-1-pf-step-1} <span class="math display">\[\begin{align*}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t]
+&amp;\stackrel{(a)}\le
+V(θ_t)
++ M \bigl[ σ^2 + (σ^2 + L^2)\NORM{θ_t - θ^*}_2^2 \bigr]
+  \notag \\
+&amp;\stackrel{(b)}\le
+\biggl[ 1 + \frac{α_t^2 M}{a} (L^2 + σ^2) \biggr] V(θ_t)
++
+  α_t^2 M σ^2
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the assumption that <span class="math inline">\(\dot V(θ) &lt; 0\)</span> and <span class="math inline">\((b)\)</span> follows from <span class="math inline">\(V(θ) \ge a \NORM{θ - θ^*}_2^2\)</span>.</p>
+<p>Thus, <span class="math inline">\(\{V(θ_t)\}_{t \ge 1}\)</span> is an “almost” supermartingale. Apply <a href="../probability/martingales.html#thm-almost-supermartingale">Theorem&nbsp;<span>27.2</span></a> with <span class="math inline">\(X_t = V(θ_t)\)</span>, <span class="math inline">\(β_t = α_t^2 M(L^2 + σ^2)/a\)</span>, <span class="math inline">\(Y_t = α_t^2 M σ^2\)</span>, and <span class="math inline">\(Z_t = 0\)</span>. Then, from (R2) it follows that <span class="math inline">\(\lim_{t \to ∞} V(θ_t)\)</span> exists almost surely and is finite. Condition \eqref{eq:vidyasagar-cond-1} implies that <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span> is almost surely bounded.</p>
 </section>
-<section id="ode-method-borkar-meyn-conditions" class="level2" data-number="23.3">
-<h2 data-number="23.3" class="anchored" data-anchor-id="ode-method-borkar-meyn-conditions"><span class="header-section-number">23.3</span> ODE Method (Borkar-Meyn conditions)</h2>
-<p>Suppose the following conditions are satisfied:</p>
-<ol type="1">
-<li><p><strong>Conditions on the function <span class="math inline">\(f\)</span></strong>:</p>
-<ol type="a">
-<li><p>The map <span class="math inline">\(f \colon \reals^d \to \reals^d\)</span> is <a href="../mdps/lipschitz-mdps.html">globally Lipschitz</a>: <span class="math inline">\(\| f(θ_1) - f(θ_2) \| \le L \| θ_1 - θ_2 \|\)</span> for some <span class="math inline">\(L \in (0, ∞)\)</span>.</p></li>
-<li><p>For any <span class="math inline">\(r \in \reals_{&gt; 0}\)</span>, define <span class="math inline">\(f_r(θ) = f(rθ)/r\)</span>. There exists a function <span class="math inline">\(f_∞ \colon \reals^d \to \reals^d\)</span> such that <span class="math display">\[
-\lim_{r \to ∞} f_r(θ) = f_∞(θ), \quad \forall θ \in \reals^d.
-   \]</span></p></li>
-<li><p>Origin is the asymptotically stable equilibrium of the ODE <span class="math display">\[
-   \dot θ(t) = f_∞(θ(t)).
-\]</span></p></li>
-</ol></li>
-<li><p><strong>Condition on the noise <span class="math inline">\(\{ξ_k\}_{k \ge 0}\)</span></strong>:</p>
-<ol type="a">
-<li><p><span class="math inline">\(\{ξ_k\}_{k \ge 0}\)</span> is a martingale difference sequence with respect to the increasing family of <span class="math inline">\(σ\)</span>-fields <span class="math inline">\(\mathcal F_k = σ(θ_{1:k}, ξ_{1:k})\)</span>. That is, <span class="math display">\[ \EXP[ ξ_k | \mathcal F_k ] = 0, \text{ a.s.}, \quad k \ge 0. \]</span></p></li>
-<li><p>Furthermore, <span class="math inline">\(\{ξ_k\}_{k \ge 0}\)</span> are square integrable with <span class="math display">\[ \EXP[ \| ξ_{k+1}\|^2 | \mathcal F_k ] \le C_0(1 + \|θ_k\|^2)
-\text{ a.s.}, \quad k \ge 0\]</span> for some constant <span class="math inline">\(C_0 \ge 0\)</span> and any initial condition <span class="math inline">\(θ_0\)</span>.</p></li>
-</ol></li>
-<li><p><strong>Condition on the step size <span class="math inline">\(\{a_k\}_{k \ge 0}\)</span></strong>:</p>
-<p>The sequence <span class="math inline">\(\{a_k\}_{k \ge 0}\)</span> is deterministic and assumed to satisfy one of the two following conditions:</p>
-<ol type="a">
-<li><p><strong>Tapering step sizes (TS)</strong>: <span class="math inline">\(a_k \in (0, 1)\)</span>, and <span class="math display">\[ \sum_{k=1}^∞ a_k = ∞, \qquad
-    \sum_{k=1}^∞ a_k^2 &lt; ∞. \]</span></p></li>
-<li><p><strong>Bounded step sizes (BS)</strong>: For some constants <span class="math inline">\(\underline a, \bar a \in (0, 1)\)</span>, we have <span class="math display">\[ \underline a \le a_k \le \bar a, \quad k \ge 0. \]</span></p></li>
-</ol></li>
-</ol>
-<p>Then, we have the following results. The first is under the (TS) condition on the step sizes.</p>
-<div id="thm-SA-tapering-steps" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 23.2 </strong></span>Assume conditions (1), (2), and (TS) hold. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
+<section id="proof-of-part-2." class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="proof-of-part-2.">Proof of part 2.</h3>
+<p>Under the stated assumptions, we can simplify \eqref{eq:vidyasagar-1-pf-step-1} <span class="math display">\[\begin{align*}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t]
+&amp;\stackrel{(c)}\le
+\biggl[ 1 + \frac{α_t^2 M}{a} (L^2 + σ^2) \biggr] V(θ_t)
++
+  α_t^2 M σ^2
+- α_t \phi(\NORM{θ_t - θ^*}_2)
+\end{align*}\]</span> where the first two terms are simplified in the same way as above and the last term corresponds to the upper bound on <span class="math inline">\(\dot V(θ_t) \le -\phi(\NORM{θ_t - θ^*}_2^2)\)</span>.</p>
+<p>We can again apply <a href="../probability/martingales.html#thm-almost-supermartingale">Theorem&nbsp;<span>27.2</span></a> with <span class="math inline">\(X_t = V(θ_t)\)</span>, <span class="math inline">\(β_t = α_t^2 M(L^2 + σ^2)/a\)</span>, <span class="math inline">\(Y_t = α_t^2 M σ^2\)</span>, and <span class="math inline">\(Z_t = α_t \phi(\NORM{θ_t - θ^*}_2)\)</span>. Thus, we can conclude that there exists a random variable <span class="math inline">\(ζ\)</span> such that <span class="math inline">\(V(θ_t) \to ζ\)</span> and <span class="math display">\[\begin{equation}\label{eq:vidyasagar-1-pf-step-2}
+\sum_{t \ge 1} α_t \phi(\NORM{θ_t - θ^*}_2^2) &lt; ∞,
+\quad \mathrm{a.s.}
+\end{equation}\]</span></p>
+<p>Let <span class="math inline">\(Ω_1 \subset Ω\)</span> denote the values of <span class="math inline">\(ω\)</span> for which <span class="math display">\[
+  \sup_{t \ge 1} V(θ_t(ω)) &lt; ∞,
+  \lim_{t \to ∞} V(θ_t(ω)) = ζ(ω),
+  \sum_{t \ge 1} α_t \phi(\NORM{θ_t(ω) - θ^*}_2) &lt; ∞.
+\]</span> From <a href="../probability/martingales.html#thm-almost-supermartingale">Theorem&nbsp;<span>27.2</span></a>, we know that <span class="math inline">\(P(Ω_1) = 1\)</span>. We will now show that <span class="math inline">\(ζ(ω) = 0\)</span> for all <span class="math inline">\(ω \in Ω_1\)</span> by contradiction. Assume that for some <span class="math inline">\(ω \in Ω_1\)</span>, we have <span class="math inline">\(ζ(ω) = 2 ε &gt; 0\)</span>. Choose a <span class="math inline">\(T\)</span> such that <span class="math inline">\(V(θ_t(ω)) \ge ε\)</span> for all <span class="math inline">\(t \ge T\)</span>. Define <span class="math inline">\(V_M = \sup_{t \ge 1} V(θ_t(ω))\)</span>. Then, we have that <span class="math display">\[
+  \sqrt{\frac{ε}{b}} \le \NORM{θ_t}_2 \le \sqrt{\frac{V_M}{a}},
+  \quad \forall t \ge T.
+\]</span></p>
+<p>Define <span class="math inline">\(δ = \inf_{\sqrt{ε/b} \le r \le \sqrt{V_M/a}} \phi(r)\)</span> and observe that <span class="math inline">\(δ &gt; 0\)</span> because <span class="math inline">\(\phi\)</span> belongs to class <span class="math inline">\(B\)</span>. Therefore, <span class="math display">\[
+\sum_{t \ge T} α_t \phi(\NORM{θ_t - θ^*}_2) \ge
+\sum_{t \ge T} α_t δ = ∞,
+\]</span> due to (R2). But this contraducts \eqref{eq:vidyasagar-1-pf-step-2}. Hence, there is no <span class="math inline">\(ω \in Ω_1\)</span> such that <span class="math inline">\(ζ(ω) &gt; 0\)</span>. Therefore, <span class="math inline">\(ζ = 0\)</span> almost surely, i.e., <span class="math inline">\(V(θ_t) \to 0\)</span> almost surely. Finally, it follows from \eqref{eq:vidyasagar-cond-1} that <span class="math inline">\(θ_t \to θ^*\)</span> almost surely as <span class="math inline">\(t \to ∞\)</span>.</p>
+</section>
+</div>
+</div>
+</div>
+<p>Sufficient conditions for the existence of a Lyaponov function which satisfies the conditions of <a href="#thm-vidyasagar-1">Theorem&nbsp;<span>23.3</span></a> are given below.</p>
+<div id="thm-vidyasagar-2" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 23.4 </strong></span>Suppose assumptions (F1’), (F2’), (F3) and (F4) hold. Then, there exists a twice differentiable function <span class="math inline">\(V \colon \reals^d \to \reals_{\ge 0}\)</span> such that <span class="math inline">\(V\)</span> and its derivative <span class="math inline">\(\dot V \colon \reals^d \to \reals_{\ge 0}\)</span> defined as <span class="math inline">\(\dot V(θ) \coloneqq \langle \langle \GRAD V(θ), f(θ) \rangle\)</span> together satisfy the following conditions: there exist positive constants <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, <span class="math inline">\(c\)</span>, and a finite constant <span class="math inline">\(M\)</span> such that for all <span class="math inline">\(θ \in \reals^d\)</span>:</p>
 <ul>
-<li><p>Asymptotic stability: <span class="math display">\[
-  \sup_{k} \| θ_k \| &lt; ∞, \text{ a.s.}.
-\]</span></p></li>
-<li><p>Convergence: If the ODE \eqref{eq:ODE} has a <em>unique</em> globally asymptotically stable equilibrium point <span class="math inline">\(θ^*\)</span>. Then, <span class="math display">\[
-  \lim_{k \to ∞} θ_k = θ^*, \text{ a.s.}
-\]</span></p></li>
+<li><span class="math inline">\(a\NORM{θ - θ^*}_2^2 \le V(θ) \le b\NORM{θ - θ^*}_2^2\)</span>,</li>
+<li><span class="math inline">\(\dot V(θ) \le -c\NORM{θ - θ^*}_2^2\)</span>,</li>
+<li><span class="math inline">\(\NORM{\GRAD^2 V(θ)}_S \le 2M\)</span>.</li>
 </ul>
 </div>
-<p>The second is under the (BS) conditions on the step sizes.</p>
-<div id="thm-SA-bounded-steps" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 23.3 </strong></span>Assume conditions (1), (2), and (BS) hold. In addition, the ODE \eqref{eq:ODE} has a unique globally asymptotically stable equilibrium point <span class="math inline">\(θ^*\)</span>. Then for any initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, we have:</p>
-<ul>
-<li><p>Asymptotic stability: There exists a <span class="math inline">\(a^* &gt; 0\)</span> and <span class="math inline">\(C_1 &lt; ∞\)</span> such that for<br>
-all <span class="math inline">\(\bar a \in (0, a^*)\)</span> and <span class="math inline">\(θ_0 \in \reals^d\)</span>, <span class="math display">\[
-  \limsup_{n \to ∞} \EXP[ \| θ_k\|^2 ] \le C_1.
-\]</span></p></li>
-<li><p>Convergence in probability: For <span class="math inline">\(\bar a \le a^*\)</span> and any <span class="math inline">\(ε &gt; 0\)</span>, there exists a <span class="math inline">\(b_1 = b_1(ε) &lt; ∞\)</span> such that <span class="math display">\[
-  \limsup_{n \to ∞} \PR( \| θ_k - θ^* \| \ge ε ) \le b_1 \bar a.
-\]</span></p></li>
-<li><p>Mean square convergence: If <span class="math inline">\(θ^*\)</span> is <em>exponentially</em> asymptotically stable equilibrium point of the ODE \eqref{eq:ODE}, then there exists a <span class="math inline">\(b_2 &lt; ∞\)</span> such that for every initial condition <span class="math inline">\(θ_0 \in \reals^d\)</span>, <span class="math display">\[
-  \limsup_{n \to ∞} \EXP[ \| θ_k - θ^*\|^2 ] \le b_2 \bar a.
-\]</span></p></li>
-</ul>
+<p>Combining <a href="#thm-vidyasagar-1">Theorem&nbsp;<span>23.3</span></a> and <a href="#thm-vidyasagar-2">Theorem&nbsp;<span>23.4</span></a>, we get the following “self-contained” theorem:</p>
+<div id="thm-vidyasagar-3" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 23.5 </strong></span>Suppose assumptions (F1’), (F2’), (F3), and (F4) as well as assumptions (N1) and (N2) hold. Then,</p>
+<ol type="1">
+<li>If (R1) holds then <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span> is bounded almost surely.</li>
+<li>If, in addition, (R2) holds then <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span> converges almost surely to <span class="math inline">\(θ^*\)</span> as <span class="math inline">\(t \to ∞\)</span>.</li>
+</ol>
 </div>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>The stochastic approximation algorithm was introduced by <span class="citation" data-cites="Robbins1951">Robbins and Monro (<a href="../references.html#ref-Robbins1951" role="doc-biblioref">1951</a>)</span>. The discussion in the introduction is from <span class="citation" data-cites="Vidyasagar2023">Vidyasagar (<a href="../references.html#ref-Vidyasagar2023" role="doc-biblioref">2023</a>)</span>.</p>
-<p>The results presented above are from <span class="citation" data-cites="Borkar2000">Borkar and Meyn (<a href="../references.html#ref-Borkar2000" role="doc-biblioref">2000</a>)</span>, which also provides rates of convergence of stochastic approximation under stronger assumptions.</p>
+<p>The stochastic approximation algorithm was introduced by <span class="citation" data-cites="Robbins1951">Robbins and Monro (<a href="../references.html#ref-Robbins1951" role="doc-biblioref">1951</a>)</span>. The material in this section is adapted from <span class="citation" data-cites="Vidyasagar2023">Vidyasagar (<a href="../references.html#ref-Vidyasagar2023" role="doc-biblioref">2023</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
@@ -1075,8 +1246,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../probability/sub-gaussian.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../probability/convergence.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Convergence of random variables</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
