@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-05-31">
+<meta name="dcterms.date" content="2023-07-25">
 <meta name="keywords" content="inventory management, post-decision state, base-stock policy, structural results">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -23,6 +23,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 /* CSS for citations */
 div.csl-bib-body { }
@@ -124,6 +158,8 @@ window.MathJax = {
 };
 </script>
 <script async="" data-id="101261731" src="//static.getclicky.com/js"></script>
+<script type="module" src="../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -131,10 +167,10 @@ window.MathJax = {
 <meta name="citation_title" content="[5]{.chapter-number}&nbsp; [Inventory Management]{.chapter-title}">
 <meta name="citation_keywords" content="inventory management,post-decision state,base-stock policy,structural results">
 <meta name="citation_author" content="Aditya Mahajan">
-<meta name="citation_publication_date" content="2023-05-31">
-<meta name="citation_cover_date" content="2023-05-31">
+<meta name="citation_publication_date" content="2023-07-25">
+<meta name="citation_cover_date" content="2023-07-25">
 <meta name="citation_year" content="2023">
-<meta name="citation_online_date" content="2023-05-31">
+<meta name="citation_online_date" content="2023-07-25">
 <meta name="citation_fulltext_html_url" content="https://adityam.github.io/stochastic-control//mdps/inventory-management.html">
 <meta name="citation_language" content="en">
 <meta name="citation_journal_title" content="Course notes for ECSE 506 (Stochastic Control and Decision Theorey)">
@@ -734,7 +770,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 31, 2023</p>
+      <p class="date">July 25, 2023</p>
     </div>
   </div>
   
@@ -804,62 +840,259 @@ window.MathJax = {
   π_t(s) &amp;= \arg \min_{a \in \S_{\ge 0}} \bigl\{ pa + H_t(s + a) \bigr\}.
 \end{align*} \]</span></p>
 <p>Note that the problem at each step is similar to the <a href="../../stochastic/newsvendor">newsvendor</a> problem. So, similar to that model, we try to see if we can establish qualitative properties of the optimal solution.</p>
-<p>To fix ideas, let’s solve this dynamic program for a specific instance. We consider <span class="math inline">\(p = 5\)</span>, <span class="math inline">\(c_h = 4\)</span>, <span class="math inline">\(c_s = 2\)</span>, and assume that the demand is distributed according to a Binomial(10,0.4) distribution, as shown in Figure&nbsp;1.</p>
-
-<div class="no-row-height column-margin column-container"><div class="">
-<figure style="max-width:20em;" id="fig1" class="figure">
-<div id="observablehq-demand_plot-d2dc6ce7">
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="112" data-source-offset="-21"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 111;"><span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> <span class="fl">0.4</span></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a><span class="co">// Model parameters</span></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>p0 <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>ch <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>cs <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="kw">function</span>(s) {</span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(s <span class="op">&gt;=</span> <span class="dv">0</span>) </span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ch<span class="op">*</span>s</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>cs<span class="op">*</span>s</span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a><span class="co">// Horizon</span></span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> <span class="dv">15</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">
-<b>Figure&nbsp;1</b><br> Demand distribution
-</figcaption>
-</figure>
-</div></div><p>We consider a horizon <span class="math inline">\(T = 15\)</span>, and solve the dynamic program shown above. The optimal value function and policy are shown below:</p>
-<figure style="max-width:40em;" class="figure">
-<div id="observablehq-viewof-time-d2dc6ce7">
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
 
 </div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
 
-<table>
-<tbody><tr>
-<td id="observablehq-value_plot-d2dc6ce7">
-</td>
-<td id="observablehq-action_plot-d2dc6ce7">
-</td>
-</tr>
-<tr>
-<td>
-Value function
-</td>
-<td>
-Optimal policy
-</td>
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-4" data-nodetype="declaration">
 
-</tr></tbody></table>
-<figcaption class="figure-caption">
-<b>Figure 2</b><br> The value function and the optimal policy for the example shown above
-</figcaption>
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb2" data-startfrom="134" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 133;"><span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>binomial <span class="op">=</span> {</span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>  <span class="co">// From https://stackoverflow.com/a/37715980/193149</span></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> logf <span class="op">=</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="fl">0.6931471805599453</span><span class="op">,</span> <span class="fl">1.791759469228055</span><span class="op">,</span> <span class="fl">3.1780538303479458</span><span class="op">,</span> <span class="fl">4.787491742782046</span><span class="op">,</span> <span class="fl">6.579251212010101</span><span class="op">,</span> <span class="fl">8.525161361065415</span><span class="op">,</span> <span class="fl">10.60460290274525</span><span class="op">,</span> <span class="fl">12.801827480081469</span><span class="op">,</span> <span class="fl">15.104412573075516</span><span class="op">,</span> <span class="fl">17.502307845873887</span><span class="op">,</span> <span class="fl">19.987214495661885</span><span class="op">,</span> <span class="fl">22.552163853123425</span><span class="op">,</span> <span class="fl">25.19122118273868</span><span class="op">,</span> <span class="fl">27.89927138384089</span><span class="op">,</span> <span class="fl">30.671860106080672</span><span class="op">,</span> <span class="fl">33.50507345013689</span><span class="op">,</span> <span class="fl">36.39544520803305</span><span class="op">,</span> <span class="fl">39.339884187199495</span><span class="op">,</span> <span class="fl">42.335616460753485</span><span class="op">,</span> <span class="fl">45.38013889847691</span><span class="op">,</span> <span class="fl">48.47118135183523</span><span class="op">,</span> <span class="fl">51.60667556776438</span><span class="op">,</span> <span class="fl">54.78472939811232</span><span class="op">,</span> <span class="fl">58.00360522298052</span><span class="op">,</span> <span class="fl">61.261701761002</span><span class="op">,</span> <span class="fl">64.55753862700634</span><span class="op">,</span> <span class="fl">67.88974313718154</span><span class="op">,</span> <span class="fl">71.25703896716801</span><span class="op">,</span> <span class="fl">74.65823634883016</span><span class="op">,</span> <span class="fl">78.0922235533153</span><span class="op">,</span> <span class="fl">81.55795945611504</span><span class="op">,</span> <span class="fl">85.05446701758152</span><span class="op">,</span> <span class="fl">88.58082754219768</span><span class="op">,</span> <span class="fl">92.1361756036871</span><span class="op">,</span> <span class="fl">95.7196945421432</span><span class="op">,</span> <span class="fl">99.33061245478743</span><span class="op">,</span> <span class="fl">102.96819861451381</span><span class="op">,</span> <span class="fl">106.63176026064346</span><span class="op">,</span> <span class="fl">110.32063971475739</span><span class="op">,</span> <span class="fl">114.0342117814617</span><span class="op">,</span> <span class="fl">117.77188139974507</span><span class="op">,</span> <span class="fl">121.53308151543864</span><span class="op">,</span> <span class="fl">125.3172711493569</span><span class="op">,</span> <span class="fl">129.12393363912722</span><span class="op">,</span> <span class="fl">132.95257503561632</span><span class="op">,</span> <span class="fl">136.80272263732635</span><span class="op">,</span> <span class="fl">140.67392364823425</span><span class="op">,</span> <span class="fl">144.5657439463449</span><span class="op">,</span> <span class="fl">148.47776695177302</span><span class="op">,</span> <span class="fl">152.40959258449735</span><span class="op">,</span> <span class="fl">156.3608363030788</span><span class="op">,</span> <span class="fl">160.3311282166309</span><span class="op">,</span> <span class="fl">164.32011226319517</span><span class="op">,</span> <span class="fl">168.32744544842765</span><span class="op">,</span>  <span class="fl">172.3527971391628</span><span class="op">,</span> <span class="fl">176.39584840699735</span><span class="op">,</span> <span class="fl">180.45629141754378</span><span class="op">,</span> <span class="fl">184.53382886144948</span><span class="op">,</span> <span class="fl">188.6281734236716</span><span class="op">,</span> <span class="fl">192.7390472878449</span><span class="op">,</span> <span class="fl">196.86618167289</span><span class="op">,</span> <span class="fl">201.00931639928152</span><span class="op">,</span> <span class="fl">205.1681994826412</span><span class="op">,</span> <span class="fl">209.34258675253685</span><span class="op">,</span> <span class="fl">213.53224149456327</span><span class="op">,</span> <span class="fl">217.73693411395422</span><span class="op">,</span> <span class="fl">221.95644181913033</span><span class="op">,</span> <span class="fl">226.1905483237276</span><span class="op">,</span> <span class="fl">230.43904356577696</span><span class="op">,</span> <span class="fl">234.70172344281826</span><span class="op">,</span> <span class="fl">238.97838956183432</span><span class="op">,</span> <span class="fl">243.2688490029827</span><span class="op">,</span> <span class="fl">247.57291409618688</span><span class="op">,</span> <span class="fl">251.8904022097232</span><span class="op">,</span> <span class="fl">256.22113555000954</span><span class="op">,</span> <span class="fl">260.5649409718632</span><span class="op">,</span> <span class="fl">264.9216497985528</span><span class="op">,</span> <span class="fl">269.2910976510198</span><span class="op">,</span> <span class="fl">273.6731242856937</span><span class="op">,</span> <span class="fl">278.0675734403661</span><span class="op">,</span> <span class="fl">282.4742926876304</span><span class="op">,</span> <span class="fl">286.893133295427</span><span class="op">,</span> <span class="fl">291.3239500942703</span><span class="op">,</span> <span class="fl">295.76660135076065</span><span class="op">,</span> <span class="fl">300.22094864701415</span><span class="op">,</span> <span class="fl">304.6868567656687</span><span class="op">,</span> <span class="fl">309.1641935801469</span><span class="op">,</span> <span class="fl">313.65282994987905</span><span class="op">,</span> <span class="fl">318.1526396202093</span><span class="op">,</span> <span class="fl">322.66349912672615</span><span class="op">,</span> <span class="fl">327.1852877037752</span><span class="op">,</span> <span class="fl">331.7178871969285</span><span class="op">,</span> <span class="fl">336.26118197919845</span><span class="op">,</span> <span class="fl">340.815058870799</span><span class="op">,</span> <span class="fl">345.37940706226686</span><span class="op">,</span> <span class="fl">349.95411804077025</span><span class="op">,</span> <span class="fl">354.5390855194408</span><span class="op">,</span> <span class="fl">359.1342053695754</span><span class="op">,</span> <span class="fl">363.73937555556347</span>]</span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(n<span class="op">,</span> k<span class="op">,</span> p) {</span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">exp</span>(logf[n] <span class="op">-</span> logf[n<span class="op">-</span>k] <span class="op">-</span> logf[k]) <span class="op">*</span> p<span class="op">**</span>k <span class="op">*</span> (<span class="dv">1</span><span class="op">-</span>p)<span class="op">**</span>(n<span class="op">-</span>k)</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> {</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> cumulative <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> probability <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(<span class="kw">var</span> k <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> k <span class="op">&lt;=</span> n<span class="op">;</span> k<span class="op">++</span>) {</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>    probability <span class="op">=</span> <span class="fu">binomial</span>(n<span class="op">,</span>k<span class="op">,</span>s)</span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>    cumulative <span class="op">+=</span> probability</span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>    points[k] <span class="op">=</span> { <span class="dt">demand</span><span class="op">:</span>k<span class="op">,</span> <span class="dt">probability</span><span class="op">:</span> probability<span class="op">,</span> <span class="dt">cumulative</span><span class="op">:</span> cumulative }</span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<p>To fix ideas, let’s solve this dynamic program for a specific instance.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code hidden" id="cb3" data-startfrom="163" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 162;"><span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a>demandPlot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(W<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"probability"</span><span class="op">,</span><span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})</span>
+<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+<div class="no-row-height column-margin column-container"><div id="fig-demand" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<div id="ojs-cell-3" data-nodetype="declaration">
+
+</div>
+<figcaption class="figure-caption">Figure&nbsp;5.1: Demand Distribution</figcaption>
 </figure>
+</div></div></div>
+<p>We assume that the demand is distributed according to a <span>Binomial(<span id="ojs-element-id-1"></span>,</span> <span><span id="ojs-element-id-2"></span>)</span> distribution, as shown in <a href="#fig-demand">Figure&nbsp;<span>5.1</span></a>. We assume that the model parameters are as given below:</p>
+<center>
+<p><span class="math inline">\(p =\)</span> <span><span id="ojs-element-id-3"></span>,</span> <span class="math inline">\(c_h =\)</span> <span><span id="ojs-element-id-4"></span>,</span> <span class="math inline">\(c_s =\)</span> <span><span id="ojs-element-id-5"></span></span></p>
+</center>
+<p>We consider a horizon <span class="math inline">\(T =\)</span> <span><span id="ojs-element-id-6"></span>,</span> and solve the dynamic program shown above. The optimal value function and policy are shown below:</p>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb4" data-startfrom="188" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 187;"><span id="cb4-188"><a href="#cb4-188" aria-hidden="true" tabindex="-1"></a>DP <span class="op">=</span> {</span>
+<span id="cb4-189"><a href="#cb4-189" aria-hidden="true" tabindex="-1"></a>   <span class="kw">var</span> DP <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>()</span>
+<span id="cb4-190"><a href="#cb4-190" aria-hidden="true" tabindex="-1"></a>   <span class="kw">var</span> idx <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-191"><a href="#cb4-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-192"><a href="#cb4-192" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-193"><a href="#cb4-193" aria-hidden="true" tabindex="-1"></a>   <span class="kw">const</span> Smax <span class="op">=</span>  (W<span class="op">.</span><span class="at">length</span> <span class="op">-</span> <span class="dv">1</span>)<span class="op">*</span>T</span>
+<span id="cb4-194"><a href="#cb4-194" aria-hidden="true" tabindex="-1"></a>   <span class="kw">var</span> V <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(<span class="dv">2</span><span class="op">*</span>Smax <span class="op">+</span> <span class="dv">1</span>)  <span class="co">// -Smax to Smax</span></span>
+<span id="cb4-195"><a href="#cb4-195" aria-hidden="true" tabindex="-1"></a>   <span class="kw">var</span> H <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(<span class="dv">3</span><span class="op">*</span>Smax <span class="op">+</span> <span class="dv">1</span>)  <span class="co">// -Smax to 2Smax</span></span>
+<span id="cb4-196"><a href="#cb4-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-197"><a href="#cb4-197" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb4-198"><a href="#cb4-198" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-199"><a href="#cb4-199" aria-hidden="true" tabindex="-1"></a>   <span class="co">// Initialize the terminal value function</span></span>
+<span id="cb4-200"><a href="#cb4-200" aria-hidden="true" tabindex="-1"></a>   <span class="cf">for</span>( <span class="kw">var</span> s <span class="op">=</span> <span class="op">-</span>Smax<span class="op">;</span> s <span class="op">&lt;=</span> Smax<span class="op">;</span> s<span class="op">++</span>) {</span>
+<span id="cb4-201"><a href="#cb4-201" aria-hidden="true" tabindex="-1"></a>      V[s <span class="op">+</span> Smax] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-202"><a href="#cb4-202" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb4-203"><a href="#cb4-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-204"><a href="#cb4-204" aria-hidden="true" tabindex="-1"></a>   <span class="co">// Dynamic programming</span></span>
+<span id="cb4-205"><a href="#cb4-205" aria-hidden="true" tabindex="-1"></a>   <span class="cf">for</span>( <span class="kw">var</span> t <span class="op">=</span> T<span class="op">;</span> t <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">;</span> t<span class="op">--</span>) {</span>
+<span id="cb4-206"><a href="#cb4-206" aria-hidden="true" tabindex="-1"></a>     <span class="co">// H(z) = EXP[ h(z-W) + V(z-W) ]</span></span>
+<span id="cb4-207"><a href="#cb4-207" aria-hidden="true" tabindex="-1"></a>     <span class="cf">for</span>( <span class="kw">var</span> z <span class="op">=</span> <span class="op">-</span>Smax<span class="op">;</span> z <span class="op">&lt;=</span> <span class="dv">2</span><span class="op">*</span>Smax<span class="op">;</span> z<span class="op">++</span>) {</span>
+<span id="cb4-208"><a href="#cb4-208" aria-hidden="true" tabindex="-1"></a>       H[z <span class="op">+</span> Smax] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-209"><a href="#cb4-209" aria-hidden="true" tabindex="-1"></a>       <span class="cf">for</span>( <span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> W<span class="op">.</span><span class="at">length</span><span class="op">;</span> i<span class="op">++</span> ) {</span>
+<span id="cb4-210"><a href="#cb4-210" aria-hidden="true" tabindex="-1"></a>         <span class="kw">var</span> w <span class="op">=</span> W[i]<span class="op">.</span><span class="at">demand</span></span>
+<span id="cb4-211"><a href="#cb4-211" aria-hidden="true" tabindex="-1"></a>         H[z <span class="op">+</span> Smax] <span class="op">+=</span> (<span class="fu">h</span>(z <span class="op">-</span> w) <span class="op">+</span> V[<span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="bu">Math</span><span class="op">.</span><span class="fu">max</span>(z<span class="op">-</span>w<span class="op">,</span> <span class="op">-</span>Smax)<span class="op">,</span> Smax) <span class="op">+</span> Smax])<span class="op">*</span>W[i]<span class="op">.</span><span class="at">probability</span></span>
+<span id="cb4-212"><a href="#cb4-212" aria-hidden="true" tabindex="-1"></a>       }</span>
+<span id="cb4-213"><a href="#cb4-213" aria-hidden="true" tabindex="-1"></a>     }</span>
+<span id="cb4-214"><a href="#cb4-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-215"><a href="#cb4-215" aria-hidden="true" tabindex="-1"></a>     <span class="co">// V(s) = min_{a in S_{&gt;= 0}} { p*a + H(s+a) }</span></span>
+<span id="cb4-216"><a href="#cb4-216" aria-hidden="true" tabindex="-1"></a>     <span class="cf">for</span>(<span class="kw">var</span> s <span class="op">=</span> <span class="op">-</span>Smax<span class="op">;</span> s <span class="op">&lt;=</span> Smax<span class="op">;</span> s<span class="op">++</span>) {</span>
+<span id="cb4-217"><a href="#cb4-217" aria-hidden="true" tabindex="-1"></a>       <span class="kw">var</span> opt <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-218"><a href="#cb4-218" aria-hidden="true" tabindex="-1"></a>       <span class="kw">var</span> val <span class="op">=</span> H[s <span class="op">+</span> Smax]</span>
+<span id="cb4-219"><a href="#cb4-219" aria-hidden="true" tabindex="-1"></a>       <span class="cf">for</span>(<span class="kw">var</span> a <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> a <span class="op">&lt;=</span> Smax<span class="op">;</span> a<span class="op">++</span>) {</span>
+<span id="cb4-220"><a href="#cb4-220" aria-hidden="true" tabindex="-1"></a>         <span class="kw">var</span> newVal <span class="op">=</span> p<span class="op">*</span>a <span class="op">+</span> H[<span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(s<span class="op">+</span>a<span class="op">,</span> <span class="dv">2</span><span class="op">*</span>Smax) <span class="op">+</span> Smax ]</span>
+<span id="cb4-221"><a href="#cb4-221" aria-hidden="true" tabindex="-1"></a>         <span class="cf">if</span>(newVal <span class="op">&lt;=</span> val) {</span>
+<span id="cb4-222"><a href="#cb4-222" aria-hidden="true" tabindex="-1"></a>           opt <span class="op">=</span> a</span>
+<span id="cb4-223"><a href="#cb4-223" aria-hidden="true" tabindex="-1"></a>           val <span class="op">=</span> newVal</span>
+<span id="cb4-224"><a href="#cb4-224" aria-hidden="true" tabindex="-1"></a>         }</span>
+<span id="cb4-225"><a href="#cb4-225" aria-hidden="true" tabindex="-1"></a>       }</span>
+<span id="cb4-226"><a href="#cb4-226" aria-hidden="true" tabindex="-1"></a>       V[s <span class="op">+</span> Smax] <span class="op">=</span> val</span>
+<span id="cb4-227"><a href="#cb4-227" aria-hidden="true" tabindex="-1"></a>       DP[idx<span class="op">++</span>] <span class="op">=</span> { <span class="dt">time</span><span class="op">:</span> t<span class="op">,</span> <span class="dt">state</span><span class="op">:</span> s<span class="op">,</span> <span class="dt">value</span><span class="op">:</span> val<span class="op">,</span> <span class="dt">action</span><span class="op">:</span> opt }</span>
+<span id="cb4-228"><a href="#cb4-228" aria-hidden="true" tabindex="-1"></a>     }</span>
+<span id="cb4-229"><a href="#cb4-229" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb4-230"><a href="#cb4-230" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb4-231"><a href="#cb4-231" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb4-232"><a href="#cb4-232" aria-hidden="true" tabindex="-1"></a>   <span class="cf">return</span> DP</span>
+<span id="cb4-233"><a href="#cb4-233" aria-hidden="true" tabindex="-1"></a>     </span>
+<span id="cb4-234"><a href="#cb4-234" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb5" data-startfrom="238" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 237;"><span id="cb5-238"><a href="#cb5-238" aria-hidden="true" tabindex="-1"></a>viewof time <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> T]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"t"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">1</span> })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div>
+<div class="sourceCode cell-code hidden" id="cb6" data-startfrom="248" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 247;"><span id="cb6-248"><a href="#cb6-248" aria-hidden="true" tabindex="-1"></a>valuePlot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb6-249"><a href="#cb6-249" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb6-250"><a href="#cb6-250" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb6-251"><a href="#cb6-251" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb6-252"><a href="#cb6-252" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-253"><a href="#cb6-253" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-254"><a href="#cb6-254" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb6-255"><a href="#cb6-255" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(DP<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">time</span> <span class="op">==</span> time <span class="op">&amp;&amp;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">state</span>) <span class="op">&lt;=</span> <span class="dv">75</span>)<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"state"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"value"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})</span>
+<span id="cb6-256"><a href="#cb6-256" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb6-257"><a href="#cb6-257" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb6-258"><a href="#cb6-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-259"><a href="#cb6-259" aria-hidden="true" tabindex="-1"></a>actionPlot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb6-260"><a href="#cb6-260" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb6-261"><a href="#cb6-261" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb6-262"><a href="#cb6-262" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb6-263"><a href="#cb6-263" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-264"><a href="#cb6-264" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-265"><a href="#cb6-265" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb6-266"><a href="#cb6-266" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(DP<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">time</span> <span class="op">==</span> time <span class="op">&amp;&amp;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">state</span>) <span class="op">&lt;=</span> <span class="dv">20</span>)<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"state"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"action"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})</span>
+<span id="cb6-267"><a href="#cb6-267" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb6-268"><a href="#cb6-268" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fig-ojs-cell-6" class="cell quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div id="fig-ojs-cell-6-1" class="quarto-figure quarto-figure-center anchored" style="flex-basis: 50.0%;justify-content: center;">
+<figure class="figure">
+<div id="ojs-cell-6-1" data-nodetype="declaration">
+
+</div>
+<figcaption class="figure-caption">(a) Value function</figcaption>
+</figure>
+</div>
+<div id="fig-ojs-cell-6-2" class="quarto-figure quarto-figure-center anchored" style="flex-basis: 50.0%;justify-content: center;">
+<figure class="figure">
+<div id="ojs-cell-6-2" data-nodetype="declaration">
+
+</div>
+<figcaption class="figure-caption">(b) Optimal policy</figcaption>
+</figure>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;5.2: Dynamic programming solution for the example</figcaption><p></p>
+</figure>
+</div>
+</div>
 <p>The plots above suggest that the optimal policy has a structure. Play around with the value of the purchase cost to see if that structure is retained.</p>
-<div id="observablehq-viewof-p-d2dc6ce7">
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb7" data-startfrom="274" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 273;"><span id="cb7-274"><a href="#cb7-274" aria-hidden="true" tabindex="-1"></a>viewof p <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"Purchase cost"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> p0 })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-7" data-nodetype="declaration">
 
 </div>
-<script type="module">
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
-new Runtime().module(define, name => {
-  if (name === "action_plot") return new Inspector(document.querySelector("#observablehq-action_plot-d2dc6ce7"));
-  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-d2dc6ce7"));
-  if (name === "demand_plot") return new Inspector(document.querySelector("#observablehq-demand_plot-d2dc6ce7"));
-  if (name === "viewof time") return new Inspector(document.querySelector("#observablehq-viewof-time-d2dc6ce7"));
-  if (name === "value_plot") return new Inspector(document.querySelector("#observablehq-value_plot-d2dc6ce7"));
-  return ["DP"].includes(name);
-});
-</script>
+</div>
+</div>
 <p>We will now see how to prove the structure of optimal policy.</p>
 </section>
-<section id="structure-of-optimal-solution" class="level2" data-number="5.2">
+<section id="structure-of-optimal-solution" class="level2 page-columns page-full" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="structure-of-optimal-solution"><span class="header-section-number">5.2</span> Structure of optimal solution</h2>
 <p>For ease of exposition, we assume that the state space <span class="math inline">\(\S\)</span> is equal to <span class="math inline">\(\reals\)</span> (instead of <span class="math inline">\(\integers\)</span>). See exercise&nbsp;1 at the end to extend the argument to <span class="math inline">\(\integers\)</span>.</p>
 <p>For this setting, the optimal policy is then characterized as follows.</p>
@@ -892,44 +1125,143 @@ Base-stock policy
 </div>
 </div>
 </div>
-<p>We first establish some preliminary results.</p>
-<script type="module">
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-import define from "https://api.observablehq.com/@adityam/properties-of-convex-functions.js?v=3";
-new Runtime().module(define, name => {
-  if (name === "average_plot") return new Inspector(document.querySelector("#observablehq-average_plot-11079710"));
-  if (name === "minimum_plot") return new Inspector(document.querySelector("#observablehq-minimum_plot-11079710"));
-});
-</script>
-<ol type="1">
-<li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, <span class="math inline">\(F(s) = \EXP[ f(s - W) ]\)</span> is convex.</p>
-<p><strong>Proof</strong> For any realization of <span class="math inline">\(W\)</span>, <span class="math inline">\(f(s - w)\)</span> is convex in <span class="math inline">\(s\)</span>. The expectation w.r.t. <span class="math inline">\(W\)</span> is simply the sum of convex functions and is, therefore, convex.</p>
-<figure style="max-width:40em;" class="figure">
-<div id="observablehq-average_plot-11079710">
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb8" data-startfrom="320" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 319;"><span id="cb8-320"><a href="#cb8-320" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> {</span>
+<span id="cb8-321"><a href="#cb8-321" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb8-322"><a href="#cb8-322" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> Smax <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb8-323"><a href="#cb8-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-324"><a href="#cb8-324" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> f <span class="op">=</span> <span class="kw">function</span>(s) { <span class="cf">return</span> (s<span class="op">-</span><span class="dv">5</span>)<span class="op">**</span><span class="dv">2</span> }</span>
+<span id="cb8-325"><a href="#cb8-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-326"><a href="#cb8-326" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>()</span>
+<span id="cb8-327"><a href="#cb8-327" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> W <span class="op">=</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span> ]</span>
+<span id="cb8-328"><a href="#cb8-328" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> Pw <span class="op">=</span> [<span class="dv">1</span><span class="op">/</span><span class="dv">3</span><span class="op">,</span> <span class="dv">1</span><span class="op">/</span><span class="dv">3</span><span class="op">,</span> <span class="dv">1</span><span class="op">/</span><span class="dv">3</span>]</span>
+<span id="cb8-329"><a href="#cb8-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-330"><a href="#cb8-330" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> idx <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-331"><a href="#cb8-331" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>( <span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb8-332"><a href="#cb8-332" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> s <span class="op">=</span> Smax<span class="op">*</span>i<span class="op">/</span>n</span>
+<span id="cb8-333"><a href="#cb8-333" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> sum <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-334"><a href="#cb8-334" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> min <span class="op">=</span> <span class="dv">10000</span> <span class="co">// CHECK: Large positive number</span></span>
+<span id="cb8-335"><a href="#cb8-335" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(<span class="kw">var</span> w <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> w <span class="op">&lt;</span> W<span class="op">.</span><span class="at">length</span><span class="op">;</span> w<span class="op">++</span>) {</span>
+<span id="cb8-336"><a href="#cb8-336" aria-hidden="true" tabindex="-1"></a>      sum <span class="op">+=</span> <span class="fu">f</span>(s <span class="op">+</span> W[w])</span>
+<span id="cb8-337"><a href="#cb8-337" aria-hidden="true" tabindex="-1"></a>      min <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(min<span class="op">,</span> <span class="fu">f</span>(s<span class="op">+</span>W[w]))</span>
+<span id="cb8-338"><a href="#cb8-338" aria-hidden="true" tabindex="-1"></a>      points[idx<span class="op">++</span>] <span class="op">=</span> { <span class="dt">state</span><span class="op">:</span> s<span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="fu">f</span>(s <span class="op">+</span> W[w])<span class="op">,</span> <span class="dt">noise</span><span class="op">:</span>W[w]<span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"noise"</span> }</span>
+<span id="cb8-339"><a href="#cb8-339" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb8-340"><a href="#cb8-340" aria-hidden="true" tabindex="-1"></a>    points[idx<span class="op">++</span>] <span class="op">=</span> { <span class="dt">state</span><span class="op">:</span> s<span class="op">,</span> <span class="dt">value</span><span class="op">:</span> sum<span class="op">/</span>W<span class="op">.</span><span class="at">length</span><span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"average"</span> }</span>
+<span id="cb8-341"><a href="#cb8-341" aria-hidden="true" tabindex="-1"></a>    points[idx<span class="op">++</span>] <span class="op">=</span> { <span class="dt">state</span><span class="op">:</span> s<span class="op">,</span> <span class="dt">value</span><span class="op">:</span> min<span class="op">,</span> <span class="dt">type</span><span class="op">:</span> <span class="st">"minimum"</span> }</span>
+<span id="cb8-342"><a href="#cb8-342" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-343"><a href="#cb8-343" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb8-344"><a href="#cb8-344" aria-hidden="true" tabindex="-1"></a>  }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="ojs-cell-8" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">
-<p><b>Figure 3</b><br> An example showing that the average of convex functions is convex.</p>
-</figcaption>
-</figure></li>
+</div>
+</div>
+<p>We first establish some preliminary results.</p>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code hidden" id="cb9" data-startfrom="352" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 351;"><span id="cb9-352"><a href="#cb9-352" aria-hidden="true" tabindex="-1"></a>averagePlot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb9-353"><a href="#cb9-353" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb9-354"><a href="#cb9-354" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">25</span>] }<span class="op">,</span></span>
+<span id="cb9-355"><a href="#cb9-355" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb9-356"><a href="#cb9-356" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb9-357"><a href="#cb9-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-358"><a href="#cb9-358" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb9-359"><a href="#cb9-359" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb9-360"><a href="#cb9-360" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb9-361"><a href="#cb9-361" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb9-362"><a href="#cb9-362" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb9-363"><a href="#cb9-363" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span> {<span class="dt">filter</span><span class="op">:</span> d <span class="kw">=&gt;</span>  d<span class="op">.</span><span class="at">value</span> <span class="op">&lt;=</span> <span class="dv">25</span> <span class="op">&amp;&amp;</span> d<span class="op">.</span><span class="at">type</span> <span class="op">==</span> <span class="st">"noise"</span><span class="op">,</span> </span>
+<span id="cb9-364"><a href="#cb9-364" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">x</span><span class="op">:</span><span class="st">"state"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"value"</span><span class="op">,</span> <span class="dt">z</span><span class="op">:</span><span class="st">"noise"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span><span class="st">"gray"</span>})<span class="op">,</span></span>
+<span id="cb9-365"><a href="#cb9-365" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">text</span>(points<span class="op">,</span> Plot<span class="op">.</span><span class="fu">selectLast</span>({</span>
+<span id="cb9-366"><a href="#cb9-366" aria-hidden="true" tabindex="-1"></a>      <span class="dt">filter</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">value</span> <span class="op">&lt;=</span> <span class="dv">25</span> <span class="op">&amp;&amp;</span> d<span class="op">.</span><span class="at">type</span> <span class="op">==</span> <span class="st">"noise"</span><span class="op">,</span> </span>
+<span id="cb9-367"><a href="#cb9-367" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
+<span id="cb9-368"><a href="#cb9-368" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
+<span id="cb9-369"><a href="#cb9-369" aria-hidden="true" tabindex="-1"></a>      <span class="dt">z</span><span class="op">:</span> <span class="st">"noise"</span><span class="op">,</span></span>
+<span id="cb9-370"><a href="#cb9-370" aria-hidden="true" tabindex="-1"></a>      <span class="dt">text</span><span class="op">:</span> d <span class="kw">=&gt;</span> <span class="st">"w = "</span> <span class="op">+</span> d<span class="op">.</span><span class="at">noise</span><span class="op">,</span></span>
+<span id="cb9-371"><a href="#cb9-371" aria-hidden="true" tabindex="-1"></a>      <span class="dt">textAnchor</span><span class="op">:</span> <span class="st">"start"</span><span class="op">,</span></span>
+<span id="cb9-372"><a href="#cb9-372" aria-hidden="true" tabindex="-1"></a>      <span class="dt">dx</span><span class="op">:</span> <span class="dv">3</span></span>
+<span id="cb9-373"><a href="#cb9-373" aria-hidden="true" tabindex="-1"></a>    }))<span class="op">,</span></span>
+<span id="cb9-374"><a href="#cb9-374" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span> {<span class="dt">filter</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">value</span> <span class="op">&lt;=</span> <span class="dv">25</span> <span class="op">&amp;&amp;</span> d<span class="op">.</span><span class="at">type</span> <span class="op">==</span> <span class="st">"average"</span><span class="op">,</span> </span>
+<span id="cb9-375"><a href="#cb9-375" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">x</span><span class="op">:</span><span class="st">"state"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"value"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span><span class="st">"red"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb9-376"><a href="#cb9-376" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">text</span>(points<span class="op">,</span> Plot<span class="op">.</span><span class="fu">selectLast</span>({</span>
+<span id="cb9-377"><a href="#cb9-377" aria-hidden="true" tabindex="-1"></a>      <span class="dt">filter</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">value</span> <span class="op">&lt;=</span> <span class="dv">25</span> <span class="op">&amp;&amp;</span> d<span class="op">.</span><span class="at">type</span> <span class="op">==</span> <span class="st">"average"</span><span class="op">,</span> </span>
+<span id="cb9-378"><a href="#cb9-378" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
+<span id="cb9-379"><a href="#cb9-379" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
+<span id="cb9-380"><a href="#cb9-380" aria-hidden="true" tabindex="-1"></a>      <span class="dt">z</span><span class="op">:</span> <span class="st">"noise"</span><span class="op">,</span></span>
+<span id="cb9-381"><a href="#cb9-381" aria-hidden="true" tabindex="-1"></a>      <span class="dt">text</span><span class="op">:</span> <span class="st">"type"</span><span class="op">,</span></span>
+<span id="cb9-382"><a href="#cb9-382" aria-hidden="true" tabindex="-1"></a>      <span class="dt">textAnchor</span><span class="op">:</span> <span class="st">"start"</span><span class="op">,</span></span>
+<span id="cb9-383"><a href="#cb9-383" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span><span class="st">"red"</span><span class="op">,</span></span>
+<span id="cb9-384"><a href="#cb9-384" aria-hidden="true" tabindex="-1"></a>      <span class="dt">dy</span><span class="op">:</span> <span class="op">-</span><span class="dv">10</span></span>
+<span id="cb9-385"><a href="#cb9-385" aria-hidden="true" tabindex="-1"></a>    }))</span>
+<span id="cb9-386"><a href="#cb9-386" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb9-387"><a href="#cb9-387" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+<div class="no-row-height column-margin column-container"><div id="fig-ojs-cell-9" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<div id="ojs-cell-9" data-nodetype="declaration">
+
+</div>
+<figcaption class="figure-caption">Figure&nbsp;5.3: An example showing that the average of convex functions is convex</figcaption>
+</figure>
+</div></div></div>
+<ol type="1">
+<li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, <span class="math inline">\(F(s) = \EXP[ f(s - W) ]\)</span> is convex.</p>
+<p><strong>Proof</strong> For any realization of <span class="math inline">\(W\)</span>, <span class="math inline">\(f(s - w)\)</span> is convex in <span class="math inline">\(s\)</span>. The expectation w.r.t. <span class="math inline">\(W\)</span> is simply the sum of convex functions and is, therefore, convex.</p></li>
 <li><p>For any convex function <span class="math inline">\(f \colon \reals \to \reals\)</span>, let <span class="math inline">\(s^* = \arg \min_{s \in \reals} f(s)\)</span>. Then, <span class="math display">\[\arg \min_{a \in \reals_{\ge 0}} f(s + a) = \begin{cases}
 0, &amp; \text{if } s &gt; s^*, \\
 s^* - s, &amp; \text{if } s \le s^*
 \end{cases}\]</span> and <span class="math display">\[F(s) = \min_{a \in \reals_{\ge 0}} f(s+a) = \begin{cases}
 f(s), &amp; \text{if } s &gt; s^* \\
 f(s^*), &amp; \text{if } s \le s^*
-\end{cases}\]</span> and <span class="math inline">\(F(s)\)</span> is convex in <span class="math inline">\(s\)</span>.</p>
-<p>We first see an illustration of <span class="math inline">\(F(s) = \min\{ f(s), f(s+1), f(s+2) \}\)</span>. Note that the resulting function is not convex because <span class="math inline">\(a\)</span> takes only discrete values. But the plot shows that the minimum will look like when we allow <span class="math inline">\(a\)</span> to take continuous values.</p>
-<figure style="max-width:40em;" class="figure">
-<div id="observablehq-minimum_plot-11079710">
+\end{cases}\]</span> and <span class="math inline">\(F(s)\)</span> is convex in <span class="math inline">\(s\)</span>.</p></li>
+</ol>
+<div class="cell page-columns page-full">
+<div class="sourceCode cell-code hidden" id="cb10" data-startfrom="414" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 413;"><span id="cb10-414"><a href="#cb10-414" aria-hidden="true" tabindex="-1"></a>minimumPlot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb10-415"><a href="#cb10-415" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb10-416"><a href="#cb10-416" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">25</span>] }<span class="op">,</span></span>
+<span id="cb10-417"><a href="#cb10-417" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">60</span><span class="op">,</span></span>
+<span id="cb10-418"><a href="#cb10-418" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginTop</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
+<span id="cb10-419"><a href="#cb10-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-420"><a href="#cb10-420" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb10-421"><a href="#cb10-421" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb10-422"><a href="#cb10-422" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb10-423"><a href="#cb10-423" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb10-424"><a href="#cb10-424" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb10-425"><a href="#cb10-425" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span> {<span class="dt">filter</span><span class="op">:</span> d <span class="kw">=&gt;</span>  d<span class="op">.</span><span class="at">value</span> <span class="op">&lt;=</span> <span class="dv">25</span> <span class="op">&amp;&amp;</span> d<span class="op">.</span><span class="at">type</span> <span class="op">==</span> <span class="st">"noise"</span><span class="op">,</span> </span>
+<span id="cb10-426"><a href="#cb10-426" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">x</span><span class="op">:</span><span class="st">"state"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"value"</span><span class="op">,</span> <span class="dt">z</span><span class="op">:</span><span class="st">"noise"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span><span class="st">"gray"</span>})<span class="op">,</span></span>
+<span id="cb10-427"><a href="#cb10-427" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">text</span>(points<span class="op">,</span> Plot<span class="op">.</span><span class="fu">selectLast</span>({</span>
+<span id="cb10-428"><a href="#cb10-428" aria-hidden="true" tabindex="-1"></a>      <span class="dt">filter</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">value</span> <span class="op">&lt;=</span> <span class="dv">25</span> <span class="op">&amp;&amp;</span> d<span class="op">.</span><span class="at">type</span> <span class="op">==</span> <span class="st">"noise"</span><span class="op">,</span> </span>
+<span id="cb10-429"><a href="#cb10-429" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
+<span id="cb10-430"><a href="#cb10-430" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
+<span id="cb10-431"><a href="#cb10-431" aria-hidden="true" tabindex="-1"></a>      <span class="dt">z</span><span class="op">:</span> <span class="st">"noise"</span><span class="op">,</span></span>
+<span id="cb10-432"><a href="#cb10-432" aria-hidden="true" tabindex="-1"></a>      <span class="dt">text</span><span class="op">:</span> d <span class="kw">=&gt;</span> <span class="st">"f(s +"</span> <span class="op">+</span> d<span class="op">.</span><span class="at">noise</span> <span class="op">+</span> <span class="st">")"</span><span class="op">,</span></span>
+<span id="cb10-433"><a href="#cb10-433" aria-hidden="true" tabindex="-1"></a>      <span class="dt">textAnchor</span><span class="op">:</span> <span class="st">"start"</span><span class="op">,</span></span>
+<span id="cb10-434"><a href="#cb10-434" aria-hidden="true" tabindex="-1"></a>      <span class="dt">dx</span><span class="op">:</span> <span class="dv">3</span></span>
+<span id="cb10-435"><a href="#cb10-435" aria-hidden="true" tabindex="-1"></a>    }))<span class="op">,</span></span>
+<span id="cb10-436"><a href="#cb10-436" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span> {<span class="dt">filter</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">value</span> <span class="op">&lt;=</span> <span class="dv">25</span> <span class="op">&amp;&amp;</span> d<span class="op">.</span><span class="at">type</span> <span class="op">==</span> <span class="st">"minimum"</span><span class="op">,</span> </span>
+<span id="cb10-437"><a href="#cb10-437" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">x</span><span class="op">:</span><span class="st">"state"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"value"</span><span class="op">,</span> <span class="dt">stroke</span><span class="op">:</span><span class="st">"red"</span><span class="op">,</span> <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb10-438"><a href="#cb10-438" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">text</span>(points<span class="op">,</span> Plot<span class="op">.</span><span class="fu">selectLast</span>({</span>
+<span id="cb10-439"><a href="#cb10-439" aria-hidden="true" tabindex="-1"></a>      <span class="dt">filter</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">value</span> <span class="op">&lt;=</span> <span class="dv">25</span> <span class="op">&amp;&amp;</span> d<span class="op">.</span><span class="at">type</span> <span class="op">==</span> <span class="st">"minimum"</span><span class="op">,</span> </span>
+<span id="cb10-440"><a href="#cb10-440" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
+<span id="cb10-441"><a href="#cb10-441" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
+<span id="cb10-442"><a href="#cb10-442" aria-hidden="true" tabindex="-1"></a>      <span class="dt">text</span><span class="op">:</span> <span class="st">"type"</span><span class="op">,</span></span>
+<span id="cb10-443"><a href="#cb10-443" aria-hidden="true" tabindex="-1"></a>      <span class="dt">textAnchor</span><span class="op">:</span> <span class="st">"start"</span><span class="op">,</span></span>
+<span id="cb10-444"><a href="#cb10-444" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span><span class="st">"red"</span><span class="op">,</span></span>
+<span id="cb10-445"><a href="#cb10-445" aria-hidden="true" tabindex="-1"></a>      <span class="dt">dy</span><span class="op">:</span> <span class="op">-</span><span class="dv">10</span></span>
+<span id="cb10-446"><a href="#cb10-446" aria-hidden="true" tabindex="-1"></a>    }))</span>
+<span id="cb10-447"><a href="#cb10-447" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb10-448"><a href="#cb10-448" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+<div class="no-row-height column-margin column-container"><div id="fig-min" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<div id="ojs-cell-10" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">
-<p><b>Figure 4</b><br> An example showing that the minimum of <span class="math inline">\(f(s)\)</span>, <span class="math inline">\(f(s+1)\)</span>, <span class="math inline">\(f(s+2)\)</span>.</p>
-</figcaption>
+<figcaption class="figure-caption">Figure&nbsp;5.4: An example showing the minimum of <span class="math inline">\(f(s)\)</span>, <span class="math inline">\(f(s+1)\)</span>, <span class="math inline">\(f(s+2)\)</span>.</figcaption>
 </figure>
-<p>If there were no constraint on <span class="math inline">\(a\)</span>, then the minimizer will be <span class="math inline">\(a = s^* -  s\)</span>. If <span class="math inline">\(s \le s^*\)</span>, then <span class="math inline">\(a = s^* -s \in \reals_{\ge 0}\)</span> is the minimizer for the constrained problem as well. On the other hand, if <span class="math inline">\(s \ge s^*\)</span>, then the function <span class="math inline">\(f(s + a)\)</span> is increasing as a function of <span class="math inline">\(a\)</span>. Hence, the minimizer for the constrained problem is <span class="math inline">\(a = 0\)</span>. See the figures below.</p></li>
-</ol>
+</div></div></div>
+<p>We first see an illustration of <span class="math inline">\(F(s) = \min\{ f(s), f(s+1), f(s+2) \}\)</span> in <a href="#fig-min">Figure&nbsp;<span>5.4</span></a>. Note that the resulting function is not convex because <span class="math inline">\(a\)</span> takes only discrete values. But the plot shows that the minimum will look like when we allow <span class="math inline">\(a\)</span> to take continuous values.</p>
+<p>If there were no constraint on <span class="math inline">\(a\)</span>, then the minimizer will be <span class="math inline">\(a = s^* - s\)</span>. If <span class="math inline">\(s \le s^*\)</span>, then <span class="math inline">\(a = s^* -s \in \reals_{\ge 0}\)</span> is the minimizer for the constrained problem as well. On the other hand, if <span class="math inline">\(s \ge s^*\)</span>, then the function <span class="math inline">\(f(s + a)\)</span> is increasing as a function of <span class="math inline">\(a\)</span>. Hence, the minimizer for the constrained problem is <span class="math inline">\(a = 0\)</span>.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -973,6 +1305,21 @@ Proof of the structural result
 <p>The problem for Exercise 1 is from <span class="citation" data-cites="Veinott1965">Veinott (<a href="../references.html#ref-Veinott1965" role="doc-biblioref">1965</a>)</span>. See <span class="citation" data-cites="Tsitsiklis1984">Tsitsiklis (<a href="../references.html#ref-Tsitsiklis1984" role="doc-biblioref">1984</a>)</span> for a partial characterization of the optimal policy with non-zero ordering costs.</p>
 
 
+<script type="ojs-module-contents">
+{"contents":[
+  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${n}</span>`", "cellName":"ojs-element-id-1"}
+,
+  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${s}</span>`", "cellName":"ojs-element-id-2"}
+,
+  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${p0}</span>`", "cellName":"ojs-element-id-3"}
+,
+  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${ch}</span>`", "cellName":"ojs-element-id-4"}
+,
+  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${cs}</span>`", "cellName":"ojs-element-id-5"}
+,
+  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${T}</span>`", "cellName":"ojs-element-id-6"}
+]}
+</script>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Arrow1951" class="csl-entry" role="listitem">
 <span class="smallcaps">Arrow, K.J., Harris, T., and Marschak, J.</span> 1952. Optimal inventory policy. <em>Econometrica</em> <em>20</em>, 1, 250–272. DOI: <a href="https://doi.org/10.2307/1907830">10.2307/1907830</a>.
@@ -994,6 +1341,17 @@ Proof of the structural result
 
 
 </main> <!-- /main -->
+<script type="ojs-module-contents">
+{"contents":[{"methodName":"interpret","cellName":"ojs-cell-1","inline":false,"source":"// Demand parameters\nn = 50\ns = 0.4\n\n// Model parameters\np0 = 5\nch = 4\ncs = 2\n\n\nh = function(s) {\n  if(s >= 0) \n    return ch*s\n  else\n    return -cs*s\n}\n\n// Horizon\nT = 15\n"},{"methodName":"interpret","cellName":"ojs-cell-2","inline":false,"source":"\nbinomial = {\n  // From https://stackoverflow.com/a/37715980/193149\n  const logf = [0, 0, 0.6931471805599453, 1.791759469228055, 3.1780538303479458, 4.787491742782046, 6.579251212010101, 8.525161361065415, 10.60460290274525, 12.801827480081469, 15.104412573075516, 17.502307845873887, 19.987214495661885, 22.552163853123425, 25.19122118273868, 27.89927138384089, 30.671860106080672, 33.50507345013689, 36.39544520803305, 39.339884187199495, 42.335616460753485, 45.38013889847691, 48.47118135183523, 51.60667556776438, 54.78472939811232, 58.00360522298052, 61.261701761002, 64.55753862700634, 67.88974313718154, 71.25703896716801, 74.65823634883016, 78.0922235533153, 81.55795945611504, 85.05446701758152, 88.58082754219768, 92.1361756036871, 95.7196945421432, 99.33061245478743, 102.96819861451381, 106.63176026064346, 110.32063971475739, 114.0342117814617, 117.77188139974507, 121.53308151543864, 125.3172711493569, 129.12393363912722, 132.95257503561632, 136.80272263732635, 140.67392364823425, 144.5657439463449, 148.47776695177302, 152.40959258449735, 156.3608363030788, 160.3311282166309, 164.32011226319517, 168.32744544842765,  172.3527971391628, 176.39584840699735, 180.45629141754378, 184.53382886144948, 188.6281734236716, 192.7390472878449, 196.86618167289, 201.00931639928152, 205.1681994826412, 209.34258675253685, 213.53224149456327, 217.73693411395422, 221.95644181913033, 226.1905483237276, 230.43904356577696, 234.70172344281826, 238.97838956183432, 243.2688490029827, 247.57291409618688, 251.8904022097232, 256.22113555000954, 260.5649409718632, 264.9216497985528, 269.2910976510198, 273.6731242856937, 278.0675734403661, 282.4742926876304, 286.893133295427, 291.3239500942703, 295.76660135076065, 300.22094864701415, 304.6868567656687, 309.1641935801469, 313.65282994987905, 318.1526396202093, 322.66349912672615, 327.1852877037752, 331.7178871969285, 336.26118197919845, 340.815058870799, 345.37940706226686, 349.95411804077025, 354.5390855194408, 359.1342053695754, 363.73937555556347]\n\n  return function(n, k, p) {\n      return Math.exp(logf[n] - logf[n-k] - logf[k]) * p**k * (1-p)**(n-k)\n  }\n}\n\nW = {\n  var points = new Array(n+1)\n  var cumulative = 0\n  var probability = 0\n\n  for(var k = 0; k <= n; k++) {\n    probability = binomial(n,k,s)\n    cumulative += probability\n    points[k] = { demand:k, probability: probability, cumulative: cumulative }\n  }\n\n  return points\n}\n"},{"methodName":"interpret","cellName":"ojs-cell-3","inline":false,"source":"demandPlot = Plot.plot({\n  grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(W, {x:\"demand\", y:\"probability\",curve:\"step-after\"})\n  ]\n})\n"},{"methodName":"interpret","cellName":"ojs-cell-4","inline":false,"source":"DP = {\n   var DP = new Array()\n   var idx = 0\n\n  \n   const Smax =  (W.length - 1)*T\n   var V = new Array(2*Smax + 1)  // -Smax to Smax\n   var H = new Array(3*Smax + 1)  // -Smax to 2Smax\n\n   \n  \n   // Initialize the terminal value function\n   for( var s = -Smax; s <= Smax; s++) {\n      V[s + Smax] = 0\n   }\n\n   // Dynamic programming\n   for( var t = T; t >= 0; t--) {\n     // H(z) = EXP[ h(z-W) + V(z-W) ]\n     for( var z = -Smax; z <= 2*Smax; z++) {\n       H[z + Smax] = 0\n       for( var i = 0; i < W.length; i++ ) {\n         var w = W[i].demand\n         H[z + Smax] += (h(z - w) + V[Math.min(Math.max(z-w, -Smax), Smax) + Smax])*W[i].probability\n       }\n     }\n\n     // V(s) = min_{a in S_{>= 0}} { p*a + H(s+a) }\n     for(var s = -Smax; s <= Smax; s++) {\n       var opt = 0\n       var val = H[s + Smax]\n       for(var a = 1; a <= Smax; a++) {\n         var newVal = p*a + H[Math.min(s+a, 2*Smax) + Smax ]\n         if(newVal <= val) {\n           opt = a\n           val = newVal\n         }\n       }\n       V[s + Smax] = val\n       DP[idx++] = { time: t, state: s, value: val, action: opt }\n     }\n   }\n   \n   \n   return DP\n     \n}\n"},{"methodName":"interpret","cellName":"ojs-cell-5","inline":false,"source":"viewof time = Inputs.range([1, T], {label: \"t\", step: 1, value: 1 })\n"},{"methodName":"interpret","cellName":"ojs-cell-6","inline":false,"source":"valuePlot = Plot.plot({\n  grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(DP.filter(d => d.time == time && Math.abs(d.state) <= 75), {x:\"state\", y:\"value\", curve:\"step-after\"})\n  ]\n})\n\nactionPlot = Plot.plot({\n  grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(DP.filter(d => d.time == time && Math.abs(d.state) <= 20), {x:\"state\", y:\"action\", curve:\"step-after\"})\n  ]\n})\n"},{"methodName":"interpret","cellName":"ojs-cell-7","inline":false,"source":"viewof p = Inputs.range([1, 15], {label: \"Purchase cost\", step: 0.5, value: p0 })\n"},{"methodName":"interpret","cellName":"ojs-cell-8","inline":false,"source":"points = {\n  const n = 100\n  const Smax = 10\n\n  const f = function(s) { return (s-5)**2 }\n\n  var points = new Array()\n  var W = [0, 1, 2 ]\n  var Pw = [1/3, 1/3, 1/3]\n\n  var idx = 0\n  for( var i = 0; i < n; i++) {\n    var s = Smax*i/n\n    var sum = 0\n    var min = 10000 // CHECK: Large positive number\n    for(var w = 0; w < W.length; w++) {\n      sum += f(s + W[w])\n      min = Math.min(min, f(s+W[w]))\n      points[idx++] = { state: s, value: f(s + W[w]), noise:W[w], type: \"noise\" }\n    }\n    points[idx++] = { state: s, value: sum/W.length, type: \"average\" }\n    points[idx++] = { state: s, value: min, type: \"minimum\" }\n  }\n  return points\n  }\n"},{"methodName":"interpret","cellName":"ojs-cell-9","inline":false,"source":"averagePlot = Plot.plot({\n  grid: true,\n  y: { domain: [0, 25] },\n  marginRight: 40,\n  marginTop: 40,\n\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(points, {filter: d =>  d.value <= 25 && d.type == \"noise\", \n                       x:\"state\", y:\"value\", z:\"noise\", stroke:\"gray\"}),\n    Plot.text(points, Plot.selectLast({\n      filter: d => d.value <= 25 && d.type == \"noise\", \n      x: \"state\",\n      y: \"value\",\n      z: \"noise\",\n      text: d => \"w = \" + d.noise,\n      textAnchor: \"start\",\n      dx: 3\n    })),\n    Plot.line(points, {filter: d => d.value <= 25 && d.type == \"average\", \n                       x:\"state\", y:\"value\", stroke:\"red\", strokeWidth: 4}),\n    Plot.text(points, Plot.selectLast({\n      filter: d => d.value <= 25 && d.type == \"average\", \n      x: \"state\",\n      y: \"value\",\n      z: \"noise\",\n      text: \"type\",\n      textAnchor: \"start\",\n      fill:\"red\",\n      dy: -10\n    }))\n  ]\n})\n"},{"methodName":"interpret","cellName":"ojs-cell-10","inline":false,"source":"minimumPlot = Plot.plot({\n  grid: true,\n  y: { domain: [0, 25] },\n  marginRight: 60,\n  marginTop: 40,\n\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(points, {filter: d =>  d.value <= 25 && d.type == \"noise\", \n                       x:\"state\", y:\"value\", z:\"noise\", stroke:\"gray\"}),\n    Plot.text(points, Plot.selectLast({\n      filter: d => d.value <= 25 && d.type == \"noise\", \n      x: \"state\",\n      y: \"value\",\n      z: \"noise\",\n      text: d => \"f(s +\" + d.noise + \")\",\n      textAnchor: \"start\",\n      dx: 3\n    })),\n    Plot.line(points, {filter: d => d.value <= 25 && d.type == \"minimum\", \n                       x:\"state\", y:\"value\", stroke:\"red\", strokeWidth: 4}),\n    Plot.text(points, Plot.selectLast({\n      filter: d => d.value <= 25 && d.type == \"minimum\", \n      x: \"state\",\n      y: \"value\",\n      text: \"type\",\n      textAnchor: \"start\",\n      fill:\"red\",\n      dy: -10\n    }))\n  ]\n})\n"},{"methodName":"interpretQuiet","source":"shinyInput('time')"},{"methodName":"interpretQuiet","source":"shinyInput('p')"}]}
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../mdps";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
