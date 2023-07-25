@@ -5,6 +5,8 @@ keywords:
   - post-decision state
   - base-stock policy
   - structural results
+execute:
+  echo: false
 ---
 
 ::: {.column-margin}
@@ -105,54 +107,173 @@ properties of the optimal solution.
 
 [newsvendor]: ../../stochastic/newsvendor
 
-To fix ideas, let's solve this dynamic program for a specific instance. We
-consider $p = 5$, $c_h = 4$, $c_s = 2$, and assume that the demand is distributed
-according to a Binomial(10,0.4) distribution, as shown in Figure 1.
+```{ojs}
+// Demand parameters
+n = 50
+s = 0.4
 
-::: {.column-margin}
-<figure style='max-width:20em;' id="fig1">
-<div id="observablehq-demand_plot-d2dc6ce7"></div>
-<figcaption><b>Figure 1</b><br />
-Demand distribution</figcaption>
-</figure>
-::: 
+// Model parameters
+p0 = 5
+ch = 4
+cs = 2
 
-We consider a horizon $T = 15$, and solve the dynamic program shown above. The
-optimal value function and policy are shown below:
 
-<figure style='max-width:40em;'>
-<div id="observablehq-viewof-time-d2dc6ce7"></div>
-<table>
-<tr>
-<td id="observablehq-value_plot-d2dc6ce7"></td>
-<td id="observablehq-action_plot-d2dc6ce7"></td>
-</tr>
-<tr> 
-<td> Value function </td>
-<td> Optimal policy </td>
-</table>
-<figcaption><b>Figure 2</b><br/>
-The value function and the optimal policy for the example shown
-above</figcaption>
-</figure>
+h = function(s) {
+  if(s >= 0) 
+    return ch*s
+  else
+    return -cs*s
+}
+
+// Horizon
+T = 15
+```
+
+```{ojs}
+
+binomial = {
+  // From https://stackoverflow.com/a/37715980/193149
+  const logf = [0, 0, 0.6931471805599453, 1.791759469228055, 3.1780538303479458, 4.787491742782046, 6.579251212010101, 8.525161361065415, 10.60460290274525, 12.801827480081469, 15.104412573075516, 17.502307845873887, 19.987214495661885, 22.552163853123425, 25.19122118273868, 27.89927138384089, 30.671860106080672, 33.50507345013689, 36.39544520803305, 39.339884187199495, 42.335616460753485, 45.38013889847691, 48.47118135183523, 51.60667556776438, 54.78472939811232, 58.00360522298052, 61.261701761002, 64.55753862700634, 67.88974313718154, 71.25703896716801, 74.65823634883016, 78.0922235533153, 81.55795945611504, 85.05446701758152, 88.58082754219768, 92.1361756036871, 95.7196945421432, 99.33061245478743, 102.96819861451381, 106.63176026064346, 110.32063971475739, 114.0342117814617, 117.77188139974507, 121.53308151543864, 125.3172711493569, 129.12393363912722, 132.95257503561632, 136.80272263732635, 140.67392364823425, 144.5657439463449, 148.47776695177302, 152.40959258449735, 156.3608363030788, 160.3311282166309, 164.32011226319517, 168.32744544842765,  172.3527971391628, 176.39584840699735, 180.45629141754378, 184.53382886144948, 188.6281734236716, 192.7390472878449, 196.86618167289, 201.00931639928152, 205.1681994826412, 209.34258675253685, 213.53224149456327, 217.73693411395422, 221.95644181913033, 226.1905483237276, 230.43904356577696, 234.70172344281826, 238.97838956183432, 243.2688490029827, 247.57291409618688, 251.8904022097232, 256.22113555000954, 260.5649409718632, 264.9216497985528, 269.2910976510198, 273.6731242856937, 278.0675734403661, 282.4742926876304, 286.893133295427, 291.3239500942703, 295.76660135076065, 300.22094864701415, 304.6868567656687, 309.1641935801469, 313.65282994987905, 318.1526396202093, 322.66349912672615, 327.1852877037752, 331.7178871969285, 336.26118197919845, 340.815058870799, 345.37940706226686, 349.95411804077025, 354.5390855194408, 359.1342053695754, 363.73937555556347]
+
+  return function(n, k, p) {
+      return Math.exp(logf[n] - logf[n-k] - logf[k]) * p**k * (1-p)**(n-k)
+  }
+}
+
+W = {
+  var points = new Array(n+1)
+  var cumulative = 0
+  var probability = 0
+
+  for(var k = 0; k <= n; k++) {
+    probability = binomial(n,k,s)
+    cumulative += probability
+    points[k] = { demand:k, probability: probability, cumulative: cumulative }
+  }
+
+  return points
+}
+```
+
+To fix ideas, let's solve this dynamic program for a specific instance. 
+
+```{ojs}
+//| label: fig-demand
+//| fig-cap: Demand Distribution
+//| column: margin
+demandPlot = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(W, {x:"demand", y:"probability",curve:"step-after"})
+  ]
+})
+```
+
+We assume that the demand is distributed according to a Binomial(${n}, ${s}) distribution, as shown in @fig-demand.
+We assume that the model parameters are as given below:
+
+<center>
+$p =$ ${p0},
+$c_h =$ ${ch}, 
+$c_s =$ ${cs}
+
+</center>
+
+We consider a horizon $T =$ ${T}, and solve the dynamic program shown above. The optimal value function and policy are shown below:
+
+```{ojs}
+DP = {
+   var DP = new Array()
+   var idx = 0
+
+  
+   const Smax =  (W.length - 1)*T
+   var V = new Array(2*Smax + 1)  // -Smax to Smax
+   var H = new Array(3*Smax + 1)  // -Smax to 2Smax
+
+   
+  
+   // Initialize the terminal value function
+   for( var s = -Smax; s <= Smax; s++) {
+      V[s + Smax] = 0
+   }
+
+   // Dynamic programming
+   for( var t = T; t >= 0; t--) {
+     // H(z) = EXP[ h(z-W) + V(z-W) ]
+     for( var z = -Smax; z <= 2*Smax; z++) {
+       H[z + Smax] = 0
+       for( var i = 0; i < W.length; i++ ) {
+         var w = W[i].demand
+         H[z + Smax] += (h(z - w) + V[Math.min(Math.max(z-w, -Smax), Smax) + Smax])*W[i].probability
+       }
+     }
+
+     // V(s) = min_{a in S_{>= 0}} { p*a + H(s+a) }
+     for(var s = -Smax; s <= Smax; s++) {
+       var opt = 0
+       var val = H[s + Smax]
+       for(var a = 1; a <= Smax; a++) {
+         var newVal = p*a + H[Math.min(s+a, 2*Smax) + Smax ]
+         if(newVal <= val) {
+           opt = a
+           val = newVal
+         }
+       }
+       V[s + Smax] = val
+       DP[idx++] = { time: t, state: s, value: val, action: opt }
+     }
+   }
+   
+   
+   return DP
+     
+}
+```
+
+```{ojs}
+viewof time = Inputs.range([1, T], {label: "t", step: 1, value: 1 })
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| fig-cap: Dynamic programming solution for the example
+//| fig-subcap:
+//|     - Value function
+//|     - Optimal policy
+valuePlot = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(DP.filter(d => d.time == time && Math.abs(d.state) <= 75), {x:"state", y:"value", curve:"step-after"})
+  ]
+})
+
+actionPlot = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(DP.filter(d => d.time == time && Math.abs(d.state) <= 20), {x:"state", y:"action", curve:"step-after"})
+  ]
+})
+```
 
 The plots above suggest that the optimal policy has a structure. Play around
 with the value of the purchase cost to see if that structure is retained.
 
-<div id="observablehq-viewof-p-d2dc6ce7"></div>
-
-<script type="module">
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
-new Runtime().module(define, name => {
-  if (name === "action_plot") return new Inspector(document.querySelector("#observablehq-action_plot-d2dc6ce7"));
-  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-d2dc6ce7"));
-  if (name === "demand_plot") return new Inspector(document.querySelector("#observablehq-demand_plot-d2dc6ce7"));
-  if (name === "viewof time") return new Inspector(document.querySelector("#observablehq-viewof-time-d2dc6ce7"));
-  if (name === "value_plot") return new Inspector(document.querySelector("#observablehq-value_plot-d2dc6ce7"));
-  return ["DP"].includes(name);
-});
-</script>
+```{ojs}
+viewof p = Inputs.range([1, 15], {label: "Purchase cost", step: 0.5, value: p0 })
+```
 
 We will now see how to prove the structure of optimal policy.
 
@@ -196,30 +317,82 @@ decision is to order more goods so that the level of the stock equals the
 base stock level. 
 :::
 
+```{ojs}
+points = {
+  const n = 100
+  const Smax = 10
+
+  const f = function(s) { return (s-5)**2 }
+
+  var points = new Array()
+  var W = [0, 1, 2 ]
+  var Pw = [1/3, 1/3, 1/3]
+
+  var idx = 0
+  for( var i = 0; i < n; i++) {
+    var s = Smax*i/n
+    var sum = 0
+    var min = 10000 // CHECK: Large positive number
+    for(var w = 0; w < W.length; w++) {
+      sum += f(s + W[w])
+      min = Math.min(min, f(s+W[w]))
+      points[idx++] = { state: s, value: f(s + W[w]), noise:W[w], type: "noise" }
+    }
+    points[idx++] = { state: s, value: sum/W.length, type: "average" }
+    points[idx++] = { state: s, value: min, type: "minimum" }
+  }
+  return points
+  }
+```
+
 We first establish some preliminary results.
 
-<script type="module">
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-import define from "https://api.observablehq.com/@adityam/properties-of-convex-functions.js?v=3";
-new Runtime().module(define, name => {
-  if (name === "average_plot") return new Inspector(document.querySelector("#observablehq-average_plot-11079710"));
-  if (name === "minimum_plot") return new Inspector(document.querySelector("#observablehq-minimum_plot-11079710"));
-});
-</script>
+```{ojs}
+//| column: margin
+//| fig-cap: An example showing that the average of convex functions is convex
+averagePlot = Plot.plot({
+  grid: true,
+  y: { domain: [0, 25] },
+  marginRight: 40,
+  marginTop: 40,
 
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(points, {filter: d =>  d.value <= 25 && d.type == "noise", 
+                       x:"state", y:"value", z:"noise", stroke:"gray"}),
+    Plot.text(points, Plot.selectLast({
+      filter: d => d.value <= 25 && d.type == "noise", 
+      x: "state",
+      y: "value",
+      z: "noise",
+      text: d => "w = " + d.noise,
+      textAnchor: "start",
+      dx: 3
+    })),
+    Plot.line(points, {filter: d => d.value <= 25 && d.type == "average", 
+                       x:"state", y:"value", stroke:"red", strokeWidth: 4}),
+    Plot.text(points, Plot.selectLast({
+      filter: d => d.value <= 25 && d.type == "average", 
+      x: "state",
+      y: "value",
+      z: "noise",
+      text: "type",
+      textAnchor: "start",
+      fill:"red",
+      dy: -10
+    }))
+  ]
+})
+```
 1. For any convex function $f \colon \reals \to \reals$, 
    $F(s) = \EXP[ f(s - W) ]$ is convex.
 
    **Proof** For any realization of $W$, $f(s - w)$ is convex in $s$.
    The expectation w.r.t. $W$ is simply the sum of convex functions and is,
    therefore, convex. 
-
-      <figure style='max-width:40em;'>
-        <div id="observablehq-average_plot-11079710"></div>
-        <figcaption><b>Figure 3</b><br />
-        An example showing that the average of convex functions is convex.
-        </figcaption>
-      </figure>
 
 
 2. For any convex function $f \colon \reals \to \reals$, 
@@ -235,25 +408,59 @@ new Runtime().module(define, name => {
     \end{cases}$$
     and $F(s)$ is convex in $s$.
 
+```{ojs}
+//| column: margin
+//| label: fig-min
+//| fig-cap: An example showing the minimum of $f(s)$, $f(s+1)$, $f(s+2)$. 
+minimumPlot = Plot.plot({
+  grid: true,
+  y: { domain: [0, 25] },
+  marginRight: 60,
+  marginTop: 40,
 
-     We first see an illustration of $F(s) = \min\{ f(s), f(s+1), f(s+2) \}$. Note
-     that the resulting function is not convex because $a$ takes only discrete
-     values. But the plot shows that the minimum will look like when we allow
-     $a$ to take continuous values. 
-     <figure style='max-width:40em;'>
-       <div id="observablehq-minimum_plot-11079710"></div>
-       <figcaption><b>Figure 4</b><br />
-       An example showing that the minimum of $f(s)$, $f(s+1)$, $f(s+2)$. 
-       </figcaption>
-     </figure>
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(points, {filter: d =>  d.value <= 25 && d.type == "noise", 
+                       x:"state", y:"value", z:"noise", stroke:"gray"}),
+    Plot.text(points, Plot.selectLast({
+      filter: d => d.value <= 25 && d.type == "noise", 
+      x: "state",
+      y: "value",
+      z: "noise",
+      text: d => "f(s +" + d.noise + ")",
+      textAnchor: "start",
+      dx: 3
+    })),
+    Plot.line(points, {filter: d => d.value <= 25 && d.type == "minimum", 
+                       x:"state", y:"value", stroke:"red", strokeWidth: 4}),
+    Plot.text(points, Plot.selectLast({
+      filter: d => d.value <= 25 && d.type == "minimum", 
+      x: "state",
+      y: "value",
+      text: "type",
+      textAnchor: "start",
+      fill:"red",
+      dy: -10
+    }))
+  ]
+})
+```
 
 
-     If there were no constraint on $a$, then the minimizer will be $a = s^* -
-     s$. If $s \le s^*$, then $a = s^* -s \in \reals_{\ge 0}$ is the minimizer for
-     the constrained problem as well. On the other hand, if $s \ge s^*$, then
-     the function $f(s + a)$ is increasing as a function of $a$. Hence,
-     the minimizer for the constrained problem is $a = 0$. 
-     See the figures below.
+We first see an illustration of $F(s) = \min\{ f(s), f(s+1), f(s+2) \}$ in @fig-min. Note
+that the resulting function is not convex because $a$ takes only discrete
+values. But the plot shows that the minimum will look like when we allow
+$a$ to take continuous values. 
+
+
+If there were no constraint on $a$, then the minimizer will be $a = s^* -
+s$. If $s \le s^*$, then $a = s^* -s \in \reals_{\ge 0}$ is the minimizer for
+the constrained problem as well. On the other hand, if $s \ge s^*$, then
+the function $f(s + a)$ is increasing as a function of $a$. Hence,
+the minimizer for the constrained problem is $a = 0$. 
 
 
 ::: {.callout-note collapse="true"}
