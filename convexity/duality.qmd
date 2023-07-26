@@ -1,0 +1,240 @@
+---
+title: Duality
+execute:
+  echo: false
+---
+
+## Basic Intuition
+
+We start by stating a [basic fact](https://proofwiki.org/wiki/Convex_Real_Function_is_Pointwise_Supremum_of_Affine_Functions)
+
+:::{.callout-tip}
+### Characterization of convex functions
+Any convex function can be represented as a pointwise supremum of convex functions. More formally, for any convex $f \colon \reals^n \to \reals$, there exists a _countable_ index set $I$ and a family of $\{a_i \in \reals^n\}_{i \in I}$ and $\{b_i \in \reals\}_{i \in I}$ such that
+$$
+  f(x) = \sup_{i \in I} \{ a_i^\TRANS x + b_i \}
+$$
+:::
+
+
+```{ojs}
+Smax = 2
+n = 100
+np = 3
+
+f = function(s) { return s*s + 1 }
+// Legendre transform of f
+g = function(s) { return s*s/4 - 1 }
+
+points = {
+
+  var points = new Array()
+  var idx = 0
+  for( var i = -n ; i <= n; i++) {
+    var s = Smax*i/n
+    points[idx++] = { point: s, value: f(s) }
+  }
+  return points
+  }
+
+legendre = {
+  var points = new Array()
+  var idx = 0
+
+  for( var i = -np; i <= np; i++) {
+    var p = Smax*i/np
+    var gp = g(p)
+    points[idx++] = { x: -Smax, y: -Smax*p - gp, index: i }
+    points[idx++] = { x:  Smax, y:  Smax*p - gp, index: i }
+  }
+
+  return points
+}
+```
+
+```{ojs}
+//| column: margin
+//| label: fig-affine-sup
+//| fig-cap: Convex function as a supremum of affine functions
+averagePlot = Plot.plot({
+  grid: true,
+  y: { domain: [0, 5] },
+
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(legendre, {x:"x", y:"y", z:"index", stroke:"gray"} ),
+
+    Plot.line(points, {x:"point", y:"value",
+                      stroke:"red", strokeWidth: 4}),
+  ]
+})
+```
+
+An illustration of this fact is shown in @fig-affine-sup. 
+
+:::{.callout-warning collapse="true"}
+### Why countable index set?
+From the figure you can convince yourself of the result for an uncountable index set $\bar I$. Now consider the set $\bar S = \{a_i, b_i\}_{i \in \bar I} \subset \reals^{n+1}$ (for uncountable $\bar I$). Since $\reals^{n+1}$ is separable, let $S = \{a_i, b_i\}_{i \in I} $ be a countable dense subset of $\bar S$ (where $I$ is countable). Since the supremum over any set is the same as the supremum of its dense subset, we can replace $\bar I$ by $I$.
+:::
+
+The Lengendre-Fenchel transform is a compact way of representing this basic fact. To fix ideas, consider a twice differentiable and strictly convex function $f \colon \reals \to \reals$. 
+Arbitrarily fix a point $x^∘$ and consider the tangent $τ(x)$ to the plot of $f(⋅)$ at $x^∘$. This tangent has a slope $p = f'(x^∘)$. Let $g$ denote the _negative_ $y$-intercept of the tangent (using the negative $y$-intercept is just a matter of convention). Thus, the equation for the tangent is:
+$$
+  τ(x) = p x - g, \quad \forall x \in \reals
+$$
+at at the point $x$, the tangent $τ$ intercepts the function $f$; thus, $τ(x^∘) = f(x^∘)$, or equivalently:
+$$
+  f(x^∘) = p x^∘ - g
+  \quad\hbox{or, equivalently}\quad
+  g = p x^∘ - f(x^∘)
+$$
+
+Note that the $g$ above depends on $x^∘$. Since $f$ is strictly convex, $f'$ is strictly increasing. Thus, there is a one-to-one relationship between the point $x^∘$ and its slope $p = f'(x^∘)$. The Lengendre-Fenchel transform is a method to define the intercept $g$ as a function of $p$. In particular, it is defined as
+$$
+  g(p) = \sup_{x \in \reals} \{ px - f(x) \}.
+$$
+
+To understand this definition, suppose $x^∘$ achieves the supremum in the above equation. Then, (i) $f(x^∘) = p x^∘ - g(p)$; that is the line $px - g(p)$ touches the function $f$ at $x^∘$; and (ii) at all other points $x \neq x^∘$, $g(p) > p x - f(x)$ or $f(x) > px - g(p)$; that is the line $px - g(p)$ lies below the function $f$. Hence, $px - g(p)$ is a [:supporting line](https://en.wikipedia.org/wiki/Supporting_line) of $f$ (and since $f$ is differentiable, equal to its tangent). 
+
+An implication of this definition is that for differentiable and convex $f$, the Legendre transform $g$ of $f$ solves
+$$
+  g(p) = p x^∘ - f(x^∘)
+$$
+where $x^∘$ solves $p = f'(x^∘)$, which is called the duality condition.
+
+:::{#exm-legendre-fenchel-quadratic}
+  Let $f(x) = x^2$. For a fixed $p$, the duality condition is $p = 2x^∘$ or $x^∘ = p/2$. Therefore,
+ $$
+  g(p) = p x^∘ - f(x^∘) = \frac{p^2}{2} - \frac{p^2}{4} = \frac{p^2}{4}.
+$$
+:::
+
+:::{#exm-legendre-fenchel-polynomial}
+  Let $f(x) = (x^α)/α$, where $α > 1$. For a fixed $p$, the duality condition is $p = (x^∘)^{α-1}$ or $x^∘ = p^{1/(p-1)}$. Therefore,
+ $$
+  g(p) = p x^∘ - f(x^∘) = p^{α/(α-1)} - \frac{1}{α} p^{α/(α-1)}
+  = \frac{α-1}{α} p^{α/(α-1)}.
+$$
+We can compactly write the above expression is $g(p) = p^β/β$, where $1/β = 1 - 1/α$.
+:::
+
+:::{#exm-legendre-fenchel-entropy}
+Let $f(x) = x \log x + (1-x) \log (1-x)$, where the domain is $[0,1]$. This is the negative binary entropy. For a fixed $p$, the duality condition is 
+$$
+p = f'(x^∘) = \log(x^∘) + 1 - \log(1-x^∘) - 1 
+% = \log(x^∘) - \log(1-x^∘)
+= \log \frac{x^∘}{1-x^∘}
+$$
+Thus, $x^∘ = e^p/(1 + e^p)$. Therefore,
+ $$
+  g(p) = p x^∘ - f(x^∘) = \log(1 + e^p),
+$$
+where the last step follows after some algebra.
+:::
+
+:::{.callout-important}
+### Fenchel-Young inequality
+Let $g$ be the Legendre-Fenchel transform of $f$. Then, by definition (changing the variable names for convenience), we have
+\begin{equation}\tag{Fenchel's inequality}
+xy \le f(x) + g(y).
+\end{equation}
+For the special case of @exm-legendre-fenchel-polynomial, we have
+\begin{equation}
+\tag{Young's inequality}
+xy \le \frac{x^p}{p} + \frac{y^q}{q}
+\end{equation}
+where $p, q > 1$ are such that $\frac 1p + \frac 1q = 1$.
+:::
+
+## General definition 
+
+:::{#def-Legendre-Fenchel-transform}
+For any function $f \colon \reals^n \to \bar {\reals}$, the function $f^* \colon \reals^n \to \bar \reals$ defined by 
+\begin{equation}\label{eq:conjugate}
+  f^*(p) \coloneqq \sup_{x \in \reals^n} \bigl\{ 
+  \langle p, x \rangle - f(x) \bigr\}
+\end{equation}
+is **conjugate** to $f$, while the function $f^{**} = (f^*)^*$ defined by 
+\begin{equation}\label{eq:biconjugate}
+  f^*(x) \coloneqq \sup_{p \in \reals^n} \bigl\{ 
+  \langle p, x \rangle - f(p) \bigr\}
+\end{equation}
+is **biconjugate** to $f$. The mapping $f \mapsto f^*$ is called **Legendre-Fenchel transform**. 
+:::
+
+The significance of the conjugate can be understood in terms of epigraph relationships. Note that \\eqref{eq:conjugate} implies that
+$$
+  (p,β) \in \text{epi } f^* 
+  \iff
+  β \ge \langle p, x \rangle - α
+  \text{ for all } (x,α) \in \text{epi } f.
+$$
+Let $\ell_{p,β}(x) \coloneqq \langle p, x \rangle - β$, then we can write the above relationship as
+$$
+  (p,β) \in \text{epi } f^* 
+  \iff
+  \ell_{p,β} \le f,
+$$
+that is, $f^*$ describes a family of affine functions majorized by $f$. Similarly, 
+$$
+  β \ge f^*(p) 
+  \iff
+  β \ge \ell_{x,α}(p)
+  \text{ for all } (x,α) \in \text{epi } f.
+$$
+
+:::{#thm-legendre-fenchel}
+For any function $f \colon \reals^n \to \bar \reals$ with $\text{con } f$ proper, both $f^*$ and $f^{**}$ are proper, lsc, convex and 
+$$
+  f^{**} = \text{cl con } f.
+$$
+Thus, $f^{**} \le f$ and when $f$ is itself proper, lsc, and convex, one has $f^{**} = f$. 
+:::
+
+## Properties of Legendre-Fenchel transform
+
+Thus, Legendre-Fenchel transform sets up a one-to-one correspondence in the class of proper, lsc, and convex functions: if $f$ is conjugate to $g$, then $g$ is a conjugate to $f$:
+$$
+f \xleftrightarrow{\hskip0.5em*\hskip0.5em} g
+\text { when }
+\begin{cases}
+g(p) = \sup_{x \in \reals^n} \bigl\{ \langle p, x \rangle - f(x) \bigr\} \\
+f(x) = \sup_{x \in \reals^n} \bigl\{ \langle p, x \rangle - g(p) \bigr\} 
+\end{cases}
+$$
+
+Given $f \xleftrightarrow{\hskip0.5em*\hskip0.5em} g$, we have the following properties:
+
+1. **Scaling properties.** For any $λ > 0$, 
+   \begin{align*}
+   λ f(x)
+   &\xleftrightarrow{\hskip0.5em*\hskip0.5em}
+   λg(λ^{-1} p),
+   \\
+   f(λx) 
+   &\xleftrightarrow{\hskip0.5em*\hskip0.5em}
+   g(λ^{-1} p),
+   \end{align*} 
+
+2. **Translation properties.**
+   \begin{align*}
+   f(x) - \langle a, x \rangle 
+   &\xleftrightarrow{\hskip0.5em*\hskip0.5em}
+   g(p + a) ,
+   \\
+   f(x + b)
+   &\xleftrightarrow{\hskip0.5em*\hskip0.5em}
+   g(p) - \langle p, b \rangle,
+   \\
+   f(x) + c 
+   &\xleftrightarrow{\hskip0.5em*\hskip0.5em}
+   g(p) - c,
+   \\
+   \end{align*}
+
+## Notes {-}
+
+The material on the intuition behind Legendre-Fenchel transform is adapted from @Kennerly2011. The material on general definition and properties is adapted from @Rockafellar2009.
