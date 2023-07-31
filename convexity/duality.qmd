@@ -77,7 +77,7 @@ An illustration of this fact is shown in @fig-affine-sup.
 
 :::{.callout-warning collapse="true"}
 ### Why countable index set?
-From the figure you can convince yourself of the result for an uncountable index set $\bar I$. Now consider the set $\bar S = \{a_i, b_i\}_{i \in \bar I} \subset \reals^{n+1}$ (for uncountable $\bar I$). Since $\reals^{n+1}$ is separable, let $S = \{a_i, b_i\}_{i \in I} $ be a countable dense subset of $\bar S$ (where $I$ is countable). Since the supremum over any set is the same as the supremum of its dense subset, we can replace $\bar I$ by $I$.
+From the figure you can convince yourself of the result for an uncountable index set $\bar I$. Now consider the set $\bar S = \{a_i, b_i\}_{i \in \bar I} \subset \reals^{n+1}$ (for uncountable $\bar I$). Since $\reals^{n+1}$ is separable, let $S = \{a_i, b_i\}_{i \in I}$ be a countable dense subset of $\bar S$ (where $I$ is countable). Since the supremum over any set is the same as the supremum of its dense subset, we can replace $\bar I$ by $I$.
 :::
 
 The Lengendre-Fenchel transform is a compact way of representing this basic fact. To fix ideas, consider a twice differentiable and strictly convex function $f \colon \reals \to \reals$. 
@@ -149,6 +149,126 @@ xy \le \frac{x^p}{p} + \frac{y^q}{q}
 where $p, q > 1$ are such that $\frac 1p + \frac 1q = 1$.
 :::
 
+An interesting example of Fenchel-Young inequality is the following. 
+Consider a real-valued, strictly increasing, continuous function $h$ on $\reals$ which satisfies $h(0) = 0$, $h(x) \to -∞$ as $x \to -∞$, and $h(x) \to ∞$ as $x \to ∞$. Since $h$ is continuous and strictly increasing, it has an inverse. 
+Define 
+\begin{equation}\label{eq:legendre-example}
+  f(x) = \int_{0}^x h(s) ds
+  \quad\hbox{and}\quad
+  g(y) = \int_{0}^y h^{-1}(t) dt.
+\end{equation}
+
+```{ojs}
+
+exampleFunction = function(s) {
+    if (s <= 1) {
+        return (s - s**2/2)
+    } else
+    {
+        return 1/2 + (s - 1)**2/2
+    }
+  }
+
+examplePoints = {
+  var points = new Array()
+  var idx = 0
+
+  const n = 500;
+  const Smax = 2; 
+
+  for(var i = 0; i <= n; i++) {
+      var s = Smax*i/n
+      points[idx++] = { x: s, y: exampleFunction(s) } 
+  }
+  return points
+}
+```
+
+```{ojs}
+//| label: fig-legendre-example
+//| fig-cap: The functions $f(x)$ and $g(y)$ defined in \\eqref{eq:legendre-example}. The red curve shows the graph of $t = h(s)$. The shaded blue region shows the value of $f(x)$ for a particular value of $x$. The red curve shown the value of $g(y)$ for a particular value of $y$. 
+//| layout-ncol: 2
+//| fig-subcap:
+//|     - $x < y$, with $x = 1$ and $y = 0.7$
+//|     - $x > y$, with $x = 1.4$ and $y = 0.4$
+
+Plot.plot({
+  grid: true,
+  x : { label: "s"}, 
+  y : { label: "t"}, 
+
+  marks: [
+    // Fill
+    Plot.areaY(examplePoints.filter(pt => pt.x <= 1), {x:"x", y:"y",
+               fill:"lightblue", fillOpacity: 0.5}),
+
+    Plot.areaX(examplePoints.filter(pt => pt.y <= 0.7), {x:"x", y:"y",
+               fill:"pink", fillOpacity: 0.5}),
+
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+
+    Plot.line([ {x:1, y:0}, {x:1, y: exampleFunction(1)} ], {x:"x", y:"y", stroke: "gray"} ),
+
+    Plot.line([ {x:1, y: exampleFunction(1)}, {x:1, y: 0.7} ], {x:"x", y:"y", strokeDasharray: "4", stroke: "gray"} ),
+
+    Plot.line([ {x:0, y:0.7}, {x:1.62, y:0.7} ], {x:"x", y:"y", stroke: "gray"} ),
+
+    // Line
+    Plot.line(examplePoints, {x:"x", y:"y",
+              stroke:"red", strokeWidth: 4}),
+    
+  ]
+})
+
+Plot.plot({
+  grid: true,
+  x : { label: "s"}, 
+  y : { label: "t"}, 
+
+  marks: [
+    // Fill
+    Plot.areaY(examplePoints.filter(pt => pt.x <= 1.4), {x:"x", y:"y",
+               fill:"lightblue", fillOpacity: 0.5}),
+
+    Plot.areaX(examplePoints.filter(pt => pt.y <= 0.4), {x:"x", y:"y",
+               fill:"pink", fillOpacity: 0.5}),
+
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+
+    Plot.line([ {x:1.4, y:0}, {x:1.4, y: exampleFunction(1.4)} ], {x:"x", y:"y", stroke: "gray"} ),
+
+    Plot.line([ {x:0.55, y: 0.4}, {x:1.4, y: 0.4} ], {x:"x", y:"y", strokeDasharray: "4", stroke: "gray"} ),
+
+    Plot.line([ {x:0, y:0.4}, {x:0.55, y:0.4} ], {x:"x", y:"y", stroke: "gray"} ),
+
+    // Line
+    Plot.line(examplePoints, {x:"x", y:"y",
+              stroke:"red", strokeWidth: 4}),
+    
+  ]
+})
+
+
+```
+
+The graph of $t = h(s)$ is shown in @fig-legendre-example, where the shaded portions represent $f(x)$ and $g(y)$. From the plots, we can infer Fenchel-Young's inequality:
+$$
+  xy \le f(x) + g(y)
+$$
+with equality if and only if $y = h(x) = \dot f(x)$. This immediately implies that
+$$
+  g(y) = \sup_{x \in \reals} \bigl\{ xy - f(x) \bigr\}
+$$
+and
+$$
+  f(x) = \sup_{y \in \reals} \bigl\{ xy - g(y) \bigr\}.
+$$
+
+
 ## General definition 
 
 :::{#def-Legendre-Fenchel-transform}
@@ -159,8 +279,8 @@ For any function $f \colon \reals^n \to \bar {\reals}$, the function $f^* \colon
 \end{equation}
 is **conjugate** to $f$, while the function $f^{**} = (f^*)^*$ defined by 
 \begin{equation}\label{eq:biconjugate}
-  f^*(x) \coloneqq \sup_{p \in \reals^n} \bigl\{ 
-  \langle p, x \rangle - f(p) \bigr\}
+  f^{**}(x) \coloneqq \sup_{p \in \reals^n} \bigl\{ 
+  \langle p, x \rangle - f^*(p) \bigr\}
 \end{equation}
 is **biconjugate** to $f$. The mapping $f \mapsto f^*$ is called **Legendre-Fenchel transform**. 
 :::
@@ -235,6 +355,42 @@ Given $f \xleftrightarrow{\hskip0.5em*\hskip0.5em} g$, we have the following pro
    \\
    \end{align*}
 
+:::{#prp-legendre-strong-convex}
+  Let $f$ be a finite, coercive, twice differentiable, and strongly convex function, then the conjugate $g = f^*$ is also finite, coercive, twice differentiable, and strongly convex. Moreover, 
+
+  * the gradient mapping $\GRAD f$ is one-to-one from $\reals^n$ to $\reals^n$, and its inverse is $\GRAD g$; one has
+    \begin{align*}
+    g(p) &= \bigl\langle (\GRAD f)^{-1}(p), p \bigr\rangle 
+    - f\bigl((\GRAD f)^{-1}(p)\bigr), \\
+    f(x) &= \bigl\langle (\GRAD g)^{-1}(x), x \bigr\rangle 
+    - g\bigl((\GRAD g)^{-1}(x)\bigr), 
+    \end{align*}
+
+  * The matrices $\GRAD^2 f(x)$ and $\GRAD^2 g(p)$ are inverse to one another when $p = \GRAD f(x)$ or, equivalently, $x = \GRAD g(p)$. 
+
+:::
+
+Strongly convex functions on a simplex have the following properties.
+
+:::{#prp-legendre-simplex}
+Let $Δ$ be the simplex in $\reals^n$ and $f \colon Δ \to \reals$ be
+twice differentiable and strongly convex. Let $g \colon \reals^n \to \reals$ be the Legendre-Fenchel conjugate of $f$. Then,
+
+1. **Unique maximizing argument:** $\GRAD g$ is Lipschitz and satisfies $$\GRAD g(p) = \arg\max_{x \in Δ}\bigl\{ \langle x, p \rangle - f(x) \bigr\}.$$ 
+
+2. **Boundedness:** If there are constants $L$ and $U$ such that for all $x \in Δ$, we have $L \le f(x) \le U$, then 
+   $$
+      \| p \|_{∞} - U \le g(p) \le \| p \|_{∞} - L. 
+   $$
+3. **Distributivity:** For any $c \in \reals$, 
+   $$
+      g(p + c \ONES) = g(p) + c. 
+    $$
+4. **Monotonicity:** If $p_1 \le p_2$, then $g(p_1) \le g(p_2)$. 
+:::
+
+
 ## Notes {-}
 
-The material on the intuition behind Legendre-Fenchel transform is adapted from @Kennerly2011. The material on general definition and properties is adapted from @Rockafellar2009.
+The material on the intuition behind Legendre-Fenchel transform is adapted from @Kennerly2011. The example for Young-Fenchel inequality and @fig-legendre-example is taken from @Ellis1985. The material on general definition and properties is adapted from @Rockafellar2009. @prp-legendre-strong-convexity is stated as Example 11.9 in @Rockafellar2009.
+@prp-legendre-simplex is from @Geist2019.
