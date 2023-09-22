@@ -26,7 +26,30 @@ $$ \begin{equation} \label{eq:SA}
 where $\{a_t\}_{t \ge 0}$ is a sequence of positive numbers and 
 $\{ξ_t\}_{t \ge 0}$ is a noise sequence.
 
-We are interested in the limit behavior of the sequence $\{θ_t\}_{t \ge 1}$. 
+We are interested in the limit behavior of the sequence $\{θ_t\}_{t \ge 0}$. 
+
+::: {#exm-urn-model}
+Consider an initially empty urn to which black or red balls are added one at a time. Let $r_t$ denote the number of red balls at time $t$ and $θ_t = r_t/t$ denote the _fraction_ of red balls at time $t$. Suppose that 
+$$
+  \PR(\text{next ball is red} \mid \text{all past}) = p(\text{fraction of red balls})
+$$
+where $p \colon [0,1] \to [0,1]$ is prespecified. 
+
+In this model, the sequence $\{r_t\}_{t \ge 1}$ follows the recursion:
+$$
+  r_{t+1} = r_t + w_{t+1}
+$$
+where $w_{t+1} = \IND\{(t+1)\text{-st ball is red}\}$. Therefore,
+$$
+  θ_{t+1} = θ_t + \frac{1}{t+1}( w_{t+1} - θ_t )
+$$
+with $θ_0 = 0$. We can rewrite the above equation as
+$$
+  θ_{t+1} = θ_t + \frac{1}{t+1}\bigl[ (p(θ_t) - θ_t ) + (w_{t+1} - p(θ_t)) \bigr]
+$$
+Define $ξ_{t+1} = w_{t+1} - p(θ_t)$. Note that $\{ξ_t\}_{t \ge 1}$ is Martingale difference sequence, i.e., $\EXP[ ξ_{t+1} \mid θ_0, w_{1:t} ] = 0$. Thus the above equation is of the form \\eqref{eq:SA} with $f(θ_t) = p(θ_t) - θ_t$. 
+
+:::
 
 The key idea behind stochastic approximation is that under appropriate
 conditions, the iteration \\eqref{eq:SA} almost surely converges to the
@@ -34,7 +57,7 @@ equilibrium point of the ODE
 $$ \begin{equation} \label{eq:ODE}
   \dot θ(t) = f(θ(t))
 \end{equation} $$
-with initial conditions $θ(0) = θ_1$.
+with initial conditions $θ(0) = θ_0$. For instance, for @exm-urn-model, this means that under appropriate conditions, the discrete-time iterates $\{θ_t\}_{t \ge 0}$ converge to the solution of the ODE \\eqref{eq:ODE}.
 
 In this section, we summarize these conditions (without proofs). 
 
@@ -395,6 +418,10 @@ Suppose assumptions (F1'), (F2'), (F3), and (F4) as well as assumptions (N1) and
 
 ## Notes {-}
 
-The stochastic approximation algorithm was introduced by @Robbins1951. The material in this section is adapted from @Vidyasagar2023.
+The stochastic approximation algorithm was introduced by @Robbins1951. 
+
+@exm-urn-model is from @Borkar2008.
+
+The material in this section is adapted from @Vidyasagar2023.
 
 
