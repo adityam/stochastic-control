@@ -3,6 +3,7 @@ title: Lipschitz MDPs
 keywords:
    - MDPs
    - discounted MDPs
+    - inventory management
    - lipschitz continuity
 aliases:
   - ../inf-mdp/lipschitz-mdp/index.html
@@ -138,12 +139,16 @@ $$ \left|
 
 3. If $\ALPHABET X = \reals$ and $d_X = | \cdot |$, then for any two
    distributions $μ$ and $ν$, 
-   $$ K(μ,ν) = \int_{-∞}^∞ \left| F_μ(x) - F_ν(x) \right| dx, $$
+   \begin{equation}\label{eq:Kantorovich-CDF}
+   K(μ,ν) = \int_{-∞}^∞ \left| F_μ(x) - F_ν(x) \right| dx,
+   \end{equation}
    where $F_μ$ and $F_ν$ denote the CDF of $μ$ and $ν$. 
 
    Furthermore, if $μ$ is stochastically dominated by $ν$, then $F_μ(x) \ge
    F_ν(x)$. Thus, 
-   $$ K(μ, ν) = \bar μ - \bar ν $$
+   \begin{equation}\label{eq:Kantorovich-stochastic-dominance}
+   K(μ, ν) = \bar μ - \bar ν 
+   \end{equation}
    where $\bar μ$ and $\bar ν$ are the means of $μ$ and $ν$. 
 
 
@@ -151,8 +156,8 @@ $$ \left|
 
 ## Lipschitz MDPs
 
-Now consider an MDP where the state and action spaces are Metric spaces. We
-denote the corresponding metric by $d_S$ and $d_A$ respectively. For ease of
+Consider an MDP where the state and action spaces are metric spaces. We
+use $d_S$ and $d_A$ to denote the corresponding metric. For ease of
 exposition, we define a metric $d$ on $\ALPHABET S × \ALPHABET A$ by
 $$ d( (s_1, a_1), (s_2, a_2) ) = d_S(s_1, s_2) + d_A(a_1, a_2). $$
 
@@ -176,6 +181,60 @@ $a_1, a_2 \in \ALPHABET A$,
   + d_A(a_1, a_2) \bigr)$. 
 :::
 
+:::{#exm-lipschitz-inventory}
+As an example, consider the [inventory management] problem considered earlier. We assume that $\ALPHABET S = \reals$ and $\ALPHABET A = \reals_{\ge 0}$; the cost function and the dynamics are the same as before. We will show that this model is $(L_c, L_p)$ Lipschitz with
+$$
+  L_c = p + \max\{ c_h, c_s \}
+  \quad\text{and}\quad
+  L_p = 1.
+$$
+:::
+
+:::{.callout-note collapse="true"} 
+### Proof of Lipschitz continuity of the inventory model
+
+Note that in this model, the per-step cost depends on the next stage, so we need to make the appropriate changes to compute $L_c$. 
+
+We first consider $L_p$. For random variables $X \sim μ$ and $Y \sim ν$, we will use the notation $K(X,Y)$ to denote $K(μ,ν)$. Let $y_1 = s_1 +a_1$ and $y_2 = s_2 + a_2$. Then,
+$$
+  K(p(\cdot | s_1, a_1), p( \cdot | s_2, a_2))
+  = 
+  K( y_1 - W, y_2 - W )
+  =
+  K( W - y_1, W - y_2)
+$$
+where we have used the following fact that $K(X,Y) = K(-X,-Y)$. Now observe that if $y_1 > y_2$, the CDF of the RV $W - y_1$ lies above the CDF of the RV $W - y_2$; thus $W - y_2$ [stochastically dominates] $W - y_1$, hence from \eqref{eq:Kantorovich-stochastic-dominance}, 
+$K(W - y_1, W - y_2) = y_1 - y_2$. By symmetry, if $y_1 < y_2$, 
+$K(W - y_1, W - y_2) = y_2 - y_1$. Thus,
+$$
+  K( W - y_1, W - y_2) = | y_1 - y_2 |
+  \le | s_1 - s_2 | + | a_1 - a_2|
+$$
+**The above relationship implies $L_p = 1$.**
+
+Now consider 
+$$
+  \bar c(s,a) = \EXP[ c(s,a,S_{+}) \mid S = s, A = a]
+  = pa + \EXP[ h(s+a - W) ]
+$$
+Then
+\begin{align*}
+  | \bar c(s_1, a_1) - \bar c(s_2, a_2) |
+  &\le 
+  p| a_1 - a_2 | + \| h \|_L K(s_1 + a_1 - W, s_2 + a_2 - W)
+  \\
+  &\stackrel{(a)}\le
+  p| a_1 - a_2 | + \| h \|_L | s_1 + a_1 - s_2 - a_2 |
+  \\
+  &\le 
+  (p + \| h\|_L)[ |s_1 - s_2| + |a_1 - a_2| ]
+\end{align*}
+where $(a)$ follows from @prp-Kantorovich. **Thus, $L_c = p + \|h\|_L$.**
+:::
+
+
+[inventory management]: inventory-management-revisited.qmd
+
 ### Lipschitz continuity of Bellman updates {-}
 
 We now prove a series of results for the Lipschitz continuity of Bellman
@@ -195,11 +254,11 @@ $$\begin{align*}
  | Q(s_1, a_1) - Q(s_2, a_2) | &\stackrel{(a)}\le
  | c(s_1, a_1) - c(s_2, a_2) | \\
  & \quad + 
- \beta \left|\int V(y) p(y|s_1, a_1) dy -
+ γ \left|\int V(y) p(y|s_1, a_1) dy -
              \int V(y) p(y|s_2, a_2) dy \right|
   \\
   &\stackrel{(b)}\le  L_c d( (s_1, a_1), (s_2, a_2) ) + 
-  \beta L_V L_p d( (s_1, a_1), (s_2, a_2) ),
+  γ L_V L_p d( (s_1, a_1), (s_2, a_2) ),
 \end{align*}$$
 where $(a)$ follows from the triangle inequality and $(b)$ follows from 
 @prp-Kantorovich. Thus, $L_Q = L_c + γ L_p L_V$.
@@ -315,7 +374,7 @@ $L_{V^{(1)}} = L_{Q^{(1)}} = L_c$. This forms the basis of induction. Now
 assume that $V^{(n)}$ is $L_{V^{(n)}}$-Lipschitz. Then, by 
 @lem-lipschitz-LQ, $Q^{(n+1)}$ is $(L_c + γL_p L_{V^{(n)}})$-Lipschitz.
 Therefore, by @lem-lipschitz-LV-opt, $V^{(n+1)}$ is Lipschitz with constant
-$$ L_{V^{(n+1)}} = L_c + γ L_p L_{V^{(n)}}. \space\Box$$
+$$ L_{V^{(n+1)}} = L_c + γ L_p L_{V^{(n)}}.$$
 :::
 
 :::{#lem-lipschitz-LQ-update}
@@ -328,7 +387,7 @@ $L_π$-Lipschitz. Start with $V^{(0)} = 0$ and then recursively define
 
 Then, then $Q^{(n)}_π$ is Lipschitz continuous and its Lipschitz constant
 $L_{Q^{(n)}_π}$ satisfies the follwoing recursion:
-$$ L_{Q^{(n+1)}_π} + L_c + \beta(1 + L_π)L_p L_{Q^{(n)}_π}. $$
+$$ L_{Q^{(n+1)}_π} + L_c + γ(1 + L_π)L_p L_{Q^{(n)}_π}. $$
 ::: 
 
 :::{.callout-note collapse="true"}
@@ -341,12 +400,12 @@ Then, by @lem-lipschitz-LV, $V^{(n)}_π$ is Lipschitz with Lipschitz
 constant $L_{V^{(n)}_π} = L_{Q^{(n)}_π}(1 + L_π)$ and by 
 @lem-lipschitz-LQ, $Q^{(n+1)}_π$ is Lipschitz with Lipschitz constant 
 $L_{Q^{(n+1)}_π} = L_c + γL_p L_{V^{(n)}_π}.$ Combining these two we get
-$$ L_{Q^{(n+1)}_π} + L_c + \beta(1 + L_π)L_p L_{Q^{(n)}_π}. $$
+$$ L_{Q^{(n+1)}_π} + L_c + γ(1 + L_π)L_p L_{Q^{(n)}_π}. $$
 :::
 
 :::{#thm-lipschitz-opt}
-Given any $(L_c, L_p)$-Lipschitz MDP, if $\beta L_p < 1$,
-then the infinite horizon $\beta$-discounted value function $V$
+Given any $(L_c, L_p)$-Lipschitz MDP, if $γ L_p < 1$,
+then the infinite horizon $γ$-discounted value function $V$
 is Lipschitz continuous with Lipschitz constant
 $$ L_{V} = \frac{L_c}{1 - γ L_p} $$
 and the action-value function $Q$ is Lipschitz with Lipschitz constant
@@ -372,11 +431,19 @@ $$ L_V = \frac{L_c}{1 - γ L_p}. $$
 The Lipschitz constant of $Q$ follows from @lem-lipschitz-LQ.
 :::
 
+:::{.callout-tip}
+### Example
+As discussed in @exm-lipschitz-inventory, the inventory management example is $(p + \max\{c_h,c_s\}, 1)$-Lipschitz. Therefore, @thm-lipschitz-opt implies that the value function of the inventory management problem is $L_V$-Lipschitz with 
+$$
+  L_V = \frac{p + \max\{ c_h + c_s \}}{1 - γ}.
+$$
+:::
+
 
 :::{#thm-lipschitz}
 Given any $(L_c, L_p)$-Lipschitz MDP and an $L_π$-Lipschitz (possibly
-randomized) time-homogeneous policy $π$, if $\beta (1 + L_π) L_p < 1$,
-then the infinite horizon $\beta$-discounted value-action function $Q_π$
+randomized) time-homogeneous policy $π$, if $γ (1 + L_π) L_p < 1$,
+then the infinite horizon $γ$-discounted value-action function $Q_π$
 is Lipschitz continuous with Lipschitz constant
 $$ L_{Q_π} = \frac{L_c}{1 - γ(1 + L_π) L_p} $$
 and the value function $V_π$ is Lipschitz with Lipschitz constant
@@ -513,4 +580,6 @@ Let $(\ALPHABET S, d_S)$ be a metric space and $s, s' \in \ALPHABET S$.
 ## Notes {-}
  
 The material in this section is taken from @Rachelson2010 and @Hinderer2005.
+
+The proof of Lipschitz continuity for the inventory management problem in @exm-lipschitz-inventory is adapted from @Muller1997.
 
