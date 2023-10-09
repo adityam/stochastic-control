@@ -1,0 +1,201 @@
+---
+title: Linear quadratic regulation
+keywords: 
+  - LQR
+  - Riccati equation
+  - completion of squares
+---
+
+:::{.callout-warning}
+#### A comment about notation
+To be consistent with the notation used in linear systems, we denote the state and action by lowercase $x$ and $u$, even for stochastic systems (unlike the notation used for other models where we used uppercase $S$ and $U$ for state and actions to emphasize the fact that they are random variables.
+:::
+
+Consider a _linear_ stochastic system with state $x_t \in \reals^n$ and controls $u_t \in \reals^m$ where the dynamics are given by
+$$
+  x_{t+1} = A x_t + B u_t + w_t,
+  \quad t \ge 1
+$$
+where $A \in \reals^{n × n}$ and $B \in \reals^{n × m}$ are known matrices and $\{w_t\}_{t \ge 1}$, $w_t \in \reals^n$ is process noise. The objective is to choose the control policy $g = (g_1, \dots, g_{T-1})$, where $u_t = g_t(x_{1:t}, u_{1:t-1})$, to minimize
+$$
+  J(g) = \EXP\biggl[ \sum_{t=1}^{T-1} c(x_t, u_t) + c_T(x_T) \biggr]
+$$
+where $c(x_t, u_t)$ is the per-step cost and $c_T(x_T)$ is the terminal cost. Depending on the cost functions, such models can be classified as follows:
+
+- **Regulation problem** where the objective is to keep the state of the
+  system close to origin. These are modeled by taking
+  $$
+    c(x_t, u_t) = x_t^\TRANS Q x_t + u_t^\TRANS R u_t
+    \quad\text{and}\quad
+    c_T(x_T) = x_T^\TRANS Q x_T,
+  $$
+  where $Q, Q_T$ are [positive semi-definite matrices][PSD] and $R$ is a [positive definite matrix][PSD]. The regulation problem is often referred to as **Linear Quadratic Regulartor (LQR)**.
+
+
+
+- **Tracking problem** where it is assumed that the system has an output $y_t = C x_t$ and the objective is to keep the output of the system close to a pre-specified trajectory $\{y^\circ_t\}_{t=1}^T$. These are modeled by considering the per-step cost as
+  $$ \begin{align*}
+    c_t(x_t, u_t) &= (Cx_t - y^\circ_t)^\TRANS Q (Cx_t - y^\circ_t) + u_t^\TRANS R u_t
+    \\
+    \text{and}\quad
+    c_T(x_T) &= (C_Tx_T - y^\circ_T)^\TRANS Q_T (C_Tx_T - y^\circ_T).
+  \end{align*} $$
+
+There are various methods to obtain the optimal controller for LQR: dynamic programming, Lagrange multipliers (co-state), and others. Departing from the dynamic programming approach taken in the rest of these notes, in this section we present the solution of LQR using an elementary algebraic technique called **completion of squares**.
+
+[PSD]: ../linear-algebra/positive-definite-matrix.qmd
+
+In the rest of these notes, we consider a slight generalization of LQ regulation where we consider the cost function
+\begin{equation}\label{eq:cost}
+  J(g) = \EXP\left[ \sum_{t=1}^{T-1}  
+\MATRIX{x_t \\ u_t}^\TRANS \MATRIX{Q & M \\ M^\TRANS & R } \MATRIX{ x_t \\ u_t}
++ x_{T} P_T x_{T} \right]
+\end{equation}
+where the matrix $\MATRIX{Q & M \\ M^\TRANS & R}$ is symmetric and positive semi-definite and $R$ is symmetric and positive definite.
+
+## Completion of squares
+
+We start from a simple observation.
+
+::: {#lem-completion-of-squares}
+### Completion of squares
+Let $x \in \reals^n$, $u \in \reals^m$, and $w \in \reals^n$ be random variables defined on a common probability space. Suppose $w$ is zero mean with finite covariance and independent of $(x,u)$. Let $x_{+} = Ax + Bu + w$, where $A$ and $B$ are matrices of appropriate dimensions. Then, given matrices $P$, $Q$, $M$, and $R$ of appropriate dimensions,
+$$
+\EXP\left[
+\MATRIX{x \\ u}^\TRANS \MATRIX{Q & M \\ M^\TRANS & R } \MATRIX{ x \\ u}
++ x_{+} P x_{+} \right]
+= 
+\EXP\bigl[ x^\TRANS P_{+} x  
+    +
+    (u + Kx)^\TRANS Δ (u + Kx) 
+    +
+    w^\TRANS P w
+    \bigr].
+$$
+where
+
+- $Δ = R + B^\TRANS P B$
+- $K = Δ^{-1}[ M^\TRANS + B^\TRANS P A ]$
+- $P_{+} = Q + A^\TRANS P A - K^\TRANS Δ K$
+:::
+
+:::{.callout-note collapse="true"}  
+### Proof
+Since $w$ is zero mean and independent of $(x,u)$, we have
+$$
+  \EXP[ x_{+}^\TRANS P x ]
+  =
+  \EXP\bigl[ (Ax + Bu)^\TRANS P (Ax + Bu) 
+      + w^\TRANS P w \bigr].
+$$
+
+The proof follows immediately by completing the square on the left hand side. In particular
+\begin{align*}
+& u^\TRANS R u + 2 x^\TRANS M u +  (Ax+Bu)^\TRANS P (Ax + Bu) \\
+& \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS( M^\TRANS + B^\TRANS P A) x 
+  + x^\TRANS A^\TRANS P A x \\
+& \quad = u^\TRANS Δ u + 2 u^\TRANS Δ K x + x^\TRANS A^\TRANS P A x \\
+& \quad = 
+  (u + K x)^\TRANS Δ (u + Kx) - x^\TRANS K^\TRANS Δ K x 
+  +  x^\TRANS A^\TRANS P A x \\
+\end{align*}
+:::
+
+::: {#def-Riccati-operator}
+Given the system model $(A,B)$ and per-step cost $(Q,M,R)$, we define the _Riccati operator_ $\RICCATI \colon \mathbb{S}^{n × n}_{\ge 0} \to \mathbb{S}^{n × n}_{\ge 0}$ as follows:
+$$ \RICCATI P = Q + A^\TRANS P A 
+- (M^\TRANS + B^\TRANS P A)^\TRANS (R + B^\TRANS P B)^{-1}
+  (M^\TRANS + B^\TRANS P A).$$
+Moreover, define the _Gain_ operator $\GAIN \colon \mathbb{S}^{n × n}_{\ge 0} \to \reals^{m × n}$ as
+$$ \GAIN P = - (R + B^\TRANS B P)^{-1}(M^\TRANS + B^\TRANS P A). $$
+:::
+
+Note that with the above notation, the terms defined in @lem-completion-of-squares may be written as
+$$ P_{+} = \RICCATI P
+\quad\text{and}\quad
+K = \GAIN P. $$
+
+::: {.callout-tip}
+### Riccati equations
+**Riccati equations** are named after _Jacopo Riccati_ (1670--1754) who studied the differential equations of the form 
+$$\dot x = a x^2 + b t + c t^2$$
+and its variations. In continuous time, such equations arise in optimal control and filtering. The discrete-time version of these equations are also named after Riccati. 
+
+I am calling the updates in @lem-completion-of-squares as Riccati operators because they are similar to [Bellman operators] considered earlier.
+:::
+
+[Bellman operators]: ../mdps/inf-horizon.qmd#def-Bellman-operator
+
+:::{#prp-completion-of-squares}
+Recursively define the matrices $\{P_t\}_{t \ge 1}$ in a backwards manners as follows: $P_T = Q_T$ and then for $t \in \{T-1, \dots, 1\}$:
+$$
+  P_t = \RICCATI P_{t+1}.
+$$
+Moreover, define the gains $\{K_t\}_{t \ge 1}$ as:
+$$
+  K_t = \GAIN P_t.
+$$
+
+Then, for any control policy $g$, the total cost $J(g)$ given by \eqref{eq:cost} may be written as
+\begin{equation}
+  J(g) = \bar J(g) + \tilde J
+\end{equation}
+where _the controlled part of the cost_ is
+$$ \bar J(g) = 
+  \EXP\biggl[ \sum_{t=1}^{T-1}
+  (u_t + K_t x_t)^\TRANS Δ_t (u_t + K_t x_t) \biggr]
+$$
+with $Δ_t = R + B^\TRANS P B$
+and _the control-free part of the cost_ is
+$$
+  \tilde J = 
+  \EXP\biggl[ x_1^\TRANS P_1 x_1 + 
+  \sum_{t=1}^{T-1} w_t^\TRANS P_{t+1} w_t \biggr]
+$$
+:::
+
+:::{.callout-note collapse="false"} 
+### Proof
+The result follows by repeatedly applying @lem-completion-of-squares starting at time $t = T-1$ and moving backwards. 
+:::
+
+Now, an immediate implication of @prp-completion-of-squares is the following:
+
+:::{#thm-LQR}
+  The optimal control policy for the LQR problem \eqref{eq:cost} is given by
+  $$
+    u_t = - K_t x_t
+  $$
+  where the _feedback gains_ $\{K_t\}_{t \ge 1}$ are computed as described in @prp-completion-of-squares. The performance of the optimal strategy is given by:
+  $$
+      J^* = \tilde J = \TR(X_1 P_1) + \sum_{t=1}^{T-1} \TR(W_t P_{t+1})
+  $$
+  where $X_1$ is the covariance of the initial state and $\{W_t\}_{t \ge 1}$ is the covariance of the noise process. 
+:::
+
+:::{.callout-note collapse="false"} 
+  First observe that $\tilde J$ does not depend on the control policy. So, minimizing $\bar J(g)$ is the same as minimizing $J(g)$.
+
+  Now recall that $\{R_t\}_{t \ge 1}$ are positive definite. Therefore, $Δ_t = [R_t + B^\TRANS P B]$ are positive definite. Hence, for any policy $g$, $\bar J(g) \ge 0$. The proposed policy achieves $\bar J(g) = 0$ and is, therefore, optimal.
+:::
+
+## Salient features of the result
+
+1. Note that the optimal gains $\{K_t\}_{t \ge 1}$ do not depend on the noise covariance $\{W_t\}_{t \ge 1}$. Thus, the noise in the dynamics does not change the closed loop control policy but changes the optimal cost by a term that does not depend on the policy. 
+
+2. A special case of the above observation is that the optimal control policy of the stochastic LQR problem is the same as the optimal control policy of the deterministic LQR problem (where the noise $w_t ≡ 0$). This result is sometimes called the **certainty equivalence principle.**
+
+3. Suppose the noise was not white but Gaussian and correlated over time (and still independent of the initial state $x_1$). Then, the optimal control action at time $t$ will be the same as that of the deterministic system
+   $$
+     x_{τ + 1} = A x_{τ} + B u_{τ} + w_{τ|t},
+     \quad τ \ge t,
+   $$
+   where $w_{τ|t}$ is $\EXP[ w_{\tau} \mid w_{1:t} ]$. That is, at time $t$, one replaces future stochastic noise $w_τ$ ($τ \ge t$) by an 'equivalent' deterministic noise $w_{τ|t}$ and then applies the method of deterministic LQR to deduce the optimal feedback control in terms of the predicted noise. This is also a special instance of the general **certainty equivalence principle**, which also extends to the case when the state is not perfectly observed. 
+
+
+## Notes {-}
+
+See @Athans1971 for a general discussion of the philosophical approach of approximating general stochastic control problems as linear quadratic models. Deterministic LQR model for continuous time systems was proposed in @Kalman1960b. The proof idea of completion of squares is due to @Astrom1970 but we loosely follow the proof outlines adapted from @Afshari2023.
+
+The term _certainty equivalence_ is due to @Simon1956, who was looking at a static problem; a similar result had earlier been shown by @Theil1954. A result which is essentially equivalent to the stochastic LQR problem is proved by @Theil1957. 
+
