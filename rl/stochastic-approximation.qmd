@@ -5,6 +5,7 @@ keywords:
   - stochastic approximation
 execute:
   echo: false
+  freeze: auto
 ---
 
 Suppose $f \colon \reals^d \to \reals^d$ and it is desired to find a solution $θ^*$ to the equation $f(θ) = 0$. There are many methods for determining the value of
@@ -61,6 +62,16 @@ $$ \begin{equation} \label{eq:ODE}
 with initial conditions $θ(0) = θ_0$. For instance, for @exm-urn-model, this means that under appropriate conditions, the discrete-time iterates $\{θ_t\}_{t \ge 0}$ converge to the solution of the ODE \\eqref{eq:ODE}. In particular, they would converge to the equilibrium set $H = \{ θ : p(θ) = θ \}$. 
 
 ```{julia}
+#| output: false
+# Install packages
+using Pkg; Pkg.activate(".")
+for pkg in ["IJulia", "Plots", "LaTeXStrings", "SpecialFunctions",
+            "Distributions", "DataFrames", "JSON"]
+    Pkg.add(pkg)
+end
+```
+
+```{julia}
 # Initializtions
 using Plots, LaTeXStrings
 current_theme = :bright
@@ -70,7 +81,7 @@ theme(current_theme)
 # Use the incomplete beta function as an example
 # The function returns a tuple and we are only interested in the first value
 using SpecialFunctions: beta_inc
-p(θ) = beta_inc(5,5, θ)[1];
+p(θ) = beta_inc(5,5, θ)[1]
 ```
 
 ```{julia}
@@ -87,6 +98,7 @@ Suppose that $p(θ)$ is such that there exists a $θ_\circ$ such that $p(θ) > �
 Multiple runs starting with different initial conditions are shown in @fig-urn-multiple-runs. Note that the discrete-time iterates are stochastic and oscillate, as expected. However, the eventually converge to the stable equilibrium points of the ODE \eqref{eq:ODE}
 
 ```{julia}
+# Copied from notebook: julia-examples/stochastic-approximation-urn-model/urn-model.ipynb
 using Distributions, Random
 using DataFrames
 ```
