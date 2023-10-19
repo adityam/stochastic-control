@@ -3,6 +3,8 @@ title: "Stochastic approximation"
 keywords:
   - reinforcement learning
   - stochastic approximation
+execute:
+  echo: false
 ---
 
 Suppose $f \colon \reals^d \to \reals^d$ and it is desired to find a solution $θ^*$ to the equation $f(θ) = 0$. There are many methods for determining the value of
@@ -58,15 +60,81 @@ $$ \begin{equation} \label{eq:ODE}
 \end{equation} $$
 with initial conditions $θ(0) = θ_0$. For instance, for @exm-urn-model, this means that under appropriate conditions, the discrete-time iterates $\{θ_t\}_{t \ge 0}$ converge to the solution of the ODE \\eqref{eq:ODE}. In particular, they would converge to the equilibrium set $H = \{ θ : p(θ) = θ \}$. 
 
-{{< embed ../julia-examples/stochastic-approximation-urn-model/urn-model.ipynb#fig-p-vs-theta >}}
+```{julia}
+# Initializtions
+using Plots, LaTeXStrings
+current_theme = :bright
+current_colors = theme_palette(current_theme)
+theme(current_theme)
+
+# Use the incomplete beta function as an example
+# The function returns a tuple and we are only interested in the first value
+using SpecialFunctions: beta_inc
+p(θ) = beta_inc(5,5, θ)[1];
+```
+
+```{julia}
+#| column: margin
+#| label: fig-p-vs-theta
+#| fig-cap: Example of $p$ such that there are multiple solutions to $p(θ) = θ$.
+default(linewidth=2, size=(300,200), xlab=L"\theta")
+plt = plot(p, 0, 1, label=L"p(\theta)")
+plot!(plt, θ->θ, 0, 1, label=L"\theta")
+```
 
 Suppose that $p(θ)$ is such that there exists a $θ_\circ$ such that $p(θ) > θ$ for $θ \in (θ_\circ, 1)$ and $p(θ) < θ$ for $θ \in (0, θ_\circ)$. See @fig-p-vs-theta, for example. Then, the set of equilibrium points are $H = \{0, θ_\circ, 1\}$. Out of these $\{0, 1\}$ are stable and $θ_\circ$ is unstable. The stochastic approximation theory shows that the iterations \eqref{eq:SA} will converge to either $0$ or $1$. Thus, along each sample path, the iterates $\{θ_t\}_{t \ge 1}$ will be 'locked into' one color which will dominate. 
 
 Multiple runs starting with different initial conditions are shown in @fig-urn-multiple-runs. Note that the discrete-time iterates are stochastic and oscillate, as expected. However, the eventually converge to the stable equilibrium points of the ODE \eqref{eq:ODE}
 
+```{julia}
+using Distributions, Random
+using DataFrames
+```
 
-{{< embed ../julia-examples/stochastic-approximation-urn-model/urn-model.ipynb#fig-urn-multiple-runs >}}
+```{julia}
+#| echo: true
 
+Random.seed!(42)
+
+T = 10       # Number of time steps
+M = 25       # Number of different runs
+α = zeros(T)
+for t in 1:T
+    α[t] = 1/(t+1)
+end
+
+θ = zeros(T,M)
+for m in 1:M
+    θ[1,m] = mod((m/M + rand()/M),1)
+    for t in 1:T-1
+        θ[t+1,m] = θ[t,m] + α[t]*(rand(Bernoulli(p(θ[t,m]))) - θ[t,m])
+    end
+end
+```
+
+```{julia}
+# Convert data to observable
+df = DataFrame(time=Int[], run=Int[], value=Float64[])
+for t in 1:T, m in 1:M
+    push!(df, (t, m, θ[t,m]))
+end
+ojs_define(theta = df)
+```
+
+```{ojs}
+//| label: fig-urn-multiple-runs
+//| fig-cap: Multiple runs of the urn model (@exm-urn-model) for different initial conditions.
+SimulationPlot = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([1]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(theta, {x: "time", y: "value", z: "run", stroke: "#9ecae1" })
+  ]}
+)
+```
 
 We now summarize the sufficient conditions of convergence.
 
