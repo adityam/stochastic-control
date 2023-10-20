@@ -7,10 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-08-03">
+<meta name="dcterms.date" content="2023-10-20">
+<meta name="keywords" content="IPM">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
-<title>Course Notes - 10&nbsp; MDP algorithms</title>
+<title>Course Notes - 29&nbsp; Integral Probablity Metrics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -52,8 +53,8 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../mdps/inventory-management-revisited.html" rel="next">
-<link href="../mdps/inf-horizon.html" rel="prev">
+<link href="../probability/stochastic-stability.html" rel="next">
+<link href="../probability/martingales.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -170,7 +171,7 @@ window.MathJax = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/mdp-algorithms.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">MDP algorithms</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../probability/convergence.html">Probability Appendix</a></li><li class="breadcrumb-item"><a href="../probability/IPM.html"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -272,7 +273,7 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link active">
+  <a href="../mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">MDP algorithms</span></span></a>
   </div>
 </li>
@@ -452,7 +453,7 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
+  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
   </div>
 </li>
@@ -555,23 +556,23 @@ window.MathJax = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#value-iteration-algorithm" id="toc-value-iteration-algorithm" class="nav-link active" data-scroll-target="#value-iteration-algorithm"><span class="header-section-number">10.1</span> Value Iteration Algorithm</a></li>
-  <li><a href="#policy-iteration-algorithm" id="toc-policy-iteration-algorithm" class="nav-link" data-scroll-target="#policy-iteration-algorithm"><span class="header-section-number">10.2</span> Policy Iteration Algorithm</a>
+  <li><a href="#definition-of-integral-probability-metrics" id="toc-definition-of-integral-probability-metrics" class="nav-link active" data-scroll-target="#definition-of-integral-probability-metrics"><span class="header-section-number">29.1</span> Definition of Integral Probability Metrics</a>
   <ul class="collapse">
-  <li><a href="#policy-iteration-as-newton-raphson-algoritm" id="toc-policy-iteration-as-newton-raphson-algoritm" class="nav-link" data-scroll-target="#policy-iteration-as-newton-raphson-algoritm"><span class="header-section-number">10.2.1</span> Policy iteration as Newton-Raphson algoritm</a></li>
+  <li><a href="#notation" id="toc-notation" class="nav-link" data-scroll-target="#notation">Notation</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#maximal-generators" id="toc-maximal-generators" class="nav-link" data-scroll-target="#maximal-generators">Maximal generators</a></li>
   </ul></li>
-  <li><a href="#optimistic-policy-iteration" id="toc-optimistic-policy-iteration" class="nav-link" data-scroll-target="#optimistic-policy-iteration"><span class="header-section-number">10.3</span> Optimistic Policy Iteration</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#properties-of-ipms" id="toc-properties-of-ipms" class="nav-link" data-scroll-target="#properties-of-ipms"><span class="header-section-number">29.2</span> Properties of IPMs</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/mdp-algorithms.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/probability/IPM.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">MDP algorithms</span></h1>
+<h1 class="title"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></h1>
 </div>
 
 
@@ -597,7 +598,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">August 3, 2023</p>
+      <p class="date">October 20, 2023</p>
     </div>
   </div>
   
@@ -607,32 +608,114 @@ window.MathJax = {
 
 </header>
 
-<section id="value-iteration-algorithm" class="level2" data-number="10.1">
-<h2 data-number="10.1" class="anchored" data-anchor-id="value-iteration-algorithm"><span class="header-section-number">10.1</span> Value Iteration Algorithm</h2>
-<div class="callout callout-style-default callout-important no-icon callout-titled">
+<p>[TODO: Add introduction]</p>
+<section id="definition-of-integral-probability-metrics" class="level2" data-number="29.1">
+<h2 data-number="29.1" class="anchored" data-anchor-id="definition-of-integral-probability-metrics"><span class="header-section-number">29.1</span> Definition of Integral Probability Metrics</h2>
+<section id="notation" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="notation">Notation</h3>
+<ol type="1">
+<li><p>Let <span class="math inline">\((\ALPHABET X,d)\)</span> be a complete separable metric space, i.e., a Polish space.</p></li>
+<li><p>Let <span class="math inline">\(w \colon \ALPHABET X \to [1,∞)\)</span> be a measurable function and define the weighted norm of any function <span class="math inline">\(f \colon \ALPHABET X \to \reals\)</span> as <span class="math display">\[ \NORM{f}_w = \sup_{x \in \ALPHABET X} \frac{f(x)}{w(x)}. \]</span></p></li>
+<li><p>Let <span class="math inline">\(\ALPHABET M(\ALPHABET X)\)</span> denote the set of all measurable real-valued functions on <span class="math inline">\(\ALPHABET X\)</span> and let <span class="math inline">\(\ALPHABET M_w(\ALPHABET X)\)</span> denote the subset with bounded <span class="math inline">\(w\)</span>-norm, i.e., <span class="math display">\[ \ALPHABET M_w(\ALPHABET X) =
+\{ f \in \ALPHABET M(\ALPHABET X) : \NORM{f}_w &lt; ∞ \} \]</span></p></li>
+<li><p>Let <span class="math inline">\(\mathfrak X\)</span> denote the Borel <span class="math inline">\(σ\)</span>-algebra of <span class="math inline">\(\ALPHABET X\)</span>.</p></li>
+<li><p>Let <span class="math inline">\(\ALPHABET P(\ALPHABET X)\)</span> denote the set of all probaility measures on <span class="math inline">\((\ALPHABET X, \mathfrak X)\)</span> and <span class="math inline">\(\ALPHABET P_w(\ALPHABET X) = \{ μ \in \ALPHABET P(\ALPHABET X) : \int w dμ &lt; ∞ \}\)</span>.</p></li>
+</ol>
+<p><span class="math inline">\(\def\F{\mathfrak F}\)</span> Integral probability metrics (IPMs) are pseudo-metrics on <span class="math inline">\(\ALPHABET P_w(\ALPHABET X)\)</span> defined as follows.</p>
+<div id="def-IPM" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 29.1 </strong></span>The integral probability metric <span class="math inline">\(d_{\mathfrak F}\)</span> is a pseudo-metric on <span class="math inline">\(\ALPHABET P_w(\ALPHABET X)\)</span> generated by the function class <span class="math inline">\(\F \subset \ALPHABET M_w(\ALPHABET X)\)</span> is defined as <span class="math display">\[
+    d_{\F}(μ_1, μ_2) =
+    \sup_{f \in \F}
+    \biggl|
+    \int f d μ_1 - \int f d μ_2
+    \biggr|,
+    \quad
+    \forall μ_1, μ_2 \in \ALPHABET P_w(\ALPHABET X).
+  \]</span> The function <span class="math inline">\(f\)</span> is called <em>the witness function</em> and the function class <span class="math inline">\(\F\)</span> is called <em>the generator</em>.</p>
+</div>
+<p>An IPM is a pseudo-metric, i.e., it satisfies the following properties: for all <span class="math inline">\(μ_1, μ_2, μ_3 \in \ALPHABET P_w(\ALPHABET X)\)</span></p>
+<ol type="1">
+<li><span class="math inline">\(d_{\F}(μ_1, μ_2) = 0\)</span></li>
+<li><strong>Symmetry.</strong> <span class="math inline">\(d_{\F}(μ_1, μ_2) = d_{\F}(μ_2, μ_1)\)</span></li>
+<li><strong>Triangle inequality.</strong> <span class="math inline">\(d_{\F}(μ_1, μ_3) \le d_{\F}(μ_1, μ_2) + d_{\F}(μ_2, μ_3)\)</span>.</li>
+</ol>
+<p>IPM is a metric when <span class="math inline">\(d(μ_1, μ_2) = 0 \implies μ_1 = μ_2\)</span>.</p>
+</section>
+<section id="examples" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="examples">Examples</h3>
+<p>[TODO]</p>
+</section>
+<section id="maximal-generators" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="maximal-generators">Maximal generators</h3>
+<p>So far, we haven’t imposed any restriction on the generator <span class="math inline">\(\F\)</span>. We now present a canonical representation of a generator.</p>
+<div id="def-maximal-generator" class="theorem definition">
+<p><span class="theorem-title"><strong>Definition 29.2 </strong></span>For a function class <span class="math inline">\(\F \in \ALPHABET M_w(\ALPHABET X)\)</span>, define the <strong>maximal generator</strong> <span class="math inline">\(\ALPHABET G_{\F}\)</span> as <span class="math display">\[
+    \ALPHABET G_{\F} =
+    \biggl\{
+      f \in \ALPHABET M_w(\ALPHABET X) :
+      \biggl| \int f d μ_1 - \int f d μ_2 \biggr| \le d_{\F}(μ_1, μ_2), \space
+      \text{for all } μ_1, μ_2 \in \ALPHABET P_w(\ALPHABET X)
+      \biggr\}.
+  \]</span></p>
+</div>
+<p>Maximal generators have the following properties.</p>
+<div id="prp-maximal-generators" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 29.1 </strong></span>Let <span class="math inline">\(\F \subset \ALPHABET M_w(\ALPHABET X)\)</span> be an arbitary generator. Then:</p>
+<ol type="1">
+<li><span class="math inline">\(\ALPHABET G_{\F}\)</span> contains the convex hull of <span class="math inline">\(\F\)</span>.</li>
+<li>If <span class="math inline">\(f \in \ALPHABET G_{\F}\)</span>, then <span class="math inline">\(α f + β \in \ALPHABET G_{\F}\)</span> for all <span class="math inline">\(|α| &lt; 1\)</span> and <span class="math inline">\(β \in \reals\)</span>.</li>
+<li>If the sequence <span class="math inline">\(\{f_n\}_{n \ge 1} \in \ALPHABET G_{\F}\)</span> converges uniformly to <span class="math inline">\(f\)</span>, then <span class="math inline">\(f \in \ALPHABET G_{\F}\)</span>.</li>
+</ol>
+</div>
+<p>Maximal generators also allow us to compare IPMs with different generators.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
+<i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<i class="bi bi-cpu text-important"></i> Value Iteration Algorithm
+Balanced set
 </div>
 </div>
 <div class="callout-body-container callout-body">
+<p>A set <span class="math inline">\(\ALPHABET S\)</span> is said to be balanced if for all scalars <span class="math inline">\(a\)</span> satisfying <span class="math inline">\(|a| &lt; 1\)</span>, we have <span class="math inline">\(a \ALPHABET S \subset \ALPHABET S\)</span>.</p>
+</div>
+</div>
+<div id="prp-maximal-generators-comparison" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 29.2 </strong></span>Let <span class="math inline">\(\F \subset \mathfrak D \subset \ALPHABET M_w(\ALPHABET X)\)</span> and <span class="math inline">\(μ_1, μ_2 \in \ALPHABET P_w(\ALPHABET X)\)</span>. Then</p>
 <ol type="1">
-<li>Start with any <span class="math inline">\(V_0 \in \reals^n\)</span>.</li>
-<li>Recursively compute <span class="math inline">\(V_{k+1} = \mathcal B V_k = \mathcal B_{π_k} V_k.\)</span></li>
-<li>Define <span class="math display">\[ \begin{align*}
-   \underline δ_k &amp;= \frac{γ}{1-γ} \min_s \{ V_k(s) - V_{k-1}(s) \}, \\
-   \bar δ_k &amp;=       \frac{γ}{1-γ} \max_s \{ V_k(s) - V_{k-1}(s) \}.
-\end{align*} \]</span></li>
-</ol>
-<p>Then, for all <span class="math inline">\(k\)</span></p>
-<ol type="1">
-<li><span class="math inline">\(V_k + \underline δ_k \ONES \le V^* \le V_k + \bar δ_k \ONES\)</span>.</li>
-<li><span class="math inline">\((\underline δ_k - \bar δ_k) \ONES \le V_{π_k} - V^* \le (\bar δ_k - \underline δ_k) \ONES.\)</span></li>
+<li><span class="math inline">\(d_{\F}(μ_1, μ_2) \le d_{\mathfrak D}(μ_1, μ_2)\)</span>.</li>
+<li><span class="math inline">\(\ALPHABET G_{\F} \subset \ALPHABET G_{\mathfrak D}\)</span>.</li>
+<li>If <span class="math inline">\(\mathfrak D \subset \ALPHABET G_{\F}\)</span> then <span class="math inline">\(d_{\F}\)</span> and <span class="math inline">\(d_{\mathfrak D}\)</span> are identical.</li>
+<li>If <span class="math inline">\(\F \subset \mathfrak D \subset \ALPHABET G_{\F}\)</span> and <span class="math inline">\(\mathfrak D\)</span> is convex and balanced, contains the constant functions, and is closed with respect to pointwise convergence, then <span class="math inline">\(\mathfrak D = \ALPHABET G_{\F}\)</span>.</li>
 </ol>
 </div>
+</section>
+</section>
+<section id="properties-of-ipms" class="level2" data-number="29.2">
+<h2 data-number="29.2" class="anchored" data-anchor-id="properties-of-ipms"><span class="header-section-number">29.2</span> Properties of IPMs</h2>
+<p>We will assume that the generator <span class="math inline">\(\F\)</span> is the maximal generator. In particular, this means that <span class="math inline">\(0 \in \F\)</span> is an interior point. We will also implicitly assume that <span class="math inline">\(\ALPHABET M_w(\ALPHABET X) \subset (0,∞)\F \coloneqq \cup_{0 &lt; r &lt; ∞} r\F\)</span>, i.e., <span class="math inline">\(\F\)</span> is an absorbing set.</p>
+<p>For any function <span class="math inline">\(f \in \ALPHABET M_w(\ALPHABET X)\)</span> define the <strong>Minkowski functional (or gauge)</strong> as follows: <span class="math display">\[
+  ρ_{\F}(f) = \inf \big\{ ρ &gt; 0 : f/ρ \in \F \bigr\}.
+\]</span> where the infimum of an empty set is defined as infinity.</p>
+<div id="prp-IPM-ineq" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 29.3 </strong></span>For any <span class="math inline">\(f \in \ALPHABET M_w(\ALPHABET X)\)</span> and any <span class="math inline">\(μ_1, μ_2 \in \ALPHABET P_w(\ALPHABET X)\)</span>, we have <span class="math display">\[
+  \left|
+  \int f d μ_1 - \int f d μ_2
+  \right|
+  \le
+  ρ_{\F}(f) d_{\F}(μ_1, μ_2).
+  \]</span></p>
+</div>
+<p>[TODO: Explain the Minkowski functional for the examples]</p>
+<p>In all the above examples, the Minkowski functional is a semi-norm, which is a general property.</p>
+<div id="prp-Minkowski-seminorm" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 29.4 </strong></span>The Minkowski functional is a semi-norm, i.e., it satisfies the following properties:</p>
+<ol type="1">
+<li><strong>Non-negativity.</strong> <span class="math inline">\(ρ(f) \ge 0\)</span>.</li>
+<li><strong>Absolute homogeneity</strong> <span class="math inline">\(ρ_{\F}(a f) = |a| ρ_{\F}(f)\)</span> for all scalars <span class="math inline">\(a\)</span>.</li>
+<li><strong>Subadditivity.</strong> <span class="math inline">\(ρ_{\F}(f_1 + f_2) \le ρ_{\F}(f_1) + ρ_{\F}(f_2)\)</span>.</li>
+</ol>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
@@ -646,152 +729,25 @@ Proof
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>By construction, <span class="math display">\[ \begin{align*}
-   \mathcal B V_k - V_k &amp;= \mathcal B V_k - \mathcal B V_{k-1} \\
-   &amp; \le \mathcal B_{π_{k-1}} V_k - \mathcal B_{π_{k-1}} V_{k-1}\\
-   &amp; \le γ P_{π_{k-1}}[ V_k - V_{k-1} ] \\
-   &amp;= (1-γ) \bar δ_k \ONES.
-\end{align*} \]</span> Thus, by <a href="inf-horizon.html#prp-Bellman-bounds">Proposition&nbsp;<span>9.5</span></a>, we have <span class="math display">\[\begin{equation} \label{eq:VI-1}
-  V^* \le V_k + \bar δ_k \ONES.
-\end{equation}\]</span> Note that <span class="math inline">\(\mathcal B V_k = \mathcal B_{π_k} V_k\)</span>. So, we have also show that <span class="math inline">\(\mathcal B_{π_k} V_k - V_k \le (1-γ) \bar δ_k \ONES\)</span>. Thus, again by <a href="inf-horizon.html#prp-Bellman-bounds">Proposition&nbsp;<span>9.5</span></a>, we have <span class="math display">\[\begin{equation}\label{eq:VI-2}
-  V_{π_k} \le V_k + \bar δ_k \ONES.
-\end{equation}\]</span></p>
-<p>By a similar argument, we can show <span class="math display">\[\begin{equation}\label{eq:VI-3}
-  V^* \ge V_k + \underline δ_k \ONES
-\quad\text{and}\quad
-V_{π_k} \ge V_k + \underline δ_k \ONES.
-\end{equation}\]</span></p>
-<p>Eq.&nbsp;\eqref{eq:VI-1} and \eqref{eq:VI-3} imply the first relationship of the result. To establish the second relationship, note that the triangle inequality <span class="math display">\[ \max\{ V_{π_k} - V^* \} \le
-   \max\{ V_{π_k} - V_k \} + \max\{ V_{k} - V^* \}
-   \le (\bar δ_k - \underline δ_k) \ONES.
-\]</span> Similarly, <span class="math display">\[
-  \max\{ V^* - V_{π_k} \} \le
-   \max \{ V^* - V_k \} + \max\{ V_k - V_{π_k} \}
-   \le (\bar δ_k - \underline δ_k) \ONES.
-\]</span> Combining the above two equation, we get the second relationship of the result.&nbsp;</p>
+<p>Non-negativity holds by definition. Absolute homogeneity holds because <span class="math inline">\(\F\)</span> is balanced, in particular <span class="math inline">\(\F = -\F\)</span>. Note that absolute homogeneity implies <span class="math inline">\(ρ_{\F}(0) = 0\)</span>.</p>
+<p>To see why subadditivity holds, let <span class="math inline">\(ρ_1 = ρ_{\F}(f_1)\)</span> and <span class="math inline">\(ρ_2 = ρ_{\F}(f_2)\)</span>. Then, since <span class="math inline">\(\F\)</span> is convex, we have for any <span class="math inline">\(λ \in [0,1]\)</span>, <span class="math display">\[
+  λ \frac{f_1}{ρ_1} + (1-λ) \frac{f_2}{ρ_2} \in \F.
+\]</span> Take <span class="math inline">\(λ = ρ_1/(ρ_1 + ρ_2)\)</span>, which implies <span class="math inline">\((f_1 + f_2)/(ρ_1 + ρ_2) \in \F\)</span>. Thus, <span class="math inline">\(ρ_{\F}(f_1 + f_2) \le ρ_1 + ρ_2\)</span>.</p>
 </div>
 </div>
 </div>
-</section>
-<section id="policy-iteration-algorithm" class="level2" data-number="10.2">
-<h2 data-number="10.2" class="anchored" data-anchor-id="policy-iteration-algorithm"><span class="header-section-number">10.2</span> Policy Iteration Algorithm</h2>
-<div id="lem-policy-improvement" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 10.1 (Policy improvement) </strong></span>Suppose <span class="math inline">\(V_π\)</span> is the fixed point of <span class="math inline">\(\mathcal B_π\)</span> and <span class="math display">\[\mathcal B_{μ} V_π = \mathcal B V_π. \]</span> Then, <span class="math display">\[V_{μ}(s) \le V_π(s), \quad \forall s \in \ALPHABET S. \]</span> Moreover, if <span class="math inline">\(π\)</span> is not optimal, then at least one inequality is strict.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p><span class="math display">\[ V_π = \mathcal B_π V_π \ge \mathcal B V_π = \mathcal B_{μ} V_π.\]</span> Thus, <span class="math display">\[ V_π \ge V_{μ}. \]</span></p>
-<p>Finally, suppose <span class="math inline">\(V_μ = V_π\)</span>. Then, <span class="math display">\[ V_μ = \mathcal B_μ V_μ = \mathcal B_μ V_π = \mathcal B V_π = \mathcal B
-V_μ. \]</span> Thus, <span class="math inline">\(V_μ\)</span> (and <span class="math inline">\(V_π\)</span>) is the unique fixed point of <span class="math inline">\(\mathcal B\)</span>. Hence <span class="math inline">\(μ\)</span> and <span class="math inline">\(π\)</span> are optimal.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-important no-icon callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<i class="bi bi-cpu text-important"></i> Policy Iteration Algorithm
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ol type="1">
-<li><p>Start with an arbitrary policy <span class="math inline">\(π_0\)</span>. Compute <span class="math inline">\(V_0 = \mathcal B_{π_0} V_0\)</span>.</p></li>
-<li><p>Recursively compute a policy <span class="math inline">\(π_k\)</span> such that <span class="math display">\[\mathcal B V_{k-1} = \mathcal B_{π_k} V_{k-1}\]</span> and compute the performance of the policy using <span class="math display">\[ V_k = \mathcal B_{π_k} V_k.\]</span></p></li>
-<li><p>Stop if <span class="math inline">\(V_k = V_{k-1}\)</span> (or <span class="math inline">\(π_k = π_{k-1}\)</span>).</p></li>
-</ol>
-</div>
-</div>
-<p>The policy improvement lemma (<a href="#lem-policy-improvement">Lemma&nbsp;<span>10.1</span></a>) implies that <span class="math inline">\(V_{k-1} \ge V_k\)</span>. Since the state and action spaces are finite, there are only a finite number of policies. The value function improves at each step. So the process must converge in finite number of iterations. At convergence, <span class="math inline">\(V_k = V_{k-1}\)</span> and the policy improvement lemma implies that the corresponding policies <span class="math inline">\(π_k\)</span> or <span class="math inline">\(π_{k-1}\)</span> are optimal.</p>
-<section id="policy-iteration-as-newton-raphson-algoritm" class="level3" data-number="10.2.1">
-<h3 data-number="10.2.1" class="anchored" data-anchor-id="policy-iteration-as-newton-raphson-algoritm"><span class="header-section-number">10.2.1</span> Policy iteration as Newton-Raphson algoritm</h3>
-<!-- Taken from Pg 58 of Whittle, Optimal Control: Basics and Beyond -->
-<p>Recall that the main idea behind Newton-Raphson is as follows. Suppose we want to solve a fixed point equation <span class="math inline">\(V = \mathcal B V\)</span> and we have an approximate solution <span class="math inline">\(V_k\)</span>. Then we can search for an improved soluiton <span class="math inline">\(V_{k+1} = V_k + Δ_k\)</span> by setting <span class="math display">\[\begin{equation} \label{eq:NR}
-V_k + Δ_k = \mathcal{B}( V_k + Δ_k ),
-\end{equation} \]</span> expanding the right-hand side as far as first-order terms in <span class="math inline">\(Δ_k\)</span> and solving the consequent linear equation for <span class="math inline">\(Δ_k\)</span>.</p>
-<p>Now, let’s try to apply this idea to find the fixed point of the Bellman equation. Suppose we have identified a guess <span class="math inline">\(V_k\)</span> and <span class="math inline">\(\mathcal B V_k = \mathcal B_{π_{k+1}} V_k\)</span>. Because the choice of control action <span class="math inline">\(a\)</span> is optimization out in <span class="math inline">\(\mathcal B\)</span>, the varation of <span class="math inline">\(a\)</span> induced by the variation <span class="math inline">\(Δ_k\)</span> of <span class="math inline">\(V_k\)</span> has no first-order effect on the value of <span class="math inline">\(\mathcal B(V_k + Δ_k)\)</span>. Therefore, <span class="math display">\[
-  \mathcal{B}(V_k + Δ_k) = \mathcal B_{π_{k+1}}(V_k + Δ_k) + o(Δ_k).
-\]</span> It follows that the linearized version of&nbsp;\eqref{eq:NR} is just <span class="math display">\[
-  V_{k+1} = \mathcal B_{π_{k+1}} V_{k+1}.
-\]</span> That is, <span class="math inline">\(V_{k+1}\)</span> is just the value function for the policy <span class="math inline">\(π_{k+1}\)</span>, where <span class="math inline">\(π_{k+1}\)</span> was deduced from the value function <span class="math inline">\(V_k\)</span> exactly by the policy improvement procedure. Therefore, we can conclude the following.</p>
-<div id="thm-PI-NR" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 10.1 </strong></span>The policy improvement algorithm is equivalent to the application of Newton-Raphson algorithm to the fixed point equation <span class="math inline">\(V = \mathcal B V\)</span> of dynamic programming.</p>
-</div>
-<p>The equivalence between policy iteration and Newton-Raphson partily explains why policy iteration approaches converge in few iterations.</p>
-</section>
-</section>
-<section id="optimistic-policy-iteration" class="level2" data-number="10.3">
-<h2 data-number="10.3" class="anchored" data-anchor-id="optimistic-policy-iteration"><span class="header-section-number">10.3</span> Optimistic Policy Iteration</h2>
-<div class="callout callout-style-default callout-important no-icon callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<i class="bi bi-cpu text-important"></i> Optimistic Policy Iteration Algorithm
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ol type="1">
-<li><p>Fix a sequence of integers <span class="math inline">\(\{\ell_k\}_{k \in \integers_{\ge 0}}\)</span>.</p></li>
-<li><p>Start with an initial guess <span class="math inline">\(V_0 \in \reals^n\)</span>.</p></li>
-<li><p>For <span class="math inline">\(k=0, 1, 2, \dots\)</span>, recursively compute a policy <span class="math inline">\(π_k\)</span> such that <span class="math display">\[ \mathcal B_{π_k} V_k = \mathcal B V_k \]</span> and then update the value function <span class="math display">\[ V_{k+1} = \mathcal B_{π_k}^{\ell_k} V_k. \]</span></p></li>
-</ol>
-</div>
-</div>
-<p>Note that if <span class="math inline">\(\ell_k = 1\)</span>, the optimistic policy iteration is equivalent to value iteration and if <span class="math inline">\(\ell_k = \infty\)</span>, then optimistic policy iteration is equal to policy iteration.</p>
-<p>In the remainder of this section, we state the modifications of the main results to establish the convergence bounds for optimistic policy iteration.</p>
-<div id="prp-multi-step-PI" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 10.1 </strong></span>For any <span class="math inline">\(V \in \reals^n\)</span> and <span class="math inline">\(m \ONES \in \reals_{\ge 0}\)</span></p>
-<ul>
-<li>If <span class="math inline">\(V + m \ONES \ge \mathcal B V = \mathcal B_π V\)</span>, then for any <span class="math inline">\(\ell \in \integers_{&gt; 0}\)</span>, <span class="math display">\[ \mathcal B V + \frac{γ}{1 - γ} m \ONES \ge \mathcal B_π^\ell V \]</span> and <span class="math display">\[ \mathcal B_π^\ell V + γ^\ell m \ONES \ge \mathcal B( \mathcal B_π^\ell V). \]</span></li>
-</ul>
-</div>
-<p>The proof is left as an exercise.</p>
-<div id="prp-PI-optimistic-bound" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 10.2 </strong></span>Let <span class="math inline">\(\{(V_k, π_k)\}_{k \ge 0}\)</span> be generated as per the optimistic policy iteration algorithm. Define <span class="math display">\[ \alpha_k = \begin{cases}
-  1, &amp; \text{if } k = 0 \\
-  γ^{\ell_0 + \ell_1 + \dots + \ell_{k-1}}, &amp; \text{if } k &gt; 0.
-\end{cases}\]</span> Suppose there exists an <span class="math inline">\(m \in \reals\)</span> such that <span class="math display">\[ \| V_0 - \mathcal B V_0 \| \le m. \]</span> Then, for all <span class="math inline">\(k \ge 0\)</span>, <span class="math display">\[ \mathcal B V_{k+1} - \alpha_{k+1} m \le V_{k+1} \le
-\mathcal B V_k + \frac{γ}{1-γ} \alpha_k m.
-\]</span> Moreover, <span class="math display">\[ V_{k} - \frac{(k+1) γ^k}{1-γ} m \le
-    V^* \le
-    V_k + \frac{\alpha_k}{1 - γ} m \le
-    V_k + \frac{γ^k}{1 - γ} m. \]</span></p>
-</div>
-</section>
-<section id="exercises" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
-<div id="exr-VI-bounds" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 10.1 </strong></span>Show that the error bound for value iteration is monotone with the number of iterations, i.e, <span class="math display">\[ V_k + \underline δ_k \ONES \le V_{k+1} + \underline δ_{k+1} \ONES
-\le V^*
-\le V_{k+1} + \bar δ_{k+1} \ONES \le V_k + \bar δ_k \ONES. \]</span></p>
-</div>
-<!-- TODO: Add the example of policy improvement for the harvesting example
-from Page 61 of Whittle, Optimal Control: Basics and Beyond -->
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>The techniques for value iteration and policy improvement were formalized by <span class="citation" data-cites="Howard1960">Howard (<a href="../references.html#ref-Howard1960" role="doc-biblioref">1960</a>)</span>. The equivalence of policy improvement and the Newton-Raphson algorithm was demonstrated in the LQ case by <span class="citation" data-cites="Whittle1988a">Whittle and Komarova (<a href="../references.html#ref-Whittle1988a" role="doc-biblioref">1988</a>)</span>, for which it holds in a tighter sense.</p>
+<p>IPMs were first defined by <span class="citation" data-cites="Zolotarev1984">Zolotarev (<a href="../references.html#ref-Zolotarev1984" role="doc-biblioref">1984</a>)</span>, where they were called probability metrics with <span class="math inline">\(ζ\)</span>-structure. The term IPM was coined by <span class="citation" data-cites="Muller1997a">Müller (<a href="../references.html#ref-Muller1997a" role="doc-biblioref">1997</a>)</span>. The discussion here is mostly borrowed from <span class="citation" data-cites="Muller1997a">Müller (<a href="../references.html#ref-Muller1997a" role="doc-biblioref">1997</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
-<div id="ref-Howard1960" class="csl-entry" role="listitem">
-<span class="smallcaps">Howard, R.A.</span> 1960. <em>Dynamic programming and markov processes</em>. The M.I.T. Press.
+<div id="ref-Muller1997a" class="csl-entry" role="listitem">
+<span class="smallcaps">Müller, A.</span> 1997. Integral probability metrics and their generating classes of functions. <em>Advances in Applied Probability</em> <em>29</em>, 2, 429–443. DOI: <a href="https://doi.org/10.2307/1428011">10.2307/1428011</a>.
 </div>
-<div id="ref-Whittle1988a" class="csl-entry" role="listitem">
-<span class="smallcaps">Whittle, P. and Komarova, N.</span> 1988. Policy improvement and the newton-raphson algorithm. <em>Probability in the Engineering and Informational Sciences</em> <em>2</em>, 2, 249–255. DOI: <a href="https://doi.org/10.1017/s0269964800000760">10.1017/s0269964800000760</a>.
+<div id="ref-Zolotarev1984" class="csl-entry" role="listitem">
+<span class="smallcaps">Zolotarev, V.M.</span> 1984. Probability metrics. <em>Theory of Probability &amp; Its Applications</em> <em>28</em>, 2, 278–302. DOI: <a href="https://doi.org/10.1137/1128025">10.1137/1128025</a>.
 </div>
 </div>
 </section>
@@ -1147,13 +1103,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../mdps/inf-horizon.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></span>
+      <a href="../probability/martingales.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Martingales</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../mdps/inventory-management-revisited.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../probability/stochastic-stability.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
