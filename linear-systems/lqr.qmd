@@ -48,10 +48,10 @@ There are various methods to obtain the optimal controller for LQR: dynamic prog
 In the rest of these notes, we consider a slight generalization of LQ regulation where we consider the cost function
 \begin{equation}\label{eq:cost}
   J(g) = \EXP\left[ \sum_{t=1}^{T-1}  
-\MATRIX{x_t \\ u_t}^\TRANS \MATRIX{Q & M \\ M^\TRANS & R } \MATRIX{ x_t \\ u_t}
+\MATRIX{x_t \\ u_t}^\TRANS \MATRIX{Q & S \\ S^\TRANS & R } \MATRIX{ x_t \\ u_t}
 + x_{T} P_T x_{T} \right]
 \end{equation}
-where the matrix $\MATRIX{Q & M \\ M^\TRANS & R}$ is symmetric and positive semi-definite and $R$ is symmetric and positive definite.
+where the matrix $\MATRIX{Q & S \\ S^\TRANS & R}$ is symmetric and positive semi-definite and $R$ is symmetric and positive definite.
 
 ## Completion of squares
 
@@ -59,10 +59,10 @@ We start from a simple observation.
 
 ::: {#lem-completion-of-squares}
 ### Completion of squares
-Let $x \in \reals^n$, $u \in \reals^m$, and $w \in \reals^n$ be random variables defined on a common probability space. Suppose $w$ is zero mean with finite covariance and independent of $(x,u)$. Let $x_{+} = Ax + Bu + w$, where $A$ and $B$ are matrices of appropriate dimensions. Then, given matrices $P$, $Q$, $M$, and $R$ of appropriate dimensions,
+Let $x \in \reals^n$, $u \in \reals^m$, and $w \in \reals^n$ be random variables defined on a common probability space. Suppose $w$ is zero mean with finite covariance and independent of $(x,u)$. Let $x_{+} = Ax + Bu + w$, where $A$ and $B$ are matrices of appropriate dimensions. Then, given matrices $P$, $Q$, $S$, and $R$ of appropriate dimensions,
 $$
 \EXP\left[
-\MATRIX{x \\ u}^\TRANS \MATRIX{Q & M \\ M^\TRANS & R } \MATRIX{ x \\ u}
+\MATRIX{x \\ u}^\TRANS \MATRIX{Q & S \\ S^\TRANS & R } \MATRIX{ x \\ u}
 + x_{+} P x_{+} \right]
 = 
 \EXP\bigl[ x^\TRANS P_{+} x  
@@ -75,7 +75,7 @@ $$
 where
 
 - $Δ = R + B^\TRANS P B$
-- $K = Δ^{-1}[ M^\TRANS + B^\TRANS P A ]$
+- $K = Δ^{-1}[ S^\TRANS + B^\TRANS P A ]$
 - $P_{+} = Q + A^\TRANS P A - K^\TRANS Δ K$
 :::
 
@@ -91,8 +91,8 @@ $$
 
 The proof follows immediately by completing the square on the left hand side. In particular
 \begin{align*}
-& u^\TRANS R u + 2 x^\TRANS M u +  (Ax+Bu)^\TRANS P (Ax + Bu) \\
-& \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS( M^\TRANS + B^\TRANS P A) x 
+& u^\TRANS R u + 2 x^\TRANS S u +  (Ax+Bu)^\TRANS P (Ax + Bu) \\
+& \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS( S^\TRANS + B^\TRANS P A) x 
   + x^\TRANS A^\TRANS P A x \\
 & \quad = u^\TRANS Δ u + 2 u^\TRANS Δ K x + x^\TRANS A^\TRANS P A x \\
 & \quad = 
@@ -102,12 +102,12 @@ The proof follows immediately by completing the square on the left hand side. In
 :::
 
 ::: {#def-Riccati-operator}
-Given the system model $(A,B)$ and per-step cost $(Q,M,R)$, we define the _Riccati operator_ $\RICCATI \colon \mathbb{S}^{n × n}_{\ge 0} \to \mathbb{S}^{n × n}_{\ge 0}$ as follows:
+Given the system model $(A,B)$ and per-step cost $(Q,S,R)$, we define the _Riccati operator_ $\RICCATI \colon \mathbb{S}^{n × n}_{\ge 0} \to \mathbb{S}^{n × n}_{\ge 0}$ as follows:
 $$ \RICCATI P = Q + A^\TRANS P A 
-- (M^\TRANS + B^\TRANS P A)^\TRANS (R + B^\TRANS P B)^{-1}
-  (M^\TRANS + B^\TRANS P A).$$
+- (S^\TRANS + B^\TRANS P A)^\TRANS (R + B^\TRANS P B)^{-1}
+  (S^\TRANS + B^\TRANS P A).$$
 Moreover, define the _Gain_ operator $\GAIN \colon \mathbb{S}^{n × n}_{\ge 0} \to \reals^{m × n}$ as
-$$ \GAIN P = - (R + B^\TRANS B P)^{-1}(M^\TRANS + B^\TRANS P A). $$
+$$ \GAIN P = - (R + B^\TRANS B P)^{-1}(S^\TRANS + B^\TRANS P A). $$
 :::
 
 Note that with the above notation, the terms defined in @lem-completion-of-squares may be written as
@@ -126,7 +126,7 @@ I am calling the updates in @lem-completion-of-squares as Riccati operators beca
 
 ::: {.callout-important}
 ### Alternative forms of the Riccati operator
-For the special case when $M = 0$ (i.e., no cross terms in the cost), the Riccati operator is given by:
+For the special case when $S = 0$ (i.e., no cross terms in the cost), the Riccati operator is given by:
 $$
   \RICCATI P = Q + A^\TRANS P A - 
   A^\TRANS P B (R + B^\TRANS P B)^{-1} B^\TRANS P A
@@ -196,11 +196,13 @@ Now, an immediate implication of @prp-completion-of-squares is the following:
 
 ## Salient features of the result
 
-1. Note that the optimal gains $\{K_t\}_{t \ge 1}$ do not depend on the noise covariance $\{W_t\}_{t \ge 1}$. Thus, the noise in the dynamics does not change the closed loop control policy but changes the optimal cost by a term that does not depend on the policy. 
+1. We derived the results for time-invariant dynamics and cost, but the argument trivially generalizes to time-varying dynamics and cost as well.
 
-2. A special case of the above observation is that the optimal control policy of the stochastic LQR problem is the same as the optimal control policy of the deterministic LQR problem (where the noise $w_t ≡ 0$). This result is sometimes called the **certainty equivalence principle.**
+2. The optimal gains $\{K_t\}_{t \ge 1}$ do not depend on the distribution of the noise $\{W_t\}_{t \ge 1}$. Thus, the noise in the dynamics does not change the closed loop control policy but changes the optimal cost by a term that depends on the noise covariance (but does not depend on the policy). 
 
-3. Suppose the noise was not white but Gaussian and correlated over time (and still independent of the initial state $x_1$). Then, the optimal control action at time $t$ will be the same as that of the deterministic system
+3. A special case of the above observation is that the optimal control policy of the stochastic LQR problem is the same as the optimal control policy of the deterministic LQR problem (where the noise $w_t ≡ 0$). This result is sometimes called the **certainty equivalence principle.**
+
+4. Suppose the noise was not white but Gaussian and correlated over time (and still independent of the initial state $x_1$). Then, the optimal control action at time $t$ will be the same as that of the deterministic system
    $$
      x_{τ + 1} = A x_{τ} + B u_{τ} + w_{τ|t},
      \quad τ \ge t,
