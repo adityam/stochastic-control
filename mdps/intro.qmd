@@ -417,6 +417,65 @@ For more details on the optimal stopping problems, see @Ferguson:book.
 
 _To be written_
 
+## Continuous state and action spaces
+
+The fundamental ideas discussed above also hold for continuous state and action spaces provided one carefully deals with measurability. We first fix some notation:
+
+- For a set $\ALPHABET S$, let $\mathscr B(\ALPHABET S)$ denote the Borel sigma-algebra on $\ALPHABET S$.
+- We use $\ALPHABET M(\ALPHABET X, \ALPHABET Y)$ to denote the set of measurable functions from the space $\ALPHABET X$ to the space $\ALPHABET Y$ (we implicitly assume that the sigma-algebras on $\ALPHABET X$ and $\ALPHABET Y$ is the respective Borel sigma-algebras). When $\ALPHABET Y$ is $\reals$, we will sometimes use the notation $\ALPHABET M(\ALPHABET X)$.
+
+<!--
+2. Let $\ALPHABET M_{∞}(\ALPHABET X)$ denote the set of measurable real valued functions with bounded sup-norm, i.e., 
+   $$
+    \ALPHABET M_{∞}(\ALPHABET X) = 
+    \bigl\{ f \in \ALPHABET M(\ALPHABET X) : \| f \|_{∞} < ∞ \bigr\}.
+   $$
+-->
+
+In order to talk about _expected cost_, in continuous state spaces we have to assume that the per-step cost is measurable, i.e., $c \in \ALPHABET M(\ALPHABET S × \ALPHABET A)$, and the $P \colon \ALPHABET S × \ALPHABET A × \mathscr B(\ALPHABET S) \to [0,1]$ is a stochastic kernel, i.e., for every $(s,a) \in \ALPHABET S × \ALPHABET A$, $p(s,a,\cdot)$ is probability measure on $\ALPHABET S$, and for every $B \in \ALPHABET S$, the function $p(\cdot, \cdot, B) \in \ALPHABET M(\ALPHABET S × \ALPHABET A)$. These assumption imply that for every measurable policy $π \in \ALPHABET M(\ALPHABET S, \ALPHABET A)$, the performance $J(\pi)$ is well defined. However, these assumptions are not sufficient to establish the optimality of dynamic programmming. 
+
+To highlight the technical issues, let us consider an MDP with $T = 1$, i.e., a stochastic optimization problem. Define 
+$$
+  V^*(s) = \inf_{a \in \ALPHABET A} c(s,a)
+  \quad\text{and}\quad
+  π^*(s) = \arg\inf_{a \in \ALPHABET A} c(s,a).
+$$
+
+We present a few examples below from @Blackwell1965 to highlight technical issues with non-finite state models.
+
+:::{#exm-Blackwell-no-optimal-policy}
+## No optimal policy
+
+Let $\ALPHABET S = \{s_\circ\}$, $\ALPHABET A = \integers_{\ge 0}$ Consider $c(s_\circ,a) = (a+1)/a$. Here $v^*(s_\circ) = 1$ but there is no policy which achieves this cost.
+:::
+
+In the above example, there is no optimal policy, but given any $ε > 0$, we can identify an $ε$-optimal policy. The next example shows that we can have a much severe situation where the value function is not measurable. The example relies on the following fact:
+
+> There exist Borel sets in $\reals^2$ whose projection on $\reals$ is not Borel. See [:the wikipedia article on projections][projections] for a discussion.
+
+[projections]: https://en.wikipedia.org/wiki/Projection_(measure_theory)
+
+:::{#exm-Blackwell-non-measurable-value-function}
+## Non-measurable value function
+
+Let $\ALPHABET S = \ALPHABET A = [0,1]$ and let $B \subset \ALPHABET S × \ALPHABET A$ such that $B$ is measurable but its projection on $D$ onto $\ALPHABET S$ is not. Consider $c(s,a) = -\IND\{ (s,a) \in B \}$. Note that 
+$$
+  v(s) = \inf_{a \in \ALPHABET A} c(s,a) = 
+  \inf_{a \in \ALPHABET A} -\IND\{ (s,a) \in B \} =
+  -\IND\{s \in D \}
+$$
+which is not Borel measurable.
+:::
+
+See @Piunovskiy2011 for various examples on what can go wrong in MDPs. In particular, Example 1.4.15 of @Piunovskiy2011 extends @exm-Blackwell-non-measurable-value-function to provide an example where there is no $ε$-optimal policy! (@Blackwell1965 also has such an example, but it is much harder to parse).
+
+<!-- See example 1.4.15 -->
+
+There are two ways to resolve the issue with non-existence of optimal policies: either assume that $\ALPHABET A$ is compact or that the function that we are minimizing is coercive, so that the $\arg\inf$ can be replaced by an $\arg\min$. Or work with $ε$-optimal policies. 
+
+Resolving the measurability issue is more complicated. There are 
+various **measurable selection theorems** in the literature to identify sufficient conditions for measurability of the value function and optimal policy. See @HernandezLerma1996 and [-@HernandezLerma1999] for an accessible treatment of continous state MDPs.
+
 
 ## Notes {-}
 
