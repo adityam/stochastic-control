@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-09-19">
+<meta name="dcterms.date" content="2023-10-24">
 <meta name="keywords" content="MDPs, Markov strategies, dynamic programming, comparison principle, principle of irrelevant information">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -567,6 +567,7 @@ window.MathJax = {
   <li><a href="#optimal-stopping" id="toc-optimal-stopping" class="nav-link" data-scroll-target="#optimal-stopping"><span class="header-section-number">3.3.5</span> Optimal stopping</a></li>
   <li><a href="#minimax-setup" id="toc-minimax-setup" class="nav-link" data-scroll-target="#minimax-setup"><span class="header-section-number">3.3.6</span> Minimax setup</a></li>
   </ul></li>
+  <li><a href="#continuous-state-and-action-spaces" id="toc-continuous-state-and-action-spaces" class="nav-link" data-scroll-target="#continuous-state-and-action-spaces"><span class="header-section-number">3.4</span> Continuous state and action spaces</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/intro.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
@@ -602,7 +603,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 19, 2023</p>
+      <p class="date">October 24, 2023</p>
     </div>
   </div>
   
@@ -850,6 +851,46 @@ V_t(s) &amp;= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 <p><em>To be written</em></p>
 </section>
 </section>
+<section id="continuous-state-and-action-spaces" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="continuous-state-and-action-spaces"><span class="header-section-number">3.4</span> Continuous state and action spaces</h2>
+<p>The fundamental ideas discussed above also hold for continuous state and action spaces provided one carefully deals with measurability. We first fix some notation:</p>
+<ul>
+<li>For a set <span class="math inline">\(\ALPHABET S\)</span>, let <span class="math inline">\(\mathscr B(\ALPHABET S)\)</span> denote the Borel sigma-algebra on <span class="math inline">\(\ALPHABET S\)</span>.</li>
+<li>We use <span class="math inline">\(\ALPHABET M(\ALPHABET X, \ALPHABET Y)\)</span> to denote the set of measurable functions from the space <span class="math inline">\(\ALPHABET X\)</span> to the space <span class="math inline">\(\ALPHABET Y\)</span> (we implicitly assume that the sigma-algebras on <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET Y\)</span> is the respective Borel sigma-algebras). When <span class="math inline">\(\ALPHABET Y\)</span> is <span class="math inline">\(\reals\)</span>, we will sometimes use the notation <span class="math inline">\(\ALPHABET M(\ALPHABET X)\)</span>.</li>
+</ul>
+<!--
+2. Let $\ALPHABET M_{∞}(\ALPHABET X)$ denote the set of measurable real valued functions with bounded sup-norm, i.e., 
+   $$
+    \ALPHABET M_{∞}(\ALPHABET X) = 
+    \bigl\{ f \in \ALPHABET M(\ALPHABET X) : \| f \|_{∞} < ∞ \bigr\}.
+   $$
+-->
+<p>In order to talk about <em>expected cost</em>, in continuous state spaces we have to assume that the per-step cost is measurable, i.e., <span class="math inline">\(c \in \ALPHABET M(\ALPHABET S × \ALPHABET A)\)</span>, and the <span class="math inline">\(P \colon \ALPHABET S × \ALPHABET A × \mathscr B(\ALPHABET S) \to [0,1]\)</span> is a stochastic kernel, i.e., for every <span class="math inline">\((s,a) \in \ALPHABET S × \ALPHABET A\)</span>, <span class="math inline">\(p(s,a,\cdot)\)</span> is probability measure on <span class="math inline">\(\ALPHABET S\)</span>, and for every <span class="math inline">\(B \in \ALPHABET S\)</span>, the function <span class="math inline">\(p(\cdot, \cdot, B) \in \ALPHABET M(\ALPHABET S × \ALPHABET A)\)</span>. These assumption imply that for every measurable policy <span class="math inline">\(π \in \ALPHABET M(\ALPHABET S, \ALPHABET A)\)</span>, the performance <span class="math inline">\(J(\pi)\)</span> is well defined. However, these assumptions are not sufficient to establish the optimality of dynamic programmming.</p>
+<p>To highlight the technical issues, let us consider an MDP with <span class="math inline">\(T = 1\)</span>, i.e., a stochastic optimization problem. Define <span class="math display">\[
+  V^*(s) = \inf_{a \in \ALPHABET A} c(s,a)
+  \quad\text{and}\quad
+  π^*(s) = \arg\inf_{a \in \ALPHABET A} c(s,a).
+\]</span></p>
+<p>We present a few examples below from <span class="citation" data-cites="Blackwell1965">Blackwell (<a href="../references.html#ref-Blackwell1965" role="doc-biblioref">1965</a>)</span> to highlight technical issues with non-finite state models.</p>
+<div id="exm-Blackwell-no-optimal-policy" class="theorem example">
+<p><span class="theorem-title"><strong>Example 3.1 (No optimal policy) </strong></span>Let <span class="math inline">\(\ALPHABET S = \{s_\circ\}\)</span>, <span class="math inline">\(\ALPHABET A = \integers_{\ge 0}\)</span> Consider <span class="math inline">\(c(s_\circ,a) = (a+1)/a\)</span>. Here <span class="math inline">\(v^*(s_\circ) = 1\)</span> but there is no policy which achieves this cost.</p>
+</div>
+<p>In the above example, there is no optimal policy, but given any <span class="math inline">\(ε &gt; 0\)</span>, we can identify an <span class="math inline">\(ε\)</span>-optimal policy. The next example shows that we can have a much severe situation where the value function is not measurable. The example relies on the following fact:</p>
+<blockquote class="blockquote">
+<p>There exist Borel sets in <span class="math inline">\(\reals^2\)</span> whose projection on <span class="math inline">\(\reals\)</span> is not Borel. See <a href="https://en.wikipedia.org/wiki/Projection_(measure_theory)">:the wikipedia article on projections</a> for a discussion.</p>
+</blockquote>
+<div id="exm-Blackwell-non-measurable-value-function" class="theorem example">
+<p><span class="theorem-title"><strong>Example 3.2 (Non-measurable value function) </strong></span>Let <span class="math inline">\(\ALPHABET S = \ALPHABET A = [0,1]\)</span> and let <span class="math inline">\(B \subset \ALPHABET S × \ALPHABET A\)</span> such that <span class="math inline">\(B\)</span> is measurable but its projection on <span class="math inline">\(D\)</span> onto <span class="math inline">\(\ALPHABET S\)</span> is not. Consider <span class="math inline">\(c(s,a) = -\IND\{ (s,a) \in B \}\)</span>. Note that <span class="math display">\[
+  v(s) = \inf_{a \in \ALPHABET A} c(s,a) =
+  \inf_{a \in \ALPHABET A} -\IND\{ (s,a) \in B \} =
+  -\IND\{s \in D \}
+\]</span> which is not Borel measurable.</p>
+</div>
+<p>See <span class="citation" data-cites="Piunovskiy2011">Piunovskiy (<a href="../references.html#ref-Piunovskiy2011" role="doc-biblioref">2011</a>)</span> for various examples on what can go wrong in MDPs. In particular, Example 1.4.15 of <span class="citation" data-cites="Piunovskiy2011">Piunovskiy (<a href="../references.html#ref-Piunovskiy2011" role="doc-biblioref">2011</a>)</span> extends <a href="#exm-Blackwell-non-measurable-value-function">Example&nbsp;<span>3.2</span></a> to provide an example where there is no <span class="math inline">\(ε\)</span>-optimal policy! (<span class="citation" data-cites="Blackwell1965">Blackwell (<a href="../references.html#ref-Blackwell1965" role="doc-biblioref">1965</a>)</span> also has such an example, but it is much harder to parse).</p>
+<!-- See example 1.4.15 -->
+<p>There are two ways to resolve the issue with non-existence of optimal policies: either assume that <span class="math inline">\(\ALPHABET A\)</span> is compact or that the function that we are minimizing is coercive, so that the <span class="math inline">\(\arg\inf\)</span> can be replaced by an <span class="math inline">\(\arg\min\)</span>. Or work with <span class="math inline">\(ε\)</span>-optimal policies.</p>
+<p>Resolving the measurability issue is more complicated. There are various <strong>measurable selection theorems</strong> in the literature to identify sufficient conditions for measurability of the value function and optimal policy. See <span class="citation" data-cites="HernandezLerma1996">Hernández-Lerma and Lasserre (<a href="../references.html#ref-HernandezLerma1996" role="doc-biblioref">1996</a>)</span> and <span class="citation" data-cites="HernandezLerma1999">(<a href="../references.html#ref-HernandezLerma1999" role="doc-biblioref">1999</a>)</span> for an accessible treatment of continous state MDPs.</p>
+</section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
 <p>The proof idea for the optimality of Markov strategies is based on a proof by <span class="citation" data-cites="Witsenhausen1979">Witsenhausen (<a href="../references.html#ref-Witsenhausen1979" role="doc-biblioref">1979</a>)</span> on the structure of optimal coding strategies for real-time communication. Note that the proof does not require us to find a dynamic programming decomposition of the problem. This is in contrast with the standard textbook proof where the optimality of Markov strategies is proved as part of the dynamic programming decomposition.</p>
@@ -859,8 +900,20 @@ V_t(s) &amp;= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 <div id="ref-Blackwell1964" class="csl-entry" role="listitem">
 <span class="smallcaps">Blackwell, D.</span> 1964. Memoryless strategies in finite-stage dynamic programming. <em>The Annals of Mathematical Statistics</em> <em>35</em>, 2, 863–865. DOI: <a href="https://doi.org/10.1214/aoms/1177703586">10.1214/aoms/1177703586</a>.
 </div>
+<div id="ref-Blackwell1965" class="csl-entry" role="listitem">
+<span class="smallcaps">Blackwell, D.</span> 1965. Discounted dynamic programming. <em>The Annals of Mathematical Statistics</em> <em>36</em>, 1, 226–235. DOI: <a href="https://doi.org/10.1214/aoms/1177700285">10.1214/aoms/1177700285</a>.
+</div>
 <div id="ref-Ferguson:book" class="csl-entry" role="listitem">
 <span class="smallcaps">Ferguson, T.S.</span> 2008. Optimal stopping and applications. Available at: <a href="http://www.math.ucla.edu/~tom/Stopping/Contents.html">http://www.math.ucla.edu/~tom/Stopping/Contents.html</a>.
+</div>
+<div id="ref-HernandezLerma1996" class="csl-entry" role="listitem">
+<span class="smallcaps">Hernández-Lerma, O. and Lasserre, J.B.</span> 1996. <em>Discrete-time markov control processes</em>. Springer New York. DOI: <a href="https://doi.org/10.1007/978-1-4612-0729-0">10.1007/978-1-4612-0729-0</a>.
+</div>
+<div id="ref-HernandezLerma1999" class="csl-entry" role="listitem">
+<span class="smallcaps">Hernández-Lerma, O. and Lasserre, J.B.</span> 1999. <em>Further topics on discrete-time markov control processes</em>. Springer New York. DOI: <a href="https://doi.org/10.1007/978-1-4612-0561-6">10.1007/978-1-4612-0561-6</a>.
+</div>
+<div id="ref-Piunovskiy2011" class="csl-entry" role="listitem">
+<span class="smallcaps">Piunovskiy, A.B.</span> 2011. <em>Examples in markov decision processes</em>. Imperial College Proess. DOI: <a href="https://doi.org/10.1142/p809">10.1142/p809</a>.
 </div>
 <div id="ref-Shwartz2001" class="csl-entry" role="listitem">
 <span class="smallcaps">Shwartz, A.</span> 2001. Death and discounting. <em><span>IEEE</span> Transactions on Automatic Control</em> <em>46</em>, 4, 644–647. DOI: <a href="https://doi.org/10.1109/9.917668">10.1109/9.917668</a>.

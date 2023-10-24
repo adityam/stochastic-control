@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-10-11">
+<meta name="dcterms.date" content="2023-10-20">
 <meta name="keywords" content="LQR, Riccati equation, completion of squares">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -593,7 +593,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 11, 2023</p>
+      <p class="date">October 20, 2023</p>
     </div>
   </div>
   
@@ -638,16 +638,16 @@ A comment about notation
 <p>There are various methods to obtain the optimal controller for LQR: dynamic programming, Lagrange multipliers (co-state), and others. Departing from the dynamic programming approach taken in the rest of these notes, in this section we present the solution of LQR using an elementary algebraic technique called <strong>completion of squares</strong>.</p>
 <p>In the rest of these notes, we consider a slight generalization of LQ regulation where we consider the cost function <span class="math display">\[\begin{equation}\label{eq:cost}
   J(g) = \EXP\left[ \sum_{t=1}^{T-1}  
-\MATRIX{x_t \\ u_t}^\TRANS \MATRIX{Q &amp; M \\ M^\TRANS &amp; R } \MATRIX{ x_t \\ u_t}
+\MATRIX{x_t \\ u_t}^\TRANS \MATRIX{Q &amp; S \\ S^\TRANS &amp; R } \MATRIX{ x_t \\ u_t}
 + x_{T} P_T x_{T} \right]
-\end{equation}\]</span> where the matrix <span class="math inline">\(\MATRIX{Q &amp; M \\ M^\TRANS &amp; R}\)</span> is symmetric and positive semi-definite and <span class="math inline">\(R\)</span> is symmetric and positive definite.</p>
+\end{equation}\]</span> where the matrix <span class="math inline">\(\MATRIX{Q &amp; S \\ S^\TRANS &amp; R}\)</span> is symmetric and positive semi-definite and <span class="math inline">\(R\)</span> is symmetric and positive definite.</p>
 <section id="completion-of-squares" class="level2" data-number="23.1">
 <h2 data-number="23.1" class="anchored" data-anchor-id="completion-of-squares"><span class="header-section-number">23.1</span> Completion of squares</h2>
 <p>We start from a simple observation.</p>
 <div id="lem-completion-of-squares" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 23.1 (Completion of squares) </strong></span>Let <span class="math inline">\(x \in \reals^n\)</span>, <span class="math inline">\(u \in \reals^m\)</span>, and <span class="math inline">\(w \in \reals^n\)</span> be random variables defined on a common probability space. Suppose <span class="math inline">\(w\)</span> is zero mean with finite covariance and independent of <span class="math inline">\((x,u)\)</span>. Let <span class="math inline">\(x_{+} = Ax + Bu + w\)</span>, where <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> are matrices of appropriate dimensions. Then, given matrices <span class="math inline">\(P\)</span>, <span class="math inline">\(Q\)</span>, <span class="math inline">\(M\)</span>, and <span class="math inline">\(R\)</span> of appropriate dimensions, <span class="math display">\[
+<p><span class="theorem-title"><strong>Lemma 23.1 (Completion of squares) </strong></span>Let <span class="math inline">\(x \in \reals^n\)</span>, <span class="math inline">\(u \in \reals^m\)</span>, and <span class="math inline">\(w \in \reals^n\)</span> be random variables defined on a common probability space. Suppose <span class="math inline">\(w\)</span> is zero mean with finite covariance and independent of <span class="math inline">\((x,u)\)</span>. Let <span class="math inline">\(x_{+} = Ax + Bu + w\)</span>, where <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> are matrices of appropriate dimensions. Then, given matrices <span class="math inline">\(P\)</span>, <span class="math inline">\(Q\)</span>, <span class="math inline">\(S\)</span>, and <span class="math inline">\(R\)</span> of appropriate dimensions, <span class="math display">\[
 \EXP\left[
-\MATRIX{x \\ u}^\TRANS \MATRIX{Q &amp; M \\ M^\TRANS &amp; R } \MATRIX{ x \\ u}
+\MATRIX{x \\ u}^\TRANS \MATRIX{Q &amp; S \\ S^\TRANS &amp; R } \MATRIX{ x \\ u}
 + x_{+} P x_{+} \right]
 =
 \EXP\bigl[ x^\TRANS P_{+} x  
@@ -659,7 +659,7 @@ A comment about notation
 \]</span> where</p>
 <ul>
 <li><span class="math inline">\(Δ = R + B^\TRANS P B\)</span></li>
-<li><span class="math inline">\(K = Δ^{-1}[ M^\TRANS + B^\TRANS P A ]\)</span></li>
+<li><span class="math inline">\(K = Δ^{-1}[ S^\TRANS + B^\TRANS P A ]\)</span></li>
 <li><span class="math inline">\(P_{+} = Q + A^\TRANS P A - K^\TRANS Δ K\)</span></li>
 </ul>
 </div>
@@ -682,8 +682,8 @@ Proof
       + w^\TRANS P w \bigr].
 \]</span></p>
 <p>The proof follows immediately by completing the square on the left hand side. In particular <span class="math display">\[\begin{align*}
-&amp; u^\TRANS R u + 2 x^\TRANS M u +  (Ax+Bu)^\TRANS P (Ax + Bu) \\
-&amp; \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS( M^\TRANS + B^\TRANS P A) x
+&amp; u^\TRANS R u + 2 x^\TRANS S u +  (Ax+Bu)^\TRANS P (Ax + Bu) \\
+&amp; \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS( S^\TRANS + B^\TRANS P A) x
   + x^\TRANS A^\TRANS P A x \\
 &amp; \quad = u^\TRANS Δ u + 2 u^\TRANS Δ K x + x^\TRANS A^\TRANS P A x \\
 &amp; \quad =
@@ -694,9 +694,9 @@ Proof
 </div>
 </div>
 <div id="def-Riccati-operator" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 23.1 </strong></span>Given the system model <span class="math inline">\((A,B)\)</span> and per-step cost <span class="math inline">\((Q,M,R)\)</span>, we define the <em>Riccati operator</em> <span class="math inline">\(\RICCATI \colon \mathbb{S}^{n × n}_{\ge 0} \to \mathbb{S}^{n × n}_{\ge 0}\)</span> as follows: <span class="math display">\[ \RICCATI P = Q + A^\TRANS P A
-- (M^\TRANS + B^\TRANS P A)^\TRANS (R + B^\TRANS P B)^{-1}
-  (M^\TRANS + B^\TRANS P A).\]</span> Moreover, define the <em>Gain</em> operator <span class="math inline">\(\GAIN \colon \mathbb{S}^{n × n}_{\ge 0} \to \reals^{m × n}\)</span> as <span class="math display">\[ \GAIN P = - (R + B^\TRANS B P)^{-1}(M^\TRANS + B^\TRANS P A). \]</span></p>
+<p><span class="theorem-title"><strong>Definition 23.1 </strong></span>Given the system model <span class="math inline">\((A,B)\)</span> and per-step cost <span class="math inline">\((Q,S,R)\)</span>, we define the <em>Riccati operator</em> <span class="math inline">\(\RICCATI \colon \mathbb{S}^{n × n}_{\ge 0} \to \mathbb{S}^{n × n}_{\ge 0}\)</span> as follows: <span class="math display">\[ \RICCATI P = Q + A^\TRANS P A
+- (S^\TRANS + B^\TRANS P A)^\TRANS (R + B^\TRANS P B)^{-1}
+  (S^\TRANS + B^\TRANS P A).\]</span> Moreover, define the <em>Gain</em> operator <span class="math inline">\(\GAIN \colon \mathbb{S}^{n × n}_{\ge 0} \to \reals^{m × n}\)</span> as <span class="math display">\[ \GAIN P = - (R + B^\TRANS B P)^{-1}(S^\TRANS + B^\TRANS P A). \]</span></p>
 </div>
 <p>Note that with the above notation, the terms defined in <a href="#lem-completion-of-squares">Lemma&nbsp;<span>23.1</span></a> may be written as <span class="math display">\[ P_{+} = \RICCATI P
 \quad\text{and}\quad
@@ -725,7 +725,7 @@ Alternative forms of the Riccati operator
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>For the special case when <span class="math inline">\(M = 0\)</span> (i.e., no cross terms in the cost), the Riccati operator is given by: <span class="math display">\[
+<p>For the special case when <span class="math inline">\(S = 0\)</span> (i.e., no cross terms in the cost), the Riccati operator is given by: <span class="math display">\[
   \RICCATI P = Q + A^\TRANS P A -
   A^\TRANS P B (R + B^\TRANS P B)^{-1} B^\TRANS P A
 \]</span> The following are equivalent to the Riccati operator:</p>
@@ -798,7 +798,8 @@ Note
 <section id="salient-features-of-the-result" class="level2" data-number="23.2">
 <h2 data-number="23.2" class="anchored" data-anchor-id="salient-features-of-the-result"><span class="header-section-number">23.2</span> Salient features of the result</h2>
 <ol type="1">
-<li><p>Note that the optimal gains <span class="math inline">\(\{K_t\}_{t \ge 1}\)</span> do not depend on the noise covariance <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>. Thus, the noise in the dynamics does not change the closed loop control policy but changes the optimal cost by a term that does not depend on the policy.</p></li>
+<li><p>We derived the results for time-invariant dynamics and cost, but the argument trivially generalizes to time-varying dynamics and cost as well.</p></li>
+<li><p>The optimal gains <span class="math inline">\(\{K_t\}_{t \ge 1}\)</span> do not depend on the distribution of the noise <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>. Thus, the noise in the dynamics does not change the closed loop control policy but changes the optimal cost by a term that depends on the noise covariance (but does not depend on the policy).</p></li>
 <li><p>A special case of the above observation is that the optimal control policy of the stochastic LQR problem is the same as the optimal control policy of the deterministic LQR problem (where the noise <span class="math inline">\(w_t ≡ 0\)</span>). This result is sometimes called the <strong>certainty equivalence principle.</strong></p></li>
 <li><p>Suppose the noise was not white but Gaussian and correlated over time (and still independent of the initial state <span class="math inline">\(x_1\)</span>). Then, the optimal control action at time <span class="math inline">\(t\)</span> will be the same as that of the deterministic system <span class="math display">\[
   x_{τ + 1} = A x_{τ} + B u_{τ} + w_{τ|t},
