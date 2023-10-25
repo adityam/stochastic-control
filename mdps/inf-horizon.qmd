@@ -350,6 +350,57 @@ Taking the limit as $k \to ∞$, we get
 $$ V + m \ONES/(1-γ) \ge V^*. $$
 :::
 
+## Countable or continuous state and action spaces 
+
+The discussion above was restricted to finite state and action spaces. In general, when working with non-finite state and action spaces, we need to be careful about existence of solutions. See @sec-mdp-cts-spaces  for a discussion. 
+
+For infinite horizon problems, there are additional technical challenges. We first point out via examples that the Bellman equation may not have a _unique_ fixed point equation.
+
+:::{#exm-Bertsekas-linear-dp-soln}
+### Phantom solutions of DP [@Bertsekas:book]
+Consider an MDP with $\ALPHABET S = [0,∞)$, $\ALPHABET A = \{a_\circ\}$ (dummy action), $p(ds'\mid s,a) = δ_{s' - s/γ}$ (so the state deterministically transitions to $s/γ$) and $c(s,a) ≡ 0$. It is clear that the optimal value function $V^*(s) ≡ 0$. However, the dynamic programming equation is
+$$
+  V^*(s) = γ V^*(s/γ)
+$$
+and is satisfied by any linear function $V^*(s) = α s$!
+:::
+
+:::{.callout-warning}
+### Did we just violate the Banach fixed point theorem? 
+
+To apply the Banach fixed point theorem, we need to be in a Banach space, i.e., a complete normed metric space. So, what was the Banach space in @thm-Bellman-fixed-point? Implicitly, we had used the space 
+$$
+  \ALPHABET V_M \coloneqq \{ v \colon \ALPHABET S \to \reals \text{ such that } \| v \|_{∞} \le M \}
+$$
+where $M$ is any constant greater than $\|c\|_{∞}/(1-γ)$. Banach fixed point theorem says that DP has a **unique** fixed point in $\ALPHABET V_M$. It does not say anything about solutions outside $\ALPHABET V_M$!
+
+Among all the solutions, only the one corresponding to $α = 0$ is bounded, which is also the optimal value function.
+:::
+
+:::{#exm-birth-death-dp-solution}
+Consider a birth-death Markov chain with $0$ as an aborbing state. In particular, $\ALPHABET S = \integers_{\ge 0}$, $\ALPHABET A = \{a_\circ\}$ (dummy action), and $c(s,a) = \IND\{s > 0\}$. The transition dynamics are given by: for $s = 0$, $P(s'|0,a) = \IND\{s' = 0\}$ and for $s > 0$, we have
+$$
+P(s'|s,a) = p \IND\{ s' = s+1\} + (1-p) \IND\{s' = s-1\}.
+$$
+So, the DP is given by $v(0) = 0$ and for $s > 0$
+$$
+V^*(s) = 1 + γ p  V^*(s+1) + γ(1-p) V^*(s-1),
+$$
+which is a harmonic equation and has a generic solution of the form:
+$$
+  V^*(s) = \frac{1}{1-γ} - 
+  \biggl[ \frac{1}{1-γ} + C \biggr] q_1^s +
+  C q_2^s
+$$
+where $C$ is an arbitrary constant and 
+$$
+  q_{1,2} = \frac{1 \pm \sqrt{1 - 4 γ^2 p (1-p)}}{2 γp}.
+$$
+It can be verified that $q_1 \in (0,1)$ and $q_2 \in (1,∞)$. So, every solution except $C = 0$ is unbounded.
+
+Again we have multiple solutions of the DP and the correct solution is the only bounded solution (which corresponds to $C = 0$).
+:::
+
 ## Exercises {-}
 
 :::{#exr-one-step-lookahead-errors}

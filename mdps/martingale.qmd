@@ -1,28 +1,256 @@
 ---
-title: A Martingale principle of optimal control
+title: Thirfty and equalizing policies
+keywords:
+  - infinite horizon
+  - martingales
+  - discounted cost
 ---
 
-There is a relationship between optimal control and martingale theory. 
-Let $\mathcal{F}_t = σ(S_{1:t}, A_{1:t-1})$ denote the information available to the decision maker at time $t$. Note that the actions $\{A_t\}_{t \ge 1}$ are $\{\mathcal{F}_t\}_{t \ge 1}$-adapted. 
+There is a relationship between optimal control and [martingale theory][martingales], which leads to an alternative characterization of optimality. It is easier to describe this relationship for reward models, so in this section we will assume that we are interested in maximizing rewards rather than minimizing costs. We will also assume that the per-step reward $r \colon \ALPHABET S × \ALPHABET A \to \reals_{\ge 0}$. We do not assume that $\ALPHABET S$ or $\ALPHABET A$ are finite. 
 
-Let's revisit the example of [optimal gambling][gambling].
+[martingales]: ../probability/martingales.qmd
+
+Let $\mathcal{F}_t = σ(S_{1:t}, A_{1:t-1})$ denote the information available to the decision maker at time $t$. Note that the actions $\{A_t\}_{t \ge 1}$ are $\{\mathcal{F}_t\}_{t \ge 1}$-adapted. For any Markov deterministic policy, let 
 $$
-  S_t = S_1 + \sum_{\tau=1}^{t-1} A_\tau W_\tau,
+  V^{π}(s) = \EXP^{π}\biggl[
+  \sum_{t=1}^{∞} γ^{t-1} r(S_t, A_t) \biggm| S_1 = s \biggr]
 $$
-where $A_\tau \in [0, S_{\tau})$ is $\mathcal{F}_t$-measurable. Define 
+and let $V^*(s) = \sup_{π \in Π_D}V^{π}(s)$, where $Π_D$ is the set of all deterministic policies. We assume that the model satisfies sufficient regularity conditions such that $V^*$ is measurable and satisfies the usual dynamic programming equation: $V^* = \BELLMAN^* V^*$. 
+
+Fix an initial state $S_1 = s$ and a policy $π$. Define random sequences $\{M^{π,s}_t\}_{t \ge 1}$ and $\{J^{π,s}_t\}_{t \ge 1}$ defined as follows:
 $$
-  Z_t = \log(S_t) - \alpha t
+  J^{π,s}_t \coloneqq \sum_{τ=1}^t γ^{t-1} r(S_t, A_t)
 $$
-where 
-$α = H(\tfrac 12) - H(p)$ with $H(p) = -p \log p - (1-p) \log(1-p)$ being the binary entropy function. Note that 
-\begin{align*}
-  \EXP[ Z_{t+1} \mid \mathcal{F}_t ] &= 
-  \EXP[ \log(S_{t} + A_t W_t) \mid \mathcal{F}_t
-\end{align*}
+and 
+$$
+  M^{π,s}_1 = V^*(S_1)
+  \quad\text{and}\quad
+  M^{π,s}_{t+1} = J^{π,s}_t + γ^t V^*(S_{t+1}),
+  \quad t \ge 1.
+$$
+Note that both $\{J^{π,s}_t\}_{t \ge 1}$ and $\{M^{π,s}_t\}_{t \ge 1}$ are  adapted sequence w.r.t. $\{\ALPHABET F_t\}_{t \ge 1}$.  
 
-Exercise: 11.7
-https://web.ma.utexas.edu/users/gordanz/notes/discrete_martingales.pdf
+:::{#lem-mdp-martingale}
+For every initial state $s$ and policy $π$, the adapted sequences $\{M^{π,s}_t\}_{t \ge 1}$ and $\{γ^{t-1} V^*(S_t)\}_{t \ge 1}$ are non-negative supermartingaes w.r.t. $\{\ALPHABET F_t\}_{t \ge 1}$ under $\PR^{π,s}$.
+:::
+
+:::{.callout-note collapse="false"} 
+### Proof
+  First note that both sequences are non-negative because we have assumed that $r(s,a) \ge 0$.
+
+  Set $J^{π,s}_0 = 0$. We have
+  $$
+    M^{π,s}_{t+1} = J^{π,s}_{t-1} + γ^{n-1}\bigl[
+      r(S_t, A_t) + γ V^*(S_{t+1}) 
+    \bigr].
+  $$
+  Thus,
+  \begin{align}
+  \EXP[M^{π,s}_{t+1} \mid \ALPHABET F_t ] 
+  &=
+  J^{π,s}_{t-1} + γ^{t-1} [\BELLMAN^{π} V^*](S_t)
+  \notag \\
+  &\le
+  J^{π,s}_{t-1} + γ^{t-1} [\BELLMAN^{*} V^*](S_t)
+  \notag \\
+  &= M^{π,s}_t
+  \label{eq:M-supermartingale}
+  \end{align}
+  Therefore, $\{M^{π,s}_t\}_{t \ge 1}$ is a non-negative martingale.
+
+  Now consider,
+  $$
+    γ^{t} V^*(S_{t+1}) \le
+    γ^{t-1}[ r(S_t, A_t) + γ V^*(S_{t+1}) ]
+  $$
+  because $r(s,a) \ge 0$. Thus,
+  \begin{align*}
+  \EXP[γ^t V^*(S_{t+1}) \mid \ALPHABET F_t ] 
+  &\le
+  γ^{t-1} [\BELLMAN^{π} V^*](S_t)
+  \\
+  &\le
+  γ^{t-1} [\BELLMAN^{*} V^*](S_t)
+  \\
+  &= γ^{t-1} V^*(S_t).
+  \end{align*}
+  Therefore, $\{γ^{t-1}V^*(S_t)\}_{t \ge 1}$ is a non-negative martingale.
+:::
+
+Therefore, it follows from [supermartingale convergence theorem][martingales] that the sequences $\{M^{π,s}_t\}_{\ge 1}$ and $\{γ^{t-1} V^*(S_t) \}_{t \ge 1}$ converge almost surely. Define
+$$
+  Λ^π(s) \coloneqq \lim_{t \to ∞} \EXP^{π,s}[ M^{π,s}_t ].
+$$
+
+:::{#def-thrifty-and-equalizing}
+## Thirfty and equalizing policies
+
+A policy $π$ is called **thrifty** at $s \in \ALPHABET S$ if $V^*(s) = Λ^π(s)$. It is called **equalizing** at $s \in \ALPHABET S$ if $Λ^π(s) = V^π(s)$.
+:::
+
+:::{.callout-tip}
+### Intuition behind thrifty and equalizing policies
+
+A policy is thrifty if, with probability one, it makes no “immediate, irremediable mistakes” along any history (see @thm-thrifty); whereas a policy is equalizing, if “it is certain to force the system into states where little further rewards can be anticipated" (see  @thm-equalizing).
+:::
+
+:::{#thm-thirfty-and-equalizing}
+A policy $π$ is optimal at $s \in \ALPHABET S$ if and only if $π$ is both thirfty and equalizing at $s$.
+:::
+
+:::{.callout-note collapse="false"} 
+### Proof
+
+Note that.
+\begin{align}
+  Λ^π(s) &= \lim_{t \to ∞} \biggl[
+  \EXP^{π,s}[ J^{π,s}_t ] 
+  + γ^t \EXP^{π,s}[ V^*(S_{t_1}) ] \biggr]
+  \notag \\
+  &= V^π(s) 
+  + \lim_{t \to ∞} γ^t \EXP^{π,s}[ V^*(S_{t_1}) ]
+  \notag \\
+  &\ge V^π(s).
+  \label{eq:lambda-bound}
+\end{align}
+
+Moreover,
+\begin{equation}\label{eq:value-function-1}
+  V^*(s) = \EXP^{π,s}[ M^{π,s}_1 ] 
+  \ge \lim_{t \to ∞} \EXP^{π,s}[ M^{π,s}_t ] 
+  = Λ^{π}(s).
+\end{equation}
+
+The result follows from \\eqref{eq:lambda-bound} and \\eqref{eq:value-function-1}.
+:::
+
+:::{.callout-important}
+### What's the big deal?
+
+To be honest, I am not 100% sure. The way I understand it, the key simplification here is that we have not assumed that the reward function is uniformly bounded in the sup-norm or a weighted-norm. So, the optimality of a policy is established without invoking the Banach fixed point theorem. This is not super important for discounted cost problems but is very useful in total cost/reward problems. 
+:::
+
+:::{#def-conserving-action}
+### Conserving action
+An action $a \in \ALPHABET A$ conserves $V^*$ at $s \in \ALPHABET S$ if 
+$$
+  a \in \arg\sup_{a' \in \ALPHABET A}
+  \biggl\{
+    r(s,\tilde a) + γ \int_{\ALPHABET S}V(s')P(ds'|s,\tilde a)
+  \biggr\}
+$$
+:::
+
+Now we provide simple characterization of thrifty and equalizing policies. 
+
+:::{#thm-thrifty}
+For a given policy $π$ and initial state $s$, the following are equivalent:
+
+a. the policy $π$ is thrifty at $s$.
+b. the sequence $\{M^π_t\}_{t \ge 1}$ is a $\{\ALPHABET F_t\}_{t \ge 1}$ martingale under $\PR^{π,s}$. 
+c. for all $t \ge 1$, we have 
+$\PR^{π,s}(A_t \text{ conserves } V^* \text{ at } S_t) = 1$.
+:::
+:::{.callout-note collapse="true"} 
+### Proof
+
+- **(a) implies (b):** Since $π$ is thirfty, we have
+  $$    
+    V^*(s) = \EXP^{π,s}[ M^{π,s}_1 ] \ge
+    \cdots \EXP^{π,s}[ M^{π,s}_t ] \ge
+    \cdots \EXP^{π,s}[ M^{π,s}_{∞} ] = V^*(s).
+  $$
+  Thus, all inequalities must hold with equality. Thus, $\{M^{π,s}_t\}_{t \ge 1}$ must be a martingale.
+
+- **(b) implies (a):** Since $\{M^{π,s}_t\}_{t \ge 1}$ is a martingale.
+  $$    
+    V^*(s) = \EXP^{π,s}[ M^{π,s}_1 ] =
+    \cdots \EXP^{π,s}[ M^{π,s}_t ] =
+    \cdots \EXP^{π,s}[ M^{π,s}_{∞} ] = Λ^{π}(s).
+  $$
+  Thus, $π$ is thrifty.
+
+- **(b) implies (c):** Since $\{M^{π,s}_t\}_{t \ge 1}$ is martingale, the inequality in \\eqref{eq:M-supermartingale} (in the proof of @lem-mdp-martingale) must hold with equality, which implies (c).
+
+- **(c) implies (b):** Under (c), the inequality in \\eqref{eq:M-supermartingale} holds with equality. Thus, $\{M^{π,s}_t\}_{t \ge 1}$ is a martingale.
+:::
+
+:::{#thm-equalizing}
+  A policy $π$ is equalizing at $s \in \ALPHABET S$ if and only if we have
+  $$\lim_{t \to ∞} γ^t \EXP^{π,s}[ V^*(S_{t+1}) ] = 0.$$ 
+:::
+:::{.callout-note collapse="false"} 
+### Proof
+This is an immediate consequence of \\eqref{eq:lambda-bound}.
+:::
+
+## Notes {-}
+
+See @Davis1979 for a historical review of martingale methods for stochastic control.
+
+The idea of thirfty and equalizing policies is due to @Dubins2014. It was used by @Blackwell1970 for characterizing optimal solutions of total reward problems and is a commonly used technique in that literature. The "translation" to discounted cost problems is taken from @Karatzas2010. 
+
+<!--
+Consider a discounted cost MDP (with bounded rewards) and fix a Markov policy
+$g \colon \ALPHABET X \to \reals$. Suppose for a bounded function $Φ \colon
+\ALPHABET X \to \reals$, we define a process $\{M_t\}_{t \ge 1}$ starting at
+$M_1 = 0$ and its increments $ΔM_t = M_{t+1} - M_t$ given by
+$$ 
+  ΔM_t = c(X_t, g(X_t)) + β Φ(X_{t+1}) - Φ(X_t).
+$$
+
+::: highlight :::
+
+Proposition
+
+:  If $\{M_t\}_{t\ge1}$ is a submartingale for all policies $g$ and, for some
+   policy $g^*$, $\{M_t\}_{t \ge 1}$ is a martingale, then $g^*$ is an optimal
+   policy and $Φ(x) = V^{g^*}(x) = V(x)$. 
+
+:::
+
+#### Proof {-} 
+
+Let $\{\mathcal{F}_t\}_{t \ge 1}$ denote the natural filtration of the
+process. 
+
+As a first step, we define a new process $\{M^β_t\}_{\ge 1}$ where
+
+$$ M^β_t = \sum_{s=1}^{t-1} β^{s-1} ΔM_s. $$
+
+Note that
+
+$$\begin{align*}
+  \EXP[ M^β_{t+1} \mid \mathcal{F}_t ] &=
+  \sum_{s=1}^{t-1} β^{s-1} ΔM_s 
+  + β^t \EXP[ M_{t+1} \mid \mathcal{F}_t ] - β^t M_t. 
+  \\
+  &= M^β_t + β^t \EXP[ M_{t+1} \mid \mathcal{F}_t ] - β^t M_t.
+\end{align*}$$
+
+Thus, if $\{M_t\}_{t \ge 1}$ is a martingale or submartingale or supermartingale,
+then so is $\{M^β_t\}_{t \ge 1}$. 
+
+Now, we assume that $\{M_t\}_{t \ge 1}$ is a submatrignale for all policies.
+Then, as argued above, so is $\{M^β_t\}_{t \ge 1}$. Therefore,
+
+$$ 0 = M^β_1 \le  \EXP[ M^β_t | \mathcal{F}_1 ] = 
+\EXP\biggl[ \sum_{s=1}^{t-1} β^{s-1} c(X_s, g(X_s)) + β^{t} Φ(X_{t+1}) - Φ(X_1)
+\biggm| X_1 = x \biggr]. $$
+
+Rearranging terms and letting $t \to ∞$, we get that for any policy $g$
+$$ 
+  Φ(x) \le \EXP\biggl[ \sum_{s=1}^∞ β^{s-1} c(X_s, g(X_s)) \biggm| X_1 = x
+  \biggr],
+$$
+where the inequality holds with equality of $\{ M^β_t \}_{t \ge 1}$ is a
+martingale for some policy $g^*$. Thus, we get that
+
+$$ Φ(x) = V^{g^*}(x) \le V^g(x). $$
+
+Hence, the policy $g^*$ is optimal.
 
 
-
-[gambling]: ../gambling
+<!--
+  Material taken from pg 38 of https://appliedprobability.files.wordpress.com/2020/05/stochastic_control_2020_may.pdf
+-->
