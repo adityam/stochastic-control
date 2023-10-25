@@ -53,7 +53,7 @@ finite and $|\ALPHABET S|= n$ and $|\ALPHABET A| = m$.
 For any $π \colon \ALPHABET S \to \ALPHABET A$, consider the time homogeneous
 policy $(π, π, \dots)$. For ease of notation, we denote this policy simply by
 $π$. The expected discounted cost under this policy is given by
-$$ V_π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
+$$ V^π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
 \bigg].$$
 
 To get a compact expression for this, define a $n × 1$ vector $c_π$ and a $n
@@ -73,43 +73,43 @@ $$ \begin{align*}
   &= δ_s P_π^{t-1} c_π.
 \end{align*} $$
 
-Let $V_π$ denote the $n × 1$ vector given by $[V_π]_s = V_π(s)$. Then,
+Let $V^π$ denote the $n × 1$ vector given by $[V^π]_s = V^π(s)$. Then,
 $$ \begin{align*}
-V_π &= c_π + γ P_π c_π + γ^2 P_π^2 c_π + \cdots \\
+V^π &= c_π + γ P_π c_π + γ^2 P_π^2 c_π + \cdots \\
     &= c_π + γ P_π \big( c_π + γ P_π c_π + \cdots \big) \\
-    &= c_π + γ P_π V_π,
+    &= c_π + γ P_π V^π,
 \end{align*} $$
 which can be rewritten as
-$$ (I - γ P_π) V_π = c_π. $$
+$$ (I - γ P_π) V^π = c_π. $$
 
 The [:spectral radius] $ρ(γ P_d)$ of a matrix is upper bounded by its [:spectral
 norm] $\lVert γ P_d \rVert = γ < 1$. Therefore, the matrix $(I - γ P_π)$ has an inverse and by left multiplying both sides by $(I - γ P_π)^{-1}$, we get
-$$ V_π = (I - γP_π)^{-1} c_π. $$
+$$ V^π = (I - γP_π)^{-1} c_π. $$
 
 [:spectral radius]: https://en.wikipedia.org/wiki/Spectral_radius
 [:spectral norm]: https://en.wikipedia.org/wiki/Matrix_norm
 
 The equation 
-$$ V_π = c_π + γ P_π V_π $$
+$$ V^π = c_π + γ P_π V^π $$
 is sometimes also written as
-$$ V_π = \mathcal B_π V_π $$
-where the operator $\mathcal B_π$, which is called the _Bellman operator_,
+$$ V^π = \BELLMAN^π V^π $$
+where the operator $\BELLMAN^π$, which is called the _Bellman operator_,
 is an operator from $\reals^n$ to $\reals^n$
 given by
-$$ \mathcal B_π v = c_π + γ P_π v.$$
+$$ \BELLMAN^π v = c_π + γ P_π v.$$
 
 ## Bellman operators
 
 :::{#def-Bellman-operator}
-Define the _Bellman operator_ $\mathcal B : \reals^n \to \reals^n$ as
+Define the _Bellman operator_ $\BELLMAN^* : \reals^n \to \reals^n$ as
 follows: for any $v \in \reals^n$
-$$ [\mathcal B v]_s = \min_{a \in \ALPHABET A}
+$$ [\BELLMAN^* v]_s = \min_{a \in \ALPHABET A}
 \Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v_y \Big\}.
 $$
 :::
 
 Note that the above may also be written as[^1]
-$$ \mathcal B v = \min_{π \in \Pi} \mathcal B_π v, $$
+$$ \BELLMAN^* v = \min_{π \in \Pi} \BELLMAN^π v, $$
 where $\Pi$ denotes the set of all deterministic Markov policies. 
 
 [^1]: This is true for general models only when the arg min at each state
@@ -117,20 +117,20 @@ where $\Pi$ denotes the set of all deterministic Markov policies.
 
 :::{#prp-Bellman-contraction}
 For any $v \in \reals^n$, define the norm $\NORM{V} := \sup_{s \in
-\ALPHABET S} \ABS{V_s}$. Then, the Bellman operator is a contraction,
+\ALPHABET S} \ABS{V^s}$. Then, the Bellman operator is a contraction,
 i.e., for any $v, w \in \reals^n$,
-$$ \NORM{\mathcal B v - \mathcal B w} \le γ \NORM{v - w}. $$
+$$ \NORM{\BELLMAN^* v - \BELLMAN^* w} \le γ \NORM{v - w}. $$
 :::
 
 
 :::{.callout-note collapse="true"}  
 #### Proof {-}
 
-Fix a state $s \in \ALPHABET S$ and consider $[\mathcal B v](s) - [\mathcal B
+Fix a state $s \in \ALPHABET S$ and consider $[\BELLMAN^* v](s) - [\BELLMAN
 w](s)$. In particular, let $a^*$ be the optimal action in the right hand side
-of $[\mathcal B w](s)$. Then,
+of $[\BELLMAN^* w](s)$. Then,
 $$\begin{align*}
-  [\mathcal B v - \mathcal B w](s) &= 
+  [\BELLMAN^* v - \BELLMAN^* w](s) &= 
   \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
   P_{ss'}(a) v(s') \bigr\} - 
   \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
@@ -144,7 +144,7 @@ $$\begin{align*}
   &= γ \| v - w \|.
 \end{align*} $$
 
-By a similar argument, we can show that $[\mathcal B w - \mathcal B v](s) \le
+By a similar argument, we can show that $[\BELLMAN^* w - \BELLMAN^* v](s) \le
 γ \| v - w \|$, which proves the other side of the inequality. 
 :::
 
@@ -153,12 +153,12 @@ An immediate consequence of the contraction property is the following.
 :::{#thm-Bellman-fixed-point}
 There is a unique bounded $V^* \in \reals^n$ that satisfies the 
 _Bellman equation_
-$$ V = \mathcal B V $$
+$$ V = \BELLMAN^* V $$
 
-Moreover, if we start from any $V_0 \in \reals^n$ and recursively define
-$$ V_n = \mathcal B V_{n-1} $$
+Moreover, if we start from any $V^0 \in \reals^n$ and recursively define
+$$ V^n = \BELLMAN^* V^{n-1} $$
 then
-$$ \lim_{n \to ∞} V_n = V^*. $$
+$$ \lim_{n \to ∞} V^n = V^*. $$
 :::
 
 :::{.callout-note collapse="false"} 
@@ -219,14 +219,14 @@ Consider the finite horizon truncation
 $$ V^{\text{opt}}_T(s) =  \min_{π} \EXP^π\bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) | S_1 = s \bigg].
 $$
 From the results for finite horizon MDP, we have that
-$$ V^{\text{opt}}_T = \mathcal B^T V_0 $$
-where $V_0$ is the all zeros vector. 
+$$ V^{\text{opt}}_T = \BELLMAN^*^T V^0 $$
+where $V^0$ is the all zeros vector. 
 
 Now by construction, 
-$$V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [\mathcal B^T V_0](s). $$
+$$V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [\BELLMAN^*^T V^0](s). $$
 Taking limit as $T \to ∞$, we get that
 $$\begin{equation}\label{eq:1}
-  V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [\mathcal B^T V_0](s) = V^*(s). 
+  V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [\BELLMAN^*^T V^0](s) = V^*(s). 
 \end{equation}$$
 
 Since $0 \le c(s,a) \le M$,  for any $T$,
@@ -234,12 +234,12 @@ $$ \begin{align*}
 V^{\text{opt}}_∞(s) &\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) 
 \biggm| S_1 = s \bigg] + \sum_{t=T+1}^∞ γ^{t-1} M \\
 &= V^{\text{opt}}_T(s) + γ^T M / (1 - γ) \\
-&= [\mathcal B^T V_0](s) + γ^T M / (1-γ). 
+&= [\BELLMAN^*^T V^0](s) + γ^T M / (1-γ). 
 \end{align*} $$
 Taking limit as $T \to ∞$, we get that
 $$\begin{equation}\label{eq:2}
   V^{\text{opt}}_∞(s) \le \lim_{T \to ∞}
-  \big\{ [\mathcal B^T V_0](s) + γ^T M / (1-γ) \big\} = V^*(s). 
+  \big\{ [\BELLMAN^*^T V^0](s) + γ^T M / (1-γ) \big\} = V^*(s). 
 \end{equation}$$
 
 From \\eqref{eq:1} and \\eqref{eq:2}, we get that $V^{\text{opt}}_∞ = V^*$. 
@@ -251,53 +251,53 @@ From \\eqref{eq:1} and \\eqref{eq:2}, we get that $V^{\text{opt}}_∞ = V^*$.
 The Bellman operator satisfies the following properties
 
 * _Monotonicity_. For any $v, w \in \reals^n$, if $v \le w$, then
-  $\mathcal B_π v \le \mathcal B_π w$ and 
-  $\mathcal B v \le \mathcal B w$. 
+  $\BELLMAN^π v \le \BELLMAN^π w$ and 
+  $\BELLMAN^* v \le \BELLMAN^* w$. 
 * _Discounting_. For any $v \in \reals^n$ and $m \in \reals$, 
-  $\mathcal B_π (v + m \ONES) = \mathcal B_π v + γ m \ONES$
+  $\BELLMAN^π (v + m \ONES) = \BELLMAN^π v + γ m \ONES$
   and 
-  $\mathcal B (v + m \ONES) = \mathcal B v + γ m \ONES$.
+  $\BELLMAN^* (v + m \ONES) = \BELLMAN^* v + γ m \ONES$.
 :::
 
 :::{.callout-note collapse="true"}
 #### Proof of monotonicity property {-}
 Recall that
-$$ \mathcal B_π v = c_π + γ P_π v. $$
-So, monotonicity of $\mathcal B_π$ follows immediately from monotonicity of
+$$ \BELLMAN^π v = c_π + γ P_π v. $$
+So, monotonicity of $\BELLMAN^π$ follows immediately from monotonicity of
 matrix multiplication for positive matrices. 
 
-Let $μ$ be such that $\mathcal B w = \mathcal B_μ w$. 
+Let $μ$ be such that $\BELLMAN^* w = \BELLMAN^μ w$. 
 Then,
-$$ \mathcal B v \le \mathcal B_μ v 
-\stackrel{(a)} \le \mathcal B_μ w = \mathcal B w,
+$$ \BELLMAN^* v \le \BELLMAN^μ v 
+\stackrel{(a)} \le \BELLMAN^μ w = \BELLMAN^* w,
 $$
-where $(a)$ uses the monotonicity of $\mathcal B_μ$. 
+where $(a)$ uses the monotonicity of $\BELLMAN^μ$. 
 :::
 
 :::{.callout-note collapse="true"}  
 #### Proof of discounting property {-}
 Recall that
-$$ \mathcal B_π v = c_π + γ P_π v. $$
+$$ \BELLMAN^π v = c_π + γ P_π v. $$
 Thus,
-$$ \mathcal B_π(v+m \ONES) = c_π + γ P_π (v+m \ONES) = c_π + γ P_π v + γ m
-\ONES = \mathcal B_π
+$$ \BELLMAN^π(v+m \ONES) = c_π + γ P_π (v+m \ONES) = c_π + γ P_π v + γ m
+\ONES = \BELLMAN^π
 v + γ m \ONES.$$ 
-Thus, $\mathcal B_π$ is discounting. Now consider 
-$$ \mathcal B (v + m \ONES ) = \min_{π} \mathcal B_π (v+m \ONES)
-= \min_π \mathcal (B_π v + γ m \ONES) = \mathcal B v + γ m \ONES.$$
-Thus, $\mathcal B$ is discounting.
+Thus, $\BELLMAN^π$ is discounting. Now consider 
+$$ \BELLMAN^* (v + m \ONES ) = \min_{π} \BELLMAN^π (v+m \ONES)
+= \min_π \mathcal (B_π v + γ m \ONES) = \BELLMAN^* v + γ m \ONES.$$
+Thus, $\BELLMAN^*$ is discounting.
 :::
 
 :::{#prp-Bellman-coarse-bounds}
 For any $V \in \reals^n$,
 
-* If $V \ge \mathcal B V$, then $V \ge V^*$;
-* If $V \le \mathcal B V$, then $V \le V^*$;
-* If $V = \mathcal B V$, then $V$ is the only vector with this property
+* If $V \ge \BELLMAN^* V$, then $V \ge V^*$;
+* If $V \le \BELLMAN^* V$, then $V \le V^*$;
+* If $V = \BELLMAN^* V$, then $V$ is the only vector with this property
   and $V = V^*$.
 
-The same bounds are true when $(\mathcal B, V^*)$ is replaced with
-$(\mathcal B_π, V_π)$. 
+The same bounds are true when $(\BELLMAN^*, V^*)$ is replaced with
+$(\BELLMAN^π, V^π)$. 
 :::
 
 :::{.callout-note collapse="true"} 
@@ -305,13 +305,13 @@ $(\mathcal B_π, V_π)$.
 We prove the first part. The proof of the other parts is similar.
 
 We are given that
-$$V \ge \mathcal B V.$$ 
+$$V \ge \BELLMAN^* V.$$ 
 Then, by monotonicity of the Bellman operator, 
-$$ \mathcal B V \ge \mathcal B^2 V.$$ 
+$$ \BELLMAN^* V \ge \BELLMAN^*^2 V.$$ 
 Continuing this way, we get
-$$ \mathcal B^k V \ge \mathcal B^{k+1} V.$$
+$$ \BELLMAN^*^k V \ge \BELLMAN^*^{k+1} V.$$
 Adding the above equations, we get
-$$ V \ge \mathcal B^{k+1} V.$$
+$$ V \ge \BELLMAN^*^{k+1} V.$$
 Taking limit as $k \to ∞$, we get 
 $$V \ge V^*.$$
 :::
@@ -319,33 +319,33 @@ $$V \ge V^*.$$
 :::{#prp-Bellman-bounds}
 For any $V \in \reals^n$ and $m \in \reals$, 
 
-* If $V + m \ONES \ge \mathcal B V$, then $V  + m \ONES/(1-γ) \ge V^*$;
-* If $V + m \ONES \le \mathcal B V$, then $V  + m \ONES/(1-γ) \le V^*$;
+* If $V + m \ONES \ge \BELLMAN^* V$, then $V  + m \ONES/(1-γ) \ge V^*$;
+* If $V + m \ONES \le \BELLMAN^* V$, then $V  + m \ONES/(1-γ) \le V^*$;
 
-The same bounds are true when $(\mathcal B, V^*)$ is replaced with
-$(\mathcal B_π, V_π)$. 
+The same bounds are true when $(\BELLMAN^*, V^*)$ is replaced with
+$(\BELLMAN^π, V^π)$. 
 :::
 
 :::{.callout-tip}
 #### Remark
 The above result can also be stated as follows:
 
-* $\displaystyle \| V_π - V \| \le \frac{1}{1-γ}\| \mathcal B_π V - V \|$.
-* $\displaystyle \| V^* - V \| \le \frac{1}{1-γ}\| \mathcal B V - V \|$.
+* $\displaystyle \| V^π - V \| \le \frac{1}{1-γ}\| \BELLMAN^π V - V \|$.
+* $\displaystyle \| V^* - V \| \le \frac{1}{1-γ}\| \BELLMAN^* V - V \|$.
 :::
 
 :::{.callout-note collapse="true"}  
 #### Proof {-}
 Again, we only prove the first part. The proof of the second part is the same. We have that
-$$ V + m \ONES \ge \mathcal B V. $$
+$$ V + m \ONES \ge \BELLMAN^* V. $$
 From discounting and monotonicity properties, we get
-$$ \mathcal B V + γ m \ONES \ge \mathcal B^2 V. $$
+$$ \BELLMAN^* V + γ m \ONES \ge \BELLMAN^*^2 V. $$
 Again, from discounting and monotonitiy properties, we get
-$$ \mathcal B^2 V + γ^2 m \ONES \ge \mathcal B^3 V. $$
+$$ \BELLMAN^*^2 V + γ^2 m \ONES \ge \BELLMAN^*^3 V. $$
 Continuing this way, we get
-$$ \mathcal B^k V + γ^k m \ONES \ge \mathcal B^{k+1} V. $$
+$$ \BELLMAN^*^k V + γ^k m \ONES \ge \BELLMAN^*^{k+1} V. $$
 Adding all the above equations, we get
-$$ V + \sum_{\ell = 0}^k γ^\ell m \ONES \ge \mathcal B^{k+1} V. $$
+$$ V + \sum_{\ell = 0}^k γ^\ell m \ONES \ge \BELLMAN^*^{k+1} V. $$
 Taking the limit as $k \to ∞$, we get
 $$ V + m \ONES/(1-γ) \ge V^*. $$
 :::
@@ -370,9 +370,9 @@ and is satisfied by any linear function $V^*(s) = α s$!
 
 To apply the Banach fixed point theorem, we need to be in a Banach space, i.e., a complete normed metric space. So, what was the Banach space in @thm-Bellman-fixed-point? Implicitly, we had used the space 
 $$
-  \ALPHABET V_M \coloneqq \{ v \colon \ALPHABET S \to \reals \text{ such that } \| v \|_{∞} \le M \}
+  \ALPHABET V^M \coloneqq \{ v \colon \ALPHABET S \to \reals \text{ such that } \| v \|_{∞} \le M \}
 $$
-where $M$ is any constant greater than $\|c\|_{∞}/(1-γ)$. Banach fixed point theorem says that DP has a **unique** fixed point in $\ALPHABET V_M$. It does not say anything about solutions outside $\ALPHABET V_M$!
+where $M$ is any constant greater than $\|c\|_{∞}/(1-γ)$. Banach fixed point theorem says that DP has a **unique** fixed point in $\ALPHABET V^M$. It does not say anything about solutions outside $\ALPHABET V^M$!
 
 Among all the solutions, only the one corresponding to $α = 0$ is bounded, which is also the optimal value function.
 :::
@@ -406,17 +406,17 @@ Again we have multiple solutions of the DP and the correct solution is the only 
 :::{#exr-one-step-lookahead-errors}
 ## One-step look-ahead error bounds.
 
-Given any $V \in \reals^n$, let $π$ be such that $\mathcal B V = \mathcal
-B_π V$. Moreover, let $V^*$ denote the unique fixed point of $\mathcal B$
-and $V_π$ denote the unique fixed point of $\mathcal B_π$.
+Given any $V \in \reals^n$, let $π$ be such that $\BELLMAN^* V = \mathcal
+B_π V$. Moreover, let $V^*$ denote the unique fixed point of $\BELLMAN^*$
+and $V^π$ denote the unique fixed point of $\BELLMAN^π$.
 Then, show that
 
-a. $$ \| V^* - V \| \le \frac{1}{1-γ} \| \mathcal B V - V \|. $$
-b. $$ \| V^* - \mathcal B V \| \le \frac{γ}{1-γ} \| \mathcal B V - V \|. $$
-c. $$ \| V_π - V \| \le \frac{1}{1-γ} \| \mathcal B_π V - V \|. $$
-d. $$ \| V_π - \mathcal B_π V \| \le \frac{γ}{1-γ} \| \mathcal B_π V - V \|. $$
-e. $$ \| V_π - V^* \| \le \frac{2}{1-γ} \| \mathcal B V - V \|. $$
-f. $$ \| V_π - V^* \| \le \frac{2γ}{1 - γ} \| V - V^* \|. $$
+a. $$ \| V^* - V \| \le \frac{1}{1-γ} \| \BELLMAN^* V - V \|. $$
+b. $$ \| V^* - \BELLMAN^* V \| \le \frac{γ}{1-γ} \| \BELLMAN^* V - V \|. $$
+c. $$ \| V^π - V \| \le \frac{1}{1-γ} \| \BELLMAN^π V - V \|. $$
+d. $$ \| V^π - \BELLMAN^π V \| \le \frac{γ}{1-γ} \| \BELLMAN^π V - V \|. $$
+e. $$ \| V^π - V^* \| \le \frac{2}{1-γ} \| \BELLMAN^* V - V \|. $$
+f. $$ \| V^π - V^* \| \le \frac{2γ}{1 - γ} \| V - V^* \|. $$
 
 :::
 
