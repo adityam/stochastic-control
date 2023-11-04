@@ -1,0 +1,69 @@
+---
+title: Large scale systems
+keywords:
+  - LQR
+  - mean-field control
+---
+
+:::{.callout-note icon=false appearance="simple"}
+# <i class="bi bi-journal-text text-primary"></i> Summary
+The [Riccati update] for [LQ systems] has a complexity $\mathcal O(n^3)$, which $n$ is the size of the state space. So even computing the otimal gains in a large-scale system is computationally challenging. In this section we show that under certain regularity and symmetry assumptions, the optimal solution of a large-scale system can be computed with low complexity. 
+:::
+
+[Riccati update]: lqr.qmd#def-Riccati-operator
+[LQ systems]: lqr.qmd
+
+## Mean-field control
+
+Consider a system consisting of $N$ subsystems, indexed by the set $\ALPHABET N \coloneqq \{1, \dots, N\}$. Each subsystem $i \in \ALPHABET N$ has a state $x^i_t \in \reals^{n}$ and a control input $u^i_t \in \reals^m$. The dynamics of each subsystem are given as
+\begin{equation}\label{eq:mf-dynamics}
+  x^i_{t+1} = A x^i_t + B u^i_t + D \bar x_t + E \bar u_t + w^i_t
+\end{equation}
+where 
+\begin{equation}
+  \bar x_t \coloneqq \frac 1N \sum_{i \in \ALPHABET N} x^i_t
+  \quad\text{and}\quad
+  \bar u_t \coloneqq \frac 1N \sum_{i \in \ALPHABET N} u^i_t
+\end{equation}
+are the _emperical mean-field_ of the state and control, respectively and $A$, $B$, $D$, $E$ are matrices of appropriate dimensions. The noise processes $\{w^i_t\}_{t \ge 1}$, $i \in \ALPHABET N$ are correlated across subsystem but are assumed to be independent across time. 
+
+We use $\pmb x_t \coloneqq (x^1_t, \dots, x^N_t)$ and $\pmb u_t \coloneqq(u^1_t, \dots, u^N_t)$ to denote the global state and control of the system. The system incurs a per-step cost given by
+\begin{equation}\label{eq:mf-cost}
+  c(\pmb x_t, \pmb u_t) = 
+  \bar x_t^\TRANS \bar Q \bar x_t + \bar u_t^\TRANS \bar R \bar u_t
+  +
+  \frac 1N \sum_{i \in \ALPHABET N}
+  \bigl[
+  (x^i_t)^\TRANS Q x^i_t + (u^i_t)^\TRANS R u^i_t
+  \bigr]
+\end{equation}
+and a terminal cost
+\begin{equation}\label{eq:mf-cost-T}
+  c_T(\pmb x_T) = 
+  \bar x_T^\TRANS \bar Q_T \bar x_T 
+  +
+  \frac 1N \sum_{i \in \ALPHABET N}
+  (x^i_T)^\TRANS Q_T x^i_T 
+\end{equation}
+
+We are interested in identifying policies $g = (g_1, \dots, g_{T-1})$ where $\pmb u_t = g_t(\pmb x_t)$ to minimize
+\begin{equation}\label{eq:performance}
+  J(g) = \EXP^g\biggl[\sum_{t=1}^{T-1} c(\pmb x_t, \pmb u_t) + c_T(\pmb x_T)
+  \biggr]
+\end{equation}
+
+:::{.callout-warning}
+### Weakly coupled dynamics and cost
+
+Note that the subsystems are weakly coupled in the dynamics and cost. A naive solution using by solving a single Riccati equation has a complexity of $\mathcal O(n^3 N^3)$, which scales cubically in the number of agents.
+:::
+
+## Network coupled subsystems
+
+## Notes {-}
+
+The results for mean-field control are adapted from @Arabneydi2016.
+
+The results for network coupled subsystems are adapted from @Gao2022.
+
+
