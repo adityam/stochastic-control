@@ -7,10 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-05-31">
+<meta name="dcterms.date" content="2023-11-05">
+<meta name="keywords" content="LQR, mean-field control">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
-<title>Course Notes - Page Not Found</title>
+<title>Course Notes - 25&nbsp; Large scale systems</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,28 +24,49 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
-<script src="/stochastic-control/site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="/stochastic-control/site_libs/quarto-nav/headroom.min.js"></script>
-<script src="/stochastic-control/site_libs/clipboard/clipboard.min.js"></script>
-<script src="/stochastic-control/site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="/stochastic-control/site_libs/quarto-search/fuse.min.js"></script>
-<script src="/stochastic-control/site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="/stochastic-control/">
-<script src="/stochastic-control/site_libs/quarto-html/quarto.js"></script>
-<script src="/stochastic-control/site_libs/quarto-html/popper.min.js"></script>
-<script src="/stochastic-control/site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="/stochastic-control/site_libs/quarto-html/anchor.min.js"></script>
-<link href="/stochastic-control/site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="/stochastic-control/site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="/stochastic-control/site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<script src="/stochastic-control/site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="/stochastic-control/site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="/stochastic-control/site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="/stochastic-control/site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<script src="/stochastic-control/site_libs/quarto-contrib/nutshell-1.0.6/nutshell.js"></script>
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../rl/stochastic-approximation.html" rel="next">
+<link href="../linear-systems/lqr.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../site_libs/quarto-contrib/nutshell-1.0.6/nutshell.js"></script>
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -106,8 +128,10 @@ window.MathJax = {
   },
 };
 </script>
-<script async="" data-id="101261731" src="/stochastic-control//static.getclicky.com/js"></script>
+<script async="" data-id="101261731" src="//static.getclicky.com/js"></script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -124,11 +148,11 @@ window.MathJax = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="/stochastic-control/../stochastic-control/index.html" rel="" target="">
+    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
  <span class="menu-text">Stochastic Control</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="/stochastic-control/../multi-agent-systems/index.html" rel="" target="">
+    <a class="nav-link" href="../../multi-agent-systems/index.html" rel="" target="">
  <span class="menu-text">Multi-Agent Systems</span></a>
   </li>  
 </ul>
@@ -149,7 +173,7 @@ window.MathJax = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Page Not Found</li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../linear-systems/lqr.html">Linear systems</a></li><li class="breadcrumb-item"><a href="../linear-systems/large-scale-systems.html"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Large scale systems</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -171,7 +195,7 @@ window.MathJax = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/index.html" class="sidebar-item-text sidebar-link">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">About the course</span></a>
   </div>
 </li>
@@ -186,13 +210,13 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link">
+  <a href="../stochastic-optimization/intro.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link">
+  <a href="../stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></span></a>
   </div>
 </li>
@@ -209,85 +233,85 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/intro.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/intro.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/gambling.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/gambling.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Optimal gambling</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/inventory-management.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/inventory-management.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Inventory Management</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/monotone-mdps.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/monotone-mdps.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Monotonicity of value function and optimal policies</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/power-delay-tradeoff.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/power-delay-tradeoff.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Power-delay tradeoff in wireless communication</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/reward-shaping.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/reward-shaping.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Reward Shaping</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/inf-horizon.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/inf-horizon.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/mdp-algorithms.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">MDP algorithms</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/inventory-management-revisited.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Inventory management (revisted)</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/mobile-edge-computing.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/mobile-edge-computing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Service Migration in Mobile edge computing</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/computational-complexity-vi.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/computational-complexity-vi.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Computational complexity of value interation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/martingale.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/martingale.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Thirfty and equalizing policies</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/linear-programming.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/linear-programming.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Linear programming formulation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/mdps/lipschitz-mdps.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/lipschitz-mdps.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></span></a>
   </div>
 </li>
@@ -304,13 +328,13 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/pomdps/intro.html" class="sidebar-item-text sidebar-link">
+  <a href="../pomdps/intro.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/pomdps/sequential-hypothesis.html" class="sidebar-item-text sidebar-link">
+  <a href="../pomdps/sequential-hypothesis.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Sequential hypothesis testing</span></span></a>
   </div>
 </li>
@@ -327,19 +351,19 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/approx-mdps/approx-DP.html" class="sidebar-item-text sidebar-link">
+  <a href="../approx-mdps/approx-DP.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Approximate dynamic programming</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/approx-mdps/policy-loss.html" class="sidebar-item-text sidebar-link">
+  <a href="../approx-mdps/policy-loss.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Upper bounds on policy loss</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/approx-mdps/model-approximation.html" class="sidebar-item-text sidebar-link">
+  <a href="../approx-mdps/model-approximation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Model approximation</span></span></a>
   </div>
 </li>
@@ -356,13 +380,13 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/risk-sensitive/risk-sensitive-utility.html" class="sidebar-item-text sidebar-link">
+  <a href="../risk-sensitive/risk-sensitive-utility.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Risk Sensitive Utility</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/risk-sensitive/risk-sensitive-mdps.html" class="sidebar-item-text sidebar-link">
+  <a href="../risk-sensitive/risk-sensitive-mdps.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Risk Sensitive MDPs</span></span></a>
   </div>
 </li>
@@ -379,13 +403,13 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/linear-systems/lqr.html" class="sidebar-item-text sidebar-link">
+  <a href="../linear-systems/lqr.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Linear quadratic regulation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/linear-systems/large-scale-systems.html" class="sidebar-item-text sidebar-link">
+  <a href="../linear-systems/large-scale-systems.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Large scale systems</span></span></a>
   </div>
 </li>
@@ -402,7 +426,7 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/rl/stochastic-approximation.html" class="sidebar-item-text sidebar-link">
+  <a href="../rl/stochastic-approximation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Stochastic approximation</span></span></a>
   </div>
 </li>
@@ -419,37 +443,37 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/probability/convergence.html" class="sidebar-item-text sidebar-link">
+  <a href="../probability/convergence.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Convergence of random variables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/probability/sub-gaussian.html" class="sidebar-item-text sidebar-link">
+  <a href="../probability/sub-gaussian.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Sub-Gaussian random variables</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/probability/change-of-measure.html" class="sidebar-item-text sidebar-link">
+  <a href="../probability/change-of-measure.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Change of Measure</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/probability/martingales.html" class="sidebar-item-text sidebar-link">
+  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/probability/IPM.html" class="sidebar-item-text sidebar-link">
+  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/probability/stochastic-stability.html" class="sidebar-item-text sidebar-link">
+  <a href="../probability/stochastic-stability.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
   </div>
 </li>
@@ -466,25 +490,25 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link">
+  <a href="../linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/linear-algebra/positive-definite-matrix.html" class="sidebar-item-text sidebar-link">
+  <a href="../linear-algebra/positive-definite-matrix.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
+  <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
+  <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
   </div>
 </li>
@@ -501,13 +525,13 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/convexity/convexity.html" class="sidebar-item-text sidebar-link">
+  <a href="../convexity/convexity.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/convexity/duality.html" class="sidebar-item-text sidebar-link">
+  <a href="../convexity/duality.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
   </div>
 </li>
@@ -515,7 +539,7 @@ window.MathJax = {
   </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/references.html" class="sidebar-item-text sidebar-link">
+  <a href="../references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
 </li>
@@ -530,7 +554,7 @@ window.MathJax = {
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="/stochastic-control/assignments/01.html" class="sidebar-item-text sidebar-link">
+  <a href="../assignments/01.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Assignment 1</span></a>
   </div>
 </li>
@@ -542,14 +566,25 @@ window.MathJax = {
 <div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#mean-field-control" id="toc-mean-field-control" class="nav-link active" data-scroll-target="#mean-field-control"><span class="header-section-number">25.1</span> Mean-field control</a>
+  <ul class="collapse">
+  <li><a href="#state-space-decomposition" id="toc-state-space-decomposition" class="nav-link" data-scroll-target="#state-space-decomposition"><span class="header-section-number">25.1.1</span> State space decomposition</a></li>
+  </ul></li>
+  <li><a href="#network-coupled-subsystems" id="toc-network-coupled-subsystems" class="nav-link" data-scroll-target="#network-coupled-subsystems"><span class="header-section-number">25.2</span> Network coupled subsystems</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/linear-systems/large-scale-systems.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Page Not Found</h1>
+<h1 class="title"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Large scale systems</span></h1>
 </div>
 
 
@@ -575,7 +610,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 31, 2023</p>
+      <p class="date">November 5, 2023</p>
     </div>
   </div>
   
@@ -585,9 +620,160 @@ window.MathJax = {
 
 </header>
 
-<p>The website was reorganized on 31 May 2023 and, most likely, the link that you are looking for has moved. Please look at the navigation bar on the left or use the search bar on the top.</p>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<i class="bi bi-journal-text text-primary"></i> Summary
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <a href="../linear-systems/lqr.html#def-Riccati-operator">Riccati update</a> for <a href="../linear-systems/lqr.html">LQ systems</a> has a complexity <span class="math inline">\(\mathcal O(n^3)\)</span>, which <span class="math inline">\(n\)</span> is the size of the state space. So even computing the otimal gains in a large-scale system is computationally challenging. In this section we show that under certain regularity and symmetry assumptions, the optimal solution of a large-scale system can be computed with low complexity.</p>
+</div>
+</div>
+<section id="mean-field-control" class="level2" data-number="25.1">
+<h2 data-number="25.1" class="anchored" data-anchor-id="mean-field-control"><span class="header-section-number">25.1</span> Mean-field control</h2>
+<p>Consider a system consisting of <span class="math inline">\(N\)</span> subsystems, indexed by the set <span class="math inline">\(\ALPHABET N \coloneqq \{1, \dots, N\}\)</span>. Each subsystem <span class="math inline">\(i \in \ALPHABET N\)</span> has a state <span class="math inline">\(x^i_t \in \reals^{n}\)</span> and a control input <span class="math inline">\(u^i_t \in \reals^m\)</span>. The dynamics of each subsystem are given as <span class="math display">\[\begin{equation}\label{eq:dynamics}
+  x^i_{t+1} = A x^i_t + B u^i_t + D \bar x_t + E \bar u_t + w^i_t
+\end{equation}\]</span> where <span class="math display">\[\begin{equation}
+  \bar x_t \coloneqq \frac 1N \sum_{i \in \ALPHABET N} x^i_t
+  \quad\text{and}\quad
+  \bar u_t \coloneqq \frac 1N \sum_{i \in \ALPHABET N} u^i_t
+\end{equation}\]</span> are the <em>emperical mean-field</em> of the state and control, respectively and <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, <span class="math inline">\(D\)</span>, <span class="math inline">\(E\)</span> are matrices of appropriate dimensions. The noise processes <span class="math inline">\(\{w^i_t\}_{t \ge 1}\)</span>, <span class="math inline">\(i \in \ALPHABET N\)</span> are correlated across subsystem but are assumed to be independent across time.</p>
+<p>We use <span class="math inline">\(\pmb x_t \coloneqq (x^1_t, \dots, x^N_t)\)</span> and <span class="math inline">\(\pmb u_t \coloneqq(u^1_t, \dots, u^N_t)\)</span> to denote the global state and control of the system. The system incurs a per-step cost given by <span class="math display">\[\begin{equation}\label{eq:mf-cost}
+  c(\pmb x_t, \pmb u_t) =
+  \bar x_t^\TRANS \bar Q \bar x_t + \bar u_t^\TRANS \bar R \bar u_t
+  +
+  \frac 1N \sum_{i \in \ALPHABET N}
+  \bigl[
+  (x^i_t)^\TRANS Q x^i_t + (u^i_t)^\TRANS R u^i_t
+  \bigr]
+\end{equation}\]</span> and a terminal cost <span class="math display">\[\begin{equation}\label{eq:mf-cost-T}
+  c_T(\pmb x_T) =
+  \bar x_T^\TRANS \bar Q_T \bar x_T
+  +
+  \frac 1N \sum_{i \in \ALPHABET N}
+  (x^i_T)^\TRANS Q_T x^i_T
+\end{equation}\]</span></p>
+<p>We are interested in identifying policies <span class="math inline">\(g = (g_1, \dots, g_{T-1})\)</span> where <span class="math inline">\(\pmb u_t = g_t(\pmb x_t)\)</span> to minimize <span class="math display">\[\begin{equation}\label{eq:performance}
+  J(g) = \EXP^g\biggl[\sum_{t=1}^{T-1} c(\pmb x_t, \pmb u_t) + c_T(\pmb x_T)
+  \biggr]
+\end{equation}\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Weakly coupled dynamics and cost
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Note that the subsystems are weakly coupled in the dynamics and cost. A naive solution using by solving a single Riccati equation has a complexity of <span class="math inline">\(\mathcal O(n^3 N^3)\)</span>, which scales cubically in the number of agents.</p>
+</div>
+</div>
+<section id="state-space-decomposition" class="level3" data-number="25.1.1">
+<h3 data-number="25.1.1" class="anchored" data-anchor-id="state-space-decomposition"><span class="header-section-number">25.1.1</span> State space decomposition</h3>
+<p>We now present a decomposition method to simplify the above optimization problem. Note that <span class="math inline">\(\eqref{eq:dynamics}\)</span> implies that <span class="math display">\[\begin{equation}\label{eq:mf-dynamics}
+  \bar x_t = (A + D) \bar x_t + (B + E) \bar u_t + \bar w_t
+\end{equation}\]</span> where <span class="math inline">\(\bar w_t = (\sum_{i \in \ALPHABET N}w^i_t)/N\)</span>. Define <span class="math display">\[
+  \breve x^i_t = x^i_t - \bar x_t
+  \quad\text{and}\quad
+  \breve u^i_t = u^i_t - \bar u_t.
+\]</span> Then, subtracting <span class="math inline">\(\eqref{eq:mf-dynamics}\)</span> from <span class="math inline">\(\eqref{eq:dynamics}\)</span>, we get <span class="math display">\[\begin{equation}\label{eq:breve-dynamics}
+  \breve x^i_t = A \breve x^i_t + B \breve u^i_t + \breve w^i_t
+\end{equation}\]</span> where <span class="math inline">\(\breve w^i_t = w^i_t - \bar w_t\)</span>.</p>
+<p>We can think of <span class="math inline">\(\bar x_t\)</span> as the “center of mass” of the system and <span class="math inline">\(\breve x^i_t\)</span> to be the relative coordinates of subsystem <span class="math inline">\(i\)</span> wrt the center of mass. Building on this intuition, we make the following simple observation, which may be viewed as an analog of the <a href="https://en.wikipedia.org/wiki/Parallel_axis_theorem">:parallel axis theorem</a> in physics.</p>
+<div id="lem-parallel-axis-theorem" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 25.1 </strong></span>We have the following:</p>
+<ol type="1">
+<li><span class="math inline">\(\displaystyle \frac 1N\sum_{i \in \ALPHABET N} (x^i_t)^\TRANS Q x^i_t = \bar x_t^\TRANS Q \bar x_t + \frac 1N \sum_{i \in \ALPHABET N} (\breve x^i_t)^\TRANS Q \breve x^i_t\)</span>.</li>
+<li><span class="math inline">\(\displaystyle \frac 1N\sum_{i \in \ALPHABET N} (u^i_t)^\TRANS Q u^i_t = \bar u_t^\TRANS Q \bar u_t + \frac 1N \sum_{i \in \ALPHABET N} (\breve u^i_t)^\TRANS Q \breve u^i_t\)</span>.</li>
+</ol>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>The proof follows from the observation that <span class="math inline">\(\sum_{i \in \ALPHABET N} \breve x^i_t = 0\)</span> and elementary algebra.</p>
+</div>
+</div>
+</div>
+<p>An immediate implication of <a href="#lem-parallel-axis-theorem">Lemma&nbsp;<span>25.1</span></a> is that the per-step cost can be decomposed as follows: <span class="math display">\[\begin{equation}
+  c(\pmb x_t, \pmb u_t) = \bar c(\bar x_t, \bar u_t) +
+  \frac 1N \sum_{i \in \ALPHABET N} \breve c^i(\breve x^i_t, \breve u^i_t)
+\end{equation}\]</span> where <span class="math display">\[\begin{align*}
+  \bar c(\bar x_t, \bar u_t) &amp;=
+  \bar x_t^\TRANS (Q + \bar Q) \bar x_t + \bar u_t^\TRANS (R + \bar R) \bar u_t,
+  \notag \\
+  \breve c^i(\breve x^i_t, \breve u^i_t) &amp;=
+   \frac 1N \sum_{i \in \ALPHABET N}
+   \bigl[
+    (\breve x^i_t)^\TRANS Q \breve x^i_t
+    +
+    (\breve u^i_t)^\TRANS Q \breve u^i_t
+  \bigr].
+\end{align*}\]</span> A similar decomposition also holds for the terminal cost <span class="math inline">\(c_t(\pmb x_t, \pmb u_t)\)</span>.</p>
+<p>Thus, the original system is equivalent to <span class="math inline">\(N+1\)</span> coupled subsystems:</p>
+<ul>
+<li>a mean-field subsystem with state <span class="math inline">\(\bar x_t\)</span>, control input <span class="math inline">\(\bar u_t\)</span>, and per-step cost <span class="math inline">\(\bar c(\bar x_t, \bar u_t)\)</span>.</li>
+<li><span class="math inline">\(N\)</span> auxiliary subsytems, where subsystem <span class="math inline">\(i \in \ALPHABET N\)</span> has state <span class="math inline">\(\breve x^i_t\)</span>, control input <span class="math inline">\(\breve u^i_t\)</span>, and per-step cost <span class="math inline">\(\breve c(\breve x^i_t, \breve u^i_t)\)</span>.</li>
+</ul>
+<p>Note that the only coupling between the subsystems is through the noise. Therefore, by the argument presented in <a href="lqr.html#exr-lqr-noise-coupled">Exercise&nbsp;<span>24.3</span></a>, the optimal control strategy is of the following form.</p>
+<div id="prp-mf-control" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 25.1 </strong></span>The optimal control policy for the mean-field control system described above is given by <span class="math display">\[
+    u_t = - \bar K_t \bar x_t + \breve K_t (x^i_t - \bar x_t)
+  \]</span> where</p>
+<ul>
+<li><span class="math inline">\(\bar K_{1:T-1} = \LQR_T(A+D, B+E, Q + \bar Q, R + \bar R; Q_T + \bar Q_T)\)</span></li>
+<li><span class="math inline">\(\breve K_{1:T-1} = \LQR_T(A,B, Q, R; Q_T)\)</span>.</li>
+</ul>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Significance of the result
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The above result is significant, both for synthesis and implementation.</p>
+<p>For synthesis, rather than solving one Riccati equation with state dimension <span class="math inline">\(nN\)</span>, we need to solve two Riccati equations with dimension <span class="math inline">\(n\)</span>. Thus, the complexity of computing the optimal controller gains does not depend on the number <span class="math inline">\(N\)</span> of subsystems.</p>
+<p>For implementation, each subsystem does not need access to the global state <span class="math inline">\(\pmb x_t\)</span>; instead it just needs access to the mean-field <span class="math inline">\(\bar x_t\)</span> in addition to its local state <span class="math inline">\(x^i_t\)</span>.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="network-coupled-subsystems" class="level2" data-number="25.2">
+<h2 data-number="25.2" class="anchored" data-anchor-id="network-coupled-subsystems"><span class="header-section-number">25.2</span> Network coupled subsystems</h2>
+</section>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p>The results for mean-field control are adapted from <span class="citation" data-cites="Arabneydi2016">Arabneydi and Mahajan (<a href="../references.html#ref-Arabneydi2016" role="doc-biblioref">2016</a>)</span>. A similar result for <span class="math inline">\(N \to \infty\)</span> is also presented in <span class="citation" data-cites="Elliott2013">(<a href="../references.html#ref-Elliott2013" role="doc-biblioref"><strong>Elliott2013?</strong></a>)</span>.</p>
+<p>The results for network coupled subsystems are adapted from <span class="citation" data-cites="Gao2022">Gao and Mahajan (<a href="../references.html#ref-Gao2022" role="doc-biblioref">2022</a>)</span>.</p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-Arabneydi2016" class="csl-entry" role="listitem">
+<span class="smallcaps">Arabneydi, J. and Mahajan, A.</span> 2016. Linear quadratic mean field teams: Optimal and approximately optimal decentralized solutions. Available at: <a href="https://arxiv.org/abs/1609.00056v2">https://arxiv.org/abs/1609.00056v2</a>.
+</div>
+<div id="ref-Gao2022" class="csl-entry" role="listitem">
+<span class="smallcaps">Gao, S. and Mahajan, A.</span> 2022. Optimal control of network-coupled subsystems: Spectral decomposition and low-dimensional solutions. <em><span>IEEE</span> Transactions on Control of Network Systems</em> <em>9</em>, 2, 657–669. DOI: <a href="https://doi.org/10.1109/tcns.2021.3124259">10.1109/tcns.2021.3124259</a>.
+</div>
+</div>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -938,9 +1124,21 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../linear-systems/lqr.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Linear quadratic regulation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../rl/stochastic-approximation.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Stochastic approximation</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/404.qmd" class="toc-action">Edit this page</a></p></div></div></div></div></footer><script src="/stochastic-control/site_libs/quarto-html/zenscroll-min.js"></script>
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
