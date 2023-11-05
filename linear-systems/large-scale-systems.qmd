@@ -16,7 +16,7 @@ The [Riccati update] for [LQ systems] has a complexity $\mathcal O(n^3)$, which 
 ## Mean-field control
 
 Consider a system consisting of $N$ subsystems, indexed by the set $\ALPHABET N \coloneqq \{1, \dots, N\}$. Each subsystem $i \in \ALPHABET N$ has a state $x^i_t \in \reals^{n}$ and a control input $u^i_t \in \reals^m$. The dynamics of each subsystem are given as
-\begin{equation}\label{eq:mf-dynamics}
+\begin{equation}\label{eq:dynamics}
   x^i_{t+1} = A x^i_t + B u^i_t + D \bar x_t + E \bar u_t + w^i_t
 \end{equation}
 where 
@@ -58,11 +58,98 @@ We are interested in identifying policies $g = (g_1, \dots, g_{T-1})$ where $\pm
 Note that the subsystems are weakly coupled in the dynamics and cost. A naive solution using by solving a single Riccati equation has a complexity of $\mathcal O(n^3 N^3)$, which scales cubically in the number of agents.
 :::
 
+### State space decomposition
+
+We now present a decomposition method to simplify the above optimization problem. Note that \eqref{eq:dynamics} implies that
+\begin{equation}\label{eq:mf-dynamics}
+  \bar x_t = (A + D) \bar x_t + (B + E) \bar u_t + \bar w_t
+\end{equation}
+where $\bar w_t = (\sum_{i \in \ALPHABET N}w^i_t)/N$. Define
+$$
+  \breve x^i_t = x^i_t - \bar x_t
+  \quad\text{and}\quad
+  \breve u^i_t = u^i_t - \bar u_t.
+$$
+Then, subtracting \eqref{eq:mf-dynamics} from \eqref{eq:dynamics}, we get
+\begin{equation}\label{eq:breve-dynamics}
+  \breve x^i_t = A \breve x^i_t + B \breve u^i_t + \breve w^i_t
+\end{equation}
+where $\breve w^i_t = w^i_t - \bar w_t$. 
+
+We can think of $\bar x_t$ as the "center of mass" of the system and $\breve x^i_t$ to be the relative coordinates of subsystem $i$ wrt the center of mass. Building on this intuition, we make the following simple observation, which may be viewed as an analog of the [:parallel axis theorem](https://en.wikipedia.org/wiki/Parallel_axis_theorem) in physics.
+
+:::{#lem-parallel-axis-theorem}
+We have the following:
+
+1. $\displaystyle \frac 1N\sum_{i \in \ALPHABET N} (x^i_t)^\TRANS Q x^i_t
+   = 
+   \bar x_t^\TRANS Q \bar x_t
+   +
+   \frac 1N \sum_{i \in \ALPHABET N} (\breve x^i_t)^\TRANS Q \breve x^i_t$.
+2. $\displaystyle \frac 1N\sum_{i \in \ALPHABET N} (u^i_t)^\TRANS Q u^i_t
+   = 
+   \bar u_t^\TRANS Q \bar u_t
+   +
+   \frac 1N \sum_{i \in \ALPHABET N} (\breve u^i_t)^\TRANS Q \breve u^i_t$.
+:::
+:::{.callout-note collapse="false"}
+### Proof
+The proof follows from the observation that $\sum_{i \in \ALPHABET N} \breve x^i_t = 0$ and elementary algebra.
+:::
+
+An immediate implication of @lem-parallel-axis-theorem is that the per-step cost can be decomposed as follows:
+\begin{equation}
+  c(\pmb x_t, \pmb u_t) = \bar c(\bar x_t, \bar u_t) + 
+  \frac 1N \sum_{i \in \ALPHABET N} \breve c^i(\breve x^i_t, \breve u^i_t)
+\end{equation}
+where
+\begin{align*}
+  \bar c(\bar x_t, \bar u_t) &=
+  \bar x_t^\TRANS (Q + \bar Q) \bar x_t + \bar u_t^\TRANS (R + \bar R) \bar u_t,
+  \notag \\
+  \breve c^i(\breve x^i_t, \breve u^i_t) &=
+   \frac 1N \sum_{i \in \ALPHABET N}
+   \bigl[
+    (\breve x^i_t)^\TRANS Q \breve x^i_t
+    +
+    (\breve u^i_t)^\TRANS Q \breve u^i_t
+  \bigr].
+\end{align*}
+A similar decomposition also holds for the terminal cost $c_t(\pmb x_t, \pmb u_t)$. 
+
+Thus, the original system is equivalent to $N+1$ coupled subsystems: 
+
+- a mean-field subsystem with state $\bar x_t$, control input $\bar u_t$, and per-step cost $\bar c(\bar x_t, \bar u_t)$.
+- $N$ auxiliary subsytems, where subsystem $i \in \ALPHABET N$ has state $\breve x^i_t$, control input $\breve u^i_t$, and per-step cost $\breve c(\breve x^i_t, \breve u^i_t)$.
+
+Note that the only coupling between the subsystems is through the noise. Therefore, by the argument presented in @exr-lqr-noise-coupled, the optimal control strategy is of the following form.
+
+:::{#prp-mf-control}
+  The optimal control policy for the mean-field control system described above is given by
+  $$
+    u_t = - \bar K_t \bar x_t + \breve K_t (x^i_t - \bar x_t)
+  $$
+  where 
+
+  - $\bar K_{1:T-1} = \LQR_T(A+D, B+E, Q + \bar Q, R + \bar R; Q_T + \bar Q_T)$
+  - $\breve K_{1:T-1} = \LQR_T(A,B, Q, R; Q_T)$.
+:::
+
+:::{.callout-important}
+### Significance of the result
+
+The above result is significant, both for synthesis and implementation. 
+
+For synthesis, rather than solving one Riccati equation with state dimension $nN$, we need to solve two Riccati equations with dimension $n$. Thus, the complexity of computing the optimal controller gains does not depend on the number $N$ of subsystems.
+
+For implementation, each subsystem does not need access to the global state $\pmb x_t$; instead it just needs access to the mean-field $\bar x_t$ in addition to its local state $x^i_t$. 
+:::
+
 ## Network coupled subsystems
 
 ## Notes {-}
 
-The results for mean-field control are adapted from @Arabneydi2016.
+The results for mean-field control are adapted from @Arabneydi2016. A similar result for $N \to \infty$ is also presented in @Elliott2013. 
 
 The results for network coupled subsystems are adapted from @Gao2022.
 
