@@ -4,6 +4,9 @@ keywords:
   - LQR
   - Riccati equation
   - completion of squares
+execute:
+  echo: false
+  freeze: true
 ---
 
 :::{.callout-warning}
@@ -12,10 +15,10 @@ To be consistent with the notation used in linear systems, we denote the state a
 :::
 
 Consider a _linear_ stochastic system with state $x_t \in \reals^n$ and controls $u_t \in \reals^m$ where the dynamics are given by
-$$
+\begin{equation}\label{eq:dynamics}
   x_{t+1} = A x_t + B u_t + w_t,
   \quad t \ge 1
-$$
+\end{equation}
 where $A \in \reals^{n × n}$ and $B \in \reals^{n × m}$ are known matrices and $\{w_t\}_{t \ge 1}$, $w_t \in \reals^n$ is process noise. The objective is to choose the control policy $g = (g_1, \dots, g_{T-1})$, where $u_t = g_t(x_{1:t}, u_{1:t-1})$, to minimize
 $$
   J(g) = \EXP\biggl[ \sum_{t=1}^{T-1} c(x_t, u_t) + c_T(x_T) \biggr]
@@ -218,6 +221,168 @@ Now, an immediate implication of @prp-completion-of-squares is the following:
    $$
    where $w_{τ|t}$ is $\EXP[ w_{\tau} \mid w_{1:t} ]$. That is, at time $t$, one replaces future stochastic noise $w_τ$ ($τ \ge t$) by an 'equivalent' deterministic noise $w_{τ|t}$ and then applies the method of deterministic LQR to deduce the optimal feedback control in terms of the predicted noise. This is also a special instance of the general **certainty equivalence principle**, which also extends to the case when the state is not perfectly observed. 
 
+## An example: second order integrator
+
+```{julia}
+#| output: false
+# Install packages
+using Pkg; Pkg.activate(".")
+for pkg in ["IJulia", "Distributions", "DataFrames", "JSON"]
+    Pkg.add(pkg)
+end
+
+using Distributions: Normal
+using DataFrames
+
+mutable struct SSModel
+    A :: AbstractMatrix
+    B :: AbstractVecOrMat
+end
+
+mutable struct SSCost
+    Q
+    R
+    S
+    QT
+end
+
+function riccati_update(P::AbstractMatrix, sys:: SSModel, cost :: SSCost)
+  A, B, Q, R, S = sys.A, sys.B, cost.Q, cost.R, cost.S
+  Δ = R  + B' * P * B
+  Λ = S' .+ B' * P * A
+  K = Δ \ Λ
+  P_new = Q + A' * P * A - Λ' * K
+  return (P_new, K)
+end
+
+function LQR(sys :: SSModel, cost :: SSCost, T :: Int)
+   P = [ zeros(size(sys.A))   for t in 1:T ]
+   K = [ zeros(size(sys.B'))  for t in 1:T-1 ]
+
+   P[T] = cost.QT
+   for t in T-1:-1:1
+      P[t], K[t] = riccati_update(P[t+1], sys, cost)
+   end
+   return (P,K)
+end
+
+function lsim(x_init, sys, K, T, σ²)
+    W = Normal(0, σ²)
+    dx, du = size(B,1), size(B,2)
+    x = [zeros(dx,1) for t in 1:T]
+    u = [zeros(du,1) for t in 1:T-1]
+    x[1][:] = x_init
+    for t = 1:T-1
+        u[t] = -K[t]*x[t] .+ rand(W)
+        x[t+1] = sys.A * x[t] + sys.B * u[t]
+    end
+    return (x,u)
+end
+
+```
+
+
+As an example, consider a discretized model of a second-order integrator, which models the dynamics of a point-mass in one-dimensional space under time-varying force. The continuous-time dynamics of a second-order integrator are given by
+$$
+  \dot x(t) = \MATRIX{0 & 1 \\ 0 & 0} x(t) + \MATRIX{0\\ \frac 1m}u(t)
+$$
+where $x(t) \in \reals^2$ with $x_1(t)$ indicating position and $x_2(t)$ indicating velocity, $u(t) \in \reals$ denotes force, and $m$ is a parameter denoting mass. We discretize the dynamics using zero-order hold with a sampling time of $Δt$. First observe that the matrix $A_c = \left[ \begin{smallmatrix}0 & 1 \\ 0 & 0\end{smallmatrix}\right]$ is _nilpotent_ because $A_c^2 = 0$. Therefore, the matrix exponential simplifies to 
+$$
+  e^{A_ct} = I + A_c t = 
+  \MATRIX{1 & t \\ 0 & 1}.
+$$
+Therefore, the discretized model is
+\begin{align*} 
+  A &= e^{A_c Δt} = \MATRIX{1 & Δt \\ 0 & 1},
+  &
+  B &= \int_{0}^{Δt} e^{A_ct} B_c dt = \MATRIX{\tfrac12 Δt^2 \\ \frac{Δt}{m}}
+\end{align*}
+
+We further assume that there is a disturbance with variance $σ^2$ at the actuation, so the discretized model is 
+$$
+  x_{t+1} = A x_t + B (u_t + w_t)
+$$
+where $w_t \sim {\cal N}(0, σ^2)$[^1]. 
+
+[^1]: This model may be viewed as a model of the form \eqref{eq:dynamics} by considering the noise covariance in \eqref{eq:dynamics} to be $σ^2 B B^\TRANS$.
+
+Suppose 
+$$
+  Q = Q_T = \MATRIX{1 & 0 \\ 0 & 0}
+  \quad\text{and}\quad
+  R = ρ
+$$
+We simulate this system for $T = 10\,\text{sec}$ with noise covariance $σ^2 = 0.05$. The output (i.e., position) and the input (i.e., force) are shown in @fig-lqr-integrator. Note that, as expected, as the cost of applying control increases, less force is applied and it takes longer for the position to become close to zero. 
+
+```{julia}
+#| output: true
+
+A = [1 Δt; 0 1] 
+B = [Δt^2/2; Δt/m]   
+Q = [1. 0.; 0. 0.]
+QT = Q
+R = range(start=0.1, step=0.1, stop=2.5)
+S = 0.0
+
+σ2 = 0.05
+
+T = 100
+
+df = DataFrame(time=Float64[], position=Float64[], velocity=Float64[], force=Float64[], R=Float64[])
+allowmissing!(df, :force)
+
+for ρ in R
+    sys = SSModel(A,B)
+    cost = SSCost(Q,ρ,S,QT)
+
+    P, K = LQR(sys, cost, T)
+    x, u = lsim([1;0], sys, K, T, σ2)
+
+    for t = 1:T-1
+        push!(df, (t*Δt, x[t][1], x[t][2], u[t][1], ρ))
+    end
+    push!(df, (T*Δt, x[T][1], x[T][2], missing, ρ))
+end
+
+ojs_define(sims = df)
+```
+
+```{ojs}
+viewof R = Inputs.range([0.1, 2.5], {label: "R", step: 0.1, value: 0.1 })
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| label: fig-lqr-integrator
+//| fig-cap: Optimal regulation of second order integrator for different choices of control cost
+//| fig-subcap:
+//|     - Position over time
+//|     - Force over time
+PositionPlot = Plot.plot({
+  grid: true,
+  y: { domain: [-0.25, 1] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(sims.filter(d => d.R == R), {x: "time", y: "position", curve:"step-after"}),
+  ]}
+)
+ForcePlot = Plot.plot({
+  grid: true,
+  y: { domain: [-3, 0.5] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(sims.filter(d => d.R == R), {x: "time", y: "force", curve: "step-before"}),
+  ]}
+)
+```
+
+
 ## Exercises {-}
 
 :::{#exr-lqr-no-state-cost}
@@ -260,7 +425,8 @@ _Hint_: There are two ways to solve this problem. An algebriac method using wher
 
 ## Notes {-}
 
-See @Athans1971 for a general discussion of the philosophical approach of approximating general stochastic control problems as linear quadratic models. Deterministic LQR model for continuous time systems was proposed in @Kalman1960b. The proof idea of completion of squares is due to @Astrom1970 but we loosely follow the proof outlines adapted from @Afshari2023.
+See @Athans1971 for a general discussion of the philosophical approach of approximating general stochastic control problems as linear quadratic models. See @Dorato1971 for a general overview of discrete-time LQR including a (dated) summary of how such models might arise and different approaches to numerically solve the Riccati equation.
+Deterministic LQR model for continuous time systems was proposed in @Kalman1960b. The proof idea of completion of squares is due to @Astrom1970 but we loosely follow the proof outlines adapted from @Afshari2023.
 
 @exr-lqr-noise-coupled is modified from the proof idea used in @Arabneydi2016 and @Gao2022.
 
