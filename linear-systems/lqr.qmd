@@ -286,7 +286,7 @@ As an example, consider a discretized model of a second-order integrator, which 
 $$
   \dot x(t) = \MATRIX{0 & 1 \\ 0 & 0} x(t) + \MATRIX{0\\ \frac 1m}u(t)
 $$
-where $x(t) \in \reals^2$ with $x_1(t)$ indicating position and $x_2(t)$ indicating velocity, $u(t) \in \reals$ denotes force, and $m$ is a parameter denoting mass. We discretize the dynamics using zero-order hold with a sampling time of $Δt$. First observe that the matrix $A_c = \left[ \begin{smallmatrix}0 & 1 \\ 0 & 0\end{smallmatrix}\right]$ is _nilpotent_ because $A_c^2 = 0$. Therefore, the matrix exponential simplifies to 
+where $x(t) \in \reals^2$ with $x_1(t)$ indicating position and $x_2(t)$ indicating velocity, $u(t) \in \reals$ denotes force, and $m$ is a parameter denoting mass. We discretize the dynamics using zero-order hold [@Wittenmark2002] with a sampling time of $Δt$. First observe that the matrix $A_c = \left[ \begin{smallmatrix}0 & 1 \\ 0 & 0\end{smallmatrix}\right]$ is _nilpotent_ because $A_c^2 = 0$. Therefore, the matrix exponential simplifies to 
 $$
   e^{A_ct} = I + A_c t = 
   \MATRIX{1 & t \\ 0 & 1}.
@@ -312,10 +312,12 @@ $$
   \quad\text{and}\quad
   R = ρ
 $$
-We simulate this system for $T = 10\,\text{sec}$ with noise covariance $σ^2 = 0.05$. The output (i.e., position) and the input (i.e., force) are shown in @fig-lqr-integrator. Note that, as expected, as the cost of applying control increases, less force is applied and it takes longer for the position to become close to zero. 
+We assume $m = 1\,\text{kg}$, $Δt = 0.1\,\text{sec}$ and noise covariance $σ^2 = 0.05$. The output (i.e., position) and the input (i.e., force) for a $T = 10\,\text{sec}$ simulation of the system are shown in @fig-lqr-integrator. Note that, as expected, as the cost of applying control increases, less force is applied and it takes longer for the position to become close to zero. 
 
 ```{julia}
 #| output: true
+const Δt = 0.1
+const m  = 1
 
 A = [1 Δt; 0 1] 
 B = [Δt^2/2; Δt/m]   
@@ -425,7 +427,7 @@ _Hint_: There are two ways to solve this problem. An algebriac method using wher
 
 ## Notes {-}
 
-See @Athans1971 for a general discussion of the philosophical approach of approximating general stochastic control problems as linear quadratic models. See @Dorato1971 for a general overview of discrete-time LQR including a (dated) summary of how such models might arise and different approaches to numerically solve the Riccati equation.
+See @Athans1971 for a general discussion of the philosophical approach of approximating general stochastic control problems as linear quadratic models. See @Dorato1971 for a general overview of discrete-time LQR including a summary of how such models might arise and different (dated) approaches to numerically solve the Riccati equation.
 Deterministic LQR model for continuous time systems was proposed in @Kalman1960b. The proof idea of completion of squares is due to @Astrom1970 but we loosely follow the proof outlines adapted from @Afshari2023.
 
 @exr-lqr-noise-coupled is modified from the proof idea used in @Arabneydi2016 and @Gao2022.
