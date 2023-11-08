@@ -271,10 +271,11 @@ function lsim(x_init, sys, K, T, σ²)
     dx, du = size(B,1), size(B,2)
     x = [zeros(dx,1) for t in 1:T]
     u = [zeros(du,1) for t in 1:T-1]
+    w = rand(W,T-1)
     x[1][:] = x_init
     for t = 1:T-1
         u[t] = -K[t]*x[t] 
-        x[t+1] = sys.A * x[t] + sys.B * u[t] + sys.B * rand(W)
+        x[t+1] = sys.A * x[t] + sys.B * u[t] + sys.B * w[t]
     end
     return (x,u)
 end
@@ -312,7 +313,7 @@ $$
   \quad\text{and}\quad
   R = ρ
 $$
-We assume $m = 1\,\text{kg}$, $Δt = 0.1\,\text{sec}$ and noise covariance $σ^2 = 0.05$. The output (i.e., position) and the input (i.e., force) for a $T = 10\,\text{sec}$ simulation of the system are shown in @fig-lqr-integrator. Note that, as expected, as the cost of applying control increases, less force is applied and it takes longer for the position to become close to zero. 
+We assume $m = 1\,\text{kg}$, $Δt = 0.1\,\text{s}$ and noise covariance $σ^2 = 0.05$. The output (i.e., position) and the input (i.e., force) for a $T = 10\,\text{s}$ simulation of the system are shown in @fig-lqr-integrator. Note that, as expected, as the cost of applying control increases, less force is applied and it takes longer for the position to become close to zero. 
 
 ```{julia}
 #| output: true
