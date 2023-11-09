@@ -5,7 +5,6 @@ keywords:
   - Riccati equation
   - completion of squares
 execute:
-  eval: true
   echo: false
   freeze: true
 ---
@@ -349,7 +348,10 @@ $$
   \quad\text{and}\quad
   R = ρ
 $$
-We assume $m = 1\,\text{kg}$, $Δt = 0.1\,\text{s}$ and noise covariance $σ^2 = 0.05$. The output (i.e., position) and the input (i.e., force) for a $T = 10\,\text{s}$ simulation of the system are shown in @fig-lqr-integrator. Note that, as expected, as the cost of applying control increases, less force is applied and it takes longer for the position to become close to zero. 
+
+### Regulation {-}
+
+We first solve the regulation problem. Assume $m = 1\,\text{kg}$, $Δt = 0.1\,\text{s}$ and noise covariance $σ^2 = 0.05$. The output (i.e., position) and the input (i.e., force) for a $T = 10\,\text{s}$ simulation of the system are shown in @fig-lqr-integrator. Note that, as expected, as the cost of applying control increases, less force is applied and it takes longer for the position to become close to zero. 
 
 ```{julia}
 #| output: true
@@ -417,6 +419,75 @@ ForcePlot = Plot.plot({
   ]}
 )
 ```
+
+### Tracking {-}
+
+We now solve the tracking problem. Conisder the same parameters as before. We consider tracking a "square-wave" tracking signal. The output (i.e., position) and the input (i.e., force) for a $T = 60\,\text{s}$ simulation of the system are shown in @fig-lqr-tracking.
+
+```{julia}
+using LinearAlgebra: I
+
+T = 600
+r = zeros(T,2)
+r[201:400,1] .= 1
+
+Ao = [A zeros(2,1); zeros(1,2) 1]
+Bo = [B; 0]
+Qo = [ [I -r[t,:]]'*Q*[I -r[t,:]] for t in 1:T-1 ]
+QTo = [I -r[T,:]]'*QT*[I -r[T,:]]
+
+dfo = DataFrame(time=Float64[], position=Float64[], velocity=Float64[], force=Float64[], reference=Float64[],R=Float64[])
+allowmissing!(dfo, :force)
+
+for ρ in R
+    Po, Ko = LQR(Ao,Bo,Qo,ρ,QTo,T)
+    x, u = lsim([1;0;1], Ao, Bo, Ko, T, σ2)
+
+    for t = 1:T-1
+        push!(dfo, (t*Δt, x[t][1], x[t][2], u[t][1], r[t][1], ρ))
+    end
+    push!(dfo, (T*Δt, x[T][1], x[T][2], missing, r[T][1], ρ))
+end
+
+ojs_define(tracking = dfo)
+```
+
+```{ojs}
+viewof Ro = Inputs.range([0.1, 2.5], {label: "R", step: 0.1, value: 0.1 })
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| label: fig-lqr-tracking
+//| fig-cap: Optimal regulation of second order integrator for different choices of control cost
+//| fig-subcap:
+//|     - Position over time (the red curve denotes the reference)
+//|     - Force over time
+PositionPloto = Plot.plot({
+  grid: true,
+  y: { domain: [-0.25, 1] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(tracking.filter(d => d.R == Ro), {x: "time", y: "reference", curve:"step-after", stroke: "red"}),
+    Plot.line(tracking.filter(d => d.R == Ro), {x: "time", y: "position", curve:"step-after"}),
+  ]}
+)
+ForcePloto = Plot.plot({
+  grid: true,
+  y: { domain: [-3, 0.5] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(tracking.filter(d => d.R == R), {x: "time", y: "force", curve: "step-before"}),
+  ]}
+)
+```
+
 
 ## Exercises {-}
 
