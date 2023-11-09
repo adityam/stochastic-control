@@ -36,12 +36,12 @@ where $c(x_t, u_t)$ is the per-step cost and $c_T(x_T)$ is the terminal cost. De
 
 
 
-- **Tracking problem** where it is assumed that the system has an output $y_t = C x_t$ and the objective is to keep the output of the system close to a pre-specified trajectory $\{y^\circ_t\}_{t=1}^T$. These are modeled by considering the per-step cost as
+- **Tracking problem** where it is assumed that the system has an output $y_t = C x_t$ and the objective is to keep the output of the system close to a pre-specified trajectory $\{r_t\}_{t=1}^T$. These are modeled by considering the per-step cost as
   $$ \begin{align*}
-    c_t(x_t, u_t) &= (Cx_t - y^\circ_t)^\TRANS Q (Cx_t - y^\circ_t) + u_t^\TRANS R u_t
+    c_t(x_t, u_t) &= (Cx_t - r_t)^\TRANS Q (Cx_t - r_t) + u_t^\TRANS R u_t
     \\
     \text{and}\quad
-    c_T(x_T) &= (C_Tx_T - y^\circ_T)^\TRANS Q_T (C_Tx_T - y^\circ_T).
+    c_T(x_T) &= (C_Tx_T - r_T)^\TRANS Q_T (C_Tx_T - r_T).
   \end{align*} $$
 
 There are various methods to obtain the optimal controller for LQR: dynamic programming, Lagrange multipliers (co-state), and others. Departing from the dynamic programming approach taken in the rest of these notes, in this section we present the solution of LQR using an elementary algebraic technique called **completion of squares**.
@@ -177,8 +177,10 @@ $$
 We will use the notation:
 $$
   K_{1:T-1} = \LQR_T(A,B,Q,R;Q_T)
+  \quad\hbox{or}\quad
+  (K_{1:T-1}, P_{1:T}) = \LQR_T(A,B,Q,R;Q_T)
 $$
-to denote the LQR gains $K_{1:T-1}$ computed via \eqref{eq:riccati} and \eqref{eq:gain}.
+to denote the LQR gains $K_{1:T-1}$ and $P_{1:T}$ computed via \eqref{eq:riccati} and \eqref{eq:gain}.
 :::
 
 :::{.callout-note collapse="false"} 
@@ -223,12 +225,12 @@ Now, an immediate implication of @prp-completion-of-squares is the following:
 
 ## LQ tracking of a reference trajectory
 
-Now we consider the tracking problem. For simplicity, we will consider state tracking rather than output tracking. That is, we are given a pre-specified trajectory $\{x^\circ_t\}_{t=1}^T$ and the objective is to minimize a per-step cost given by
+Now we consider the tracking problem. We are given a pre-specified trajectory $\{r_t\}_{t=1}^T$ and the objective is to minimize a per-step cost given by
   $$ \begin{align*}
-    c_t(x_t, u_t) &= (x_t - x^\circ_t)^\TRANS Q (x_t - x^\circ_t) + u_t^\TRANS R u_t
+    c_t(x_t, u_t) &= (C x_t - r_t)^\TRANS Q (x_t - r_t) + u_t^\TRANS R u_t
     \\
     \text{and}\quad
-    c_T(x_T) &= (x_T - x^\circ_T)^\TRANS Q_T (x_T - x^\circ_T).
+    c_T(x_T) &= (x_T - r_T)^\TRANS Q_T (x_T - r_T).
   \end{align*} $$
 
 The simplest way to derive a solution to the tracking problem is to convert it to a regulation problem by using state augmentation. In particular, define $z_t = \VEC(x_t, 1)$. Then per-step cost is quadratic in $z_t$:
@@ -238,9 +240,9 @@ $$
   ,
   \quad\text{where }
   \bar Q = 
-  \MATRIX{I & -x^∘_t}^\TRANS
+  \MATRIX{C & -r_t}^\TRANS
   Q
-  \MATRIX{I & -x^∘_t}.
+  \MATRIX{I & -r_t}.
 $$
 Moreover, $z_t$ has linear dynamics of the form:
 $$
@@ -255,12 +257,23 @@ Thus, we can compute the optimal gains using the solution of the regulation prob
 $$
 \bar K_{1:T-1} = \LQR_T(\bar A, \bar B, \bar Q_{1:T}, R).
 $$
-Let $\bar K_t \eqqcolon \MATRIX{K_t & u^\circ_t}$. Then, the optimal control is of the form:
+It can be shown [@Lewis2012] that the optimal control can be written as
 $$
-  u_t = - \bar K_t z_t = - K_t x_t - u^\circ_t 
+  u_t = \bar K_t z_t = - K_t x_t + K ^∘_t v_{t+1}
 $$
-
-It can be shown that the gain $K_t$ s the same gain as $\LQR_T(A,B,Q,R;Q_T)$. Thus, qualitatively, the tracking control input is equal to the regulation control input plus a correction term. 
+where 
+\begin{align*}
+  (K_{1:T-1}, P_{1:T}) &= \LQR_T(A,B,C^\TRANS Q C,R; C^\TRANS Q_T C),
+  \\
+  K ^∘_t &= (R + B^\TRANS P_{t+1} B)^{-1} B^\TRANS,
+\end{align*}
+and
+$v_{1:T}$ is computed backwards by solving
+$$
+  v_t = (A - BK_t)^\TRANS v_{t+1} + C^\TRANS Q r_t,
+  \quad
+  v_T = C^\TRANS Q r_T.
+$$
 
 ## An example: second order integrator
 
@@ -422,7 +435,7 @@ ForcePlot = Plot.plot({
 
 ### Tracking {-}
 
-We now solve the tracking problem. Conisder the same parameters as before. We consider tracking a "square-wave" tracking signal. The output (i.e., position) and the input (i.e., force) for a $T = 60\,\text{s}$ simulation of the system are shown in @fig-lqr-tracking.
+We now solve the tracking problem. Conisder the same parameters as before. We consider tracking a "square-wave" signal. The output (i.e., position) and the input (i.e., force) for a $T = 60\,\text{s}$ simulation of the system are shown in @fig-lqr-tracking.
 
 ```{julia}
 using LinearAlgebra: I
@@ -525,7 +538,7 @@ u^2_t = - K^2_t x^2_t
 $$
 where the gains $K^1_t$ and $K^2_t$ are obtained by solving two separate Riccati equations. 
 
-_Hint_: There are two ways to solve this problem. An algebriac method using where one can argue that the Riccati gain $P$ is diagonal and a simpler method that uses certainty equivalence. 
+_Hint_: There are two ways to solve this problem. An algebraic method using where one can argue that the Riccati gain $P$ is diagonal and a simpler method that uses certainty equivalence. 
 :::
 
 
