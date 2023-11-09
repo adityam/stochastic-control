@@ -56,7 +56,7 @@ In the rest of these notes, we consider a slight generalization of LQ regulation
 \end{equation}
 where the matrix $\MATRIX{Q & S \\ S^\TRANS & R}$ is symmetric and positive semi-definite and $R$ is symmetric and positive definite.
 
-## Completion of squares
+## Solution to linear quadratic regulation
 
 We start from a simple observation.
 
@@ -95,7 +95,7 @@ $$
 The proof follows immediately by completing the square on the left hand side. In particular
 \begin{align*}
 & u^\TRANS R u + 2 x^\TRANS S u +  (Ax+Bu)^\TRANS P (Ax + Bu) \\
-& \quad = u^\TRANS (R + B^\TRANS S B) u + 2 u^\TRANS( S^\TRANS + B^\TRANS P A) x 
+& \quad = u^\TRANS (R + B^\TRANS P B) u + 2 u^\TRANS( S^\TRANS + B^\TRANS P A) x 
   + x^\TRANS A^\TRANS P A x \\
 & \quad = u^\TRANS Δ u + 2 u^\TRANS Δ K x + x^\TRANS A^\TRANS P A x \\
 & \quad = 
@@ -220,6 +220,46 @@ Now, an immediate implication of @prp-completion-of-squares is the following:
      \quad τ \ge t,
    $$
    where $w_{τ|t}$ is $\EXP[ w_{\tau} \mid w_{1:t} ]$. That is, at time $t$, one replaces future stochastic noise $w_τ$ ($τ \ge t$) by an 'equivalent' deterministic noise $w_{τ|t}$ and then applies the method of deterministic LQR to deduce the optimal feedback control in terms of the predicted noise. This is also a special instance of the general **certainty equivalence principle**, which also extends to the case when the state is not perfectly observed. 
+
+## LQ tracking of a reference trajectory
+
+Now we consider the tracking problem. For simplicity, we will consider state tracking rather than output tracking. That is, we are given a pre-specified trajectory $\{x^\circ_t\}_{t=1}^T$ and the objective is to minimize a per-step cost given by
+  $$ \begin{align*}
+    c_t(x_t, u_t) &= (x_t - x^\circ_t)^\TRANS Q (x_t - x^\circ_t) + u_t^\TRANS R u_t
+    \\
+    \text{and}\quad
+    c_T(x_T) &= (x_T - x^\circ_T)^\TRANS Q_T (x_T - x^\circ_T).
+  \end{align*} $$
+
+The simplest way to derive a solution to the tracking problem is to convert it to a regulation problem by using state augmentation. In particular, define $z_t = \VEC(x_t, 1)$. Then per-step cost is quadratic in $z_t$:
+$$
+  c(z_t, u_t) = 
+  z^\TRANS \bar Q z + u^\TRANS R u
+  ,
+  \quad\text{where }
+  \bar Q = 
+  \MATRIX{I & -x^∘_t}^\TRANS
+  Q
+  \MATRIX{I & -x^∘_t}.
+$$
+Moreover, $z_t$ has linear dynamics of the form:
+$$
+  z_{t+1} = \bar A z_t + \bar B u_t + \bar B w_t
+  ,
+  \quad\hbox{where }
+  \bar A = \MATRIX{A & 0 \\ 0 & I}
+  \hbox{ and }
+  \bar B = \MATRIX{B \\ 0}.
+$$
+Thus, we can compute the optimal gains using the solution of the regulation problem (with time-varying cost):
+$$
+\bar K_{1:T-1} = \LQR_T(\bar A, \bar B, \bar Q_{1:T}, R).
+$$
+Let $\bar K_t \eqqcolon \MATRIX{K_t & u^\circ_t}$. Then, the optimal control is of the form:
+$$
+  u_t = - \bar K_t z_t
+  % = - K_t x_t - u^\circ_t 
+$$
 
 ## An example: second order integrator
 
