@@ -276,20 +276,7 @@ end
 using Distributions: Normal
 using DataFrames
 
-mutable struct SSModel
-    A :: AbstractMatrix
-    B :: AbstractVecOrMat
-end
-
-mutable struct SSCost
-    Q
-    R
-    S
-    QT
-end
-
-function riccati_update(P::AbstractMatrix, sys:: SSModel, cost :: SSCost)
-  A, B, Q, R, S = sys.A, sys.B, cost.Q, cost.R, cost.S
+function riccati_update(P,A,B,Q,R)
   Δ = R  + B' * P * B
   Λ = S' .+ B' * P * A
   K = Δ \ Λ
@@ -297,18 +284,25 @@ function riccati_update(P::AbstractMatrix, sys:: SSModel, cost :: SSCost)
   return (P_new, K)
 end
 
-function LQR(sys :: SSModel, cost :: SSCost, T :: Int)
-   P = [ zeros(size(sys.A))   for t in 1:T ]
-   K = [ zeros(size(sys.B'))  for t in 1:T-1 ]
+function LQR(A,B,Q,R,QT,T)
+   P = [ zeros(size(A))   for t in 1:T ]
+   K = [ zeros(size(B'))  for t in 1:T-1 ]
 
-   P[T] = cost.QT
-   for t in T-1:-1:1
-      P[t], K[t] = riccati_update(P[t+1], sys, cost)
+   P[T] = QT
+   if size(Q,1) == size(Q,2)
+     # Q is a square matrix, so constant for all times
+     for t in T-1:-1:1
+        P[t], K[t] = riccati_update(P[t+1], A, B, Q, R)
+     end
+   else # assume Q is a vector of matrices
+     for t in T-1:-1:1
+        P[t], K[t] = riccati_update(P[t+1], A, B, Q[t], R)
+     end
    end
    return (P,K)
 end
 
-function lsim(x_init, sys, K, T, σ²)
+function lsim(x_init, A, B, K, T, σ²)
     W = Normal(0, σ²)
     dx, du = size(B,1), size(B,2)
     x = [zeros(dx,1) for t in 1:T]
@@ -317,7 +311,7 @@ function lsim(x_init, sys, K, T, σ²)
     x[1][:] = x_init
     for t = 1:T-1
         u[t] = -K[t]*x[t] 
-        x[t+1] = sys.A * x[t] + sys.B * u[t] + sys.B * w[t]
+        x[t+1] = A * x[t] + B * u[t] + B * w[t]
     end
     return (x,u)
 end
@@ -377,11 +371,8 @@ df = DataFrame(time=Float64[], position=Float64[], velocity=Float64[], force=Flo
 allowmissing!(df, :force)
 
 for ρ in R
-    sys = SSModel(A,B)
-    cost = SSCost(Q,ρ,S,QT)
-
-    P, K = LQR(sys, cost, T)
-    x, u = lsim([1;0], sys, K, T, σ2)
+    P, K = LQR(A,B,Q,ρ,QT,T)
+    x, u = lsim([1;0], A, B, K, T, σ2)
 
     for t = 1:T-1
         push!(df, (t*Δt, x[t][1], x[t][2], u[t][1], ρ))
