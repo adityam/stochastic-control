@@ -1,0 +1,203 @@
+---
+title: Certainty equivalence
+keywords:
+  - certainty equivalence
+---
+
+In the previous sections, we considered ways to solve the stochastic optimization problem 
+\begin{equation}\label{eq:cost}
+  J^* = \min_{a \in \ALPHABET A} \EXP[ c(a,W) ],
+\end{equation}
+where $W \sim μ$.
+Let $J(a) = \EXP[ c(a,W) ]$. As mentioned earlier, solving the above problem is computationally difficult because we need to compute an expectation for every choice of action. In this section, we present an approximate design technique, known as **certainty equivalence**, which circumvents this difficulty. 
+
+The key idea behind certainty equivalence is the following. Instead of solving \eqref{eq:cost}, we assume that the random variable $W$ takes its mean value $w_\circ = \EXP[ W ]$ and solve the optimization problem
+\begin{equation}\label{eq:CE}
+  \min_{a \in \ALPHABET A} c(a, w_\circ).
+\end{equation}
+Let $a_\circ$ denote the arg min of \eqref{eq:CE}. The certainty equivalence control is using $a_\circ$ in \eqref{eq:cost}.
+
+## The quadratic case
+
+
+To understand the intuition behind certainty equivalence, consider the special case when $c(a,w)$ is quadratic, say $\NORM{ a - w}_2^2$. 
+
+::: {#prp-CE}
+For quadratic cost,
+$$ J(a_0) = J^*. $$
+:::
+
+::: {.callout-note collapse="true"}
+#### Proof
+We have that
+\begin{align*}
+\EXP[ \NORM{ a - W }_2^2 ] 
+&=
+\EXP[ \NORM{ a - w_\circ + w_\circ - W }_2^2 ]
+\\
+&= 
+\NORM{ a - w_\circ }_2^2 + \EXP[ \NORM{ w_\circ - W }_2^2 ]
++ \EXP[ (a - w_\circ)^\TRANS (w_\circ - W) ]
+\\
+&=
+\NORM{ a - w_\circ }_2^2 + \EXP[ \NORM{ w_\circ - W }_2^2 ]
+\end{align*}
+Thus, $J(a)$ and $\NORM{a - w_\circ}_2^2$ have the same minimizer.
+:::
+
+
+## An approximation bound {#bounds}
+
+Now we consider the case when $c(a,w) = \NORM{a - w}$ for some norm $\NORM{\cdot}$.
+
+We some state some basic properties of the quantities:
+
+- **(P1).** By definition of $a_\circ$, we have
+  $$ \NORM{ a_\circ - w_\circ } \le \NORM{a - w_\circ},
+  \quad \forall a \in \ALPHABET A.
+  $$
+
+- **(P2)**. By triangle inequaity, every norm is convex. Thus, by Jensen's inequality, we have
+  $$
+  \NORM{ a - w_\circ}
+  =
+  \NORM{ \EXP[ a - W] } 
+  \le
+  \EXP[ \NORM { a - W} ] 
+  =
+  J(a).
+  $$
+
+
+::: {#prp-CE-basic}
+$$ J^\star \le J(a_\circ) \le 3 J^\star. $$
+:::
+
+::: {.callout-note collapse="true"}
+#### Proof
+
+The first inequality is trivial since $J^\star$ is the optimal value. So, we will prove the second inequality. 
+
+Note that
+\begin{align*}
+  \NORM{ a_\circ - w} 
+  &\stackrel{(a)}\le \NORM{ a_\circ - w_\circ }
+  + \NORM{ w_\circ - a } + \NORM { a - w }
+  \\
+  &\stackrel{(b)}\le  2 \NORM{ a - w_\circ } + \NORM{ a - w }
+  \\
+  &\stackrel{(c)}\le 2 J(a) + \NORM{ a - w }
+\end{align*}
+where $(a)$ follows from triangle inequality, $(b)$ follows from (P1) and $(c)$ follows from (P2).
+
+Taking expectations of both sides, we get that 
+$$
+ J(a_\circ) \le 3 J(a).
+$$
+Taking infimum over $a$, we get the result.
+:::
+
+The following two examples show that the bound is sharp.
+
+::: {#exm-certainty-equivalence-1}
+Suppose the variables take value in $\reals^2$ and the norm is $\ell_1$ norm. Let $\ALPHABET A = \{ (x,y) : y - x = 1 \}$ and $W = (-1, 0)$ with probability $1-ε$ and $W = ( (1/ε) - 1, 0)$ with probability $ε$. We can verify that $J^* = 1$.
+
+Take $w_\circ = \EXP[W] = (0,0)$. Then $a_\circ = (0,1)$ and $J(a_\circ) = 3 - 2 ε$. 
+:::
+
+::: {#exm-certainty-equivalence-2}
+Suppose the variables take value in $\reals$. Let $\ALPHABET A = \{-1, +1 \}$. Let $W = -1$ with probability $1 - ε$ and $W = (1/ε) -1$ with probability $ε$. We can verify that $J^* = 1$.
+
+Take $w_\circ = \EXP[W] = 0$. Then $a_\circ = +1$ and $J(a_\circ) = 3 - 4 ε$.
+:::
+
+
+Although the examples above show that the upper bound is tight, we can derive tighter bounds under stronger assumptions. See @Witsenhausen1969 for details.
+
+<!--
+We will consider the following set of assumptions:
+
+- **Assumption (C).** The set $\ALPHABET A$ is complex.
+- **Assumption (P).** The norm $\NORM{\cdot}$ satisfies the parallelogram law:
+  $$
+    \NORM{ x + y }^2 + \NORM{ x - y }^2 = 2 \NORM{\mathstrut x}^2 + 2 \NORM{y}^2
+  $$
+  Under Assumption (P), we can define an inner product
+  $$
+    \langle x, y \rangle = \frac{ \NORM{ x + y}^2 - \NORM{ x - y}^2 }{4}.
+  $$
+  and thus, 
+  $$
+    \NORM{ x + y }^2 = \NORM{ x }^2 + \NORM{ y }^2 + 2 \langle x, y \rangle.
+  $$
+
+- **Assumption (S).** The mean $w_\circ$ is the center of symmetry for the measure $μ$, i.e., for any Borel set $B$, 
+  $$
+    μ(G) = μ(2w_\circ - G).
+  $$
+  Assumption (S) implies that 
+  $$
+      J(a) = J(2w_\circ - x).
+  $$
+
+Note that @exm-certainty-equivalence-1 satisfies Assumption (C) while @exm-certainty-equivalence-2 satisfies Assumption (P). Thus, the upper bound of @prp-CE-basic cannot be strengthened under just Assumption (C) or just Assumption (P). But it can be strengthened if both assumptions hold.
+
+
+::: {#prp-CE-C-and-P}
+Under Assumptions (C) and (P), we have
+$$ J^\star \le J(a_\circ) \le 2 J^\star. $$
+:::
+
+::: {.callout-note collapse="false"}
+Consider any $a \in \ALPHABET A$. Since $a_\circ \in \ALPHABET A$ and $\ALPHABET A$ is convex, $λ a_\circ + (1-λ)a \in \ALPHABET A$. Moreover, since $a_\circ$ minimizes $\NORM{a - w_\circ}$ over all $a \in \ALPHABET A$, we have
+$$
+  \NORM{a_\circ - w_\circ} \le 
+  \NORM{λ a_\circ + (1-λ) a - w_\circ},
+  \quad
+  \forall λ \in [0,1].
+$$
+Now consider,
+\begin{align*}
+2 \NORM{ a_\circ - \frac{a + w_\circ}{2} }
++
+2 \NORM{ ... }
+&=
+\NORM{ a - w_\circ }
+\end{align*}
+
+For any $a \in \ALPHABET A$,
+\begin{align}
+\NORM{ a - w_\circ }^2 &=
+\NORM{ (a - a_\circ) + (a_\circ - w_\circ) }^2 \notag \\
+&\stackrel{(a)}= \NORM{ a - a_\circ}^2 + \NORM { w_\circ - a_\circ }^2 
++ 2 \langle a - a_\circ, a_\circ - w_\circ \rangle
+\label{eq:CE-2-1}
+\end{align}
+where $(a)$ follows from Assumption (P).
+
+Now, by the definition of inner-product, we have
+\begin{align*}
+\langle a - a_\circ, a_\circ - w_\circ \rangle
+&= \tfrac 14 \bigl[
+\NORM{a - w_\circ}^2 - \NORM{ a + w_\circ - 2 a_\circ }^2 \bigr]
+\\
+&\stackrel{(b)}\ge\tfrac 14 \bigl[
+\NORM{a_\circ - w_\circ}^2
+-
+\NORM{ a + w_\circ - 2 a_\circ }^2 
+\bigr]
+\end{align*}
+where $(b)$ follows from the fact that $a_\circ$ minimizes $\NORM{a - w_\circ}$, i.e., $\NORM{a_\circ - w_\circ} \le \NORM{a - w_\circ}$.
+
+:::
+-->
+
+
+## Notes {-}
+
+The term _certainty equivalence_ is due to @Simon1956. A similar result had earlier been shown by @Theil1954. See notes on [LQR] for more general instance of certainty equivalence for quadratic cost.
+
+[LQR]: ../linear-systems/lqr.qmd
+
+The material for the bounds in the general case is based on @Witsenhausen1969. For a significant generalization of these results, see @Witsenhausen1970. For a bound on certainty equivalent decision rules in multi-stage problems, see @Bozkurt2023.
+
