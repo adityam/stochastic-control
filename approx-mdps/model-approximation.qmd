@@ -23,17 +23,19 @@ respectively. Moreover, let $π^*$ and $\hat π^*$ be optimal policies for the
 true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$,
 respectively. 
 
-We are interested in two questions:
+We are interested in the following questions:
 
-1. **Error in value approximation:** What is the error if $\hat V^*$ is used
+1. **Policy error bounds:** Given a policy $π$, what is the error if $\hat V^π$ is used as an approximation for $V^π$?
+
+2. **Value error bounds:** What is the error if $\hat V^*$ is used
    as an approximation for $V^*$?
 
-2. **Error in policy approximation:** What is the error if the policy $\hat
+3. **Model error approximation:** What is the error if the policy $\hat
    π^*$ is used instead of the optimal policy $π^*$
 
 ## Bounds for model approximation
 
-### Bounding the error for value function approximation {#value-error}
+### Policy and value error bounds {#value-error}
 
 Let $\BELLMAN^π$ and $\BELLMAN^*$ denote the Bellman operator for policy
 $π$ and the optimality Bellman operator for model $\ALPHABET M$. Let $\hat
@@ -66,9 +68,11 @@ The following inequalities hold:
 The Bellman mismatch functional can be used to bound the performance difference of
 a policy between the true and approximate models.
 
-:::{#lem-mismatch-policy-bound}
+:::{#prp-policy-error}
+#### Policy error
+
 For any (possibly randomized) policy $π$, 
-\begin{equation}\label{eq:bound-0}
+\begin{equation}\label{eq:policy-error}
    \| V^{π} - \hat V^{π} \|_∞ \le 
    \frac{1}{1-γ} \min\{ \MISMATCH^π V^{π}, \MISMATCH^π \hat V^{π} \}. 
 \end{equation}
@@ -76,7 +80,7 @@ For any (possibly randomized) policy $π$,
 
 :::{.callout-note collapse="true"}
 #### Proof {-}
-We bound the left hand side of \\eqref{eq:bound-0} in two ways. The first way
+We bound the left hand side of \\eqref{eq:policy-error} in two ways. The first way
 is as follows:
 \begin{align}
   \| V^{π} - \hat V^{π} \|_∞ 
@@ -131,10 +135,12 @@ This gives the second bound.
 Similar to the above, we can also bound the difference between the optimal
 value function of the true and approximate models. 
 
-:::{#thm-mismatch-value-bound}
+:::{#prp-value-error}
+#### Value error
+
 Let $V^*$ and $\hat V^*$ denote the optimal value functions for $\ALPHABET
 M$ and $\widehat {\ALPHABET M}$, respectively. Then,
-\begin{equation}\label{eq:bound-1}
+\begin{equation}\label{eq:value-error}
     \| V^* - \hat V^* \|_∞ \le 
     \frac{1}{1-γ} \min\{ \MISMATCH^* V^*, \MISMATCH^* \hat V^* \} 
 \end{equation}
@@ -143,7 +149,7 @@ M$ and $\widehat {\ALPHABET M}$, respectively. Then,
 :::{.callout-note collapse="true"} 
 #### Proof {-}
 The proof argument is almost the same as the proof argument for
-@lem-mismatch-policy-bound. The first was is as follows:
+@prp-policy-error. The first was is as follows:
 \begin{align}
   \| V^{*} - \hat V^{*} \|_∞ 
   &=
@@ -161,7 +167,7 @@ The proof argument is almost the same as the proof argument for
 where the first inequality follows from the triangle inequality, and the
 second inequality follows from the definition of the Bellman mismatch functional
 and the contraction property of Bellman operators. Rearranging terms
-in \\eqref{eq:ineq-3} gives us
+in \\eqref{eq:ineq-1} gives us
 \begin{equation}
 \| V^* - \hat V^* \|_∞ \le \frac{  \MISMATCH^* V^*}{1 - γ}.
 \label{eq:ineq-2}\end{equation}
@@ -192,54 +198,21 @@ Rearranging terms in \\eqref{eq:ineq-11} gives us
 This gives the second bound.
 :::
 
-### Bounding the error for policy approximation error 
+### Model error
 
-:::{#thm-mismatch-policy-bound}
-The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
-$$\begin{equation} \label{eq:bound}
-α := \| V^* - V^{\hat π^*} \|_∞ \le
-\frac{1}{1 - γ}\bigl[ Δ_1 +Δ_2 \bigr]
-\end{equation}$$
-where
-$$
- Δ_1 \le \min\{ \MISMATCH^* V^*, \MISMATCH^* \hat V^* \}
- \quad\text{and}\quad
- Δ_2 \le \min\{ \MISMATCH^{\hat π^*} V^{\hat π^*}, \MISMATCH^{\hat π^*}\hat V^{\hat π^*} \}.
-$$
-:::
-
-:::{.callout-note collapse="true"}  
-#### Proof {-}
-
-From triangle inequality we have
-$$\begin{equation} \label{eq:triangle-1}
+To bound the model error, we observe that from triangle inequality we have
+\begin{equation} \label{eq:triangle-1}
   \| V^* - V^{\hat π^*} \|_∞ \le
   \| V^* - \hat V^{\hat π^*} \|_∞ 
   + 
   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
-\end{equation}$$
-The result then follows by bounding the first term using @thm-mismatch-value-bound and
-the second term using @lem-mismatch-policy-bound.
-:::
-
-Note that depending on how we pick $\MISMATCH_1$ and $\MISMATCH_2$, we get four possible upper
-bounds and can bound $α$ by the tightest of them, i.e., 
-\begin{equation}\label{eq:combined}
-  α \le \frac{1}{1 - γ} \min\bigl\{
-  \MISMATCH^* V^* + \MISMATCH^{\hat π^*} V^{\hat π^*}, \space 
-  \MISMATCH^* V^* + \MISMATCH^{\hat π^*} \hat V^*, \space
-  \MISMATCH^* \hat V^* + \MISMATCH^{\hat π^*} V^{\hat π^*}, \space 
-  \MISMATCH^* \hat V^* + \MISMATCH^{\hat π^*} \hat V^{*} \bigr\}
 \end{equation}
-where we have used the fact that $\hat V^{\hat π^*} = \hat V^*$ to simplify
-some of the terms. 
 
-Ideally, we want an upper bound that just depends on the value function of
-true model or just on the value function of the approximate model. The last
-bound in \\eqref{eq:combined} depends just on the value function of the
-approximate model. We state it separately for ease of reference.
+@prp-policy-error and @prp-value-error provide bounds of both of the terms of \eqref{eq:triangle-1}. Choosing appropriate values for both terms gives us the following
 
-:::{#cor-mismatch-combined-bound}
+:::{#thm-model-error-hat-V-star}
+#### Model error
+
 The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
 $$
     α := \| V^* - V^{\hat π^*} \|_∞ \le
@@ -254,9 +227,11 @@ $$
 $$
 ::::
 
-In the next lemma, we develop a bound that depends just on the value function true model. 
+In some applications, it is useful to have a model-error bound that depends on $V^*$ rather than $\hat V^*$. We provide such a bound below.
 
-:::{#thm-mismatch-policy-bound2}
+:::{#thm-model-error-V-star}
+#### Model error
+
 The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
 $$
     α := \| V^* - V^{\hat π^*} \|_∞ \le
@@ -274,16 +249,9 @@ $$
 
 :::{.callout-note collapse="true"}
 #### Proof {-}
-As before, we consider the following bound by triangle inequality.
-\begin{equation} \label{eq:triangle-2}
-  \| V^* - V^{\hat π^*} \|_∞ \le
-  \| V^* - \hat V^{\hat π^*} \|_∞ 
-  + 
-  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
-\end{equation}
-We will bound the first term of \\eqref{eq:triangle-2} by @thm:value-bound.
-But instead of bounding the second term of \\eqref{eq:triangle-2} by
-@lem:bound-policy, we consider the following:
+We bound the first term of \eqref{eq:triangle-1} by @prp-value-error
+But instead of bounding the second term of \eqref{eq:triangle-1} by
+@prp-policy-error, we consider the following:
 \begin{align}
   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞ 
   &= 
@@ -307,7 +275,7 @@ where the first inequality follows from the triangle inequality and the second
 inequality follows from the definition of Bellman mismatch functional and
 contraction property of Bellman operator. 
 
-Substituting \\eqref{eq:ineq-21} in \\eqref{eq:triangle-2} and rearranging
+Substituting \eqref{eq:ineq-21} in \eqref{eq:triangle-1} and rearranging
 terms, we get
 \begin{align}
   \| V^* - V^{\hat π^*} \|_∞ 
@@ -321,18 +289,16 @@ terms, we get
   + 
   \frac{(1+γ)}{(1-γ)^2} \MISMATCH^* V^* .
 \end{align}
-where the second inequality follows from @thm-mismatch-value-bound.
+where the second inequality follows from @prp-value-error.
 :::
 
 :::{.callout-warning}
 ### Remark:
-Note that the bound of @cor-mismatch-combined-bound is tighter by a factor of
-$1/(1-γ)$, but this bound is in terms of $\hat V^*$. In some settings, we
-prefer a bound in terms of $V^*$. Using @thm-mismatch-policy-bound2 in such
-settings leads to scaling by $1/(1-γ)$. 
+Note that the bound of @thm-model-error-V-star is tighter by a factor of $1/(1-γ)$ but that bound is in terms of $\hat V^*$. In some settings, 
+a bound in terms of $V^*$ is more desirable. Using @thm-model-error-hat-V-star in such settings leads to scaling by $1/(1-γ)$. 
 :::
 
-
+<!--
 ## Example: State aggregation (or discretization or quantization)
 
 Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, p, c, γ
@@ -362,7 +328,8 @@ We consider a finite state MDP $\widehat {\ALPHABET M} = \langle \hat
 restriction of $c$ onto $\hat {\ALPHABET S}$, and $\hat P$ is given by 
 
 $$\hat P(\hat s_j | \hat s_i, a) =
-\int_{\ALPHABET S_j} P(s' | \hat s_i, a) ds' = P(\ALPHABET S_j | \hat s_i, a).
+\int_{\ALPHABET S_j} P(s' | \hat s_i, a) ds' = P(\ALPHABET S_j | \hat s_i, a),
+\quad \forall \hat s_i, \hat s_j \in \hat {\ALPHABET S}.
 $$
 
 
@@ -392,7 +359,7 @@ We have the following property for the $\bar p$ dynamics:
 :::{#lem-aggregation-models}
 For any $\hat V \colon \hat {\ALPHABET S} \to \reals$, let $V \colon
 \ALPHABET S \to \reals$ be its piecewise constant extrapolation from
-$\hat {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V(s) = \hat V(\phi(s))$).
+$\hat {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ \phi$).
 Then, for any $\hat s \in \ALPHABET S$ and $a \in \ALPHABET A$, we have
 $$
 \int_{\ALPHABET S_j} \bar p(s'|\hat s, a) V(s') ds' 
@@ -560,15 +527,15 @@ Proposition #prop:policy-aggregation
 
 :::
 
-<details><!--{{{ Proof -->
-<summary>
 #### Proof {-}
-</summary>
 <div>
 The first bound follows from @thm:policy-bound2, with the additional
 observation that $H_{\max} \le \NORM{V^*}_L D$. 
 
 For the second result follows from simple algebra.
 </div>
-</details><!--}}}-->
+-->
 
+## Notes {-}
+
+The material in this section is adapted from @Bozkurt2023, where the results were presented for unbounded per-step cost.
