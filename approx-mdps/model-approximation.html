@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-07-28">
+<meta name="dcterms.date" content="2023-12-17">
 <meta name="keywords" content="infinite horizon, discounted cost, Lipschitz continuity, approximation bounds, state aggregation">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -24,7 +24,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -560,14 +579,10 @@ window.MathJax = {
   <ul>
   <li><a href="#bounds-for-model-approximation" id="toc-bounds-for-model-approximation" class="nav-link active" data-scroll-target="#bounds-for-model-approximation"><span class="header-section-number">22.1</span> Bounds for model approximation</a>
   <ul class="collapse">
-  <li><a href="#value-error" id="toc-value-error" class="nav-link" data-scroll-target="#value-error"><span class="header-section-number">22.1.1</span> Bounding the error for value function approximation</a></li>
-  <li><a href="#bounding-the-error-for-policy-approximation-error" id="toc-bounding-the-error-for-policy-approximation-error" class="nav-link" data-scroll-target="#bounding-the-error-for-policy-approximation-error"><span class="header-section-number">22.1.2</span> Bounding the error for policy approximation error</a></li>
+  <li><a href="#value-error" id="toc-value-error" class="nav-link" data-scroll-target="#value-error"><span class="header-section-number">22.1.1</span> Policy and value error bounds</a></li>
+  <li><a href="#model-error" id="toc-model-error" class="nav-link" data-scroll-target="#model-error"><span class="header-section-number">22.1.2</span> Model error</a></li>
   </ul></li>
-  <li><a href="#example-state-aggregation-or-discretization-or-quantization" id="toc-example-state-aggregation-or-discretization-or-quantization" class="nav-link" data-scroll-target="#example-state-aggregation-or-discretization-or-quantization"><span class="header-section-number">22.2</span> Example: State aggregation (or discretization or quantization)</a>
-  <ul class="collapse">
-  <li><a href="#an-intermediate-model" id="toc-an-intermediate-model" class="nav-link" data-scroll-target="#an-intermediate-model"><span class="header-section-number">22.2.1</span> An intermediate model</a></li>
-  <li><a href="#approximation-bounds" id="toc-approximation-bounds" class="nav-link" data-scroll-target="#approximation-bounds"><span class="header-section-number">22.2.2</span> Approximation bounds</a></li>
-  </ul></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/approx-mdps/model-approximation.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
@@ -602,7 +617,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 28, 2023</p>
+      <p class="date">December 17, 2023</p>
     </div>
   </div>
   
@@ -615,15 +630,16 @@ window.MathJax = {
 <p>There are many instances where approximate models are used. For example, in many applications with large state spaces, one often construct a simulation model of the system and use it to identify an optimal policy using simulation based methods (such as reinforcement learning). Often, the simulation model is only an approximation of the true model. In such instances, we want to know the error in using the policy obtained from the simulation model in the real world. In this section, we present bounds on such <em>sim-to-real</em> transfer.</p>
 <p>Consider an MDP <span class="math inline">\(\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, γ \rangle\)</span>. Suppose the components <span class="math inline">\(\langle \ALPHABET S, \ALPHABET A, γ \rangle\)</span> are known exactly but the components <span class="math inline">\((P,c)\)</span> are known approximately. Consider the approximate MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, γ \rangle\)</span>. We will call <span class="math inline">\(\ALPHABET M\)</span> to be the <em>true model</em> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span> to be the <em>approximate model</em>.</p>
 <p>Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions of the true model <span class="math inline">\(\ALPHABET M\)</span> and the approximate model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Moreover, let <span class="math inline">\(π^*\)</span> and <span class="math inline">\(\hat π^*\)</span> be optimal policies for the true model <span class="math inline">\(\ALPHABET M\)</span> and the approximate model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively.</p>
-<p>We are interested in two questions:</p>
+<p>We are interested in the following questions:</p>
 <ol type="1">
-<li><p><strong>Error in value approximation:</strong> What is the error if <span class="math inline">\(\hat V^*\)</span> is used as an approximation for <span class="math inline">\(V^*\)</span>?</p></li>
-<li><p><strong>Error in policy approximation:</strong> What is the error if the policy <span class="math inline">\(\hat π^*\)</span> is used instead of the optimal policy <span class="math inline">\(π^*\)</span></p></li>
+<li><p><strong>Policy error bounds:</strong> Given a policy <span class="math inline">\(π\)</span>, what is the error if <span class="math inline">\(\hat V^π\)</span> is used as an approximation for <span class="math inline">\(V^π\)</span>?</p></li>
+<li><p><strong>Value error bounds:</strong> What is the error if <span class="math inline">\(\hat V^*\)</span> is used as an approximation for <span class="math inline">\(V^*\)</span>?</p></li>
+<li><p><strong>Model error approximation:</strong> What is the error if the policy <span class="math inline">\(\hat π^*\)</span> is used instead of the optimal policy <span class="math inline">\(π^*\)</span></p></li>
 </ol>
 <section id="bounds-for-model-approximation" class="level2" data-number="22.1">
 <h2 data-number="22.1" class="anchored" data-anchor-id="bounds-for-model-approximation"><span class="header-section-number">22.1</span> Bounds for model approximation</h2>
 <section id="value-error" class="level3" data-number="22.1.1">
-<h3 data-number="22.1.1" class="anchored" data-anchor-id="value-error"><span class="header-section-number">22.1.1</span> Bounding the error for value function approximation</h3>
+<h3 data-number="22.1.1" class="anchored" data-anchor-id="value-error"><span class="header-section-number">22.1.1</span> Policy and value error bounds</h3>
 <p>Let <span class="math inline">\(\BELLMAN^π\)</span> and <span class="math inline">\(\BELLMAN^*\)</span> denote the Bellman operator for policy <span class="math inline">\(π\)</span> and the optimality Bellman operator for model <span class="math inline">\(\ALPHABET M\)</span>. Let <span class="math inline">\(\hat {\BELLMAN}^π\)</span> and <span class="math inline">\(\hat {\BELLMAN}^*\)</span> denote the corresponding quantities for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>. Define the <em>Bellman mismatch functionals</em> <span class="math inline">\(\MISMATCH^π\)</span> and <span class="math inline">\(\MISMATCH^*\)</span> as follows: <span class="math display">\[\begin{align*}
   \MISMATCH^π v &amp;= \| \BELLMAN^π v - \hat {\BELLMAN}^π v \|_∞,
   \\
@@ -645,8 +661,8 @@ window.MathJax = {
 </ul>
 </div>
 <p>The Bellman mismatch functional can be used to bound the performance difference of a policy between the true and approximate models.</p>
-<div id="lem-mismatch-policy-bound" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 22.2 </strong></span>For any (possibly randomized) policy <span class="math inline">\(π\)</span>, <span class="math display">\[\begin{equation}\label{eq:bound-0}
+<div id="prp-policy-error" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 22.1 (Policy error) </strong></span>For any (possibly randomized) policy <span class="math inline">\(π\)</span>, <span class="math display">\[\begin{equation}\label{eq:policy-error}
    \| V^{π} - \hat V^{π} \|_∞ \le
    \frac{1}{1-γ} \min\{ \MISMATCH^π V^{π}, \MISMATCH^π \hat V^{π} \}.
 \end{equation}\]</span></p>
@@ -663,7 +679,7 @@ Proof
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>We bound the left hand side of \eqref{eq:bound-0} in two ways. The first way is as follows: <span class="math display">\[\begin{align}
+<p>We bound the left hand side of \eqref{eq:policy-error} in two ways. The first way is as follows: <span class="math display">\[\begin{align}
   \| V^{π} - \hat V^{π} \|_∞
   &amp;=
   \| \BELLMAN^π V^π - \hat {\ALPHABET  B}^π \hat V^π \|_∞
@@ -701,8 +717,8 @@ Proof
 </div>
 </div>
 <p>Similar to the above, we can also bound the difference between the optimal value function of the true and approximate models.</p>
-<div id="thm-mismatch-value-bound" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 22.1 </strong></span>Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions for <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Then, <span class="math display">\[\begin{equation}\label{eq:bound-1}
+<div id="prp-value-error" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 22.2 (Value error) </strong></span>Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions for <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Then, <span class="math display">\[\begin{equation}\label{eq:value-error}
     \| V^* - \hat V^* \|_∞ \le
     \frac{1}{1-γ} \min\{ \MISMATCH^* V^*, \MISMATCH^* \hat V^* \}
 \end{equation}\]</span></p>
@@ -719,7 +735,7 @@ Proof
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The proof argument is almost the same as the proof argument for <a href="#lem-mismatch-policy-bound">Lemma&nbsp;<span>22.2</span></a>. The first was is as follows: <span class="math display">\[\begin{align}
+<p>The proof argument is almost the same as the proof argument for <a href="#prp-policy-error">Proposition&nbsp;<span>22.1</span></a>. The first was is as follows: <span class="math display">\[\begin{align}
   \| V^{*} - \hat V^{*} \|_∞
   &amp;=
   \| \BELLMAN^* V^* - \hat {\ALPHABET  B}^* \hat V^* \|_∞
@@ -732,7 +748,7 @@ Proof
   &amp;\le
   \MISMATCH^* V^* + γ \| V^* - \hat V^* \|_∞
   \label{eq:ineq-1}
-\end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-3} gives us <span class="math display">\[\begin{equation}
+\end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-1} gives us <span class="math display">\[\begin{equation}
 \| V^* - \hat V^* \|_∞ \le \frac{  \MISMATCH^* V^*}{1 - γ}.
 \label{eq:ineq-2}\end{equation}\]</span> This gives the first bound.</p>
 <p>The second bound is symmetric and obtained by interchanging the roles of <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span>. <span class="math display">\[\begin{align}
@@ -757,16 +773,34 @@ Proof
 </div>
 </div>
 </section>
-<section id="bounding-the-error-for-policy-approximation-error" class="level3" data-number="22.1.2">
-<h3 data-number="22.1.2" class="anchored" data-anchor-id="bounding-the-error-for-policy-approximation-error"><span class="header-section-number">22.1.2</span> Bounding the error for policy approximation error</h3>
-<div id="thm-mismatch-policy-bound" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 22.2 </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[\begin{equation} \label{eq:bound}
-α := \| V^* - V^{\hat π^*} \|_∞ \le
-\frac{1}{1 - γ}\bigl[ Δ_1 +Δ_2 \bigr]
-\end{equation}\]</span> where <span class="math display">\[
-Δ_1 \le \min\{ \MISMATCH^* V^*, \MISMATCH^* \hat V^* \}
-\quad\text{and}\quad
-Δ_2 \le \min\{ \MISMATCH^{\hat π^*} V^{\hat π^*}, \MISMATCH^{\hat π^*}\hat V^{\hat π^*} \}.
+<section id="model-error" class="level3" data-number="22.1.2">
+<h3 data-number="22.1.2" class="anchored" data-anchor-id="model-error"><span class="header-section-number">22.1.2</span> Model error</h3>
+<p>To bound the model error, we observe that from triangle inequality we have <span class="math display">\[\begin{equation} \label{eq:triangle-1}
+  \| V^* - V^{\hat π^*} \|_∞ \le
+  \| V^* - \hat V^{\hat π^*} \|_∞
+  +
+  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
+\end{equation}\]</span></p>
+<p><a href="#prp-policy-error">Proposition&nbsp;<span>22.1</span></a> and <a href="#prp-value-error">Proposition&nbsp;<span>22.2</span></a> provide bounds of both of the terms of <span class="math inline">\(\eqref{eq:triangle-1}\)</span>. Choosing appropriate values for both terms gives us the following</p>
+<div id="thm-model-error-hat-V-star" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 22.1 (Model error) </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
+    α := \| V^* - V^{\hat π^*} \|_∞ \le
+    \frac{1}{1-γ} \bigl[ \MISMATCH^* \hat V^* + \MISMATCH^{\hat
+    π^*} \hat V^* \bigr].
+\]</span> Moreover, since <span class="math inline">\(\MISMATCH^{\max} \hat V^*\)</span> is an upper bound for both <span class="math inline">\(\MISMATCH^{\hat π^*} \hat V^*\)</span> and <span class="math inline">\(\MISMATCH^* \hat V^*\)</span>, we have <span class="math display">\[
+    α \le \frac{2}{(1-γ)}  \MISMATCH^{\max}  \hat V^*.
+\]</span></p>
+</div>
+<p>In some applications, it is useful to have a model-error bound that depends on <span class="math inline">\(V^*\)</span> rather than <span class="math inline">\(\hat V^*\)</span>. We provide such a bound below.</p>
+<div id="thm-model-error-V-star" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 22.2 (Model error) </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
+    α := \| V^* - V^{\hat π^*} \|_∞ \le
+    \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
+    +
+    \frac{(1+γ)}{(1-γ)^2} \MISMATCH^* V^* .
+\]</span></p>
+<p>Moreover, since <span class="math inline">\(\MISMATCH^{\max} V^*\)</span> is an upper bound for both <span class="math inline">\(\MISMATCH^{\hat π^*} V^*\)</span> and <span class="math inline">\(\MISMATCH^* V^*\)</span>, we have <span class="math display">\[
+    α \le \frac{2}{(1-γ)^2}  \MISMATCH^{\max}  V^*.
 \]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -781,62 +815,7 @@ Proof
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>From triangle inequality we have <span class="math display">\[\begin{equation} \label{eq:triangle-1}
-  \| V^* - V^{\hat π^*} \|_∞ \le
-  \| V^* - \hat V^{\hat π^*} \|_∞
-  +
-  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
-\end{equation}\]</span> The result then follows by bounding the first term using <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>22.1</span></a> and the second term using <a href="#lem-mismatch-policy-bound">Lemma&nbsp;<span>22.2</span></a>.</p>
-</div>
-</div>
-</div>
-<p>Note that depending on how we pick <span class="math inline">\(\MISMATCH_1\)</span> and <span class="math inline">\(\MISMATCH_2\)</span>, we get four possible upper bounds and can bound <span class="math inline">\(α\)</span> by the tightest of them, i.e., <span class="math display">\[\begin{equation}\label{eq:combined}
-  α \le \frac{1}{1 - γ} \min\bigl\{
-  \MISMATCH^* V^* + \MISMATCH^{\hat π^*} V^{\hat π^*}, \space
-  \MISMATCH^* V^* + \MISMATCH^{\hat π^*} \hat V^*, \space
-  \MISMATCH^* \hat V^* + \MISMATCH^{\hat π^*} V^{\hat π^*}, \space
-  \MISMATCH^* \hat V^* + \MISMATCH^{\hat π^*} \hat V^{*} \bigr\}
-\end{equation}\]</span> where we have used the fact that <span class="math inline">\(\hat V^{\hat π^*} = \hat V^*\)</span> to simplify some of the terms.</p>
-<p>Ideally, we want an upper bound that just depends on the value function of true model or just on the value function of the approximate model. The last bound in \eqref{eq:combined} depends just on the value function of the approximate model. We state it separately for ease of reference.</p>
-<div id="cor-mismatch-combined-bound" class="theorem corollary">
-<p><span class="theorem-title"><strong>Corollary 22.1 </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
-    α := \| V^* - V^{\hat π^*} \|_∞ \le
-    \frac{1}{1-γ} \bigl[ \MISMATCH^* \hat V^* + \MISMATCH^{\hat
-    π^*} \hat V^* \bigr].
-\]</span> Moreover, since <span class="math inline">\(\MISMATCH^{\max} \hat V^*\)</span> is an upper bound for both <span class="math inline">\(\MISMATCH^{\hat π^*} \hat V^*\)</span> and <span class="math inline">\(\MISMATCH^* \hat V^*\)</span>, we have <span class="math display">\[
-    α \le \frac{2}{(1-γ)}  \MISMATCH^{\max}  \hat V^*.
-\]</span></p>
-</div>
-<p>In the next lemma, we develop a bound that depends just on the value function true model.</p>
-<div id="thm-mismatch-policy-bound2" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 22.3 </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
-    α := \| V^* - V^{\hat π^*} \|_∞ \le
-    \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
-    +
-    \frac{(1+γ)}{(1-γ)^2} \MISMATCH^* V^* .
-\]</span></p>
-<p>Moreover, since <span class="math inline">\(\MISMATCH^{\max} V^*\)</span> is an upper bound for both <span class="math inline">\(\MISMATCH^{\hat π^*} V^*\)</span> and <span class="math inline">\(\MISMATCH^* V^*\)</span>, we have <span class="math display">\[
-    α \le \frac{2}{(1-γ)^2}  \MISMATCH^{\max}  V^*.
-\]</span></p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>As before, we consider the following bound by triangle inequality. <span class="math display">\[\begin{equation} \label{eq:triangle-2}
-  \| V^* - V^{\hat π^*} \|_∞ \le
-  \| V^* - \hat V^{\hat π^*} \|_∞
-  +
-  \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞.
-\end{equation}\]</span> We will bound the first term of \eqref{eq:triangle-2} by <span class="citation" data-cites="thm:value-bound">(<a href="../references.html#ref-thm:value-bound" role="doc-biblioref"><strong>thm:value-bound?</strong></a>)</span>. But instead of bounding the second term of \eqref{eq:triangle-2} by <span class="citation" data-cites="lem:bound-policy">(<a href="../references.html#ref-lem:bound-policy" role="doc-biblioref"><strong>lem:bound-policy?</strong></a>)</span>, we consider the following: <span class="math display">\[\begin{align}
+<p>We bound the first term of <span class="math inline">\(\eqref{eq:triangle-1}\)</span> by <a href="#prp-value-error">Proposition&nbsp;<span>22.2</span></a> But instead of bounding the second term of <span class="math inline">\(\eqref{eq:triangle-1}\)</span> by <a href="#prp-policy-error">Proposition&nbsp;<span>22.1</span></a>, we consider the following: <span class="math display">\[\begin{align}
   \| V^{\hat π^*} - \hat V^{\hat π^*} \|_∞
   &amp;=
   \| V^{\hat π^*} - \hat V^{*} \|_∞
@@ -855,7 +834,7 @@ Proof
   + γ \| V^* - \hat V^* \|_∞
   \label{eq:ineq-21}.
 \end{align}\]</span> where the first inequality follows from the triangle inequality and the second inequality follows from the definition of Bellman mismatch functional and contraction property of Bellman operator.</p>
-<p>Substituting \eqref{eq:ineq-21} in \eqref{eq:triangle-2} and rearranging terms, we get <span class="math display">\[\begin{align}
+<p>Substituting <span class="math inline">\(\eqref{eq:ineq-21}\)</span> in <span class="math inline">\(\eqref{eq:triangle-1}\)</span> and rearranging terms, we get <span class="math display">\[\begin{align}
   \| V^* - V^{\hat π^*} \|_∞
   &amp;\le
   \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
@@ -866,7 +845,7 @@ Proof
   \frac{1}{1-γ} \MISMATCH^{\hat π^*} V^*
   +
   \frac{(1+γ)}{(1-γ)^2} \MISMATCH^* V^* .
-\end{align}\]</span> where the second inequality follows from <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>22.1</span></a>.</p>
+\end{align}\]</span> where the second inequality follows from <a href="#prp-value-error">Proposition&nbsp;<span>22.2</span></a>.</p>
 </div>
 </div>
 </div>
@@ -880,193 +859,259 @@ Remark:
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Note that the bound of <a href="#cor-mismatch-combined-bound">Corollary&nbsp;<span>22.1</span></a> is tighter by a factor of <span class="math inline">\(1/(1-γ)\)</span>, but this bound is in terms of <span class="math inline">\(\hat V^*\)</span>. In some settings, we prefer a bound in terms of <span class="math inline">\(V^*\)</span>. Using <a href="#thm-mismatch-policy-bound2">Theorem&nbsp;<span>22.3</span></a> in such settings leads to scaling by <span class="math inline">\(1/(1-γ)\)</span>.</p>
+<p>Note that the bound of <a href="#thm-model-error-V-star">Theorem&nbsp;<span>22.2</span></a> is tighter by a factor of <span class="math inline">\(1/(1-γ)\)</span> but that bound is in terms of <span class="math inline">\(\hat V^*\)</span>. In some settings, a bound in terms of <span class="math inline">\(V^*\)</span> is more desirable. Using <a href="#thm-model-error-hat-V-star">Theorem&nbsp;<span>22.1</span></a> in such settings leads to scaling by <span class="math inline">\(1/(1-γ)\)</span>.</p>
 </div>
 </div>
-</section>
-</section>
-<section id="example-state-aggregation-or-discretization-or-quantization" class="level2" data-number="22.2">
-<h2 data-number="22.2" class="anchored" data-anchor-id="example-state-aggregation-or-discretization-or-quantization"><span class="header-section-number">22.2</span> Example: State aggregation (or discretization or quantization)</h2>
-<p>Consider an MDP <span class="math inline">\(\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, p, c, γ \rangle\)</span>, with large (or possibly continuous) state space. For simplicity, we assume that <span class="math inline">\(\ALPHABET S\)</span> is continuous (and compact), and that the <span class="math inline">\(p\)</span> is the density of the transition kernel. Note that we are using the term “probability density” in the engineering sense (so, it may be a combination of a continuous function and delta functions) rather than in the precise measure theoretic sense (where it is the Radon-Nikodym derivative with respect to the Lebesgue measure).</p>
-<p>If exact computations were possible, we can find an optimal solution by solving a dynamic program. However, since the state space is continuous, we cannot compute the value functions exactly. The simplest way to proceed is to discretize or quantize the state space <span class="math inline">\(\ALPHABET S\)</span>. In particular, let <span class="math inline">\(\{\ALPHABET S_1, \dots \ALPHABET S_n\}\)</span> denote a partition of <span class="math inline">\(\ALPHABET S\)</span> (i.e., <span class="math inline">\(\bigcup_{i=1}^n \ALPHABET S_i = \ALPHABET S\)</span> and for any <span class="math inline">\(i \neq j\)</span>, <span class="math inline">\(\ALPHABET S_i \cap \ALPHABET S_j = \emptyset\)</span>). Pick a representative point <span class="math inline">\(\hat s_i \in \ALPHABET S_i\)</span>. We can think of the “grid points” <span class="math inline">\(\hat {\ALPHABET S} = \{\hat s_1, \dots, \hat s_n\}\)</span> as quantization of the state space <span class="math inline">\(\ALPHABET S\)</span>. To simplify the notation, we define a quantization function <span class="math inline">\(\phi \colon \ALPHABET S \to \hat {\ALPHABET S}\)</span> which maps all points in <span class="math inline">\(\ALPHABET S_i\)</span> to the representative element <span class="math inline">\(\hat s_i\)</span>.</p>
-<p>We consider a finite state MDP <span class="math inline">\(\widehat {\ALPHABET M} = \langle \hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c, γ\rangle\)</span>, where <span class="math inline">\(\hat c\)</span> is the restriction of <span class="math inline">\(c\)</span> onto <span class="math inline">\(\hat {\ALPHABET S}\)</span>, and <span class="math inline">\(\hat P\)</span> is given by</p>
-<p><span class="math display">\[\hat P(\hat s_j | \hat s_i, a) =
-\int_{\ALPHABET S_j} P(s' | \hat s_i, a) dy = P(\ALPHABET S_j | \hat s_i, a).
-\]</span></p>
-<p>Since model <span class="math inline">\(\widehat {\ALPHABET M}\)</span> is discrete, we can find the optimal value function and policy using dynamic programming. We are interested in the questions of quantifying the errors in value approximation and policy approximation in this setup. Since the quantized model is defined on a state space <span class="math inline">\(\hat {\ALPHABET S}\)</span> that is different from the original state space, the approximation bounds derived above are not directly applicable. Below we present two intermediate models, to be able to compare models <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span></p>
-<section id="an-intermediate-model" class="level3" data-number="22.2.1">
-<h3 data-number="22.2.1" class="anchored" data-anchor-id="an-intermediate-model"><span class="header-section-number">22.2.1</span> An intermediate model</h3>
-<p>Define a model <span class="math inline">\(\overline {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \bar p, \bar c, γ \rangle\)</span>, where <span class="math display">\[
+<!--
+## Example: State aggregation (or discretization or quantization)
+
+Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, p, c, γ
+\rangle$, with large (or possibly continuous) state space. For simplicity, we
+assume that $\ALPHABET S$ is continuous (and compact), and that the $p$ is the
+density of the transition kernel. Note that we are using the term "probability
+density" in the engineering sense (so, it may be a combination of a continuous
+function and delta functions) rather than in the precise measure theoretic
+sense (where it is the Radon-Nikodym derivative with respect to the Lebesgue
+measure).
+
+If exact computations were possible, we can find an optimal solution by
+solving a dynamic program. However, since the state space is continuous, we
+cannot compute the value functions exactly. The simplest way to proceed is to
+discretize or quantize the state space $\ALPHABET S$. In particular, let
+$\{\ALPHABET S_1, \dots \ALPHABET S_n\}$ denote a partition of $\ALPHABET S$
+(i.e., $\bigcup_{i=1}^n \ALPHABET S_i = \ALPHABET S$ and for any $i \neq j$,
+$\ALPHABET S_i \cap \ALPHABET S_j = \emptyset$). Pick a representative point
+$\hat s_i \in \ALPHABET S_i$. We can think of the "grid points" $\hat
+{\ALPHABET S} = \{\hat s_1, \dots, \hat s_n\}$ as quantization of the state
+space $\ALPHABET S$. To simplify the notation, we define a quantization
+function $\phi \colon \ALPHABET S \to \hat {\ALPHABET S}$ which maps all
+points in $\ALPHABET S_i$ to the representative element $\hat s_i$. 
+
+We consider a finite state MDP $\widehat {\ALPHABET M} = \langle \hat
+{\ALPHABET S}, \ALPHABET A, \hat P, \hat c, γ\rangle$, where $\hat c$ is the
+restriction of $c$ onto $\hat {\ALPHABET S}$, and $\hat P$ is given by 
+
+$$\hat P(\hat s_j | \hat s_i, a) =
+\int_{\ALPHABET S_j} P(s' | \hat s_i, a) ds' = P(\ALPHABET S_j | \hat s_i, a),
+\quad \forall \hat s_i, \hat s_j \in \hat {\ALPHABET S}.
+$$
+
+
+Since model $\widehat {\ALPHABET M}$ is discrete, we can find the optimal
+value function and policy using dynamic programming. 
+We are interested in the questions of quantifying the errors in value
+approximation and policy approximation in this setup. Since the quantized
+model is defined on a state space $\hat {\ALPHABET S}$ that is different from
+the original state space, the approximation bounds derived above are not
+directly applicable. Below we present two intermediate models, to be able to
+compare models $\ALPHABET M$ and $\widehat {\ALPHABET M}$
+
+### An intermediate model
+
+Define a model $\overline {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, 
+\bar p, \bar c, γ \rangle$, where
+$$
   \bar c(s,a) = c(\phi(s),a)
-\]</span> and <span class="math display">\[
+$$
+and
+$$
   \bar p(s'|s,a) = p(s'|\phi(s),a).
-\]</span></p>
-<p>We have the following property for the <span class="math inline">\(\bar p\)</span> dynamics:</p>
-<div id="lem-aggregation-models" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 22.3 </strong></span>For any <span class="math inline">\(\hat V \colon \hat {\ALPHABET S} \to \reals\)</span>, let <span class="math inline">\(V \colon \ALPHABET S \to \reals\)</span> be its piecewise constant extrapolation from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span> (i.e., <span class="math inline">\(V(s) = \hat V(\phi(s)))\)</span>. Then, for any <span class="math inline">\(\hat s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>, we have <span class="math display">\[
-\int_{\ALPHABET S_j} \bar p(s'|\hat s, a) V(s') ds'
+$$
+
+We have the following property for the $\bar p$ dynamics:
+
+:::{#lem-aggregation-models}
+For any $\hat V \colon \hat {\ALPHABET S} \to \reals$, let $V \colon
+\ALPHABET S \to \reals$ be its piecewise constant extrapolation from
+$\hat {\ALPHABET S}$ to $\ALPHABET S$ (i.e., $V = \hat V \circ \phi$).
+Then, for any $\hat s \in \ALPHABET S$ and $a \in \ALPHABET A$, we have
+$$
+\int_{\ALPHABET S_j} \bar p(s'|\hat s, a) V(s') ds' 
 =
 \hat P(\hat s_j | \hat s, a) \hat V(\hat s_j).
-\]</span> Therefore, <span class="math display">\[
-\int_{\ALPHABET S} \bar p(s'|\hat s, a) V(s') ds'
+$$
+Therefore, 
+$$
+\int_{\ALPHABET S} \bar p(s'|\hat s, a) V(s') ds' 
 =
-\sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | \hat s, a) \hat V(\hat s_j).
-\]</span></p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Since <span class="math inline">\(V\)</span> is constant over <span class="math inline">\(\ALPHABET S_j\)</span>, we have <span class="math display">\[\begin{align*}
-  \int_{\ALPHABET S_j} \bar p(s'|\hat s,a) V(s') ds'
-  &amp;=
-  V(\hat s_j) \int_{\ALPHABET S_j} \bar p(s'|\hat s,a) ds'
+\sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | \hat s, a) \hat V(\hat s').
+$$
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof {-}
+Since $V$ is constant over $\ALPHABET S_j$, we have
+\begin{align*}
+  \int_{\ALPHABET S_j} \bar p(s'|\hat s,a) V(s') ds' 
+  &=
+  V(\hat s_j) \int_{\ALPHABET S_j} \bar p(s'|\hat s,a) ds' 
   \notag \\
-  &amp;= V(\hat s_j) \bar p(\ALPHABET S_j | \hat s, a)
-\end{align*}\]</span> The first result now follows from observing that <span class="math inline">\(\bar p(\ALPHABET S_j | \hat s, a) = p(\ALPHABET S_j | \hat s, a) = \hat P(\hat s_j | \hat s, a)\)</span>. The second result follows from the fact that for any <span class="math inline">\(f \colon \ALPHABET S \to \reals\)</span>, <span class="math display">\[
+  &= V(\hat s_j) \bar p(\ALPHABET S_j | \hat s, a)
+\end{align*}
+The first result now follows from observing that $\bar p(\ALPHABET S_j | \hat
+s, a) = p(\ALPHABET S_j | \hat s, a) = \hat P(\hat s_j | \hat s, a)$. The
+second result follows from the fact that for any $f \colon \ALPHABET S \to
+\reals$, 
+$$
   \int_{\ALPHABET S} f(s')  ds' = \int_{\ALPHABET S_1} f(s') ds' + \cdots +
   \int_{\ALPHABET S_n} f(s') d(s').
-\]</span></p>
-</div>
-</div>
-</div>
-<p>Let <span class="math inline">\(\bar V^*\)</span>, and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions of models <span class="math inline">\(\overline {\ALPHABET M}\)</span> and <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively. Moreover, let <span class="math inline">\(\bar π^*\)</span> and <span class="math inline">\(\hat π^*\)</span> denote optimal policies of models <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, and <span class="math inline">\(\overline {\ALPHABET M}\)</span>, respectively. Then, these are related as follows.</p>
-<div id="lem-aggregation-equiv" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 22.4 </strong></span><span class="math inline">\(\bar V^*\)</span> is a piecewise constant extrapolation of <span class="math inline">\(\hat V^*\)</span> from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span>. Moreover, the piecewise constant extrapolation of <span class="math inline">\(\hat π^*\)</span> is optimal for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Let <span class="math inline">\(\bar V\)</span> be the piecewise constant extrapolation of <span class="math inline">\(\hat V^*\)</span> from <span class="math inline">\(\hat {\ALPHABET S}\)</span> to <span class="math inline">\(\ALPHABET S\)</span>. <a href="#lem-aggregation-models">Lemma&nbsp;<span>22.3</span></a> implies that for any <span class="math inline">\(s \in \ALPHABET S\)</span>, the one step Bellman update of <span class="math inline">\(\bar V\)</span> (in model <span class="math inline">\(\overline {\ALPHABET M}\)</span>) is given by <span class="math display">\[\begin{align*}
+$$
+:::
+
+
+Let $\bar V^*$, and $\hat V^*$ denote the optimal value functions of models
+$\overline {\ALPHABET M}$ and $\widehat {\ALPHABET M}$, respectively.
+Moreover, let $\bar π^*$ and $\hat π^*$ denote optimal policies of models
+$\widehat {\ALPHABET M}$, and $\overline {\ALPHABET M}$, respectively. Then,
+these are related as follows.
+
+:::{#lem-aggregation-equiv}
+$\bar V^*$ is a piecewise constant extrapolation of $\hat V^*$ from
+$\hat {\ALPHABET S}$ to $\ALPHABET S$. Moreover, the piecewise constant
+extrapolation of $\hat π^*$ is optimal for model $\overline {\ALPHABET
+M}$. 
+:::
+
+:::{.callout-note collapse="true"}  
+#### Proof {-}
+Let $\bar V$ be the piecewise constant extrapolation of $\hat V^*$ from $\hat
+{\ALPHABET S}$ to $\ALPHABET S$. @lem-aggregation-models implies that for any $s \in
+\ALPHABET S$, the one step Bellman update of $\bar V$ (in model $\overline
+{\ALPHABET M}$) is given by
+\begin{align*}
   \min_{a \in \ALPHABET S} \biggl\{
     c(\phi(s),a) + γ \int_{\ALPHABET S} \bar p(s'|\phi(s),a) \bar V(s') ds'
   \biggr\}
-  &amp;=
+  &= 
   \min_{a \in \ALPHABET S} \biggl\{
-    \hat c(\phi(s),a) + γ \sum_{\hat s' \in \hat {\ALPHABET S}}
+    \hat c(\phi(s),a) + γ \sum_{\hat s' \in \hat {\ALPHABET S}} 
     \hat P(\hat s' | \phi(s), a) \hat V^*(\hat s')
   \biggr\}
   \\
-  &amp;=
-  \hat V^*(\phi(s))
+  &=
+  \hat V^*(\phi(s)) 
   \\
-  &amp;= \bar V(s)
-\end{align*}\]</span> where the first equality follows from <a href="#lem-aggregation-models">Lemma&nbsp;<span>22.3</span></a>, the second equality follows from the fact that <span class="math inline">\(\hat V^*\)</span> is optimal for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, and the last equality follows from the definition of <span class="math inline">\(\bar V\)</span>. Thus, <span class="math inline">\(\bar V\)</span> is the fixed point of the Bellman optimality equation for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>. Hence, <span class="math inline">\(\bar V = \bar V^*\)</span>.</p>
-<p>The above equation also implies that the policy <span class="math inline">\(\hat π^*(\phi(s))\)</span>, which achieves the arg min in the second equality, is optimal for model <span class="math inline">\(\overline{\ALPHABET M}\)</span>.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Remark
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><a href="#lem-aggregation-equiv">Lemma&nbsp;<span>22.4</span></a> implies that the questions of value and policy approximation for model <span class="math inline">\(\widehat {\ALPHABET M}\)</span> is the same as those for model <span class="math inline">\(\overline {\ALPHABET M}\)</span>. The advantage of working with model <span class="math inline">\(\overline {\ALPHABET M}\)</span> is that it is defined on the same state space as model <span class="math inline">\(\ALPHABET M\)</span>, so we can directly use the results of <a href="#thm-mismatch-policy-bound">Theorem&nbsp;<span>22.2</span></a> and <a href="#thm-mismatch-policy-bound2">Theorem&nbsp;<span>22.3</span></a>.</p>
-</div>
-</div>
-</section>
-<section id="approximation-bounds" class="level3" data-number="22.2.2">
-<h3 data-number="22.2.2" class="anchored" data-anchor-id="approximation-bounds"><span class="header-section-number">22.2.2</span> Approximation bounds</h3>
-<p>Now to bound the value error between models <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\overline {\ALPHABET M}\)</span>, we need to compute <span class="math inline">\(\MISMATCH^* V^*\)</span>, which is given by <span class="math display">\[\begin{align*}
-  \MISMATCH^* V^* &amp;=
+  &= \bar V(s)
+\end{align*}
+where the first equality follows from @lem-aggregation-models, the second equality
+follows from the fact that $\hat V^*$ is optimal for model $\widehat
+{\ALPHABET M}$, and the last equality follows from the definition of $\bar V$.
+Thus, $\bar V$ is the fixed point of the Bellman optimality equation for model
+$\overline {\ALPHABET M}$. Hence, $\bar V = \bar V^*$. 
+
+The above equation also implies that the policy $\hat π^*(\phi(s))$, which
+achieves the arg min in the second equality, is optimal for model
+$\overline{\ALPHABET M}$. 
+:::
+
+:::{.callout-tip}
+### Remark
+@lem-aggregation-equiv implies that the questions of value and policy
+approximation for model $\widehat {\ALPHABET M}$ is the same as those for
+model $\overline {\ALPHABET M}$. The advantage of working with model
+$\overline {\ALPHABET M}$ is that it is defined on the same state space as
+model $\ALPHABET M$, so we can directly use the results of @thm-mismatch-policy-bound and @thm-mismatch-policy-bound2.
+:::
+
+### Approximation bounds
+
+Now to bound the value error between models $\ALPHABET M$ and $\overline
+{\ALPHABET M}$, we need to compute $\MISMATCH^* V^*$, which is given by
+\begin{align*}
+  \MISMATCH^* V^* &= 
   \max_{s \in \ALPHABET S}
-  \biggl|
-    \min_{a \in \ALPHABET A} \bigl\{
+  \biggl| 
+    \min_{a \in \ALPHABET A} \bigl\{ 
     c(s,a) + γ \int_{\ALPHABET S} p(s'|s,a) V^*(s')ds'
     \bigr\}
     \notag \\
-  &amp;  \hskip 4em -
-    \min_{a \in \ALPHABET A} \bigl\{
-   c(\phi(s), a) + γ \int_{\ALPHABET S} p(s'|\phi(s), a) V^*(s') ds'
+  &  \hskip 4em -
+    \min_{a \in \ALPHABET A} \bigl\{ 
+   c(\phi(s), a) + γ \int_{\ALPHABET S} p(s'|\phi(s), a) V^*(s') ds' 
     \bigr\}
   \biggr|
   \notag \\
-  &amp;= \max_{s \in \ALPHABET S} \bigl| V^*(s) - V^*(\phi(s)) \bigr|
+  &= \max_{s \in \ALPHABET S} \bigl| V^*(s) - V^*(\phi(s)) \bigr|
   =: H_{\max}.
-\end{align*}\]</span></p>
-<p>Therefore, from <a href="#thm-mismatch-value-bound">Theorem&nbsp;<span>22.1</span></a>, we have</p>
-<div id="prp-aggregation-value" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 22.1 </strong></span><span class="math display">\[ \| V^* - \bar V^{\bar π^*} \|_∞ \le \frac{H_{\max}}{1-γ}. \]</span></p>
-</div>
-<p>To bound the policy error, we also need to compute <span class="math inline">\(\MISMATCH^{\hat π^*} V^*\)</span>. In order to compute this bound, we assume that the model is <span class="math inline">\((L_c, L_p)\)</span> Lipschitz.</p>
-<dl>
-<dt>Assumpt. #ass:lip</dt>
-<dd>
-<ul>
-<li>For every <span class="math inline">\(a \in \ALPHABET A\)</span>, <span class="math inline">\(c(s, a)\)</span> is <span class="math inline">\(L_c\)</span>-Lipschitz in <span class="math inline">\(s\)</span></li>
-<li>For every <span class="math inline">\(a \in \ALPHABET A\)</span>, <span class="math inline">\(p(\cdot | s, a)\)</span> is <span class="math inline">\(L_p\)</span>-Lipschitz in <span class="math inline">\(s\)</span> (with respect to the Kantorovich distance on probability measures).</li>
-</ul>
-</dd>
-</dl>
-<p>Under this assumption, we have</p>
-<p><span class="math display">\[\begin{align*}
-  \MISMATCH^{\bar π^*} V^* &amp;\le \max_{s \in \ALPHABET S}
+\end{align*}
+
+Therefore, from @thm-mismatch-value-bound, we have
+
+:::{#prp-aggregation-value}
+$$ \| V^* - \bar V^{\bar π^*} \|_∞ \le \frac{H_{\max}}{1-γ}. $$
+:::
+
+To bound the policy error, we also need to compute $\MISMATCH^{\hat π^*}
+V^*$. In order to compute this bound, we assume that the model is $(L_c, L_p)$
+Lipschitz. 
+
+
+Assumpt. #ass:lip
+
+:   * For every $a \in \ALPHABET A$, $c(s, a)$ is $L_c$-Lipschitz in $s$
+    * For every $a \in \ALPHABET A$, $p(\cdot | s, a)$ is $L_p$-Lipschitz
+      in $s$ (with respect to the Kantorovich distance on probability measures). 
+
+Under this assumption, we have
+
+\begin{align*}
+  \MISMATCH^{\bar π^*} V^* &\le \max_{s \in \ALPHABET S}
   \sum_{a \in \ALPHABET A} \bar π^*(a | s) \biggl|
     c(s,a) + γ \int_{\ALPHABET S} p(s'|s,a) V^*(s')ds'
   \notag \\
-  &amp;  \hskip 4em -
-    c(\phi(s), a) - γ \int_{\ALPHABET S} p(s'|\phi(s), a) V^*(s') ds'
+  &  \hskip 4em -
+    c(\phi(s), a) - γ \int_{\ALPHABET S} p(s'|\phi(s), a) V^*(s') ds' 
   \biggr|
   \notag \\
-  &amp;\le  L_c \max_{s \in \ALPHABET S}d(s, \phi(s))
-  +
+  &\le  L_c \max_{s \in \ALPHABET S}d(s, \phi(s)) 
+  + 
   γ K(p(\cdot | s, a), p(\cdot | \phi(s), a)) \NORM{V^*}_L )
   \notag \\
-  &amp;\le ( L_c  + γ L_p \NORM{V^*}_L )
+  &\le ( L_c  + γ L_p \NORM{V^*}_L ) 
   \underbrace{\max_{s \in \ALPHABET S}d(s, \phi(s)) }_{=: D}
-\end{align*}\]</span> where the second inequality uses <a href="../mdps/lipschitz-mdps.html#prp-Kantorovich">Proposition&nbsp;<span>17.2</span></a>.</p>
-<p>Thus, we have the following:</p>
-<div class="highlight">
-<dl>
-<dt>Proposition #prop:policy-aggregation</dt>
-<dd>
-<p>Under <span class="citation" data-cites="ass:lip">(<a href="../references.html#ref-ass:lip" role="doc-biblioref"><strong>ass:lip?</strong></a>)</span>, we have <span class="math display">\[\NORM{V^* - V^{\bar π^*}}_∞ \le
-  \frac{D}{1-γ} \biggl[ L_c + γ L_p \NORM{V^*}_L +
-  \frac{1 + γ}{1-γ} \NORM{V^*}_L \biggr]. \]</span></p>
-<p>Furthermore, if <span class="math inline">\(γ L_p &lt; 1\)</span>, then from <a href="../lipschitz-mdp#thm:Lipschitz-opt">Theorem 1 of Lipschitz MDPs</a> we know that <span class="math inline">\(\NORM{V^*}_L \le L_c/(1- γ L_p)\)</span>. Thus, <span class="math display">\[\NORM{V^{μ^*} - V^*}_∞ \le
-  \frac{2 D L_c }{ (1-γ)^2 (1-γ L_p) }. \]</span></p>
-</dd>
-</dl>
-</div>
-<details>
-<!--{{{ Proof -->
-<summary>
-<section id="proof-6" class="level4 unnumbered">
-<h4 class="unnumbered anchored" data-anchor-id="proof-6">Proof</h4>
-</section></summary>
+\end{align*}
+where the second inequality uses @prp-Kantorovich.
+
+Thus, we have the following:
+
+::: highlight :::
+Proposition #prop:policy-aggregation
+
+:   Under @ass:lip, we have
+    $$\NORM{V^* - V^{\bar π^*}}_∞ \le 
+      \frac{D}{1-γ} \biggl[ L_c + γ L_p \NORM{V^*}_L + 
+      \frac{1 + γ}{1-γ} \NORM{V^*}_L \biggr]. $$
+
+    [LP]: ../lipschitz-mdp#thm:Lipschitz-opt
+
+    Furthermore, if $γ L_p < 1$, then from [Theorem 1 of Lipschitz MDPs][LP]
+    we know that $\NORM{V^*}_L \le L_c/(1- γ L_p)$. Thus,
+    $$\NORM{V^{μ^*} - V^*}_∞ \le 
+      \frac{2 D L_c }{ (1-γ)^2 (1-γ L_p) }. $$
+
+:::
+
+#### Proof {-}
 <div>
-<p>The first bound follows from <span class="citation" data-cites="thm:policy-bound2">(<a href="../references.html#ref-thm:policy-bound2" role="doc-biblioref"><strong>thm:policy-bound2?</strong></a>)</span>, with the additional observation that <span class="math inline">\(H_{\max} \le \NORM{V^*}_L D\)</span>.</p>
-<p>For the second result follows from simple algebra.</p>
+The first bound follows from @thm:policy-bound2, with the additional
+observation that $H_{\max} \le \NORM{V^*}_L D$. 
+
+For the second result follows from simple algebra.
 </div>
-</details>
-<!--}}}-->
-
-
+-->
 </section>
 </section>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p>The material in this section is adapted from <span class="citation" data-cites="Bozkurt2023">Bozkurt et al. (<a href="../references.html#ref-Bozkurt2023" role="doc-biblioref">2023</a>)</span>, where the results were presented for unbounded per-step cost.</p>
 
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-Bozkurt2023" class="csl-entry" role="listitem">
+<span class="smallcaps">Bozkurt, B., Mahajan, A., Nayyar, A., and Ouyang, Y.</span> 2023. Weighted norm bounds in MDPs with unbounded per-step cost.
+</div>
+</div>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
