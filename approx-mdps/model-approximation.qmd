@@ -30,7 +30,7 @@ We are interested in the following questions:
 2. **Value error bounds:** What is the error if $\hat V^*$ is used
    as an approximation for $V^*$?
 
-3. **Model error approximation:** What is the error if the policy $\hat
+3. **Model approximation error:** What is the error if the policy $\hat
    π^*$ is used instead of the optimal policy $π^*$
 
 ## Bounds for model approximation
@@ -198,7 +198,7 @@ Rearranging terms in \\eqref{eq:ineq-11} gives us
 This gives the second bound.
 :::
 
-### Model error
+### Model approximation error
 
 To bound the model error, we observe that from triangle inequality we have
 \begin{equation} \label{eq:triangle-1}
@@ -211,7 +211,7 @@ To bound the model error, we observe that from triangle inequality we have
 @prp-policy-error and @prp-value-error provide bounds of both of the terms of \eqref{eq:triangle-1}. Choosing appropriate values for both terms gives us the following
 
 :::{#thm-model-error-hat-V-star}
-#### Model error
+#### Model approximation error
 
 The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
 $$
@@ -230,7 +230,7 @@ $$
 In some applications, it is useful to have a model-error bound that depends on $V^*$ rather than $\hat V^*$. We provide such a bound below.
 
 :::{#thm-model-error-V-star}
-#### Model error
+#### Model approximation error
 
 The policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
 $$
@@ -296,6 +296,141 @@ where the second inequality follows from @prp-value-error.
 ### Remark:
 Note that the bound of @thm-model-error-V-star is tighter by a factor of $1/(1-γ)$ but that bound is in terms of $\hat V^*$. In some settings, 
 a bound in terms of $V^*$ is more desirable. Using @thm-model-error-hat-V-star in such settings leads to scaling by $1/(1-γ)$. 
+:::
+
+## IPM based bounds on model approximation error
+
+Sometimes, it is easier to think in terms of explicit bounds between the models. For example, we may characterize the error between models $\ALPHABET M$ and $\hat {\ALPHABET M}$ as the distance between their cost functions and transition dynamics. For formalize this notion, we need to specify a metric on probability spaces. It turns out that [integral probability metrics (IPM)][IPM] are ideally suited for this task.
+
+[iPM]: ../probability/IPM.qmd
+
+Let $\def\F{\mathfrak{F}}\F$ be a convex and balanced set of functions from $\ALPHABET S$ to $\reals$. Then, the IPM distance (w.r.t. $\F$) between two probability laws $μ_1$ and $μ_2$ is given by
+$$
+  d_{\F}(ν_1, ν_2) = \sup_{f \in \F}
+  \left| \int f d μ_1 - \int f d μ_2 \right|.
+$$
+For our discussion, we will assume that $\F$ is a maximal generator.
+See [the notes on IPM][generators] for more details, in particular the notion of [gauge or Minkowski functional $ρ_{\F}$][Minkowski] of an IPM and @prp-IPM-ineq, which states that for any function $f$, 
+\begin{equation}\label{eq:IPM-ineq}
+  \left| \int f d μ_1 - \int f d μ_2 \right|
+  \le
+  ρ_{\F}(f) d_{\F}(μ_1, μ_2).
+\end{equation}
+
+[generators]: ../probability/IPM.qmd#maximal-generators
+[Minkowski]: ../probability/IPM.qmd#Minkowski
+
+
+Now, we define a notion of distance between models.
+
+::: {#def-model-distance}
+Given a function class $\F$, we say that a model $\hat {\ALPHABET M}$ is an $(ε,δ)$-approximation of model $\ALPHABET M$ if for all $(s,a) \in \ALPHABET S × \ALPHABET A$, we have:
+
+1. $\ABS{ c(s,a) - \hat c(s,a) } \le ε$
+2. $d_{\F}( P(\cdot \mid s,a) , \hat P(\cdot \mid s,a) ) \le δ$.
+:::
+
+Note that given any two models $\ALPHABET M$ and $\hat {\ALPHABET M}$, we can always say that $\hat {\ALPHABET M}$ is an $(ε,δ)$ approximation of $\ALPHABET M$ with 
+$$
+ε = \NORM{ c - \hat c }_{∞}
+\quad\text{and}\quad
+δ = \sup_{(s,a) \in \ALPHABET S × \ALPHABET A}
+    d_{\F}( P(\cdot \mid s,a) , \hat P(\cdot \mid s,a) ).
+$$
+
+An immediate implication of the above definition is the following.
+
+::: {#lem-IPM-bound-on-mismatch}
+If $\hat {\ALPHABET M}$ is an $(ε,δ)$ approximation of $\ALPHABET M$ with respect to $\F$, then for any $v \colon \ALPHABET S \to \reals$
+$$
+  \MISMATCH^{\max} v \le ε + γ δ \, ρ_{\F}(v).
+$$
+:::
+
+::: {.callout-note collapse="true"}
+#### Proof
+From the definition of maximum Bellman mismatch, we have
+\begin{align*}
+  \MISMATCH^{\max} v &= 
+  \max_{(s,a) \in \ALPHABET S, A} \biggl\lvert
+    c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a)v(s') 
+   -\hat c(s,a) - γ \sum_{s' \in \ALPHABET S} \hat P(s'|s,a) v(s')
+   \biggr\rvert
+  \\
+  &\stackrel{(a)}\le
+  \max_{(s,a) \in \ALPHABET S, A} 
+  \bigg\{
+  \bigl\lvert c(s,a) - \hat c(s,a) \bigr\rvert
+  + 
+  γ \biggl\lvert 
+  \sum_{s' \in \ALPHABET S} P(s' | s,a) v(s')
+  -
+  \sum_{s' \in \ALPHABET S} \hat P(s' | s,a) v(s')
+  \biggr|
+  \biggr\}
+  \\
+  &\stackrel{(b)}\le
+  \max_{(s,a) \in \ALPHABET S, A} \Bigl\{
+  \bigl\lvert c(s,a) - \hat c(s,a) \bigr\rvert
+  + γ ρ_{\F}(v)
+  d_{\F}(P(\cdot | s,a), \hat P(\cdot | s,a) )
+  \Bigr\}
+  \notag \\
+  &\stackrel{(c)}\le ε + γ δ ρ_{\F}(v)
+\end{align*}
+where $(a)$ follows from triangle inequality, $(b)$ follows from \eqref{eq:IPM-ineq} and $(c)$ follows from the definition of $(ε,δ)$.
+:::
+
+An immediate consequence of @lem-IPM-bound-on-mismatch when combined with @thm-model-error-V-star and @thm-model-error-hat-V-star is the following.
+
+:::{#thm-model-error-IPM}
+#### Model approximation error
+If model $\hat {\ALPHABET M}$ is an $(ε,δ)$-approximation of model $\ALPHABET M$, then the policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
+$$
+    α := \| V^* - V^{\hat π^*} \|_∞ \le
+    \frac{2}{1-γ} \bigl[ ε + γ δ ρ_{\F}(\hat V^*)\bigr]. 
+$$
+Another upper bound on $α$ is
+$$
+    α  \le
+    \frac{2}{(1-γ)^2} \bigl[ ε + γ δ ρ_{\F}(V^*)\bigr]. 
+$$
+:::
+
+Note that the above bounds require the knowledge of $\hat V^*$. For specific choices of IPM, it is possible to obtain bounds which do not require the knowledge of $\hat V^*$. We can get looser upper bounds which do not require explicit knowledge of $\hat V^*$. 
+
+::: {#cor-model-error-instance-independent}
+#### Instance independent model approximation error bounds
+1. If model $\hat {\ALPHABET M}$ is an $(ε,δ)$-approximation of model $\ALPHABET M$ with respect to total variation, then the policy $\hat π^*$ is an $α$-optimal policy of $\ALPHABET M$ where
+   $$
+     α \le \frac{2 ε}{1-γ} + \frac{ γ δ\SPAN(\hat r)}{(1-γ)^2},
+   $$
+   or
+   $$
+     α \le \frac{2 ε}{(1-γ)^2} + \frac{ γ δ\SPAN(r)}{(1-γ)^3}.
+   $$
+
+2. If the approximation is with respect the the Wasserstein distance, then we have the following:
+
+   a. If the approximate model $\hat {\ALPHABET M}$ is $(\hat L_r, \hat L_P)$ Lipschitz (see @def-lipschitz-mdp) with $γ^{-1} \hat L_P < 1$, then
+   $$
+     α \le \frac{2}{1-γ}\biggl[
+     ε + \frac{γ δ\hat L_r}{1 - γ \hat L_{P}} \biggr]
+   $$
+   b. If the original model ${\ALPHABET M}$ is $(L_r, L_P)$ Lipschitz with $γ^{-1} L_P < 1$, then
+   $$
+     α \le \frac{2}{(1-γ)^2}\biggl[
+     ε + \frac{γ δ L_r}{1 - γ L_{P}} \biggr]
+   $$
+
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+
+1. The result follows from @thm-model-error-IPM the observation that $\SPAN(\hat V^*) \le (1-γ)^{-1} \SPAN(\hat r)$ and $\SPAN(V^*) \le (1-γ)^{-1} \SPAN(r)$.
+
+2. The result follows from @thm-model-error-IPM and @thm-lipschitz-opt.
 :::
 
 <!--
@@ -538,4 +673,4 @@ For the second result follows from simple algebra.
 
 ## Notes {-}
 
-The material in this section is adapted from @Bozkurt2023, where the results were presented for unbounded per-step cost.
+The material in this section is adapted from @Bozkurt2023, where the results were presented for unbounded per-step cost. The IPM-based bounds of @thm-model-error-IPM are due to @Muller1997a, but the proof is adapted from @Bozkurt2023, where some generalizations of @thm-model-error-IPM are also presented.
