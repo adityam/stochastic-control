@@ -8,10 +8,10 @@
 
 <meta name="author" content="Aditya Mahajan">
 <meta name="dcterms.date" content="2023-12-21">
-<meta name="keywords" content="infinite horizon, discounted cost, Bellman operator">
+<meta name="keywords" content="MDPs, discounted MDPs, periodic MDPs">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
-<title>Course Notes - 10&nbsp; Infinite horizon MDPs</title>
+<title>Course Notes - 18&nbsp; Periodic MDPs</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -53,8 +53,8 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../mdps/mdp-algorithms.html" rel="next">
-<link href="../mdps/reward-shaping.html" rel="prev">
+<link href="../pomdps/intro.html" rel="next">
+<link href="../mdps/lipschitz-mdps.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -137,7 +137,7 @@ window.MathJax = {
 
 </head>
 
-<body class="nav-sidebar floating nav-fixed slimcontent">
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -175,7 +175,7 @@ window.MathJax = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/inf-horizon.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/periodic-mdps.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Periodic MDPs</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -277,7 +277,7 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../mdps/inf-horizon.html" class="sidebar-item-text sidebar-link active">
+  <a href="../mdps/inf-horizon.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></span></a>
   </div>
 </li>
@@ -325,7 +325,7 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../mdps/periodic-mdps.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/periodic-mdps.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Periodic MDPs</span></span></a>
   </div>
 </li>
@@ -584,22 +584,18 @@ window.MathJax = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#performance-of-a-time-homogeneous-markov-policy" id="toc-performance-of-a-time-homogeneous-markov-policy" class="nav-link active" data-scroll-target="#performance-of-a-time-homogeneous-markov-policy"><span class="header-section-number">10.1</span> Performance of a time-homogeneous Markov policy</a></li>
-  <li><a href="#bellman-operators" id="toc-bellman-operators" class="nav-link" data-scroll-target="#bellman-operators"><span class="header-section-number">10.2</span> Bellman operators</a></li>
-  <li><a href="#optimal-time-homogeneous-policy" id="toc-optimal-time-homogeneous-policy" class="nav-link" data-scroll-target="#optimal-time-homogeneous-policy"><span class="header-section-number">10.3</span> Optimal time-homogeneous policy</a></li>
-  <li><a href="#properties-of-bellman-operator" id="toc-properties-of-bellman-operator" class="nav-link" data-scroll-target="#properties-of-bellman-operator"><span class="header-section-number">10.4</span> Properties of Bellman operator</a></li>
-  <li><a href="#countable-or-continuous-state-and-action-spaces" id="toc-countable-or-continuous-state-and-action-spaces" class="nav-link" data-scroll-target="#countable-or-continuous-state-and-action-spaces"><span class="header-section-number">10.5</span> Countable or continuous state and action spaces</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#policy-evaluation" id="toc-policy-evaluation" class="nav-link active" data-scroll-target="#policy-evaluation">Policy evaluation</a></li>
+  <li><a href="#optimal-policy" id="toc-optimal-policy" class="nav-link" data-scroll-target="#optimal-policy">Optimal policy</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/inf-horizon.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/periodic-mdps.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Infinite horizon MDPs</span></h1>
+<h1 class="title"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Periodic MDPs</span></h1>
 </div>
 
 
@@ -635,429 +631,90 @@ window.MathJax = {
 
 </header>
 
-<p>A common way to approximate systems that run for a very large horizon is to assume that they run for an infinite horizon. There is an inherent homogeneity over time for infinite horizon system: the future depends only on the current state and not on the current time. Due to this homogeneity over time, we expect that the optimal policy should also be time-homogeneous. Therefore, the optimal policy for an infinite-horizon system should be easier to implement than the optimal policy for a finite horizon system, especially so when the horizon is large. This is one of the motivations for studying infinite horizon models.</p>
-<p>The most common formulation for infinite horizon models is the discounted setup, where the cost function is assumed to be <span class="math display">\[ J(π) = \EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} c_t(S_t, A_t) \Bigr] \]</span> where <span class="math inline">\(γ \in (0,1)\)</span> is called the discount factor.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Discount Factor
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The idea of using discounting in MDPs is due to <span class="citation" data-cites="Blackwell1965">Blackwell (<a href="../references.html#ref-Blackwell1965" role="doc-biblioref">1965</a>)</span>.</p>
-<p>There are two interpretations of the discount factor <span class="math inline">\(γ\)</span>. The first interpretation is an economic interpretation to determine the <em>present value</em> of a utility that will be received in the future. For example, suppose a decision maker is indifferent between receiving 1 dollar today or <span class="math inline">\(s\)</span> dollars tomorrow. This means that the decision maker discounts the future at a rate <span class="math inline">\(1/s\)</span>, so <span class="math inline">\(γ = 1/s\)</span>.</p>
-<p>The second interpretation is that of an absorbing state. Suppose we are operating a machine that generates a value of $1 each day. However, there is a probability <span class="math inline">\(p\)</span> that the machine will break down at the end of the day. Thus, the expected return for today is $1 while the expected return for tomorrow is <span class="math inline">\((1-p)\)</span> (which is the probability that the machine is still working tomorrow). In this case, the discount factor is defined as <span class="math inline">\((1-p)\)</span>. See <span class="citation" data-cites="Shwartz2001">Shwartz (<a href="../references.html#ref-Shwartz2001" role="doc-biblioref">2001</a>)</span> for a detailed discussion of this alternative.</p>
-</div>
-</div>
-<p>In the remainder of this section, we will study how to obtain a solution for such infinite horizon discounted cost models.</p>
-<p><em>Note</em>: Throughout this section, we assume that <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are finite and <span class="math inline">\(|\ALPHABET S|= n\)</span> and <span class="math inline">\(|\ALPHABET A| = m\)</span>.</p>
 <div class="callout callout-style-simple callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<i class="bi bi-journal-text text-primary"></i> Summary of the main result
+<i class="bi bi-journal-text text-primary"></i> Summary
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The main result for infinite horizon MDPs is that there is there is no loss of optimality in restricting attention to time-homogenous deterministic Markov policies. In other words, for any time-varaying, possible history dependent and randomized policy, there is a time-homogeneous deterministic Markov policy that performs as well.</p>
-<p>For finite horizon models, we have already established that there is no loss of optimality in restricting attention to deterministic Markov policies. So, the only new bit here is that for infinite horizon discounted cost models, we can restrict attention to <strong>time-homogeneous</strong> policies as well.</p>
-<p>Intuitively, this seems obvious. The system from time 1 onwards looks the same as the system from time 2 onwards. So, the decision rule which is optimal at time 1 should also be optimal at time 2. This intuition is correct as long as the future behavior is <strong>stable,</strong> which is always the case for discounted models with bounded per-step cost. We formally estabish this rest below. Formally establishing this intuition is a bit more subtle in other models such as the infinite-horizon total cost, infinite-horizon long-term average cost, and even discounted cost models with unbounded per-step cost.</p>
+<p>In many applications, the system dynamics and cost vary in a periodic manner. For example, demand varies according to time of day, weather patterns vary according to season, etc. Such periodic models may be considered as the simplest case of non-stationary dynamics. In this section, we study how to model and analyze periodic MDPs.</p>
 </div>
 </div>
-<section id="performance-of-a-time-homogeneous-markov-policy" class="level2 page-columns page-full" data-number="10.1">
-<h2 data-number="10.1" class="anchored" data-anchor-id="performance-of-a-time-homogeneous-markov-policy"><span class="header-section-number">10.1</span> Performance of a time-homogeneous Markov policy</h2>
-<div class="page-columns page-full"><p>An infinite horizon Markov policy <span class="math inline">\((π_1, π_2, \ldots)\)</span> is called time-homongeous<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> if <span class="math inline">\(π_1 = π_2 = π_3 = \cdots\)</span>. With a slight abuse of notation, we will denote a time-homogenous policy <span class="math inline">\((π,π,\ldots)\)</span> simply by <span class="math inline">\(π\)</span>.</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Time-homogenous policies are sometimes also called stationary policies in the literature. I personally feel that the term <em>stationary</em> can be a bit confusing because <em>stationary processes</em> has a precise but different meaning in probability theory.</p></li></div></div>
-<p>The expected discounted cost of a time-homogeneous Markov policy is given by <span class="math display">\[ V^π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
-\bigg].\]</span></p>
-<p>We now introduce a vector notation. Let <span class="math inline">\(V^π\)</span> denote the <span class="math inline">\(n × 1\)</span> vector given by <span class="math inline">\([V^π]_s = V^π(s)\)</span>. Furthermore, define Define the <span class="math inline">\(n × 1\)</span> vector <span class="math inline">\(c_π\)</span> and the <span class="math inline">\(n × n\)</span> matrix <span class="math inline">\(P_π\)</span> as follows: <span class="math display">\[ [c_π]_s = c(s, π(s))
-   \quad\text{and}\quad
-   [P_π]_{ss'} = P_{ss'}(π(s)).
-\]</span></p>
-<div id="prp-policy-evaluation" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 10.1 </strong></span>The performance of a time-homogeneous Markov policy may be computed by solving a system of linear equations given by: <span class="math display">\[ V^{π} = (1 - γ P_{π})^{-1} c_{π}. \]</span></p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>We first observe that the dynamics under policy <span class="math inline">\(π\)</span> are Markovian with transition probability matrix <span class="math inline">\(P_π\)</span> and a cost function <span class="math inline">\(c_π\)</span>. Therefore, <span class="math display">\[ \begin{align*}
-\EXP^π\big[ c(S_t, π(S_t)) \bigm| S_1 = s \big]
-  &amp;= \sum_{s' \in \ALPHABET S} \PR^π(S_t = s' | S_1 = s) c(s', π(s'))
-  \\
-  &amp;= \sum_{s' \in \ALPHABET S} [P_π^{t-1}]_{ss'} [c_π]_y
-  \\
-  &amp;= δ_s P_π^{t-1} c_π.
-\end{align*} \]</span></p>
-<p>Now consider the performance of policy <span class="math inline">\(π\)</span>, which is given by <span class="math display">\[ \begin{align*}
-V^π &amp;= c_π + γ P_π c_π + γ^2 P_π^2 c_π + \cdots \\
-    &amp;= c_π + γ P_π \big( c_π + γ P_π c_π + \cdots \big) \\
-    &amp;= c_π + γ P_π V^π.
-\end{align*} \]</span> Rearranging terms, we have <span class="math display">\[ (I - γ P_π) V^π = c_π. \]</span></p>
-<p>The <a href="https://en.wikipedia.org/wiki/Spectral_radius">:spectral radius</a> <span class="math inline">\(ρ(γ P_d)\)</span> of a matrix is upper bounded by its <a href="https://en.wikipedia.org/wiki/Matrix_norm">:spectral norm</a> <span class="math inline">\(\lVert γ P_d \rVert = γ &lt; 1\)</span>. Therefore, the matrix <span class="math inline">\((I - γ P_π)\)</span> has an inverse and by left multiplying both sides by <span class="math inline">\((I - γ P_π)^{-1}\)</span>, we get <span class="math display">\[ V^π = (I - γP_π)^{-1} c_π. \]</span></p>
-</div>
-</div>
-</div>
-</section>
-<section id="bellman-operators" class="level2 page-columns page-full" data-number="10.2">
-<h2 data-number="10.2" class="anchored" data-anchor-id="bellman-operators"><span class="header-section-number">10.2</span> Bellman operators</h2>
-<p>To succinctly describe the analysys, we define two operaors:</p>
-<ol type="1">
-<li><p><strong>The Bellman operator for policy <span class="math inline">\(π\)</span> denoted by <span class="math inline">\(\BELLMAN^π\)</span>:</strong> For any <span class="math inline">\(v \in \reals^n\)</span>, <span class="math display">\[ \BELLMAN^π v = c_{π} + γ P_{π} v. \]</span></p></li>
-<li><p><strong>The Bellman optimality operator denoted by <span class="math inline">\(\BELLMAN^*\)</span>:</strong> For any <span class="math inline">\(v \in \reals^n\)</span>: <span class="math display">\[ [\BELLMAN^* v]_s = \min_{a \in \ALPHABET A}
-  \Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v_y \Big\}.\]</span> We say that a policy <span class="math inline">\(π\)</span> is <strong>a greedy policy with respect to <span class="math inline">\(v\)</span></strong>, written as <span class="math inline">\(π = \GREEDY(v)\)</span>, if <span class="math display">\[ B^* v = B^π v. \]</span></p></li>
-</ol>
-<div class="page-columns page-full"><p>Note that the Bellman optimality operator may also be written as<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> <span class="math display">\[ \BELLMAN^* v = \min_{π \in \Pi} \BELLMAN^π v, \]</span> where <span class="math inline">\(\Pi\)</span> denotes the set of all deterministic Markov policies.</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;This is true for general models only when the arg min at each state exists.</p></li></div></div>
-<p>For any <span class="math inline">\(v \in \reals^n\)</span>, let <span class="math inline">\(\NORM{v}_{∞}\)</span> denote the sup-norm of <span class="math inline">\(v\)</span>, i.e., <span class="math inline">\(\NORM{v}_{∞} := \sup_{s \in \ALPHABET S} \ABS{v(s)}\)</span>. Recall that <span class="math inline">\((\reals^n, \NORM{\cdot}_{∞})\)</span> is a <a href="https://en.wikipedia.org/wiki/Banach_space">:Banach space</a></p>
-<div id="prp-Bellman-contraction" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 10.2 </strong></span>The operators <span class="math inline">\(\BELLMAN^π\)</span> and <span class="math inline">\(\BELLMAN^*\)</span> are contractions under the sup-norm, i.e., for any <span class="math inline">\(v, w \in \reals^n\)</span>, <span class="math display">\[ \NORM{\BELLMAN v - \BELLMAN w} \le γ \NORM{v - w}, \]</span> where <span class="math inline">\(\BELLMAN \in \{\BELLMAN^π, \BELLMAN^*\}\)</span>.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>First consider the case of <span class="math inline">\(\BELLMAN^π\)</span>. Note that <span class="math display">\[
-  \BELLMAN^π v - \BELLMAN^π w =
-  (c_{π} + γ P_{π} v) - (c_{π} + γ P_{π} w)
+<p>The natural model for a periodic system with period <span class="math inline">\(L\)</span> is as follows. Let <span class="math inline">\([t] = (t \bmod L)\)</span> and <span class="math inline">\(\ALPHABET L = \{0, \dots, L-1\}\)</span>. Then the dynamics and per-step cost at time <span class="math inline">\(t\)</span> are given by <span class="math inline">\(P_{[t]}\)</span> and <span class="math inline">\(c_{[t]}\)</span>, where</p>
+<ul>
+<li><span class="math inline">\(c_\ell : \ALPHABET S × \ALPHABET A \to \reals\)</span>, for <span class="math inline">\(\ell \in \ALPHABET L\)</span></li>
+<li><span class="math inline">\(P_\ell : \ALPHABET S × \ALPHABET A \to Δ(\ALPHABET S)\)</span>, for <span class="math inline">\(\ell \in \ALPHABET L\)</span></li>
+</ul>
+<p>Now consider an infinite-horizon <span class="math inline">\(L\)</span>-periodic MDP. Since the model is not stationary, we cannot directly use the standard results for <a href="../mdps/inf-horizon.html">infinite horizon MDPs</a>. However, it is relatively simple to characterize the solution of periodic MDPs–by using state augmentation. In particular, we define a time-homogeneous MDP with state space <span class="math inline">\(\ALPHABET S × \ALPHABET L\)</span>, action space <span class="math inline">\(\ALPHABET A\)</span>, per-step dynamics <span class="math display">\[
+  \bar P((s',\ell') \mid (s,\ell), a)
   =
-  γ P_{π} (v - w).
-\]</span> Therefore, <span class="math display">\[
-  \NORM{\BELLMAN^π v - \BELLMAN^π w}_{∞}
-  \le γ \NORM{v - w}_{∞} P_{π} \mathbb{1}
-  = γ \NORM{v - w}_{∞}.
+  P_{\ell}(s' \mid s,a) \IND\{ \ell' ≡ \ell + 1 \pmod L \}
+\]</span> and the per-step cost <span class="math display">\[
+  \bar c((s,\ell), a)
+  =
+  c_{\ell}(s,a) \IND\{ \ell' ≡ \ell + 1 \pmod L \}.
+\]</span> The above time-homogenous MDP with state <span class="math inline">\((S_t, [t])\)</span> is equivalent to the original periodic MDP. Therefore, an immediate implication of <a href="inf-horizon.html#thm-inf-DP">Theorem&nbsp;<span>10.2</span></a> is the following:</p>
+<div id="prp-periodic-opt-policy" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 18.1 </strong></span>There exists a time-homongeous optimal policy <span class="math inline">\(π^* \colon \ALPHABET S \times \ALPHABET L \to \ALPHABET A\)</span> such that the optimal action at time <span class="math inline">\(t\)</span> is <span class="math inline">\(a_t = π^*(s_t, [t])\)</span>.</p>
+<p>Equivalently, there exists a deterministic <span class="math inline">\(L\)</span>-periodic optimal policy <span class="math display">\[
+  π^* = (π^*_0, π^*_1, \dots, π^*_{L-1}, π^*_0, π^*_1, \dots, π^*_{L-1}, \dots),
+  \quad
+  π^*_\ell \colon \ALPHABET S \to \ALPHABET A, \ell \in \ALPHABET L,
+\]</span> such that the optimal action at time <span class="math inline">\(t\)</span> is <span class="math inline">\(a_t = π^*_{[t]}(s_t)\)</span>.</p>
+</div>
+<p>To succinctly write the procedure to identify this policy, we define the following Bellman operators:</p>
+<ul>
+<li>for any <span class="math inline">\(μ \colon \ALPHABET S \to \ALPHABET A\)</span> and <span class="math inline">\(\ell \in \ALPHABET L\)</span>, define <span class="math inline">\(\BELLMAN_\ell^{μ}\)</span> and <span class="math inline">\(\BELLMAN_\ell^*\)</span> to be the Bellman operator for policy <span class="math inline">\(μ\)</span> and Bellman optimality operator for the model <span class="math inline">\((c_\ell, P_\ell)\)</span></li>
+<li>For any <span class="math inline">\(v \in \reals^n\)</span> and <span class="math inline">\(\ell \in \ALPHABET L\)</span>, define <span class="math inline">\(\GREEDY_{\ell}(v)\)</span> to be the greedy policy wrt <span class="math inline">\(v\)</span> in model <span class="math inline">\((c_\ell, P_\ell)\)</span>, i.e., if <span class="math inline">\(μ \in \GREEDY_{\ell}(v)\)</span> then <span class="math inline">\(\BELLMAN_\ell^{μ} v = \BELLMAN_\ell^* v\)</span>.</li>
+</ul>
+<section id="policy-evaluation" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="policy-evaluation">Policy evaluation</h3>
+<p>Let <span class="math inline">\(π = (π_0, \dots, π_{L-1})\)</span> be any periodic policy and let <span class="math inline">\(V^π_t\)</span> denote its performance starting at time <span class="math inline">\(t\)</span>. Then, <span class="math display">\[
+  V^π_t = v^π_{[t]}
+\]</span> where <span class="math inline">\((v^π_0, v^π_1, \dots, v^π_{L-1})\)</span> satisfy <span class="math display">\[
+  v^π_\ell =
+  \BELLMAN^{π_\ell}_{\ell} v^π_{[\ell + 1]},
+  \quad \ell \in \ALPHABET L.
+\]</span> The above relation implies that <span class="math display">\[
+  v^π_\ell =
+  \BELLMAN^{π_\ell}_{\ell}
+  \BELLMAN^{π_{[\ell+1]}}_{[\ell+1]}
+  \cdots
+  \BELLMAN^{π_{[\ell+L-1]}}_{[\ell+L-1]}
+  v^π_\ell,
+  \quad \ell \in \ALPHABET L,
+\]</span> which may be viewed as evaluating the policy every <span class="math inline">\(L\)</span> time steps.</p>
+</section>
+<section id="optimal-policy" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="optimal-policy">Optimal policy</h3>
+<p>Let <span class="math inline">\((v^*_0, v^*_1, \ldots, v^*_{L-1})\)</span> satisfy <span class="math display">\[
+  v^*_{\ell} = \BELLMAN^*_{\ell} v^*_{[\ell+1]},
+  \quad \ell \in \ALPHABET L
+\]</span> Moreover, let <span class="math inline">\((π^*_0, \dots, π^*_{L-1})\)</span> be such that <span class="math display">\[
+  π^*_\ell = \GREEDY_\ell(v^*_{[\ell+1]}),
+  \quad \ell \in \ALPHABET L.
+\]</span> Then the periodic policy <span class="math inline">\(π^* = (π^*_0, π^*_1, \ldots, π^*_{L-1})\)</span> is policy and its performance <span class="math inline">\(V^*_t\)</span> starting at time <span class="math inline">\(t\)</span> satisfies <span class="math display">\[
+  V^*_t = v^*_{[t]}
 \]</span></p>
-<p>Now consider the case of <span class="math inline">\(\BELLMAN^*\)</span>. Fix a state <span class="math inline">\(s \in \ALPHABET S\)</span> and consider <span class="math inline">\([\BELLMAN^* v](s) - [\BELLMAN^* w](s)\)</span>. In particular, let <span class="math inline">\(a^*\)</span> be the optimal action in the right hand side of <span class="math inline">\([\BELLMAN^* w](s)\)</span>. Then, <span class="math display">\[\begin{align*}
-  [\BELLMAN^* v - \BELLMAN^* w](s) &amp;=
-  \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
-  P_{ss'}(a) v(s') \bigr\} -
-  \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
-  P_{ss'}(a) w(s') \bigr\}
-  \\
-  &amp;\le c(s,a^*) + γ \sum_{s'\in \ALPHABET S} P_{ss'}(a^*) v(s') -
-       c(s,a^*) - γ \sum_{s'\in \ALPHABET S} P_{ss'}(a^*) w(s')
-  \\
-  &amp;\le γ \sum_{s' \in \ALPHABET S} P_{ss'}(a^*) \| v - w \|
-  \\
-  &amp;= γ \| v - w \|.
-\end{align*} \]</span></p>
-<p>By a similar argument, we can show that <span class="math inline">\([\BELLMAN^* w - \BELLMAN^* v](s) \le γ \| v - w \|\)</span>, which proves the other side of the inequality.</p>
-</div>
-</div>
-</div>
-<p>Let’s revisit the result of <a href="#prp-policy-evaluation">Proposition&nbsp;<span>10.1</span></a>, which may be written as <span class="math display">\[ V^π = c_π + γ P_π V^π \]</span> We can write the above using Bellman operators as: <span class="math display">\[\begin{equation}\label{eq:policy-evaluation}
-V^π = \BELLMAN^π V^π.
-\end{equation}\]</span></p>
-<p>Thus, we can equivalently state the result of <a href="#prp-policy-evaluation">Proposition&nbsp;<span>10.1</span></a> by saying that <span class="math inline">\(V^π\)</span> is the <em>unique</em> bounded fixed point of <span class="math inline">\(\eqref{eq:policy-evaluation}\)</span>.</p>
-<p>What about the Bellman optimality operator? Does the equation <span class="math inline">\(V^* = \BELLMAN V^*\)</span> have a solution? The contraction property (<a href="#prp-Bellman-contraction">Proposition&nbsp;<span>10.2</span></a>) and the <a href="https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem">:Banach fixed point theorem</a> imply the following.</p>
-<div id="thm-Bellman-fixed-point" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 10.1 </strong></span>There is a unique bounded <span class="math inline">\(V^* \in \reals^n\)</span> that satisfies the <em>Bellman equation</em> <span class="math display">\[ V^* = \BELLMAN^* V^* \]</span></p>
-<p>Moreover, if we start from any <span class="math inline">\(V^0 \in \reals^n\)</span> and recursively define <span class="math inline">\(V^n = \BELLMAN^* V^{n-1}\)</span> then <span class="math display">\[ \lim_{n \to ∞} V^n = V^*. \]</span></p>
-</div>
-</section>
-<section id="optimal-time-homogeneous-policy" class="level2" data-number="10.3">
-<h2 data-number="10.3" class="anchored" data-anchor-id="optimal-time-homogeneous-policy"><span class="header-section-number">10.3</span> Optimal time-homogeneous policy</h2>
-<p>What does <span class="math inline">\(V^*\)</span> signify? What about a policy <span class="math inline">\(π^* \in \GREEDY(V^*)\)</span>? We answer these questions below.</p>
-<!--
-::: highlight :::
-Prop.
-
-:   Let $μ$ be any (possibly randomized) history dependent policy. Then,      
-    there exists a randomized Markov policy $π$ that has the same performance
-    as $μ$.
-:::
-
-#### Proof {-}
-
-For any policy $μ$, define the _occupation measure_
-$$ \mu(s,a | s^∘; μ) 
-  := \EXP^μ \bigg[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
-  \biggm| S_1 = s^∘ \bigg]
-$$
-Then 
-$$ J(s^∘; μ) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
-   μ(s,a | s^∘; μ) c(s,a).
-$$ {#eq:performance}
-
-Now, define a randomized Markov policy $π$ as follows:
-$$\PR(A_t = a | S_t = s; π) = \frac{ μ(s, a| s^∘; μ) } { μ(s | s^∘; μ) }$$
-where $μ(s|s^∘;μ) = \sum_{a \in \ALPHABET A} μ(s,a | s^∘; μ)$. Then, by
-construction, 
-$ μ(s,a | s^∘; π) = μ(s,a | s^∘; μ) $
-and therefore by \\eqref{eq:performance}, we have that $J(s^∘; π) = J(s^∘; μ).$
-
--->
-<div id="prp-value-optimal" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 10.3 </strong></span>Define <span class="math display">\[ V^{\text{opt}}_∞(s) := \min_{π} \EXP^π \bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t)
-\biggm| S_1 = s \bigg], \]</span> where the minimum is over all (possibly randomized) history dependent policies. Then, <span class="math display">\[ V^{\text{opt}}_∞ = V^*, \]</span> where <span class="math inline">\(V^*\)</span> is the solution of the Bellman equation.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Since the state and action space are finite, without loss of optimality, we can assume that <span class="math inline">\(0 \le c(s,a) \le M\)</span>.</p>
-<p>Consider the finite horizon truncation <span class="math display">\[ V^{\text{opt}}_T(s) =  \min_{π} \EXP^π\bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) | S_1 = s \bigg].
-\]</span> From the results for finite horizon MDP, we have that <span class="math display">\[ V^{\text{opt}}_T = (\BELLMAN^*)^T V^0 \]</span> where <span class="math inline">\(V^0\)</span> is the all zeros vector.</p>
-<p>Now by construction, <span class="math display">\[V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [(\BELLMAN^*)^T V^0](s). \]</span> Taking limit as <span class="math inline">\(T \to ∞\)</span>, we get that <span class="math display">\[\begin{equation}\label{eq:1}
-  V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [(\BELLMAN^*)^T V^0](s) = V^*(s).
-\end{equation}\]</span></p>
-<p>Since <span class="math inline">\(0 \le c(s,a) \le M\)</span>, for any <span class="math inline">\(T\)</span>, <span class="math display">\[ \begin{align*}
-V^{\text{opt}}_∞(s) &amp;\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t)
-\biggm| S_1 = s \bigg] + \sum_{t=T+1}^∞ γ^{t-1} M \\
-&amp;= V^{\text{opt}}_T(s) + γ^T M / (1 - γ) \\
-&amp;= [(\BELLMAN^*)^T V^0](s) + γ^T M / (1-γ).
-\end{align*} \]</span> Taking limit as <span class="math inline">\(T \to ∞\)</span>, we get that <span class="math display">\[\begin{equation}\label{eq:2}
-  V^{\text{opt}}_∞(s) \le \lim_{T \to ∞}
-  \big\{ [(\BELLMAN^*)^T V^0](s) + γ^T M / (1-γ) \big\} = V^*(s).
-\end{equation}\]</span></p>
-<p>From \eqref{eq:1} and \eqref{eq:2}, we get that <span class="math inline">\(V^{\text{opt}}_∞ = V^*\)</span>.</p>
-</div>
-</div>
-</div>
-<p>Thus, <span class="math inline">\(V^*\)</span> is the optimal performance. Now we can formally state the main result.</p>
-<div id="thm-inf-DP" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 10.2 </strong></span>A time-homogeneous Markov policy <span class="math inline">\(π^*\)</span> is optimal if and only if it satisfies <span class="math inline">\(π^* \in \GREEDY(V^*)\)</span>, where <span class="math inline">\(V^*\)</span> is the unique uniformly bounded solution of the following fixed point equation: <span class="math display">\[
-  V^* = \BELLMAN^* V^*.
-\]</span></p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="true" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse show">
-<div class="callout-body-container callout-body">
-<p>From <a href="#thm-Bellman-fixed-point">Theorem&nbsp;<span>10.1</span></a>, we know that the equation <span class="math inline">\(V^* = \BELLMAN^* V^*\)</span> has a unique bounded solution <span class="math inline">\(V^*\)</span>. From <a href="#prp-value-optimal">Proposition&nbsp;<span>10.3</span></a>, we know that <span class="math inline">\(V^*\)</span> is the optimal policy.</p>
-<p>Take a policy <span class="math inline">\(π^*\)</span> such that <span class="math inline">\(π^* \in \GREEDY(V^*)\)</span>. Note that <span class="math display">\[ V^* = \BELLMAN^* V^* = \BELLMAN^{π^*} V^*. \]</span> Thus, <span class="math inline">\(V^*\)</span> is a fixed point of <span class="math inline">\(\BELLMAN^{π^*}\)</span> and therefore equal to <span class="math inline">\(V^{π^*}\)</span>. Thus, any policy that is greedy wrt <span class="math inline">\(V^*\)</span> has performance <span class="math inline">\(V^*\)</span> and (by <a href="#prp-value-optimal">Proposition&nbsp;<span>10.3</span></a>) is optimal.</p>
-</div>
-</div>
-</div>
-</section>
-<section id="properties-of-bellman-operator" class="level2" data-number="10.4">
-<h2 data-number="10.4" class="anchored" data-anchor-id="properties-of-bellman-operator"><span class="header-section-number">10.4</span> Properties of Bellman operator</h2>
-<div id="prp-Bellman-properties" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 10.4 </strong></span>The Bellman operator satisfies the following properties</p>
-<ul>
-<li><em>Monotonicity</em>. For any <span class="math inline">\(v, w \in \reals^n\)</span>, if <span class="math inline">\(v \le w\)</span>, then <span class="math inline">\(\BELLMAN^π v \le \BELLMAN^π w\)</span> and <span class="math inline">\(\BELLMAN^* v \le \BELLMAN^* w\)</span>.</li>
-<li><em>Discounting</em>. For any <span class="math inline">\(v \in \reals^n\)</span> and <span class="math inline">\(m \in \reals\)</span>, <span class="math inline">\(\BELLMAN^π (v + m \ONES) = \BELLMAN^π v + γ m \ONES\)</span> and <span class="math inline">\(\BELLMAN^* (v + m \ONES) = \BELLMAN^* v + γ m \ONES\)</span>.</li>
-</ul>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof of monotonicity property
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Recall that <span class="math display">\[ \BELLMAN^π v = c_π + γ P_π v. \]</span> So, monotonicity of <span class="math inline">\(\BELLMAN^π\)</span> follows immediately from monotonicity of matrix multiplication for positive matrices.</p>
-<p>Let <span class="math inline">\(μ\)</span> be such that <span class="math inline">\(\BELLMAN^* w = \BELLMAN^μ w\)</span>. Then, <span class="math display">\[ \BELLMAN^* v \le \BELLMAN^μ v
-\stackrel{(a)} \le \BELLMAN^μ w = \BELLMAN^* w,
-\]</span> where <span class="math inline">\((a)\)</span> uses the monotonicity of <span class="math inline">\(\BELLMAN^μ\)</span>.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof of discounting property
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-8" class="callout-8-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Recall that <span class="math display">\[ \BELLMAN^π v = c_π + γ P_π v. \]</span> Thus, <span class="math display">\[ \BELLMAN^π(v+m \ONES) = c_π + γ P_π (v+m \ONES) = c_π + γ P_π v + γ m
-\ONES = \BELLMAN^π
-v + γ m \ONES.\]</span> Thus, <span class="math inline">\(\BELLMAN^π\)</span> is discounting. Now consider <span class="math display">\[ \BELLMAN^* (v + m \ONES ) = \min_{π} \BELLMAN^π (v+m \ONES)
-= \min_π \mathcal (B_π v + γ m \ONES) = \BELLMAN^* v + γ m \ONES.\]</span> Thus, <span class="math inline">\(\BELLMAN^*\)</span> is discounting.</p>
-</div>
-</div>
-</div>
-<div id="prp-Bellman-coarse-bounds" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 10.5 </strong></span>For any <span class="math inline">\(V \in \reals^n\)</span>,</p>
-<ul>
-<li>If <span class="math inline">\(V \ge \BELLMAN^* V\)</span>, then <span class="math inline">\(V \ge V^*\)</span>;</li>
-<li>If <span class="math inline">\(V \le \BELLMAN^* V\)</span>, then <span class="math inline">\(V \le V^*\)</span>;</li>
-<li>If <span class="math inline">\(V = \BELLMAN^* V\)</span>, then <span class="math inline">\(V\)</span> is the only vector with this property and <span class="math inline">\(V = V^*\)</span>.</li>
-</ul>
-<p>The same bounds are true when <span class="math inline">\((\BELLMAN^*, V^*)\)</span> is replaced with <span class="math inline">\((\BELLMAN^π, V^π)\)</span>.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-9" class="callout-9-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>We prove the first part. The proof of the other parts is similar.</p>
-<p>We are given that <span class="math display">\[V \ge \BELLMAN^* V.\]</span> Then, by monotonicity of the Bellman operator, <span class="math display">\[ \BELLMAN^* V \ge \BELLMAN^*^2 V.\]</span> Continuing this way, we get <span class="math display">\[ \BELLMAN^*^k V \ge \BELLMAN^*^{k+1} V.\]</span> Adding the above equations, we get <span class="math display">\[ V \ge \BELLMAN^*^{k+1} V.\]</span> Taking limit as <span class="math inline">\(k \to ∞\)</span>, we get <span class="math display">\[V \ge V^*.\]</span></p>
-</div>
-</div>
-</div>
-<div id="prp-Bellman-bounds" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 10.6 </strong></span>For any <span class="math inline">\(V \in \reals^n\)</span> and <span class="math inline">\(m \in \reals\)</span>,</p>
-<ul>
-<li>If <span class="math inline">\(V + m \ONES \ge \BELLMAN^* V\)</span>, then <span class="math inline">\(V + m \ONES/(1-γ) \ge V^*\)</span>;</li>
-<li>If <span class="math inline">\(V + m \ONES \le \BELLMAN^* V\)</span>, then <span class="math inline">\(V + m \ONES/(1-γ) \le V^*\)</span>;</li>
-</ul>
-<p>The same bounds are true when <span class="math inline">\((\BELLMAN^*, V^*)\)</span> is replaced with <span class="math inline">\((\BELLMAN^π, V^π)\)</span>.</p>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Remark
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The above result can also be stated as follows:</p>
-<ul>
-<li><span class="math inline">\(\displaystyle \| V^π - V \| \le \frac{1}{1-γ}\| \BELLMAN^π V - V \|\)</span>.</li>
-<li><span class="math inline">\(\displaystyle \| V^* - V \| \le \frac{1}{1-γ}\| \BELLMAN^* V - V \|\)</span>.</li>
-</ul>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-11" class="callout-11-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Again, we only prove the first part. The proof of the second part is the same. We have that <span class="math display">\[ V + m \ONES \ge \BELLMAN^* V. \]</span> From discounting and monotonicity properties, we get <span class="math display">\[ \BELLMAN^* V + γ m \ONES \ge \BELLMAN^*^2 V. \]</span> Again, from discounting and monotonitiy properties, we get <span class="math display">\[ \BELLMAN^*^2 V + γ^2 m \ONES \ge \BELLMAN^*^3 V. \]</span> Continuing this way, we get <span class="math display">\[ \BELLMAN^*^k V + γ^k m \ONES \ge \BELLMAN^*^{k+1} V. \]</span> Adding all the above equations, we get <span class="math display">\[ V + \sum_{\ell = 0}^k γ^\ell m \ONES \ge \BELLMAN^*^{k+1} V. \]</span> Taking the limit as <span class="math inline">\(k \to ∞\)</span>, we get <span class="math display">\[ V + m \ONES/(1-γ) \ge V^*. \]</span></p>
-</div>
-</div>
-</div>
-</section>
-<section id="countable-or-continuous-state-and-action-spaces" class="level2" data-number="10.5">
-<h2 data-number="10.5" class="anchored" data-anchor-id="countable-or-continuous-state-and-action-spaces"><span class="header-section-number">10.5</span> Countable or continuous state and action spaces</h2>
-<p>The discussion above was restricted to finite state and action spaces. In general, when working with non-finite state and action spaces, we need to be careful about existence of solutions. See <a href="intro.html#sec-mdp-cts-spaces"><span>Section&nbsp;4.4</span></a> for a discussion.</p>
-<p>For infinite horizon problems, there are additional technical challenges. We first point out via examples that the Bellman equation may not have a <em>unique</em> fixed point equation.</p>
-<div id="exm-Bertsekas-linear-dp-soln" class="theorem example">
-<p><span class="theorem-title"><strong>Example 10.1 (Phantom solutions of DP <span class="citation" data-cites="Bertsekas:book">(<a href="../references.html#ref-Bertsekas:book" role="doc-biblioref">Bertsekas 2011</a>)</span>) </strong></span>Consider an MDP with <span class="math inline">\(\ALPHABET S = [0,∞)\)</span>, <span class="math inline">\(\ALPHABET A = \{a_\circ\}\)</span> (dummy action), <span class="math inline">\(p(ds'\mid s,a) = δ_{s' - s/γ}\)</span> (so the state deterministically transitions to <span class="math inline">\(s/γ\)</span>) and <span class="math inline">\(c(s,a) ≡ 0\)</span>. It is clear that the optimal value function <span class="math inline">\(V^*(s) ≡ 0\)</span>. However, the dynamic programming equation is <span class="math display">\[
-  V^*(s) = γ V^*(s/γ)
-\]</span> and is satisfied by any linear function <span class="math inline">\(V^*(s) = α s\)</span>!</p>
-</div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Did we just violate the Banach fixed point theorem?
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>To apply the Banach fixed point theorem, we need to be in a Banach space, i.e., a complete normed metric space. So, what was the Banach space in <a href="#thm-Bellman-fixed-point">Theorem&nbsp;<span>10.1</span></a>? Implicitly, we had used the space <span class="math display">\[
-  \ALPHABET V^M \coloneqq \{ v \colon \ALPHABET S \to \reals \text{ such that } \| v \|_{∞} \le M \}
-\]</span> where <span class="math inline">\(M\)</span> is any constant greater than <span class="math inline">\(\|c\|_{∞}/(1-γ)\)</span>. Banach fixed point theorem says that DP has a <strong>unique</strong> fixed point in <span class="math inline">\(\ALPHABET V^M\)</span>. It does not say anything about solutions outside <span class="math inline">\(\ALPHABET V^M\)</span>!</p>
-<p>Among all the solutions, only the one corresponding to <span class="math inline">\(α = 0\)</span> is bounded, which is also the optimal value function.</p>
-</div>
-</div>
-<div id="exm-birth-death-dp-solution" class="theorem example">
-<p><span class="theorem-title"><strong>Example 10.2 </strong></span>Consider a birth-death Markov chain with <span class="math inline">\(0\)</span> as an aborbing state. In particular, <span class="math inline">\(\ALPHABET S = \integers_{\ge 0}\)</span>, <span class="math inline">\(\ALPHABET A = \{a_\circ\}\)</span> (dummy action), and <span class="math inline">\(c(s,a) = \IND\{s &gt; 0\}\)</span>. The transition dynamics are given by: for <span class="math inline">\(s = 0\)</span>, <span class="math inline">\(P(s'|0,a) = \IND\{s' = 0\}\)</span> and for <span class="math inline">\(s &gt; 0\)</span>, we have <span class="math display">\[
-P(s'|s,a) = p \IND\{ s' = s+1\} + (1-p) \IND\{s' = s-1\}.
-\]</span> So, the DP is given by <span class="math inline">\(v(0) = 0\)</span> and for <span class="math inline">\(s &gt; 0\)</span> <span class="math display">\[
-V^*(s) = 1 + γ p  V^*(s+1) + γ(1-p) V^*(s-1),
-\]</span> which is a harmonic equation and has a generic solution of the form: <span class="math display">\[
-  V^*(s) = \frac{1}{1-γ} -
-  \biggl[ \frac{1}{1-γ} + C \biggr] q_1^s +
-  C q_2^s
-\]</span> where <span class="math inline">\(C\)</span> is an arbitrary constant and <span class="math display">\[
-  q_{1,2} = \frac{1 \pm \sqrt{1 - 4 γ^2 p (1-p)}}{2 γp}.
-\]</span> It can be verified that <span class="math inline">\(q_1 \in (0,1)\)</span> and <span class="math inline">\(q_2 \in (1,∞)\)</span>. So, every solution except <span class="math inline">\(C = 0\)</span> is unbounded.</p>
-<p>Again we have multiple solutions of the DP and the correct solution is the only bounded solution (which corresponds to <span class="math inline">\(C = 0\)</span>).</p>
-</div>
-</section>
-<section id="exercises" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
-<div id="exr-one-step-lookahead-errors" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 10.1 (One-step look-ahead error bounds.) </strong></span>Given any <span class="math inline">\(V \in \reals^n\)</span>, let <span class="math inline">\(π\)</span> be such that <span class="math inline">\(\BELLMAN^* V = \mathcal B_π V\)</span>. Moreover, let <span class="math inline">\(V^*\)</span> denote the unique fixed point of <span class="math inline">\(\BELLMAN^*\)</span> and <span class="math inline">\(V^π\)</span> denote the unique fixed point of <span class="math inline">\(\BELLMAN^π\)</span>. Then, show that</p>
-<ol type="a">
-<li><span class="math display">\[ \| V^* - V \| \le \frac{1}{1-γ} \| \BELLMAN^* V - V \|. \]</span></li>
-<li><span class="math display">\[ \| V^* - \BELLMAN^* V \| \le \frac{γ}{1-γ} \| \BELLMAN^* V - V \|. \]</span></li>
-<li><span class="math display">\[ \| V^π - V \| \le \frac{1}{1-γ} \| \BELLMAN^π V - V \|. \]</span></li>
-<li><span class="math display">\[ \| V^π - \BELLMAN^π V \| \le \frac{γ}{1-γ} \| \BELLMAN^π V - V \|. \]</span></li>
-<li><span class="math display">\[ \| V^π - V^* \| \le \frac{2}{1-γ} \| \BELLMAN^* V - V \|. \]</span></li>
-<li><span class="math display">\[ \| V^π - V^* \| \le \frac{2γ}{1 - γ} \| V - V^* \|. \]</span></li>
-</ol>
-</div>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>The material included here is referenced from different sources. Perhaps the best sources to study this material are the books by <span class="citation" data-cites="Puterman2014">Puterman (<a href="../references.html#ref-Puterman2014" role="doc-biblioref">2014</a>)</span>, <span class="citation" data-cites="Whittle1982">Whittle (<a href="../references.html#ref-Whittle1982" role="doc-biblioref">1982</a>)</span>, and <span class="citation" data-cites="Bertsekas:book">Bertsekas (<a href="../references.html#ref-Bertsekas:book" role="doc-biblioref">2011</a>)</span>.</p>
+<p>Periodic MDPs were first investigated in <span class="citation" data-cites="Riis1965">Riis (<a href="../references.html#ref-Riis1965" role="doc-biblioref">1965</a>)</span>. The presentation here borrows heavily from <span class="citation" data-cites="Scherrer2016">Scherrer (<a href="../references.html#ref-Scherrer2016" role="doc-biblioref">2016</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
-<div id="ref-Bertsekas:book" class="csl-entry" role="listitem">
-<span class="smallcaps">Bertsekas, D.P.</span> 2011. <em>Dynamic programming and optimal control</em>. Athena Scientific. Available at: <a href="http://www.athenasc.com/dpbook.html">http://www.athenasc.com/dpbook.html</a>.
+<div id="ref-Riis1965" class="csl-entry" role="listitem">
+<span class="smallcaps">Riis, J.O.</span> 1965. Discounted <span>M</span>arkov programming in a periodic process. <em>Operations Research</em> <em>13</em>, 6, 920–929. DOI: <a href="https://doi.org/10.1287/opre.13.6.920">10.1287/opre.13.6.920</a>.
 </div>
-<div id="ref-Blackwell1965" class="csl-entry" role="listitem">
-<span class="smallcaps">Blackwell, D.</span> 1965. Discounted dynamic programming. <em>The Annals of Mathematical Statistics</em> <em>36</em>, 1, 226–235. DOI: <a href="https://doi.org/10.1214/aoms/1177700285">10.1214/aoms/1177700285</a>.
-</div>
-<div id="ref-Puterman2014" class="csl-entry" role="listitem">
-<span class="smallcaps">Puterman, M.L.</span> 2014. <em>Markov decision processes: Discrete stochastic dynamic programming</em>. John Wiley &amp; Sons. DOI: <a href="https://doi.org/10.1002/9780470316887">10.1002/9780470316887</a>.
-</div>
-<div id="ref-Shwartz2001" class="csl-entry" role="listitem">
-<span class="smallcaps">Shwartz, A.</span> 2001. Death and discounting. <em><span>IEEE</span> Transactions on Automatic Control</em> <em>46</em>, 4, 644–647. DOI: <a href="https://doi.org/10.1109/9.917668">10.1109/9.917668</a>.
-</div>
-<div id="ref-Whittle1982" class="csl-entry" role="listitem">
-<span class="smallcaps">Whittle, P.</span> 1982. <em>Optimization over time: Dynamic programming and stochastic control. Vol. 1 and 2</em>. Wiley.
+<div id="ref-Scherrer2016" class="csl-entry" role="listitem">
+<span class="smallcaps">Scherrer, B.</span> 2016. On periodic markov decision processes. Available at: <a href="https://ewrl.files.wordpress.com/2016/12/scherrer.pdf">https://ewrl.files.wordpress.com/2016/12/scherrer.pdf</a>.
 </div>
 </div>
 </section>
-
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1410,13 +1067,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../mdps/reward-shaping.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Reward Shaping</span></span>
+      <a href="../mdps/lipschitz-mdps.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Lipschitz MDPs</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../mdps/mdp-algorithms.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">MDP algorithms</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../pomdps/intro.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Introduction</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
