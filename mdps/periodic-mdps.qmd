@@ -1,0 +1,93 @@
+---
+title: Periodic MDPs
+keywords:
+   - MDPs
+   - discounted MDPs
+   - periodic MDPs
+---
+
+:::{.callout-note icon=false appearance="simple"}
+# <i class="bi bi-journal-text text-primary"></i> Summary
+In many applications, the system dynamics and cost vary in a periodic manner. For example, demand varies according to time of day, weather patterns vary according to season, etc. Such periodic models may be considered as the simplest case of non-stationary dynamics. In this section, we study how to model and analyze periodic MDPs.
+:::
+
+The natural model for a periodic system with period $L$ is as follows. Let $[t] = (t \bmod L)$ and $\ALPHABET L = \{0, \dots, L-1\}$. Then the dynamics and per-step cost at time $t$ are given by $P_{[t]}$ and $c_{[t]}$, where
+
+- $c_\ell : \ALPHABET S × \ALPHABET A \to \reals$, for $\ell \in \ALPHABET L$
+- $P_\ell : \ALPHABET S × \ALPHABET A \to Δ(\ALPHABET S)$, for $\ell \in \ALPHABET L$
+
+Now consider an infinite-horizon $L$-periodic MDP. Since the model is not stationary, we cannot directly use the standard results for [infinite horizon MDPs](inf-horizon.qmd). However, it is relatively simple to characterize the solution of periodic MDPs–by using state augmentation. In particular, we define a time-homogeneous MDP with state space $\ALPHABET S × \ALPHABET L$, action space $\ALPHABET A$, per-step dynamics
+$$
+  \bar P((s',\ell') \mid (s,\ell), a)
+  =
+  P_{\ell}(s' \mid s,a) \IND\{ \ell' ≡ \ell + 1 \pmod L \}
+$$
+and the per-step cost
+$$
+  \bar c((s,\ell), a)
+  =
+  c_{\ell}(s,a) \IND\{ \ell' ≡ \ell + 1 \pmod L \}.
+$$
+The above time-homogenous MDP with state $(S_t, [t])$ is equivalent to the original periodic MDP. Therefore, an immediate implication of @thm-inf-DP is the following:
+
+::: {#prp-periodic-opt-policy}
+There exists a time-homongeous optimal policy $π^* \colon \ALPHABET S \times \ALPHABET L \to \ALPHABET A$ such that the optimal action at time $t$ is $a_t = π^*(s_t, [t])$.
+
+Equivalently, there exists a deterministic $L$-periodic optimal policy
+$$
+  π^* = (π^*_0, π^*_1, \dots, π^*_{L-1}, π^*_0, π^*_1, \dots, π^*_{L-1}, \dots),
+  \quad
+  π^*_\ell \colon \ALPHABET S \to \ALPHABET A, \ell \in \ALPHABET L,
+$$
+such that the optimal action at time $t$ is $a_t = π^*_{[t]}(s_t)$.
+:::
+
+To succinctly write the procedure to identify this policy, we define the following Bellman operators: 
+
+- for any $μ \colon \ALPHABET S \to \ALPHABET A$ and $\ell \in \ALPHABET L$, define $\BELLMAN_\ell^{μ}$ and $\BELLMAN_\ell^*$ to be the Bellman operator for policy $μ$ and Bellman optimality operator for the model $(c_\ell, P_\ell)$
+- For any $v \in \reals^n$ and $\ell \in \ALPHABET L$, define $\GREEDY_{\ell}(v)$ to be the greedy policy wrt $v$ in model $(c_\ell, P_\ell)$, i.e., if $μ \in \GREEDY_{\ell}(v)$ then $\BELLMAN_\ell^{μ} v = \BELLMAN_\ell^* v$.
+
+### Policy evaluation {-}
+
+Let $π = (π_0, \dots, π_{L-1})$ be any periodic policy and let $V^π_t$ denote its performance starting at time $t$. Then,
+$$
+  V^π_t = v^π_{[t]}
+$$
+where $(v^π_0, v^π_1, \dots, v^π_{L-1})$ satisfy
+$$
+  v^π_\ell = 
+  \BELLMAN^{π_\ell}_{\ell} v^π_{[\ell + 1]},
+  \quad \ell \in \ALPHABET L.
+$$
+The above relation implies that
+$$
+  v^π_\ell = 
+  \BELLMAN^{π_\ell}_{\ell}
+  \BELLMAN^{π_{[\ell+1]}}_{[\ell+1]}
+  \cdots
+  \BELLMAN^{π_{[\ell+L-1]}}_{[\ell+L-1]}
+  v^π_\ell,
+  \quad \ell \in \ALPHABET L,
+$$
+which may be viewed as evaluating the policy every $L$ time steps.
+
+### Optimal policy {-}
+
+Let $(v^*_0, v^*_1, \ldots, v^*_{L-1})$ satisfy
+$$
+  v^*_{\ell} = \BELLMAN^*_{\ell} v^*_{[\ell+1]},
+  \quad \ell \in \ALPHABET L
+$$
+Moreover, let $(π^*_0, \dots, π^*_{L-1})$ be such that
+$$
+  π^*_\ell = \GREEDY_\ell(v^*_{[\ell+1]}),
+  \quad \ell \in \ALPHABET L.
+$$
+Then the periodic policy $π^* = (π^*_0, π^*_1, \ldots, π^*_{L-1})$ is
+policy and its performance $V^*_t$ starting at time $t$ satisfies
+$$
+  V^*_t = v^*_{[t]}
+$$
+
+## Notes {-}
+Periodic MDPs were first investigated in @Riis1965. The presentation here borrows heavily from @Scherrer2016.
