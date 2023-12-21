@@ -42,28 +42,47 @@ is still working tomorrow). In this case, the discount factor is defined
 as $(1-p)$. See @Shwartz2001 for a detailed discussion of this alternative.
 :::
 
-In the remainder of this section, we will study how to obtain a solution for
-such infinite horizon discounted cost models. 
+In the remainder of this section, we will study how to obtain a solution for such infinite horizon discounted cost models. 
 
-_Note_: Throughout this section, we assume that $\ALPHABET S$ and $\ALPHABET A$ are
-finite and $|\ALPHABET S|= n$ and $|\ALPHABET A| = m$. 
+_Note_: Throughout this section, we assume that $\ALPHABET S$ and $\ALPHABET A$ are finite and $|\ALPHABET S|= n$ and $|\ALPHABET A| = m$. 
+
+:::{.callout-note icon=false appearance="simple"}
+# <i class="bi bi-journal-text text-primary"></i> Summary of the main result
+
+The main result for infinite horizon MDPs is that there is there is no loss of optimality in restricting attention to time-homogenous deterministic Markov policies. In other words, for any time-varaying, possible history dependent and randomized policy, there is a time-homogeneous deterministic Markov policy that performs as well. 
+
+For finite horizon models, we have already established that there is no loss of optimality in restricting attention to deterministic Markov policies. So, the only new bit here is that for infinite horizon discounted cost models, we can restrict attention to **time-homogeneous** policies as well.
+
+
+
+Intuitively, this seems obvious. The system from time 1 onwards looks the same as the system from time 2 onwards. So, the decision rule which is optimal at time 1 should also be optimal at time 2. This intuition is correct as long as the future behavior is **stable,** which is always the case for discounted models with bounded per-step cost. We formally estabish this rest below. Formally establishing this intuition is a bit more subtle in other models such as the infinite-horizon total cost, infinite-horizon long-term average cost, and even discounted cost models with unbounded per-step cost.
+
+:::
 
 ## Performance of a time-homogeneous Markov policy
 
-For any $π \colon \ALPHABET S \to \ALPHABET A$, consider the time homogeneous
-policy $(π, π, \dots)$. For ease of notation, we denote this policy simply by
-$π$. The expected discounted cost under this policy is given by
+An infinite horizon Markov policy $(π_1, π_2, \ldots)$ is called time-homongeous[^0] if $π_1 = π_2 = π_3 = \cdots$. With a slight abuse of notation, we will denote a time-homogenous policy $(π,π,\ldots)$ simply by $π$. 
+
+[^0]: Time-homogenous policies are sometimes also called stationary policies in the literature. I personally feel that the term _stationary_ can be a bit confusing because _stationary processes_ has a precise but  different meaning in probability theory. 
+
+The expected discounted cost of a time-homogeneous Markov policy is given by
 $$ V^π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
 \bigg].$$
 
-To get a compact expression for this, define a $n × 1$ vector $c_π$ and a $n
-× n$ matrix $P_π$ as follows:
+We now introduce a vector notation. Let $V^π$ denote the $n × 1$ vector given by $[V^π]_s = V^π(s)$. Furthermore, define Define the $n × 1$ vector $c_π$ and the $n × n$ matrix $P_π$ as follows:
 $$ [c_π]_s = c(s, π(s))
    \quad\text{and}\quad
    [P_π]_{ss'} = P_{ss'}(π(s)).
 $$
-Then the dynamics under policy $π$ are Markovian with transition probability
-matrix $P_π$ and a cost function $c_π$. Then
+
+::: {#prp-policy-evaluation}
+The performance of a time-homogeneous Markov policy may be computed by solving a system of linear equations given by:
+$$ V^{π} = (1 - γ P_{π})^{-1} c_{π}. $$
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+We first observe that the dynamics under policy $π$ are Markovian with transition probability matrix $P_π$ and a cost function $c_π$. Therefore,
 $$ \begin{align*}
 \EXP^π\big[ c(S_t, π(S_t)) \bigm| S_1 = s \big]
   &= \sum_{s' \in \ALPHABET S} \PR^π(S_t = s' | S_1 = s) c(s', π(s'))
@@ -73,61 +92,71 @@ $$ \begin{align*}
   &= δ_s P_π^{t-1} c_π.
 \end{align*} $$
 
-Let $V^π$ denote the $n × 1$ vector given by $[V^π]_s = V^π(s)$. Then,
+Now consider the performance of policy $π$, which is given by
 $$ \begin{align*}
 V^π &= c_π + γ P_π c_π + γ^2 P_π^2 c_π + \cdots \\
     &= c_π + γ P_π \big( c_π + γ P_π c_π + \cdots \big) \\
-    &= c_π + γ P_π V^π,
+    &= c_π + γ P_π V^π.
 \end{align*} $$
-which can be rewritten as
+Rearranging terms, we have
 $$ (I - γ P_π) V^π = c_π. $$
 
 The [:spectral radius] $ρ(γ P_d)$ of a matrix is upper bounded by its [:spectral
 norm] $\lVert γ P_d \rVert = γ < 1$. Therefore, the matrix $(I - γ P_π)$ has an inverse and by left multiplying both sides by $(I - γ P_π)^{-1}$, we get
 $$ V^π = (I - γP_π)^{-1} c_π. $$
+:::
 
 [:spectral radius]: https://en.wikipedia.org/wiki/Spectral_radius
 [:spectral norm]: https://en.wikipedia.org/wiki/Matrix_norm
 
-The equation 
-$$ V^π = c_π + γ P_π V^π $$
-is sometimes also written as
-$$ V^π = \BELLMAN^π V^π $$
-where the operator $\BELLMAN^π$, which is called the _Bellman operator_,
-is an operator from $\reals^n$ to $\reals^n$
-given by
-$$ \BELLMAN^π v = c_π + γ P_π v.$$
-
 ## Bellman operators
 
-:::{#def-Bellman-operator}
-Define the _Bellman operator_ $\BELLMAN^* : \reals^n \to \reals^n$ as
-follows: for any $v \in \reals^n$
-$$ [\BELLMAN^* v]_s = \min_{a \in \ALPHABET A}
-\Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v_y \Big\}.
-$$
-:::
+To succinctly describe the analysys, we define two operaors:
 
-Note that the above may also be written as[^1]
+1. **The Bellman operator for policy $π$ denoted by $\BELLMAN^π$:** For any $v \in \reals^n$, 
+   $$ \BELLMAN^π v = c_{π} + γ P_{π} v. $$
+
+2. **The Bellman optimality operator denoted by $\BELLMAN^*$:** For any $v \in \reals^n$:
+  $$ [\BELLMAN^* v]_s = \min_{a \in \ALPHABET A}
+  \Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v_y \Big\}.$$
+   We say that a policy $π$ is **a greedy policy with respect to $v$**, written as $π = \GREEDY(v)$, if 
+   $$ B^* v = B^π v. $$
+   
+Note that the Bellman optimality operator may also be written as[^1]
 $$ \BELLMAN^* v = \min_{π \in \Pi} \BELLMAN^π v, $$
 where $\Pi$ denotes the set of all deterministic Markov policies. 
 
 [^1]: This is true for general models only when the arg min at each state
   exists.
 
+For any $v \in \reals^n$, let $\NORM{v}_{∞}$ denote the sup-norm of $v$, i.e., $\NORM{v}_{∞} := \sup_{s \in \ALPHABET S} \ABS{v(s)}$. Recall that $(\reals^n, \NORM{\cdot}_{∞})$ is a [:Banach space]
+
+[:Banach space]: https://en.wikipedia.org/wiki/Banach_space
+
 :::{#prp-Bellman-contraction}
-For any $v \in \reals^n$, define the norm $\NORM{V} := \sup_{s \in
-\ALPHABET S} \ABS{V^s}$. Then, the Bellman operator is a contraction,
-i.e., for any $v, w \in \reals^n$,
-$$ \NORM{\BELLMAN^* v - \BELLMAN^* w} \le γ \NORM{v - w}. $$
+The operators $\BELLMAN^π$ and $\BELLMAN^*$ are contractions under the sup-norm, i.e., for any $v, w \in \reals^n$,
+$$ \NORM{\BELLMAN v - \BELLMAN w} \le γ \NORM{v - w}, $$
+where $\BELLMAN \in \{\BELLMAN^π, \BELLMAN^*\}$.
 :::
 
-
-:::{.callout-note collapse="true"}  
+:::{.callout-note collapse="true"}
 #### Proof {-}
+First consider the case of $\BELLMAN^π$. Note that
+$$
+  \BELLMAN^π v - \BELLMAN^π w =
+  (c_{π} + γ P_{π} v) - (c_{π} + γ P_{π} w)
+  =
+  γ P_{π} (v - w).
+$$
+Therefore, 
+$$
+  \NORM{\BELLMAN^π v - \BELLMAN^π w}_{∞} 
+  \le γ \NORM{v - w}_{∞} P_{π} \mathbb{1}
+  = γ \NORM{v - w}_{∞}.
+$$
 
-Fix a state $s \in \ALPHABET S$ and consider $[\BELLMAN^* v](s) - [\BELLMAN
-w](s)$. In particular, let $a^*$ be the optimal action in the right hand side
+Now consider the case of $\BELLMAN^*$.
+Fix a state $s \in \ALPHABET S$ and consider $[\BELLMAN^* v](s) - [\BELLMAN^* w](s)$. In particular, let $a^*$ be the optimal action in the right hand side
 of $[\BELLMAN^* w](s)$. Then,
 $$\begin{align*}
   [\BELLMAN^* v - \BELLMAN^* w](s) &= 
@@ -148,25 +177,34 @@ By a similar argument, we can show that $[\BELLMAN^* w - \BELLMAN^* v](s) \le
 γ \| v - w \|$, which proves the other side of the inequality. 
 :::
 
-An immediate consequence of the contraction property is the following.
+Let's revisit the result of @prp-policy-evaluation, which may be written as
+$$ V^π = c_π + γ P_π V^π $$
+We can write the above using Bellman operators as:
+\begin{equation}\label{eq:policy-evaluation}
+V^π = \BELLMAN^π V^π.
+\end{equation}
+
+Thus, we can equivalently state the result of @prp-policy-evaluation by saying that $V^π$ is the _unique_ bounded fixed point of \eqref{eq:policy-evaluation}. 
+
+What about the Bellman optimality operator? Does the equation $V^* = \BELLMAN V^*$ have a solution? The contraction property (@prp-Bellman-contraction) and the [:Banach fixed point theorem][BFPT] imply the following.
+
+[BFPT]: https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem
 
 :::{#thm-Bellman-fixed-point}
 There is a unique bounded $V^* \in \reals^n$ that satisfies the 
 _Bellman equation_
-$$ V = \BELLMAN^* V $$
+$$ V^* = \BELLMAN^* V^* $$
 
 Moreover, if we start from any $V^0 \in \reals^n$ and recursively define
-$$ V^n = \BELLMAN^* V^{n-1} $$
+$V^n = \BELLMAN^* V^{n-1}$
 then
 $$ \lim_{n \to ∞} V^n = V^*. $$
 :::
 
-:::{.callout-note collapse="false"} 
-#### Proof {-}
-This follows immediately from the [Banach fixed point theorem](https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem).
-:::
 
 ## Optimal time-homogeneous policy
+
+What does $V^*$ signify? What about a policy $π^* \in \GREEDY(V^*)$? We answer these questions below.
 
 <!--
 ::: highlight :::
@@ -219,14 +257,14 @@ Consider the finite horizon truncation
 $$ V^{\text{opt}}_T(s) =  \min_{π} \EXP^π\bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) | S_1 = s \bigg].
 $$
 From the results for finite horizon MDP, we have that
-$$ V^{\text{opt}}_T = \BELLMAN^*^T V^0 $$
+$$ V^{\text{opt}}_T = (\BELLMAN^*)^T V^0 $$
 where $V^0$ is the all zeros vector. 
 
 Now by construction, 
-$$V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [\BELLMAN^*^T V^0](s). $$
+$$V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [(\BELLMAN^*)^T V^0](s). $$
 Taking limit as $T \to ∞$, we get that
 $$\begin{equation}\label{eq:1}
-  V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [\BELLMAN^*^T V^0](s) = V^*(s). 
+  V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [(\BELLMAN^*)^T V^0](s) = V^*(s). 
 \end{equation}$$
 
 Since $0 \le c(s,a) \le M$,  for any $T$,
@@ -234,16 +272,37 @@ $$ \begin{align*}
 V^{\text{opt}}_∞(s) &\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) 
 \biggm| S_1 = s \bigg] + \sum_{t=T+1}^∞ γ^{t-1} M \\
 &= V^{\text{opt}}_T(s) + γ^T M / (1 - γ) \\
-&= [\BELLMAN^*^T V^0](s) + γ^T M / (1-γ). 
+&= [(\BELLMAN^*)^T V^0](s) + γ^T M / (1-γ). 
 \end{align*} $$
 Taking limit as $T \to ∞$, we get that
 $$\begin{equation}\label{eq:2}
   V^{\text{opt}}_∞(s) \le \lim_{T \to ∞}
-  \big\{ [\BELLMAN^*^T V^0](s) + γ^T M / (1-γ) \big\} = V^*(s). 
+  \big\{ [(\BELLMAN^*)^T V^0](s) + γ^T M / (1-γ) \big\} = V^*(s). 
 \end{equation}$$
 
 From \\eqref{eq:1} and \\eqref{eq:2}, we get that $V^{\text{opt}}_∞ = V^*$. 
 :::
+
+Thus, $V^*$ is the optimal performance. Now we can formally state the main result.
+
+::: {#thm-inf-DP}
+A time-homogeneous Markov policy $π^*$ is optimal if and only if it satisfies $π^* \in \GREEDY(V^*)$, where $V^*$ is the unique uniformly bounded solution of the following fixed point equation:
+$$
+  V^* = \BELLMAN^* V^*.
+$$
+:::
+
+::: {.callout-note collapse="false"}
+#### Proof
+
+From @thm-Bellman-fixed-point, we know that the equation $V^* = \BELLMAN^* V^*$ has a unique bounded solution $V^*$. From @prp-value-optimal, we know that $V^*$ is the optimal policy.
+
+Take a policy $π^*$ such that $π^* \in \GREEDY(V^*)$. Note that 
+$$ V^* = \BELLMAN^* V^* = \BELLMAN^{π^*} V^*. $$
+Thus, $V^*$ is a fixed point of $\BELLMAN^{π^*}$ and therefore equal to $V^{π^*}$. Thus, any policy that is greedy wrt $V^*$ has performance $V^*$ and (by @prp-value-optimal) is optimal.
+
+:::
+
 
 ## Properties of Bellman operator
 
