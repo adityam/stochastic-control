@@ -59,17 +59,34 @@ $$
   \BELLMAN^{π_\ell}_{\ell} v^π_{[\ell + 1]},
   \quad \ell \in \ALPHABET L.
 $$
-The above relation implies that
+
+An alterative method is to evaluate the policy every $L$ time steps. For ease of notation, we assume that the system starts at time $0$ (rather than at time $1$ as we have been assuming so far). In particular, define:
 $$
-  v^π_\ell = 
-  \BELLMAN^{π_\ell}_{\ell}
-  \BELLMAN^{π_{[\ell+1]}}_{[\ell+1]}
+\bar c^π(s) = \EXP^{π}\biggl[ \sum_{\ell \in \ALPHABET L} γ^{\ell-1}
+c(S_{\ell}, A_{\ell}) \biggm| S_0 = s \biggr],
+$$
+to be the performance of policy $π$ over one period. Note that this can be computed via dynamic programming as:
+$$
+  \bar c^π = 
+  \BELLMAN^{π_0}_{0}
+  \BELLMAN^{π_1}_{1}
   \cdots
-  \BELLMAN^{π_{[\ell+L-1]}}_{[\ell+L-1]}
-  v^π_\ell,
-  \quad \ell \in \ALPHABET L,
+  \BELLMAN^{π_{L-1}}_{L-1}
+  \mathbf{0}
 $$
-which may be viewed as evaluating the policy every $L$ time steps.
+where $\mathbf{0}$ is the all zeros vector. Now define 
+$$
+  \bar P^π = P^{π_0}_0 P^{π_1}_1 \cdots P^{π_{L-1}}_{L-1}
+$$
+to be the $L$ step transition matrix. Then, the value of policy $π$ (evaluated every $L$ steps) is just like a regular MDP and therefore satisfies:
+$$
+  v^π_0 = \bar c^π + γ^L \bar P^π v^π_0
+$$
+or, equivalently,
+$$
+  v^π_0 = (I - γ^L \bar P^π)^{-1} \bar c^π
+$$
+which may be thought of as the equivalent of @prp-policy-evaluation for periodic MDPs.
 
 ### Optimal policy {-}
 
@@ -90,4 +107,7 @@ $$
 $$
 
 ## Notes {-}
-Periodic MDPs were first investigated in @Riis1965. The presentation here borrows heavily from @Scherrer2016.
+Our presentation borrows heavily from the tutorial slides of @Scherrer2016.
+
+Periodic MDPs were first investigated in @Riis1965, who proposed the policy evaluation formula and presented a variation of policy iteration for periodic MDPs.
+
