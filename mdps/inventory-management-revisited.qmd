@@ -8,6 +8,9 @@ keywords:
   - stochastic optimization
   - infinite horizon
   - discounted cost
+execute:
+  echo: false
+  freeze: true
 ---
 
 :::{.callout-note icon=false appearance="simple"}
@@ -33,6 +36,24 @@ _base-stock_ policy characterized by thresholds $\{s^*_t\}_{t \ge 1}$. In the
 infinite horizon discounted setting, we expect the optimal policy to be
 time-homogeneous, i.e., the thresholds $\{s^*_t\}_{t \ge 1}$ be a constant
 $s^*$ and not to depend on time.
+
+```{julia}
+#| output: false
+# Install packages
+using Pkg; Pkg.activate(".")
+for pkg in ["IJulia", "Distributions", "OffsetArrays", "DataFrames", "JSON"]
+   Pkg.add(pkg)
+end
+for url in [ "https://github.com/adityam/MDP.jl.git"]
+  Pkg.add(url=url)
+end
+
+using Distributions: Exponential, cdf
+using OffsetArrays
+using MDP
+
+using DataFrames
+```
 
 As an illustration, let's reconsider the example used for the [finite horizon
 setting][finite] (where $p=5$, $c_h = 4$, $c_s = 2$, and the demand is
@@ -175,6 +196,90 @@ The optimal threshold for the numerical example shown above</figcaption>
 
 ## Exercises {-}
 
+```{julia}
+#| output: false
+
+function generate_exponential_demand(μ, ch, cs, p, γ)
+  discount = γ 
+
+  δ = 0.1
+  L = 500
+
+  S = -L:L
+  A = 0:2L+1
+  W = 0:min(L,300)
+
+  point(ℓ) = ℓ * δ
+
+  Pw_true = Exponential(μ)
+  Pw = OffsetArray(zeros(size(W)), W)
+  for w ∈ W
+      if w != W[end]
+          Pw[w] = cdf(Pw_true, point(w+1)) - cdf(Pw_true, point(w))
+      else
+          Pw[w] = 1 - cdf(Pw_true, point(w))
+      end
+  end
+
+  h(s) = (s >= 0) ? ch*s : -cs*s
+
+  function bellmanUpdate!(v_next, π_next, v; discount=1.0)
+      # Assume that v is of size 2L + 1
+      # Construct a post-decision state value function
+      H = OffsetArray(zeros(3L+1),-L:2L)
+      # h(z) = E[ h(z-W) + γ V(z-W) ]
+      for z ∈ -L:2L, w ∈ W
+          next_s = clamp(z-w, -L, L)
+          H[z] += ( h(z-w) + discount * v[next_s] )*Pw[w]
+      end
+  
+      # V(s) = min_{a } { p*a + H(s+a) }
+      for s ∈ S
+          opt = 0
+          val = H[s]
+  
+          for a ∈ A
+              next_z = clamp(s+a, -L, 2L)
+              newVal = p*a + H[next_z]
+              if newVal <= val
+                  opt = a
+                  val = newVal
+              end
+          end
+          v_next[s] = val
+          π_next[s] = opt
+      end
+  end
+  model = DynamicModel(bellmanUpdate!; objective=:Min)
+  v_initial = OffsetArray(zeros(size(S)), S)
+
+  (V,π) = valueIteration(model, v_initial; discount=discount)
+
+  threshold = μ * log( (ch + cs) / (ch + p*(1-discount)/discount) )
+  return (δ,S,V,π,threshold)
+end
+
+df = DataFrame(state=Float64[], value=Float64[], policy=Float64[], holding=Float64[], shortage=Float64[])
+
+threshold_df = DataFrame(threshold=Float64[], holding=Float64[], shortage=Float64[])
+
+Ch = range(start=0.5, step=0.5, stop=5.0)
+Cs = range(start=0.5, step=0.5, stop=5.0)
+for ch in Ch, cs in Cs
+ (δ,S,V,π,threshold) = generate_exponential_demand(5, ch, cs, 1., 0.9)
+ for s in S
+    push!(df, (s*δ, V[s], π[s], ch, cs))
+ end
+ push!(threshold_df, (threshold, ch, cs))
+end
+```
+
+```{julia}
+ojs_define(exponential = df)
+ojs_define(threshold_exp = threshold_df)
+```
+
+
 :::{#exr-inventory-exponential}
 Suppose that the arrival process is exponential with rate $1/\mu$, i.e.,
 the density of $W$ is given by $e^{-s/\mu}/\mu$. Show that the optimal
@@ -185,9 +290,37 @@ $$ s^* = \mu \log \left[ \frac{ c_h + c_s} { c_h + p (1-γ)/γ} \right]. $$
  $F(s) = 1 - e^{-s/μ}$.
 :::
 
+The plots below verify this result numerically. We simulate the system with parameters $μ = 5$, $p = 1$, $γ = 0.9$. 
+
+```{ojs}
+//| layout-ncol: 2
+viewof ch_exp = Object.assign(Inputs.range([0.5, 5], {label: "ch", step: 0.5, value: 2.0 }), {style: '--label-width:20px'})
+viewof cs_exp = Object.assign(Inputs.range([0.5, 5], {label: "cs", step: 0.5, value: 0.0 }), {style: '--label-width:20px'})
+```
+
+```{ojs}
+//| fig-cap: Optimal policy for model with exponential demand. The black curve shows the optimal policy computed via value iteration and the red line shows the threshold computed via the formula of @exr-inventory-exponential.
+
+ValuePlotExp = Plot.plot({
+  grid: true,
+  x: { domain: [-11, 11] },
+  y: { domain: [0, 200] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.ruleX(threshold_exp.filter(d => d.shortage == cs_exp && d.holding == ch_exp), 
+               {x: "threshold", stroke: "red"} ),
+    // Data
+    Plot.line(exponential.filter(d => d.shortage == cs_exp && d.holding == ch_exp),
+              {x: "state", y: "policy", stroke: "black"}),
+  ]}
+)
+```
+
 ## Notes {-}
 
-The idea of using [reward shaping] to derive a closed form expression for inventory management is taken from @Whittle1982. It is interesting to note that @Whittle1982 uses the idea of reward shaping more than 17 years before the paper by @Ng1999 on reward shaping. It is possible that Whittle was using the results of @Porteus1975. 
+The idea of using [reward shaping] to derive a closed form expression for inventory management is taken from @Whittle1982. It is interesting to note that @Whittle1982 uses the idea of reward shaping more than 17 years before the paper by @Ng1999 on reward shaping. It is possible that Whittle was using the results of @Porteus1975. As far as I know, the explicit formula of the threshold presented in @thm-inventory-inf has not appeared in the literature before.
 
 As established in the notes on [Lipschitz MDPs], it can be shown that the optimal value function for the inventory management model above is Lipschitz continuous.
 
