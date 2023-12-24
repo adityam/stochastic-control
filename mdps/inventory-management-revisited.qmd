@@ -10,6 +10,7 @@ keywords:
   - discounted cost
 execute:
   echo: false
+  cache: true
   freeze: true
 ---
 
@@ -18,12 +19,12 @@ execute:
 One of the potential benefits of modeling a system as infinite horizon discounted cost MDP is that it can be simpler to identify an optimal policy. We illustrate this using the inventory management example.
 :::
 
-Consider the model for [inventory management] and assume that it runs for an infinite horizon. We assume that the per-step cost is given by $$c(s,a,s_{+}) = p a + γ h(s_{+}), $$ where 
+Let's reconsider the model for [inventory management] and assume that it runs for an infinite horizon. We assume that the per-step cost is given by $$c(s,a,s_{+}) = p a + γ h(s_{+}), $$ where 
 $$ h(s) = \begin{cases}
   c_h s, & \text{if $s \ge 0$} \\
   -c_s s, & \text{if $s < 0$},
 \end{cases}$$
-where $a$ is the per-unit holding cost, $b$ is the per-unit shortage cost, and $p$ is the per-unit procurement cost. Note that in the per-step cost, we are assuming that the holding or shortage cost is dicounted because this cost is incurred at the end of the time period.  
+where $c_h$ is the per-unit holding cost, $c_s$ is the per-unit shortage cost, and $p$ is the per-unit procurement cost. Note that we have assumed that the holding or shortage cost is discounted because this cost is incurred at the end of the time period.  
 
 Recall that in the finite horizon setting, the optimal policy was a _base-stock_ policy characterized by thresholds $\{s^*_t\}_{t \ge 1}$. In the infinite horizon discounted setting, we expect the optimal policy to be time-homogeneous, i.e., the thresholds $\{s^*_t\}_{t \ge 1}$ be a constant $s^*$ and not to depend on time.
 
@@ -31,17 +32,22 @@ Recall that in the finite horizon setting, the optimal policy was a _base-stock_
 #| output: false
 # Install packages
 using Pkg; Pkg.activate(".")
-# for pkg in ["IJulia", "Distributions", "OffsetArrays", "DataFrames", "JSON"]
+# for pkg in ["IJulia", "Revise", "Distributions", "OffsetArrays", "DataFrames", "JSON"]
 #    Pkg.add(pkg)
 # end
 # for url in [ "https://github.com/adityam/MDP.jl.git"]
 #   Pkg.add(url=url)
 # end
+# # Installing Jupyter Cache
+# Pkg.add("Conda")
+# using Conda
+# Conda.add("jupyter-cache")
+
+using Revise
 
 using Distributions: Exponential, Binomial, pdf, cdf
 using OffsetArrays
 using MDP
-
 using DataFrames
 ```
 
