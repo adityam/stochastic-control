@@ -412,12 +412,12 @@ Note that the above bounds require the knowledge of $\hat V^*$. For specific cho
 
 2. If the approximation is with respect the the Wasserstein distance, then we have the following:
 
-   a. If the approximate model $\hat {\ALPHABET M}$ is $(\hat L_r, \hat L_P)$ Lipschitz (see @def-lipschitz-mdp) with $γ^{-1} \hat L_P < 1$, then
+   a. If the approximate model $\hat {\ALPHABET M}$ is $(\hat L_r, \hat L_P)$ Lipschitz (see @def-lipschitz-mdp) with $γ \hat L_P < 1$, then
    $$
      α \le \frac{2}{1-γ}\biggl[
      ε + \frac{γ δ\hat L_r}{1 - γ \hat L_{P}} \biggr]
    $$
-   b. If the original model ${\ALPHABET M}$ is $(L_r, L_P)$ Lipschitz with $γ^{-1} L_P < 1$, then
+   b. If the original model ${\ALPHABET M}$ is $(L_r, L_P)$ Lipschitz with $γ L_P < 1$, then
    $$
      α \le \frac{2}{(1-γ)^2}\biggl[
      ε + \frac{γ δ L_r}{1 - γ L_{P}} \biggr]
@@ -432,6 +432,89 @@ Note that the above bounds require the knowledge of $\hat V^*$. For specific cho
 
 2. The result follows from @thm-model-error-IPM and @thm-lipschitz-opt.
 :::
+
+## Example: Inventory management with incorrect demand distribution {#example-inventory}
+
+Let's consider the [inventory management] problem. Suppose that the demand process has a PDF $f_W$ but we choose a policy $\hat π^*$ according to an estimated demand PDF $f_{\hat W}$. What is the model approximation error if the policy $\hat π^*$ is used instead of $π^*$?
+
+[inventory management]: ../mdps/inventory-management-revisited.qmd
+
+To upper bound the model approximation error, we use the instance independent bounds of @cor-model-error-instance-independent in terms of the Wasserstein distance. Note that since there is no error in modeling the per-step cost, $ε = 0$. To bound $δ$, note that pdf of the dynamics are given by:
+$$
+  p(\cdot | s,a) = f_W(\cdot -s+a)
+$$
+which is the same as the demand distribution shifted by $(s-a)$. Thus, 
+$$
+  \ALPHABET K(p(\cdot | s,a), \hat p(\cdot | s,a))
+  = 
+  \ALPHABET K(f_W(\cdot - s + a), f_{\hat W}(\cdot - s + a))
+  = 
+  \ALPHABET K(f_W, f_{\hat W})
+$$
+where the last equality uses the fact that shifting two distributions does not change their Wasserstein distance[^1]. Thus, 
+$$
+  δ = \ALPHABET K(f_W, f_{\hat W})
+$$
+is the Wasserstein distance between the 
+
+
+[^1]: For our 1-dimension setting, this fact can be seen immediately from the formula of Wasserstein distance in terms of the CDF of random varaibles:
+$$
+  \ALPHABET K(X,Y) = \int_{-∞}^∞ \ABS{ F_X(t) - F_Y(t) } dt.
+$$
+For a more general argument, see the next section.
+
+We know from @exm-lipschitz-inventory that the inventory management model is $(p + \max\{c_h,cs\}, 1)$-Lipschitz. Therefore, the approximate value function $\hat V^*$ is $\hat L_V$-Lipschitz (see @thm-lipschitz-opt) with
+$$
+  \hat L_V \le \frac{p + \max\{c_h, c_s\}}{1 - γ}.
+$$
+
+Therefore, we get that the policy $\hat π^*$ is $α$-optimal, where
+$$
+  α \le \frac{2 γ}{(1-γ)^2}(p + \max\{c_h, c_s\}) \ALPHABET K(f_W, f_{\hat W}).
+$$
+
+## Example: Performance loss in using certainty equivalent control {#example-certainty-equivalence}
+
+[Certainty equivalence] refers to the following design methodology to determine a control policy for a stochastic control problem. Replace the random variables  in the stochastic control problem by their (conditional) expectations, solve the resulting deterministic control problem to determine a feedback control policy, and use the resulting _certainty equivalent control policy_ in the original stochastic system. See notes on [linear quadratic regulation][LQR] for an example where certainty equivalence is optimal.
+
+[Certainty equivalence]: ../stochastic-optimization/certainty-equivalence.qmd
+[LQR]: ../linear-systems/lqr.qmd
+
+But this is not the case in general. In this section, we use the results of @thm-model-error-IPM to characterize the performance loss when using certainty equivalence for general models. 
+
+Consider a system with state space $\reals^n$, action space $\reals^m$, and dynamics 
+\begin{equation}\label{eq:stochastic}
+    S_{t+1} = f(S_t, A_t) + N_t
+\end{equation}
+where $f$ is a measurable function and $\{N_t\}_{t \ge 1}$ is a zero-mean i.i.d.\ noise sequence with control law $\nu_N$. The per-step cost is given by $c(S_t, A_t)$. 
+
+Now consider a deterministic model obtained by assuming that the  noise sequence in \eqref{eq:stochastic} takes its expected value, i.e., the dynamics are 
+\begin{equation}\label{eq:deterministic}
+    S_{t+1} = f(S_t, A_t).
+\end{equation}
+The per-step cost is the same as before. 
+
+Let $\ALPHABET M$ denote the stochastic model and $\hat {\ALPHABET M}$ denote the deterministic model. Then, the certainty equivalent design is to use the control policy $\hat \pi^*$ in original stochastic model $\ALPHABET M$. We use the Wasserstein distance based bounds in @cor-model-error-instance-independent to bound $\NORM{V^{\hat \pi^*} - V^*}_{∞}$. We assume that there is some norm $\| \cdot \|$ on $\reals^n$ and the Wasserstein distance and Lipschitz constant are computed with respect to this norm.
+
+Since the costs are the same for both models, $ε = 0$. We now characterize $\delta$. For ease of notation, given random variables $X$ and $Y$ with probability laws $\nu_X$ and $\nu_Y$, we will use $\ALPHABET K(X,Y)$ to denote $\ALPHABET K(\nu_X, \nu_Y)$. 
+Recall the Kantorovich-Rubinstein inequality @Villani2008, which states that 
+\begin{equation}\label{eq:Kantorovich}
+    \ALPHABET K(\nu_X, \nu_Y) = \inf_{ \substack{ \tilde X \sim \nu_X \\ \tilde Y \sim \nu_Y} }
+    \EXP[ \| \tilde X - \tilde Y \| ]
+\end{equation}
+Now, for a fixed $(s,a)$, define $X = f(s,a) + N$, where $N \sim \nu_N$, and $Y = f(s,a)$. Then, the Wasserstein distance between $P(\cdot | s,a)$ and $\hat P(\cdot | s,a)$ is equal to $\ALPHABET K(X,Y)$, which by Kantorovich-Rubinstein inequality \eqref{eq:Kantorovich}, equals $\EXP[\| N \|]$, which does not depend on $(s,a)$. Thus, 
+$$
+  δ = \EXP[\NORM{N}].
+$$
+
+Thus, by @cor-model-error-instance-independent, we get
+\begin{equation}\label{eq:CE-bound}
+    \NORM{ V^{\hat \pi^*} - V^*}_{∞} \le \frac{2\gamma}{1- \gamma} \EXP[ \| N \| ] L_{\hat V^*}.
+\end{equation}
+This bound precisely quantifies the engineering intuition that certainty equivalent control laws are good when the noise is "small". This bound may be viewed as a generalization of the bounds on [certainty equivalence for stochastic optimization][Certainty equivalence] presented earlier.
+
+
 
 <!--
 ## Example: State aggregation (or discretization or quantization)
@@ -674,3 +757,5 @@ For the second result follows from simple algebra.
 ## Notes {-}
 
 The material in this section is adapted from @Bozkurt2023, where the results were presented for unbounded per-step cost. The IPM-based bounds of @thm-model-error-IPM are due to @Muller1997a, but the proof is adapted from @Bozkurt2023, where some generalizations of @thm-model-error-IPM are also presented.
+
+The approximation bound for the [inventory management example](#example-inventory) is from @Muller1997a. The approximation bound for [certainty equivalence](#example-certainty-equivalence) is from @Bozkurt2023.
