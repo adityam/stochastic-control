@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-12-18">
+<meta name="dcterms.date" content="2023-12-24">
 <meta name="keywords" content="infinite horizon, discounted cost, Lipschitz continuity, approximation bounds, state aggregation">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -137,7 +137,7 @@ window.MathJax = {
 
 </head>
 
-<body class="nav-sidebar floating nav-fixed">
+<body class="nav-sidebar floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -590,12 +590,14 @@ window.MathJax = {
   <li><a href="#model-approximation-error" id="toc-model-approximation-error" class="nav-link" data-scroll-target="#model-approximation-error"><span class="header-section-number">23.1.2</span> Model approximation error</a></li>
   </ul></li>
   <li><a href="#ipm-based-bounds-on-model-approximation-error" id="toc-ipm-based-bounds-on-model-approximation-error" class="nav-link" data-scroll-target="#ipm-based-bounds-on-model-approximation-error"><span class="header-section-number">23.2</span> IPM based bounds on model approximation error</a></li>
+  <li><a href="#example-inventory" id="toc-example-inventory" class="nav-link" data-scroll-target="#example-inventory"><span class="header-section-number">23.3</span> Example: Inventory management with incorrect demand distribution</a></li>
+  <li><a href="#example-certainty-equivalence" id="toc-example-certainty-equivalence" class="nav-link" data-scroll-target="#example-certainty-equivalence"><span class="header-section-number">23.4</span> Example: Performance loss in using certainty equivalent control</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/approx-mdps/model-approximation.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -625,7 +627,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 18, 2023</p>
+      <p class="date">December 24, 2023</p>
     </div>
   </div>
   
@@ -967,11 +969,11 @@ Proof
 \]</span></p></li>
 <li><p>If the approximation is with respect the the Wasserstein distance, then we have the following:</p>
 <ol type="a">
-<li>If the approximate model <span class="math inline">\(\hat {\ALPHABET M}\)</span> is <span class="math inline">\((\hat L_r, \hat L_P)\)</span> Lipschitz (see <a href="../mdps/lipschitz-mdps.html#def-lipschitz-mdp">Definition&nbsp;<span>17.1</span></a>) with <span class="math inline">\(γ^{-1} \hat L_P &lt; 1\)</span>, then <span class="math display">\[
+<li>If the approximate model <span class="math inline">\(\hat {\ALPHABET M}\)</span> is <span class="math inline">\((\hat L_r, \hat L_P)\)</span> Lipschitz (see <a href="../mdps/lipschitz-mdps.html#def-lipschitz-mdp">Definition&nbsp;<span>17.1</span></a>) with <span class="math inline">\(γ \hat L_P &lt; 1\)</span>, then <span class="math display">\[
   α \le \frac{2}{1-γ}\biggl[
   ε + \frac{γ δ\hat L_r}{1 - γ \hat L_{P}} \biggr]
 \]</span></li>
-<li>If the original model <span class="math inline">\({\ALPHABET M}\)</span> is <span class="math inline">\((L_r, L_P)\)</span> Lipschitz with <span class="math inline">\(γ^{-1} L_P &lt; 1\)</span>, then <span class="math display">\[
+<li>If the original model <span class="math inline">\({\ALPHABET M}\)</span> is <span class="math inline">\((L_r, L_P)\)</span> Lipschitz with <span class="math inline">\(γ L_P &lt; 1\)</span>, then <span class="math display">\[
   α \le \frac{2}{(1-γ)^2}\biggl[
   ε + \frac{γ δ L_r}{1 - γ L_{P}} \biggr]
 \]</span></li>
@@ -997,6 +999,50 @@ Proof
 </div>
 </div>
 </div>
+</section>
+<section id="example-inventory" class="level2 page-columns page-full" data-number="23.3">
+<h2 data-number="23.3" class="anchored" data-anchor-id="example-inventory"><span class="header-section-number">23.3</span> Example: Inventory management with incorrect demand distribution</h2>
+<p>Let’s consider the <a href="../mdps/inventory-management-revisited.html">inventory management</a> problem. Suppose that the demand process has a PDF <span class="math inline">\(f_W\)</span> but we choose a policy <span class="math inline">\(\hat π^*\)</span> according to an estimated demand PDF <span class="math inline">\(f_{\hat W}\)</span>. What is the model approximation error if the policy <span class="math inline">\(\hat π^*\)</span> is used instead of <span class="math inline">\(π^*\)</span>?</p>
+<div class="page-columns page-full"><p>To upper bound the model approximation error, we use the instance independent bounds of <a href="#cor-model-error-instance-independent">Corollary&nbsp;<span>23.1</span></a> in terms of the Wasserstein distance. Note that since there is no error in modeling the per-step cost, <span class="math inline">\(ε = 0\)</span>. To bound <span class="math inline">\(δ\)</span>, note that pdf of the dynamics are given by: <span class="math display">\[
+  p(\cdot | s,a) = f_W(\cdot -s+a)
+\]</span> which is the same as the demand distribution shifted by <span class="math inline">\((s-a)\)</span>. Thus, <span class="math display">\[
+  \ALPHABET K(p(\cdot | s,a), \hat p(\cdot | s,a))
+  =
+  \ALPHABET K(f_W(\cdot - s + a), f_{\hat W}(\cdot - s + a))
+  =
+  \ALPHABET K(f_W, f_{\hat W})
+\]</span> where the last equality uses the fact that shifting two distributions does not change their Wasserstein distance<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. Thus, <span class="math display">\[
+  δ = \ALPHABET K(f_W, f_{\hat W})
+\]</span> is the Wasserstein distance between the</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;For our 1-dimension setting, this fact can be seen immediately from the formula of Wasserstein distance in terms of the CDF of random varaibles: <span class="math display">\[
+  \ALPHABET K(X,Y) = \int_{-∞}^∞ \ABS{ F_X(t) - F_Y(t) } dt.
+\]</span> For a more general argument, see the next section.</p></li></div></div>
+<p>We know from <a href="../mdps/lipschitz-mdps.html#exm-lipschitz-inventory">Example&nbsp;<span>17.1</span></a> that the inventory management model is <span class="math inline">\((p + \max\{c_h,cs\}, 1)\)</span>-Lipschitz. Therefore, the approximate value function <span class="math inline">\(\hat V^*\)</span> is <span class="math inline">\(\hat L_V\)</span>-Lipschitz (see <a href="../mdps/lipschitz-mdps.html#thm-lipschitz-opt">Theorem&nbsp;<span>17.1</span></a>) with <span class="math display">\[
+  \hat L_V \le \frac{p + \max\{c_h, c_s\}}{1 - γ}.
+\]</span></p>
+<p>Therefore, we get that the policy <span class="math inline">\(\hat π^*\)</span> is <span class="math inline">\(α\)</span>-optimal, where <span class="math display">\[
+  α \le \frac{2 γ}{(1-γ)^2}(p + \max\{c_h, c_s\}) \ALPHABET K(f_W, f_{\hat W}).
+\]</span></p>
+</section>
+<section id="example-certainty-equivalence" class="level2" data-number="23.4">
+<h2 data-number="23.4" class="anchored" data-anchor-id="example-certainty-equivalence"><span class="header-section-number">23.4</span> Example: Performance loss in using certainty equivalent control</h2>
+<p><a href="../stochastic-optimization/certainty-equivalence.html">Certainty equivalence</a> refers to the following design methodology to determine a control policy for a stochastic control problem. Replace the random variables in the stochastic control problem by their (conditional) expectations, solve the resulting deterministic control problem to determine a feedback control policy, and use the resulting <em>certainty equivalent control policy</em> in the original stochastic system. See notes on <a href="../linear-systems/lqr.html">linear quadratic regulation</a> for an example where certainty equivalence is optimal.</p>
+<p>But this is not the case in general. In this section, we use the results of <a href="#thm-model-error-IPM">Theorem&nbsp;<span>23.3</span></a> to characterize the performance loss when using certainty equivalence for general models.</p>
+<p>Consider a system with state space <span class="math inline">\(\reals^n\)</span>, action space <span class="math inline">\(\reals^m\)</span>, and dynamics <span class="math display">\[\begin{equation}\label{eq:stochastic}
+    S_{t+1} = f(S_t, A_t) + N_t
+\end{equation}\]</span> where <span class="math inline">\(f\)</span> is a measurable function and <span class="math inline">\(\{N_t\}_{t \ge 1}\)</span> is a zero-mean i.i.d.&nbsp;noise sequence with control law <span class="math inline">\(\nu_N\)</span>. The per-step cost is given by <span class="math inline">\(c(S_t, A_t)\)</span>.</p>
+<p>Now consider a deterministic model obtained by assuming that the noise sequence in <span class="math inline">\(\eqref{eq:stochastic}\)</span> takes its expected value, i.e., the dynamics are <span class="math display">\[\begin{equation}\label{eq:deterministic}
+    S_{t+1} = f(S_t, A_t).
+\end{equation}\]</span> The per-step cost is the same as before.</p>
+<p>Let <span class="math inline">\(\ALPHABET M\)</span> denote the stochastic model and <span class="math inline">\(\hat {\ALPHABET M}\)</span> denote the deterministic model. Then, the certainty equivalent design is to use the control policy <span class="math inline">\(\hat \pi^*\)</span> in original stochastic model <span class="math inline">\(\ALPHABET M\)</span>. We use the Wasserstein distance based bounds in <a href="#cor-model-error-instance-independent">Corollary&nbsp;<span>23.1</span></a> to bound <span class="math inline">\(\NORM{V^{\hat \pi^*} - V^*}_{∞}\)</span>. We assume that there is some norm <span class="math inline">\(\| \cdot \|\)</span> on <span class="math inline">\(\reals^n\)</span> and the Wasserstein distance and Lipschitz constant are computed with respect to this norm.</p>
+<p>Since the costs are the same for both models, <span class="math inline">\(ε = 0\)</span>. We now characterize <span class="math inline">\(\delta\)</span>. For ease of notation, given random variables <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> with probability laws <span class="math inline">\(\nu_X\)</span> and <span class="math inline">\(\nu_Y\)</span>, we will use <span class="math inline">\(\ALPHABET K(X,Y)\)</span> to denote <span class="math inline">\(\ALPHABET K(\nu_X, \nu_Y)\)</span>. Recall the Kantorovich-Rubinstein inequality <span class="citation" data-cites="Villani2008">Villani et al. (<a href="../references.html#ref-Villani2008" role="doc-biblioref">2008</a>)</span>, which states that <span class="math display">\[\begin{equation}\label{eq:Kantorovich}
+    \ALPHABET K(\nu_X, \nu_Y) = \inf_{ \substack{ \tilde X \sim \nu_X \\ \tilde Y \sim \nu_Y} }
+    \EXP[ \| \tilde X - \tilde Y \| ]
+\end{equation}\]</span> Now, for a fixed <span class="math inline">\((s,a)\)</span>, define <span class="math inline">\(X = f(s,a) + N\)</span>, where <span class="math inline">\(N \sim \nu_N\)</span>, and <span class="math inline">\(Y = f(s,a)\)</span>. Then, the Wasserstein distance between <span class="math inline">\(P(\cdot | s,a)\)</span> and <span class="math inline">\(\hat P(\cdot | s,a)\)</span> is equal to <span class="math inline">\(\ALPHABET K(X,Y)\)</span>, which by Kantorovich-Rubinstein inequality <span class="math inline">\(\eqref{eq:Kantorovich}\)</span>, equals <span class="math inline">\(\EXP[\| N \|]\)</span>, which does not depend on <span class="math inline">\((s,a)\)</span>. Thus, <span class="math display">\[
+  δ = \EXP[\NORM{N}].
+\]</span></p>
+<p>Thus, by <a href="#cor-model-error-instance-independent">Corollary&nbsp;<span>23.1</span></a>, we get <span class="math display">\[\begin{equation}\label{eq:CE-bound}
+    \NORM{ V^{\hat \pi^*} - V^*}_{∞} \le \frac{2\gamma}{1- \gamma} \EXP[ \| N \| ] L_{\hat V^*}.
+\end{equation}\]</span> This bound precisely quantifies the engineering intuition that certainty equivalent control laws are good when the noise is “small”. This bound may be viewed as a generalization of the bounds on <a href="../stochastic-optimization/certainty-equivalence.html">certainty equivalence for stochastic optimization</a> presented earlier.</p>
 <!--
 ## Example: State aggregation (or discretization or quantization)
 
@@ -1238,6 +1284,7 @@ For the second result follows from simple algebra.
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
 <p>The material in this section is adapted from <span class="citation" data-cites="Bozkurt2023">Bozkurt et al. (<a href="../references.html#ref-Bozkurt2023" role="doc-biblioref">2023</a>)</span>, where the results were presented for unbounded per-step cost. The IPM-based bounds of <a href="#thm-model-error-IPM">Theorem&nbsp;<span>23.3</span></a> are due to <span class="citation" data-cites="Muller1997a">Müller (<a href="../references.html#ref-Muller1997a" role="doc-biblioref">1997</a>)</span>, but the proof is adapted from <span class="citation" data-cites="Bozkurt2023">Bozkurt et al. (<a href="../references.html#ref-Bozkurt2023" role="doc-biblioref">2023</a>)</span>, where some generalizations of <a href="#thm-model-error-IPM">Theorem&nbsp;<span>23.3</span></a> are also presented.</p>
+<p>The approximation bound for the <a href="#example-inventory">inventory management example</a> is from <span class="citation" data-cites="Muller1997a">Müller (<a href="../references.html#ref-Muller1997a" role="doc-biblioref">1997</a>)</span>. The approximation bound for <a href="#example-certainty-equivalence">certainty equivalence</a> is from <span class="citation" data-cites="Bozkurt2023">Bozkurt et al. (<a href="../references.html#ref-Bozkurt2023" role="doc-biblioref">2023</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
@@ -1247,8 +1294,12 @@ For the second result follows from simple algebra.
 <div id="ref-Muller1997a" class="csl-entry" role="listitem">
 <span class="smallcaps">Müller, A.</span> 1997. Integral probability metrics and their generating classes of functions. <em>Advances in Applied Probability</em> <em>29</em>, 2, 429–443. DOI: <a href="https://doi.org/10.2307/1428011">10.2307/1428011</a>.
 </div>
+<div id="ref-Villani2008" class="csl-entry" role="listitem">
+<span class="smallcaps">Villani, C. et al.</span> 2008. <em>Optimal transport: Old and new</em>. Springer.
+</div>
 </div>
 </section>
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
