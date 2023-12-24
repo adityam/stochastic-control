@@ -7,6 +7,7 @@ keywords:
   - structural results
 execute:
   echo: false
+  freeze: true
 ---
 
 ::: {.column-margin}
@@ -107,52 +108,36 @@ properties of the optimal solution.
 
 [newsvendor]: ../../stochastic/newsvendor
 
-```{ojs}
-// Demand parameters
-n = 50
-s = 0.4
+```{julia}
+#| output: false
+# Install packages
+using Pkg; Pkg.activate(".")
+# for pkg in ["IJulia", "Distributions", "OffsetArrays", "DataFrames", "JSON"]
+#    Pkg.add(pkg)
+# end
+# for url in [ "https://github.com/adityam/MDP.jl.git"]
+#   Pkg.add(url=url)
+# end
 
-// Model parameters
-p0 = 5
-ch = 4
-cs = 2
+using Distributions: Binomial, pdf, cdf
+using OffsetArrays
+using MDP
 
-
-h = function(s) {
-  if(s >= 0) 
-    return ch*s
-  else
-    return -cs*s
-}
-
-// Horizon
-T = 15
+using DataFrames
 ```
 
-```{ojs}
+```{julia}
 
-binomial = {
-  // From https://stackoverflow.com/a/37715980/193149
-  const logf = [0, 0, 0.6931471805599453, 1.791759469228055, 3.1780538303479458, 4.787491742782046, 6.579251212010101, 8.525161361065415, 10.60460290274525, 12.801827480081469, 15.104412573075516, 17.502307845873887, 19.987214495661885, 22.552163853123425, 25.19122118273868, 27.89927138384089, 30.671860106080672, 33.50507345013689, 36.39544520803305, 39.339884187199495, 42.335616460753485, 45.38013889847691, 48.47118135183523, 51.60667556776438, 54.78472939811232, 58.00360522298052, 61.261701761002, 64.55753862700634, 67.88974313718154, 71.25703896716801, 74.65823634883016, 78.0922235533153, 81.55795945611504, 85.05446701758152, 88.58082754219768, 92.1361756036871, 95.7196945421432, 99.33061245478743, 102.96819861451381, 106.63176026064346, 110.32063971475739, 114.0342117814617, 117.77188139974507, 121.53308151543864, 125.3172711493569, 129.12393363912722, 132.95257503561632, 136.80272263732635, 140.67392364823425, 144.5657439463449, 148.47776695177302, 152.40959258449735, 156.3608363030788, 160.3311282166309, 164.32011226319517, 168.32744544842765,  172.3527971391628, 176.39584840699735, 180.45629141754378, 184.53382886144948, 188.6281734236716, 192.7390472878449, 196.86618167289, 201.00931639928152, 205.1681994826412, 209.34258675253685, 213.53224149456327, 217.73693411395422, 221.95644181913033, 226.1905483237276, 230.43904356577696, 234.70172344281826, 238.97838956183432, 243.2688490029827, 247.57291409618688, 251.8904022097232, 256.22113555000954, 260.5649409718632, 264.9216497985528, 269.2910976510198, 273.6731242856937, 278.0675734403661, 282.4742926876304, 286.893133295427, 291.3239500942703, 295.76660135076065, 300.22094864701415, 304.6868567656687, 309.1641935801469, 313.65282994987905, 318.1526396202093, 322.66349912672615, 327.1852877037752, 331.7178871969285, 336.26118197919845, 340.815058870799, 345.37940706226686, 349.95411804077025, 354.5390855194408, 359.1342053695754, 363.73937555556347]
+n, q = 50, 0.4
+ch, cs, p = 2, 5, 1
 
-  return function(n, k, p) {
-      return Math.exp(logf[n] - logf[n-k] - logf[k]) * p**k * (1-p)**(n-k)
-  }
-}
+Pw = Binomial(n,q)
 
-W = {
-  var points = new Array(n+1)
-  var cumulative = 0
-  var probability = 0
-
-  for(var k = 0; k <= n; k++) {
-    probability = binomial(n,k,s)
-    cumulative += probability
-    points[k] = { demand:k, probability: probability, cumulative: cumulative }
-  }
-
-  return points
-}
+demand_df = DataFrame(demand=Float64[], probability=Float64[], cumulative=Float64[])
+for k in 0:n
+  push!(demand_df, (k, pdf(Pw,k), cdf(Pw,k)) )
+end
+ojs_define(W = demand_df, ch=ch, cs=cs, p=p)
 ```
 
 To fix ideas, let's solve this dynamic program for a specific instance. 
@@ -173,72 +158,79 @@ demandPlot = Plot.plot({
 })
 ```
 
-We assume that the demand is distributed according to a Binomial(${n}, ${s}) distribution, as shown in @fig-demand.
+We assume that the demand is distributed according to a Binomial(50,0.4) distribution, as shown in @fig-demand.
 We assume that the model parameters are as given below:
 
-<center>
-$p =$ ${p0},
-$c_h =$ ${ch}, 
-$c_s =$ ${cs}
+$$
+c_h = 2,\quad c_s = 5,\quad p = 1. 
+$$
 
-</center>
+We consider a horizon $T = 15$, and solve the dynamic program shown above. The optimal value function and policy are shown below:
 
-We consider a horizon $T =$ ${T}, and solve the dynamic program shown above. The optimal value function and policy are shown below:
+```{julia}
+L = 500
+S = -L:L
+A = 0:2L+1
+W = 0:n
 
-```{ojs}
-DP = {
-   var DP = new Array()
-   var idx = 0
+T = 15
+ojs_define(T=T)
 
-  
-   const Smax =  (W.length - 1)*T
-   var V = new Array(2*Smax + 1)  // -Smax to Smax
-   var H = new Array(3*Smax + 1)  // -Smax to 2Smax
+function generate_binomial_demand(n,q,ch,cs,p,T)
+  Pw = Binomial(n,q)
+  h(s) = (s >= 0) ? ch*s : -cs*s
 
-   
-  
-   // Initialize the terminal value function
-   for( var s = -Smax; s <= Smax; s++) {
-      V[s + Smax] = 0
-   }
+  function bellmanUpdate!(v_next, π_next, v; discount=1.0)
+      # Assume that v is of size 2L + 1
+      # Construct a post-decision state value function
+      H = OffsetArray(zeros(3L+1),-L:2L)
+      # h(z) = E[ h(z-W) + γ V(z-W) ]
+      for z ∈ -L:2L, w ∈ W
+          next_s = clamp(z-w, -L, L)
+          H[z] += ( h(z-w) + discount * v[next_s] )* pdf(Pw,w)
+      end
 
-   // Dynamic programming
-   for( var t = T; t >= 0; t--) {
-     // H(z) = EXP[ h(z-W) + V(z-W) ]
-     for( var z = -Smax; z <= 2*Smax; z++) {
-       H[z + Smax] = 0
-       for( var i = 0; i < W.length; i++ ) {
-         var w = W[i].demand
-         H[z + Smax] += (h(z - w) + V[Math.min(Math.max(z-w, -Smax), Smax) + Smax])*W[i].probability
-       }
-     }
+      # V(s) = min_{a } { p*a + H(s+a) }
+      for s ∈ S
+          opt = 0
+          val = H[s]
 
-     // V(s) = min_{a in S_{>= 0}} { p*a + H(s+a) }
-     for(var s = -Smax; s <= Smax; s++) {
-       var opt = 0
-       var val = H[s + Smax]
-       for(var a = 1; a <= Smax; a++) {
-         var newVal = p*a + H[Math.min(s+a, 2*Smax) + Smax ]
-         if(newVal <= val) {
-           opt = a
-           val = newVal
-         }
-       }
-       V[s + Smax] = val
-       DP[idx++] = { time: t, state: s, value: val, action: opt }
-     }
-   }
-   
-   
-   return DP
-     
-}
+          for a ∈ A
+              next_z = clamp(s+a, -L, 2L)
+              newVal = p*a + H[next_z]
+              if newVal <= val
+                  opt = a
+                  val = newVal
+              end
+          end
+          v_next[s] = val
+          π_next[s] = opt
+      end
+  end
+  model = DynamicModel(bellmanUpdate!; objective=:Min)
+  v_final = OffsetArray(zeros(size(S)), S)
+  (V, π) = finiteHorizon(model, v_final, horizon=T)
+  return (S,V,π)
+end
+
+df = DataFrame(time=Int[], state=Int[], value=Float64[], policy=Int[], shortage=Float64[])
+
+Cs = range(start=0.5, step=0.5, stop=5.0)
+
+for cs in Cs
+  (S,V,π) = generate_binomial_demand(n,q,ch,cs,p,T)
+  for t in 1:T, s in S
+    push!(df, (t, s, V[t][s], π[t][s],cs))
+  end
+end
+
+ojs_define(DP = df)
 ```
 
 ```{ojs}
 //| layout-ncol: 2
-viewof time = Inputs.range([1, T], {label: "t", step: 1, value: 1 })
-viewof p = Inputs.range([1, 15], {label: "Purchase cost", step: 0.5, value: p0 })
+viewof time = Object.assign(Inputs.range([1, T], {label: "t", step: 1, value: 1 }), {style: '--label-width:20px'})
+viewof cs_val = Object.assign(Inputs.range([0.5, 5], {label: "cs", step: 0.5, value: cs }), {style: '--label-width:20px'})
 ```
 
 ```{ojs}
@@ -249,29 +241,33 @@ viewof p = Inputs.range([1, 15], {label: "Purchase cost", step: 0.5, value: p0 }
 //|     - Optimal policy
 valuePlot = Plot.plot({
   grid: true,
+  y: { domain: [0, 500] },
+  x: { domain: [-50, 50] },
   marks: [
     // Axes
     Plot.ruleX([0]),
     Plot.ruleY([0]),
     // Data
-    Plot.line(DP.filter(d => d.time == time && Math.abs(d.state) <= 75), {x:"state", y:"value", curve:"step-after"})
+    Plot.line(DP.filter(d => d.time == time && d.shortage == cs_val), {x:"state", y:"value", curve:"step-after"})
   ]
 })
 
 actionPlot = Plot.plot({
   grid: true,
+  y: { domain: [0, 35] },
+  x: { domain: [-10, 30] },
   marks: [
     // Axes
     Plot.ruleX([0]),
     Plot.ruleY([0]),
     // Data
-    Plot.line(DP.filter(d => d.time == time && Math.abs(d.state) <= 20), {x:"state", y:"action", curve:"step-after"})
+    Plot.line(DP.filter(d => d.time == time && d.shortage == cs_val), {x:"state", y:"policy", curve:"step-after"})
   ]
 })
 ```
 
 The plots above suggest that the optimal policy has a structure. Play around
-with the value of the purchase cost to see if that structure is retained.
+with the value of the shortage cost to see if that structure is retained.
 
 
 We will now see how to prove the structure of optimal policy.
