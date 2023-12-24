@@ -18,37 +18,27 @@ execute:
 One of the potential benefits of modeling a system as infinite horizon discounted cost MDP is that it can be simpler to identify an optimal policy. We illustrate this using the inventory management example.
 :::
 
-Consider the model for [inventory management] and assume that it runs for an
-infinite horizon. We assume that the per-step cost is given by
-$$c(s,a,s_{+}) = p a + γ h(s_{+}), $$
-where 
+Consider the model for [inventory management] and assume that it runs for an infinite horizon. We assume that the per-step cost is given by $$c(s,a,s_{+}) = p a + γ h(s_{+}), $$ where 
 $$ h(s) = \begin{cases}
   c_h s, & \text{if $s \ge 0$} \\
   -c_s s, & \text{if $s < 0$},
 \end{cases}$$
-where $a$ is the per-unit holding cost, $b$ is the per-unit shortage cost, and
-$p$ is the per-unit procurement cost. Note that in the per-step cost, we are
-assuming that the holding or shortage cost is dicounted because this cost is
-incurred at the end of the time period.  
+where $a$ is the per-unit holding cost, $b$ is the per-unit shortage cost, and $p$ is the per-unit procurement cost. Note that in the per-step cost, we are assuming that the holding or shortage cost is dicounted because this cost is incurred at the end of the time period.  
 
-Recall that in the finite horizon setting, the optimal policy was a
-_base-stock_ policy characterized by thresholds $\{s^*_t\}_{t \ge 1}$. In the
-infinite horizon discounted setting, we expect the optimal policy to be
-time-homogeneous, i.e., the thresholds $\{s^*_t\}_{t \ge 1}$ be a constant
-$s^*$ and not to depend on time.
+Recall that in the finite horizon setting, the optimal policy was a _base-stock_ policy characterized by thresholds $\{s^*_t\}_{t \ge 1}$. In the infinite horizon discounted setting, we expect the optimal policy to be time-homogeneous, i.e., the thresholds $\{s^*_t\}_{t \ge 1}$ be a constant $s^*$ and not to depend on time.
 
 ```{julia}
 #| output: false
 # Install packages
 using Pkg; Pkg.activate(".")
-for pkg in ["IJulia", "Distributions", "OffsetArrays", "DataFrames", "JSON"]
-   Pkg.add(pkg)
-end
-for url in [ "https://github.com/adityam/MDP.jl.git"]
-  Pkg.add(url=url)
-end
+# for pkg in ["IJulia", "Distributions", "OffsetArrays", "DataFrames", "JSON"]
+#    Pkg.add(pkg)
+# end
+# for url in [ "https://github.com/adityam/MDP.jl.git"]
+#   Pkg.add(url=url)
+# end
 
-using Distributions: Exponential, cdf
+using Distributions: Exponential, Binomial, pdf, cdf
 using OffsetArrays
 using MDP
 
@@ -56,39 +46,119 @@ using DataFrames
 ```
 
 As an illustration, let's reconsider the example used for the [finite horizon
-setting][finite] (where $p=5$, $c_h = 4$, $c_s = 2$, and the demand is
-Binomial(10,0.4)). We consider the discount factor $γ = 0.9$. The value
+setting][finite] (where $c_h = 2$, $c_s = 5$, $p=1$, and the demand is
+Binomial(50,0.4)). We consider the discount factor $γ = 0.9$. The value
 function and optimal policy is this case are shown below.
 
 [finite]: inventory-management.html#fig1
 
-<figure style='max-width:40em;'>
-<div id="observablehq-viewof-discount-a7f21f8f"></div>
-<table>
-<tr>
-<td id="observablehq-inf_value_plot-a7f21f8f"></td>
-<td id="observablehq-inf_action_plot-a7f21f8f"></td>
-</tr>
-<tr> 
-<td> Value function </td>
-<td> Optimal policy </td>
-</table>
-<figcaption><b>Figure 1</b><br/>
-The value function and the optimal policy for the example</figcaption>
-</figure>
+```{julia}
+#| output: false
 
-<script type="module">
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-import define from "https://api.observablehq.com/d/b2eb5b0d068edd4a.js?v=3";
-new Runtime().module(define, name => {
-  if (name === "demand_CDF_plot") return new Inspector(document.querySelector("#observablehq-demand_CDF_plot-a7f21f8f"));
-  if (name === "inf_value_plot") return new Inspector(document.querySelector("#observablehq-inf_value_plot-a7f21f8f"));
-  if (name === "inf_action_plot") return new Inspector(document.querySelector("#observablehq-inf_action_plot-a7f21f8f"));
-  if (name === "viewof p") return new Inspector(document.querySelector("#observablehq-viewof-p-a7f21f8f"));
-  if (name === "viewof discount") return new Inspector(document.querySelector("#observablehq-viewof-discount-a7f21f8f"));
-  return ["DP","value_plot","action_plot","infDP","F_opt"].includes(name);
-});
-</script>
+function generate_binomial_demand(n,q,ch,cs,p,γ)
+  Pw = Binomial(n,q)
+  h(s) = (s >= 0) ? ch*s : -cs*s
+
+  L = 10n
+  S = -L:L
+  A = 0:2L+1
+  W = 0:n
+
+  function bellmanUpdate!(v_next, π_next, v; discount=1.0)
+      # Assume that v is of size 2L + 1
+      # Construct a post-decision state value function
+      H = OffsetArray(zeros(3L+1),-L:2L)
+      # h(z) = E[ h(z-W) + γ V(z-W) ]
+      for z ∈ -L:2L, w ∈ W
+          next_s = clamp(z-w, -L, L)
+          H[z] += ( h(z-w) + discount * v[next_s] )* pdf(Pw,w)
+      end
+
+      # V(s) = min_{a } { p*a + H(s+a) }
+      for s ∈ S
+          opt = 0
+          val = H[s]
+
+          for a ∈ A
+              next_z = clamp(s+a, -L, 2L)
+              newVal = p*a + H[next_z]
+              if newVal <= val
+                  opt = a
+                  val = newVal
+              end
+          end
+          v_next[s] = val
+          π_next[s] = opt
+      end
+  end
+
+  model = DynamicModel(bellmanUpdate!; objective=:Min)
+  v_initial = OffsetArray(zeros(size(S)), S)
+  (V, π) = valueIteration(model, v_initial, discount=γ)
+
+  return (S,V,π)
+end
+```
+
+```{julia}
+#| output: false
+df_bin = DataFrame(state=Float64[], value=Float64[], policy=Float64[], holding=Float64[], shortage=Float64[])
+
+Ch_bin = range(start=0.5, step=0.5, stop=5.0)
+Cs_bin = range(start=0.5, step=0.5, stop=5.0)
+for ch in Ch_bin, cs in Cs_bin
+ (S,V,π) = generate_binomial_demand(50, 0.4, ch, cs, 1., 0.9)
+ for s in S
+    push!(df_bin, (s, V[s], π[s], ch, cs))
+ end
+end
+```
+
+```{julia}
+ojs_define(binomial = df_bin)
+```
+
+```{ojs}
+//| layout-ncol: 2
+viewof ch_bin = Object.assign(Inputs.range([0.5, 5], {label: "ch", step: 0.5, value: 2.0 }), {style: '--label-width:20px'})
+viewof cs_bin = Object.assign(Inputs.range([0.5, 5], {label: "cs", step: 0.5, value: 5.0 }), {style: '--label-width:20px'})
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| fig-cap: Optimal policy for the model with binomial demand. 
+//| fig-subcap:
+//|     - Value function
+//|     - Optimal policy
+
+ValuePlotBin = Plot.plot({
+  grid: true,
+  x: { domain: [-30, 70] },
+  y: { domain: [200, 400] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    // Plot.ruleY([0]),
+    // Data
+    Plot.line(binomial.filter(d => d.shortage == cs_bin && d.holding == ch_bin),
+              {x: "state", y: "value", stroke: "black"}),
+  ]}
+)
+
+PolicyPlotBin = Plot.plot({
+  grid: true,
+  x: { domain: [0, 30] },
+  y: { domain: [0, 30] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    // Plot.ruleY([0]),
+    // Data
+    Plot.line(binomial.filter(d => d.shortage == cs_bin && d.holding == ch_bin),
+              {x: "state", y: "policy", stroke: "black"}),
+  ]}
+)
+```
 
 ---
 
@@ -183,14 +253,57 @@ obtain \\eqref{eq:opt-threshold}.
 We can use \\eqref{eq:opt-threshold} to find the optimal threshold for the
 example used above. In particular, we need to find the value of $s^*$ at which
 the CDF of the demand equals the value $(c_s - p(1-γ)/γ)/(c_h + c_s)$, as
-shown in Fig. 2 below.
+shown in @fig-threshold below.
 
-<figure style='max-width:40em;'>
-<div id="observablehq-viewof-p-a7f21f8f"></div>
-<div id="observablehq-demand_CDF_plot-a7f21f8f"></div>
-<figcaption><b>Figure 2</b><br/>
-The optimal threshold for the numerical example shown above</figcaption>
-</figure>
+```{julia}
+#| output: false
+function generate_demand()
+  n, q = 50, 0.4
+  ch, cs, p = 2, 5, 1
+
+  Pw = Binomial(n,q)
+
+  demand_df = DataFrame(demand=Float64[], probability=Float64[], cumulative=Float64[])
+  for k in 0:n
+    push!(demand_df, (k, pdf(Pw,k), cdf(Pw,k)) )
+  end
+  return demand_df
+end
+demand_df = generate_demand()
+```
+
+```{julia}
+ojs_define(W = demand_df)
+```
+
+```{ojs}
+//| layout-ncol: 2
+viewof ch_val = Object.assign(Inputs.range([0.5, 5], {label: "ch", step: 0.5, value: 2.0 }), {style: '--label-width:20px'})
+viewof cs_val = Object.assign(Inputs.range([0.5, 5], {label: "cs", step: 0.5, value: 5.0 }), {style: '--label-width:20px'})
+```
+
+
+```{ojs}
+p  = 1
+discount = 0.9
+F_opt = (cs_val - p*(1-discount)/discount)/(ch_val + cs_val)
+```
+
+```{ojs}
+//| fig-cap: The optimal threshold for the example shown above.
+//| label: fig-threshold
+demand_CDF_plot = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(W, {x:"demand", y:"cumulative",curve:"step-after"}),
+    Plot.line([ [0,F_opt], [W[W.length-1].demand, F_opt] ], {stroke: "red"})
+  ]
+})
+```
 
 ---
 
@@ -259,24 +372,24 @@ function generate_exponential_demand(μ, ch, cs, p, γ)
   return (δ,S,V,π,threshold)
 end
 
-df = DataFrame(state=Float64[], value=Float64[], policy=Float64[], holding=Float64[], shortage=Float64[])
+df_exp = DataFrame(state=Float64[], value=Float64[], policy=Float64[], holding=Float64[], shortage=Float64[])
 
-threshold_df = DataFrame(threshold=Float64[], holding=Float64[], shortage=Float64[])
+df_threshold = DataFrame(threshold=Float64[], holding=Float64[], shortage=Float64[])
 
-Ch = range(start=0.5, step=0.5, stop=5.0)
-Cs = range(start=0.5, step=0.5, stop=5.0)
-for ch in Ch, cs in Cs
+Ch_exp = range(start=0.5, step=0.5, stop=5.0)
+Cs_exp = range(start=0.5, step=0.5, stop=5.0)
+for ch in Ch_exp, cs in Cs_exp
  (δ,S,V,π,threshold) = generate_exponential_demand(5, ch, cs, 1., 0.9)
  for s in S
-    push!(df, (s*δ, V[s], π[s], ch, cs))
+    push!(df_exp, (s*δ, V[s], π[s], ch, cs))
  end
- push!(threshold_df, (threshold, ch, cs))
+ push!(df_threshold, (threshold, ch, cs))
 end
 ```
 
 ```{julia}
-ojs_define(exponential = df)
-ojs_define(threshold_exp = threshold_df)
+ojs_define(exponential = df_exp)
+ojs_define(threshold_exp = df_threshold)
 ```
 
 
@@ -295,7 +408,7 @@ The plots below verify this result numerically. We simulate the system with para
 ```{ojs}
 //| layout-ncol: 2
 viewof ch_exp = Object.assign(Inputs.range([0.5, 5], {label: "ch", step: 0.5, value: 2.0 }), {style: '--label-width:20px'})
-viewof cs_exp = Object.assign(Inputs.range([0.5, 5], {label: "cs", step: 0.5, value: 0.0 }), {style: '--label-width:20px'})
+viewof cs_exp = Object.assign(Inputs.range([0.5, 5], {label: "cs", step: 0.5, value: 5.0 }), {style: '--label-width:20px'})
 ```
 
 ```{ojs}
@@ -327,5 +440,3 @@ As established in the notes on [Lipschitz MDPs], it can be shown that the optima
 [inventory management]: inventory-management.qmd
 [reward shaping]: reward-shaping.qmd
 [Lipschitz MDPs]: lipschitz-mdps.qmd#inventory-example
-
-
