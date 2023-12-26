@@ -8,39 +8,45 @@ $$
 $$
 Let $π_{\hat V}$ be _a greedy policy_ with respect to $\hat V$, i.e.,
 $$
-  π_{\hat V}(s) \in \arg \min_{a \in \ALPHABET A} 
+  π_{\hat V}(s) \in 
+  \GREEDY(\hat V)
+  =
+  \arg \min_{a \in \ALPHABET A} 
   \Bigl[ c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) \hat V(s')
-  \Bigr].
+  \Bigr]
 $$
+
 We are interested in bounding the loss in performance when using policy $π_{\hat V}$ instead of the optimal policy, i.e., 
-$\| V^* - V_{π_{\hat V}}\|_{∞}$. We call this **the policy loss**.
+$\| V^* - V^{π_{\hat V}}\|_{∞}$. We call this **the policy loss**.
 
 :::{#thm-policy-loss}
 $$
-\| V^* - V_{π_{\hat V}}\|_{∞} 
+\| V^* - V^{π_{\hat V}}\|_{∞} 
 \le
 \frac{2 γ}{1-γ} \| V^* - \hat V\|_{∞}.
 $$
 :::
 
+It is quite likely this bound is loose. See the discussion in the section of [model approximation bound](model-approximation.qmd#bound-comparison) for some remarks.
+
 :::{.callout-note collapse="true"}
 #### Proof
 From triangle inequality, we have
 \begin{align*}
-  \| V^* - V_{π_{\hat V}}\|_{∞} 
+  \| V^* - V^{π_{\hat V}}\|_{∞} 
   &\le 
   \| \BELLMAN V^* - \BELLMAN \hat V \|_{∞}
   + 
   \| \BELLMAN_{π_{\hat V}} \hat V - \BELLMAN_{π_{\hat V}} V^* \|_{∞}
   +
-  \| \BELLMAN_{π_{\hat V}} V^* - \BELLMAN_{π_{\hat V}} V_{π_{\hat V}} \|_{∞}
+  \| \BELLMAN_{π_{\hat V}} V^* - \BELLMAN_{π_{\hat V}} V^{π_{\hat V}} \|_{∞}
   \\
   &\le
   γ \| V^* - \hat V \|_{∞}
   + 
   γ \| \hat V -  V^* \|_{∞}
   + 
-  γ \| V^* -  V_{π_{\hat V}} \|_{∞}
+  γ \| V^* -  V^{π_{\hat V}} \|_{∞}
 \end{align*}
 where the first inequality uses the fact that $\BELLMAN \hat V = \BELLMAN_{π_{\hat V}} V$. The result follows from rearranging the terms.
 :::
@@ -53,7 +59,7 @@ $$
 $$
 Hence, an upper bound on the result of @thm-policy-loss is
 $$
-\| V^* - V_{π_{\hat V}}\|_{∞} 
+\| V^* - V^{π_{\hat V}}\|_{∞} 
 \le
 \frac{2 γ}{(1-γ)^2} \| \BELLMAN \hat V - \hat V\|_{∞}.
 $$
@@ -69,7 +75,7 @@ Then, we have the following.
 
 :::{#thm-policy-loss-approx}
 $$
-\| V^* - V_{\hat π}\|_{∞} 
+\| V^* - V^{\hat π}\|_{∞} 
 \le
 \frac{2 γ}{1-γ} \| V^* - \hat V\|_{∞}
 + 
@@ -81,7 +87,7 @@ $$
 #### Proof
 From triangle inequality, we have
 \begin{align*}
-  \| V^* - V_{\hat π}\|_{∞} 
+  \| V^* - V^{\hat π}\|_{∞} 
   &\le 
   \| \BELLMAN V^* - \BELLMAN \hat V \|_{∞}
   + 
@@ -91,7 +97,7 @@ From triangle inequality, we have
   +
   \| \BELLMAN_{\hat π} \hat V - \BELLMAN_{\hat π} V^* \|_{∞}
   +
-  \| \BELLMAN_{\hat π} V^* - \BELLMAN_{\hat π} V_{\hat π} \|_{∞}
+  \| \BELLMAN_{\hat π} V^* - \BELLMAN_{\hat π} V^{\hat π} \|_{∞}
   \\
   &\le
   γ \| V^* - \hat V \|_{∞}
@@ -100,7 +106,7 @@ From triangle inequality, we have
   +
   γ \| \hat V -  V^* \|_{∞}
   + 
-  γ \| V^* -  V_{\hat π} \|_{∞}
+  γ \| V^* -  V^{\hat π} \|_{∞}
 \end{align*}
 The result follows from rearranging the terms.
 :::
@@ -115,7 +121,7 @@ Then, we have the following.
 
 :::{#thm-Q-learning-loss}
 $$
-\| V^* - V_{π_{\hat Q}}\|_{∞} 
+\| V^* - V^{π_{\hat Q}}\|_{∞} 
 \le
 \frac{2}{1-γ} \| Q - \hat Q\|_{∞}
 $$
@@ -126,12 +132,12 @@ For ease of notation, we use $\hat π$ to denote $π_{\hat Q}$.
 Let $α = \| Q - \hat Q\|_{∞}$. 
 Now consider
 \begin{align}
-V_{\hat π}(s) - V^*(s)
+V^{\hat π}(s) - V^*(s)
 &=
-Q_{\hat π}(s, \hat π(s)) - Q^*(s, π^*(s))
+Q^{\hat π}(s, \hat π(s)) - Q^*(s, π^*(s))
 \notag \\
 &\le
-Q_{\hat π}(s, \hat π(s)) - Q^*(s, \hat π(s)) + 2 α
+Q^{\hat π}(s, \hat π(s)) - Q^*(s, \hat π(s)) + 2 α
 \label{eq:policy-loss-QL-step1}
 \end{align}
 where the last inequality uses the fact that
@@ -144,11 +150,11 @@ Q^*(s, π^*(s)) + α.
 $$
 Now observe that
 $$
-Q_{\hat π}(s, \hat π(s)) - Q^*(s, \hat π(s)) 
+Q^{\hat π}(s, \hat π(s)) - Q^*(s, \hat π(s)) 
 =
-γ \sum_{s' \in \ALPHABET S}P(s'|s, \hat π(s)) [ V_{\hat π}(s') - V^*(s') ]
+γ \sum_{s' \in \ALPHABET S}P(s'|s, \hat π(s)) [ V^{\hat π}(s') - V^*(s') ]
 \le 
-γ \| V_{\hat π} - V^* \|_{∞}.
+γ \| V^{\hat π} - V^* \|_{∞}.
 $$
 Substituting this in \\eqref{eq:policy-loss-QL-step1} and rearranging the terms gives us the result.
 :::
