@@ -1,0 +1,341 @@
+---
+title: Optimal stopping
+keywords:
+  - optimal stopping
+  - threshold policies
+  - monotone policies
+---
+
+
+Let $\{S_t\}_{t \ge 1}$ be a Markov chain. At each time $t$, a decision maker observes the state $S_t$ of the Markov chain and decides whether to continue or stop the process. If the decision maker decides to continue, he incurs a _continuation cost_ $c_t(S_t)$ and the state evolves. If the DM decides to stop, he incurs a _stopping cost_ of $d_t(S_t)$ and the problem is terminated. The objective is to determine an optimal _stopping time_ $\tau$ to minimize
+$$J(\tau) := \EXP\bigg[ \sum_{t=1}^{\tau-1} c_t(S_t) + d_\tau(S_\tau)
+\bigg].$$
+
+
+Such problems are called _Optimal stopping problems_. These can be solved
+using dynamic programming as follows.
+
+Define the _cost-to-go function_ of any stopping rule as
+$$J_{t_0}(s; \tau) = \EXP\bigg[ \sum_{t = t_0}^{\tau - 1} c_{t}(S_t) +
+d_\tau(S_\tau) \,\bigg|\, S_{t_0} = s, \tau > t_0 \bigg]$$
+and the _value function_ as
+$$V_t(s) = \inf_{\tau} J_t(s; \tau). $$
+Then, it can be shown that the value functions satisfy the following
+recursion:
+
+::: {.callout-tip}
+#### Dynamic Program for optimal stopping
+$$ \begin{align*}
+V_T(s) &= d_T(s) \\
+V_t(s) &= \min\{ d_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
+\end{align*}$$
+:::
+
+
+Consider an optimal stopping problem and define the _benefit (or advantage) function_ as
+the expected benefit[^1] of delaying the stopping decision at time $t$, i.e.,
+$$\begin{equation}\label{eq:B}
+  B_t(s) = c_t(s) + \EXP[ V_{t+1}( S_{t+1}) | S_t = s] - d_t(s). 
+\end{equation}$$
+Thus, it is optimal to stop whenever $B_t(s) \ge 0$. 
+
+[optimal stopping]: ../../mdp/mdp-functional/#optimal-stopping
+
+[^1]: The terminology comes from reward maximization problems. In cost
+  minimization problems, this may be thought of as the _disadvantage
+  function_. 
+
+Note that, we can write the value function in terms of the benefit function as
+follows:
+$$\begin{align}
+  V_t(s) &= \min\{ d_t(s), B_t(s) + d_t(s) \} \nonumber \\
+  &= d_t(s) + [ B_t(s) ]^-, \label{eq:V}
+\end{align}$$ 
+where $[y]^-$ is a short hand for $\min\{y, 0\}$. 
+
+Now, define the _one-step look-ahead function_ as the benefit of delaying the
+stopping decision by one step, i.e.,
+$$\begin{equation}\label{eq:M}
+  M_t(s) = c_t(s) + \EXP[ d_{t+1}(S_{t+1}) | S_t = s] - d_t(s). 
+\end{equation}$$
+
+The benefit function and the one-step look-ahead functions are related as
+follows.
+$$ B_T(s) = M_T(s) $$
+and
+$$ \begin{align*}
+  B_t(s) &= c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s] - d_t(s) \\
+  &= c_t(s) + \EXP[ d_{t+1}(S_{t+1}) + [B_{t+1}(S_{t+1})]^- | S_t = s] - d_t(s)
+  \\
+  &= M_t(s) + \EXP[ [B_{t+1}(S_{t+1}]^- | S_t = s ].
+\end{align*} $$
+
+:::{#thm-monotone-stopping}
+Suppose the state space is totally ordered and the following conditions hold.
+    
+1. For all $t$, $M_t(s)$ is weakly increasing in $s$.
+2. $\{S_t\}_{t \ge 1}$ is stochastic monotone.
+
+Then $B_t(s)$ is weakly increasing in $s$ for all $t$ and there exists a sequence $\{\lambda_t\}_{t \ge 1}$ such that it is optimal to stop at time $t$ if and only if $S_t \ge \lambda_t$.
+:::
+
+:::{.callout-note collapse="true"}  
+#### Proof
+
+We first prove monotonicity of $B_t(s)$. As usual, the proof is by backward induction. For $t = T$, $B_T(s) = M_T(s)$. This forms the basis of induction. Now assume that $B_{t+1}(s)$ is increasing in $s$ and consider the problem at time $t$. 
+
+Since $B_{t+1}(s)$ is increasing so is $[B_{t+1}(s)]^{-}$. Moreover, since $\{S_t\}_{t \ge 1}$ is stochastically monotone, $\EXP[ [B_{t+1}(S_{t+1})]^- | S_t = s]$ is increasing in $s$. Therefore, $$ B_t(s) = M_t(s) + \EXP[ [B_{t+1}(S_{t+1})]^- | S_t = s] $$ is increasing in $s$. Thus, by induction, $B_t(s)$ is increasing in $s$ for all $t$. 
+
+Recall that it is optimal to stop iff $B_t(s) \ge 0$. Since $B_t(s)$ is
+increasing in $s$, the optimal decision rule is of a threshold type. 
+:::
+
+:::{.callout-tip}
+#### Remark on the assumptions
+Let's contrast the result of @thm-monotone-stopping from the monotonicity of optimal policies in general MDPs. Here, in addition to stochastic monotonicity of the Markov chain, we only require the one-step look-ahead function to be monotone. There is no assumption on the submodularity of the cost. 
+:::
+
+
+## Example: Time-to-Market Model
+
+Consider a firm that decides when to introduce a new product. When the firm
+introduces the product earlier than the competition, it captures a larger
+market share. However, an early introduction results in high production costs
+and low profit margins due to low manufacturing yields. Hence, the firm needs
+to determine the optimal time to enter the market. Suppose that the total
+market demand $D$ is deterministic. Let $\{S_t\}_{t \ge 1}$ denote the number
+of competitors at time $t$. It is assumed that
+$$ S_{t+1} = S_t + W_t, $$
+where $\{W_t\}_{t \ge 1}$ is an independent process independent of $S_1$. 
+
+Let $r(s)$ denote the market share of the firm when it enters the market after the $s$-th competitor. It is assumed that $r(s)$ is decreasing and concave in $s$.
+
+Let $p_*$ denote the sale price of the product and $p_t$ denote the production
+cost at time $t$. It is assumed that $p_t$ decreases with $t$. 
+
+The continuation reward is zero and the stopping reward at time $t$ is
+$$ d_t(s) = r(s)(p_* - p_t) D. $$
+When should the firm enter the market?
+
+First observe that $\{S_t\}_{t \ge 1}$ is a monotone process. Now consider the
+one step look-ahead function
+$$ \begin{align*}
+M_t(s) &= \EXP[ d_{t+1}(s + W) ] - d_t(s) \\
+&= \EXP[ r(s + W) (p_* - p_{t+1}) D ] - r(s)(p_* - p_t) D \\
+&= \EXP[ r(s + W) - r(s) ] (p_* - p_{t+1}) D 
+    + r(s)( p_* - p_{t+1})D  - r(s)(p_* - p_t ) D \\
+&= \EXP[ r(s + W) - r(s) ] (p_* - p_{t+1}) D 
+    + r(s) (p_t - p_{t+1}) D.
+\end{align*} $$
+Since $r(s)$ is concave, the first term is decreasing in $s$. The second term is also decreasing in $s$ because $r(s)$ is decreasing in $s$ and $p_t \ge p_{t+1}$. Therefore, $M_t(s)$ is decreasing in $s$. Hence, by @thm-monotone-stopping, there exist a sequence of thresholds $\{\lambda_t\}_{t \ge 1}$ such that the firm should enter the market at time $t$ iff $S_t \ge \lambda_t$. 
+
+## Example: Optimal choice of the best alternative
+
+A decision maker (DM) wants to select the best alternative from a set of $T$ alternatives. The DM evaluates the alternatives sequentially. After evaluating alternative $t$, the DM knows whether alternative $t$ was the best alternative so far or not. Based on this information, the DM must decide whether to choose alternative $t$ and stop the search, or to permanently reject alternative $t$ and evaluate remaining alternatives. The DM may reject the last alternative and not make a choice at all. All alternatives are equally likely to be the best. Find the optimal choice strategy that maximize the probability of picking the best alternative.
+
+This optimization problem is known by different names including _secretary problem_ (in which the alternatives correspond to finding the best candidate as a secretary), _marriage problem_ (in which the alternatives correspond of find the best spouse), _Googol_ (in which the alternatives consist of finding the biggest number), _parking problem_ (in which the alternatives correspond to finding the nearest parking spot) and so on
+
+We can view this an optimal stopping problem with binary state $S_t$. $S_t = 1$ means that alternative $t$ is the best alternative so far. Thus,
+$\{S_t\}_{t \ge 1}$ is an independent process with $\PR(S_t = 1) = 1/t$. The continuation reward is zero. The DM receives a stopping reward only if the current alternative is best, i.e., the current alternative is best so far ($S_t = 1$) and better than all future alternative ($S_\tau = 0, \tau > t$). Thus, the expected stopping reward conditioned on $S_t$ is $$ d_t(s) = \IND\{ s = 1 \} \cdot \PR( S_{t+1:T} = 0 | S_t = s ) = s \cdot \frac tT. $$ Thus, the optimal strategy is given by the solution of the following dynamic program.
+
+:::{.callout-tip}
+#### Dynamic program
+$$ \begin{align*}
+  V_{T+1}(s) &= 0 \\
+  V_t(s) &= \max\bigg\{ s \cdot \frac tT, 
+  \EXP[ V_{t+1}(S_{t+1}) ] \bigg\}
+\end{align*}$$
+:::
+
+:::{#lem-secretary-problem}
+Define
+$$ L_t = V_t(0) = 
+\frac t{t+1} V_{t+1}(0) + \frac 1{t+1}V_{t+1}(1). $$
+Then, 
+$$V_t(1) = \max\bigg\{ \frac tT, L_t \bigg\}$$
+and, therefore,
+$$ 
+  L_t - L_{t+1} = \bigg[ \frac 1T - \frac {L_{t+1}}{t+1} \bigg]^+
+  \quad \text{with } L_T = 0. 
+$$
+:::
+
+:::{.callout-note collapse="false"} 
+#### Proof
+The result follows immediately from the definition of $L_t$.
+:::
+
+Note that it is never optimal to select an alternative if it is not the best so far (i.e., $S_t = 0$). Thus, we can completely characterize an optimal strategy by solving for $\{L_t\}_{t=1}^T$ in a backward manner. 
+
+:::{#thm-secretary-problem}
+1.  There exists a critical time $t_0$, $t_0 < T$, such that it is optimal to reject all alternatives until $t_0 - 1$ and then select the first alternative that is superior to all previous ones, if it occurs. 
+
+2.  The critical time is the smallest integer $t_0$ such that
+    $$ 
+      \sum_{k=t_0}^{T-1} \frac 1k < 1.
+    $$
+
+3.  The value function are given by
+    $$ 
+      L_t = \begin{cases}
+      \displaystyle \frac tT \sum_{k=t}^{T-1} \frac 1k,
+      & \text{for } t \ge t_0, \\
+      L_{t_0}, & \text{for } t < t_0.
+      \end{cases}
+    $$
+
+4.  For large $T$, $t_0 \approx T/e$ and the probability of selecting the best candidate is approximately $1/e$.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof
+
+Note that $L_t - L_{t+1} \ge 0$. Thus, $L_t$ is decreasing with time. 
+
+$V_t(1) = \max\{t/T, L_t\}$ where the first term is increasing with time and the second term is decreasing with time. Thus, the critical time $t_0$ is the first time when $t/T \ge L_t$. Since $L_T = 0$ and $T/T = 1$, such a $t_0 < T$. 
+
+For any $t < t_0$ (i.e., $t/T < L_t$), 
+$$
+  L_{t-1} = L_t + \bigg[ \frac 1T - \frac{L_t}{t} \bigg]^+ = L_t.
+$$
+
+For any $t \ge t_0$ (i.e., $t/T \ge L_t$), we have $(t+1)/T \ge L_{t+1}$.
+Therefore,
+$$
+  L_{t} = L_{t+1} + \bigg[ \frac 1T - \frac{L_{t+1}}{t+1} \bigg]^+ 
+  = L_{t+1} + \frac 1T - \frac{L_{t+1}}{t+1} 
+  = \frac tT \bigg[ \frac 1t + \frac{T}{t+1} L_{t+1} \bigg].
+$$
+The above $L_t$ can be shown to be equal to the form given above in point 3 by
+induction.
+
+For large $T$, 
+$$
+  \sum_{k=t}^{T-1} \frac 1k \approx 
+  \int_{t}^T \frac 1k dk = \log \frac Tt.
+$$
+Thus, $t_0 \approx T/e$. Moreover
+$$
+V_1(0) = V_1(1) = L_1 = L_{t_0} \approx \frac{t_0}{T} = \frac 1e.
+$$
+:::
+
+## Call options
+
+An investor has a [:call option] to buy one share of a stock at a fixed price $p$ dollars and has $T$ days to _exercise_ this option. For simplicity, we assume that the investor makes a decision at the beginning of each day. 
+
+[:call option]: https://en.wikipedia.org/wiki/Call_option
+
+The investor may decide not to exercise the option but if he does exercise the option when the stock price is $s$, he effectively gets $(s-p)$. 
+
+Assume that the price of the stock varies with independent increments, i.e.,
+the price on day $t+1$ is 
+$$S_{t+1} = S_t + W_t$$
+where $\{W_t\}_{t \ge 1}$ is an i.i.d.\ process with mean $\mu$. 
+
+Let $\tau$ denote the stopping time when the investor exercises his option. Then the optimization problem is to maximize
+$$ \EXP\big[ (S_{\tau} - p )\cdot \IND\{\tau \le T \} \big].$$
+
+Since this is an optimal stopping problem with perfect state observation, the optimal strategy is given by the solution of the following dynamic program
+
+:::{.callout-tip}
+#### Dynamic program
+$$\begin{align*}
+V_{T}(s) &= \max\{ s-p, 0 \} \\
+V_{t}(s) &= \max\{ s-p, \EXP[ V_{t+1}(s + W) \}.
+\end{align*}$$
+:::
+
+:::{#lem-call-options-properties}
+1. For all $t$, $V_t(s)$ is increasing in $s$.
+2. For all $t$, $V_t(s) - s$ is decreasing in $s$.
+3. For all $s$, $V_t(s) \ge V_{t+1}(s)$.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+
+The first property follows immediately from monotonicity of terminal reward and the monotonicity of the dynamics. From @exr-monotonicity-in-time, to show the third property, we need to show that $V_{T-1}(s) \ge V_T(s)$. Observe that
+$$ V_{T-1}(s) = 
+\max\{s - p, \EXP[V_{T}(s + W) \} \ge \max\{ s - p, 0 \} = V_T(s).
+$$
+
+Now we prove the second property using backward induction. At $t=T$,
+$$ V_T(s) - s = \max\{ -p, -s \}$$
+which is decreasing in $s$. This forms the basis of induction. Now assume that
+$V_{t+1}(s) - s$ is decreasing in $s$. Then,
+$$ \begin{align*}
+  V_t(s) - s &= \max\{ -p, \EXP[ V_{t+1}(s+W) ] - s  \} \\
+  &= \max\{ -p, \EXP[ V_{t+1}(s+W) - (s + W) ] + \EXP[W] \}.
+\end{align*} $$
+By the induction hypothesis the second term is decreasing in $s$. The minimum of a constant and a decreasing function is decreasing in $s$. Thus, $V_t(s) - s$ is decreasing in $s$. This completes the induction step. 
+:::
+
+
+:::{#lem-call-options}
+At any time $t$, if it is optimal to sell when the stock price is
+$s^\circ$, then it is optimal to sell at all $s \ge s^\circ$. 
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof 
+
+Since it is optimal to sell at $s^\circ$, we must have
+\begin{equation} \label{eq:p1}
+  s^\circ - p \ge \EXP[V_{t+1}(s^\circ + W) ] 
+\end{equation}
+Since $V_{t}(s) - s$ is decreasing in $s$, we have that for any $s \ge
+s^\circ$, 
+\begin{equation} \label{eq:p2}
+\EXP[ V_{t+1}(s + W) - s ] \le \EXP[ V_{t+1}(s^\circ + W) - s^\circ ]
+\le -p 
+\end{equation}
+where the last inequality follows from \\eqref{eq:p1}. Eq \\eqref{eq:p2} implies that 
+$$ \EXP[ V_{t+1}(s+W) ] \le s - p. $$
+Thus, the stopping action is also optimal at $s$.
+:::
+
+:::{#thm-call-options}
+The optimal strategy is of the _threshold type_. In particular, 
+there exist numbers $α_1 \ge α_2 \ge \cdots \ge α_T$ such that it is
+optimal to exercise the option at time $t$ if and only if $s_t \ge α_t$.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof 
+
+Let $D_t = \{s : π_t(s) = 1\}$. The previous Lemma shows that $D_t$ is of the form $[α_t, \infty)$, where $α_t = \min \{ s : π_t(s) = 1\}$, where we assume that $α_t = \infty$ is it is not optimal to stop in any state. Thus proves the threshold property. 
+
+To show that the thresholds are decreasing with time, it suffices to show that $D_t \subseteq D_{t+1}$. Suppose $s \in D_t$. Then,
+\begin{equation} \label{eq:p3}
+ s - p \ge \EXP[ V_{t+1}(s + W) ] \ge \EXP[ V_{t+2}(s + W) ], 
+\end{equation}
+where the first inequality follows because $s \in D_t$ and the second inequality follows because $V_{t+1}(s) \ge V_{t+2}(s)$. Eq \\eqref{eq:p3} implies that $s \in D_{t+1}$. Hence, $D_t \subseteq D_{t+1}$ and, therefore, the optimal thresholds are decreasing.
+:::
+
+## Exercises {-}
+
+:::{#exr-monotone-stopping-decreasing}
+Derive a version of @thm-monotone-stopping where $M_t(s)$ is weakly decreasing in $s$.
+:::
+
+:::{#exr-monotone-stopping-maximization}
+Derive a version of @thm-monotone-stopping for an optimal stopping problem where the objective is reward maximization instead of cost minimization. In particular, assume that $c_t$ denotes the continuation reward and $d_t$ denote the stopping reward at time $t$. Define the benefit function $B_t(s)$ and the one-step look-ahead function $M_t(s)$ as above. 
+
+a. Write the benefit function in terms of the one-step look-ahead function.
+b. Derive a version similar to @thm-monotone-stopping assuming $M_t(s)$ is increasing in $s$. 
+:::
+
+:::{#exr-selling-an-asset}
+#### Selling an asset
+    
+Consider the decision problem  by a person selling an asset. Let $W_t$ denote the offer received by the person at time $t$. We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d.\ process. If the person sells the asset at time $t$, then he receives a reward equal to the best offer received so far, i.e., $\max\{W_1, \dots, W_t\}$. If he decides to continue, then he has to pay a continuation cost of $c$. Show that there exist a sequence of thresholds $\{λ_t\}_{t \ge 1}$ such that the optimal strategy is to sell the asset when $\max\{W_1, \dots, W_t\} \ge λ_t$. 
+:::
+
+## Notes {-}
+
+@thm-monotone-stopping is taken from @Oh2016.
+
+For a history of the secretary problem, see @Ferguson1989
+
+The above model for pricing options was introduced by @Taylor1967.
