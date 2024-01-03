@@ -1,0 +1,118 @@
+---
+title: Interchange arguments
+---
+
+For some stochastic optimization problems, it is possible to identify the optimal solution without explicitly solving them by using a technique known as the **interchange argument.** Let's consider the following example as an illustration.
+
+## Optimal scheduling
+
+Suppose we are interested in solving a problem and there are $n$ possible solution approaches that could be used. The only to find if a solution approach works or not is to test it; testing solution approach $i$ costs $c_i$ resources and may succeed with probability $p_i$. The probability of success of each alternative is independent of others. Find the search order that finds working solution at minimum expected cost.
+
+::: {#prp-optimal-scheduling}
+The optimal search order $(i_1, \dots, i_n)$ is a permutation of $(1,2,\dots,n)$ such that
+\begin{equation*}
+  \frac{c_{i_1}}{p_{i_1}} 
+  \le
+  \frac{c_{i_2}}{p_{i_2}} 
+  \le
+  \cdots
+  \le
+  \frac{c_{i_n}}{p_{i_n}} .
+\end{equation*}
+:::
+
+::: {.callout-note collapse="false"}
+#### Proof
+
+We prove by contradiction. Consider a search order $O = (k_1, \dots, k_n)$ which does not satisfy the above property. We will show that the search order $O$ cannot be optimal.
+
+Let $i$ be the first position that does not satisfy the above order, i.e., 
+$$
+O = (k_1,k_2, \dots, k_{\ell},i,j,k_{\ell+3}, \dots, k_n),
+$$
+is such that $c_i/p_i > c_j/p_j$. Now, consider a search order $\tilde O$ where we interchange $i$ and $j$, i.e.,
+$$
+\tilde O = (k_1,k_2, \dots, k_{\ell},j,i,k_{\ell+3}, \dots, k_n).
+$$
+The cost of each search order is:
+\begin{align*}
+J(O) &= J(k_1, \dots, k_{\ell}) + P_{\ell} c_i + P_{\ell} (1-p_i)c_j + P_{\ell}(1-p_i)(1-p_j)J(k_{\ell+3}, \dots, k_n), \\
+J(\tilde O) &= J(k_1, \dots, k_{\ell}) + P_{\ell} c_j + P_{\ell} (1-p_j)c_i + P_{\ell}(1-p_j)(1-p_i)J(k_{\ell+3}, \dots, k_n),
+\end{align*}
+where $J(k_1, \dots, k_{\ell})$ is the expected cost of testing approaches $(k_1, \dots, k_{\ell})$ and $P_{\ell}$ is the probability that the problem is not solved after testing $(k_1, \dots, k_{\ell})$ and $J(k_{\ell+3}, \dots, k_n)$ is the expected cost of testing alternatives $(k_{\ell+3}, \dots, k_n)$. Note that
+\begin{align*}
+J(O) \le J(\tilde O) &\iff
+c_i + (1-p_i) c_j \le c_j + (1-p_j) c_i,
+\\
+&\iff \frac {c_i}{p_i} \le \frac {c_j}{p_j}.
+\end{align*}
+Since we assumed that $c_i/p_i > c_j/p_j$, we have $J(O) > J(\tilde O)$. Thus, search order $O$ is not optimal.
+:::
+
+## Minimizing cost of a matching
+
+Consider a weighted bi-partite graph with two sets of $n$ vertices: $\ALPHABET U$ and $\ALPHABET V$. There are weights $(a_1, \dots, a_n)$ and $(b_1, \dots, b_n)$ associated with vertices $\ALPHABET U$ and $\ALPHABET V$, respectively. For ease of notation, we assume that the nodes are indexed such that
+$$
+  b_1 \ge b_2 \ge \cdots \ge b_n.
+$$
+We want to choose a permutation $(π_1, \dots, π_n)$ of $(1,\dots,n)$ to minimize
+$$
+  J(π) = \sum_{i=1}^n a_{π_i} b_j.
+$$
+
+:::{#prp-Hardy-inequality}
+The optimal permutation $π$ that minimizes $J(π)$ is such that 
+$$
+  a_{π_1} \le a_{π_2} \le \cdots \le a_{π_n}.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+The result can be proved by an interchange argument via contradiction. Suppose $π$ is an optimal permutation but does not satisfy the prescribed order. Let $i$ be the first index that does not satisfy the above order, i.e.,
+$$
+  π = (π_1, \dots, π_{\ell}, i, j, π_{\ell+3}, \dots, π_{n})
+$$
+is such that $a_i > a_j$. Now, consider a permutation $\tilde π$ where we interchange $i$ and $j$, i.e.,
+$$
+  \tilde π = (π_1, \dots, π_{\ell}, j, i, π_{\ell+3}, \dots, π_{n}).
+$$
+The cost of the each permutation is:
+\begin{align*}
+  J(π) &= \sum_{k \not\in \{i, j\}} a_{π_k} b_k + a_i b_i + a_j b_j ,\\
+  J(\tilde π) &= \sum_{k \not\in \{i, j\}} a_{π_k} b_k + a_j b_i + a_i b_j.
+\end{align*}
+Thus, 
+\begin{align*}
+  J(π) \le J(\tilde π) &\iff a_i b_i + a_j b_j \le a_i b_j + a_j b_i \\
+  &\iff a_i(b_i - b_j) \le a_j(b_i - b_j) \\
+  &\iff a_i \le a_j
+\end{align*}
+where we have used the fact that $\{b_i\}$ is non-increasing in the last inequality. Since we assumed that $a_i > a_j$, we have that $J(π) > J(\tilde π)$; therefore, the permutation $π$ is not optimal.
+:::
+
+## Exercises {-}
+
+:::{#exr-interchange-servers}
+There are $n$ jobs to be processed by a single machine. Processing job $i$ takes a random time $S_i$. Let $μ_i = \EXP[S_i] < ∞$. A cost $c_i$ is incurred per unit time until job $i$ is completed. 
+
+For example, suppose there are two jobs, and completing job $1$ and $2$ took $s_i$ and $s_2$ time units respectively. If the processing order was $\{1,2\}$, then the cost incurred is $c_1 s_1 + c_2 (s_1 + s_2)$. If the processing order was $\{2,1\}$, then the cost incurred is $c_2 s_2 + c_1 (s_1 + s_2)$.
+
+In what order should the jobs be processed so as to minimize the total
+expected cost?
+:::
+
+:::{#exr-interchange-prisoner}
+A prisoner wishes to escape from a prison. There are $n$ passages that leads out of the prison, some of them are dead-ends, others have guards, and remaining are unguarded are lead outside the prison. More precisely, passage $i$ might be a dead-end with probability $(1-p_i-q_i)$, might have a guard with probability $q_i$, and might be unguarded and lead outside the prison with probability $p_i$. Thus, if the prisoner tries passage $i$, he will find that the passage is a dead-end with probability $(1-p_i-q_i)$ and he can come back and try other passages; he will be captured by a guard with probability $q_i$, and he will escape with probability $p_i$. In what order should the prison test different passages if he wishes to maximize his probability of eventual escape? Does the optimal search order change if his objective is to minimize the probability of capture?
+:::
+
+
+## Notes {-}
+Interchange arguments are commonly used in queueing networks to establish the structure of optimal policies. See Chapter 8 of @Walrand1988 and @Nain1989 for discussion and overview. They are also commonly used in scheduling problems. See @Strusevich2016 for an overview.
+
+The result of @prp-Hardy-inequality is often called an [:rearrangement inequality](https://en.wikipedia.org/wiki/Rearrangement_inequality) and were first established in @Hardy1952. For a generalization of such results, see @Marshall2011.
+
+@exr-interchange-servers is an instance of the celebrated $c μ$-rule in queueing networks. See @Baras1984 for a special case and @Buyukkoc1985 for the general setup. 
+
+
