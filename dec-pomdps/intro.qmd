@@ -1,0 +1,272 @@
+---
+title: Introduction
+---
+
+In all the discussion so far, we have always made an implicit assumption: the decision maker has **perfect recall**, i.e., it remembers everything that it has seen and done in the past. This assumption, is at the heart of the dynamic programming argument. For example, consider policy evaluation for a POMDP (using standard notation). The value function is given by
+\begin{align*}
+  V^π_t(h_t) &=
+  \EXP^π\biggl[ c(S_t,A_t) + \sum_{τ = t+1}^T c(S_{τ}, A_{τ}) \biggm|
+  H_t = h_t \biggr]
+  \\
+  &\stackrel{(a)}=
+  \EXP^π\biggl[ c(S_t,A_t) + \EXP^{π}\biggl[\sum_{τ = t+1}^T c(S_{τ}, A_{τ}) \biggm| H_{t+1} \biggr] \biggm|
+  H_t = h_t \biggr]
+  \\
+  &=
+  \EXP^π\bigl[ c(S_t,A_t) + V^π_{t+1}(H_{t+1})
+   \bigm| H_t = h_t \bigr]
+\end{align*}
+where step $(a)$ relies on the smoothing property of conditional expectation, which only works if the information at time $t+1$ is a superset of the information at time $t$, i.e., the agent has perfect recall.
+
+In this section, we start with the simplest model without perfect recall: a POMDP where actions are chosen based on just the current observation. How do we find the best policy? To avoid any confusion, let's start with a formal description of the system model.
+
+We assume that the system has a state $S_t \in \ALPHABET S$, control input $A_t \in \ALPHABET A$, and a process noise $W_t \in \ALPHABET W$. The state evolves as
+\begin{equation}\label{eq:state-evolution}
+  S_{t+1} = f_t(S_t, A_t, W_t).
+\end{equation}
+The observation $Y_t \in \ALPHABET Y$ of the decision maker at time $t$ is given by 
+\begin{equation}\label{eq:observation}
+  Y_t = \ell_t(S_t, N_t)
+\end{equation}
+where $N_t \in \ALPHABET N$ is the observation noise. As for MPDs and POMDPs, we assume that the _primitive random variables_ $(S_1, W_1, \dots, W_T, N_1, \dots, N_T)$ are defined on a common probability space and are mutually independent. 
+
+Unlike MDPs and standard POMDPs, it is assumed that the decision maker does not have access to past observations and actions and can choose the current action as a function of just the current observation, i.e., 
+$$
+  A_t = π_t(Y_t)
+$$
+At each time, the system incurs a cost $c_t(S_t, A_t)$ which depends on the
+current state and the current action. The system operates for a finite horizon
+$T$ and incurs a total cost
+$$
+  \sum_{t=1}^T c_t(S_t, A_t).
+$$
+
+Given the above system model, we want to choose a _control strategy_ $π =
+(π_1, \dots, π_T)$ to minimize the expected total cost
+$$
+  J(π) := \EXP\Bigl[ \sum_{t=1}^T c_t(S_t, A_t) \Bigr].
+$$
+How should we proceed?
+
+Note that the only difference from the POMDP model is that $A_t$ is a function of $Y_t$ rather than $(Y_{1:t}, A_{1:t-1})$. Apart from this, the other modeling assumptions are the same. However, the lack of perfect recall implies that the entire machinery of dynamic programming, as presented for MDPs and POMDPs, cannot be applied directly.
+
+An advantage of not having perfect recall is that the size of decision rule $π_t$ is not increasing with time. Therefore, the number of possible policies is _only_ exponential in $T$ (rather than double exponential, as was the case for POMDPs). Nevertheless, a brute force search is still impractical and we want to find something similar to dynamic programming where the search complexity is linear in time horizon $T$. 
+
+## The designer's approach
+
+The standard "dynamic-progarmming viewpoint" is to evaluate the value function (or the cost-to-go function) from the point of view of the agent at each time. Instead, consider the problem from the point of view of the system designer before the system starts operating. The system designer knows the system model and the statistics of the primitive random variables but does not know the observation of the agent. The designer is concerned with the optimal decision rule for the agent _before the system starts operating_.
+
+The designer may view the system as a stochastic input-output system: the stochastic inputs are the primitive random variables, the control inputs are the decision rules, and the output is the instantenous cost. The input-output relationship can be described consistently by $(S_t, Y_t)$, which represents the state of the environment and the state of the agent.[^state] However, this state cannot be used for optimization because it is not observed by the system designer. So, the optimization problem at the system designer is conceptually equivalent to a POMDP. 
+
+[^state]: In this particular example, we could have worked with just $S_t$ as the state sufficient for input-output mapping, but we carry the "state of the agent" so that the same approach continues to work for more general models. 
+
+Hence the designer can obtain a sequential decomposition by forming a belief on the state (sufficient for input-output mapping) of the system, based on all the history of observations and actions available to it (i.e., all the past decision rules, since the designer doesn't observe anything else). This belief can be described by
+$$
+   b_t = \PR(S_t, Y_t \mid π_{1:t-1}),
+$$
+which is the "conditional probabilty law" of the "state" conditioned on all the past observations and "control actions" of the designer. Technically, $b_t$ is not a conditional probability law, rather it is unconditional probability law; but this fact is a techinicality which does not affect the solution methodology. 
+
+[information state]: ../pomdps/intro.qmd#info-state
+
+The belief state sastisfies the usual properties of an [information state]. 
+
+:::{#lem-dec-info-state}
+The belief state satisfies the following properties.
+
+1. **Sufficient for predicting itself.** There exists a linear transformation $H_t(π_t)$ such that
+   $$
+      b_{t+1} = H_t(π_t) b_t.
+   $$
+
+2. **Sufficient for performance evaluation.** There exists functions $\bar c_t \colon [ \ALPHABET S \to \ALPHABET A] \to \reals$ such that the expected per-step cost can be expressed as 
+   $$
+    \EXP[ c_t(S_t, A_t) \mid π_{1:t} ] = 
+    \bar c_t(b_t, π_t).
+   $$
+:::
+
+::: {.callout-note collapse="true"}
+#### Proof
+
+Since the "belief" is an unconditional probability, it evolves similar to the probability distribution of a Markov chain. In particular,
+:\begin{align*}
+  b_{t+1}(s_{t+1}, y_{t+1}) &= \PR(s_{t+1}, y_{t+1} \mid π_{1:t}) \\
+  &= \PR(y_{t+1} \mid s_{t+1}) 
+  \sum_{s_t \in \ALPHABET S}
+  \PR(s_{t+1} \mid S_t = s_t, A_t = π_t(s_t)) 
+  \PR(s_t \mid π_{1:t-1})
+  \\
+  &\eqqcolon \bigl[ H_t(π_t) b_t \bigr](s_{t+1}, y_{t+1}).
+\end{align*}
+This proves the first part of the result. Note that the transformation $H_t(π_t)$ is linear in the sense that for any belief $b_t$ given as a linear combination of two beliefs $b^{(1)}_t$ and $b^{(2)}_t$, i.e., 
+$$
+  b_t = λ b^{(1)}_t + (1 - λ)b^{(2)}_t
+$$ we have
+$$
+  H_t(π_t) b_t = λ H_t(π_t) b^{(1)}_t + (1-λ) H_t(π_t) b^{(2)}_t.
+$$
+
+For the second part, note that 
+\begin{align*}
+\EXP[ c_t(S_t, A_t) \mid π_{1:t} ] 
+&=
+\sum_{s_t \in \ALPHABET S} c_t(s_t, π_t(s_t))
+\PR(s_t \mid π_{1:t-1}) \\
+&\eqqcolon \bar c_t(b_t, π_t).
+\end{align*}
+This proves the second part of the result.
+:::
+
+The decision rule $ψ_t \colon b_t \mapsto π_t$ followed by the designer is called a **meta-policy** (to distinguish it from the policy of the agent). The optimal meta-policy $ψ = (ψ_1, \dots, ψ_T)$ can be obtained by solving the following dynamic program.
+
+:::{.callout-tip}
+#### Dynamic program
+
+Initialize $V_{T+1}(b) ≡ 0$. Then, for all $t \in \{T, \dots, 1\}$, recursively define:
+\begin{align*}
+  Q_t(b,π) &= \bar c_t(b, π) + V_{t+1}( H_t(π) b ) \\
+  V_t(b)   &= \min_{π \in Π} Q_t(b,π)
+\end{align*}
+
+Let $ψ_t(b)$ denote the arg min of $Q_t(b,π)$. Then, the meta-strategy $ψ = (ψ_1, \dots, ψ_T)$ is optimal.
+:::
+
+:::{.callout-note}
+#### Some properties of the solution
+
+1. The set $Π$ above may be restricted to all deterministic maps from $\ALPHABET S$ to $\ALPHABET A$ without any loss of optimality.
+
+2. As for POMDPs, we can show that the value function $V_t$ is piecewise linear and convex.
+:::
+   
+:::{.callout-important}
+#### How to determine the policy?
+
+The dynamic program above determines a meta-policy $ψ$. The corresponding policy $π = (π_1, \dots, π_T)$ may be determined as follows. 
+
+- Start with the initial belief $b_1$ (which is the same as the initial distribution of the state $S_1$). Choose $π_1 = ψ_1(b_1)$. 
+- Let $b_2 = H_1(π_1)b_1$. Choose $π_2 = ψ_2(b_2)$. 
+- Let $b_3 = H_2(π_2)b_2$. Choose $π_3 = ψ_3(b_3)$.
+- ...
+
+:::
+
+:::{.callout-warning}
+#### Optimal policies for infinite horizon are **not** time-homogeneous
+
+Although we presented the result for the finite-horizon setting, the argument naturally extends to the infinite horizon setting as well. In particular, consider the infinite horizon discounted cost setting. Then, the optimal _meta-policy_ is given by the unique bounded fixed point of the following equation:
+   $$
+    V(b) = \min_{π \in Π} \bigl\{ \bar c(b, π) + γ V(H(π)b) \bigr\},
+    \quad \forall b \in Δ(\ALPHABET S × \ALPHABET Y).
+   $$
+   This implies that the meta-policy $ψ$ is time-homogeneous but the policy $π = (π_1, π_2, \dots)$ (chosen according to the procedure described above) is **not time-homogeneous**.
+:::
+
+## The general idea
+
+Now we generalize the discussion above to a general multi-agent control problem. Suppose that the system has a state $S_t \in \ALPHABET S$. There are $N$ controllers, indexed by the set $\ALPHABET N \coloneqq \{1, \dots, N\}$. Let $Y^n_t \in \ALPHABET Y$ and $A^n_t \in \ALPHABET A^n$ denote the observation and action, respectively, of agent $n \in \ALPHABET N$ at time $t$. We assume that the observations are given by
+$$
+  Y^n_t = \ell^n_t(S_t, W^n_t), \quad n \in \ALPHABET N
+$$
+and the state evolves as 
+$$
+  S_{t+1} = f^0_t(S_t, A_t, W^0_t)
+$$
+where $A_t$ denotes the vector $(A^1_t, \dots, A^N_t)$ of all actions. We assume that the noise processes $\{W^0_t\}_{t \ge 1}$, $\{W^n_t\}_{t \ge 1}$, $n \in \ALPHABET N$, are independent across time and also mutually independent. 
+
+We assume that all agents use finite state controllers. In particular, agent $n \in \ALPHABET N$ uses a local state $Z^n_t \in \ALPHABET Z^n$. At time $t$, agent $n$ first updates its state using a state-update function $f^n_t$, as follows:
+$$
+  Z^n_t = f^n_t(Z^n_{t-1}, Y^n_t)
+$$
+and then uses the updated state to choose an action as follows:
+$$
+  A^n_t = π^n_t(Z^n_t).
+$$
+We call $Z^n_t$ as **agent state**. 
+
+A commonly used example of agent state is $Z^n_t = (Y^n_{t-d+1}, Y^n_{t-d+2}, \dots, Y^n_t)$ where the agent uses a sliding window of the last $d$ observations as a local state. The example presented in the previous section is a special case of a sliding window controller with window size $d=1$. 
+
+Thus, we can view the problem from the time of a view of a system designer. The state sufficient for input-output mapping is $(S_t, Z^1_t, \dots, Z^n_t)$; the control input is $(f^1_t, \dots, f^n_t, π^1_t, \dots, π^n_t)$ and the output is the instanteous cost. We separate the belief state before taking actions and the belief state before updating the local memory:
+\begin{align*}
+  b_t &= \PR(S_t, Z^1_t, \dots, Z^N_t \mid f^{1:N}_{1:t}, π^{1:N}_{1:t-1}), \\
+  \bar b_t &= \PR(S_{t+1}, Z^1_t, \dots, Z^N_t \mid f^{1:N}_{1:t}, π^{1:N}_{1:t}).
+\end{align*}
+
+As for @lem-dec-info-state, we can show the following:
+
+:::{#lem-dec-info-state-geenral}
+The belief state satisfies the following properties.
+
+1. **Sufficient for predicting itself.** There exists a linear transformations $H_t( π^{1:N}_{t})$ and $\bar H_t(f^{1:N}_t)$ such that
+   \begin{align*}
+      \bar b_t &= H_t(π^{1:N}_{t}) b_t, \\
+      b_{t+1} &= \bar H_t(f^{1:N}_{t}) \bar b_t.
+   \end{align*}
+
+2. **Sufficient for performance evaluation.** There exists functions $\bar c_t \colon [ \ALPHABET S \to \ALPHABET A] \to \reals$ such that the expected per-step cost can be expressed as 
+   $$
+    \EXP[ c_t(S_t, A_t) \mid f^{1:N}_{1:t}, π^{1:N}_{1:t} ] = 
+    \bar c_t(b_t, π^{1:N}_t).
+   $$
+:::
+
+Therefore, we can obtain the following dynamic programming decomposition.
+
+:::{.callout-tip}
+#### Dynamic program
+
+Initialize $V_{T+1}(b) ≡ 0$. Then, for all $t \in \{T, \dots, 1\}$, recursively define:
+\begin{align*}
+  Q_t(b, π^{1:N}) &= \bar c_t(b, f^{1:N}, π^{1:N}) + \bar V_{t}( H_t(π^{1:N}) b ) \\
+  \bar Q_t(\bar b, f^{1:N}) &= V_{t+1}(\bar H_t(f^{1:N}) \bar b), \\
+\end{align*}
+and
+\begin{align*}
+  V_t(b)   &= \min_{π^{1:N}} Q_t(b, π^{1:N}), \\
+  \bar V_t(\bar b)   &= \min_{f^{1:N}} \bar Q_t(\bar b, f^{1:N}).
+\end{align*}
+
+Let $ψ_t(b)$ and $\bar ψ_t(\bar b)$ denote the arg min of $Q_t(b, π^{1:N})$ and $\bar Q_t(\bar b, f^{1:N})$. Then, the meta-strategy $(ψ_1,\bar ψ_1, ψ_2, \bar ψ_2, \dots, ψ_T)$ is optimal.
+:::
+
+:::{.callout-important}
+#### Simplifying the dynamic program
+
+Instead of optimizing the dynamic program over all policies $f^{1:N}$ and $π^{1:N}$ at once, we can optimize them one by one. In particular, define an intermediate beliefs
+\begin{align*}
+b^1_t &= \PR(S_t, Z^1_t, \dots Z^N_t, A^1_t \mid f^{1:N}_{1:t}, π^{1}_{1:t}, π^{2:N}_{1:t-1}), \\
+b^2_t &= \PR(S_t, Z^1_t, \dots Z^N_t, A^{1:2}_t \mid f^{1:N}_{1:t}, π^{1:2}_{1:t}, π^{3:N}_{1:t-1}), \\
+\cdots &= \cdots \\
+b^N_t &= \PR(S_t, Z^1_t, \dots Z^N_t, A^{1:N}_t \mid f^{1:N}_{1:t}, π^{1:N}_{1:t}),
+\end{align*}
+and
+\begin{align*}
+\bar b^1_t &= \PR(S_{t+1}, Z^1_{t+1}, Z^{2:N}_t \mid f^{1}_{1:t+1}, f^{2:N}_{1:t}, π^{1:N}_{1:t}), \\
+\bar b^2_t &= \PR(S_{t+1}, Z^{1:2}_{t+1}, Z^{3:N}_t \mid f^{1:2}_{1:t+1}, f^{3:N}_{1:t}, π^{1:N}_{1:t}), \\
+\cdots &= \cdots \\
+\bar b^N_t &= \PR(S_{t+1}, Z^{1:N}_{t+1} \mid f^{1:N}_{1:t+1} π^{1:N}_{1:t}).
+\end{align*}
+
+Then, we can show that these beliefs update as:
+$$
+  b_t 
+  \xrightarrow{H^1_t(π^1_t)}
+  b^1_t 
+  \xrightarrow{H^2_t(π^2_t)}
+  \cdots
+  \xrightarrow{H^N_t(π^N_t)}
+  b^N_t 
+  \rightarrow
+  \bar b_t
+  \xrightarrow{\bar H^1_t(f^1_{t+1})}
+  \bar b^1_t
+  \xrightarrow{\bar H^2_t(f^2_{t+1})}
+  \cdots
+  \bar b^N_t = b_{t+1}.
+$$
+We can then decompose the DP over time in a similar manner and just optimize over only one of $π^n_t$ or $f^n_t$ at each step.
+:::
+
+## Notes {-}
+
+The presentation here is borrowed from @MahajanPhD. The general idea first appeared in @Witsenhausen1973, where it was called the _standard form_. The model in @Witsenhausen1973 was fairly general. It was specialized to POMDPs with finite memory in @Sandell1974. Witsenhausen's standard form was rediscovered in @Dibangoye2016, where it was called occupation MDP.
