@@ -323,24 +323,63 @@ $$
 Therefore, $\{W_t\}_{t \ge 1}$ is a supermartingale, but we cannot immediately apply the supermartingale convergence theorem because we don't know that $W_t$ is bounded from below. 
 
 
-For an arbitrary $a > 0$, define the stopping time $τ = \inf \bigl\{ t : \sum_{s=1}^{t} Y'_s > a \bigr\}.$ Then, the stopped sequence $\{W_{τ \wedge t}\}_{t \ge 1}$ is also a supermartingale because
+For an arbitrary $a > 0$, define the stopping time $τ_a = \inf \bigl\{ t : \sum_{s=1}^{t} Y'_s > a \bigr\}$. Now define the stopped sequence $$W^{(a)}_t := W_{τ_a \wedge t} = 
+\begin{cases}
+  W_t, & \hbox{if } t \le τ_a \\
+  W_{τ_a}, & \hbox{if } t > τ_a 
+\end{cases},
+\quad t \ge 1.$$
+Note that the stopped sequence satisfies:
 $$
-\EXP[ W_{τ \wedge (t+1)} \mid \mathcal F_t ]
-= W_{\tau} \IND\{ τ \le t \} + \EXP[ W_{t+1} \mid \mathcal F_t ] \IND\{ τ > t\}
-\le W_{τ \wedge t}.
+\EXP[W^{(a)}_{t+1} \mid \ALPHABET F_t] \stackrel{(a)}=
+\begin{cases}
+  \EXP[W_{t+1} \mid \ALPHABET F_t] , & \hbox{if } t+1 \le τ_a \\
+  W_{τ_a}, & \hbox{if } t + 1 > τ_a 
+\end{cases}
+\stackrel{(b)}\le
+\begin{cases}
+  W_t, & \hbox{if } t < τ_a \\
+  W_{τ_a}, & \hbox{if } t \ge τ_a 
+\end{cases}
+\stackrel{(c)}= W^{(a)}_t,
 $$
-Moreover, $W_{τ \wedge t}$ is bounded from below since
-$$
-W_{t \wedge τ} \ge - \sum_{s = 1}^{τ \wedge (t-1)} Y_s 
-\ge -a,$$
-So, we can think of $W_{t \wedge τ} + a$ as a nonnegative supermartingale. Therefore, by the supermartingale convergence theorem, 
-$\lim_{t \to ∞} W_{τ \wedge t}$ exists and is finite a.s. 
+where $(a)$ uses the definition of $W^{(a)}_t$ and the fact that $\EXP[W_{τ_a} \mid \ALPHABET F_t] = W_{τ_a}$ since $τ_a \le t$; $(b)$ uses the fact that $\{W_t\}_{t \ge 1}$ is a supermartingale; and $(c)$ uses the fact that the two terms coincide when $t = τ_a$. 
 
+Thus, the stopped sequence $\{W^{(a)}_{t}\}_{t \ge 1}$ is a supermartingale. Moreover, it is bounded from below since
+$$
+W^{(a)}_t = W_{t \wedge τ} \ge - \sum_{s = 1}^{τ \wedge (t-1)} Y_s 
+\ge -a,$$
+So, we can think of $W^{(a)}_{t} + a$ as a nonnegative supermartingale. Therefore, by the supermartingale convergence theorem, for any given $a$, $\lim_{t \to ∞} W^{(a)}_{t}$ exists and is finite a.s. 
+
+Now define $Ω^{(a)}$ to be the set $\{ ω : \sum_{t \ge 1} Y_t(ω) < a \}$. We know that $Y'_t = b_{t+1} Y_t < Y_t$. So, on the set $Ω^{(a)}$, $\sum_{t \ge 1} Y'_t(ω) < a$. Hence, for all $ω \in Ω^{(a)}$, we have $τ_{a}(ω) = ∞$. Therefore, $W_t = W^{(a)}_t$ and, by the previous argument, $\{W_t\}_{t \ge 1}$ converges to a finite limit. 
+
+By countable additivity, we get that $W_t$ converges to a finite limit for all $a \in \integers$.
+
+**Side remark:** It took me a while to understand why this is the case, so I am including a complete formal argument. 
+
+1. Fix an $a$. We know that on $Ω^{(a)}$, $W_t$ has a finite limit. Denote that limit by $W_{∞}$. 
+2. For any $ε > 0$, define the event $\ALPHABET E = \cap_{s = 1}^∞ \cup_{t = s}^∞ |W_t(ω) - W_{∞}(ω)| > ε$.
+3. The fact that $W_t$ converges almost surely to $W_{∞}$ on $Ω^{(a)}$ means that $\PR(Ω^{(a)} \cap \ALPHABET E) = 0$.
+4. _We now restrict attention to integer values of $a$_. Since $Ω^{(a)} \cap \ALPHABET E$ is an increasing sequence, we have
+   $$
+   \PR(Ω_0 \cap \ALPHABET E) 
+   =
+   \PR(\lim_{a \to ∞} Ω^{(a)} \cap \ALPHABET E)
+   =
+   \lim_{a \to ∞} \PR(Ω^{(a)} \cap \ALPHABET E)
+   = 
+   0.
+   $$
+   Hence, $W_t$ converges to $W_{∞}$ almost surely on $Ω_0$.
+
+
+<!--
 Therefore, on the set $\{ τ = ∞ \}$, i.e., the set $\{ \sum_{s = 1}^∞ Y'_s \le a \}$, $\lim_{t \to ∞} W_t$ exists and is finite.
 
 Since $a$ is arbitary, we have that $\lim_{t \to ∞} W_t$ exists and is finite on $\{ \sum_{s=1}^∞ Y'_s < ∞ \}$. But, we know that $Y'_s \le Y_s$. Therefore, for $ω \in Ω_0$, 
 $$\sum_{t \ge 1} Y'_t(ω) \le \sum_{t \ge 1} Y_t(ω) < ∞ . $$
 Consequently, for $ω \in Ω_0$, $\lim_{t \to ∞} W_t$ exists and is finite.
+-->
 
 Now \\eqref{eq:almost-supermartingale-st-2} implies that 
 $$
@@ -487,6 +526,7 @@ $$
 Let $\{X_t\}_{t \ge 1}$ be square integrable martingale with $\EXP[ X_T^2 ] \le T$ for all $T$. Prove that $X_T/T \to 0$, a.s. 
 
 \[This may be viewed as a generalization of a SLLN for i.i.d.\ sequences.\]
+
 _Hint:_ Use [Abel's lemma][abel] to show $\sum_{t=1}^T \EXP[ M_t^2 ]/t^2 < ∞$ and then use @thm-SLLN-MDS.
 :::
 
@@ -496,6 +536,8 @@ _Hint:_ Use [Abel's lemma][abel] to show $\sum_{t=1}^T \EXP[ M_t^2 ]/t^2 < ∞$ 
 
 The material in the introduction is taken from @Pollard2002, @Chang2007, and @Dellacherie1982b. The latter is an excellent reference for this material.
 
-@thm-almost-supermartingale and its proof is from @Robbins1971. A version of @thm-almost-supermartingale with $Z_t = 0$ is stated as Exercise II-4 of @Neveu1975.
+@thm-almost-supermartingale and its proof is adapted from @Robbins1971 and [this post on math stackexchange][post]. A version of @thm-almost-supermartingale with $Z_t = 0$ is stated as Exercise II-4 of @Neveu1975.
+
+[post]: https://mathoverflow.net/a/357922/520224
 
 @exr-martingale-Robbins-Monroe is from @Bertsekas2000.
