@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-11-14">
+<meta name="dcterms.date" content="2024-01-06">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
 <title>Course Notes - 35&nbsp; Martingales</title>
@@ -655,7 +655,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 14, 2023</p>
+      <p class="date">January 6, 2024</p>
     </div>
   </div>
   
@@ -957,15 +957,51 @@ W_t = X'_t - \sum_{s = 1}^{t-1} (Y'_s - Z'_s) .
 \le X_t - \sum_{s=1}^{t-1} (Y'_s - Z'_s)
 = W_t.
 \]</span> Therefore, <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is a supermartingale, but we cannot immediately apply the supermartingale convergence theorem because we don’t know that <span class="math inline">\(W_t\)</span> is bounded from below.</p>
-<p>For an arbitrary <span class="math inline">\(a &gt; 0\)</span>, define the stopping time <span class="math inline">\(τ = \inf \bigl\{ t : \sum_{s=1}^{t} Y'_s &gt; a \bigr\}.\)</span> Then, the stopped sequence <span class="math inline">\(\{W_{τ \wedge t}\}_{t \ge 1}\)</span> is also a supermartingale because <span class="math display">\[
-\EXP[ W_{τ \wedge (t+1)} \mid \mathcal F_t ]
-= W_{\tau} \IND\{ τ \le t \} + \EXP[ W_{t+1} \mid \mathcal F_t ] \IND\{ τ &gt; t\}
-\le W_{τ \wedge t}.
-\]</span> Moreover, <span class="math inline">\(W_{τ \wedge t}\)</span> is bounded from below since <span class="math display">\[
-W_{t \wedge τ} \ge - \sum_{s = 1}^{τ \wedge (t-1)} Y_s
-\ge -a,\]</span> So, we can think of <span class="math inline">\(W_{t \wedge τ} + a\)</span> as a nonnegative supermartingale. Therefore, by the supermartingale convergence theorem, <span class="math inline">\(\lim_{t \to ∞} W_{τ \wedge t}\)</span> exists and is finite a.s.</p>
-<p>Therefore, on the set <span class="math inline">\(\{ τ = ∞ \}\)</span>, i.e., the set <span class="math inline">\(\{ \sum_{s = 1}^∞ Y'_s \le a \}\)</span>, <span class="math inline">\(\lim_{t \to ∞} W_t\)</span> exists and is finite.</p>
-<p>Since <span class="math inline">\(a\)</span> is arbitary, we have that <span class="math inline">\(\lim_{t \to ∞} W_t\)</span> exists and is finite on <span class="math inline">\(\{ \sum_{s=1}^∞ Y'_s &lt; ∞ \}\)</span>. But, we know that <span class="math inline">\(Y'_s \le Y_s\)</span>. Therefore, for <span class="math inline">\(ω \in Ω_0\)</span>, <span class="math display">\[\sum_{t \ge 1} Y'_t(ω) \le \sum_{t \ge 1} Y_t(ω) &lt; ∞ . \]</span> Consequently, for <span class="math inline">\(ω \in Ω_0\)</span>, <span class="math inline">\(\lim_{t \to ∞} W_t\)</span> exists and is finite.</p>
+<p>For an arbitrary <span class="math inline">\(a &gt; 0\)</span>, define the stopping time <span class="math inline">\(τ_a = \inf \bigl\{ t : \sum_{s=1}^{t} Y'_s &gt; a \bigr\}\)</span>. Now define the stopped sequence <span class="math display">\[W^{(a)}_t := W_{τ_a \wedge t} =
+\begin{cases}
+  W_t, &amp; \hbox{if } t \le τ_a \\
+  W_{τ_a}, &amp; \hbox{if } t &gt; τ_a
+\end{cases},
+\quad t \ge 1.\]</span> Note that the stopped sequence satisfies: <span class="math display">\[
+\EXP[W^{(a)}_{t+1} \mid \ALPHABET F_t] \stackrel{(a)}=
+\begin{cases}
+  \EXP[W_{t+1} \mid \ALPHABET F_t] , &amp; \hbox{if } t+1 \le τ_a \\
+  W_{τ_a}, &amp; \hbox{if } t + 1 &gt; τ_a
+\end{cases}
+\stackrel{(b)}\le
+\begin{cases}
+  W_t, &amp; \hbox{if } t &lt; τ_a \\
+  W_{τ_a}, &amp; \hbox{if } t \ge τ_a
+\end{cases}
+\stackrel{(c)}= W^{(a)}_t,
+\]</span> where <span class="math inline">\((a)\)</span> uses the definition of <span class="math inline">\(W^{(a)}_t\)</span> and the fact that <span class="math inline">\(\EXP[W_{τ_a} \mid \ALPHABET F_t] = W_{τ_a}\)</span> since <span class="math inline">\(τ_a \le t\)</span>; <span class="math inline">\((b)\)</span> uses the fact that <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is a supermartingale; and <span class="math inline">\((c)\)</span> uses the fact that the two terms coincide when <span class="math inline">\(t = τ_a\)</span>.</p>
+<p>Thus, the stopped sequence <span class="math inline">\(\{W^{(a)}_{t}\}_{t \ge 1}\)</span> is a supermartingale. Moreover, it is bounded from below since <span class="math display">\[
+W^{(a)}_t = W_{t \wedge τ} \ge - \sum_{s = 1}^{τ \wedge (t-1)} Y_s
+\ge -a,\]</span> So, we can think of <span class="math inline">\(W^{(a)}_{t} + a\)</span> as a nonnegative supermartingale. Therefore, by the supermartingale convergence theorem, for any given <span class="math inline">\(a\)</span>, <span class="math inline">\(\lim_{t \to ∞} W^{(a)}_{t}\)</span> exists and is finite a.s.</p>
+<p>Now define <span class="math inline">\(Ω^{(a)}\)</span> to be the set <span class="math inline">\(\{ ω : \sum_{t \ge 1} Y_t(ω) &lt; a \}\)</span>. We know that <span class="math inline">\(Y'_t = b_{t+1} Y_t &lt; Y_t\)</span>. So, on the set <span class="math inline">\(Ω^{(a)}\)</span>, <span class="math inline">\(\sum_{t \ge 1} Y'_t(ω) &lt; a\)</span>. Hence, for all <span class="math inline">\(ω \in Ω^{(a)}\)</span>, we have <span class="math inline">\(τ_{a}(ω) = ∞\)</span>. Therefore, <span class="math inline">\(W_t = W^{(a)}_t\)</span> and, by the previous argument, <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> converges to a finite limit.</p>
+<p>By countable additivity, we get that <span class="math inline">\(W_t\)</span> converges to a finite limit for all <span class="math inline">\(a \in \integers\)</span>.</p>
+<p><strong>Side remark:</strong> It took me a while to understand why this is the case, so I am including a complete formal argument.</p>
+<ol type="1">
+<li>Fix an <span class="math inline">\(a\)</span>. We know that on <span class="math inline">\(Ω^{(a)}\)</span>, <span class="math inline">\(W_t\)</span> has a finite limit. Denote that limit by <span class="math inline">\(W_{∞}\)</span>.</li>
+<li>For any <span class="math inline">\(ε &gt; 0\)</span>, define the event <span class="math inline">\(\ALPHABET E = \cap_{s = 1}^∞ \cup_{t = s}^∞ |W_t(ω) - W_{∞}(ω)| &gt; ε\)</span>.</li>
+<li>The fact that <span class="math inline">\(W_t\)</span> converges almost surely to <span class="math inline">\(W_{∞}\)</span> on <span class="math inline">\(Ω^{(a)}\)</span> means that <span class="math inline">\(\PR(Ω^{(a)} \cap \ALPHABET E) = 0\)</span>.</li>
+<li><em>We now restrict attention to integer values of <span class="math inline">\(a\)</span></em>. Since <span class="math inline">\(Ω^{(a)} \cap \ALPHABET E\)</span> is an increasing sequence, we have <span class="math display">\[
+\PR(Ω_0 \cap \ALPHABET E)
+=
+\PR(\lim_{a \to ∞} Ω^{(a)} \cap \ALPHABET E)
+=
+\lim_{a \to ∞} \PR(Ω^{(a)} \cap \ALPHABET E)
+=
+0.
+\]</span> Hence, <span class="math inline">\(W_t\)</span> converges to <span class="math inline">\(W_{∞}\)</span> almost surely on <span class="math inline">\(Ω_0\)</span>.</li>
+</ol>
+<!--
+Therefore, on the set $\{ τ = ∞ \}$, i.e., the set $\{ \sum_{s = 1}^∞ Y'_s \le a \}$, $\lim_{t \to ∞} W_t$ exists and is finite.
+
+Since $a$ is arbitary, we have that $\lim_{t \to ∞} W_t$ exists and is finite on $\{ \sum_{s=1}^∞ Y'_s < ∞ \}$. But, we know that $Y'_s \le Y_s$. Therefore, for $ω \in Ω_0$, 
+$$\sum_{t \ge 1} Y'_t(ω) \le \sum_{t \ge 1} Y_t(ω) < ∞ . $$
+Consequently, for $ω \in Ω_0$, $\lim_{t \to ∞} W_t$ exists and is finite.
+-->
 <p>Now \eqref{eq:almost-supermartingale-st-2} implies that <span class="math display">\[
   \lim_{t \to ∞} \biggl \{ X'_t - \sum_{s=1}^{t-1} (Y'_s - Z'_s) \biggr\} &lt; ∞.
 \]</span> Hence, on <span class="math inline">\(Ω_0\)</span>, <span class="math inline">\(\sum_{s=1}^∞ Z'_s &lt; ∞\)</span> and <span class="math inline">\(\lim_{t \to ∞} X'_t\)</span> exists and is finite.</p>
@@ -1080,13 +1116,14 @@ Remark
 </div>
 <div id="exr-SLLN-martingales" class="theorem exercise">
 <p><span class="theorem-title"><strong>Exercise 35.4 </strong></span>Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be square integrable martingale with <span class="math inline">\(\EXP[ X_T^2 ] \le T\)</span> for all <span class="math inline">\(T\)</span>. Prove that <span class="math inline">\(X_T/T \to 0\)</span>, a.s.</p>
-<p>[This may be viewed as a generalization of a SLLN for i.i.d.&nbsp;sequences.] <em>Hint:</em> Use <a href="../mdps/monotone-mdps.html#abel-lemma">Abel’s lemma</a> to show <span class="math inline">\(\sum_{t=1}^T \EXP[ M_t^2 ]/t^2 &lt; ∞\)</span> and then use <a href="#thm-SLLN-MDS">Theorem&nbsp;<span>35.4</span></a>.</p>
+<p>[This may be viewed as a generalization of a SLLN for i.i.d.&nbsp;sequences.]</p>
+<p><em>Hint:</em> Use <a href="../mdps/monotone-mdps.html#abel-lemma">Abel’s lemma</a> to show <span class="math inline">\(\sum_{t=1}^T \EXP[ M_t^2 ]/t^2 &lt; ∞\)</span> and then use <a href="#thm-SLLN-MDS">Theorem&nbsp;<span>35.4</span></a>.</p>
 </div>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
 <p>The material in the introduction is taken from <span class="citation" data-cites="Pollard2002">Pollard (<a href="../references.html#ref-Pollard2002" role="doc-biblioref">2002</a>)</span>, <span class="citation" data-cites="Chang2007">Chang (<a href="../references.html#ref-Chang2007" role="doc-biblioref">2007</a>)</span>, and <span class="citation" data-cites="Dellacherie1982b">Dellacherie and Meyer (<a href="../references.html#ref-Dellacherie1982b" role="doc-biblioref">1982</a>)</span>. The latter is an excellent reference for this material.</p>
-<p><a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a> and its proof is from <span class="citation" data-cites="Robbins1971">Robbins and Siegmund (<a href="../references.html#ref-Robbins1971" role="doc-biblioref">1971</a>)</span>. A version of <a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a> with <span class="math inline">\(Z_t = 0\)</span> is stated as Exercise II-4 of <span class="citation" data-cites="Neveu1975">Neveu (<a href="../references.html#ref-Neveu1975" role="doc-biblioref">1975</a>)</span>.</p>
+<p><a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a> and its proof is adapted from <span class="citation" data-cites="Robbins1971">Robbins and Siegmund (<a href="../references.html#ref-Robbins1971" role="doc-biblioref">1971</a>)</span> and <a href="https://mathoverflow.net/a/357922/520224">this post on math stackexchange</a>. A version of <a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a> with <span class="math inline">\(Z_t = 0\)</span> is stated as Exercise II-4 of <span class="citation" data-cites="Neveu1975">Neveu (<a href="../references.html#ref-Neveu1975" role="doc-biblioref">1975</a>)</span>.</p>
 <p><a href="#exr-martingale-Robbins-Monroe">Exercise&nbsp;<span>35.3</span></a> is from <span class="citation" data-cites="Bertsekas2000">Bertsekas and Tsitsiklis (<a href="../references.html#ref-Bertsekas2000" role="doc-biblioref">2000</a>)</span>.</p>
 
 
