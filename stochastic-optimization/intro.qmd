@@ -190,6 +190,101 @@ inequality is strict becase $\PR(S = s^∘) > 0$. Thus, $J(π^*) > J(π^∘)$ an
 hence, $π^*$ cannot be an optimal policy.
 :::
 
+::: {.callout-tip}
+### Some notation
+
+To build up to the notation used in [MDPs], define
+$$
+    Q(s,a) \coloneqq E[ c(s,a,W) \mid S = s],
+$$
+which is called the **action-value function.** For any policy $π$, define
+$$
+  V^π(s) = Q(s,π(s)),
+$$
+which is called the **value function** of policy $π$. The value function of the optimal policy is often denoted by $V^*$ and, by definition of optimality, it has the property that for any policy $π$:
+$$
+  V^*(s) \le V^π(s), 
+  \quad \forall s \in \ALPHABET S.
+$$
+:::
+
+[MDPs]: ../mdps/intro.qmd
+
+## An example: optimal policy in a card game
+
+Consier a gamler playing a stylized version of card game played with 
+a deck of $4$ cards: $\{1,2,3,4\}$. A dealer deals two cards: one to himself and one to the gabler. The gambler looks at his card, and can decide to take one of two actions: fold or challenge. If the gambler folds, the game is over; if he challenges and has a higher card than the dealer, he wins \\$1; if he challenges but has a lower than the dealer, he loses \\$1. What is the optimal policy?
+
+We can model this as a stochastic optimization probem. Let $W$ denote the cards dealt, $S$ denote gambler's card, and $A=0$ denote the fold action and $A=1$ denote the challenge action. Then:
+$$
+\ALPHABET W = \{(1,2), (1,3), (1,4), (2,1), (2,3), (2,4), (3,1), (3,2), (3,4), (4,1), (4,2), (4,3) \},
+$$
+where the first index denotes the card dealt to the dealer and the second denotes the card dealt to the gabmler. We will assume that each of these outcomes is equally likely. 
+
+Note that $\ALPHABET S = \{1,2,3,4\}$ and $\ALPHABET A = \{0,1\}$. So, a policy $π$ is a mapping from $\ALPHABET S$ to $\ALPHABET A$, i.e., for each card that could be dealt to the gambler, he needs to decide whether to fold or challenge. 
+
+There are $|\ALPHABET S|^{|\ALPHABET A|} = 4^2 = 16$ policies. The performance of a policy $π$ is:
+$$
+  J(π) = \sum_{(d,s) \in \ALPHABET W} \PR(d,s) c(s, π(s), (d,s))
+$$
+where we are using the variable $d$ to denote the card dealt to the dealer.
+
+Now consider one specific policy: $π = [0, 0, 1, 1]$, which means that the gambler folds if he gets card 1 or 2 and challenges if he gets card 3 and 4. Then, we have
+\begin{align*}
+  J(π) &=
+  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (1,2)}
+  +
+  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (1,3)}
+  +
+  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (1,4)}
+  \\
+  & \quad +
+  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (2,1)}
+  +
+  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (2,3)}
+  +
+  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (2,4)}
+  \\
+  & \quad +
+  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (3,1)}
+  +
+  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (3,2)}
+  +
+  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (3,4)}
+  \\
+  & \quad +
+  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (4,1)}
+  +
+  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (4,2)}
+  +
+  \underbrace{\tfrac 1{12} \cdot (-1)}_{(d,s) = (4,3)}
+  \\
+  &= \tfrac 4{12} = \tfrac 13.
+\end{align*}
+
+A brute force search corresponds to computing the performance of all $16$ policies and picking the one with the best performance.
+
+The alternative way to compute the optimal policy via \eqref{eq:cond} proceeds as follows. First observe that
+$$
+  Q(s,a) \coloneqq 
+  \EXP[ c(s,a,W) \mid S = s] = \sum_{ (d,s) \in \ALPHABET W }
+  \PR( (d,s) \mid S = s) c(s,a,(d,s)).
+$$
+Moreover, $Q(s,0)$ is always $0$. So, we just need to compute $Q(s,1)$ and check if it is larger or smaller than $0$.
+
+- $Q(1,1) = \tfrac 13 \bigl[ -1 -1 -1 \bigr] = -1 < 0$.
+- $Q(2,1) = \tfrac 13[1 -1 -1] = -\tfrac 13 < 0$.
+- $Q(3,1) = \tfrac 13[1 + 1 -1] = \tfrac 13 > 0$.
+- $Q(4,1) = \tfrac 13 [ 1 + 1 + 1] = 1 > 0$.
+
+Thus, the optimal policy is $π = [0, 0, 1, 1]$. We can also verify that
+$$
+  J(π) = \sum_{s \in \ALPHABET S} \PR(s) Q(s,π(s)) 
+  = \tfrac 14 [ 0 + 0 + \tfrac 13 + 1 ] = \tfrac 13
+$$
+which is the same value that we had obtained by direct computation above.
+
+
 ## Blackwell's principle of irrelevant information
 
 In many scenarios, the decision maker may observe data which is irrelevant for
