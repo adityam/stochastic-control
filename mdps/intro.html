@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-07">
-<meta name="keywords" content="MDPs, Markov strategies, dynamic programming, comparison principle, principle of irrelevant information">
+<meta name="dcterms.date" content="2024-01-13">
+<meta name="keywords" content="MDPs, Markov policies, dynamic programming, comparison principle, principle of irrelevant information">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
 <title>Course Notes - 5&nbsp; Finite horizon MDPs</title>
@@ -609,7 +609,7 @@ window.MathJax = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#performance" id="toc-performance" class="nav-link active" data-scroll-target="#performance"><span class="header-section-number">5.1</span> Performance of Markov strategies</a></li>
+  <li><a href="#performance" id="toc-performance" class="nav-link active" data-scroll-target="#performance"><span class="header-section-number">5.1</span> Performance of Markov policies</a></li>
   <li><a href="#DP" id="toc-DP" class="nav-link" data-scroll-target="#DP"><span class="header-section-number">5.2</span> Dynamic Programming Decomposition</a></li>
   <li><a href="#variations-of-a-theme" id="toc-variations-of-a-theme" class="nav-link" data-scroll-target="#variations-of-a-theme"><span class="header-section-number">5.3</span> Variations of a theme</a>
   <ul class="collapse">
@@ -657,7 +657,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 7, 2024</p>
+      <p class="date">January 13, 2024</p>
     </div>
   </div>
   
@@ -670,18 +670,18 @@ window.MathJax = {
 <p>Markov decision processes (MDP) are the simplest model of a stochastic control system. The dynamic behavior of an MDP is modeled by an equation of the form <span class="math display">\[ \begin{equation}
   S_{t+1} = f_t(S_t, A_t, W_t) \label{eq:state}
 \end{equation}\]</span> where <span class="math inline">\(S_t \in \ALPHABET S\)</span> is the state, <span class="math inline">\(A_t \in \ALPHABET A\)</span> is the control input, and <span class="math inline">\(W_t \in \ALPHABET W\)</span> is the noise. An agent/controller observes the state and chooses the control input <span class="math inline">\(A_t\)</span>.</p>
-<p>Eq.&nbsp;\eqref{eq:state} is a <em>non-linear</em> <em>τtochastic</em> state-space model—<em>non-linear</em> because <span class="math inline">\(f_t\)</span> can be any nonlinear function; <em>τtochastic</em> because the system is driven by stochastic noise <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>.</p>
+<p>Eq.&nbsp;\eqref{eq:state} is a <em>non-linear</em> <em>stochastic</em> state-space model—<em>non-linear</em> because <span class="math inline">\(f_t\)</span> can be any nonlinear function; <em>stochastic</em> because the system is driven by stochastic noise <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>.</p>
 <p>The controller can be as sophisticated as we want. In principle, it can analyze the entire history of observations and control actions to choose the current control action. Thus, the control action can be written as <span class="math display">\[ A_t = π_t(S_{1:t}, A_{1:t-1}),\]</span> where <span class="math inline">\(S_{1:t}\)</span> is a shorthand for <span class="math inline">\((S_1, \dots, S_t)\)</span> and a similar interpretation holds for <span class="math inline">\(A_{1:t-1})\)</span>. The function <span class="math inline">\(π_t\)</span> is called the <em>control law</em> (or <em>policy</em> or <em>τtrategy</em>) at time <span class="math inline">\(t\)</span>.</p>
 <p>At each time, the system incurs a cost that may depend on the current state and control action. This cost is denoted by <span class="math inline">\(c_t(S_t, A_t)\)</span>. The system operates for a time horizon <span class="math inline">\(T\)</span>. During this time, it incurs a total cost <span class="math display">\[ \sum_{t=1}^T c_t(S_t, A_t). \]</span></p>
 <p>The initial state <span class="math inline">\(S_1\)</span> and the noise process <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are random variables defined on a common probability space (these are called <em>primitive random variables</em>) and are mutually independent. This seemingly benign assumption is critical for the theory that we present to go through.</p>
-<p>Suppose we have to design such a controller. We are told the probability distribution of the initial state and the noise. We are also told the system update functions <span class="math inline">\((f_1, \dots, f_T)\)</span> and the cost functions <span class="math inline">\((c_1, \dots, c_T)\)</span>. We are asked to choose a <em>control strategy</em> <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> to minimize the expected total cost <span class="math display">\[ J(π) := \EXP\bigg[ \sum_{t=1}^T c_t(S_t, A_t) \bigg]. \]</span> How should we proceed?</p>
-<p>At first glance, the problem looks intimidating. It appears that we have to design a very sophisticated controller: one that analyzes all past data to choose a control input. However, this is not the case. A remarkable result is that the optimal control station can discard all past data and choose the control input based only on the current state of the system. Formally, we have the following:</p>
+<p>Suppose we have to design such a controller. We are told the probability distribution of the initial state and the noise. We are also told the system update functions <span class="math inline">\((f_1, \dots, f_T)\)</span> and the cost functions <span class="math inline">\((c_1, \dots, c_T)\)</span>. We are asked to choose a <em>control policy</em> <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> to minimize the expected total cost <span class="math display">\[ J(π) := \EXP\bigg[ \sum_{t=1}^T c_t(S_t, A_t) \bigg]. \]</span> How should we proceed?</p>
+<p>At first glance, the problem looks intimidating. It appears that we have to design a very sophisticated controller: one that analyzes all past data to choose a control input. However, this is not the case. A remarkable result is that the optimal controller can discard all past data and choose the control input based only on the current state of the system. Formally, we have the following:</p>
 <div id="thm-MDP-markov" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 5.1 </strong></span>Optimality of Markov strategies. For the system model described above, there is no loss of optimality in chosing the control action according to <span class="math display">\[ A_t = π_t(S_t), \quad t=1, \dots, T.\]</span> Such a control strategy is called a <em>Markov strategy</em>.</p>
+<p><span class="theorem-title"><strong>Theorem 5.1 (Optimality of Markov policies) </strong></span>For the system model described above, there is no loss of optimality in chosing the control action according to <span class="math display">\[ A_t = π_t(S_t), \quad t=1, \dots, T.\]</span> Such a control policy is called a <em>Markov policy</em>.</p>
 </div>
-<p>The above result claims that the cost incurred by the best Markovian strategy is the same as the cost incurred by the best history dependent strategy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../stochastic-optimization/intro.html#blackwells-principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a> <span class="citation" data-cites="Blackwell1964">(<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">Blackwell 1964</a>)</span></p>
+<p>The above result claims that the cost incurred by the best Markovian policy is the same as the cost incurred by the best history dependent policy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../stochastic-optimization/intro.html#blackwells-principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a> <span class="citation" data-cites="Blackwell1964">(<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">Blackwell 1964</a>)</span></p>
 <div id="lem-MDP-two-step-lemma" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 5.1 (Two-Step Lemma) </strong></span>Consider an MDP that operates for two steps (<span class="math inline">\(T=2\)</span>). Then there is no loss of optimality in restricting attention to a Markov control strategy at time <span class="math inline">\(t=2\)</span>.</p>
+<p><span class="theorem-title"><strong>Lemma 5.1 (Two-Step Lemma) </strong></span>Consider an MDP that operates for two steps (<span class="math inline">\(T=2\)</span>). Then there is no loss of optimality in restricting attention to a Markov control policy at time <span class="math inline">\(t=2\)</span>.</p>
 </div>
 <p>Note that <span class="math inline">\(π_1\)</span> is Markov because it can only depend <span class="math inline">\(S_1\)</span>.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -732,31 +732,31 @@ A_1) ].\]</span></p>
 </div>
 </div>
 </div>
-<p>Now we have enough background to present the proof of optimality of Markov strategies.</p>
+<p>Now we have enough background to present the proof of optimality of Markov policies.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Proof of optimality of Markov strategies
+Proof of optimality of Markov policies
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The main idea is that any system can be thought of as a two- or three-step system by aggregating time. Suppose that the system operates for <span class="math inline">\(T\)</span> steps. It can be thought of as a two-step system where <span class="math inline">\(t \in \{1, \dots, T - 1\}\)</span> corresponds to step 1 and <span class="math inline">\(t = T\)</span> corresponds to step 2. From the two-step lemma, there is no loss of optimality in restricting attention to Markov control law at step 2 (i.e., at time <span class="math inline">\(t=T\)</span>), i.e., <span class="math display">\[ A_T = π_T(S_T). \]</span></p>
-<p>Now consider a system where we are using a Markov strategy at time <span class="math inline">\(t=T\)</span>. This system can be thought of as a three-step system where <span class="math inline">\(t \in \{1, \dots, T-2\}\)</span> corresponds to step 1, <span class="math inline">\(t = T-1\)</span> corresponds to step 2, and <span class="math inline">\(t=T\)</span> corresponds to step 3. Since the controller at time <span class="math inline">\(T\)</span> is Markov, the assumption of the three step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-1\)</span>), i.e., <span class="math display">\[A_{T-1} = π_{T-1}(S_{T-1}).\]</span></p>
-<p>Now consider a system where we are using a Markov strategy at time <span class="math inline">\(t \in \{T-1, T\}\)</span>. This can be thought of as a three-step system where <span class="math inline">\(t \in \{1, \dots, T - 3\}\)</span> correspond to step 1, <span class="math inline">\(t = T-2\)</span> correspond to step 2, and <span class="math inline">\(t \in \{T-1, T\}\)</span> correspond to step 3. Since the controllers at time <span class="math inline">\(t \in \{T-1, T\}\)</span> are Markov, the assumption of the three-step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-2\)</span>), i.e., <span class="math display">\[A_{T-2} = π_{T-2}(S_{T-2}).\]</span></p>
+<p>Now consider a system where we are using a Markov policy at time <span class="math inline">\(t=T\)</span>. This system can be thought of as a three-step system where <span class="math inline">\(t \in \{1, \dots, T-2\}\)</span> corresponds to step 1, <span class="math inline">\(t = T-1\)</span> corresponds to step 2, and <span class="math inline">\(t=T\)</span> corresponds to step 3. Since the controller at time <span class="math inline">\(T\)</span> is Markov, the assumption of the three step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-1\)</span>), i.e., <span class="math display">\[A_{T-1} = π_{T-1}(S_{T-1}).\]</span></p>
+<p>Now consider a system where we are using a Markov policy at time <span class="math inline">\(t \in \{T-1, T\}\)</span>. This can be thought of as a three-step system where <span class="math inline">\(t \in \{1, \dots, T - 3\}\)</span> correspond to step 1, <span class="math inline">\(t = T-2\)</span> correspond to step 2, and <span class="math inline">\(t \in \{T-1, T\}\)</span> correspond to step 3. Since the controllers at time <span class="math inline">\(t \in \{T-1, T\}\)</span> are Markov, the assumption of the three-step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-2\)</span>), i.e., <span class="math display">\[A_{T-2} = π_{T-2}(S_{T-2}).\]</span></p>
 <p>Proceeding this way, we continue to think of the system as a three step system by different relabeling of time. Once we have shown that the controllers at times <span class="math inline">\(t \in \{s+1, s+2, \dots, T\}\)</span> are Markov, we relabel time as follows: <span class="math inline">\(t=\{1, \dots, s-1\}\)</span> corresponds to step 1, <span class="math inline">\(t = s\)</span> corresponds to step 2, and <span class="math inline">\(t \in \{s+1, \dots, T\}\)</span> corresponds to step 3. Since the controllers at time <span class="math inline">\(t \in \{s+1, \dots, T\}\)</span> are Markov, the assumption of the three-step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at stage 2 (i.e.&nbsp;at time <span class="math inline">\(s\)</span>), i.e., <span class="math display">\[A_τ = π_τ(S_τ).\]</span></p>
 <p>Proceeding until <span class="math inline">\(s=2\)</span>, completes the proof.</p>
 </div>
 </div>
 </div>
 <section id="performance" class="level2" data-number="5.1">
-<h2 data-number="5.1" class="anchored" data-anchor-id="performance"><span class="header-section-number">5.1</span> Performance of Markov strategies</h2>
-<p>We have shown that there is no loss of optimality to restrict attention to Markov strategies. One of the advantages of Markov strategies is that their performance can be computed recursively. In particular, given any Markov strategy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>, define <em>the cost-to-go functions</em> as follows: <span class="math display">\[V^{π}_t(s) = \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
-s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> only depends on the future strategy <span class="math inline">\((π_t, \dots, π_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align*}
+<h2 data-number="5.1" class="anchored" data-anchor-id="performance"><span class="header-section-number">5.1</span> Performance of Markov policies</h2>
+<p>We have shown that there is no loss of optimality to restrict attention to Markov policies. One of the advantages of Markov policies is that their performance can be computed recursively. In particular, given any Markov policy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>, define <em>the cost-to-go functions</em> or <em>value function</em> as follows: <span class="math display">\[V^{π}_t(s) = \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
+s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> only depends on the future policy <span class="math inline">\((π_t, \dots, π_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align*}
   V^{π}_t(s) &amp;= \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
   s \bigg] \\
   &amp;= \EXP^π \bigg[ c_t(s, π_t(s)) + \EXP^π \bigg[ \sum_{τ = t+1}^T
@@ -783,10 +783,10 @@ s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> on
 </div>
 <p>Instead of proving the above result, we prove a related result</p>
 <div id="thm-comparison-principle" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 5.3 (The comparison principle) </strong></span>For any Markov strategy <span class="math inline">\(π\)</span> <span class="math display">\[ V^{π}_t(s) \ge V_t(s) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future strategy</em> <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step \eqref{eq:verification}.</p>
+<p><span class="theorem-title"><strong>Theorem 5.3 (The comparison principle) </strong></span>For any Markov policy <span class="math inline">\(π\)</span> <span class="math display">\[ V^{π}_t(s) \ge V_t(s) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future policy</em> <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step \eqref{eq:verification}.</p>
 </div>
-<p>Note that the comparison principle immediately implies that the strategy obtained using dynamic programming is optimal.</p>
-<p>The comparison principle also allows us to interpret the value functions. The value function at time <span class="math inline">\(t\)</span> is the minimum of all the cost-to-go functions over all future strategies. The comparison principle also allows us to interpret the optimal policy (the interpretation is due to Bellman and is colloquially called Bellman’s principle of optimality).</p>
+<p>Note that the comparison principle immediately implies that the policy obtained using dynamic programming is optimal.</p>
+<p>The comparison principle also allows us to interpret the value functions. The value function at time <span class="math inline">\(t\)</span> is the minimum of all the cost-to-go functions over all future policies. The comparison principle also allows us to interpret the optimal policy (the interpretation is due to Bellman and is colloquially called Bellman’s principle of optimality).</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -812,7 +812,7 @@ Proof of the comparison principle
 </div>
 <div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The proof proceeds by backward induction. Consider any Markov strategy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>. For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ \begin{align*}
+<p>The proof proceeds by backward induction. Consider any Markov policy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>. For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ \begin{align*}
   V_T(s) &amp;= \min_{a \in \ALPHABET A} Q_T(s,a) \\
   &amp;\stackrel{(a)}= \min_{a \in \ALPHABET A} c_T(s,a) \\
   &amp;\stackrel{(b)}\le c_T(s, π_T(s)) \\
@@ -840,7 +840,7 @@ Proof of the comparison principle
 <h2 data-number="5.3" class="anchored" data-anchor-id="variations-of-a-theme"><span class="header-section-number">5.3</span> Variations of a theme</h2>
 <section id="sec-cost-depending-on-next-state" class="level3" data-number="5.3.1">
 <h3 data-number="5.3.1" class="anchored" data-anchor-id="sec-cost-depending-on-next-state"><span class="header-section-number">5.3.1</span> Cost depends on next state</h3>
-<p>In the basic model that we have considered above, we assumed that the per-step cost depends only on the current state and current actions. In some applications, such as the <a href="inventory-management.html">inventory management</a> model considered in class, it is more natural to have a cost function where the cost depends on the current state, current action, and the next state. Conceptually, such problems can be treated in the same way as the standard model.</p>
+<p>In the basic model that we have considered above, we assumed that the per-step cost depends only on the current state and current actions. In some applications, such as the <a href="inventory-management.html">inventory management</a>, it is more natural to have a cost function where the cost depends on the current state, current action, and the next state. Conceptually, such problems can be treated in the same way as the standard model.</p>
 <p>In particular, suppose we have a per-step cost given by <span class="math inline">\(c_t(S_t,A_t,S_{t+1})\)</span>, where the objective is to minimize <span class="math display">\[ J(π) = \EXP\Bigl[ \sum_{t=1}^T c_t(S_t, A_t, S_{t+1}) \Bigr]. \]</span></p>
 <p>Define <span class="math display">\[ \tilde c_t(s, a) = \EXP[ c_t(s, a, S_{t+1}) | S_t = s, A_t = a ]
 = \EXP[ c_t(s,a, f_t(s,a, W_t) ]. \]</span> Then, by the towering property of conditional expectation, we can write</p>
@@ -884,6 +884,7 @@ V_t(s) &amp;= \min_{a \in \ALPHABET A} Q_t(s,a).
 <h3 data-number="5.3.4" class="anchored" data-anchor-id="exponential-cost"><span class="header-section-number">5.3.4</span> Exponential cost function</h3>
 <p>A special class of multiplicative cost function is exponential of sum: <span class="math display">\[J(π) = \EXP\Bigl[ \exp\Bigl( \theta \sum_{t=1}^T c_t(S_t, A_t) \Bigr) \Bigr]. \]</span></p>
 <p>When <span class="math inline">\(\theta &gt; 0\)</span>, the above captures risk-averse preferences and when <span class="math inline">\(\theta &lt; 0\)</span>, it corresponds to risk-seeking preferences. This is equivalent to a multiplicative cost <span class="math display">\[J(π) = \EXP\Bigl[ \prod_{t=1}^T \exp( \theta c_t(S_t, A_t)) \Bigr]. \]</span> Therefore, the dynamic program for multiplicative cost is also applicable for this model.</p>
+<p>See notes on <a href="../risk-sensitive/risk-sensitive-mdps.html">risk-sensitive MDPs</a> for more details</p>
 </section>
 <section id="optimal-stopping" class="level3" data-number="5.3.5">
 <h3 data-number="5.3.5" class="anchored" data-anchor-id="optimal-stopping"><span class="header-section-number">5.3.5</span> Optimal stopping</h3>
@@ -966,7 +967,10 @@ V_t(s) &amp;= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>The proof idea for the optimality of Markov strategies is based on a proof by <span class="citation" data-cites="Witsenhausen1979">Witsenhausen (<a href="../references.html#ref-Witsenhausen1979" role="doc-biblioref">1979</a>)</span> on the structure of optimal coding strategies for real-time communication. Note that the proof does not require us to find a dynamic programming decomposition of the problem. This is in contrast with the standard textbook proof where the optimality of Markov strategies is proved as part of the dynamic programming decomposition.</p>
+<p>The proof idea for the optimality of Markov policies is based on a proof by <span class="citation" data-cites="Witsenhausen1979">Witsenhausen (<a href="../references.html#ref-Witsenhausen1979" role="doc-biblioref">1979</a>)</span> on the structure of optimal coding policies for real-time communication. Note that the proof does not require us to find a dynamic programming decomposition of the problem. This is in contrast with the standard textbook proof where the optimality of Markov policies is proved as part of the dynamic programming decomposition.</p>
+<!-- FIXME
+Add notes on the history of MDPs. Zormello's proof of existence of value of chess. Results on inventory management. Bellman's book. Howard's book (Howard's paper on history of MDP). Bellman's anecdote on the term "dynamic programming".
+-->
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
