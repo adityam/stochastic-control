@@ -2,7 +2,7 @@
 title: Finite horizon MDPs
 keywords:
    - MDPs
-   - Markov strategies
+   - Markov policies
    - dynamic programming
    - comparison principle
    - principle of irrelevant information
@@ -16,8 +16,8 @@ where $S_t \in \ALPHABET S$ is the state, $A_t \in \ALPHABET A$ is the control
 input, and $W_t \in \ALPHABET W$ is the noise. An agent/controller observes
 the state and chooses the control input $A_t$.
 
-Eq. \\eqref{eq:state} is a _non-linear_ _τtochastic_ state-space
-model—_non-linear_ because $f_t$ can be any nonlinear function; _τtochastic_
+Eq. \\eqref{eq:state} is a _non-linear_ _stochastic_ state-space
+model—_non-linear_ because $f_t$ can be any nonlinear function; _stochastic_
 because the system is driven by stochastic noise $\{W_t\}_{t \ge 1}$. 
 
 The controller can be as sophisticated as we want. In principle, it can
@@ -41,7 +41,7 @@ benign assumption is critical for the theory that we present to go through.
 Suppose we have to design such a controller. We are told the probability
 distribution of the initial state and the noise. We are also told the system
 update functions $(f_1, \dots, f_T)$ and the cost functions $(c_1, \dots,
-c_T)$. We are asked to choose a _control strategy_ $π = (π_1, \dots, π_T)$ to
+c_T)$. We are asked to choose a _control policy_ $π = (π_1, \dots, π_T)$ to
 minimize the expected total cost
 $$ J(π) := \EXP\bigg[ \sum_{t=1}^T c_t(S_t, A_t) \bigg]. $$
 How should we proceed?
@@ -49,21 +49,21 @@ How should we proceed?
 At first glance, the problem looks intimidating. It appears that we have to
 design a very sophisticated controller: one that analyzes all past data to
 choose a control input. However, this is not the case. A remarkable result is
-that the optimal control station can discard all past data and choose the
+that the optimal controller can discard all past data and choose the
 control input based only on the current state of the system. Formally, we have
 the following:
 
 :::{#thm-MDP-markov}
-Optimality of Markov strategies.
+#### Optimality of Markov policies
 For the system model described above, there is no loss of optimality in
 chosing the control action according to
 $$ A_t = π_t(S_t), \quad t=1, \dots, T.$$
-Such a control strategy is called a _Markov strategy_.
+Such a control policy is called a _Markov policy_.
 :::
 
 
-The above result claims that the cost incurred by the best Markovian strategy
-is the same as the cost incurred by the best history dependent strategy. This
+The above result claims that the cost incurred by the best Markovian policy
+is the same as the cost incurred by the best history dependent policy. This
 appears to be a tall claim, so lets see how we can prove it. The main idea of
 the proof is to repeatedly apply [Blackwell's principle of irrelevant
 information][Blackwell] [@Blackwell1964]
@@ -73,7 +73,7 @@ information][Blackwell] [@Blackwell1964]
 ::: {#lem-MDP-two-step-lemma}
 ## Two-Step Lemma
 Consider an MDP that operates for two steps ($T=2$). Then there is no loss
-of optimality in restricting attention to a Markov control strategy at time
+of optimality in restricting attention to a Markov control policy at time
 $t=2$.
 :::
 
@@ -132,10 +132,10 @@ A_1) ].$$
 :::
 
 Now we have enough background to present the proof of optimality of Markov
-strategies.
+policies.
 
 :::{.callout-note collapse="true"}
-#### Proof of optimality of Markov strategies {-}
+#### Proof of optimality of Markov policies {-}
 
 The main idea is that any system can be thought of as a two- or three-step
 system by aggregating time. Suppose that the system operates for $T$ steps. 
@@ -145,7 +145,7 @@ lemma, there is no loss of optimality in restricting attention to Markov
 control law at step 2 (i.e., at time $t=T$), i.e., 
 $$ A_T = π_T(S_T). $$
 
-Now consider a system where we are using a Markov strategy at time $t=T$. This
+Now consider a system where we are using a Markov policy at time $t=T$. This
 system can be thought of as a three-step system where $t \in \{1, \dots,
 T-2\}$ corresponds to step 1, $t = T-1$ corresponds to step 2, and $t=T$
 corresponds to step 3. Since the controller at time $T$ is Markov, the
@@ -154,7 +154,7 @@ no loss of optimality in restricting attention to Markov controllers at step 2
 (i.e., at time $t=T-1$), i.e., 
 $$A_{T-1} = π_{T-1}(S_{T-1}).$$
 
-Now consider a system where we are using a Markov strategy at time $t \in
+Now consider a system where we are using a Markov policy at time $t \in
 \{T-1, T\}$. This can be thought of as a three-step system where $t \in \{1,
 \dots, T - 3\}$ correspond to step 1, $t = T-2$ correspond to step 2, and $t
 \in \{T-1, T\}$ correspond to step 3. Since the controllers at time $t \in
@@ -177,15 +177,15 @@ $$A_τ = π_τ(S_τ).$$
 Proceeding until $s=2$, completes the proof.
 :::
 
-## Performance of Markov strategies {#performance}
+## Performance of Markov policies {#performance}
 
 We have shown that there is no loss of optimality to restrict attention to
-Markov strategies. One of the advantages of Markov strategies is that their performance can be computed recursively. In particular, given any Markov
-strategy $π = (π_1, \dots, π_T)$, define _the cost-to-go functions_ as
+Markov policies. One of the advantages of Markov policies is that their performance can be computed recursively. In particular, given any Markov
+policy $π = (π_1, \dots, π_T)$, define _the cost-to-go functions_ or _value function_ as
 follows:
 $$V^{π}_t(s) = \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
 s\bigg]. $$
-Note that $V^{π}_t(s)$ only depends on the future strategy $(π_t, \dots, π_T)$. These functions can be computed recursively as follows:
+Note that $V^{π}_t(s)$ only depends on the future policy $(π_t, \dots, π_T)$. These functions can be computed recursively as follows:
 \begin{align*}
   V^{π}_t(s) &= \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
   s \bigg] \\
@@ -227,18 +227,18 @@ Instead of proving the above result, we prove a related result
 
 :::{#thm-comparison-principle}
 ### The comparison principle 
-For any Markov strategy $π$
+For any Markov policy $π$
 $$ V^{π}_t(s) \ge V_t(s) $$
-with equality at $t$ if and only if the _future strategy_ $π_{t:T}$
+with equality at $t$ if and only if the _future policy_ $π_{t:T}$
 satisfies the verification step \\eqref{eq:verification}. 
 ::: 
 
-Note that the comparison principle immediately implies that the strategy
+Note that the comparison principle immediately implies that the policy
 obtained using dynamic programming is optimal. 
 
 The comparison principle also allows us to interpret the value functions. The
 value function at time $t$ is the minimum of all the cost-to-go functions over
-all future strategies. The comparison principle also allows us to interpret the
+all future policies. The comparison principle also allows us to interpret the
 optimal policy (the interpretation is due to Bellman and is colloquially
 called Bellman's principle of optimality).
 
@@ -251,7 +251,7 @@ policy with regard to the state resulting from the first decision.
 
 :::{.callout-note collapse="true"}
 #### Proof of the comparison principle {-}
-The proof proceeds by backward induction. Consider any Markov strategy $π =
+The proof proceeds by backward induction. Consider any Markov policy $π =
 (π_1, \dots, π_T)$. For $t = T$, 
 $$ \begin{align*}
   V_T(s) &= \min_{a \in \ALPHABET A} Q_T(s,a) \\
@@ -293,8 +293,7 @@ induction, is true for all time.
 
 In the basic model that we have considered above, we assumed that the per-step
 cost depends only on the current state and current actions. In some
-applications, such as the [inventory management](inventory-management.html)
-model considered in class, it is more natural to have a cost function where
+applications, such as the [inventory management](inventory-management.html), it is more natural to have a cost function where
 the cost depends on the current state, current action, and the next state.
 Conceptually, such problems can be treated in the same way as the standard
 model.
@@ -379,6 +378,10 @@ to a multiplicative cost
 $$J(π) = \EXP\Bigl[ \prod_{t=1}^T \exp( \theta c_t(S_t, A_t)) \Bigr]. $$
 Therefore, the dynamic program for multiplicative cost is also applicable for
 this model.
+
+See notes on [risk-sensitive MDPs] for more details
+
+[risk-sensitive MDPs]: ../risk-sensitive/risk-sensitive-mdps.qmd
 
 
 ### Optimal stopping {#optimal-stopping}
@@ -525,10 +528,13 @@ us to use the theory developed in the class to tackle this setup.
 
 ## Notes {-}
 
-The proof idea for the optimality of Markov strategies is based on a proof
-by @Witsenhausen1979 on the structure of optimal coding strategies for
+The proof idea for the optimality of Markov policies is based on a proof
+by @Witsenhausen1979 on the structure of optimal coding policies for
 real-time communication. Note that the proof does not require us to find a
 dynamic programming decomposition of the problem. This is in contrast with the
-standard textbook proof where the optimality of Markov strategies is proved as
+standard textbook proof where the optimality of Markov policies is proved as
 part of the dynamic programming decomposition. 
 
+<!-- FIXME
+Add notes on the history of MDPs. Zormello's proof of existence of value of chess. Results on inventory management. Bellman's book. Howard's book (Howard's paper on history of MDP). Bellman's anecdote on the term "dynamic programming".
+-->
