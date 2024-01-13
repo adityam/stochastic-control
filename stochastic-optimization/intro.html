@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-12">
+<meta name="dcterms.date" content="2024-01-13">
 <meta name="keywords" content="stochastic optimization, principle of irrelevant information">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -612,7 +612,12 @@ window.MathJax = {
   <li><a href="#the-stochastic-optimization-problem" id="toc-the-stochastic-optimization-problem" class="nav-link active" data-scroll-target="#the-stochastic-optimization-problem"><span class="header-section-number">1.1</span> The stochastic optimization problem</a></li>
   <li><a href="#key-simplifying-idea" id="toc-key-simplifying-idea" class="nav-link" data-scroll-target="#key-simplifying-idea"><span class="header-section-number">1.2</span> Key simplifying idea</a></li>
   <li><a href="#an-example-optimal-policy-in-a-card-game" id="toc-an-example-optimal-policy-in-a-card-game" class="nav-link" data-scroll-target="#an-example-optimal-policy-in-a-card-game"><span class="header-section-number">1.3</span> An example: optimal policy in a card game</a></li>
-  <li><a href="#blackwells-principle-of-irrelevant-information" id="toc-blackwells-principle-of-irrelevant-information" class="nav-link" data-scroll-target="#blackwells-principle-of-irrelevant-information"><span class="header-section-number">1.4</span> Blackwell’s principle of irrelevant information</a></li>
+  <li><a href="#a-tree-representation-of-the-optimization-problem" id="toc-a-tree-representation-of-the-optimization-problem" class="nav-link" data-scroll-target="#a-tree-representation-of-the-optimization-problem"><span class="header-section-number">1.4</span> A tree representation of the optimization problem</a>
+  <ul class="collapse">
+  <li><a href="#one-step-optimization-with-perfect-observation" id="toc-one-step-optimization-with-perfect-observation" class="nav-link" data-scroll-target="#one-step-optimization-with-perfect-observation"><span class="header-section-number">1.4.1</span> One-step optimization with perfect observation</a></li>
+  <li><a href="#one-step-optimization-with-imperfect-observation" id="toc-one-step-optimization-with-imperfect-observation" class="nav-link" data-scroll-target="#one-step-optimization-with-imperfect-observation"><span class="header-section-number">1.4.2</span> One-step optimization with imperfect observation</a></li>
+  </ul></li>
+  <li><a href="#blackwells-principle-of-irrelevant-information" id="toc-blackwells-principle-of-irrelevant-information" class="nav-link" data-scroll-target="#blackwells-principle-of-irrelevant-information"><span class="header-section-number">1.5</span> Blackwell’s principle of irrelevant information</a></li>
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
@@ -649,7 +654,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 12, 2024</p>
+      <p class="date">January 13, 2024</p>
     </div>
   </div>
   
@@ -850,8 +855,76 @@ Some notation
   = \tfrac 14 [ 0 + 0 + \tfrac 13 + 1 ] = \tfrac 13
 \]</span> which is the same value that we had obtained by direct computation above.</p>
 </section>
-<section id="blackwells-principle-of-irrelevant-information" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="blackwells-principle-of-irrelevant-information"><span class="header-section-number">1.4</span> Blackwell’s principle of irrelevant information</h2>
+<section id="a-tree-representation-of-the-optimization-problem" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="a-tree-representation-of-the-optimization-problem"><span class="header-section-number">1.4</span> A tree representation of the optimization problem</h2>
+<p>When all variables <span class="math inline">\((S,W,A)\)</span> are finite valued, the stochastic optimization problem defined above can also be modeled as a tree. Such a tree formulation has two benefits:</p>
+<ul>
+<li>it provides a geometric view, which can be useful in visualizing the result;</li>
+<li>for general, multi-stage problems, it is possible to exploit the tree structure to obtain efficient computation algorithms, see, e.g., <span class="citation" data-cites="Fu2018">Fu (<a href="../references.html#ref-Fu2018" role="doc-biblioref">2018</a>)</span> for an historical overview.</li>
+</ul>
+<p>There are two ways to construct the tree representation: the first as an one-stage optimization problem with perfect observation and the second as a one-stage optimization problem with imperfect observation. The first is simpler and the second is more general. We explain both formulations below.</p>
+<section id="one-step-optimization-with-perfect-observation" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="one-step-optimization-with-perfect-observation"><span class="header-section-number">1.4.1</span> One-step optimization with perfect observation</h3>
+<p>We will view the model according to the following timing diagram:</p>
+<div id="fig-timing1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/timing1.svg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;1.1: Timing diagram for modeling as a one-step optimization problem with perfect observation</figcaption>
+</figure>
+</div>
+<p>Thus, nature first generate the “state” variable <span class="math inline">\(S\)</span> according to some distribution <span class="math inline">\(P_S\)</span>, agent takes action <span class="math inline">\(A\)</span> according to the policy <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span>, and then nature generates the “disturbance” <span class="math inline">\(W\)</span> according to some distribution <span class="math inline">\(P_{W|S}\)</span>.</p>
+<p>We can view this as a tree, shown in <a href="#fig-tree1">Figure&nbsp;<span>1.2</span></a>, where the root note corresponds to moves nature (denoted by <span class="math inline">\(c\)</span> for chance) to generate <span class="math inline">\(S\)</span>, nodes at depth 1 correspond to the moves of the agent (denoted by <span class="math inline">\(d\)</span> for decision maker) to generate <span class="math inline">\(A\)</span>, and nodes at depth 2 correspond to moves of nature to generate <span class="math inline">\(W\)</span>.[^simplify]</p>
+<p>[^simplify] For simplicity, we set <span class="math inline">\(W = (D,S)\)</span> and only show <span class="math inline">\(D\)</span> (the card dealt to the dealer) on the tree.</p>
+<div id="fig-tree1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/game-tree-1.svg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;1.2: Tree representation of the one-step optimization problem. Nodes represent the “agent”: nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost <span class="math inline">\(c(s,a,w)\)</span>. The shaded edges represent a policy.</figcaption>
+</figure>
+</div>
+<p>We can do the calculation to compute the optimal policy on the tree. The calculations proceed by starting at the last level and moving upwards. In particular, at the nodes of depth <span class="math inline">\(2\)</span>, we compute <span class="math inline">\(Q(s,a)\)</span> using: <span class="math display">\[
+Q(s,a) = \EXP[ c(s,a,W) \mid S = s]
+=
+\sum_{w \in \ALPHABET W}P_{W|S}(w|s) c(s,a,w)
+\]</span> If we are given a policy <span class="math inline">\(π\)</span> (like the policy shown by yellow shaded edges in <a href="#fig-tree1">Figure&nbsp;<span>1.2</span></a>), we can compute <span class="math inline">\(V^π(s)\)</span> using: <span class="math display">\[
+  V^π(s) = Q(s,π(s)).
+\]</span> We can also compute the optimal value function <span class="math inline">\(V^*(s)\)</span> using <span class="math display">\[
+  V^*(s) = \min_{a \in \ALPHABET A}Q(s,a)
+\]</span> where the optimal policy is given by <span class="math display">\[
+  π^*(s) \in \arg\min_{a \in \ALPHABET A}Q(s,a).
+\]</span></p>
+<p>These calculations are the same as we did in the previous section; the tree simply helps in visualizing what is going on.</p>
+</section>
+<section id="one-step-optimization-with-imperfect-observation" class="level3" data-number="1.4.2">
+<h3 data-number="1.4.2" class="anchored" data-anchor-id="one-step-optimization-with-imperfect-observation"><span class="header-section-number">1.4.2</span> One-step optimization with imperfect observation</h3>
+<p>In this case, we will view the model according to the following timing diagram:</p>
+<div id="fig-timing2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/timing2.svg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;1.3: Timing diagram for modeling as a one-step optimization problem with imperfect observation</figcaption>
+</figure>
+</div>
+<p>We can view this as a tree, shown in <a href="#fig-tree2">Figure&nbsp;<span>1.4</span></a>, where the root note corresponds to moves nature to generate <span class="math inline">\((S,W)\)</span>, nodes at depth 1 correspond to the moves of the agent to generate <span class="math inline">\(A\)</span>.</p>
+<div id="fig-tree2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/game-tree-2.svg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;1.4: Tree representation of the one-step optimization problem. Nodes represent the “agent”: nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost <span class="math inline">\(c(s,a,w)\)</span>. The shaded edges represent a policy.</figcaption>
+</figure>
+</div>
+<p>In this case, the decision maker cannot distinguish between multiple moves of nature. For example, for <span class="math inline">\(W \in \{ (2,1), (3,1), (4,1) \}\)</span>, the decision maker gets the same observation <span class="math inline">\(S=1\)</span>. This is indicated in the tree diagram by drawing an <strong>information set</strong> around these three nodes, and ensuring that the action taken at these nodes is identical.</p>
+<p>In this formulation, the decision maker has imperfect observation of nature’s move. After making an observation, it forms a <em>posterior belief</em> on the state of nature. For example, <span class="math display">\[
+  \PR(W | S = 1) =
+  \begin{cases}
+    \tfrac 13, &amp; \hbox{if } W \in \{(2,1), (3,1), (4,1) \} \\
+    0, &amp; \hbox{otherwise}
+  \end{cases}
+\]</span> The agent then computes <span class="math inline">\(Q(s,a)\)</span> by averaging over this belief: <span class="math display">\[
+  Q(s,a) = \sum_{w \in \ALPHABET W} \PR(w|s) c(s,a,w).
+\]</span> The value functions <span class="math inline">\(V^π(s)\)</span> and <span class="math inline">\(V^*(s)\)</span> and then computed exactly as before.</p>
+<p>The difference between the two approaches is conceptual. For the one-step optimization problen, the actual mathematical calculations done in both formulations are the same. When we go to multi-stage optimization problem, we will see that perfect and imperfect observation models behave very differently.</p>
+</section>
+</section>
+<section id="blackwells-principle-of-irrelevant-information" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="blackwells-principle-of-irrelevant-information"><span class="header-section-number">1.5</span> Blackwell’s principle of irrelevant information</h2>
 <p>In many scenarios, the decision maker may observe data which is irrelevant for evaluating performance. In such instances, the decision maker may ignore such information without affecting performance. Formally, we have the following result, which is known as <strong>Blackwell’s principle of irrelevant information</strong>.</p>
 <div id="thm-blackwell" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 1.3 (Blackwell’s principle of irrelevant information) </strong></span>Let <span class="math inline">\(\ALPHABET S\)</span>, <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math inline">\(\ALPHABET W\)</span>, and <span class="math inline">\(\ALPHABET A\)</span> be standard Borel spaces and <span class="math inline">\(S \in \ALPHABET S\)</span>, <span class="math inline">\(Y \in \ALPHABET Y\)</span>, <span class="math inline">\(W \in \ALPHABET W\)</span> be random variables defined on a common probability space.</p>
@@ -941,11 +1014,21 @@ P(s,w) π(a \mid s) c(s,a,w).
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
 <p><a href="#thm-blackwell">Theorem&nbsp;<span>1.3</span></a> is due to <span class="citation" data-cites="Blackwell1964">Blackwell (<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">1964</a>)</span> in a short 2.5 page paper. A similar result was used by <span class="citation" data-cites="Witsenhausen1979">Witsenhausen (<a href="../references.html#ref-Witsenhausen1979" role="doc-biblioref">1979</a>)</span> to show the structure of optimal coding strategies in real-time communication. Also see the <a href="https://infostructuralist.wordpress.com/2010/11/08/deadly-ninja-weapons-blackwells-principle-of-irrelevant-information/">blog post</a> by Maxim Ragisnsky.</p>
 <p><a href="#exr-stoc-optim-pollution-monitoring">Exercise&nbsp;<span>1.3</span></a> is adaptive from <span class="citation" data-cites="Whittle1996">Whittle (<a href="../references.html#ref-Whittle1996" role="doc-biblioref">1996</a>)</span>. It is a special instance of Bayesian hypothesis testing problem. We will study a generalization of this model later in <a href="../../pomdp/sequential-hypothesis">sequential hypothesis testing</a></p>
+<p>Historically, the tree representation of optimization problems is due to Kuhn <span class="citation" data-cites="Kuhn1950 Kuhn1953">(<a href="../references.html#ref-Kuhn1950" role="doc-biblioref">1950</a>; <a href="../references.html#ref-Kuhn1953" role="doc-biblioref">1953</a>)</span>, who used them to model multi-player multi-stage games.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Blackwell1964" class="csl-entry" role="listitem">
 <span class="smallcaps">Blackwell, D.</span> 1964. Memoryless strategies in finite-stage dynamic programming. <em>The Annals of Mathematical Statistics</em> <em>35</em>, 2, 863–865. DOI: <a href="https://doi.org/10.1214/aoms/1177703586">10.1214/aoms/1177703586</a>.
+</div>
+<div id="ref-Fu2018" class="csl-entry" role="listitem">
+<span class="smallcaps">Fu, M.C.</span> 2018. Monte carlo tree search: A tutorial. <em>2018 winter simulation conference (WSC)</em>, IEEE. DOI: <a href="https://doi.org/10.1109/wsc.2018.8632344">10.1109/wsc.2018.8632344</a>.
+</div>
+<div id="ref-Kuhn1950" class="csl-entry" role="listitem">
+<span class="smallcaps">Kuhn, H.W.</span> 1950. Extensive games. <em>Proceedings of the National Academy of Sciences</em> <em>36</em>, 10, 570–576. DOI: <a href="https://doi.org/10.1073/pnas.36.10.570">10.1073/pnas.36.10.570</a>.
+</div>
+<div id="ref-Kuhn1953" class="csl-entry" role="listitem">
+<span class="smallcaps">Kuhn, H.W.</span> 1953. Extensive games and the problem of information. In: H.W. Kuhn and A.W. Tucker, eds., <em>Contributions to the theory of games</em>. Princeton University Press, 193–216.
 </div>
 <div id="ref-Whittle1996" class="csl-entry" role="listitem">
 <span class="smallcaps">Whittle, P.</span> 1996. <em>Optimal control: Basics and beyond</em>. Wiley.
