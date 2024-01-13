@@ -284,6 +284,78 @@ $$
 $$
 which is the same value that we had obtained by direct computation above.
 
+## A tree representation of the optimization problem
+
+When all variables $(S,W,A)$ are finite valued, the stochastic optimization problem defined above can also be modeled as a tree. Such a tree formulation has two benefits: 
+
+- it provides a geometric view, which can be useful in visualizing the result;
+- for general, multi-stage problems, it is possible to exploit the tree structure to obtain efficient computation algorithms, see, e.g., @Fu2018 for an historical overview.
+
+There are two ways to construct the tree representation: the first as an one-stage optimization problem with perfect observation and the second as a one-stage optimization problem with imperfect observation. The first is simpler and the second is more general. We explain both formulations below.
+
+### One-step optimization with perfect observation 
+
+We will view the model according to the following timing diagram:
+
+![Timing diagram for modeling as a one-step optimization problem with perfect observation](figures/timing1.svg){#fig-timing1}
+
+Thus, nature first generate the "state" variable $S$ according to some distribution $P_S$, agent takes action $A$ according to the policy $π \colon \ALPHABET S \to \ALPHABET A$, and then nature generates the "disturbance" $W$ according to some distribution $P_{W|S}$. 
+
+We can view this as a tree, shown in @fig-tree1, where the root note corresponds to moves nature (denoted by $c$ for chance) to generate $S$, nodes at depth 1 correspond to the moves of the agent (denoted by $d$ for decision maker) to generate $A$, and nodes at depth 2 correspond to moves of nature to generate $W$.[^simplify]
+
+[^simplify] For simplicity, we set $W = (D,S)$ and only show $D$ (the card dealt to the dealer) on the tree.
+
+![Tree representation of the one-step optimization problem. Nodes represent the "agent": nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost $c(s,a,w)$. The shaded edges represent a policy.](figures/game-tree-1.svg){#fig-tree1}
+
+We can do the calculation to compute the optimal policy on the tree. The calculations proceed by starting at the last level and moving upwards. In particular, at the nodes of depth $2$, we compute $Q(s,a)$ using:
+$$
+Q(s,a) = \EXP[ c(s,a,W) \mid S = s]
+=
+\sum_{w \in \ALPHABET W}P_{W|S}(w|s) c(s,a,w)
+$$
+If we are given a policy $π$ (like the policy shown by yellow shaded edges in @fig-tree1), we can compute $V^π(s)$ using:
+$$
+  V^π(s) = Q(s,π(s)).
+$$
+We can also compute the optimal value function $V^*(s)$ using
+$$
+  V^*(s) = \min_{a \in \ALPHABET A}Q(s,a)
+$$
+where the optimal policy is given by
+$$
+  π^*(s) \in \arg\min_{a \in \ALPHABET A}Q(s,a).
+$$
+
+These calculations are the same as we did in the previous section; the tree simply helps in visualizing what is going on.
+
+
+### One-step optimization with imperfect observation
+
+In this case, we will view the model according to the following timing diagram:
+
+![Timing diagram for modeling as a one-step optimization problem with imperfect observation](figures/timing2.svg){#fig-timing2}
+
+We can view this as a tree, shown in @fig-tree2, where the root note corresponds to moves nature to generate $(S,W)$, nodes at depth 1 correspond to the moves of the agent to generate $A$.
+
+![Tree representation of the one-step optimization problem. Nodes represent the "agent": nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost $c(s,a,w)$. The shaded edges represent a policy.](figures/game-tree-2.svg){#fig-tree2}
+
+In this case, the decision maker cannot distinguish between multiple moves of nature. For example, for $W \in \{ (2,1), (3,1), (4,1) \}$, the decision maker gets the same observation $S=1$. This is indicated in the tree diagram by drawing an **information set** around these three nodes, and ensuring that the action taken at these nodes is identical.
+
+In this formulation, the decision maker has imperfect observation of nature's move. After making an observation, it forms a _posterior belief_ on the state of nature. For example, 
+$$
+  \PR(W | S = 1) = 
+  \begin{cases}
+    \tfrac 13, & \hbox{if } W \in \{(2,1), (3,1), (4,1) \} \\
+    0, & \hbox{otherwise}
+  \end{cases}
+$$
+The agent then computes $Q(s,a)$ by averaging over this belief:
+$$
+  Q(s,a) = \sum_{w \in \ALPHABET W} \PR(w|s) c(s,a,w).
+$$
+The value functions $V^π(s)$ and $V^*(s)$ and then computed exactly as before.
+
+The difference between the two approaches is conceptual. For the one-step optimization problen, the actual mathematical calculations done in both formulations are the same. When we go to multi-stage optimization problem, we will see that perfect and imperfect observation models behave very differently. 
 
 ## Blackwell's principle of irrelevant information
 
@@ -474,5 +546,7 @@ Ragisnsky.
 @exr-stoc-optim-pollution-monitoring is adaptive from @Whittle1996. It is a special instance of Bayesian
 hypothesis testing problem. We will study a generalization of this model later
 in [sequential hypothesis testing](../../pomdp/sequential-hypothesis)
+
+Historically, the tree representation of optimization problems is due to Kuhn [-@Kuhn1950; -@Kuhn1953], who used them to model multi-player multi-stage games. 
 
 [blog post]: https://infostructuralist.wordpress.com/2010/11/08/deadly-ninja-weapons-blackwells-principle-of-irrelevant-information/
