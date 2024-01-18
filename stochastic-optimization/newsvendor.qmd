@@ -45,7 +45,7 @@ $$ \begin{equation} \label{eq:J}
 J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw. 
 \end{equation}$$
 
-To fix ideas, we consider an example where $p = 0.5$, $q = 1$, and the demand is a [:Kumaraswamy distribution] with parameters $(a,b) = (2,5)$ and support $[0,100]$. The performance of a function of action is shown below. 
+To fix ideas, we consider an example where $p = 0.5$, $q = 1$, and the demand is a [:Kumaraswamy distribution] with parameters $(2,5)$ and support $[0,100]$. The performance of a function of action is shown below. 
 
 [:Kumaraswamy distribution]: https://en.wikipedia.org/wiki/Kumaraswamy_distribution
 
@@ -87,7 +87,7 @@ points = {
   var points = new Array(n)
   for (var i = 0 ; i < n; i++) {
     var x = config.max * i/n
-    points[i] = {x: x, y: pdf(x), reward: r(x,action) }
+    points[i] = {demand: x, pdf: pdf(x), reward: r(x,action) }
   }
   return points
 }
@@ -97,7 +97,7 @@ cost_values = {
   var points = new Array(n)
   for (var i = 0 ; i < n; i++) {
     var x = config.max * i/n
-    points[i] = {x: x, y: J(x)}
+    points[i] = {action: x, performance: J(x)}
   }
   return points
 }
@@ -150,7 +150,7 @@ plotJ = Plot.plot({
     // Data
     Plot.dot([ [action, J(action)] ], {fill: "blue", r:4}),
     Plot.dot([ [a_opt, J(a_opt)] ], {fill: "red", r:4}),
-    Plot.line(cost_values, {x:"x", y:"y"})
+    Plot.line(cost_values, {x:"action", y:"performance"})
   ]
 })
 
@@ -162,9 +162,9 @@ plotPDF = Plot.plot({
     Plot.ruleY([0]),
     // Data
     Plot.line([ [action,0], [action, pdf(action)] ], {stroke: "blue"}),
-    Plot.line(points,{x:"x", y:"y"}),
-    Plot.areaY(points.filter(pt => pt.x <= action),{x:"x", y:"y", fill: "lightblue"}),
-    Plot.areaY(points.filter(pt => pt.x > action),{x:"x", y:"y", fill: "pink"})
+    Plot.line(points,{x:"demand", y:"pdf"}),
+    Plot.areaY(points.filter(pt => pt.demand <= action),{x:"demand", y:"pdf", fill: "lightblue"}),
+    Plot.areaY(points.filter(pt => pt.demand > action),{x:"demand", y:"pdf", fill: "pink"})
   ]
 })
 
@@ -175,7 +175,7 @@ plotReward = Plot.plot({
     Plot.ruleX([0]),
     Plot.ruleY([0]),
     // Data
-    Plot.line(points, {x:"x", y:"reward"})
+    Plot.line(points, {x:"demand", y:"reward"})
   ]
 })
 ```
@@ -253,7 +253,7 @@ pointsD = {
   var points = new Array(n)
   for (var i = 0 ; i < n; i++) {
     var x = config.max * i/n
-    points[i] = {x: x, y: pdf(x), reward: r(x,actionD) }
+    points[i] = {demand: x, pdf: pdf(x), reward: r(x,actionD) }
   }
   return points
 }
@@ -263,7 +263,7 @@ cost_valuesD = {
   var points = new Array(n)
   for (var i = 0 ; i < n; i++) {
     var x = config.max * i/n
-    points[i] = {x: x, y: J(x)}
+    points[i] = {action: x, performance: J(x)}
   }
   return points
 }
@@ -299,7 +299,7 @@ plotJD = Plot.plot({
     // Data
     Plot.dot([ [actionD, J(actionD)] ], {fill: "blue", r:4}),
     Plot.dot([ [a_optD, J(a_optD)] ], {fill: "red", r:4}),
-    Plot.line(cost_valuesD, {x:"x", y:"y", curve: "step-after"})
+    Plot.line(cost_valuesD, {x:"action", y:"performance", curve: "step-after"})
   ]
 })
 
@@ -311,9 +311,9 @@ plotPDFD = Plot.plot({
     Plot.ruleY([0]),
     // Data
     Plot.line([ [actionD,0], [actionD, pdf(actionD)] ], {stroke: "blue"}),
-    Plot.line(pointsD,{x:"x", y:"y", curve:"step-after"}),
-    Plot.areaY(points.filter(pt => pt.x <= actionD),{x:"x", y:"y", curve: "step-after", fill: "lightblue"}),
-    Plot.areaY(points.filter(pt => pt.x > actionD),{x:"x", y:"y", curve: "step-after", fill: "pink"})
+    Plot.line(pointsD,{x:"demand", y:"pdf", curve:"step-after"}),
+    Plot.areaY(points.filter(pt => pt.demand <= actionD),{x:"demand", y:"pdf", curve: "step-after", fill: "lightblue"}),
+    Plot.areaY(points.filter(pt => pt.demand > actionD),{x:"demand", y:"pdf", curve: "step-after", fill: "pink"})
   ]
 })
 
@@ -324,7 +324,7 @@ plotRewardD = Plot.plot({
     Plot.ruleX([0]),
     Plot.ruleY([0]),
     // Data
-    Plot.line(pointsD, {x:"x", y:"reward", curve: "step-after"})
+    Plot.line(pointsD, {x:"demand", y:"reward", curve: "step-after"})
   ]
 })
 ```
