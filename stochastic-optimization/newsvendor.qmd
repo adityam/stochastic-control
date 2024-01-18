@@ -85,9 +85,11 @@ inverseCDF= {
 points = { 
   const n = 1000
   var points = new Array(n)
+  var cdf = 0;
   for (var i = 0 ; i < n; i++) {
     var x = config.max * i/n
-    points[i] = {demand: x, pdf: pdf(x), reward: r(x,action) }
+    cdf = cdf + pdf(x) * 1/n
+    points[i] = {demand: x, pdf: pdf(x), CDF: cdf, reward: r(x,action) }
   }
   return points
 }
@@ -206,7 +208,7 @@ the optimal value. In particular, to find the optimal action, we need to compute
 ::: {.callout-note collapse="true"}
 # Proof
 
-::: {.callout-tip collapse="true"}
+::: {.callout-tip collapse="false"}
 # Leibniz integral rule
 
 $$ \dfrac{d}{dx} \left( \int_{p(x)}^{q(x)} f(x,t) dt \right)
@@ -236,6 +238,33 @@ a = F^{-1} \left( 1 - \dfrac{  p }{ q } \right).
 $$
 :::
 
+::: {.callout-important}
+# Graphical interpretation of the result
+
+The result of @prp-newsvendor-cts has a nice graphical interpretation. Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line $1 - p/q$.
+
+```{ojs}
+//| panel: input 
+viewof pcts = Inputs.range([0.01,1], {value: 0.5, step: 0.01, label: "p"})
+viewof qcts = Inputs.range([0.01,1], {value: 1, step: 0.01, label: "q"})
+```
+
+```{ojs}
+F_opt = 1 - pcts/qcts
+plotOptCts = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(points,{x:"demand", y:"CDF"}),
+    Plot.line([ [0,F_opt], [points[points.length-1].demand, F_opt] ], {stroke: "red"})
+  ]
+})
+```
+:::
+
 ## Back to discrete version
 
 Now, we come back to the problem with discrete actions and discrete demand.
@@ -251,9 +280,11 @@ To fix ideas, we repeat the above numerical example when $\ALPHABET W = \{0, 1, 
 pointsD = { 
   const n = 100
   var points = new Array(n)
+  var cdf = 0
   for (var i = 0 ; i < n; i++) {
     var x = config.max * i/n
-    points[i] = {demand: x, pdf: pdf(x), reward: r(x,actionD) }
+    cdf = cdf + pdf(x) * 1/n
+    points[i] = {demand: x, pdf: pdf(x) * 1/n, CDF: cdf, reward: r(x,actionD) }
   }
   return points
 }
@@ -310,10 +341,10 @@ plotPDFD = Plot.plot({
     Plot.ruleX([0]),
     Plot.ruleY([0]),
     // Data
-    Plot.line([ [actionD,0], [actionD, pdf(actionD)] ], {stroke: "blue"}),
+    // Plot.line([ [actionD,0], [actionD, pdf(actionD)] ], {stroke: "blue"}),
     Plot.line(pointsD,{x:"demand", y:"pdf", curve:"step-after"}),
-    Plot.areaY(points.filter(pt => pt.demand <= actionD),{x:"demand", y:"pdf", curve: "step-after", fill: "lightblue"}),
-    Plot.areaY(points.filter(pt => pt.demand > actionD),{x:"demand", y:"pdf", curve: "step-after", fill: "pink"})
+    Plot.areaY(pointsD.filter(pt => pt.demand <= actionD),{x:"demand", y:"pdf", curve: "step-after", fill: "lightblue"}),
+    Plot.areaY(pointsD.filter(pt => pt.demand >= actionD),{x:"demand", y:"pdf", curve: "step-after", fill: "pink"})
   ]
 })
 
@@ -377,10 +408,32 @@ Thus, the optimal amount to order is the largest $w_i$ such that $M_i \le
 :::
 
 ::: {.callout-important}
-# Remark
+# Graphical interpretation of the result
 
-Note that the structure of the optimal solution is the same for continuous and
-discrete demand distributions. 
+The structure of the optimal solution is the same for continuous and discrete demand distributions. In particular, the result of @prp-newsvendor-discrete has the same graphical interpretation as that of @prp-newscendor-cts: 
+
+> Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line $1 - p/q$.
+
+```{ojs}
+//| panel: input 
+viewof pdis = Inputs.range([0.01,1], {value: 0.5, step: 0.01, label: "p"})
+viewof qdis = Inputs.range([0.01,1], {value: 1, step: 0.01, label: "q"})
+```
+
+```{ojs}
+F_opt_dis = 1 - pdis/qdis
+plotOptDts = Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(pointsD,{x:"demand", y:"CDF", curve:"step-after"}),
+    Plot.line([ [0,F_opt_dis], [pointsD[pointsD.length-1].demand, F_opt_dis] ], {stroke: "red"})
+  ]
+})
+```
 :::
 
 ## Exercises {-}
