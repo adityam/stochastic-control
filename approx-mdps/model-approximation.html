@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-12-26">
+<meta name="dcterms.date" content="2024-01-15">
 <meta name="keywords" content="infinite horizon, discounted cost, Lipschitz continuity, approximation bounds, state aggregation">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -89,7 +89,21 @@ div.csl-indent {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 <script>
+// https://github.com/mathjax/MathJax/issues/2744#issuecomment-1658624747
+// To fix the bug that uppercase unicode letters are shown in italic
 window.MathJax = {
+  startup: {
+    ready() {
+      const {RANGES} = MathJax._.core.MmlTree.OperatorDictionary;
+      const {TEXCLASS} = MathJax._.core.MmlTree.MmlNode;
+      RANGES.splice(4, 1,
+        [0x0370, 0x0385, TEXCLASS.ORD, 'mi'],
+        [0x0386, 0x3AB, TEXCLASS.ORD, 'mi', 'normal'],
+        [0x03AC, 0x1A20, TEXCLASS.ORD, 'mi']
+      );
+      MathJax.startup.defaultReady();
+    }
+  },
   tex: {
     inlineMath: [ ['$','$'], ["\\(","\\)"] ],
     displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
@@ -652,7 +666,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 26, 2023</p>
+      <p class="date">January 15, 2024</p>
     </div>
   </div>
   
@@ -826,7 +840,7 @@ Proof
     α \le \frac{2}{(1-γ)}  \MISMATCH^{\max}  \hat V^*.
 \]</span></p>
 </div>
-<p>In some applications, it is useful to have a model-error bound that depends on <span class="math inline">\(V^*\)</span> rather than <span class="math inline">\(\hat V^*\)</span>. We provide such a bound below.</p>
+<p>In some applications, it is useful to have a bound on model approximation error that depends on <span class="math inline">\(V^*\)</span> rather than <span class="math inline">\(\hat V^*\)</span>. We provide such a bound below.</p>
 <div id="thm-model-error-V-star" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 25.2 (Model approximation error) </strong></span>The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
     α := \| V^* - V^{\hat π^*} \|_∞ \le

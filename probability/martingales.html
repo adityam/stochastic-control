@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-06">
+<meta name="dcterms.date" content="2024-01-18">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
 <title>Course Notes - 35&nbsp; Martingales</title>
@@ -88,7 +88,21 @@ div.csl-indent {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 <script>
+// https://github.com/mathjax/MathJax/issues/2744#issuecomment-1658624747
+// To fix the bug that uppercase unicode letters are shown in italic
 window.MathJax = {
+  startup: {
+    ready() {
+      const {RANGES} = MathJax._.core.MmlTree.OperatorDictionary;
+      const {TEXCLASS} = MathJax._.core.MmlTree.MmlNode;
+      RANGES.splice(4, 1,
+        [0x0370, 0x0385, TEXCLASS.ORD, 'mi'],
+        [0x0386, 0x3AB, TEXCLASS.ORD, 'mi', 'normal'],
+        [0x03AC, 0x1A20, TEXCLASS.ORD, 'mi']
+      );
+      MathJax.startup.defaultReady();
+    }
+  },
   tex: {
     inlineMath: [ ['$','$'], ["\\(","\\)"] ],
     displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
@@ -136,7 +150,7 @@ window.MathJax = {
 
 </head>
 
-<body class="nav-sidebar floating nav-fixed">
+<body class="nav-sidebar floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -625,7 +639,7 @@ window.MathJax = {
 <div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/probability/martingales.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -655,7 +669,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 6, 2024</p>
+      <p class="date">January 18, 2024</p>
     </div>
   </div>
   
@@ -1078,7 +1092,7 @@ Remark
 \]</span></p>
 </div>
 </section>
-<section id="exercise" class="level2 unnumbered">
+<section id="exercise" class="level2 unnumbered page-columns page-full">
 <h2 class="unnumbered anchored" data-anchor-id="exercise">Exercise</h2>
 <div id="exr-product-sum" class="theorem exercise">
 <p><span class="theorem-title"><strong>Exercise 35.1 </strong></span>The purpose of this exercise is to establish the following: For a sequence of nonnegative real numbers <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span> <span class="math display">\[\sum_{t \ge 1} a_t &lt; ∞  \iff
@@ -1114,8 +1128,38 @@ Remark
     T = 1,2, \dots
   \]</span> converge to finite limits almost surely.</p>
 </div>
+<div id="exr-alt-almost-supermartingale" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 35.4 (Generalization of <a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a>) </strong></span>Suppose <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> be nonnegative processes which are adapted to some filtration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
+  \EXP[X_{t+1} \mid \ALPHABET F_t] \le a_t X_t + Y_t.
+\]</span> Define the set <span class="math inline">\(Ω_0\)</span> by <span class="math display">\[
+  Ω_0 = \biggl\{ ω : \prod_{t \ge 1} a_t(\omega) &lt; ∞  \biggr\}
+  \cap
+  \biggl\{ ω : \sum_{t \ge 1} Y_t(ω) &lt; ∞ \biggr\}
+\]</span> Then, show that for all <span class="math inline">\(ω \in Ω_0\)</span>, we have that <span class="math inline">\(\lim_{t \to ∞} X_t(ω)\)</span> exists and is finite.</p>
+</div>
+<div id="exr-vec-almost-supermartingale" class="theorem exercise page-columns page-full">
+<p><span class="theorem-title"><strong>Exercise 35.5 (Vector generalization of <a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a>) </strong></span>In all the discussion of almost supermartingale results so far, we have assumed that the processes were scalar valued. Now consider the case where <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> and <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> are processes in <span class="math inline">\(\reals_{\ge 0}^n\)</span> and <span class="math inline">\(\{A_t\}_{t \ge 1}\)</span> is a process in <span class="math inline">\(\reals_{\ge 0}\)</span>, all adapted to a filteration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
+  \EXP[X_{t+1} \mid \ALPHABET F_t] \le A_t X_t + Y_t.
+\]</span></p>
+<div class="page-columns page-full"><p>Assume that for all <span class="math inline">\(t\)</span>, the matrix <span class="math inline">\(A_t\)</span> is of the form <span class="math inline">\(P_t D_t\)</span>, where <span class="math inline">\(P_t\)</span> is a permutation matrix and <span class="math inline">\(D_t\)</span> is a diagonal matrix with all positive elements.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Such matrices are called <a href="https://en.wikipedia.org/wiki/Generalized_permutation_matrix">:positive monomial matrices</a> and have the property that they are invertible and all entries of the inverse are non-negative.</p></li></div></div>
+<p>Define the set <span class="math inline">\(Ω_0\)</span> by <span class="math display">\[
+  Ω_0 = \biggl\{ ω : \prod_{t \ge 1} A_t(\omega) &lt; ∞ \biggr\}
+  \cap
+  \biggl\{ ω : \sum_{t \ge 1} Y_t(ω) &lt; ∞ \biggr\}
+\]</span> Then, show that for all <span class="math inline">\(ω \in Ω_0\)</span>, we have that <span class="math inline">\(\lim_{t \to ∞} X_t(ω)\)</span> exists and is finite.</p>
+</div>
+<div id="exr-delayed-almost-supermartingales" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 35.6 (Delayed almost supermartingales) </strong></span>Suppose <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{β_t\}_{t \ge 1}\)</span>, and <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> be nonnegative processes which are adapted to some filteration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
+  \EXP[ X_{t+1} \mid \ALPHABET F_t] \le (1 + β_t) X_{t-d} + Y_t,
+\]</span> where <span class="math inline">\(d \in \integers_{\ge 0}\)</span> is a constant. Define the set <span class="math inline">\(Ω_0\)</span> by <span class="math display">\[
+  Ω_0 = \biggl\{ ω : \sum_{t \ge 1} β_t(\omega) &lt; ∞ \biggr\}
+  \cap
+  \biggl\{ ω : \sum_{t \ge 1} Y_t(ω) &lt; ∞ \biggr\}
+\]</span> Then, show that for all <span class="math inline">\(ω \in Ω_0\)</span>, we have that <span class="math inline">\(\lim_{t \to ∞} X_t(ω)\)</span> exists and is finite.</p>
+<p><em>Hint:</em> Write the dynamics equation in vector form and use <a href="#exr-vec-almost-supermartingale">Exercise&nbsp;<span>35.5</span></a></p>
+</div>
 <div id="exr-SLLN-martingales" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 35.4 </strong></span>Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be square integrable martingale with <span class="math inline">\(\EXP[ X_T^2 ] \le T\)</span> for all <span class="math inline">\(T\)</span>. Prove that <span class="math inline">\(X_T/T \to 0\)</span>, a.s.</p>
+<p><span class="theorem-title"><strong>Exercise 35.7 </strong></span>Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be square integrable martingale with <span class="math inline">\(\EXP[ X_T^2 ] \le T\)</span> for all <span class="math inline">\(T\)</span>. Prove that <span class="math inline">\(X_T/T \to 0\)</span>, a.s.</p>
 <p>[This may be viewed as a generalization of a SLLN for i.i.d.&nbsp;sequences.]</p>
 <p><em>Hint:</em> Use <a href="../mdps/monotone-mdps.html#abel-lemma">Abel’s lemma</a> to show <span class="math inline">\(\sum_{t=1}^T \EXP[ M_t^2 ]/t^2 &lt; ∞\)</span> and then use <a href="#thm-SLLN-MDS">Theorem&nbsp;<span>35.4</span></a>.</p>
 </div>
@@ -1163,6 +1207,7 @@ Remark
 </div>
 </div>
 </section>
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
