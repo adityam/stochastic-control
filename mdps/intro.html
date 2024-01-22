@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-13">
+<meta name="dcterms.date" content="2024-01-22">
 <meta name="keywords" content="MDPs, Markov policies, dynamic programming, comparison principle, principle of irrelevant information">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -23,6 +23,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 /* CSS for citations */
 div.csl-bib-body { }
@@ -611,6 +645,12 @@ window.MathJax = {
  <span class="menu-text">Assignment 1</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../assignments/02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Assignment 2</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -623,18 +663,27 @@ window.MathJax = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#performance" id="toc-performance" class="nav-link active" data-scroll-target="#performance"><span class="header-section-number">5.1</span> Performance of Markov policies</a></li>
-  <li><a href="#DP" id="toc-DP" class="nav-link" data-scroll-target="#DP"><span class="header-section-number">5.2</span> Dynamic Programming Decomposition</a></li>
-  <li><a href="#variations-of-a-theme" id="toc-variations-of-a-theme" class="nav-link" data-scroll-target="#variations-of-a-theme"><span class="header-section-number">5.3</span> Variations of a theme</a>
+  <li><a href="#an-example" id="toc-an-example" class="nav-link active" data-scroll-target="#an-example"><span class="header-section-number">5.1</span> An example</a></li>
+  <li><a href="#basic-model-and-strucutre-of-optimal-policies" id="toc-basic-model-and-strucutre-of-optimal-policies" class="nav-link" data-scroll-target="#basic-model-and-strucutre-of-optimal-policies"><span class="header-section-number">5.2</span> Basic model and strucutre of optimal policies</a></li>
+  <li><a href="#performance" id="toc-performance" class="nav-link" data-scroll-target="#performance"><span class="header-section-number">5.3</span> Performance of Markov policies</a>
   <ul class="collapse">
-  <li><a href="#sec-cost-depending-on-next-state" id="toc-sec-cost-depending-on-next-state" class="nav-link" data-scroll-target="#sec-cost-depending-on-next-state"><span class="header-section-number">5.3.1</span> Cost depends on next state</a></li>
-  <li><a href="#discounted-cost" id="toc-discounted-cost" class="nav-link" data-scroll-target="#discounted-cost"><span class="header-section-number">5.3.2</span> Discounted cost</a></li>
-  <li><a href="#multiplicative-cost" id="toc-multiplicative-cost" class="nav-link" data-scroll-target="#multiplicative-cost"><span class="header-section-number">5.3.3</span> Multiplicative cost</a></li>
-  <li><a href="#exponential-cost" id="toc-exponential-cost" class="nav-link" data-scroll-target="#exponential-cost"><span class="header-section-number">5.3.4</span> Exponential cost function</a></li>
-  <li><a href="#optimal-stopping" id="toc-optimal-stopping" class="nav-link" data-scroll-target="#optimal-stopping"><span class="header-section-number">5.3.5</span> Optimal stopping</a></li>
-  <li><a href="#minimax-setup" id="toc-minimax-setup" class="nav-link" data-scroll-target="#minimax-setup"><span class="header-section-number">5.3.6</span> Minimax setup</a></li>
+  <li><a href="#example-continued" id="toc-example-continued" class="nav-link" data-scroll-target="#example-continued"><span class="header-section-number">5.3.1</span> Example (continued)</a></li>
   </ul></li>
-  <li><a href="#sec-mdp-cts-spaces" id="toc-sec-mdp-cts-spaces" class="nav-link" data-scroll-target="#sec-mdp-cts-spaces"><span class="header-section-number">5.4</span> Continuous state and action spaces</a></li>
+  <li><a href="#DP" id="toc-DP" class="nav-link" data-scroll-target="#DP"><span class="header-section-number">5.4</span> Dynamic Programming Decomposition</a>
+  <ul class="collapse">
+  <li><a href="#example-continued-1" id="toc-example-continued-1" class="nav-link" data-scroll-target="#example-continued-1"><span class="header-section-number">5.4.1</span> Example (continued)</a></li>
+  <li><a href="#back-to-the-proof" id="toc-back-to-the-proof" class="nav-link" data-scroll-target="#back-to-the-proof"><span class="header-section-number">5.4.2</span> Back to the proof</a></li>
+  </ul></li>
+  <li><a href="#variations-of-a-theme" id="toc-variations-of-a-theme" class="nav-link" data-scroll-target="#variations-of-a-theme"><span class="header-section-number">5.5</span> Variations of a theme</a>
+  <ul class="collapse">
+  <li><a href="#sec-cost-depending-on-next-state" id="toc-sec-cost-depending-on-next-state" class="nav-link" data-scroll-target="#sec-cost-depending-on-next-state"><span class="header-section-number">5.5.1</span> Cost depends on next state</a></li>
+  <li><a href="#discounted-cost" id="toc-discounted-cost" class="nav-link" data-scroll-target="#discounted-cost"><span class="header-section-number">5.5.2</span> Discounted cost</a></li>
+  <li><a href="#multiplicative-cost" id="toc-multiplicative-cost" class="nav-link" data-scroll-target="#multiplicative-cost"><span class="header-section-number">5.5.3</span> Multiplicative cost</a></li>
+  <li><a href="#exponential-cost" id="toc-exponential-cost" class="nav-link" data-scroll-target="#exponential-cost"><span class="header-section-number">5.5.4</span> Exponential cost function</a></li>
+  <li><a href="#optimal-stopping" id="toc-optimal-stopping" class="nav-link" data-scroll-target="#optimal-stopping"><span class="header-section-number">5.5.5</span> Optimal stopping</a></li>
+  <li><a href="#minimax-setup" id="toc-minimax-setup" class="nav-link" data-scroll-target="#minimax-setup"><span class="header-section-number">5.5.6</span> Minimax setup</a></li>
+  </ul></li>
+  <li><a href="#sec-mdp-cts-spaces" id="toc-sec-mdp-cts-spaces" class="nav-link" data-scroll-target="#sec-mdp-cts-spaces"><span class="header-section-number">5.6</span> Continuous state and action spaces</a></li>
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
@@ -671,7 +720,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 13, 2024</p>
+      <p class="date">January 22, 2024</p>
     </div>
   </div>
   
@@ -681,19 +730,67 @@ window.MathJax = {
 
 </header>
 
-<p>Markov decision processes (MDP) are the simplest model of a stochastic control system. The dynamic behavior of an MDP is modeled by an equation of the form <span class="math display">\[ \begin{equation}
+<section id="an-example" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="an-example"><span class="header-section-number">5.1</span> An example</h2>
+<p>To fix ideas, we start with an example. Consider a <em>controlled</em> Markov chain defined over <span class="math inline">\(\ALPHABET S = \{-2, -1, 0, 1, 2\}\)</span> with two control actions, i.e., <span class="math inline">\(\ALPHABET A = \{0, 1\}\)</span>. If action <span class="math inline">\(A = 0\)</span> is chosen, the chain evolves according to its “natural” dynamics, which are shown below:</p>
+<div id="fig-peak1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/peak-control1.svg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.1: “Natural” dynamics of the Markov chain</figcaption>
+</figure>
+</div>
+<p>When action <span class="math inline">\(A = 1\)</span> is chosen, the chain evolves according to the “forced” dynamics, which are shown below:</p>
+<div id="fig-peak2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/peak-control2.svg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.2: “Forced” dynamics of the Markov chain</figcaption>
+</figure>
+</div>
+<p>Note that under the natural dynamics, the Markov chain will settle to a uniform steady-state distribution; under the forced dynamics, the Markov chain settle to a distribution which is unimodal with a peak at state <span class="math inline">\(0\)</span>.</p>
+<p>Suppose it is desirable to keep the Markov chain close to state <span class="math inline">\(0\)</span>. We capture this by the system incurs a <em>running cost</em> equal to <span class="math inline">\(s^2\)</span> in state <span class="math inline">\(s\)</span>. In addition, choosing action <span class="math inline">\(A=0\)</span> is free but choosing action <span class="math inline">\(A=1\)</span> has a <em>correction cost</em> <span class="math inline">\(p\)</span>.</p>
+<p>Thus, the decision maker is in a conundrum. It may allow the system to follow its natural dynamics, which causes the system to reach states with larger absolute value and incur a running cost <span class="math inline">\(|s|\)</span>; or it may decide to force the system to drift towards state <span class="math inline">\(0\)</span>, which reduces the running cost but, in turn, incurs a correction cost <span class="math inline">\(p\)</span>. How should the decision maker choose its actions?</p>
+</section>
+<section id="basic-model-and-strucutre-of-optimal-policies" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="basic-model-and-strucutre-of-optimal-policies"><span class="header-section-number">5.2</span> Basic model and strucutre of optimal policies</h2>
+<p>The type of model described above is called Markov decision processes (MDP), and they are the simplest model of a stochastic control system. There are two ways to model MDPs, which we describe below.</p>
+<p>The first method to model MDPs is to think of them as a <strong>controlled</strong> Markov process; in particular, an MDP is a stochastic process <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span>, <span class="math inline">\(S_t \in \ALPHABET S\)</span>, <em>controlled</em> by the process <span class="math inline">\(\{A_t\}_{t \ge 1}\)</span>, <span class="math inline">\(A_t \in \ALPHABET A\)</span>, which satisfies the <strong>controlled Markov property</strong>: <span class="math display">\[
+  \PR(S_{t+1} = s_{t+1} \mid S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t})
+  =
+  \PR(S_{t+1} = s_{t+1} \mid S_t = s_t, A_t = a_t).
+\]</span> For models with finite state and action spaces, the right-hand side of the above may be viewed as an element of the <strong>controlled transition matrix</strong> <span class="math inline">\(P_t(a_t)\)</span>. For instnace, in the example described at the beginning of this section, we have <span class="math display">\[
+\def\1{\tfrac 12}
+P(0) = \MATRIX{ \1&amp; \1&amp;  0&amp;  0&amp;  0\\
+                \1&amp; 0 &amp; \1&amp;  0&amp;  0\\
+                0&amp;  \1&amp;  0&amp;  \1&amp; 0\\
+                0&amp;  0&amp;  \1&amp;   0&amp; \1 \\
+                0&amp;  0&amp;   0&amp;  \1&amp; \1}
+\quad\text{and}\quad
+\def\1{\tfrac 14}
+\def\2{\tfrac 34}
+\def\3{\tfrac 12}
+P(1) = \MATRIX{ \1&amp; \2&amp;  0&amp;  0&amp;  0\\
+                \1&amp; 0 &amp; \2&amp;  0&amp;  0\\
+                0&amp;  \1&amp; \3&amp;  \1&amp; 0\\
+                0&amp;  0&amp;  \2&amp;   0&amp; \1 \\
+                0&amp;  0&amp;   0&amp;  \2&amp; \1}
+\]</span> Since the model is time-homogeneous, we have replaced <span class="math inline">\(P_t(a)\)</span> by just <span class="math inline">\(P(a)\)</span>.</p>
+<p>This representation is compact and convenient for computational purposes, but I personally feel that it can be a bit opaque for proving the fundamental results of MDP theory. For that reason, I prefer to start with the second representation, which is desibed below.</p>
+<p>In the second representation, the dynamic behavior of an MDP is modeled by an equation <span class="math display">\[ \begin{equation}
   S_{t+1} = f_t(S_t, A_t, W_t) \label{eq:state}
 \end{equation}\]</span> where <span class="math inline">\(S_t \in \ALPHABET S\)</span> is the state, <span class="math inline">\(A_t \in \ALPHABET A\)</span> is the control input, and <span class="math inline">\(W_t \in \ALPHABET W\)</span> is the noise. An agent/controller observes the state and chooses the control input <span class="math inline">\(A_t\)</span>.</p>
-<p>Eq.&nbsp;\eqref{eq:state} is a <em>non-linear</em> <em>stochastic</em> state-space model—<em>non-linear</em> because <span class="math inline">\(f_t\)</span> can be any nonlinear function; <em>stochastic</em> because the system is driven by stochastic noise <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>.</p>
-<p>The controller can be as sophisticated as we want. In principle, it can analyze the entire history of observations and control actions to choose the current control action. Thus, the control action can be written as <span class="math display">\[ A_t = π_t(S_{1:t}, A_{1:t-1}),\]</span> where <span class="math inline">\(S_{1:t}\)</span> is a shorthand for <span class="math inline">\((S_1, \dots, S_t)\)</span> and a similar interpretation holds for <span class="math inline">\(A_{1:t-1})\)</span>. The function <span class="math inline">\(π_t\)</span> is called the <em>control law</em> (or <em>policy</em> or <em>τtrategy</em>) at time <span class="math inline">\(t\)</span>.</p>
+<p>We call this the <strong>functional representation</strong> of the MDP. Eq.&nbsp;\eqref{eq:state} is a <em>non-linear</em> <em>stochastic</em> state-space model—<em>non-linear</em> because <span class="math inline">\(f_t\)</span> can be any nonlinear function; <em>stochastic</em> because the system is driven by stochastic noise <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span>.</p>
+<p>Note that the controlled Markov chain representation can be easily translated to a functional representation by taking <span class="math inline">\(W_t\)</span> to be a uniform <span class="math inline">\([0,1]\)</span> random variable and using a differnet <a href="https://en.wikipedia.org/wiki/Inverse_transform_sampling">:Smirnov transformation</a> for each state action pair <span class="math inline">\((S_t, A_t)\)</span>.</p>
 <p>At each time, the system incurs a cost that may depend on the current state and control action. This cost is denoted by <span class="math inline">\(c_t(S_t, A_t)\)</span>. The system operates for a time horizon <span class="math inline">\(T\)</span>. During this time, it incurs a total cost <span class="math display">\[ \sum_{t=1}^T c_t(S_t, A_t). \]</span></p>
 <p>The initial state <span class="math inline">\(S_1\)</span> and the noise process <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are random variables defined on a common probability space (these are called <em>primitive random variables</em>) and are mutually independent. This seemingly benign assumption is critical for the theory that we present to go through.</p>
-<p>Suppose we have to design such a controller. We are told the probability distribution of the initial state and the noise. We are also told the system update functions <span class="math inline">\((f_1, \dots, f_T)\)</span> and the cost functions <span class="math inline">\((c_1, \dots, c_T)\)</span>. We are asked to choose a <em>control policy</em> <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> to minimize the expected total cost <span class="math display">\[ J(π) := \EXP\bigg[ \sum_{t=1}^T c_t(S_t, A_t) \bigg]. \]</span> How should we proceed?</p>
+<p>Suppose we have to design such a controller. We are told the probability distribution of the initial state and the noise. We are also told the system update functions <span class="math inline">\((f_1, \dots, f_T)\)</span> and the cost functions <span class="math inline">\((c_1, \dots, c_T)\)</span>.</p>
+<p>Our objective to determine a <strong>control policy</strong>, i.e., a function for choosing the control actions. The control policy can be as sophisticated as we want. In principle, it can analyze the entire history of observations and control actions to choose the current control action. Thus, the control action can be written as <span class="math display">\[ A_t = π_t(S_{1:t}, A_{1:t-1}),\]</span> where <span class="math inline">\(S_{1:t}\)</span> is a shorthand for <span class="math inline">\((S_1, \dots, S_t)\)</span> and a similar interpretation holds for <span class="math inline">\(A_{1:t-1})\)</span>. The function <span class="math inline">\(π_t\)</span> is called the <strong>control law</strong> at time <span class="math inline">\(t\)</span>.</p>
+<p>We want to choose a <em>control policy</em> <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> to minimize the expected total cost <span class="math display">\[ J(π) := \EXP\bigg[ \sum_{t=1}^T c_t(S_t, A_t) \bigg]. \]</span> How should we proceed?</p>
 <p>At first glance, the problem looks intimidating. It appears that we have to design a very sophisticated controller: one that analyzes all past data to choose a control input. However, this is not the case. A remarkable result is that the optimal controller can discard all past data and choose the control input based only on the current state of the system. Formally, we have the following:</p>
 <div id="thm-MDP-markov" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 5.1 (Optimality of Markov policies) </strong></span>For the system model described above, there is no loss of optimality in chosing the control action according to <span class="math display">\[ A_t = π_t(S_t), \quad t=1, \dots, T.\]</span> Such a control policy is called a <em>Markov policy</em>.</p>
+<p><span class="theorem-title"><strong>Theorem 5.1 (Optimality of Markov policies) </strong></span>For the system model described above, there is no loss of optimality in choosing the control action according to <span class="math display">\[ A_t = π_t(S_t), \quad t=1, \dots, T.\]</span> Such a control policy is called a <em>Markov policy</em>.</p>
 </div>
-<p>The above result claims that the cost incurred by the best Markovian policy is the same as the cost incurred by the best history dependent policy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../stochastic-optimization/intro.html#blackwells-principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a> <span class="citation" data-cites="Blackwell1964">(<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">Blackwell 1964</a>)</span></p>
+<p>In the context of the example presented at the beginning of this section, <a href="#thm-MDP-markov">Theorem&nbsp;<span>5.1</span></a> says that the decision maker can decide whether to choose action <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span> based on the current state, without any loss of optimality.</p>
+<p>In general, <a href="#thm-MDP-markov">Theorem&nbsp;<span>5.1</span></a> claims that the cost incurred by the best Markov policy is the same as the cost incurred by the best history dependent policy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../stochastic-optimization/intro.html#blackwells-principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a> <span class="citation" data-cites="Blackwell1964">(<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">Blackwell 1964</a>)</span></p>
 <div id="lem-MDP-two-step-lemma" class="theorem lemma">
 <p><span class="theorem-title"><strong>Lemma 5.1 (Two-Step Lemma) </strong></span>Consider an MDP that operates for two steps (<span class="math inline">\(T=2\)</span>). Then there is no loss of optimality in restricting attention to a Markov control policy at time <span class="math inline">\(t=2\)</span>.</p>
 </div>
@@ -753,7 +850,7 @@ A_1) ].\]</span></p>
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Proof of optimality of Markov policies
+Proof of <a href="#thm-MDP-markov">Theorem&nbsp;<span>5.1</span></a>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -767,21 +864,88 @@ Proof of optimality of Markov policies
 </div>
 </div>
 </div>
-<section id="performance" class="level2" data-number="5.1">
-<h2 data-number="5.1" class="anchored" data-anchor-id="performance"><span class="header-section-number">5.1</span> Performance of Markov policies</h2>
+</section>
+<section id="performance" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="performance"><span class="header-section-number">5.3</span> Performance of Markov policies</h2>
 <p>We have shown that there is no loss of optimality to restrict attention to Markov policies. One of the advantages of Markov policies is that their performance can be computed recursively. In particular, given any Markov policy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>, define <em>the cost-to-go functions</em> or <em>value function</em> as follows: <span class="math display">\[V^{π}_t(s) = \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
-s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> only depends on the future policy <span class="math inline">\((π_t, \dots, π_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align*}
+s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> only depends on the future policy <span class="math inline">\((π_t, \dots, π_T)\)</span>. These functions can be computed recursively as follows: we start with a terminal value function <span class="math inline">\(V_{T+1}(s) ≡ 0\)</span> and then for <span class="math inline">\(t \in \{T, T-1, \dots, 1\}\)</span>, recursively compute: <span class="math display">\[\begin{align}
   V^{π}_t(s) &amp;= \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
-  s \bigg] \\
+  s \bigg] \notag \\
   &amp;= \EXP^π \bigg[ c_t(s, π_t(s)) + \EXP^π \bigg[ \sum_{τ = t+1}^T
     c_τ(S_τ, π_τ(S_τ)) \biggm| S_{t+1} \bigg] \biggm| S_t = s \bigg]
-  \\
-  &amp;= \EXP^π\big[ c_t(s, π_t(s)) + V_{t+1}(S_{t+1}; π) \big| S_t = s \big].
-\end{align*}\]</span></p>
+  \notag \\
+  &amp;= \EXP^π\big[ c_t(s, π_t(s)) + V_{t+1}(S_{t+1}; π) \big| S_t = s \big]. \label{eq:finite-policy-evaluation}
+\end{align}\]</span></p>
+<p>The formula of Eq.&nbsp;<span class="math inline">\(\eqref{eq:finite-policy-evaluation}\)</span> is called the <strong>policy evaluation formula.</strong></p>
+<p>For the controlled Markov chain representation, the formula can be written in a vector form. In particular, we will think of <span class="math inline">\(V_t\)</span> to be a vector in <span class="math inline">\(\reals^n\)</span>, where <span class="math inline">\(n = \ABS{\ALPHABET S}\)</span>. For any policy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>, define the <span class="math inline">\(n × n\)</span> transition matrices <span class="math inline">\((P^{π}_1, \dots, P^{π}_T)\)</span> as <span class="math display">\[
+  P^{π}_t(s'|s) = P_t(s'|s, π_t(s)),
+  \quad t \in \{1,\dots, T\}.
+\]</span> Furthermore, define <span class="math inline">\(n\)</span> dimensional cost vectors <span class="math inline">\((c^{π}_1, \dots, c^{π}_T)\)</span> as <span class="math display">\[
+  c^π_t(s) = c_t(s, π_t(s)),
+  \quad t \in \{1,\dots, T\}.
+\]</span> Then, the policy evaluation formula <span class="math inline">\(\eqref{eq:finite-policy-evaluation}\)</span> is equivalent to the following: start with a terminal value function <span class="math inline">\(V_{T+1} ≡ 0\)</span> and then for <span class="math inline">\(t \in \{T, T-1,\dots, 1\}\)</span>, recursively compute: <span class="math display">\[
+  V^{π}_t = c^{π}_t + P^{π}_t V^{π}_{t+1}.
+\]</span></p>
+<section id="example-continued" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="example-continued"><span class="header-section-number">5.3.1</span> Example (continued)</h3>
+<p>As an example, consider the following time-homogeneous policy for the example presented at the beginning of this section: <span class="math display">\[
+  π_t(s) = \begin{cases}
+    1 &amp; \text{if } |s| = 2 \\
+    0 &amp; \text{otherwise}
+  \end{cases}
+\]</span> Suppose <span class="math inline">\(p = 1\)</span>, i.e., <span class="math inline">\(c(s,a) = s^2 + a\)</span>. We now compute the value function <span class="math inline">\(\{V^{π}_t\}_{t=1}^T\)</span> for <span class="math inline">\(T = 5\)</span>.</p>
+<p>For this policy <span class="math display">\[
+  c^{π} = \MATRIX{ 5 \\ 1 \\ 0 \\ 1 \\  5 }
+  \quad\text{and}\quad
+  \def\1{\tfrac 14}
+  \def\2{\tfrac 34}
+  \def\3{\tfrac 12}
+  P^π = \MATRIX{ \1&amp; \2&amp;  0&amp;  0&amp;  0\\
+                \3&amp; 0 &amp; \3&amp;  0&amp;  0\\
+                0&amp;  \3&amp;  0&amp;  \3&amp; 0\\
+                0&amp;  0&amp;  \3&amp;   0&amp; \3 \\
+                0&amp;  0&amp;   0&amp;  \2&amp; \1}
+\]</span> We start with <span class="math inline">\(V_{t+1} = \VEC(0,0,0,0,0)\)</span> and run the following recursion.</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>cπ <span class="op">=</span> [<span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">5</span>] <span class="co"># FIXME</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Pπ <span class="op">=</span> [<span class="fl">1</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">3</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">0</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">0</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">3</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">1</span><span class="op">//</span><span class="fl">4</span>]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> <span class="fl">5</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="fu">size</span>(cπ,<span class="fl">1</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>V <span class="op">=</span> [ <span class="fu">zeros</span>(n) for t <span class="op">∈</span> <span class="fl">1</span><span class="op">:</span>T<span class="op">+</span><span class="fl">1</span> ]</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="op">∈</span> T<span class="op">:-</span><span class="fl">1</span><span class="op">:</span><span class="fl">1</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  V[t] <span class="op">=</span> cπ <span class="op">+</span> Pπ<span class="op">*</span>V[t<span class="op">+</span><span class="fl">1</span>]</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(V)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>6-element Vector{Vector{Float64}}:
+ [13.3515625, 9.046875, 7.4375, 9.046875, 13.3515625]
+ [11.09375, 7.4375, 5.0, 7.4375, 11.09375]
+ [9.375, 5.0, 3.5, 5.0, 9.375]
+ [7.0, 3.5, 1.0, 3.5, 7.0]
+ [5.0, 1.0, 0.0, 1.0, 5.0]
+ [0.0, 0.0, 0.0, 0.0, 0.0]</code></pre>
+</div>
+</div>
+<p><a href="#fig-peak-evaluation">Figure&nbsp;<span>5.3</span></a> shows the value functions computed as part of the policy evaluation.</p>
+<div id="fig-peak-evaluation" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/peak-control-evaluation1.svg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.3: Value function for policy evaluation of the example. Note that the value functions are computed by proceeding backwards in time.</figcaption>
+</figure>
+</div>
 </section>
-<section id="DP" class="level2" data-number="5.2">
-<h2 data-number="5.2" class="anchored" data-anchor-id="DP"><span class="header-section-number">5.2</span> Dynamic Programming Decomposition</h2>
-<p>Now we are ready to state the main result of MDPs</p>
+</section>
+<section id="DP" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="DP"><span class="header-section-number">5.4</span> Dynamic Programming Decomposition</h2>
+<p>Now we are ready to state the main result for MDPs.</p>
 <div id="thm-MDP-DP" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 5.2 (Dynamic program) </strong></span>Recursive define <em>value functions</em> <span class="math inline">\(\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET S \to \reals\)</span> as follows: <span class="math display">\[ \begin{equation} \label{eq:DP-1}
   V_{T+1}(s) = 0
@@ -795,7 +959,85 @@ s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> on
   π_t^*(s) = \arg \min_{a \in \ALPHABET A} Q_t(s,a).
 \end{equation} \]</span></p>
 </div>
-<p>Instead of proving the above result, we prove a related result</p>
+<p>For the controlled Markov chain representation, the dynamic program of <a href="#thm-MDP-DP">Theorem&nbsp;<span>5.2</span></a> can be written more succinctly. We will view <span class="math inline">\(\{V_t\}_{t=1}^T\)</span> as vectors in <span class="math inline">\(\reals^n\)</span>, where <span class="math inline">\(n = \ABS{\ALPHABET S}\)</span>. Moreover, we will view <span class="math inline">\(\{Q_t\}_{t=1}^T\)</span> and <span class="math inline">\(\{c_t\}_{t=1}^T\)</span> as matrices in <span class="math inline">\(\reals^{n × m}\)</span>, where <span class="math inline">\(m = \ABS{\ALPHABET A}\)</span>.</p>
+<p>Then, the dynamic program of <a href="#thm-MDP-DP">Theorem&nbsp;<span>5.2</span></a> may be written as follows: start with a terminal value function <span class="math inline">\(V_{T+1} ≡ 0\)</span> and then for <span class="math inline">\(t \in \{T, T-1, \dots, 1\}\)</span>, recursively compute: <span class="math display">\[\begin{align*}
+  Q_t &amp;= c_t + [ P_t(1) V_{t+1} \mid P_t(2) V_{t+1} \mid \cdots \mid P_t(m) V_{t+1} ], \\
+  V_t &amp;= \min(Q_t, \hbox{\tt dim}=2), \\
+  π_t &amp;= \arg\min(Q_t, \hbox{\tt dim}=2).
+\end{align*}\]</span></p>
+<section id="example-continued-1" class="level3" data-number="5.4.1">
+<h3 data-number="5.4.1" class="anchored" data-anchor-id="example-continued-1"><span class="header-section-number">5.4.1</span> Example (continued)</h3>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the default indexing (1,...,n)$ for convenience. </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>(n,m) <span class="op">=</span> (<span class="fl">5</span>,<span class="fl">2</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>S <span class="op">=</span> <span class="fl">1</span><span class="op">:</span>n</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> <span class="fl">1</span><span class="op">:</span>m</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> <span class="fl">5</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fl">0</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> [ <span class="fu">zeros</span>(n,n) for a <span class="op">∈</span> A ]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>P[<span class="fl">1</span>] <span class="op">=</span> [<span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">0</span> </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">0</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>]</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>P[<span class="fl">2</span>] <span class="op">=</span> [<span class="fl">1</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">3</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">0</span> </span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="fl">1</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">0</span>     <span class="fl">3</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">0</span>     <span class="fl">0</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">1</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">0</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">3</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">4</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">3</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">1</span><span class="op">//</span><span class="fl">4</span>]</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> <span class="fu">zeros</span>(n,m)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="op">∈</span> S, a <span class="op">∈</span> A</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># use s-3 to convert to "natural" indices -2:2</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  c[s,a] <span class="op">=</span> (s<span class="op">-</span><span class="fl">3</span>)<span class="op">^</span><span class="fl">2</span> <span class="op">+</span> (a<span class="op">-</span><span class="fl">1</span>)<span class="op">*</span>p</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>V <span class="op">=</span> [ <span class="fu">zeros</span>(n)     for t <span class="op">∈</span> <span class="fl">1</span><span class="op">:</span>T<span class="op">+</span><span class="fl">1</span> ]</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="cn">π</span> <span class="op">=</span> [ <span class="fu">zeros</span>(<span class="dt">Int</span>,n) for t <span class="op">∈</span> <span class="fl">1</span><span class="op">:</span>T   ]</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="op">∈</span> T<span class="op">:-</span><span class="fl">1</span><span class="op">:</span><span class="fl">1</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  Q <span class="op">=</span> c <span class="op">+</span> <span class="fu">hcat</span>(P[<span class="fl">1</span>]<span class="op">*</span>V[t<span class="op">+</span><span class="fl">1</span>], P[<span class="fl">2</span>]<span class="op">*</span>V[t<span class="op">+</span><span class="fl">1</span>])</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Could be done more efficiently with a single pass</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  V[t] <span class="op">=</span> <span class="fu">vec</span>(<span class="fu">minimum</span>(Q, dims<span class="op">=</span><span class="fl">2</span>))</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Subtract 1 to get to "natural" indices 0:1</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="cn">π</span>[t] <span class="op">=</span> <span class="fu">argmin</span>.(<span class="fu">eachrow</span>(Q)) <span class="op">.-</span> <span class="fl">1</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(V)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="fu">display</span>(<span class="cn">π</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>6-element Vector{Vector{Float64}}:
+ [8.71484375, 4.484375, 2.8515625, 4.484375, 8.71484375]
+ [7.84375, 3.671875, 2.03125, 3.671875, 7.84375]
+ [6.9375, 2.8125, 1.25, 2.8125, 6.9375]
+ [5.75, 2.0, 0.5, 2.0, 5.75]
+ [4.0, 1.0, 0.0, 1.0, 4.0]
+ [0.0, 0.0, 0.0, 0.0, 0.0]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>5-element Vector{Vector{Int64}}:
+ [1, 1, 1, 1, 1]
+ [1, 1, 1, 1, 1]
+ [1, 1, 1, 1, 1]
+ [1, 1, 1, 1, 1]
+ [0, 0, 0, 0, 0]</code></pre>
+</div>
+</div>
+<p><a href="#fig-peak-optimal">Figure&nbsp;<span>5.4</span></a> shows the value functions and optimal policy computed from the dynamic program</p>
+<div id="fig-peak-optimal" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="figures/peak-control-optimal1.svg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.4: Optimal value function and optimal policy for the example. The red color indicates that the optimal action is <span class="math inline">\(1\)</span>; black indicates that the optimal action is <span class="math inline">\(0\)</span>. Note that the computations are done by proceeding backwards in time.</figcaption>
+</figure>
+</div>
+</section>
+<section id="back-to-the-proof" class="level3" data-number="5.4.2">
+<h3 data-number="5.4.2" class="anchored" data-anchor-id="back-to-the-proof"><span class="header-section-number">5.4.2</span> Back to the proof</h3>
+<p>Instead of proving <a href="#thm-MDP-DP">Theorem&nbsp;<span>5.2</span></a>, we prove a related result.</p>
 <div id="thm-comparison-principle" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 5.3 (The comparison principle) </strong></span>For any Markov policy <span class="math inline">\(π\)</span> <span class="math display">\[ V^{π}_t(s) \ge V_t(s) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future policy</em> <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step \eqref{eq:verification}.</p>
 </div>
@@ -850,10 +1092,11 @@ Proof of the comparison principle
 </div>
 </div>
 </section>
-<section id="variations-of-a-theme" class="level2" data-number="5.3">
-<h2 data-number="5.3" class="anchored" data-anchor-id="variations-of-a-theme"><span class="header-section-number">5.3</span> Variations of a theme</h2>
-<section id="sec-cost-depending-on-next-state" class="level3" data-number="5.3.1">
-<h3 data-number="5.3.1" class="anchored" data-anchor-id="sec-cost-depending-on-next-state"><span class="header-section-number">5.3.1</span> Cost depends on next state</h3>
+</section>
+<section id="variations-of-a-theme" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="variations-of-a-theme"><span class="header-section-number">5.5</span> Variations of a theme</h2>
+<section id="sec-cost-depending-on-next-state" class="level3" data-number="5.5.1">
+<h3 data-number="5.5.1" class="anchored" data-anchor-id="sec-cost-depending-on-next-state"><span class="header-section-number">5.5.1</span> Cost depends on next state</h3>
 <p>In the basic model that we have considered above, we assumed that the per-step cost depends only on the current state and current actions. In some applications, such as the <a href="inventory-management.html">inventory management</a>, it is more natural to have a cost function where the cost depends on the current state, current action, and the next state. Conceptually, such problems can be treated in the same way as the standard model.</p>
 <p>In particular, suppose we have a per-step cost given by <span class="math inline">\(c_t(S_t,A_t,S_{t+1})\)</span>, where the objective is to minimize <span class="math display">\[ J(π) = \EXP\Bigl[ \sum_{t=1}^T c_t(S_t, A_t, S_{t+1}) \Bigr]. \]</span></p>
 <p>Define <span class="math display">\[ \tilde c_t(s, a) = \EXP[ c_t(s, a, S_{t+1}) | S_t = s, A_t = a ]
@@ -865,8 +1108,8 @@ J(π) &amp;= \EXP\Bigl[ \sum_{t=1}^T \EXP[ c_t(S_t, A_t, S_{t+1}) | S_t, A_t] \B
 <p>Thus, we can equivalently consider this as our standard model with the per-step cost given by <span class="math inline">\(\tilde c_t(S_t, A_t)\)</span>. We can write the recursive step of the dynamic program as follows: <span class="math display">\[ Q_t(s,a) = \EXP[ c_t(s,a, S_{t+1}) + V_{t+1}(S_{t+1}) | S_t = s, A_t = a ].\]</span></p>
 <p>For numerically solving the dynamic program when the cost is time-homogeneous (i.e., does not depend on <span class="math inline">\(t\)</span>), it is more efficient to compute <span class="math inline">\(\tilde c\)</span> once and recuse that in the dynamic program recursion.</p>
 </section>
-<section id="discounted-cost" class="level3" data-number="5.3.2">
-<h3 data-number="5.3.2" class="anchored" data-anchor-id="discounted-cost"><span class="header-section-number">5.3.2</span> Discounted cost</h3>
+<section id="discounted-cost" class="level3" data-number="5.5.2">
+<h3 data-number="5.5.2" class="anchored" data-anchor-id="discounted-cost"><span class="header-section-number">5.5.2</span> Discounted cost</h3>
 <p>In some applications, it is common to consider a discounted expected cost given by <span class="math display">\[ J(π) = \EXP\Bigl[ \sum_{t=1}^T γ^{t-1} c_t(S_t, A_t) \Bigr] \]</span> where <span class="math inline">\(γ \in (0,1)\)</span> is called the discount factor.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -884,8 +1127,8 @@ Discount factor
 </div>
 <p>The recursive step of the dynamic program for such models can be written as <span class="math display">\[ Q_t(s,a) = c_t(s,a) + γ \, \EXP[ V_{t+1}( S_{t+1}) | S_t = s, A_t = a ].\]</span></p>
 </section>
-<section id="multiplicative-cost" class="level3" data-number="5.3.3">
-<h3 data-number="5.3.3" class="anchored" data-anchor-id="multiplicative-cost"><span class="header-section-number">5.3.3</span> Multiplicative cost</h3>
+<section id="multiplicative-cost" class="level3" data-number="5.5.3">
+<h3 data-number="5.5.3" class="anchored" data-anchor-id="multiplicative-cost"><span class="header-section-number">5.5.3</span> Multiplicative cost</h3>
 <p>So far, we have assumed that the cost is additive. The dynamic proramming decomposition also works for models with multiplicative cost. In particular, suppose that the performance of any policy is given by <span class="math display">\[ J(π) = \EXP\Bigl[ \prod_{t=1}^T c_t(S_t, A_t) \Bigr] \]</span> where the per-step cost function is positive. Then, it can be shown that the optimal policy is given by the following dynamic program.</p>
 <div id="prp-DP-multiplicative" class="theorem proposition">
 <p><span class="theorem-title"><strong>Proposition 5.1 (Dynamic Program for multiplicative cost) </strong></span>Initialize <span class="math inline">\(V_{T+1}(s) = 1\)</span> and recursively compute <span class="math display">\[ \begin{align*}
@@ -894,14 +1137,14 @@ V_t(s) &amp;= \min_{a \in \ALPHABET A} Q_t(s,a).
 \end{align*} \]</span></p>
 </div>
 </section>
-<section id="exponential-cost" class="level3" data-number="5.3.4">
-<h3 data-number="5.3.4" class="anchored" data-anchor-id="exponential-cost"><span class="header-section-number">5.3.4</span> Exponential cost function</h3>
+<section id="exponential-cost" class="level3" data-number="5.5.4">
+<h3 data-number="5.5.4" class="anchored" data-anchor-id="exponential-cost"><span class="header-section-number">5.5.4</span> Exponential cost function</h3>
 <p>A special class of multiplicative cost function is exponential of sum: <span class="math display">\[J(π) = \EXP\Bigl[ \exp\Bigl( \theta \sum_{t=1}^T c_t(S_t, A_t) \Bigr) \Bigr]. \]</span></p>
 <p>When <span class="math inline">\(\theta &gt; 0\)</span>, the above captures risk-averse preferences and when <span class="math inline">\(\theta &lt; 0\)</span>, it corresponds to risk-seeking preferences. This is equivalent to a multiplicative cost <span class="math display">\[J(π) = \EXP\Bigl[ \prod_{t=1}^T \exp( \theta c_t(S_t, A_t)) \Bigr]. \]</span> Therefore, the dynamic program for multiplicative cost is also applicable for this model.</p>
 <p>See notes on <a href="../risk-sensitive/risk-sensitive-mdps.html">risk-sensitive MDPs</a> for more details</p>
 </section>
-<section id="optimal-stopping" class="level3" data-number="5.3.5">
-<h3 data-number="5.3.5" class="anchored" data-anchor-id="optimal-stopping"><span class="header-section-number">5.3.5</span> Optimal stopping</h3>
+<section id="optimal-stopping" class="level3" data-number="5.5.5">
+<h3 data-number="5.5.5" class="anchored" data-anchor-id="optimal-stopping"><span class="header-section-number">5.5.5</span> Optimal stopping</h3>
 <p>Let <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> be a Markov chain. At each time <span class="math inline">\(t\)</span>, a decision maker observes the state <span class="math inline">\(S_t\)</span> of the Markov chain and decides whether to continue or stop the process. If the decision maker decides to continue, he incurs a <em>continuation cost</em> <span class="math inline">\(c_t(S_t)\)</span> and the state evolves. If the DM decides to stop, he incurs a <em>stopping cost</em> of <span class="math inline">\(d_t(S_t)\)</span> and the problem is terminated. The objective is to determine an optimal <em>stopping time</em> <span class="math inline">\(\tau\)</span> to minimize <span class="math display">\[J(\tau) := \EXP\bigg[ \sum_{t=1}^{\tau-1} c_t(S_t) + d_\tau(S_\tau)
 \bigg].\]</span></p>
 <p>Such problems are called <em>Optimal stopping problems</em>.</p>
@@ -915,13 +1158,13 @@ V_t(s) &amp;= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 </div>
 <p>See the notes on <a href="../mdps/optimal-stopping.html">optimal stopping</a> for more details.</p>
 </section>
-<section id="minimax-setup" class="level3" data-number="5.3.6">
-<h3 data-number="5.3.6" class="anchored" data-anchor-id="minimax-setup"><span class="header-section-number">5.3.6</span> Minimax setup</h3>
+<section id="minimax-setup" class="level3" data-number="5.5.6">
+<h3 data-number="5.5.6" class="anchored" data-anchor-id="minimax-setup"><span class="header-section-number">5.5.6</span> Minimax setup</h3>
 <p><em>To be written</em></p>
 </section>
 </section>
-<section id="sec-mdp-cts-spaces" class="level2" data-number="5.4">
-<h2 data-number="5.4" class="anchored" data-anchor-id="sec-mdp-cts-spaces"><span class="header-section-number">5.4</span> Continuous state and action spaces</h2>
+<section id="sec-mdp-cts-spaces" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="sec-mdp-cts-spaces"><span class="header-section-number">5.6</span> Continuous state and action spaces</h2>
 <p>The fundamental ideas discussed above also hold for continuous state and action spaces provided one carefully deals with measurability. We first fix some notation:</p>
 <ul>
 <li>For a set <span class="math inline">\(\ALPHABET S\)</span>, let <span class="math inline">\(\mathscr B(\ALPHABET S)\)</span> denote the Borel sigma-algebra on <span class="math inline">\(\ALPHABET S\)</span>.</li>
