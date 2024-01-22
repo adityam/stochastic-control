@@ -6,43 +6,88 @@ keywords:
    - dynamic programming
    - comparison principle
    - principle of irrelevant information
+execute:
+  echo: false
+  cache: true
+  freeze: true
 ---
 
-Markov decision processes (MDP) are the simplest model of a stochastic control system. The dynamic behavior of an MDP is modeled by an equation of the form
+## An example
+
+To fix ideas, we start with an example. Consider a _controlled_ Markov chain defined over $\ALPHABET S = \{-2, -1, 0, 1, 2\}$ with two control actions, i.e., $\ALPHABET A = \{0, 1\}$. If action $A = 0$ is chosen, the chain evolves according to its "natural" dynamics, which are shown below:
+
+!["Natural" dynamics of the Markov chain](figures/peak-control1.svg){#fig-peak1}
+
+When action $A = 1$ is chosen, the chain evolves according to the "forced" dynamics, which are shown below:
+
+!["Forced" dynamics of the Markov chain](figures/peak-control2.svg){#fig-peak2}
+
+Note that under the natural dynamics, the Markov chain will settle to a uniform steady-state distribution; under the forced dynamics, the Markov chain settle to a distribution which is unimodal with a peak at state $0$.
+
+Suppose it is desirable to keep the Markov chain close to state $0$. We capture this by the system incurs a _running cost_ equal to $s^2$ in state $s$. In addition, choosing action $A=0$ is free but choosing action $A=1$ has a _correction cost_ $p$. 
+
+Thus, the decision maker is in a conundrum. It may allow the system to follow its natural dynamics, which causes the system to reach states with larger absolute value and incur a running cost $|s|$; or it may decide to force the system to drift towards state $0$, which reduces the running cost but, in turn, incurs a correction cost $p$. How should the decision maker choose its actions?
+
+
+## Basic model and strucutre of optimal policies
+
+The type of model described above is called  Markov decision processes (MDP), and they are the simplest model of a stochastic control system. There are two ways to model MDPs, which we describe below.
+
+The first method to model MDPs is to think of them as a **controlled** Markov process; in particular, an MDP is a stochastic process $\{S_t\}_{t \ge 1}$, $S_t \in \ALPHABET S$, _controlled_ by the process $\{A_t\}_{t \ge 1}$, $A_t \in \ALPHABET A$, which satisfies the **controlled Markov property**:
+$$
+  \PR(S_{t+1} = s_{t+1} \mid S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t})
+  =
+  \PR(S_{t+1} = s_{t+1} \mid S_t = s_t, A_t = a_t).
+$$
+For models with finite state and action spaces, the right-hand side of the above may be viewed as an element of the  **controlled transition matrix** $P_t(a_t)$. For instnace, in the example described at the beginning of this section, we have
+$$
+\def\1{\tfrac 12}
+P(0) = \MATRIX{ \1& \1&  0&  0&  0\\
+                \1& 0 & \1&  0&  0\\
+                0&  \1&  0&  \1& 0\\
+                0&  0&  \1&   0& \1 \\
+                0&  0&   0&  \1& \1}
+\quad\text{and}\quad
+\def\1{\tfrac 14}
+\def\2{\tfrac 34}
+\def\3{\tfrac 12}
+P(1) = \MATRIX{ \1& \2&  0&  0&  0\\
+                \1& 0 & \2&  0&  0\\
+                0&  \1& \3&  \1& 0\\
+                0&  0&  \2&   0& \1 \\
+                0&  0&   0&  \2& \1}
+$$
+Since the model is time-homogeneous, we have replaced $P_t(a)$ by just $P(a)$. 
+
+This representation is compact and convenient for computational purposes, but I personally feel that it can be a bit opaque for proving the fundamental results of MDP theory. For that reason, I prefer to start with the second representation, which is desibed below.
+
+In the second representation, the dynamic behavior of an MDP is modeled by an equation 
 $$ \begin{equation} 
   S_{t+1} = f_t(S_t, A_t, W_t) \label{eq:state}
 \end{equation}$$
-where $S_t \in \ALPHABET S$ is the state, $A_t \in \ALPHABET A$ is the control
-input, and $W_t \in \ALPHABET W$ is the noise. An agent/controller observes
-the state and chooses the control input $A_t$.
+where $S_t \in \ALPHABET S$ is the state, $A_t \in \ALPHABET A$ is the control input, and $W_t \in \ALPHABET W$ is the noise. An agent/controller observes the state and chooses the control input $A_t$. 
 
-Eq. \\eqref{eq:state} is a _non-linear_ _stochastic_ state-space
-model—_non-linear_ because $f_t$ can be any nonlinear function; _stochastic_
-because the system is driven by stochastic noise $\{W_t\}_{t \ge 1}$. 
+We call this the **functional representation** of the MDP. Eq. \\eqref{eq:state} is a _non-linear_ _stochastic_ state-space model—_non-linear_ because $f_t$ can be any nonlinear function; _stochastic_ because the system is driven by stochastic noise $\{W_t\}_{t \ge 1}$. 
 
-The controller can be as sophisticated as we want. In principle, it can
-analyze the entire history of observations and control actions to choose
-the current control action. Thus, the control action can be written as
+Note that the controlled Markov chain representation can be easily translated to a functional representation by taking $W_t$ to be a uniform $[0,1]$ random variable and using a differnet [:Smirnov transformation](https://en.wikipedia.org/wiki/Inverse_transform_sampling) for each state action pair $(S_t, A_t)$.
+
+
+At each time, the system incurs a cost that may depend on the current state and control action. This cost is denoted by $c_t(S_t, A_t)$. The system operates for a time horizon $T$. During this time, it incurs a total cost
+$$ \sum_{t=1}^T c_t(S_t, A_t). $$
+
+The initial state $S_1$ and the noise process $\{W_t\}_{t \ge 1}$ are random variables defined on a common probability space (these are called _primitive random variables_) and are mutually independent. This seemingly benign assumption is critical for the theory that we present to go through. 
+
+
+Suppose we have to design such a controller. We are told the probability distribution of the initial state and the noise. We are also told the system update functions $(f_1, \dots, f_T)$ and the cost functions $(c_1, \dots, c_T)$. 
+
+Our objective to determine a **control policy**, i.e., a function for choosing the control actions. The control policy can be as sophisticated as we want. In principle, it can analyze the entire history of observations and control actions to choose the current control action. Thus, the control action can be written as
 $$ A_t = π_t(S_{1:t}, A_{1:t-1}),$$
 where $S_{1:t}$ is a shorthand for $(S_1, \dots, S_t)$ and a similar
 interpretation holds for $A_{1:t-1})$. The function $π_t$ is called the
-_control law_ (or _policy_ or _τtrategy_) at time $t$. 
+**control law** at time $t$. 
 
-At each time, the system incurs a cost that may depend on the current state
-and control action. This cost is denoted by $c_t(S_t, A_t)$. The system
-operates for a time horizon $T$. During this time, it incurs a total cost
-$$ \sum_{t=1}^T c_t(S_t, A_t). $$
 
-The initial state $S_1$ and the noise process $\{W_t\}_{t \ge 1}$ are random
-variables defined on a common probability space (these are called
-_primitive random variables_) and are mutually independent. This seemingly
-benign assumption is critical for the theory that we present to go through. 
-
-Suppose we have to design such a controller. We are told the probability
-distribution of the initial state and the noise. We are also told the system
-update functions $(f_1, \dots, f_T)$ and the cost functions $(c_1, \dots,
-c_T)$. We are asked to choose a _control policy_ $π = (π_1, \dots, π_T)$ to
-minimize the expected total cost
+We want to choose a _control policy_ $π = (π_1, \dots, π_T)$ to minimize the expected total cost
 $$ J(π) := \EXP\bigg[ \sum_{t=1}^T c_t(S_t, A_t) \bigg]. $$
 How should we proceed?
 
@@ -56,17 +101,14 @@ the following:
 :::{#thm-MDP-markov}
 #### Optimality of Markov policies
 For the system model described above, there is no loss of optimality in
-chosing the control action according to
+choosing the control action according to
 $$ A_t = π_t(S_t), \quad t=1, \dots, T.$$
 Such a control policy is called a _Markov policy_.
 :::
 
+In the context of the example presented at the beginning of this section, @thm-MDP-markov says that the decision maker can decide whether to choose action $0$ or $1$ based on the current state, without any loss of optimality.
 
-The above result claims that the cost incurred by the best Markovian policy
-is the same as the cost incurred by the best history dependent policy. This
-appears to be a tall claim, so lets see how we can prove it. The main idea of
-the proof is to repeatedly apply [Blackwell's principle of irrelevant
-information][Blackwell] [@Blackwell1964]
+In general, @thm-MDP-markov claims that the cost incurred by the best Markov policy is the same as the cost incurred by the best history dependent policy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply [Blackwell's principle of irrelevant information][Blackwell] [@Blackwell1964]
 
 [Blackwell]: ../stochastic-optimization/intro.html#blackwells-principle-of-irrelevant-information
 
@@ -131,11 +173,10 @@ $$ \EXP[ \tilde c_2(S_2, π_2^*(S_2))] \le  \EXP[ \tilde c_2(S_2, π_2(S_{1:2},
 A_1) ].$$
 :::
 
-Now we have enough background to present the proof of optimality of Markov
-policies.
+Now we have enough background to present the proof of optimality of Markov policies.
 
 :::{.callout-note collapse="true"}
-#### Proof of optimality of Markov policies {-}
+#### Proof of @thm-MDP-markov
 
 The main idea is that any system can be thought of as a two- or three-step
 system by aggregating time. Suppose that the system operates for $T$ steps. 
@@ -185,19 +226,105 @@ policy $π = (π_1, \dots, π_T)$, define _the cost-to-go functions_ or _value f
 follows:
 $$V^{π}_t(s) = \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
 s\bigg]. $$
-Note that $V^{π}_t(s)$ only depends on the future policy $(π_t, \dots, π_T)$. These functions can be computed recursively as follows:
-\begin{align*}
+Note that $V^{π}_t(s)$ only depends on the future policy $(π_t, \dots, π_T)$. These functions can be computed recursively as follows: we start with a terminal value function $V_{T+1}(s) ≡ 0$ and then for $t \in \{T, T-1, \dots, 1\}$, recursively compute:
+\begin{align}
   V^{π}_t(s) &= \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
-  s \bigg] \\
+  s \bigg] \notag \\
   &= \EXP^π \bigg[ c_t(s, π_t(s)) + \EXP^π \bigg[ \sum_{τ = t+1}^T
     c_τ(S_τ, π_τ(S_τ)) \biggm| S_{t+1} \bigg] \biggm| S_t = s \bigg]
-  \\
-  &= \EXP^π\big[ c_t(s, π_t(s)) + V_{t+1}(S_{t+1}; π) \big| S_t = s \big].
-\end{align*}
+  \notag \\
+  &= \EXP^π\big[ c_t(s, π_t(s)) + V_{t+1}(S_{t+1}; π) \big| S_t = s \big]. \label{eq:finite-policy-evaluation}
+\end{align}
+
+The formula of Eq. \eqref{eq:finite-policy-evaluation} is called the **policy evaluation formula.** 
+
+For the controlled Markov chain representation, the formula can be written in a vector form. In particular, we will think of $V_t$ to be a vector in $\reals^n$, where $n = \ABS{\ALPHABET S}$. For any policy $π = (π_1, \dots, π_T)$, define the $n × n$ transition matrices $(P^{π}_1, \dots, P^{π}_T)$ as
+$$
+  P^{π}_t(s'|s) = P_t(s'|s, π_t(s)), 
+  \quad t \in \{1,\dots, T\}.
+$$
+Furthermore, define $n$ dimensional cost vectors $(c^{π}_1, \dots, c^{π}_T)$ as
+$$
+  c^π_t(s) = c_t(s, π_t(s)), 
+  \quad t \in \{1,\dots, T\}.
+$$
+Then, the policy evaluation formula \eqref{eq:finite-policy-evaluation} is equivalent to the following: start with a terminal value function $V_{T+1} ≡ 0$ and then for $t \in \{T, T-1,\dots, 1\}$, recursively compute:
+$$
+  V^{π}_t = c^{π}_t + P^{π}_t V^{π}_{t+1}.
+$$
+
+### Example (continued)
+
+As an example, consider the following time-homogeneous policy for the example presented at the beginning of this section:
+$$
+  π_t(s) = \begin{cases}
+    1 & \text{if } |s| = 2 \\
+    0 & \text{otherwise}
+  \end{cases}
+$$
+Suppose $p = 1$, i.e., $c(s,a) = s^2 + a$. We now compute the value function $\{V^{π}_t\}_{t=1}^T$ for $T = 5$. 
+
+For this policy
+$$
+  c^{π} = \MATRIX{ 5 \\ 1 \\ 0 \\ 1 \\  5 }
+  \quad\text{and}\quad
+  \def\1{\tfrac 14}
+  \def\2{\tfrac 34}
+  \def\3{\tfrac 12}
+  P^π = \MATRIX{ \1& \2&  0&  0&  0\\
+                \3& 0 & \3&  0&  0\\
+                0&  \3&  0&  \3& 0\\
+                0&  0&  \3&   0& \3 \\
+                0&  0&   0&  \2& \1}
+$$
+We start with $V_{t+1} = \VEC(0,0,0,0,0)$ and run the following recursion.
+
+```{julia}
+#| output: false
+# Install packages
+using Pkg; Pkg.activate(".")
+# for pkg in ["IJulia", "Revise", "Distributions", "OffsetArrays", "DataFrames", "JSON"]
+#    Pkg.add(pkg)
+# end
+# for url in [ "https://github.com/adityam/MDP.jl.git"]
+#   Pkg.add(url=url)
+# end
+# # Installing Jupyter Cache
+# Pkg.add("Conda")
+# using Conda
+# Conda.add("jupyter-cache")
+
+using Revise
+```
+
+```{julia}
+#| echo: true
+cπ = [5, 1, 0, 1, 5] # FIXME
+Pπ = [1//4  3//4  0     0     0 
+      1//2  0     1//2  0     0
+      0     1//2  0     1//2  0
+      0     0     1//2  0     1//2
+      0     0     0     3//4  1//4]
+
+T = 5
+n = size(cπ,1)
+
+V = [ zeros(n) for t ∈ 1:T+1 ]
+
+for t ∈ T:-1:1
+  V[t] = cπ + Pπ*V[t+1]
+end
+
+display(V)
+```
+
+@fig-peak-evaluation shows the value functions computed as part of the policy evaluation.
+
+![Value function for policy evaluation of the example. Note that the value functions are computed by proceeding backwards in time.](figures/peak-control-evaluation1.svg){#fig-peak-evaluation}
 
 ## Dynamic Programming Decomposition {#DP}
 
-Now we are ready to state the main result of MDPs
+Now we are ready to state the main result for MDPs.
 
 :::{#thm-MDP-DP}
 ### Dynamic program
@@ -220,10 +347,72 @@ Then, a Markov policy is optimal if and only if it satisfies
 $$ \begin{equation} \label{eq:verification} 
   π_t^*(s) = \arg \min_{a \in \ALPHABET A} Q_t(s,a).
 \end{equation} $$
-
 :::
 
-Instead of proving the above result, we prove a related result
+For the controlled Markov chain representation, the dynamic program of @thm-MDP-DP can be written more succinctly. We will view $\{V_t\}_{t=1}^T$ as vectors in $\reals^n$, where $n = \ABS{\ALPHABET S}$. Moreover, we will view $\{Q_t\}_{t=1}^T$ and $\{c_t\}_{t=1}^T$ as matrices in $\reals^{n × m}$, where $m = \ABS{\ALPHABET A}$. 
+
+Then, the dynamic program of @thm-MDP-DP may be written as follows: start with a terminal value function $V_{T+1} ≡ 0$ and then for $t \in \{T, T-1, \dots, 1\}$, recursively compute:
+\begin{align*}
+  Q_t &= c_t + [ P_t(1) V_{t+1} \mid P_t(2) V_{t+1} \mid \cdots \mid P_t(m) V_{t+1} ], \\
+  V_t &= \min(Q_t, \hbox{\tt dim}=2), \\
+  π_t &= \arg\min(Q_t, \hbox{\tt dim}=2).
+\end{align*}
+
+### Example (continued)
+
+```{julia}
+#| echo: true
+
+# We use the default indexing (1,...,n)$ for convenience. 
+
+(n,m) = (5,2)
+S = 1:n
+A = 1:m
+T = 5
+p = 0
+
+P = [ zeros(n,n) for a ∈ A ]
+P[1] = [1//2  1//2  0     0     0 
+        1//2  0     1//2  0     0
+        0     1//2  0     1//2  0
+        0     0     1//2  0     1//2
+        0     0     0     1//2  1//2]
+
+P[2] = [1//4  3//4  0     0     0 
+        1//4  0     3//4  0     0
+        0     1//4  1//2  1//4  0
+        0     0     3//4  0     1//4
+        0     0     0     3//4  1//4]
+
+c = zeros(n,m)
+for s ∈ S, a ∈ A
+  # use s-3 to convert to "natural" indices -2:2
+  c[s,a] = (s-3)^2 + (a-1)*p
+end
+
+V = [ zeros(n)     for t ∈ 1:T+1 ]
+π = [ zeros(Int,n) for t ∈ 1:T   ]
+
+for t ∈ T:-1:1
+  Q = c + hcat(P[1]*V[t+1], P[2]*V[t+1])
+
+  # Could be done more efficiently with a single pass
+  V[t] = vec(minimum(Q, dims=2))
+  # Subtract 1 to get to "natural" indices 0:1
+  π[t] = argmin.(eachrow(Q)) .- 1
+end
+
+display(V)
+display(π)
+```
+
+@fig-peak-optimal shows the value functions and optimal policy computed from the dynamic program
+
+![Optimal value function and optimal policy for the example. The red color indicates that the optimal action is $1$; black indicates that the optimal action is $0$. Note that the computations are done by proceeding backwards in time.](figures/peak-control-optimal1.svg){#fig-peak-optimal}
+
+### Back to the proof
+
+Instead of proving @thm-MDP-DP, we prove a related result.
 
 :::{#thm-comparison-principle}
 ### The comparison principle 
@@ -482,7 +671,6 @@ Resolving the measurability issue is more complicated. There are
 various **measurable selection theorems** in the literature to identify sufficient conditions for measurability of the value function and optimal policy. See @HernandezLerma1996 and [-@HernandezLerma1999] for an accessible treatment of continous state MDPs.
 
 ## Exercises {-}
-
 
 ::: {#exr-monotonicity-in-time}
 #### Monotonicity in time
