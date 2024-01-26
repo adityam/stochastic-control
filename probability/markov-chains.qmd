@@ -1,0 +1,247 @@
+---
+title: Markov chains
+keywords: 
+  - Markov chain
+---
+
+:::{.callout-warning}
+#### A comment about notation
+In the standard litrature on Markov chains, the state is denoted by $X_t$ and the PMF of the state is denoted by $π_t$. In these notes, we use $S_t$ to denote the state (as we have done in the rest of the notes) and $ξ_t$ to denote the PMF (to avoid overloading the notation of $π_t$ for policy).
+
+Some of the Markov chain literature distinguishes between using $n$ to denote time for discrete-time Markov chain while using $t$ to denote the time for a continuous-time Markov chain. We use $t$ to be consistent with the notation in the rest of the notes. However, we assume that time starts at $t=0$ rather than $t=1$. 
+:::
+
+
+Let $\ALPHABET S$ be a finite set. A stochastic process $\{S_t\}_{t \ge 0}$, $S_t \in \ALPHABET S$, is called a **Markov chain** if it satisfies the *Markov property*: for any $t \in \integers_{\ge 0}$ and $s_{1:t+1} \in \ALPHABET S^{t+1}$, we have 
+\begin{equation}\label{eq:Markov}
+    \PR(S_{t+1} = s_{t+1} \mid S_{1:t} = s_{1:t}) = \PR(S_{t+1} = s_{t+1} \mid S_t = s_t).
+\end{equation}
+
+If is often convenient to assume that $\ALPHABET S = \{1,\dots, n\}$. We can define an $n \times n$ transition probability matrix $P_t$ given by $[P_t]_{ij} = \PR(S_{t+1} = j \mid S_t = i)$. Then, all the probabilistic properties of the Markov chain is described by the transition matrices $(P_0, P_1, \dots)$.
+
+In particular, suppose the Markov chain starts at the initial PMF
+(probability mass function) $\xi_0$ and let $\xi_t$ denote the PMF at
+time $t$. We will view $\xi_t$ as a $n$-dimensional row vector. Then,
+Eq. [\[eq:Markov\]](#eq:Markov){reference-type="eqref"
+reference="eq:Markov"} implies $\xi_{t+1} = \xi_t P_t$ and, therefore,
+$$\xi_{t+1} = \xi_0 P_0 P_1 \cdots P_t.$$
+
+A Markov chain is said to be **time-homogeneous** if the transition matrix $P_t$ is the same for all time $t$. Below, we state some standard results for time-homogeneous Markov chains [@Norris1998].
+
+## Classification of states
+
+The states of a time-homogeneous Markov chain can be classified as follows.
+
+1.  We say that a state $j$ is **accessible from** $i$ (abbreviated as
+    $i \rightsquigarrow j$) if there is exists an
+    $m \in \integers_{\ge 0}$ (which may depend on $i$ and $j$) such
+    that $[P^m]_{ij} > 0$. The fact that $[P^m]_{ij} > 0$ implies that
+    there exists an ordered sequence of states $(i_0, \dots, i_m)$ such
+    that $i_0 = i$ and $i_m = j$ such that $P_{i_k i_{k+1}} > 0$; thus,
+    there is a path of positive probability from state $i$ to state $j$.
+
+    Accessibility is an transitive relationship, i.e., if
+    $i \rightsquigarrow j$ and $j \rightsquigarrow k$ implies that
+    $i \rightsquigarrow k$.
+
+2.  Two distinct states $i$ and $j$ are said to **communicate**
+    (abbreviated to $i \leftrightsquigarrow j$) if $i$ is accessible
+    from $j$ (i.e., $j \rightsquigarrow i$) and $j$ is accessible from
+    $i$ ($i \rightsquigarrow j$). Alternatively, we say that $i$ and $j$
+    communicate if there exist $m, m' \in \integers_{\ge 0}$ such that
+    $[P^{m}]_{ij} > 0$ and $[P^{m'}]_{ji} > 0$.
+
+    Communication is an equivalence relationship, i.e., it is reflexive
+    ($i \leftrightsquigarrow i$), symmetric ($i \leftrightsquigarrow j$
+    if and only if $j \leftrightsquigarrow i$), and transitive
+    ($i \leftrightsquigarrow j$ and $j \leftrightsquigarrow k$ implies
+    $i \leftrightsquigarrow k$).
+
+3.  The states in a finite-state Markov chain can be partitioned into
+    two sets: **recurrent states** and **transient states**. A state is
+    recurrent if it is accessible from all states that is accessible
+    from it (i.e., $i$ is recurrent if $i \rightsquigarrow j$ implies
+    that $j \rightsquigarrow i$). States that are not recurrent are
+    **transient**.
+
+    It can be shown that a state $i$ is recurrent if and only if
+    $$\sum_{t=1}^{\infty} [ P^t ]_{ii} = \infty.$$
+
+4.  States $i$ and $j$ are said to belong to the same **communicating
+    class** if $i$ and $j$ communicate. Communicating classes form a
+    partition the state space. Within a communicating class, all states
+    are of the same type, i.e., either all states are recurrent (in
+    which case the class is called a recurrent class) or all states are
+    transient (in which case the class is called a transient class).
+
+    A Markov chain with a single communicating class (thus, all states
+    communicate with each other and are, therefore, recurrent) is called
+    **irreducible**.
+
+5.  The **period** of a state $i$, denoted by $d(i)$, is defined as
+    $$d(i) = \gcd\{ t \in \integers_{\ge 1} : [P^t]_{ii} > 0 \}.$$ If
+    the period is $1$, the state is **aperiodic**, and if the period is
+    $2$ or more, the state is **periodic**. It can be shown that all
+    states in the same class have the same period.
+
+    A Markov chain is aperiodic, if all states are aperiodic. A simple
+    sufficient (but not necessary) condition for an irreducible Markov
+    chain to be aperiodic is that there exists a state $i$ such that
+    $P_{ii} > 0$. In general, for a finite and aperiodic Markov chain,
+    there exists a positive integer $T$ such that $$_{ii} > 0, 
+            \quad \forall t \ge T, i \in \ALPHABET S.$$
+
+## Limit behavior of Markov chains
+
+We now state some special distributions for a time-homogeneous Markov
+chain.
+
+1.  A PMF $\xi$ on $\ALPHABET S$ is called a **stationary distribution**
+    if $\xi = \xi P$. Thus, if a (time-homogeneous) Markov chain starts
+    in a stationary distribution, it stays in a stationary distribution.
+
+    A finite irreducible Markov chain has a unique stationary
+    distribution. Moreover, when the Markov chain is also aperiodic, the
+    stationary distribution is given by $\pi_j = 1/m_j$, where $m_j$ is
+    the expected return time to state $j$.
+
+2.  A PMF $\xi$ ion $\ALPHABET S$ is called a **limiting distribution**
+    if $$\lim_{t \to \infty} [ P^t]_{ij} = \xi_j,
+            \quad \forall i,j \in \ALPHABET S.$$
+
+    A finite irreducible Markov chain has a limiting distribution if and
+    only if it is aperiodic. Therefore, for an aperiodic Markov chain,
+    the limiting distribution is the same as the stationary
+    distribution.
+
+
+The limiting behavior of irreducible Markov chains can be characterized even when they are periodic.
+
+:::{#thm-multi-class}
+Let $P$ be irreducile.
+Then, there is an integer $d \ge 1$ (called the **period of $P$)** and a
+partition
+$$\ALPHABET S = \ALPHABET C_0 \cup \ALPHABET C_1 \cup \cdots \cup \ALPHABET C_{d-1}$$
+such that for every $r \in \{0, \dots, d-1\}$,
+
+1.  For $i \in C_r$, $[P^m]_{ij} > 0$ only if $j \in C_{(r + m) \bmod d}$.
+
+2.  For sufficiently large $k$, $[P^{kd}]_{ij} > 0$ for all $i,j \in C_r$.
+
+Furthermore, suppose the initial distribution $\xi_0$ is such that $\xi_0(\ALPHABET C_0) = 1$ (i.e., the Markov chain starts in cell $\ALPHABET C_0$). Then, for any $r \in \{0,\dots, d-1\}$ and
+$j \in \ALPHABET C_r$, we have 
+$$\label{eq:limit-of-P}
+        \lim_{k \to \infty} [P^{(kd + r)}]_{ij} = \frac{d}{m_j}.$$
+:::
+
+The following result describes the sample path behavior of the Markov chain.
+
+:::{#thm-MC-SLLN}
+### Strong law of large numbers for Markov chains
+
+Suppose $P$ is an irreducible Markov chain that starts in state $i \in \ALPHABET S$. Then, 
+$$\label{eq:SLLN}
+        \lim_{T \to \infty} \frac 1T \sum_{t=0}^{T-1} \IND \{ S_t = j \} = \frac 1{m_j}.$$
+Therefore, for any function $h \colon \ALPHABET S \to \reals$,
+$$\label{eq:ergodic}
+        \lim_{T \to \infty} \frac 1T \sum_{t=0}^{T-1} h(S_t) = \sum_{j \in \ALPHABET S} \frac {h(j)}{m_j}.$$
+:::
+
+<!--
+# Expected first-passage time
+
+Let's start with a simple example. Suppose we toss a coin multiple times and
+stop at a heads. What are the expected number of tosses until stopping?
+
+From elementary probability we know that the number of tosses until stopping
+is a geometric random variable. However, we will model this using a Markov
+chain where the state denotes the number of consecutive heads so far. Let $p$
+denote the probability of heads and $q = 1-p$ denote the probability of tails.
+Then, the Markov chain model is as follows.
+
+
+   <figure style='max-width:20em;' id="fig1">
+   <img src="examples-1.svg" />
+   </figure>
+
+Let $v_i$ denote the expected number of tosses until stopping when starting at
+state $i$. Then, we have
+\begin{align*}
+  v_0 &= 1 + q v_0 + p v_1, \\
+  v_1 &= 0.
+\end{align*}
+Solving this system of equations, we get $v_0 = 1/(1-q) = 1/p$. 
+
+Now, let's try a variation of the above model. Suppose we toss a coin multiple
+times and stop at two heads. What are the expected number of tosses until
+stopping. 
+
+We can model this in the same manner as the before, where the state denotes
+the number of consecutive heads so far. The Markov chain is as follows:
+
+   <figure style='max-width:20em;' id="fig2">
+   <img src="examples-2.svg" />
+   </figure>
+
+As before, let $v_i$ denote the expected number of tosses until stopping when
+starting at state $i$. Then, we have
+\begin{align*}
+  v_0 &= 1 + q v_0 + p v_1, \\
+  v_1 &= 1 + q v_0 + p v_2, \\
+  v_2 &= 0.
+\end{align*}
+Solving this system of equations, we get $v_0 = 1/(1-p)$. 
+
+We can generalize these ideas to find time of hitting a state.
+
+# Absorption probabilities
+
+Consider a gambler's ruin problem, where we start at state $1$ and stop if we
+hit state $0$ or $3$.
+
+
+   <figure style='max-width:20em;' id="fig3">
+   <img src="examples-3.svg" />
+   </figure>
+
+Let $v_i$ denote the probability of getting absorbed in state $0$ before $3$.
+Then, we can write the following system of equations to describe the
+absorption probabilities:
+\begin{align*}
+  v_0 &= 1, \\
+  v_1 &= q v_0 + p v_2, \\
+  v_2 &= q v_1 + p v_3, \\
+  v_3 &= 0.
+\end{align*}
+Eliminating $v_0$ and $v_3$, we get:
+\begin{align*}
+  v_1 &= q  + p v_2, \\
+  v_2 &= q v_1 . \\
+\end{align*}
+We can solve this system of equations to find $v_1$ and $v_2$.
+
+-->
+
+## Exercises {-}
+
+:::{#exr-Markov-property}
+Let $\{X_t\}_{t \ge 1}$ be a Markov chain and $\ALPHABET A$ and $\ALPHABET B$ be subsets of the state space. 
+
+a. Is it true that $\PR(X_2 \in \ALPHABET B \mid X_1 = x_1, X_0 \in \ALPHABET A) = \PR(X_2 \in \ALPHABET B \mid X_1 = x_1)$?
+b. Is it true that $\PR(X_2 \in \ALPHABET B \mid X_1 \in \ALPHABET A, X_0 = x_0) = \PR(X_2 \in \ALPHABET B \mid X_1 \in \ALPHABET A)$?
+
+In each case, either prove the result or provide a counterexample.
+:::
+
+:::{#exr-folded-MC}
+Consider a Markov chain where the state space $\ALPHABET X$ is a symmetric subset of integers of the form $\{-L, -L + 1, \dots, L-1, L\}$ Let $\ALPHABET X_{\ge 0}$ denote the set $\{0, \dots, L\}$. 
+
+What are the conditions on the tranisition matrix $P$ such that the absolute values of the state $Z_t = |X_t|$, $Z_t \in \ALPHABET X_{\ge 0}$, to be a Markov chain?
+
+_Remark_: See @exr-folded-monotonicity for a generalization of the idea to MDPs.
+:::
+
+## Notes {-}
+
+@thm-multi-class is from [@Norris1998, Theorems 1.8.5 and 1.8.5].
+@thm-MC-SLLN goes under different names and I found it hard to find easily accessible references. One such reference is [@Durrett2019, Theorem 5.6.1]
