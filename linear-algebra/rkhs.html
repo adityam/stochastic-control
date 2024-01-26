@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,7 +10,7 @@
 <meta name="dcterms.date" content="2023-06-13">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
-<title>Course Notes - 41&nbsp; Reproducing Kernel Hilbert Space</title>
+<title>Course Notes - 42&nbsp; Reproducing Kernel Hilbert Space</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -53,7 +53,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -62,6 +68,7 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -129,13 +136,40 @@ window.MathJax = {
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
             <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -144,12 +178,13 @@ window.MathJax = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
- <span class="menu-text">Stochastic Control</span></a>
+    <a class="nav-link" href="../../stochastic-control/index.html"> 
+<span class="menu-text">Stochastic Control</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto tools-wide">
-    <a href="https://github.com/adityam/stochastic-control" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools tools-wide">
+    <a href="https://github.com/adityam/stochastic-control" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
@@ -157,32 +192,23 @@ window.MathJax = {
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html">Linear Algebra Appendix</a></li><li class="breadcrumb-item"><a href="../linear-algebra/rkhs.html"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html">Linear Algebra Appendix</a></li><li class="breadcrumb-item"><a href="../linear-algebra/rkhs.html"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -494,20 +520,26 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
+  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
+  <a href="../probability/markov-chains.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Markov chains</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../probability/stochastic-stability.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
   </div>
 </li>
       </ul>
@@ -524,25 +556,25 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/positive-definite-matrix.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
   </div>
 </li>
       </ul>
@@ -559,13 +591,13 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/convexity.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/duality.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
   </div>
 </li>
       </ul>
@@ -602,29 +634,29 @@ window.MathJax = {
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#review-of-linear-operators" id="toc-review-of-linear-operators" class="nav-link active" data-scroll-target="#review-of-linear-operators"><span class="header-section-number">41.1</span> Review of Linear Operators</a></li>
-  <li><a href="#dual-of-a-linear-operator" id="toc-dual-of-a-linear-operator" class="nav-link" data-scroll-target="#dual-of-a-linear-operator"><span class="header-section-number">41.2</span> Dual of a linear operator</a></li>
-  <li><a href="#reproducing-kernel-hilbert-space" id="toc-reproducing-kernel-hilbert-space" class="nav-link" data-scroll-target="#reproducing-kernel-hilbert-space"><span class="header-section-number">41.3</span> Reproducing kernel Hilbert space</a></li>
-  <li><a href="#properties-of-rhks" id="toc-properties-of-rhks" class="nav-link" data-scroll-target="#properties-of-rhks"><span class="header-section-number">41.4</span> Properties of RHKS</a></li>
-  <li><a href="#examples-of-kernels" id="toc-examples-of-kernels" class="nav-link" data-scroll-target="#examples-of-kernels"><span class="header-section-number">41.5</span> Examples of kernels</a></li>
-  <li><a href="#properties-of-kernels" id="toc-properties-of-kernels" class="nav-link" data-scroll-target="#properties-of-kernels"><span class="header-section-number">41.6</span> Properties of kernels</a></li>
-  <li><a href="#kernel-ridge-regression" id="toc-kernel-ridge-regression" class="nav-link" data-scroll-target="#kernel-ridge-regression"><span class="header-section-number">41.7</span> Kernel ridge regression</a></li>
+  <li><a href="#review-of-linear-operators" id="toc-review-of-linear-operators" class="nav-link active" data-scroll-target="#review-of-linear-operators"><span class="header-section-number">42.1</span> Review of Linear Operators</a></li>
+  <li><a href="#dual-of-a-linear-operator" id="toc-dual-of-a-linear-operator" class="nav-link" data-scroll-target="#dual-of-a-linear-operator"><span class="header-section-number">42.2</span> Dual of a linear operator</a></li>
+  <li><a href="#reproducing-kernel-hilbert-space" id="toc-reproducing-kernel-hilbert-space" class="nav-link" data-scroll-target="#reproducing-kernel-hilbert-space"><span class="header-section-number">42.3</span> Reproducing kernel Hilbert space</a></li>
+  <li><a href="#properties-of-rhks" id="toc-properties-of-rhks" class="nav-link" data-scroll-target="#properties-of-rhks"><span class="header-section-number">42.4</span> Properties of RHKS</a></li>
+  <li><a href="#examples-of-kernels" id="toc-examples-of-kernels" class="nav-link" data-scroll-target="#examples-of-kernels"><span class="header-section-number">42.5</span> Examples of kernels</a></li>
+  <li><a href="#properties-of-kernels" id="toc-properties-of-kernels" class="nav-link" data-scroll-target="#properties-of-kernels"><span class="header-section-number">42.6</span> Properties of kernels</a></li>
+  <li><a href="#kernel-ridge-regression" id="toc-kernel-ridge-regression" class="nav-link" data-scroll-target="#kernel-ridge-regression"><span class="header-section-number">42.7</span> Kernel ridge regression</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/linear-algebra/rkhs.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/linear-algebra/rkhs.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html">Linear Algebra Appendix</a></li><li class="breadcrumb-item"><a href="../linear-algebra/rkhs.html"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></h1>
+<h1 class="title"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></h1>
 </div>
 
 
@@ -635,14 +667,14 @@ window.MathJax = {
     <div class="quarto-title-meta-contents">
     <p class="author"><a href="http://www.cim.mcgill.ca/~adityam">Aditya Mahajan</a> </p>
   </div>
-    <div class="quarto-title-meta-contents">
+  <div class="quarto-title-meta-contents">
         <p class="affiliation">
             <a href="http://www.mcgill.ca/ece">
             McGill University
             </a>
           </p>
       </div>
-    </div>
+  </div>
 
 <div class="quarto-title-meta">
 
@@ -658,10 +690,12 @@ window.MathJax = {
   </div>
   
 
+
 </header>
 
-<section id="review-of-linear-operators" class="level2" data-number="41.1">
-<h2 data-number="41.1" class="anchored" data-anchor-id="review-of-linear-operators"><span class="header-section-number">41.1</span> Review of Linear Operators</h2>
+
+<section id="review-of-linear-operators" class="level2" data-number="42.1">
+<h2 data-number="42.1" class="anchored" data-anchor-id="review-of-linear-operators"><span class="header-section-number">42.1</span> Review of Linear Operators</h2>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -674,7 +708,8 @@ Linear Operator
 <div class="callout-body-container callout-body">
 <p>Let <span class="math inline">\(\mathcal F\)</span> and <span class="math inline">\(\mathcal G\)</span> be normed vector spaces over <span class="math inline">\(\reals\)</span>. A function <span class="math inline">\(A \colon \mathcal F \to \mathcal G\)</span> is called a <strong>linear operator</strong> if it satisfies the following properties:</p>
 <ul>
-<li><em>Honogeneity:</em> For any <span class="math inline">\(α \in \reals\)</span> and <span class="math inline">\(f \in \mathcal F\)</span>, <span class="math inline">\(A(αf) = α (Af)\)</span>.</li>
+<li><em>Honogeneity:</em> For any <span class="math inline">\(α \in \reals\)</span> and <span class="math inline">\(f \in \mathcal F\)</span>, <span class="math inline">\(A(αf) =
+α (Af)\)</span>.</li>
 <li><em>Additivity:</em> For any <span class="math inline">\(f,g \in \mathcal F\)</span>, <span class="math inline">\(A(f + g) = Af + Ag\)</span>.</li>
 </ul>
 <p>The <strong>operator norm</strong> of a linear operator is defined as <span class="math display">\[ \NORM{A} = \sup_{f \in \mathcal F} \frac{ \NORM{A f}_{\mathcal G}}
@@ -682,10 +717,11 @@ Linear Operator
 <p>If <span class="math inline">\(\NORM{A} &lt; ∞\)</span>, then the operator is said to be a bounded operator.</p>
 </div>
 </div>
-<p>As an example, suppose <span class="math inline">\(\mathcal F\)</span> is an inner product space. For a <span class="math inline">\(g \in \mathcal F\)</span>, the operator <span class="math inline">\(A_g \colon \mathcal F \to \reals\)</span> defined by <span class="math inline">\(A_g(f) = \langle f, g \rangle\)</span> is a linear operator. Such scalar valued operators are called <em>functionals</em> on <span class="math inline">\(\mathcal F\)</span>.</p>
+<p>As an example, suppose <span class="math inline">\(\mathcal F\)</span> is an inner product space. For a <span class="math inline">\(g \in
+\mathcal F\)</span>, the operator <span class="math inline">\(A_g \colon \mathcal F \to \reals\)</span> defined by <span class="math inline">\(A_g(f) = \langle f, g \rangle\)</span> is a linear operator. Such scalar valued operators are called <em>functionals</em> on <span class="math inline">\(\mathcal F\)</span>.</p>
 <p>Linear operators satisfy the following property.</p>
 <div id="thm-linear-operator" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 41.1 </strong></span>If <span class="math inline">\(A \colon \mathcal F \to \mathcal G\)</span> is a linear operator, then the following three conditions are equivalent:</p>
+<p><span class="theorem-title"><strong>Theorem 42.1</strong></span> If <span class="math inline">\(A \colon \mathcal F \to \mathcal G\)</span> is a linear operator, then the following three conditions are equivalent:</p>
 <ol type="1">
 <li><span class="math inline">\(A\)</span> is a bounded operator.</li>
 <li><span class="math inline">\(A\)</span> is continuous on <span class="math inline">\(\mathcal F\)</span>.</li>
@@ -693,19 +729,25 @@ Linear Operator
 </ol>
 </div>
 </section>
-<section id="dual-of-a-linear-operator" class="level2" data-number="41.2">
-<h2 data-number="41.2" class="anchored" data-anchor-id="dual-of-a-linear-operator"><span class="header-section-number">41.2</span> Dual of a linear operator</h2>
-<p>There are two notions of <em>dual</em> of a linear operator: <em>algebraic dual</em> and <em>topological dual</em>. If <span class="math inline">\(\mathcal F\)</span> is a normed space, then the space of all <em>linear</em> functionals <span class="math inline">\(A \colon \mathcal F \to \reals\)</span> is the <em>algebraic dual</em> space of <span class="math inline">\(\mathcal F\)</span>; the space of all <em>continuous linear</em> functions <span class="math inline">\(A \colon \mathcal F \to \reals\)</span> is the <em>topological dual</em> space of <span class="math inline">\(\mathcal F\)</span>.</p>
+<section id="dual-of-a-linear-operator" class="level2" data-number="42.2">
+<h2 data-number="42.2" class="anchored" data-anchor-id="dual-of-a-linear-operator"><span class="header-section-number">42.2</span> Dual of a linear operator</h2>
+<p>There are two notions of <em>dual</em> of a linear operator: <em>algebraic dual</em> and <em>topological dual</em>. If <span class="math inline">\(\mathcal F\)</span> is a normed space, then the space of all <em>linear</em> functionals <span class="math inline">\(A \colon \mathcal F \to \reals\)</span> is the <em>algebraic dual</em> space of <span class="math inline">\(\mathcal F\)</span>; the space of all <em>continuous linear</em> functions <span class="math inline">\(A \colon
+\mathcal F \to \reals\)</span> is the <em>topological dual</em> space of <span class="math inline">\(\mathcal F\)</span>.</p>
 <p>In finite-dimensional space, the two notions of dual spaces coincide (every linear operator on a normed, finite dimensional space is bounded). But this is not the case for infinite dimensional spaces.</p>
 <div id="thm-riesz" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 41.2 (Riesz representation) </strong></span>In a Hilbert space <span class="math inline">\(\mathcal F\)</span>, all continuous linear functionals are of the form <span class="math inline">\(\langle\cdot, g\rangle\)</span>, for some <span class="math inline">\(g \in \mathcal F\)</span>.</p>
+<p><span class="theorem-title"><strong>Theorem 42.2 (Riesz representation)</strong></span> In a Hilbert space <span class="math inline">\(\mathcal F\)</span>, all continuous linear functionals are of the form <span class="math inline">\(\langle\cdot, g\rangle\)</span>, for some <span class="math inline">\(g
+\in \mathcal F\)</span>.</p>
 </div>
-<p>Two Hilbert spaces <span class="math inline">\(\mathcal F\)</span> and <span class="math inline">\(\mathcal G\)</span> are said to be <strong>isometrically isomorphic</strong> if there is a linear bijective map <span class="math inline">\(U \colon \mathcal F \to \mathcal G\)</span> which preserves the inner product, i.e., <span class="math inline">\(\langle f_1, f_2 \rangle_{\mathcal F} = \langle U f_1, U f_2 \rangle_{\mathcal G}\)</span>.</p>
+<p>Two Hilbert spaces <span class="math inline">\(\mathcal F\)</span> and <span class="math inline">\(\mathcal G\)</span> are said to be <strong>isometrically isomorphic</strong> if there is a linear bijective map <span class="math inline">\(U \colon
+\mathcal F \to \mathcal G\)</span> which preserves the inner product, i.e., <span class="math inline">\(\langle
+f_1, f_2 \rangle_{\mathcal F} = \langle U f_1, U f_2 \rangle_{\mathcal G}\)</span>.</p>
 <p>Note that Riesz representation theorem gives a natural isometric isomorphism <span class="math inline">\(\psi \colon g \mapsto \langle \cdot, g \rangle_{\mathcal F}\)</span> between <span class="math inline">\(\mathcal F\)</span> and its topological dual <span class="math inline">\(\mathcal F'\)</span>, whereby <span class="math inline">\(\NORM{ψ(g)}_{\mathcal F'} = \NORM{g}_{\mathcal F}\)</span>.</p>
 </section>
-<section id="reproducing-kernel-hilbert-space" class="level2" data-number="41.3">
-<h2 data-number="41.3" class="anchored" data-anchor-id="reproducing-kernel-hilbert-space"><span class="header-section-number">41.3</span> Reproducing kernel Hilbert space</h2>
-<p>Let <span class="math inline">\(\mathcal H\)</span> be a Hilbert space of functions mapping from some non-empty set <span class="math inline">\(\ALPHABET X\)</span> to <span class="math inline">\(\reals\)</span>. Note that for every <span class="math inline">\(x \in \ALPHABET X\)</span>, there is a very special functional on <span class="math inline">\(\mathcal H\)</span>: the one that assigns to each <span class="math inline">\(f \in \mathcal H\)</span>, its value at <span class="math inline">\(x\)</span>. This is called the <strong>evaluation functional</strong> and denoted by <span class="math inline">\(δ_x\)</span>. In particular, <span class="math inline">\(δ_x \colon \mathcal H \to \reals\)</span>, where <span class="math inline">\(δ_x \colon f \mapsto f(x)\)</span>.</p>
+<section id="reproducing-kernel-hilbert-space" class="level2" data-number="42.3">
+<h2 data-number="42.3" class="anchored" data-anchor-id="reproducing-kernel-hilbert-space"><span class="header-section-number">42.3</span> Reproducing kernel Hilbert space</h2>
+<p>Let <span class="math inline">\(\mathcal H\)</span> be a Hilbert space of functions mapping from some non-empty set <span class="math inline">\(\ALPHABET X\)</span> to <span class="math inline">\(\reals\)</span>. Note that for every <span class="math inline">\(x \in \ALPHABET X\)</span>, there is a very special functional on <span class="math inline">\(\mathcal H\)</span>: the one that assigns to each <span class="math inline">\(f
+\in \mathcal H\)</span>, its value at <span class="math inline">\(x\)</span>. This is called the <strong>evaluation functional</strong> and denoted by <span class="math inline">\(δ_x\)</span>. In particular, <span class="math inline">\(δ_x \colon \mathcal H \to
+\reals\)</span>, where <span class="math inline">\(δ_x \colon f \mapsto f(x)\)</span>.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -719,30 +761,34 @@ Reproducing kernel Hilbert space (RKHS)
 <p>A Hilbert space <span class="math inline">\(\mathcal H\)</span> of functions <span class="math inline">\(f \colon \ALPHABET X \to \reals\)</span> defined on a non-empty set <span class="math inline">\(\ALPHABET X\)</span> is said to be a RKHS if <span class="math inline">\(δ_x\)</span> is continuous for all <span class="math inline">\(x \in \ALPHABET X\)</span>.</p>
 </div>
 </div>
-<p>In view of <a href="#thm-linear-operator">Theorem&nbsp;<span>41.1</span></a>, an equivalent definition is that a Hilbert space <span class="math inline">\(\mathcal H\)</span> is RKHS if the evaluation functionals <span class="math inline">\(δ_x\)</span> are bounded, i.e., for every <span class="math inline">\(x \in \ALPHABET X\)</span>, there exists a <span class="math inline">\(M_x\)</span> such that <span class="math display">\[ | δ_x | = | f(x) | \le M_x \| f \|_{\mathcal H}, \quad \forall f \in \mathcal H\]</span></p>
+<p>In view of <a href="#thm-linear-operator" class="quarto-xref">Theorem&nbsp;<span>42.1</span></a>, an equivalent definition is that a Hilbert space <span class="math inline">\(\mathcal H\)</span> is RKHS if the evaluation functionals <span class="math inline">\(δ_x\)</span> are bounded, i.e., for every <span class="math inline">\(x \in \ALPHABET X\)</span>, there exists a <span class="math inline">\(M_x\)</span> such that <span class="math display">\[ | δ_x | = | f(x) | \le M_x \| f \|_{\mathcal H}, \quad \forall f \in \mathcal H\]</span></p>
 <p>An immediate implication of the above property is that two functions which agree in RKHS norm agree at every point: <span class="math display">\[ | f(x) - g(x) | = | δ_x(f - g) | \le M_x \| f - g \|_{\mathcal H},
    \quad \forall f,g \in \mathcal H. \]</span></p>
-<p>For example, the <span class="math inline">\(L_2\)</span> space of square integrable functions i.e., <span class="math inline">\(\int_{\reals^n} f(x)^2 dx &lt; ∞\)</span> with inner product <span class="math inline">\(\int_{\reals^n} f(x) g(x)dx\)</span> is a Hilbert space, but not an RKHS because the delta function, which has the reproducing property <span class="math display">\[ f(x) = \int_{\reals^n} δ(x - y) f(y) dy \]</span> is not bounded.</p>
+<p>For example, the <span class="math inline">\(L_2\)</span> space of square integrable functions i.e., <span class="math inline">\(\int_{\reals^n} f(x)^2 dx &lt; ∞\)</span> with inner product <span class="math inline">\(\int_{\reals^n} f(x)
+g(x)dx\)</span> is a Hilbert space, but not an RKHS because the delta function, which has the reproducing property <span class="math display">\[ f(x) = \int_{\reals^n} δ(x - y) f(y) dy \]</span> is not bounded.</p>
 <p>RKHS are particularly well behaved. In particular, if we have a sequence of functions <span class="math inline">\(\{f_n\}_{n \ge 1}\)</span> which converges to a limit <span class="math inline">\(f\)</span> in the Hilbert-space norm, i.e., <span class="math inline">\(\lim_{n \to ∞} \NORM{f_n - f}_{\mathcal H} = 0\)</span>, then they also converge pointwise, i.e., <span class="math inline">\(\lim_{n \to ∞} f_n(x) = f(x)\)</span> for all <span class="math inline">\(x \in \ALPHABET X\)</span>.</p>
 </section>
-<section id="properties-of-rhks" class="level2" data-number="41.4">
-<h2 data-number="41.4" class="anchored" data-anchor-id="properties-of-rhks"><span class="header-section-number">41.4</span> Properties of RHKS</h2>
+<section id="properties-of-rhks" class="level2" data-number="42.4">
+<h2 data-number="42.4" class="anchored" data-anchor-id="properties-of-rhks"><span class="header-section-number">42.4</span> Properties of RHKS</h2>
 <p>RKHS has many useful properties:</p>
 <ol type="1">
-<li><p>For any RKHS, there exists a <em>unique</em> kernel <span class="math inline">\(k \colon \ALPHABET X × \ALPHABET X \to \reals\)</span> such that</p>
+<li><p>For any RKHS, there exists a <em>unique</em> kernel <span class="math inline">\(k \colon \ALPHABET X ×
+\ALPHABET X \to \reals\)</span> such that</p>
 <ul>
 <li>for any <span class="math inline">\(x \in \ALPHABET X\)</span>, <span class="math inline">\(k(\cdot, x) \in \mathcal H\)</span>,</li>
 <li>for any <span class="math inline">\(x \in \ALPHABET X\)</span> and <span class="math inline">\(f \in \mathcal H\)</span>, <span class="math inline">\(\langle f, k(\cdot, x) \rangle = f(x)\)</span> (the reproducing property).</li>
 </ul>
 <p>In particular, for any <span class="math inline">\(x,y \in \ALPHABET X\)</span>, <span class="math display">\[ k(x,y) = \langle k(\cdot, x), k(\cdot, y) \rangle. \]</span> Thus, the kernel is a symmetric function.</p></li>
-<li><p>The kernel is positive definite, i.e., for any <span class="math inline">\(n \ge 1\)</span>, for all <span class="math inline">\((a_1, \dots, a_n) \in \reals^n\)</span> and <span class="math inline">\((x_1, \dots, x_n) \in \ALPHABET X^n\)</span>, <span class="math display">\[ \sum_{i=1}^n \sum_{j=1}^n a_i a_i h(x_i, x_j) \ge 0 \]</span></p>
+<li><p>The kernel is positive definite, i.e., for any <span class="math inline">\(n \ge 1\)</span>, for all <span class="math inline">\((a_1,
+\dots, a_n) \in \reals^n\)</span> and <span class="math inline">\((x_1, \dots, x_n) \in \ALPHABET X^n\)</span>, <span class="math display">\[ \sum_{i=1}^n \sum_{j=1}^n a_i a_i h(x_i, x_j) \ge 0 \]</span></p>
 <p>A conseuqence of positive definiteness is that <span class="math display">\[| k(x, y)|^2 \le k(x, x) k(y, y). \]</span></p></li>
 <li><p><strong>(Moore-Aronszajn Theorem)</strong> For every positive definite kernel <span class="math inline">\(K\)</span> on <span class="math inline">\(\ALPHABET X × \ALPHABET X\)</span>, there is a unique RKHS on <span class="math inline">\(\ALPHABET X\)</span> with <span class="math inline">\(K\)</span> as its reproducing kernel.</p></li>
 </ol>
 </section>
-<section id="examples-of-kernels" class="level2" data-number="41.5">
-<h2 data-number="41.5" class="anchored" data-anchor-id="examples-of-kernels"><span class="header-section-number">41.5</span> Examples of kernels</h2>
-<p>Some common examples of symmetric positive definite kernels for <span class="math inline">\(\ALPHABET X = \reals^n\)</span> are as follows:</p>
+<section id="examples-of-kernels" class="level2" data-number="42.5">
+<h2 data-number="42.5" class="anchored" data-anchor-id="examples-of-kernels"><span class="header-section-number">42.5</span> Examples of kernels</h2>
+<p>Some common examples of symmetric positive definite kernels for <span class="math inline">\(\ALPHABET
+X = \reals^n\)</span> are as follows:</p>
 <ol type="1">
 <li><p><strong>Linear kernel</strong> <span class="math display">\[ k(x,y) = \langle x, y \rangle\]</span></p></li>
 <li><p><strong>Gaussian kernel</strong> <span class="math display">\[ k(x,y) = \exp\biggl( - \frac{\| x - y \|^2}{σ^2} \biggr),
@@ -751,29 +797,34 @@ Reproducing kernel Hilbert space (RKHS)
    \quad d \in \integers_{&gt; 0}. \]</span></p></li>
 </ol>
 </section>
-<section id="properties-of-kernels" class="level2" data-number="41.6">
-<h2 data-number="41.6" class="anchored" data-anchor-id="properties-of-kernels"><span class="header-section-number">41.6</span> Properties of kernels</h2>
+<section id="properties-of-kernels" class="level2" data-number="42.6">
+<h2 data-number="42.6" class="anchored" data-anchor-id="properties-of-kernels"><span class="header-section-number">42.6</span> Properties of kernels</h2>
 <ol type="1">
 <li><p>Suppose <span class="math inline">\(φ \colon \ALPHABET X \to \reals^n\)</span> is a feature map, then <span class="math display">\[ k(x,y) := \langle φ(x), φ(y) \rangle \]</span> is a kernel.</p>
 <p>Note that there are no conditions on <span class="math inline">\(\ALPHABET X\)</span> (e.g., <span class="math inline">\(\ALPHABET X\)</span> doesn’t need to be an inner product space).</p></li>
 <li><p>If <span class="math inline">\(k\)</span> is a kernel on <span class="math inline">\(\ALPHABET X\)</span>, then for any <span class="math inline">\(α &gt; 0\)</span>, <span class="math inline">\(αk\)</span> is also a kernel.</p></li>
 <li><p>If <span class="math inline">\(k_1\)</span> and <span class="math inline">\(k_2\)</span> are kernels on <span class="math inline">\(\ALPHABET X\)</span>, then <span class="math inline">\(k_1 + k_2\)</span> is also a kernel.</p></li>
-<li><p>If <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET Y\)</span> be arbitrary sets and <span class="math inline">\(A \colon \ALPHABET X \to \ALPHABET Y\)</span> is a map. Let <span class="math inline">\(k\)</span> be a kernel on <span class="math inline">\(\ALPHABET Y\)</span>. Then, <span class="math inline">\(k(A(x_1), A(x_2))\)</span> is a kernel on <span class="math inline">\(\ALPHABET X\)</span>.</p></li>
+<li><p>If <span class="math inline">\(\ALPHABET X\)</span> and <span class="math inline">\(\ALPHABET Y\)</span> be arbitrary sets and <span class="math inline">\(A \colon
+\ALPHABET X \to \ALPHABET Y\)</span> is a map. Let <span class="math inline">\(k\)</span> be a kernel on <span class="math inline">\(\ALPHABET
+Y\)</span>. Then, <span class="math inline">\(k(A(x_1), A(x_2))\)</span> is a kernel on <span class="math inline">\(\ALPHABET X\)</span>.</p></li>
 <li><p>If <span class="math inline">\(k_1 \colon \ALPHABET X_1 × \ALPHABET X_1 \to \reals\)</span> is a kernel on <span class="math inline">\(\ALPHABET X_1\)</span> and <span class="math inline">\(k_2 \colon \ALPHABET X_2 × \ALPHABET X_2 \to \reals\)</span> is a kernel on <span class="math inline">\(\ALPHABET X_2\)</span>, then <span class="math display">\[ k( (x_1, x_2), (y_1, y_2) ) = k_1(x_1, y_1) k_2(x_2, y_2) \]</span> is a kernel on <span class="math inline">\(\ALPHABET X_1 × \ALPHABET X_2\)</span>.</p></li>
-<li><p><strong>(Mercer-Hilber-Schmit theorems)</strong> If <span class="math inline">\(k\)</span> is positive definite kernel (that is continous with finite trace), then there exists an infinite sequence of eiegenfunctions <span class="math inline">\(\{ φ_i \colon \ALPHABET X \to \reals \}_{i \ge 1}\)</span> and real eigenvalues <span class="math inline">\(\{λ_i\}_{i \ge 1}\)</span> such that we can write <span class="math inline">\(k\)</span> as: <span class="math display">\[ k(x,y) = \sum_{i=1}^∞ λ_i φ_i(x) φ_i(y). \]</span> This is analogous to the expression of a matrix in terms of its eigenvector and eigenvalues, except in this case we have functions and an infinity of them.</p>
+<li><p><strong>(Mercer-Hilber-Schmit theorems)</strong> If <span class="math inline">\(k\)</span> is positive definite kernel (that is continous with finite trace), then there exists an infinite sequence of eiegenfunctions <span class="math inline">\(\{ φ_i \colon \ALPHABET X \to \reals
+\}_{i \ge 1}\)</span> and real eigenvalues <span class="math inline">\(\{λ_i\}_{i \ge 1}\)</span> such that we can write <span class="math inline">\(k\)</span> as: <span class="math display">\[ k(x,y) = \sum_{i=1}^∞ λ_i φ_i(x) φ_i(y). \]</span> This is analogous to the expression of a matrix in terms of its eigenvector and eigenvalues, except in this case we have functions and an infinity of them.</p>
 <p>Using this property, we can define the inner product of RKHS in a simpler form. First, for any <span class="math inline">\(f \in \mathcal H\)</span>, define <span class="math display">\[ f_i = \langle f, φ_i \rangle.\]</span> Then, for any <span class="math inline">\(f, g \in \mathcal H\)</span>, <span class="math display">\[ \langle f, g \rangle = \sum_{i=1}^∞ \frac{ f_i g_i } { λ_i }. \]</span></p></li>
 </ol>
 </section>
-<section id="kernel-ridge-regression" class="level2" data-number="41.7">
-<h2 data-number="41.7" class="anchored" data-anchor-id="kernel-ridge-regression"><span class="header-section-number">41.7</span> Kernel ridge regression</h2>
-<p>Given labelled data <span class="math inline">\(\{ (x_i, y_i) \}_{i=1}^n\)</span>, and a feature map <span class="math inline">\(φ \colon \ALPHABET X \to \ALPHABET Z\)</span>, define the RKHS <span class="math inline">\(\ALPHABET H\)</span> of functions from <span class="math inline">\(\ALPHABET Z \to \reals\)</span> with the kernel <span class="math inline">\(k(x,y) = \langle φ(x), φ(y) \rangle_{\mathcal H}\)</span>. Now, consider the problem of minimizing</p>
+<section id="kernel-ridge-regression" class="level2" data-number="42.7">
+<h2 data-number="42.7" class="anchored" data-anchor-id="kernel-ridge-regression"><span class="header-section-number">42.7</span> Kernel ridge regression</h2>
+<p>Given labelled data <span class="math inline">\(\{ (x_i, y_i) \}_{i=1}^n\)</span>, and a feature map <span class="math inline">\(φ \colon
+\ALPHABET X \to \ALPHABET Z\)</span>, define the RKHS <span class="math inline">\(\ALPHABET H\)</span> of functions from <span class="math inline">\(\ALPHABET Z \to \reals\)</span> with the kernel <span class="math inline">\(k(x,y) = \langle φ(x), φ(y)
+\rangle_{\mathcal H}\)</span>. Now, consider the problem of minimizing</p>
 <p><span class="math display">\[f^* = \arg \min_{f \in \ALPHABET H}
 \biggl(
   \sum_{i=1}^n \bigl( y_i - \langle f, φ(x_i) \rangle_{\mathcal{H}} \bigr)^2 +
   λ \NORM{f}^2_{\mathcal H}
 \bigr).\]</span></p>
 <div id="thm-RKHS-represter" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 41.3 (The representer theoreom (simple version)) </strong></span>Given a loss function <span class="math inline">\(\ell \colon \ALPHABET Z^n \to \reals\)</span> and a penalty function <span class="math inline">\(Ω \colon \reals \to \reals\)</span>, there is as a solution of <span class="math display">\[ f^* = \arg \min_{f \in \mathcal H} \ell(f(x_1), \dots, f(x_n))
+<p><span class="theorem-title"><strong>Theorem 42.3 (The representer theoreom (simple version))</strong></span> Given a loss function <span class="math inline">\(\ell \colon \ALPHABET Z^n \to \reals\)</span> and a penalty function <span class="math inline">\(Ω \colon \reals \to \reals\)</span>, there is as a solution of <span class="math display">\[ f^* = \arg \min_{f \in \mathcal H} \ell(f(x_1), \dots, f(x_n))
         + Ω(\NORM{f}^2_{\mathcal H}). \]</span> that takes the the form <span class="math display">\[ f^* = \sum_{i=1}^n α_i k(\cdot, x_i).\]</span></p>
 <p>If <span class="math inline">\(Ω\)</span> is strictly increasing, all solutions have this form.</p>
 </div>
@@ -830,6 +881,33 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       } else {
         el.classList.add('notransition');
       }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
     }
   }
   const toggleColorMode = (alternate) => {
@@ -898,13 +976,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  let localAlternateSentinel = 'default';
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
     // Read the current dark / light value 
     let toAlternate = !hasAlternateSentinel();
     toggleColorMode(toAlternate);
     setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
   };
   // Ensure there is a toggle, if there isn't float one in the top right
   if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
@@ -983,10 +1063,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -996,8 +1075,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1010,6 +1098,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1053,6 +1260,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1078,6 +1286,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1139,13 +1373,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../linear-algebra/svd.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span>
+      <a href="../linear-algebra/svd.html" class="pagination-link  aria-label=" &lt;span="" value="" decomposition&lt;="" span&gt;"="">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../convexity/convexity.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../convexity/convexity.html" class="pagination-link" aria-label="<span class='chapter-number'>43</span>&nbsp; <span class='chapter-title'>Convex sets and convex functions</span>">
+        <span class="nav-page-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1153,5 +1387,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/linear-algebra/rkhs.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>

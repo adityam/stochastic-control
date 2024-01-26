@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -26,7 +26,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -107,7 +107,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -116,6 +122,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -185,13 +192,40 @@ window.MathJax = {
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 </head>
 
 <body class="nav-sidebar floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
             <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -200,12 +234,13 @@ window.MathJax = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
- <span class="menu-text">Stochastic Control</span></a>
+    <a class="nav-link" href="../../stochastic-control/index.html"> 
+<span class="menu-text">Stochastic Control</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto tools-wide">
-    <a href="https://github.com/adityam/stochastic-control" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools tools-wide">
+    <a href="https://github.com/adityam/stochastic-control" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
@@ -213,32 +248,23 @@ window.MathJax = {
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/gambling.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Optimal gambling</span></a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/gambling.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Optimal gambling</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -550,20 +576,26 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
+  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
+  <a href="../probability/markov-chains.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Markov chains</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../probability/stochastic-stability.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
   </div>
 </li>
       </ul>
@@ -580,25 +612,25 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/positive-definite-matrix.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
   </div>
 </li>
       </ul>
@@ -615,13 +647,13 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/convexity.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/duality.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
   </div>
 </li>
       </ul>
@@ -658,7 +690,7 @@ window.MathJax = {
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -671,12 +703,12 @@ window.MathJax = {
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/gambling.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/gambling.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/gambling.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Optimal gambling</span></a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Optimal gambling</span></h1>
 </div>
@@ -689,14 +721,14 @@ window.MathJax = {
     <div class="quarto-title-meta-contents">
     <p class="author"><a href="http://www.cim.mcgill.ca/~adityam">Aditya Mahajan</a> </p>
   </div>
-    <div class="quarto-title-meta-contents">
+  <div class="quarto-title-meta-contents">
         <p class="affiliation">
             <a href="http://www.mcgill.ca/ece">
             McGill University
             </a>
           </p>
       </div>
-    </div>
+  </div>
 
 <div class="quarto-title-meta">
 
@@ -712,13 +744,21 @@ window.MathJax = {
   </div>
   
 
+<div>
+  <div class="keywords">
+    <div class="block-title">Keywords</div>
+    <p>MDPs, Dynamic programming, Optimal gambling, Kelly strategy</p>
+  </div>
+</div>
+
 </header>
 
-<div class="column-body">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="../images/banners/gambling.jpg" title="How to gamble if you must" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Image credit: http://commons.wikimedia.org/wiki/File:Gambling-ca-1800.jpg</figcaption>
+
+<div class="page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p class="page-columns page-full"><img src="../images/banners/gambling.jpg" title="How to gamble if you must" class="img-fluid figure-img column-body"></p>
+<figcaption>Image credit: http://commons.wikimedia.org/wiki/File:Gambling-ca-1800.jpg</figcaption>
 </figure>
 </div>
 </div>
@@ -739,12 +779,12 @@ window.MathJax = {
 <p>At time <span class="math inline">\(t\)</span>, the gambler may place a bet for any amount <span class="math inline">\(A_t\)</span> less than or equal to his current fortune <span class="math inline">\(S_t\)</span>. If he wins the bet (denoted by the event <span class="math inline">\(W_t = 1\)</span>), the casino gives him the amount that he had bet. If he loses the bet (denoted by the event <span class="math inline">\(W_t = -1\)</span>), he pays the casino the amount that he had bet. Thus, the dynamics can be written as</p>
 <p><span class="math display">\[ S_{t+1} = S_t + W_t A_t. \]</span></p>
 <p>The outcomes of the bets <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> are <em>primitive random variables</em>, i.e., they are independent of each other, the gambler’s initial fortune, and his betting strategy.</p>
-<div class="page-columns page-full"><p>The gambler’s utility is <span class="math inline">\(\log S_T\)</span>, the logarithm of his final fortune.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Thus, the reward function may be written as</p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;See the notes on <a href="../risk-sensitive/risk-sensitive-utility.html">risk sensitive utility</a> for a discussion on the choice of the utility function but one way to think of the reward is as follows. Suppose we put <span class="math inline">\(S_1\)</span> dollars in a bank and accrue continuously compounded interest of <span class="math inline">\(R\)</span> per unit time, we will get <span class="math inline">\(S_1 e^{RT}\)</span> dollars after <span class="math inline">\(T\)</span> time steps. Thus, we may view <span class="math inline">\(\log(S_T/S_1)\)</span> to be the effective (random) interest rate.</p>
-<p>For an interesting discussion on the impact of the utility function on optimal gambling, see <a href="https://www.lesswrong.com/posts/JAmyTWoukk8xzhE9n/ruining-an-expected-log-money-maximizer">this post on less wrong</a></p></li></div></div>
-<p><span class="math display">\[ r_t(s, a) = 0 \quad \text{and} \quad r_T(s) = \log s.
+<p>The gambler’s utility is <span class="math inline">\(\log S_T\)</span>, the logarithm of his final fortune.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Thus, the reward function may be written as</p>
+<div class="no-row-height column-margin column-container"><p><sup>1</sup>&nbsp;See the notes on <a href="../risk-sensitive/risk-sensitive-utility.html">risk sensitive utility</a> for a discussion on the choice of the utility function but one way to think of the reward is as follows. Suppose we put <span class="math inline">\(S_1\)</span> dollars in a bank and accrue continuously compounded interest of <span class="math inline">\(R\)</span> per unit time, we will get <span class="math inline">\(S_1 e^{RT}\)</span> dollars after <span class="math inline">\(T\)</span> time steps. Thus, we may view <span class="math inline">\(\log(S_T/S_1)\)</span> to be the effective (random) interest rate.</p>
+<p>For an interesting discussion on the impact of the utility function on optimal gambling, see <a href="https://www.lesswrong.com/posts/JAmyTWoukk8xzhE9n/ruining-an-expected-log-money-maximizer">this post on less wrong</a></p></div><p><span class="math display">\[ r_t(s, a) = 0 \quad \text{and} \quad r_T(s) = \log s.
 \]</span></p>
 <p>Find the strategy that maximizes the gambler’s utility, <span class="math inline">\(\EXP[\log S_T]\)</span>.</p>
-<section id="computational-experiment" class="level2 page-columns page-full" data-number="6.1">
+<section id="computational-experiment" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="computational-experiment"><span class="header-section-number">6.1</span> Computational experiment</h2>
 <p>To fix ideas, let’s try to find the optimal policy on our own. An example strategy is given below.</p>
 <div class="cell">
@@ -893,31 +933,25 @@ window.MathJax = {
 </div>
 </div>
 <p>Assuming that $S_1 = $ <span><span id="ojs-element-id-1"></span>,</span> we plot the performance of this policy below. Choosing “optimal” in the radio button above gives the performance of the optimal policy (derived below).</p>
-<div>
 <div class="sourceCode cell-code hidden" id="cb3" data-startfrom="146" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 145;"><span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>viewof p <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="fl">0.6</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"p"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span>})</span>
 <span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>viewof run <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">button</span>(<span class="st">"Re-run simulation"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell quarto-layout-panel">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div class="cell-output cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<div>
+<div class="cell quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div id="ojs-cell-3-1" data-nodetype="declaration">
 
 </div>
 </div>
-</div>
-<div class="cell-output cell-output-display quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
 <div id="ojs-cell-3-2" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 </div>
-</div>
-</div>
-<div class="cell page-columns page-full">
-<div class="sourceCode cell-code hidden" id="cb4" data-startfrom="154" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 153;"><span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a>rewardPlot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<div class="cell fig-cap-location-margin">
+<div class="sourceCode cell-code hidden" id="cb4" data-startfrom="154" data-source-offset="0" data-cap-location="margin"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 153;"><span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a>rewardPlot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
 <span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
 <span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marginRight</span><span class="op">:</span> <span class="dv">40</span><span class="op">,</span></span>
 <span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
@@ -933,12 +967,16 @@ window.MathJax = {
 <span id="cb4-167"><a href="#cb4-167" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
 <span id="cb4-168"><a href="#cb4-168" aria-hidden="true" tabindex="-1"></a>  ]</span>
 <span id="cb4-169"><a href="#cb4-169" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div id="fig-gambling" class="quarto-figure quarto-figure-center anchored page-columns page-full">
-<figure class="figure page-columns page-full">
+<div id="fig-gambling" class="cell-output cell-output-display quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gambling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div id="ojs-cell-4" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption margin-caption">Figure&nbsp;6.1: Plot of the performance of the strategy for a horizon of <span class="math inline">\(T=\)</span> <span><span id="ojs-element-id-2"></span>.</span> The curves in gray show the performance over $n = $ <span><span id="ojs-element-id-3"></span></span> difference sample paths and the red curve shows its mean. For ease of visualization, we are plotting the utility at each stage (i.e., <span class="math inline">\(\log s_t\)</span>), even though the reward is only received at the terminal time step. The red line shows the mean performance over the <span class="math inline">\(n\)</span> sample paths. The final mean value of the reward is shown in red. You can toggle the select strategy button to see how the optimal strategy performs (and how close you came to it).</figcaption>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gambling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.1: Plot of the performance of the strategy for a horizon of <span class="math inline">\(T=\)</span> <span><span id="ojs-element-id-2"></span>.</span> The curves in gray show the performance over $n = $ <span><span id="ojs-element-id-3"></span></span> difference sample paths and the red curve shows its mean. For ease of visualization, we are plotting the utility at each stage (i.e., <span class="math inline">\(\log s_t\)</span>), even though the reward is only received at the terminal time step. The red line shows the mean performance over the <span class="math inline">\(n\)</span> sample paths. The final mean value of the reward is shown in red. You can toggle the select strategy button to see how the optimal strategy performs (and how close you came to it).
+</figcaption>
 </figure>
 </div>
 </div>
@@ -948,7 +986,7 @@ window.MathJax = {
 <h2 data-number="6.2" class="anchored" data-anchor-id="optimal-gambling-strategy-and-value-functions"><span class="header-section-number">6.2</span> Optimal gambling strategy and value functions</h2>
 <p>The above model of optimal gambling is a Markov decision process. Therefore, the optimal solution is given by dynamic programming.</p>
 <div id="prp-optimal-gambling-DP" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 6.1 (Dynamic programming decomposition) </strong></span>Define the following value function <span class="math inline">\(V_t \colon \reals_{\ge 0} \to \reals\)</span> <span class="math display">\[ V_T(s) = \log s \]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span class="math display">\[ \begin{align*}
+<p><span class="theorem-title"><strong>Proposition 6.1 (Dynamic programming decomposition)</strong></span> Define the following value function <span class="math inline">\(V_t \colon \reals_{\ge 0} \to \reals\)</span> <span class="math display">\[ V_T(s) = \log s \]</span> and for <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span class="math display">\[ \begin{align*}
 Q_t(s,a) &amp;= \EXP[ r_t(s,a) + V_{t+1}(S_{t+1}) \,|\, S_t = s, A_t = a] \\
 &amp;= p V_{t+1}(s+a) + (1-p) V_{t+1}(s-a),
 \end{align*}
@@ -973,7 +1011,7 @@ Remark
 </div>
 </div>
 <div id="thm-optimal-gambling-structure" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 6.1 (Optimal gambling strategy) </strong></span>When <span class="math inline">\(p \le 0.5\)</span>:</p>
+<p><span class="theorem-title"><strong>Theorem 6.1 (Optimal gambling strategy)</strong></span> When <span class="math inline">\(p \le 0.5\)</span>:</p>
 <ul>
 <li>the optimal strategy is to <em>not gamble</em>, specifically <span class="math inline">\(π_t(s) = 0\)</span>;</li>
 <li>the value function is <span class="math inline">\(V_t(s) = \log s\)</span>.</li>
@@ -984,7 +1022,7 @@ Remark
 <li>the value function is <span class="math inline">\(V_t(s) = \log s + (T - t) C\)</span>, where <span class="math display">\[ C = \log 2 + p \log p + (1-p) \log (1-p).\]</span></li>
 </ul>
 </div>
-<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="">The constant <span class="math inline">\(C\)</span> defined in <a href="#thm-optimal-gambling-structure">Theorem&nbsp;<span>6.1</span></a> is equal to the capacity of a binary symmetric channel! In fact, the above model was introduced by <span class="citation" data-cites="Kelly1956">Kelly (<a href="../references.html#ref-Kelly1956" role="doc-biblioref">1956</a>)</span> to show a gambling interpretation of information rates.</span></div></div>
+<div class="page-columns page-full"><p></p><div class="no-row-height column-margin column-container"><span class="margin-aside">The constant <span class="math inline">\(C\)</span> defined in <a href="#thm-optimal-gambling-structure" class="quarto-xref">Theorem&nbsp;<span>6.1</span></a> is equal to the capacity of a binary symmetric channel! In fact, the above model was introduced by <span class="citation" data-cites="Kelly1956">Kelly (<a href="../references.html#ref-Kelly1956" role="doc-biblioref">1956</a>)</span> to show a gambling interpretation of information rates.</span></div></div>
 <p>We prove the two cases separately.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
@@ -999,7 +1037,8 @@ Proof when <span class="math inline">\(p \le 0.5\)</span>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Let <span class="math inline">\(p = \PR(W_t = 1)\)</span> and <span class="math inline">\(q = \PR(W_t = -1)\)</span>. Then <span class="math inline">\(p \le 0.5\)</span> implies that <span class="math inline">\(p \le 1 - p = q\)</span>.</p>
-<p>We proceed by backward induction. For <span class="math inline">\(t = T\)</span>, we have that <span class="math inline">\(V_T(s) = \log s\)</span>. This forms the basis of induction. Now assume that for <span class="math inline">\(t+1\)</span>, <span class="math inline">\(V_{t+1}(s) = \log s\)</span>. Now consider</p>
+<p>We proceed by backward induction. For <span class="math inline">\(t = T\)</span>, we have that <span class="math inline">\(V_T(s) = \log s\)</span>. This forms the basis of induction. Now assume that for <span class="math inline">\(t+1\)</span>, <span class="math inline">\(V_{t+1}(s) =
+\log s\)</span>. Now consider</p>
 <p><span class="math display">\[ Q_t(s,a) = p V_{t+1}(s+a) + qV_{t+1}(s-a). \]</span></p>
 <p>Differentiating both sides w.r.t. <span class="math inline">\(a\)</span>, we get <span class="math display">\[ \begin{align*}
   \frac { \partial Q_t(s,a) } {\partial a} &amp;=
@@ -1033,7 +1072,8 @@ Proof when <span class="math inline">\(p &gt; 0.5\)</span>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>As in the previous case, let <span class="math inline">\(p = \PR(W_t = 1)\)</span> and <span class="math inline">\(q = \PR(W_t = -1)\)</span>. Then <span class="math inline">\(p &gt; 0.5\)</span> implies that <span class="math inline">\(p &gt; 1 - p = q\)</span>.</p>
-<p>We proceed by backward induction. For <span class="math inline">\(t = T\)</span>, we have that <span class="math inline">\(V_T(s) = \log s\)</span>. This forms the basis of induction. Now assume that for <span class="math inline">\(t+1\)</span>, <span class="math inline">\(V_{t+1}(s) = \log s + (T -t - 1)C\)</span>. Now consider</p>
+<p>We proceed by backward induction. For <span class="math inline">\(t = T\)</span>, we have that <span class="math inline">\(V_T(s) = \log s\)</span>. This forms the basis of induction. Now assume that for <span class="math inline">\(t+1\)</span>, <span class="math inline">\(V_{t+1}(s) =
+\log s + (T -t - 1)C\)</span>. Now consider</p>
 <p><span class="math display">\[ Q_t(s,a) = p V_{t+1}(s+a) + qV_{t+1}(s-a). \]</span></p>
 <p>Differentiating both sides w.r.t. <span class="math inline">\(a\)</span>, we get <span class="math display">\[ \begin{align*}
   \frac { \partial Q_t(s,a) } {\partial a} &amp;=
@@ -1067,9 +1107,9 @@ Proof when <span class="math inline">\(p &gt; 0.5\)</span>
 </section>
 <section id="generalized-model" class="level2 page-columns page-full" data-number="6.3">
 <h2 data-number="6.3" class="anchored" data-anchor-id="generalized-model"><span class="header-section-number">6.3</span> Generalized model</h2>
-<div class="page-columns page-full"><p>Suppose that the terminal reward <span class="math inline">\(r_T(s)\)</span> is monotone increasing<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> in <span class="math inline">\(s\)</span>.</p><div class="no-row-height column-margin column-container"><li id="fn2"><p><sup>2</sup>&nbsp;I use the convention that <em>increasing</em> means <em>weakly increasing</em>. The alternative term <em>non-decreasing</em> implicitly assumes that we are talking about a totally ordered set.</p></li></div></div>
-<div id="thm-optimal-gambling-generalized" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 6.2 </strong></span>For the generalized optimal gambling problem:</p>
+<p>Suppose that the terminal reward <span class="math inline">\(r_T(s)\)</span> is monotone increasing<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> in <span class="math inline">\(s\)</span>.</p>
+<div class="no-row-height column-margin column-container"><p><sup>2</sup>&nbsp;I use the convention that <em>increasing</em> means <em>weakly increasing</em>. The alternative term <em>non-decreasing</em> implicitly assumes that we are talking about a totally ordered set.</p></div><div id="thm-optimal-gambling-generalized" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 6.2</strong></span> For the generalized optimal gambling problem:</p>
 <ul>
 <li>For each <span class="math inline">\(t\)</span>, the value function <span class="math inline">\(V_t(s)\)</span> is monotone increasing in <span class="math inline">\(s\)</span>.</li>
 <li>For each <span class="math inline">\(s\)</span>, the value function <span class="math inline">\(V_t(s)\)</span> is monotone decreasing in <span class="math inline">\(t\)</span>.</li>
@@ -1087,7 +1127,8 @@ Proof of monotonicity in <span class="math inline">\(s\)</span>
 </div>
 <div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>We proceed by backward induction. <span class="math inline">\(V_T(s) = r_T(s)\)</span> which is monotone increasing in <span class="math inline">\(s\)</span>. Assume that <span class="math inline">\(V_{t+1}(s)\)</span> is increasing in <span class="math inline">\(s\)</span>. Now, consider <span class="math inline">\(V_t(s)\)</span>. Consider <span class="math inline">\(s_1, s_2 \in \reals_{\ge 0}\)</span> such that <span class="math inline">\(s_1 \le s_2\)</span>. Then for any <span class="math inline">\(a \le s_1\)</span>, we have that</p>
+<p>We proceed by backward induction. <span class="math inline">\(V_T(s) = r_T(s)\)</span> which is monotone increasing in <span class="math inline">\(s\)</span>. Assume that <span class="math inline">\(V_{t+1}(s)\)</span> is increasing in <span class="math inline">\(s\)</span>. Now, consider <span class="math inline">\(V_t(s)\)</span>. Consider <span class="math inline">\(s_1, s_2 \in \reals_{\ge 0}\)</span> such that <span class="math inline">\(s_1 \le
+s_2\)</span>. Then for any <span class="math inline">\(a \le s_1\)</span>, we have that</p>
 <p><span class="math display">\[ \begin{align*}
     Q_t(s_1, a) &amp;= p V_{t+1}(s_1+a) + q V_{t+1}(s_1-a) \\
     &amp; \stackrel{(a)}{\le} p V_{t+1}(s_2 + a) + q V_{t+1}(s_2  - a) \\
@@ -1138,7 +1179,7 @@ Note
 </div>
 </div>
 <div id="exr-optimal-gambling-last" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 6.1 </strong></span>Given positive numbers <span class="math inline">\((p_1, \dots, p_n)\)</span>, consider the following constraint optimization problem: <span class="math display">\[\max \sum_{i=1}^n p_i \log w_i\]</span> subject to:</p>
+<p><span class="theorem-title"><strong>Exercise 6.1</strong></span> Given positive numbers <span class="math inline">\((p_1, \dots, p_n)\)</span>, consider the following constraint optimization problem: <span class="math display">\[\max \sum_{i=1}^n p_i \log w_i\]</span> subject to:</p>
 <ul>
 <li><span class="math inline">\(w_i \ge 0\)</span></li>
 <li><span class="math inline">\(\sum_{i=1}^n w_i \le s\)</span>.</li>
@@ -1146,7 +1187,7 @@ Note
 <p>Show that the optimal solution is given by <span class="math display">\[ w_i = \frac{p_i}{p} s\]</span> where <span class="math inline">\(p = \sum_{i=1}^n p_i\)</span>.</p>
 </div>
 <div id="exr-optimal-gambling-update" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 6.2 </strong></span>Given positive numbers <span class="math inline">\((p_1, \dots, p_n)\)</span>, consider the following constraint optimization problem: <span class="math display">\[\max \sum_{i=1}^n p_i \log (s - a + na_i)\]</span> subject to:</p>
+<p><span class="theorem-title"><strong>Exercise 6.2</strong></span> Given positive numbers <span class="math inline">\((p_1, \dots, p_n)\)</span>, consider the following constraint optimization problem: <span class="math display">\[\max \sum_{i=1}^n p_i \log (s - a + na_i)\]</span> subject to:</p>
 <ul>
 <li><span class="math inline">\(a_i \ge 0\)</span></li>
 <li><span class="math inline">\(a = \sum_{i=1}^n a_i \le s\)</span>.</li>
@@ -1154,9 +1195,12 @@ Note
 <p>Show that the optimal solution is given by <span class="math display">\[ a_i = \frac{p_i}{p} s\]</span> where <span class="math inline">\(p = \sum_{i=1}^n p_i\)</span>.</p>
 </div>
 <div id="exr-optimal-gambling-generalize" class="theorem exercise page-columns page-full">
-<p><span class="theorem-title"><strong>Exercise 6.3 </strong></span>Consider an alternative of the optimal gambling problem where, at each time, the gambler can place bets on many mutually exclusive outcomes. Suppose there are <span class="math inline">\(n\)</span> outcomes, with success probabilities <span class="math inline">\((p_1, \dots, p_n)\)</span>. Let <span class="math inline">\((A_{1,t}, \dots, A_{n,t})\)</span> denote the amount that the gambler bets on each outcome. The total amount <span class="math inline">\(A_t := \sum_{i=1}^n A_{i,t}\)</span> must be less than the gambler’s fortune <span class="math inline">\(S_t\)</span>. If <span class="math inline">\(W_t\)</span> denotes the winning outcome, then the gambler’s wealth evolves according to <span class="math display">\[ S_{t+1} = S_t - A_t + nU_{W_t, t}.\]</span> For example, if there are three outcomes, gambler’s current wealth is <span class="math inline">\(s\)</span>, the gambler bets <span class="math inline">\((a_1, a_2, a_3)\)</span>, and outcome 2 wins, then the gambler wins <span class="math inline">\(3 a_2\)</span> and his fortune at the next time is <span class="math display">\[ s - (a_1 + a_2 + a_3) + 3 a_2. \]</span></p>
+<p><span class="theorem-title"><strong>Exercise 6.3</strong></span> Consider an alternative of the optimal gambling problem where, at each time, the gambler can place bets on many mutually exclusive outcomes. Suppose there are <span class="math inline">\(n\)</span> outcomes, with success probabilities <span class="math inline">\((p_1, \dots,
+p_n)\)</span>. Let <span class="math inline">\((A_{1,t}, \dots, A_{n,t})\)</span> denote the amount that the gambler bets on each outcome. The total amount <span class="math inline">\(A_t := \sum_{i=1}^n A_{i,t}\)</span> must be less than the gambler’s fortune <span class="math inline">\(S_t\)</span>. If <span class="math inline">\(W_t\)</span> denotes the winning outcome, then the gambler’s wealth evolves according to <span class="math display">\[ S_{t+1} = S_t - A_t + nU_{W_t, t}.\]</span> For example, if there are three outcomes, gambler’s current wealth is <span class="math inline">\(s\)</span>, the gambler bets <span class="math inline">\((a_1, a_2,
+a_3)\)</span>, and outcome 2 wins, then the gambler wins <span class="math inline">\(3 a_2\)</span> and his fortune at the next time is <span class="math display">\[ s - (a_1 + a_2 + a_3) + 3 a_2. \]</span></p>
 <p>The gambler’s utility is <span class="math inline">\(\log S_T\)</span>, the logarithm of his final wealth. Find the strategy that maximizes the gambler’s expected utility.</p>
-<div class="page-columns page-full"><p><em>Hint:</em> Argue that the value function is of the form <span class="math inline">\(V_t(s) = \log s + (T -t)C\)</span>, where  <span class="math display">\[C = \log n - H(p_1, \dots, p_n)\]</span> where <span class="math inline">\(H(p_1, \dots, p_n) = - \sum_{i=1}^n p_i \log p_i\)</span> is the entropy of a random variable with pmf <span class="math inline">\((p_1, \dots, p_n)\)</span>.</p><div class="no-row-height column-margin column-container"><span class="">The constant <span class="math inline">\(C\)</span> is the capacity of a symmetric discrete memoryless with <span class="math inline">\(n\)</span> outputs and for every input, the output probabilities are a permutation of <span class="math inline">\((p_1, \dots, p_n)\)</span>.</span></div></div>
+<div class="page-columns page-full"><p><em>Hint:</em> Argue that the value function is of the form <span class="math inline">\(V_t(s) = \log s +
+(T -t)C\)</span>, where  <span class="math display">\[C = \log n - H(p_1, \dots, p_n)\]</span> where <span class="math inline">\(H(p_1, \dots, p_n) = - \sum_{i=1}^n p_i \log p_i\)</span> is the entropy of a random variable with pmf <span class="math inline">\((p_1, \dots, p_n)\)</span>.</p><div class="no-row-height column-margin column-container"><span class="margin-aside">The constant <span class="math inline">\(C\)</span> is the capacity of a symmetric discrete memoryless with <span class="math inline">\(n\)</span> outputs and for every input, the output probabilities are a permutation of <span class="math inline">\((p_1, \dots, p_n)\)</span>.</span></div></div>
 </div>
 </section>
 <section id="notes" class="level2 unnumbered">
@@ -1165,15 +1209,11 @@ Note
 <p>A generalization of the above model to general logarithmic and exponential utilities is presented in <span class="citation" data-cites="Fergurson2004">Ferguson and Gilstein (<a href="../references.html#ref-Fergurson2004" role="doc-biblioref">2004</a>)</span>.</p>
 
 
+<div class="ojs-auto-generated hidden">
 <script type="ojs-module-contents">
-{"contents":[
-  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${S1}</span>`", "cellName":"ojs-element-id-1"}
-,
-  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${T}</span>`", "cellName":"ojs-element-id-2"}
-,
-  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${n}</span>`", "cellName":"ojs-element-id-3"}
-]}
+eyJjb250ZW50cyI6WyAgeyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiaW5saW5lIjoidHJ1ZSIsInNvdXJjZSI6Imh0bC5odG1sYDxzcGFuPiR7UzF9PC9zcGFuPmAiLCAiY2VsbE5hbWUiOiJvanMtZWxlbWVudC1pZC0xIn0sICB7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJpbmxpbmUiOiJ0cnVlIiwic291cmNlIjoiaHRsLmh0bWxgPHNwYW4+JHtUfTwvc3Bhbj5gIiwgImNlbGxOYW1lIjoib2pzLWVsZW1lbnQtaWQtMiJ9LCAgeyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiaW5saW5lIjoidHJ1ZSIsInNvdXJjZSI6Imh0bC5odG1sYDxzcGFuPiR7bn08L3NwYW4+YCIsICJjZWxsTmFtZSI6Im9qcy1lbGVtZW50LWlkLTMifV19
 </script>
+</div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Fergurson2004" class="csl-entry" role="listitem">
 <span class="smallcaps">Ferguson, T.S. and Gilstein, C.Z.</span> 2004. Optimal investment policies for the horse race model". Available at: <a href="https://www.math.ucla.edu/~tom/papers/unpublished/Zach2.pdf">https://www.math.ucla.edu/~tom/papers/unpublished/Zach2.pdf</a>.
@@ -1190,7 +1230,7 @@ Note
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-{"contents":[{"methodName":"interpret","cellName":"ojs-cell-1","inline":false,"source":"viewof code = Inputs.textarea({label: \"\", height:800, rows:11, width: 800, submit: true,\n   value: `// function bet(t, states, outcomes) {\n// t: current time\n// states: Array of states\n// outcomes: Array of outcomes\n// \n// modify the (javascript) code between the lines:\n// ===============================\n     // As an illustration, we implement the policy to bet\n     //  half of the wealth as long as one is winning. \n     if(t == 0) { \n        return 0.5*states[t] \n     } else { \n        return outcomes[t-1] == 1 ? 0.5*states[t] : 0\n     }\n// ================================\n//}`\n                              })\nviewof strategy = Inputs.radio([\"user code\", \"optimal\"], {value: \"user code\", label: \"Select strategy\"})\n"},{"methodName":"interpret","cellName":"ojs-cell-2","inline":false,"source":"T = 100\nn = 25\nS1 = 100\n\nBernoulli = function(p) { return Math.random() <= p ? 1 : -1 }\n\nuser_strategy = new Function('t', 'states', 'outcomes', code)\n\noptimal_strategy = function(t,states,outcomes) {\n  return p < 0.5 ? 0 : (2*p - 1)*states[t]\n}\n\nbet = function(t, states, outcomes) {\n  return strategy == \"optimal\" ? optimal_strategy(t, states, outcomes) : user_strategy(t, states, outcomes) \n}\n\ndata = { \n  run;\n  var states = new Array(T+1)\n  var outcomes = new Array(T+1)\n  var trajectory = new Array(T+1)\n  var sum = 0\n\n  const initial = 100\n  var idx = 0\n\n  for (var i = 0; i < n; i++) {\n      // Initialize the array to NaN values.\n      for (var t = 0; t < T+1; t++) {\n        states[t] = NaN\n        outcomes[t] = Bernoulli(p)\n      }\n    \n      states[0] = initial\n      var action = 0\n    \n      for (var t = 0; t < T; t++, idx++) {\n        action = bet(t, states, outcomes)\n        states[t+1] = states[t] + outcomes[t] * action\n        trajectory[idx] = { \n          time: t+1, \n          state: states[t],\n          action: action, \n          outcome: outcomes[t],\n          reward: Math.log10(states[t]),\n          sample: i,\n        }\n      }\n      sum += Math.log10(states[T])\n  }\n  return { trajectories: trajectory, mean: sum/n }\n}\n"},{"methodName":"interpret","cellName":"ojs-cell-3","inline":false,"source":"\nviewof p = Inputs.range([0, 1], {value: 0.6, label: \"p\", step: 0.01})\n\nviewof run = Inputs.button(\"Re-run simulation\")\n"},{"methodName":"interpret","cellName":"ojs-cell-4","inline":false,"source":"\nrewardPlot = Plot.plot({\n  grid: true,\n  marginRight: 40,\n  marks: [\n    // Data\n    Plot.line(data.trajectories, {x: \"time\", y: \"reward\", z: \"sample\", stroke: \"gray\", curve: \"step-after\"}),\n    Plot.line(data.trajectories, Plot.groupX({y: \"mean\"}, {x:\"time\", y: \"reward\", stroke: \"red\", strokeWidth: 2, curve: \"step-after\"})),\n\n    // Final value\n    Plot.dot([ [T,data.mean] ], { fill: \"red\"}),\n    Plot.text([ [T,data.mean] ], { text: Math.round(data.mean*100)/100, dx:18, fill:\"red\", fontWeight:\"bold\" }),\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n  ]\n})\n"},{"methodName":"interpretQuiet","source":"shinyInput('code')"},{"methodName":"interpretQuiet","source":"shinyInput('strategy')"},{"methodName":"interpretQuiet","source":"shinyInput('p')"},{"methodName":"interpretQuiet","source":"shinyInput('run')"}]}
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBjb2RlID0gSW5wdXRzLnRleHRhcmVhKHtsYWJlbDogXCJcIiwgaGVpZ2h0OjgwMCwgcm93czoxMSwgd2lkdGg6IDgwMCwgc3VibWl0OiB0cnVlLFxuICAgdmFsdWU6IGAvLyBmdW5jdGlvbiBiZXQodCwgc3RhdGVzLCBvdXRjb21lcykge1xuLy8gdDogY3VycmVudCB0aW1lXG4vLyBzdGF0ZXM6IEFycmF5IG9mIHN0YXRlc1xuLy8gb3V0Y29tZXM6IEFycmF5IG9mIG91dGNvbWVzXG4vLyBcbi8vIG1vZGlmeSB0aGUgKGphdmFzY3JpcHQpIGNvZGUgYmV0d2VlbiB0aGUgbGluZXM6XG4vLyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09XG4gICAgIC8vIEFzIGFuIGlsbHVzdHJhdGlvbiwgd2UgaW1wbGVtZW50IHRoZSBwb2xpY3kgdG8gYmV0XG4gICAgIC8vICBoYWxmIG9mIHRoZSB3ZWFsdGggYXMgbG9uZyBhcyBvbmUgaXMgd2lubmluZy4gXG4gICAgIGlmKHQgPT0gMCkgeyBcbiAgICAgICAgcmV0dXJuIDAuNSpzdGF0ZXNbdF0gXG4gICAgIH0gZWxzZSB7IFxuICAgICAgICByZXR1cm4gb3V0Y29tZXNbdC0xXSA9PSAxID8gMC41KnN0YXRlc1t0XSA6IDBcbiAgICAgfVxuLy8gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT1cbi8vfWBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH0pXG52aWV3b2Ygc3RyYXRlZ3kgPSBJbnB1dHMucmFkaW8oW1widXNlciBjb2RlXCIsIFwib3B0aW1hbFwiXSwge3ZhbHVlOiBcInVzZXIgY29kZVwiLCBsYWJlbDogXCJTZWxlY3Qgc3RyYXRlZ3lcIn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJUID0gMTAwXG5uID0gMjVcblMxID0gMTAwXG5cbkJlcm5vdWxsaSA9IGZ1bmN0aW9uKHApIHsgcmV0dXJuIE1hdGgucmFuZG9tKCkgPD0gcCA/IDEgOiAtMSB9XG5cbnVzZXJfc3RyYXRlZ3kgPSBuZXcgRnVuY3Rpb24oJ3QnLCAnc3RhdGVzJywgJ291dGNvbWVzJywgY29kZSlcblxub3B0aW1hbF9zdHJhdGVneSA9IGZ1bmN0aW9uKHQsc3RhdGVzLG91dGNvbWVzKSB7XG4gIHJldHVybiBwIDwgMC41ID8gMCA6ICgyKnAgLSAxKSpzdGF0ZXNbdF1cbn1cblxuYmV0ID0gZnVuY3Rpb24odCwgc3RhdGVzLCBvdXRjb21lcykge1xuICByZXR1cm4gc3RyYXRlZ3kgPT0gXCJvcHRpbWFsXCIgPyBvcHRpbWFsX3N0cmF0ZWd5KHQsIHN0YXRlcywgb3V0Y29tZXMpIDogdXNlcl9zdHJhdGVneSh0LCBzdGF0ZXMsIG91dGNvbWVzKSBcbn1cblxuZGF0YSA9IHsgXG4gIHJ1bjtcbiAgdmFyIHN0YXRlcyA9IG5ldyBBcnJheShUKzEpXG4gIHZhciBvdXRjb21lcyA9IG5ldyBBcnJheShUKzEpXG4gIHZhciB0cmFqZWN0b3J5ID0gbmV3IEFycmF5KFQrMSlcbiAgdmFyIHN1bSA9IDBcblxuICBjb25zdCBpbml0aWFsID0gMTAwXG4gIHZhciBpZHggPSAwXG5cbiAgZm9yICh2YXIgaSA9IDA7IGkgPCBuOyBpKyspIHtcbiAgICAgIC8vIEluaXRpYWxpemUgdGhlIGFycmF5IHRvIE5hTiB2YWx1ZXMuXG4gICAgICBmb3IgKHZhciB0ID0gMDsgdCA8IFQrMTsgdCsrKSB7XG4gICAgICAgIHN0YXRlc1t0XSA9IE5hTlxuICAgICAgICBvdXRjb21lc1t0XSA9IEJlcm5vdWxsaShwKVxuICAgICAgfVxuICAgIFxuICAgICAgc3RhdGVzWzBdID0gaW5pdGlhbFxuICAgICAgdmFyIGFjdGlvbiA9IDBcbiAgICBcbiAgICAgIGZvciAodmFyIHQgPSAwOyB0IDwgVDsgdCsrLCBpZHgrKykge1xuICAgICAgICBhY3Rpb24gPSBiZXQodCwgc3RhdGVzLCBvdXRjb21lcylcbiAgICAgICAgc3RhdGVzW3QrMV0gPSBzdGF0ZXNbdF0gKyBvdXRjb21lc1t0XSAqIGFjdGlvblxuICAgICAgICB0cmFqZWN0b3J5W2lkeF0gPSB7IFxuICAgICAgICAgIHRpbWU6IHQrMSwgXG4gICAgICAgICAgc3RhdGU6IHN0YXRlc1t0XSxcbiAgICAgICAgICBhY3Rpb246IGFjdGlvbiwgXG4gICAgICAgICAgb3V0Y29tZTogb3V0Y29tZXNbdF0sXG4gICAgICAgICAgcmV3YXJkOiBNYXRoLmxvZzEwKHN0YXRlc1t0XSksXG4gICAgICAgICAgc2FtcGxlOiBpLFxuICAgICAgICB9XG4gICAgICB9XG4gICAgICBzdW0gKz0gTWF0aC5sb2cxMChzdGF0ZXNbVF0pXG4gIH1cbiAgcmV0dXJuIHsgdHJhamVjdG9yaWVzOiB0cmFqZWN0b3J5LCBtZWFuOiBzdW0vbiB9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJcbnZpZXdvZiBwID0gSW5wdXRzLnJhbmdlKFswLCAxXSwge3ZhbHVlOiAwLjYsIGxhYmVsOiBcInBcIiwgc3RlcDogMC4wMX0pXG5cbnZpZXdvZiBydW4gPSBJbnB1dHMuYnV0dG9uKFwiUmUtcnVuIHNpbXVsYXRpb25cIilcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxucmV3YXJkUGxvdCA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIG1hcmdpblJpZ2h0OiA0MCxcbiAgbWFya3M6IFtcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKGRhdGEudHJhamVjdG9yaWVzLCB7eDogXCJ0aW1lXCIsIHk6IFwicmV3YXJkXCIsIHo6IFwic2FtcGxlXCIsIHN0cm9rZTogXCJncmF5XCIsIGN1cnZlOiBcInN0ZXAtYWZ0ZXJcIn0pLFxuICAgIFBsb3QubGluZShkYXRhLnRyYWplY3RvcmllcywgUGxvdC5ncm91cFgoe3k6IFwibWVhblwifSwge3g6XCJ0aW1lXCIsIHk6IFwicmV3YXJkXCIsIHN0cm9rZTogXCJyZWRcIiwgc3Ryb2tlV2lkdGg6IDIsIGN1cnZlOiBcInN0ZXAtYWZ0ZXJcIn0pKSxcblxuICAgIC8vIEZpbmFsIHZhbHVlXG4gICAgUGxvdC5kb3QoWyBbVCxkYXRhLm1lYW5dIF0sIHsgZmlsbDogXCJyZWRcIn0pLFxuICAgIFBsb3QudGV4dChbIFtULGRhdGEubWVhbl0gXSwgeyB0ZXh0OiBNYXRoLnJvdW5kKGRhdGEubWVhbioxMDApLzEwMCwgZHg6MTgsIGZpbGw6XCJyZWRcIiwgZm9udFdlaWdodDpcImJvbGRcIiB9KSxcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnY29kZScpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdzdHJhdGVneScpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdwJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3J1bicpIn1dfQ==
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
@@ -1241,6 +1281,33 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       } else {
         el.classList.add('notransition');
       }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
     }
   }
   const toggleColorMode = (alternate) => {
@@ -1309,13 +1376,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  let localAlternateSentinel = 'default';
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
     // Read the current dark / light value 
     let toAlternate = !hasAlternateSentinel();
     toggleColorMode(toAlternate);
     setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
   };
   // Ensure there is a toggle, if there isn't float one in the top right
   if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
@@ -1394,10 +1463,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1407,8 +1475,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1421,6 +1498,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1464,6 +1660,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1489,6 +1686,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1550,12 +1773,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../mdps/intro.html" class="pagination-link">
+      <a href="../mdps/intro.html" class="pagination-link  aria-label=" &lt;span="" horizon="" mdps&lt;="" span&gt;"="">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../mdps/inventory-management.html" class="pagination-link">
+      <a href="../mdps/inventory-management.html" class="pagination-link" aria-label="<span class='chapter-number'>7</span>&nbsp; <span class='chapter-title'>Inventory Management</span>">
         <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Inventory Management</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -1564,5 +1787,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/gambling.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>

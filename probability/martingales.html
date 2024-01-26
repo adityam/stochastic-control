@@ -2,15 +2,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-18">
+<meta name="dcterms.date" content="2024-01-22">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
-<title>Course Notes - 35&nbsp; Martingales</title>
+<title>Course Notes - 37&nbsp; Martingales</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -52,8 +52,8 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../probability/IPM.html" rel="next">
-<link href="../probability/change-of-measure.html" rel="prev">
+<link href="../probability/stochastic-stability.html" rel="next">
+<link href="../probability/markov-chains.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -72,7 +72,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -81,6 +87,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -148,13 +155,40 @@ window.MathJax = {
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 </head>
 
 <body class="nav-sidebar floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
             <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -163,12 +197,13 @@ window.MathJax = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
- <span class="menu-text">Stochastic Control</span></a>
+    <a class="nav-link" href="../../stochastic-control/index.html"> 
+<span class="menu-text">Stochastic Control</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto tools-wide">
-    <a href="https://github.com/adityam/stochastic-control" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools tools-wide">
+    <a href="https://github.com/adityam/stochastic-control" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
@@ -176,32 +211,23 @@ window.MathJax = {
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../probability/convergence.html">Probability Appendix</a></li><li class="breadcrumb-item"><a href="../probability/martingales.html"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Martingales</span></a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../probability/convergence.html">Probability Appendix</a></li><li class="breadcrumb-item"><a href="../probability/martingales.html"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Martingales</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -513,20 +539,26 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
+  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
+  <a href="../probability/markov-chains.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Markov chains</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../probability/stochastic-stability.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
   </div>
 </li>
       </ul>
@@ -543,25 +575,25 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/positive-definite-matrix.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
   </div>
 </li>
       </ul>
@@ -578,13 +610,13 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/convexity.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/duality.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
   </div>
 </li>
       </ul>
@@ -621,35 +653,35 @@ window.MathJax = {
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#examples-and-immediate-properties" id="toc-examples-and-immediate-properties" class="nav-link active" data-scroll-target="#examples-and-immediate-properties"><span class="header-section-number">35.1</span> Examples and Immediate Properties</a></li>
-  <li><a href="#doobs-decomposition" id="toc-doobs-decomposition" class="nav-link" data-scroll-target="#doobs-decomposition"><span class="header-section-number">35.2</span> Doob’s decomposition</a></li>
-  <li><a href="#martingale-inequalities" id="toc-martingale-inequalities" class="nav-link" data-scroll-target="#martingale-inequalities"><span class="header-section-number">35.3</span> Martingale Inequalities</a>
+  <li><a href="#examples-and-immediate-properties" id="toc-examples-and-immediate-properties" class="nav-link active" data-scroll-target="#examples-and-immediate-properties"><span class="header-section-number">37.1</span> Examples and Immediate Properties</a></li>
+  <li><a href="#doobs-decomposition" id="toc-doobs-decomposition" class="nav-link" data-scroll-target="#doobs-decomposition"><span class="header-section-number">37.2</span> Doob’s decomposition</a></li>
+  <li><a href="#martingale-inequalities" id="toc-martingale-inequalities" class="nav-link" data-scroll-target="#martingale-inequalities"><span class="header-section-number">37.3</span> Martingale Inequalities</a>
   <ul class="collapse">
   <li><a href="#burkholders-inequality" id="toc-burkholders-inequality" class="nav-link" data-scroll-target="#burkholders-inequality">Burkholder’s inequality</a></li>
   <li><a href="#lenglart-inequality" id="toc-lenglart-inequality" class="nav-link" data-scroll-target="#lenglart-inequality">Lenglart inequality</a></li>
   </ul></li>
-  <li><a href="#convergence-of-nonnegative-supermartingales" id="toc-convergence-of-nonnegative-supermartingales" class="nav-link" data-scroll-target="#convergence-of-nonnegative-supermartingales"><span class="header-section-number">35.4</span> Convergence of nonnegative supermartingales</a></li>
-  <li><a href="#convergence-of-submartingales" id="toc-convergence-of-submartingales" class="nav-link" data-scroll-target="#convergence-of-submartingales"><span class="header-section-number">35.5</span> Convergence of submartingales</a></li>
-  <li><a href="#square-integrable-martingales" id="toc-square-integrable-martingales" class="nav-link" data-scroll-target="#square-integrable-martingales"><span class="header-section-number">35.6</span> Square integrable martingales</a></li>
-  <li><a href="#strong-law-of-large-number-for-martingale-difference-sequence" id="toc-strong-law-of-large-number-for-martingale-difference-sequence" class="nav-link" data-scroll-target="#strong-law-of-large-number-for-martingale-difference-sequence"><span class="header-section-number">35.7</span> Strong law of large number for martingale difference sequence</a></li>
-  <li><a href="#exercise" id="toc-exercise" class="nav-link" data-scroll-target="#exercise">Exercise</a></li>
+  <li><a href="#convergence-of-nonnegative-supermartingales" id="toc-convergence-of-nonnegative-supermartingales" class="nav-link" data-scroll-target="#convergence-of-nonnegative-supermartingales"><span class="header-section-number">37.4</span> Convergence of nonnegative supermartingales</a></li>
+  <li><a href="#convergence-of-submartingales" id="toc-convergence-of-submartingales" class="nav-link" data-scroll-target="#convergence-of-submartingales"><span class="header-section-number">37.5</span> Convergence of submartingales</a></li>
+  <li><a href="#square-integrable-martingales" id="toc-square-integrable-martingales" class="nav-link" data-scroll-target="#square-integrable-martingales"><span class="header-section-number">37.6</span> Square integrable martingales</a></li>
+  <li><a href="#strong-law-of-large-number-for-martingale-difference-sequence" id="toc-strong-law-of-large-number-for-martingale-difference-sequence" class="nav-link" data-scroll-target="#strong-law-of-large-number-for-martingale-difference-sequence"><span class="header-section-number">37.7</span> Strong law of large number for martingale difference sequence</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/probability/martingales.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/probability/martingales.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../probability/convergence.html">Probability Appendix</a></li><li class="breadcrumb-item"><a href="../probability/martingales.html"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Martingales</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Martingales</span></h1>
+<h1 class="title"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Martingales</span></h1>
 </div>
 
 
@@ -660,14 +692,14 @@ window.MathJax = {
     <div class="quarto-title-meta-contents">
     <p class="author"><a href="http://www.cim.mcgill.ca/~adityam">Aditya Mahajan</a> </p>
   </div>
-    <div class="quarto-title-meta-contents">
+  <div class="quarto-title-meta-contents">
         <p class="affiliation">
             <a href="http://www.mcgill.ca/ece">
             McGill University
             </a>
           </p>
       </div>
-    </div>
+  </div>
 
 <div class="quarto-title-meta">
 
@@ -675,7 +707,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 18, 2024</p>
+      <p class="date">January 22, 2024</p>
     </div>
   </div>
   
@@ -683,7 +715,9 @@ window.MathJax = {
   </div>
   
 
+
 </header>
+
 
 <p>Consider a probability space <span class="math inline">\((Ω, \mathcal F, P)\)</span>. We define a few key terms:</p>
 <ol type="1">
@@ -708,7 +742,7 @@ Intuition
 </div>
 </div>
 <div id="def-martingale" class="theorem definition">
-<p><span class="theorem-title"><strong>Definition 35.1 </strong></span>A family of integrable random vabiables <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> adapted to a filtration <span class="math inline">\(\{\mathcal F_t\}_{t \ge 1}\)</span> is said to be a <strong>martingale</strong> if <span class="math display">\[\begin{equation}\label{eq:martingale}
+<p><span class="theorem-title"><strong>Definition 37.1</strong></span> A family of integrable random vabiables <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> adapted to a filtration <span class="math inline">\(\{\mathcal F_t\}_{t \ge 1}\)</span> is said to be a <strong>martingale</strong> if <span class="math display">\[\begin{equation}\label{eq:martingale}
   X_s = \EXP[X_{t} \mid \mathcal F_s], \quad \forall s &lt; t.
 \end{equation}\]</span></p>
 </div>
@@ -777,8 +811,8 @@ Remark
 <p>If <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is a submartingale, then <span class="math inline">\(\{-X_t\}_{t \ge 1}\)</span> is a supermartingale. This property allows us to translate results between submartingales and supermartingales.</p>
 </div>
 </div>
-<section id="examples-and-immediate-properties" class="level2" data-number="35.1">
-<h2 data-number="35.1" class="anchored" data-anchor-id="examples-and-immediate-properties"><span class="header-section-number">35.1</span> Examples and Immediate Properties</h2>
+<section id="examples-and-immediate-properties" class="level2" data-number="37.1">
+<h2 data-number="37.1" class="anchored" data-anchor-id="examples-and-immediate-properties"><span class="header-section-number">37.1</span> Examples and Immediate Properties</h2>
 <ol type="1">
 <li><p><strong>Martingales generalize the theory of sums of independent random variables.</strong> Let <span class="math inline">\(ξ_1, ξ_2, \dots\)</span> be indepdent, integrable random variables. Define <span class="math inline">\(X_0 = 0\)</span> and <span class="math inline">\(X_t = ξ_1 + \dots + ξ_t\)</span>. If <span class="math inline">\(\EXP[X_t] = 0\)</span> for <span class="math inline">\(t \ge 1\)</span>, then the sequence <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is a martingale with respect to the natural filtration: <span class="math display">\[
 \EXP[X_{t+1} \mid X_{1:t}] = \EXP[X_t + ξ_{t+1} \mid X_{1:t}] = X_t.
@@ -811,10 +845,10 @@ Remark
 <li><p>A martingale <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> may be written as a sum of increments: <span class="math inline">\(X_t = X_0 + ξ_1 + \dots + ξ_t\)</span>. The increments <span class="math inline">\(\{ξ_t\}_{t \ge 1}\)</span> are called <strong>martingale differences</strong>. Each <span class="math inline">\(ξ_t\)</span> is integrable and <span class="math inline">\(\EXP[ξ_t \mid \mathcal F_{t-1}] = 0\)</span> for all <span class="math inline">\(t\)</span>.</p></li>
 </ol>
 </section>
-<section id="doobs-decomposition" class="level2" data-number="35.2">
-<h2 data-number="35.2" class="anchored" data-anchor-id="doobs-decomposition"><span class="header-section-number">35.2</span> Doob’s decomposition</h2>
+<section id="doobs-decomposition" class="level2" data-number="37.2">
+<h2 data-number="37.2" class="anchored" data-anchor-id="doobs-decomposition"><span class="header-section-number">37.2</span> Doob’s decomposition</h2>
 <div id="thm-doob-decomposition" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 35.1 (Doob’s decomposition) </strong></span>Every sequence <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> of integrable random variables adapted to a filtration <span class="math inline">\(\{\mathcal F_t\}_{t \ge 1}\)</span> can be decomposed into a sum of a martingale and an integrable predictable process, i.e., <span class="math display">\[
+<p><span class="theorem-title"><strong>Theorem 37.1 (Doob’s decomposition)</strong></span> Every sequence <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> of integrable random variables adapted to a filtration <span class="math inline">\(\{\mathcal F_t\}_{t \ge 1}\)</span> can be decomposed into a sum of a martingale and an integrable predictable process, i.e., <span class="math display">\[
     X_t = M_t + A_t
   \]</span> where <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> is a martingale and <span class="math inline">\(\{A_t\}_{t \ge 1}\)</span> is a predictable process</p>
 </div>
@@ -828,15 +862,15 @@ A_t - A'_t = \EXP[ A_t - A'_t \mid \mathcal F_t] =
 <li><p>A stochastic process <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is a supermartingale if and only if its Doob’s decomposition gives a predictable process that is almost surely decreasing</p></li>
 </ol>
 </section>
-<section id="martingale-inequalities" class="level2" data-number="35.3">
-<h2 data-number="35.3" class="anchored" data-anchor-id="martingale-inequalities"><span class="header-section-number">35.3</span> Martingale Inequalities</h2>
+<section id="martingale-inequalities" class="level2" data-number="37.3">
+<h2 data-number="37.3" class="anchored" data-anchor-id="martingale-inequalities"><span class="header-section-number">37.3</span> Martingale Inequalities</h2>
 <section id="burkholders-inequality" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="burkholders-inequality">Burkholder’s inequality</h3>
 <p>Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be a martingale and let <span class="math inline">\(\xi_1 = X_1\)</span> and <span class="math inline">\(\xi_t = X_t - X_{t-1}\)</span> be the corresponding martingale difference sequence. The <em>quadratic variation</em> process is defined as <span class="math display">\[
   Q_t \coloneqq \sum_{s = 1}^t \NORM{ξ_s}^2.
 \]</span></p>
 <div id="prp-Burkholder" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 35.1 (Burkholder’s inequality) </strong></span>For any <span class="math inline">\(p &gt; 1\)</span> be such that <span class="math inline">\(\EXP[|X_t|^p] &lt; ∞\)</span> for all <span class="math inline">\(t\)</span>, there exists positive constants <span class="math inline">\(c_p\)</span> and <span class="math inline">\(C_p\)</span> (depending on <span class="math inline">\(p\)</span> alone) such that <span class="math display">\[
+<p><span class="theorem-title"><strong>Proposition 37.1 (Burkholder’s inequality)</strong></span> For any <span class="math inline">\(p &gt; 1\)</span> be such that <span class="math inline">\(\EXP[|X_t|^p] &lt; ∞\)</span> for all <span class="math inline">\(t\)</span>, there exists positive constants <span class="math inline">\(c_p\)</span> and <span class="math inline">\(C_p\)</span> (depending on <span class="math inline">\(p\)</span> alone) such that <span class="math display">\[
   c_p \EXP\bigl[ Q_t^{p/2} \bigr]
   \le
   \EXP\Bigl[ \sup_{1 \le s \le t} \NORM{X_s}^p \Bigr]
@@ -849,7 +883,7 @@ A_t - A'_t = \EXP[ A_t - A'_t \mid \mathcal F_t] =
 <section id="lenglart-inequality" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="lenglart-inequality">Lenglart inequality</h3>
 <div id="prp-Lenglart" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 35.2 (Lenglart inequality) </strong></span>Given a filtration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span>, let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be a non-negative adapted process and <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> be non-negative non-decreasing predictable process such that for any bounded stopping time <span class="math inline">\(τ\)</span>, we have <span class="math inline">\(\EXP[X_{τ} \mid \ALPHABET F_0] \le \EXP[ Y_{τ} \mid \ALPHABET F_0]\)</span>. Then:</p>
+<p><span class="theorem-title"><strong>Proposition 37.2 (Lenglart inequality)</strong></span> Given a filtration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span>, let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be a non-negative adapted process and <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> be non-negative non-decreasing predictable process such that for any bounded stopping time <span class="math inline">\(τ\)</span>, we have <span class="math inline">\(\EXP[X_{τ} \mid \ALPHABET F_0] \le \EXP[ Y_{τ} \mid \ALPHABET F_0]\)</span>. Then:</p>
 <ul>
 <li><p>For all <span class="math inline">\(p \in (0,1)\)</span>, <span class="math display">\[
 \EXP\biggl[ \Bigl( \sup_{t \ge 1} X_t \Bigr)^p \Bigm| \ALPHABET F_0 \biggr]
@@ -876,8 +910,8 @@ p^{-p}
 <p>The result is due to <span class="citation" data-cites="Lenglart1977">Lenglart (<a href="../references.html#ref-Lenglart1977" role="doc-biblioref">1977</a>)</span>. See <span class="citation" data-cites="Geiss2021">Geiss and Scheutzow (<a href="../references.html#ref-Geiss2021" role="doc-biblioref">2021</a>)</span> for the sharpness of the bounds.</p>
 </section>
 </section>
-<section id="convergence-of-nonnegative-supermartingales" class="level2" data-number="35.4">
-<h2 data-number="35.4" class="anchored" data-anchor-id="convergence-of-nonnegative-supermartingales"><span class="header-section-number">35.4</span> Convergence of nonnegative supermartingales</h2>
+<section id="convergence-of-nonnegative-supermartingales" class="level2" data-number="37.4">
+<h2 data-number="37.4" class="anchored" data-anchor-id="convergence-of-nonnegative-supermartingales"><span class="header-section-number">37.4</span> Convergence of nonnegative supermartingales</h2>
 <p>We state certain properties of nonnegative supermartingales without proof. This material is taken from <span class="citation" data-cites="Neveu1975">Neveu (<a href="../references.html#ref-Neveu1975" role="doc-biblioref">1975</a>)</span>.</p>
 <ol type="1">
 <li><p><strong>Maximal inequality for nonnegative supermartingales.</strong> For every nonnegative supermartingale <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, the random variable <span class="math inline">\(\sup_{t \ge 1} X_t\)</span> is a.s.&nbsp;finite on the set <span class="math inline">\(\{X_0 &lt; ∞\}\)</span> and, more precisely, satisfies the following inequality: <span class="math display">\[
@@ -923,14 +957,14 @@ Interpretation of supermartingales
 <p>The following interpretation is taken from <span class="citation" data-cites="Dellacherie1982b">Dellacherie and Meyer (<a href="../references.html#ref-Dellacherie1982b" role="doc-biblioref">1982</a>)</span>.</p>
 <p>Suppose the random variable <span class="math inline">\(X_t\)</span> represents a gambler’s fortune at time <span class="math inline">\(t\)</span>. Then his successive gains are presented by the random variable <span class="math inline">\(ξ_t = X_t - X_{t-1}\)</span>. The gambler may be in an arbitrarily complicated casino, where he may choose between all sorts of games, move from one table to another, bet on other player’s fortunes, etc., but it is understood that his decisions are unprophetic, i.e., they can only be taken as functions for the <em>past</em> and not as functions of the future, with the convention that the present, i.e., the game which is in the process of being played, forms part of the future.</p>
 <p>The supermartingale inequality <span class="math inline">\(\EXP[ξ_t \mid \ALPHABET F_t] \le 0\)</span> means that, whatever decisions are taken by the gambler just before the <span class="math inline">\(t\)</span>-th game, the <em>average</em> profits from that will be negative. In other words, the game favors the casino—which is what happens in reality! (The martingale equality corresponds to the case of an equitable casino)</p>
-<p>Now imagine that the gambler, fearing that he is under the influence of an evil star, confides his fortune to a “luckier” (but still unprophetic) friend and goes out for fresh air and returns at random times <span class="math inline">\(τ_1 &lt; τ_2 &lt; \dots\)</span>. The stopping theorem says that <strong>what he observes at these random instances is also a game favorable to the casino</strong> (or merely equitable in case of martingales). In other words, things are no better.</p>
+<p>Now imagine that the gambler, fearing that he is under the influence of an evil star, confides his fortune to a “luckier” (but still unprophetic) friend and goes out for fresh air and returns at random times <span class="math inline">\(τ_1 &lt;  τ_2 &lt;  \dots\)</span>. The stopping theorem says that <strong>what he observes at these random instances is also a game favorable to the casino</strong> (or merely equitable in case of martingales). In other words, things are no better.</p>
 <p>The restriction on the length of the stopping time has the following meaning: suppose the gambler tells his friend to “call me at the first moment <span class="math inline">\(τ_1\)</span> when my gain <span class="math inline">\(X_{τ_1} - X_0\)</span> is positive. Then call me again at time <span class="math inline">\(τ_2\)</span> when my gain <span class="math inline">\(X_{τ_2} - X_{τ_1}\)</span> is positive. And so on” At such moments, mean gain is also positive and hence stopping theorem seems to be contradicted; however, the stopping theorem affirms that the stopping times <span class="math inline">\(τ_1\)</span>, <span class="math inline">\(τ_2\)</span>, etc., are not finite.</p>
 </div>
 </div>
 </div>
 <p>The converges result continues to hold for “almost” supermartingales.</p>
 <div id="thm-almost-supermartingale" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 35.2 (Almost supermartingale convergence theorem) </strong></span>Suppose <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{β_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Z_t\}_{t \ge 1}\)</span> are nonnegative stochastic processes adapted to some filtration <span class="math inline">\(\{\mathcal F_t\}_{t \ge 1}\)</span> that satisfy <span class="math display">\[\begin{equation}\label{eq:almost-supermartingale}
+<p><span class="theorem-title"><strong>Theorem 37.2 (Almost supermartingale convergence theorem)</strong></span> Suppose <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{β_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Z_t\}_{t \ge 1}\)</span> are nonnegative stochastic processes adapted to some filtration <span class="math inline">\(\{\mathcal F_t\}_{t \ge 1}\)</span> that satisfy <span class="math display">\[\begin{equation}\label{eq:almost-supermartingale}
   \EXP[X_{t+1} \mid \mathcal F_t ] \le
   (1 + β_t) X_t + Y_t - Z_t,
   \quad t \ge 1
@@ -1025,7 +1059,7 @@ Consequently, for $ω \in Ω_0$, $\lim_{t \to ∞} W_t$ exists and is finite.
 <p>Now \eqref{eq:almost-supermartingale-st-2} implies that <span class="math display">\[
   \lim_{t \to ∞} \biggl \{ X'_t - \sum_{s=1}^{t-1} (Y'_s - Z'_s) \biggr\} &lt; ∞.
 \]</span> Hence, on <span class="math inline">\(Ω_0\)</span>, <span class="math inline">\(\sum_{s=1}^∞ Z'_s &lt; ∞\)</span> and <span class="math inline">\(\lim_{t \to ∞} X'_t\)</span> exists and is finite.</p>
-<p>From <a href="#exr-product-sum">Exercise&nbsp;<span>35.1</span></a>, it follows that for <span class="math inline">\(ω \in Ω_0\)</span>, <span class="math inline">\(b_t(ω)\)</span> has a limit. <span class="math display">\[
+<p>From <a href="#exr-product-sum" class="quarto-xref">Exercise&nbsp;<span>37.1</span></a>, it follows that for <span class="math inline">\(ω \in Ω_0\)</span>, <span class="math inline">\(b_t(ω)\)</span> has a limit. <span class="math display">\[
     X_t = X'_t/b'_t
 \]</span> has a limit. Moreover, the inequality, <span class="math display">\[
   Z_t \le Z'_t \prod_{s \ge 1} (1 + β_s)
@@ -1035,15 +1069,15 @@ Consequently, for $ω \in Ω_0$, $\lim_{t \to ∞} W_t$ exists and is finite.
 </div>
 <p>The following is a determinisitic version of the above result, taken from <span class="citation" data-cites="Bertsekas2000">Bertsekas and Tsitsiklis (<a href="../references.html#ref-Bertsekas2000" role="doc-biblioref">2000</a>)</span>.</p>
 <div id="prp-deterministic-almost-martingale" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 35.3 </strong></span>Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span>, and <span class="math inline">\(\{Z_t\}_{t \ge 1}\)</span> be sequences such that <span class="math inline">\(\{Z_t\}_{t \ge 1}\)</span> is nonnegative and the sequences satisfy: <span class="math display">\[
+<p><span class="theorem-title"><strong>Proposition 37.3</strong></span> Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span>, and <span class="math inline">\(\{Z_t\}_{t \ge 1}\)</span> be sequences such that <span class="math inline">\(\{Z_t\}_{t \ge 1}\)</span> is nonnegative and the sequences satisfy: <span class="math display">\[
   X_{t+1} \le X_t + Y_t - Z_t
 \]</span> and <span class="math inline">\(\sum_{t \ge 1} Y_t &lt; ∞\)</span>. Then, either <span class="math inline">\(X_t \to -∞\)</span> or else <span class="math inline">\(X_t\)</span> converges to a finite value and <span class="math inline">\(\sum_{t \ge 1} Z_t &lt; ∞\)</span>.</p>
 </div>
 </section>
-<section id="convergence-of-submartingales" class="level2" data-number="35.5">
-<h2 data-number="35.5" class="anchored" data-anchor-id="convergence-of-submartingales"><span class="header-section-number">35.5</span> Convergence of submartingales</h2>
+<section id="convergence-of-submartingales" class="level2" data-number="37.5">
+<h2 data-number="37.5" class="anchored" data-anchor-id="convergence-of-submartingales"><span class="header-section-number">37.5</span> Convergence of submartingales</h2>
 <div id="thm-krickeberg" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 35.3 (Krickeberg decomposition) </strong></span>Let <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> be a submartingale for which <span class="math inline">\(\sup_t \EXP[S_t^{+}] &lt; ∞\)</span>. Then, there exists a positive martingale <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> and a positive supermartingale <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> such that <span class="math inline">\(S_t = M_t - X_t\)</span> almost sure for each <span class="math inline">\(t\)</span>.</p>
+<p><span class="theorem-title"><strong>Theorem 37.3 (Krickeberg decomposition)</strong></span> Let <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> be a submartingale for which <span class="math inline">\(\sup_t \EXP[S_t^{+}] &lt; ∞\)</span>. Then, there exists a positive martingale <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> and a positive supermartingale <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> such that <span class="math inline">\(S_t = M_t - X_t\)</span> almost sure for each <span class="math inline">\(t\)</span>.</p>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1059,11 +1093,11 @@ Remark
 </div>
 </div>
 <div id="cor-submartingale" class="theorem corollary">
-<p><span class="theorem-title"><strong>Corollary 35.1 </strong></span>A submartingale with <span class="math inline">\(\sup_{t} \EXP[S_t^{+}] &lt; ∞\)</span> converges almost surely to an integrable limit.</p>
+<p><span class="theorem-title"><strong>Corollary 37.1</strong></span> A submartingale with <span class="math inline">\(\sup_{t} \EXP[S_t^{+}] &lt; ∞\)</span> converges almost surely to an integrable limit.</p>
 </div>
 </section>
-<section id="square-integrable-martingales" class="level2" data-number="35.6">
-<h2 data-number="35.6" class="anchored" data-anchor-id="square-integrable-martingales"><span class="header-section-number">35.6</span> Square integrable martingales</h2>
+<section id="square-integrable-martingales" class="level2" data-number="37.6">
+<h2 data-number="37.6" class="anchored" data-anchor-id="square-integrable-martingales"><span class="header-section-number">37.6</span> Square integrable martingales</h2>
 <ol type="1">
 <li><p>If <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> is an integrable sequence adapted to <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span>. Define the <strong>compensator</strong> <span class="math inline">\(\{ \langle X_t \rangle\}_{t \ge 1}\)</span> as: <span class="math inline">\(\langle X_1 \rangle = 0\)</span> and for <span class="math inline">\(t &gt; 1\)</span>: <span class="math display">\[
   \langle X_t \rangle - \langle X_{t-1} \rangle
@@ -1085,11 +1119,11 @@ Remark
 </ol></li>
 </ol>
 </section>
-<section id="strong-law-of-large-number-for-martingale-difference-sequence" class="level2" data-number="35.7">
-<h2 data-number="35.7" class="anchored" data-anchor-id="strong-law-of-large-number-for-martingale-difference-sequence"><span class="header-section-number">35.7</span> Strong law of large number for martingale difference sequence</h2>
+<section id="strong-law-of-large-number-for-martingale-difference-sequence" class="level2" data-number="37.7">
+<h2 data-number="37.7" class="anchored" data-anchor-id="strong-law-of-large-number-for-martingale-difference-sequence"><span class="header-section-number">37.7</span> Strong law of large number for martingale difference sequence</h2>
 <p>The following is a generalization of the strong law of large numbers for martingale differences. See <span class="citation" data-cites="Stout1974">Stout (<a href="../references.html#ref-Stout1974" role="doc-biblioref">1974</a>)</span> (Theorem 3.3.1).</p>
 <div id="thm-SLLN-MDS" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 35.4 </strong></span>Suppose <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> is a martingale difference sequence with respect to the filtration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span>. Let <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span> be positive sequence that is <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> predictable and <span class="math inline">\(\lim_{t \to ∞} a_t = ∞\)</span>.</p>
+<p><span class="theorem-title"><strong>Theorem 37.4</strong></span> Suppose <span class="math inline">\(\{M_t\}_{t \ge 1}\)</span> is a martingale difference sequence with respect to the filtration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span>. Let <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span> be positive sequence that is <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> predictable and <span class="math inline">\(\lim_{t \to ∞} a_t = ∞\)</span>.</p>
 <p>If for some <span class="math inline">\(p \in (0,2]\)</span>, we have <span class="math display">\[
   \sum_{t=1}^∞ \EXP \biggl[ \frac{|M_t|^p}{a_t^p} \biggm|
   \ALPHABET F_{t-1} \biggr] &lt; ∞,
@@ -1098,10 +1132,10 @@ Remark
 \]</span></p>
 </div>
 </section>
-<section id="exercise" class="level2 unnumbered page-columns page-full">
-<h2 class="unnumbered anchored" data-anchor-id="exercise">Exercise</h2>
+<section id="exercises" class="level2 unnumbered page-columns page-full">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
 <div id="exr-product-sum" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 35.1 </strong></span>The purpose of this exercise is to establish the following: For a sequence of nonnegative real numbers <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span> <span class="math display">\[\sum_{t \ge 1} a_t &lt; ∞  \iff
+<p><span class="theorem-title"><strong>Exercise 37.1</strong></span> The purpose of this exercise is to establish the following: For a sequence of nonnegative real numbers <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span> <span class="math display">\[\sum_{t \ge 1} a_t &lt; ∞  \iff
 \prod_{t \ge 1} (1 + a_t) \text{ converges to a finite non-zero limit}.
 \]</span></p>
 <ol type="1">
@@ -1112,13 +1146,13 @@ Remark
 </ol>
 </div>
 <div id="exr-Kronecker-lemma" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 35.2 </strong></span><strong>(Kronecker’s Lemma)</strong> This result is useful intermediate step for showing convergence of various iterative algorithms.</p>
+<p><span class="theorem-title"><strong>Exercise 37.2</strong></span> <strong>(Kronecker’s Lemma)</strong> This result is useful intermediate step for showing convergence of various iterative algorithms.</p>
 <p>Suppose <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span> is a strictly positive increasing real sequence which diverges to <span class="math inline">\(∞\)</span> and <span class="math inline">\(\{x_t\}_{t \ge 1}\)</span> is a real sequence such that the series <span class="math inline">\(\sum_{t=1}^∞ x_t/a_t\)</span> converges. Then, <span class="math display">\[
   \lim_{T \to ∞} \frac 1{a_T} \sum_{t=1}^T x_t = 0.
 \]</span></p>
 </div>
 <div id="exr-martingale-Robbins-Monroe" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 35.3 </strong></span>Consider a sequence <span class="math inline">\(\{α_t\}_{t \ge 1}\)</span> adapted to <span class="math inline">\(\{\mathcal F_t\}\)</span> such that <span class="math display">\[
+<p><span class="theorem-title"><strong>Exercise 37.3</strong></span> Consider a sequence <span class="math inline">\(\{α_t\}_{t \ge 1}\)</span> adapted to <span class="math inline">\(\{\mathcal F_t\}\)</span> such that <span class="math display">\[
   \sum_{t=1}^{∞} α_t = \infty
   \quad\text{and}\quad
   \sum_{t=1}^{∞} α_t^2 &lt; ∞.
@@ -1135,7 +1169,7 @@ Remark
   \]</span> converge to finite limits almost surely.</p>
 </div>
 <div id="exr-alt-almost-supermartingale" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 35.4 (Generalization of <a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a>) </strong></span>Suppose <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> be nonnegative processes which are adapted to some filtration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
+<p><span class="theorem-title"><strong>Exercise 37.4 (Generalization of <a href="#thm-almost-supermartingale" class="quarto-xref">Theorem&nbsp;<span>37.2</span></a>)</strong></span> Suppose <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{a_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> be nonnegative processes which are adapted to some filtration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
   \EXP[X_{t+1} \mid \ALPHABET F_t] \le a_t X_t + Y_t.
 \]</span> Define the set <span class="math inline">\(Ω_0\)</span> by <span class="math display">\[
   Ω_0 = \biggl\{ ω : \prod_{t \ge 1} a_t(\omega) &lt; ∞  \biggr\}
@@ -1144,37 +1178,37 @@ Remark
 \]</span> Then, show that for all <span class="math inline">\(ω \in Ω_0\)</span>, we have that <span class="math inline">\(\lim_{t \to ∞} X_t(ω)\)</span> exists and is finite.</p>
 </div>
 <div id="exr-vec-almost-supermartingale" class="theorem exercise page-columns page-full">
-<p><span class="theorem-title"><strong>Exercise 35.5 (Vector generalization of <a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a>) </strong></span>In all the discussion of almost supermartingale results so far, we have assumed that the processes were scalar valued. Now consider the case where <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> and <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> are processes in <span class="math inline">\(\reals_{\ge 0}^n\)</span> and <span class="math inline">\(\{A_t\}_{t \ge 1}\)</span> is a process in <span class="math inline">\(\reals_{\ge 0}\)</span>, all adapted to a filteration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
+<p><span class="theorem-title"><strong>Exercise 37.5 (Vector generalization of <a href="#thm-almost-supermartingale" class="quarto-xref">Theorem&nbsp;<span>37.2</span></a>)</strong></span> In all the discussion of almost supermartingale results so far, we have assumed that the processes were scalar valued. Now consider the case where <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> and <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> are processes in <span class="math inline">\(\reals_{\ge 0}^n\)</span> and <span class="math inline">\(\{A_t\}_{t \ge 1}\)</span> is a process in <span class="math inline">\(\reals_{\ge 0}\)</span>, all adapted to a filteration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
   \EXP[X_{t+1} \mid \ALPHABET F_t] \le A_t X_t + Y_t.
 \]</span></p>
-<div class="page-columns page-full"><p>Assume that for all <span class="math inline">\(t\)</span>, the matrix <span class="math inline">\(A_t\)</span> is of the form <span class="math inline">\(P_t D_t\)</span>, where <span class="math inline">\(P_t\)</span> is a permutation matrix and <span class="math inline">\(D_t\)</span> is a diagonal matrix with all positive elements.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p><div class="no-row-height column-margin column-container"><li id="fn1"><p><sup>1</sup>&nbsp;Such matrices are called <a href="https://en.wikipedia.org/wiki/Generalized_permutation_matrix">:positive monomial matrices</a> and have the property that they are invertible and all entries of the inverse are non-negative.</p></li></div></div>
-<p>Define the set <span class="math inline">\(Ω_0\)</span> by <span class="math display">\[
+<p>Assume that for all <span class="math inline">\(t\)</span>, the matrix <span class="math inline">\(A_t\)</span> is of the form <span class="math inline">\(P_t D_t\)</span>, where <span class="math inline">\(P_t\)</span> is a permutation matrix and <span class="math inline">\(D_t\)</span> is a diagonal matrix with all positive elements.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<div class="no-row-height column-margin column-container"><p><sup>1</sup>&nbsp;Such matrices are called <a href="https://en.wikipedia.org/wiki/Generalized_permutation_matrix">:positive monomial matrices</a> and have the property that they are invertible and all entries of the inverse are non-negative.</p></div><p>Define the set <span class="math inline">\(Ω_0\)</span> by <span class="math display">\[
   Ω_0 = \biggl\{ ω : \prod_{t \ge 1} A_t(\omega) &lt; ∞ \biggr\}
   \cap
   \biggl\{ ω : \sum_{t \ge 1} Y_t(ω) &lt; ∞ \biggr\}
 \]</span> Then, show that for all <span class="math inline">\(ω \in Ω_0\)</span>, we have that <span class="math inline">\(\lim_{t \to ∞} X_t(ω)\)</span> exists and is finite.</p>
 </div>
 <div id="exr-delayed-almost-supermartingales" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 35.6 (Delayed almost supermartingales) </strong></span>Suppose <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{β_t\}_{t \ge 1}\)</span>, and <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> be nonnegative processes which are adapted to some filteration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
+<p><span class="theorem-title"><strong>Exercise 37.6 (Delayed almost supermartingales)</strong></span> Suppose <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{β_t\}_{t \ge 1}\)</span>, and <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> be nonnegative processes which are adapted to some filteration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span> such that <span class="math display">\[
   \EXP[ X_{t+1} \mid \ALPHABET F_t] \le (1 + β_t) X_{t-d} + Y_t,
 \]</span> where <span class="math inline">\(d \in \integers_{\ge 0}\)</span> is a constant. Define the set <span class="math inline">\(Ω_0\)</span> by <span class="math display">\[
   Ω_0 = \biggl\{ ω : \sum_{t \ge 1} β_t(\omega) &lt; ∞ \biggr\}
   \cap
   \biggl\{ ω : \sum_{t \ge 1} Y_t(ω) &lt; ∞ \biggr\}
 \]</span> Then, show that for all <span class="math inline">\(ω \in Ω_0\)</span>, we have that <span class="math inline">\(\lim_{t \to ∞} X_t(ω)\)</span> exists and is finite.</p>
-<p><em>Hint:</em> Write the dynamics equation in vector form and use <a href="#exr-vec-almost-supermartingale">Exercise&nbsp;<span>35.5</span></a></p>
+<p><em>Hint:</em> Write the dynamics equation in vector form and use <a href="#exr-vec-almost-supermartingale" class="quarto-xref">Exercise&nbsp;<span>37.5</span></a></p>
 </div>
 <div id="exr-SLLN-martingales" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 35.7 </strong></span>Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be square integrable martingale with <span class="math inline">\(\EXP[ X_T^2 ] \le T\)</span> for all <span class="math inline">\(T\)</span>. Prove that <span class="math inline">\(X_T/T \to 0\)</span>, a.s.</p>
+<p><span class="theorem-title"><strong>Exercise 37.7</strong></span> Let <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span> be square integrable martingale with <span class="math inline">\(\EXP[ X_T^2 ] \le T\)</span> for all <span class="math inline">\(T\)</span>. Prove that <span class="math inline">\(X_T/T \to 0\)</span>, a.s.</p>
 <p>[This may be viewed as a generalization of a SLLN for i.i.d.&nbsp;sequences.]</p>
-<p><em>Hint:</em> Use <a href="../mdps/monotone-mdps.html#abel-lemma">Abel’s lemma</a> to show <span class="math inline">\(\sum_{t=1}^T \EXP[ M_t^2 ]/t^2 &lt; ∞\)</span> and then use <a href="#thm-SLLN-MDS">Theorem&nbsp;<span>35.4</span></a>.</p>
+<p><em>Hint:</em> Use <a href="../mdps/monotone-mdps.html#abel-lemma">Abel’s lemma</a> to show <span class="math inline">\(\sum_{t=1}^T \EXP[ M_t^2 ]/t^2 &lt; ∞\)</span> and then use <a href="#thm-SLLN-MDS" class="quarto-xref">Theorem&nbsp;<span>37.4</span></a>.</p>
 </div>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
 <p>The material in the introduction is taken from <span class="citation" data-cites="Pollard2002">Pollard (<a href="../references.html#ref-Pollard2002" role="doc-biblioref">2002</a>)</span>, <span class="citation" data-cites="Chang2007">Chang (<a href="../references.html#ref-Chang2007" role="doc-biblioref">2007</a>)</span>, and <span class="citation" data-cites="Dellacherie1982b">Dellacherie and Meyer (<a href="../references.html#ref-Dellacherie1982b" role="doc-biblioref">1982</a>)</span>. The latter is an excellent reference for this material.</p>
-<p><a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a> and its proof is adapted from <span class="citation" data-cites="Robbins1971">Robbins and Siegmund (<a href="../references.html#ref-Robbins1971" role="doc-biblioref">1971</a>)</span> and <a href="https://mathoverflow.net/a/357922/520224">this post on math stackexchange</a>. A version of <a href="#thm-almost-supermartingale">Theorem&nbsp;<span>35.2</span></a> with <span class="math inline">\(Z_t = 0\)</span> is stated as Exercise II-4 of <span class="citation" data-cites="Neveu1975">Neveu (<a href="../references.html#ref-Neveu1975" role="doc-biblioref">1975</a>)</span>.</p>
-<p><a href="#exr-martingale-Robbins-Monroe">Exercise&nbsp;<span>35.3</span></a> is from <span class="citation" data-cites="Bertsekas2000">Bertsekas and Tsitsiklis (<a href="../references.html#ref-Bertsekas2000" role="doc-biblioref">2000</a>)</span>.</p>
+<p><a href="#thm-almost-supermartingale" class="quarto-xref">Theorem&nbsp;<span>37.2</span></a> and its proof is adapted from <span class="citation" data-cites="Robbins1971">Robbins and Siegmund (<a href="../references.html#ref-Robbins1971" role="doc-biblioref">1971</a>)</span> and <a href="https://mathoverflow.net/a/357922/520224">this post on math stackexchange</a>. A version of <a href="#thm-almost-supermartingale" class="quarto-xref">Theorem&nbsp;<span>37.2</span></a> with <span class="math inline">\(Z_t = 0\)</span> is stated as Exercise II-4 of <span class="citation" data-cites="Neveu1975">Neveu (<a href="../references.html#ref-Neveu1975" role="doc-biblioref">1975</a>)</span>.</p>
+<p><a href="#exr-martingale-Robbins-Monroe" class="quarto-xref">Exercise&nbsp;<span>37.3</span></a> is from <span class="citation" data-cites="Bertsekas2000">Bertsekas and Tsitsiklis (<a href="../references.html#ref-Bertsekas2000" role="doc-biblioref">2000</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
@@ -1259,6 +1293,33 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       }
     }
   }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
   const toggleColorMode = (alternate) => {
     // Switch the stylesheets
     const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
@@ -1325,13 +1386,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  let localAlternateSentinel = 'default';
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
     // Read the current dark / light value 
     let toAlternate = !hasAlternateSentinel();
     toggleColorMode(toAlternate);
     setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
   };
   // Ensure there is a toggle, if there isn't float one in the top right
   if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
@@ -1410,10 +1473,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1423,8 +1485,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1437,6 +1508,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1480,6 +1670,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1505,6 +1696,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1566,13 +1783,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../probability/change-of-measure.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Change of Measure</span></span>
+      <a href="../probability/markov-chains.html" class="pagination-link  aria-label=" &lt;span="" chains&lt;="" span&gt;"="">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Markov chains</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../probability/IPM.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../probability/stochastic-stability.html" class="pagination-link" aria-label="<span class='chapter-number'>38</span>&nbsp; <span class='chapter-title'>Stochastic stability</span>">
+        <span class="nav-page-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1580,5 +1797,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/probability/martingales.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>

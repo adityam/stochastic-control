@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-18">
+<meta name="dcterms.date" content="2024-01-22">
 <meta name="keywords" content="stochastic optimization, newsvendor problem">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -26,7 +26,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -107,7 +107,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -116,6 +122,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -185,13 +192,40 @@ window.MathJax = {
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 </head>
 
 <body class="nav-sidebar floating nav-fixed slimcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
             <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -200,12 +234,13 @@ window.MathJax = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
- <span class="menu-text">Stochastic Control</span></a>
+    <a class="nav-link" href="../../stochastic-control/index.html"> 
+<span class="menu-text">Stochastic Control</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto tools-wide">
-    <a href="https://github.com/adityam/stochastic-control" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools tools-wide">
+    <a href="https://github.com/adityam/stochastic-control" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
@@ -213,32 +248,23 @@ window.MathJax = {
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../stochastic-optimization/intro.html">Stochastic Optimization</a></li><li class="breadcrumb-item"><a href="../stochastic-optimization/newsvendor.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../stochastic-optimization/intro.html">Stochastic Optimization</a></li><li class="breadcrumb-item"><a href="../stochastic-optimization/newsvendor.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -550,20 +576,26 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
+  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
+  <a href="../probability/markov-chains.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Markov chains</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../probability/stochastic-stability.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
   </div>
 </li>
       </ul>
@@ -580,25 +612,25 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/positive-definite-matrix.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
   </div>
 </li>
       </ul>
@@ -615,13 +647,13 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/convexity.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/duality.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
   </div>
 </li>
       </ul>
@@ -658,7 +690,7 @@ window.MathJax = {
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -670,12 +702,12 @@ window.MathJax = {
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/stochastic-optimization/newsvendor.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/stochastic-optimization/newsvendor.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content page-columns page-full" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../stochastic-optimization/intro.html">Stochastic Optimization</a></li><li class="breadcrumb-item"><a href="../stochastic-optimization/newsvendor.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></h1>
 </div>
@@ -688,14 +720,14 @@ window.MathJax = {
     <div class="quarto-title-meta-contents">
     <p class="author"><a href="http://www.cim.mcgill.ca/~adityam">Aditya Mahajan</a> </p>
   </div>
-    <div class="quarto-title-meta-contents">
+  <div class="quarto-title-meta-contents">
         <p class="affiliation">
             <a href="http://www.mcgill.ca/ece">
             McGill University
             </a>
           </p>
       </div>
-    </div>
+  </div>
 
 <div class="quarto-title-meta">
 
@@ -703,7 +735,7 @@ window.MathJax = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 18, 2024</p>
+      <p class="date">January 22, 2024</p>
     </div>
   </div>
   
@@ -711,14 +743,22 @@ window.MathJax = {
   </div>
   
 
+<div>
+  <div class="keywords">
+    <div class="block-title">Keywords</div>
+    <p>stochastic optimization, newsvendor problem</p>
+  </div>
+</div>
+
 </header>
+
 
 
 <div class="no-row-height column-margin column-container"><div class="">
 <div class="quarto-figure quarto-figure-center" style="max-width:40em;">
 <figure class="figure">
 <p><img src="../images/banners/newsboy.jpg" title="To buy or not to buy" class="img-fluid figure-img" style="width:100.0%"></p>
-<figcaption class="figure-caption">Image credit: https://americangallery.wordpress.com/category/cafferty-james-h/</figcaption>
+<figcaption>Image credit: https://americangallery.wordpress.com/category/cafferty-james-h/</figcaption>
 </figure>
 </div>
 </div></div><div class="callout callout-style-simple callout-note no-icon callout-titled">
@@ -910,7 +950,6 @@ J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 </div>
 </div>
 </div>
-<div class="page-columns page-full">
 <div class="sourceCode cell-code hidden" id="cb3" data-startfrom="146" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 145;"><span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>plotJ <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
 <span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>    <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
 <span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
@@ -948,39 +987,60 @@ J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 <span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"reward"</span>})</span>
 <span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a>  ]</span>
 <span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div id="fig-newsvendor" class="cell column-page quarto-layout-panel">
-<figure class="figure">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div id="fig-newsvendor-1" class="quarto-figure quarto-figure-center anchored" style="flex-basis: 33.3%;justify-content: center;">
-<figure class="figure">
+<div id="fig-newsvendor" class="quarto-layout-panel page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-newsvendor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<div class="quarto-layout-row page-columns page-full">
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendor" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendor-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendor-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div id="ojs-cell-3-1" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">(a) Performance: <span><span id="ojs-element-id-1"></span></span></figcaption>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendor-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Performance: <span><span id="ojs-element-id-1"></span></span>
+</figcaption>
 </figure>
 </div>
-<div id="fig-newsvendor-2" class="quarto-figure quarto-figure-center anchored" style="flex-basis: 33.3%;justify-content: center;">
-<figure class="figure">
+</div>
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendor" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendor-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendor-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div id="ojs-cell-3-2" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">(b) PDF of demand</figcaption>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendor-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) PDF of demand
+</figcaption>
 </figure>
 </div>
-<div id="fig-newsvendor-3" class="quarto-figure quarto-figure-center anchored" style="flex-basis: 33.3%;justify-content: center;">
-<figure class="figure">
+</div>
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendor" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendor-3" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendor-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div id="ojs-cell-3-3" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">(c) reward (as a function of demand)</figcaption>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendor-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) reward (as a function of demand)
+</figcaption>
 </figure>
 </div>
 </div>
-<p></p><figcaption class="figure-caption">Figure&nbsp;2.1: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shared region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.</figcaption><p></p>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-newsvendor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.1: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shared region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
+</figcaption>
 </figure>
 </div>
-</div>
-<p>In <a href="#fig-newsvendor">Figure&nbsp;<span>2.1</span></a>(a), the plot of <span class="math inline">\(J(a)\)</span> is concave. We can verify that this is true in general.</p>
+<p>In <a href="#fig-newsvendor" class="quarto-xref">Figure&nbsp;<span>2.1</span></a>(a), the plot of <span class="math inline">\(J(a)\)</span> is concave. We can verify that this is true in general.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -1001,7 +1061,7 @@ Verify that <span class="math inline">\(J(a)\)</span> is concave
 </div>
 <p>This suggests that we can use calculus to find the optimal value. In particular, to find the optimal action, we need to compute the <span class="math inline">\(a\)</span> such that <span class="math inline">\(dJ(a)/da = 0\)</span>.</p>
 <div id="prp-newsvendor-cts" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 2.1 </strong></span>For the newsvendor problem with continuous demand, the optimal action is <span class="math display">\[
+<p><span class="theorem-title"><strong>Proposition 2.1</strong></span> For the newsvendor problem with continuous demand, the optimal action is <span class="math display">\[
     a = F^{-1}\left( 1 - \frac{p}{q} \right).
   \]</span> In the literature, the quantity <span class="math inline">\(1 - (p/q)\)</span> is called the <em>critical fractile</em>.</p>
 </div>
@@ -1061,7 +1121,7 @@ Graphical interpretation of the result
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The result of <a href="#prp-newsvendor-cts">Proposition&nbsp;<span>2.1</span></a> has a nice graphical interpretation. Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line <span class="math inline">\(1 - p/q\)</span>.</p>
+<p>The result of <a href="#prp-newsvendor-cts" class="quarto-xref">Proposition&nbsp;<span>2.1</span></a> has a nice graphical interpretation. Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line <span class="math inline">\(1 - p/q\)</span>.</p>
 <div class="cell panel-input card bg-light p-2">
 <div class="sourceCode cell-code hidden" id="cb4" data-startfrom="248" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 247;"><span id="cb4-248"><a href="#cb4-248" aria-hidden="true" tabindex="-1"></a>viewof pcts <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"p"</span>})</span>
 <span id="cb4-249"><a href="#cb4-249" aria-hidden="true" tabindex="-1"></a>viewof qcts <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"q"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1114,7 +1174,9 @@ Graphical interpretation of the result
 </section>
 <section id="back-to-discrete-version" class="level2 page-columns page-full" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="back-to-discrete-version"><span class="header-section-number">2.2</span> Back to discrete version</h2>
-<p>Now, we come back to the problem with discrete actions and discrete demand. Suppose <span class="math inline">\(W\)</span> takes the values <span class="math inline">\(\ALPHABET W = \{ w_1, w_2, \dots, w_k \}\)</span> (where <span class="math inline">\(w_1 &lt; w_2 &lt; \cdots &lt; w_k\)</span>) with probabilities <span class="math inline">\(\{ μ_1, μ_2, \dots, μ_k \}\)</span>. It is ease to see that in this case the action <span class="math inline">\(a\)</span> should be in the set <span class="math inline">\(\{ w_1, w_2, \dots, w_k \}\)</span>.</p>
+<p>Now, we come back to the problem with discrete actions and discrete demand. Suppose <span class="math inline">\(W\)</span> takes the values <span class="math inline">\(\ALPHABET W = \{ w_1, w_2, \dots, w_k \}\)</span> (where <span class="math inline">\(w_1 &lt; w_2 &lt;
+\cdots &lt; w_k\)</span>) with probabilities <span class="math inline">\(\{ μ_1, μ_2, \dots, μ_k \}\)</span>. It is ease to see that in this case the action <span class="math inline">\(a\)</span> should be in the set <span class="math inline">\(\{ w_1, w_2, \dots,
+w_k \}\)</span>.</p>
 <p>To fix ideas, we repeat the above numerical example when <span class="math inline">\(\ALPHABET W = \{0, 1, \dots, 100\}\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code hidden" id="cb6" data-startfrom="281" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 280;"><span id="cb6-281"><a href="#cb6-281" aria-hidden="true" tabindex="-1"></a>pointsD <span class="op">=</span> { </span>
@@ -1182,7 +1244,6 @@ Graphical interpretation of the result
 </div>
 </div>
 </div>
-<div class="page-columns page-full">
 <div class="sourceCode cell-code hidden" id="cb8" data-startfrom="325" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 324;"><span id="cb8-325"><a href="#cb8-325" aria-hidden="true" tabindex="-1"></a>plotJD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
 <span id="cb8-326"><a href="#cb8-326" aria-hidden="true" tabindex="-1"></a>    <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
 <span id="cb8-327"><a href="#cb8-327" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
@@ -1220,41 +1281,62 @@ Graphical interpretation of the result
 <span id="cb8-359"><a href="#cb8-359" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"reward"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span>})</span>
 <span id="cb8-360"><a href="#cb8-360" aria-hidden="true" tabindex="-1"></a>  ]</span>
 <span id="cb8-361"><a href="#cb8-361" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div id="fig-newsvendord" class="cell column-page quarto-layout-panel">
-<figure class="figure">
-<div class="quarto-layout-row quarto-layout-valign-top">
-<div id="fig-newsvendord-1" class="quarto-figure quarto-figure-center anchored" style="flex-basis: 33.3%;justify-content: center;">
-<figure class="figure">
+<div id="fig-newsvendord" class="quarto-layout-panel page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-newsvendord-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<div class="quarto-layout-row page-columns page-full">
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendord" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendord-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendord-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div id="ojs-cell-8-1" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">(a) Performance: <span><span id="ojs-element-id-2"></span></span></figcaption>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendord-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Performance: <span><span id="ojs-element-id-2"></span></span>
+</figcaption>
 </figure>
 </div>
-<div id="fig-newsvendord-2" class="quarto-figure quarto-figure-center anchored" style="flex-basis: 33.3%;justify-content: center;">
-<figure class="figure">
+</div>
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendord" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendord-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendord-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div id="ojs-cell-8-2" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">(b) PDF of demand</figcaption>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendord-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) PDF of demand
+</figcaption>
 </figure>
 </div>
-<div id="fig-newsvendord-3" class="quarto-figure quarto-figure-center anchored" style="flex-basis: 33.3%;justify-content: center;">
-<figure class="figure">
+</div>
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendord" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendord-3" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendord-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div id="ojs-cell-8-3" data-nodetype="declaration">
 
 </div>
-<figcaption class="figure-caption">(c) reward (as a function of demand)</figcaption>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendord-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) reward (as a function of demand)
+</figcaption>
 </figure>
 </div>
 </div>
-<p></p><figcaption class="figure-caption">Figure&nbsp;2.2: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shared region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.</figcaption><p></p>
-</figure>
 </div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-newsvendord-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.2: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shared region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
+</figcaption>
+</figure>
 </div>
 <p>In the discrete case, the brute force search is easier (because there are a finite rather than continuous number of values). We cannot directly use the ideas from calculus because functions over discrete domain are not differentiable. But we can use a very similar idea. Instead of checking if <span class="math inline">\(dJ(a)/da = 0\)</span>, we check the sign of <span class="math inline">\(J(w_{i+1}) - J(w_i)\)</span>.</p>
 <div id="prp-newsvendor-discrete" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 2.2 </strong></span>Let <span class="math inline">\(\{M_i\}_{i \ge 1}\)</span> denote the cumulative mass function of the demand. Then, the optimal action is the largest value of <span class="math inline">\(w_i\)</span> such that <span class="math display">\[
+<p><span class="theorem-title"><strong>Proposition 2.2</strong></span> Let <span class="math inline">\(\{M_i\}_{i \ge 1}\)</span> denote the cumulative mass function of the demand. Then, the optimal action is the largest value of <span class="math inline">\(w_i\)</span> such that <span class="math display">\[
     M_i \le 1 - \frac{p}{q}.
   \]</span></p>
 </div>
@@ -1288,7 +1370,8 @@ Proof
 M_i \le \dfrac{q-p}{q}
 \iff
 -p + q [ 1 - M_i ] \ge 0.
-\]</span> Thus, for all <span class="math inline">\(i\)</span> such that <span class="math inline">\(M_i \le (q-p)/q\)</span>, we have <span class="math inline">\(J(w_{i+1}) \ge J(w_i)\)</span>. On the other hand, for all <span class="math inline">\(i\)</span> such that <span class="math inline">\(M_i &gt; (q-p)/q)\)</span>, we have <span class="math inline">\(J(w_{i+1}) &lt; J(w_i)\)</span>. Thus, the optimal amount to order is the largest <span class="math inline">\(w_i\)</span> such that <span class="math inline">\(M_i \le (q-p)/q\)</span>.</p>
+\]</span> Thus, for all <span class="math inline">\(i\)</span> such that <span class="math inline">\(M_i \le (q-p)/q\)</span>, we have <span class="math inline">\(J(w_{i+1}) \ge J(w_i)\)</span>. On the other hand, for all <span class="math inline">\(i\)</span> such that <span class="math inline">\(M_i &gt; (q-p)/q)\)</span>, we have <span class="math inline">\(J(w_{i+1}) &lt; J(w_i)\)</span>. Thus, the optimal amount to order is the largest <span class="math inline">\(w_i\)</span> such that <span class="math inline">\(M_i \le
+(q-p)/q\)</span>.</p>
 </div>
 </div>
 </div>
@@ -1302,7 +1385,7 @@ Graphical interpretation of the result
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The structure of the optimal solution is the same for continuous and discrete demand distributions. In particular, the result of <a href="#prp-newsvendor-discrete">Proposition&nbsp;<span>2.2</span></a> has the same graphical interpretation as that of <span class="quarto-unresolved-ref">?prp-newscendor-cts</span>:</p>
+<p>The structure of the optimal solution is the same for continuous and discrete demand distributions. In particular, the result of <a href="#prp-newsvendor-discrete" class="quarto-xref">Proposition&nbsp;<span>2.2</span></a> has the same graphical interpretation as that of <span class="quarto-unresolved-ref">?prp-newscendor-cts</span>:</p>
 <blockquote class="blockquote">
 <p>Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line <span class="math inline">\(1 - p/q\)</span>.</p>
 </blockquote>
@@ -1359,15 +1442,15 @@ Graphical interpretation of the result
 <section id="exercises" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
 <div id="exr-newsvendor-qualitative" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 2.1 (Qualitative properties of optimal solution) </strong></span>Intuitively, we expect that if the purchase price of the newspaper increases but the selling price remains the same, then the newsvendor should buy less newspapers. Formally prove this statement.</p>
+<p><span class="theorem-title"><strong>Exercise 2.1 (Qualitative properties of optimal solution)</strong></span> Intuitively, we expect that if the purchase price of the newspaper increases but the selling price remains the same, then the newsvendor should buy less newspapers. Formally prove this statement.</p>
 <p><em>Hint</em>: The CDF of a distribution is a weakly increasing function.</p>
 </div>
 <div id="exr-newsvendor-monotonicity" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 2.2 (Monotonicity of optimal action) </strong></span>Consider two scenarios for the case with continuous demand and actions. In scenario&nbsp;1, the demand is distributed according to PDF <span class="math inline">\(f_1\)</span>. In scenario&nbsp;2, it is distributed according to PDF <span class="math inline">\(f_2\)</span>. Suppose <span class="math inline">\(F_1(w) \le F_2(w)\)</span> for all <span class="math inline">\(w\)</span>. Show that the optimal action <span class="math inline">\(a_1\)</span> for scenario&nbsp;1 is greater than the optimal action <span class="math inline">\(a_2\)</span> for scenario&nbsp;2.</p>
+<p><span class="theorem-title"><strong>Exercise 2.2 (Monotonicity of optimal action)</strong></span> Consider two scenarios for the case with continuous demand and actions. In scenario&nbsp;1, the demand is distributed according to PDF <span class="math inline">\(f_1\)</span>. In scenario&nbsp;2, it is distributed according to PDF <span class="math inline">\(f_2\)</span>. Suppose <span class="math inline">\(F_1(w) \le F_2(w)\)</span> for all <span class="math inline">\(w\)</span>. Show that the optimal action <span class="math inline">\(a_1\)</span> for scenario&nbsp;1 is greater than the optimal action <span class="math inline">\(a_2\)</span> for scenario&nbsp;2.</p>
 <p><em>Hint</em>: Plot the two CDFs and try to interpret the optimal decision rule graphically.</p>
 </div>
 <div id="exr-newsvendor-wind" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 2.3 (Selling random wind) </strong></span>The amount <span class="math inline">\(W\)</span> of power generated by the wind turbine is a positive real-valued random variable with probability density function <span class="math inline">\(f\)</span>. The operator of the wind turbine has to commit to provide a certain amount of power in the day-ahead market. The price of power is <span class="math inline">\(\$p\)</span> per MW.</p>
+<p><span class="theorem-title"><strong>Exercise 2.3 (Selling random wind)</strong></span> The amount <span class="math inline">\(W\)</span> of power generated by the wind turbine is a positive real-valued random variable with probability density function <span class="math inline">\(f\)</span>. The operator of the wind turbine has to commit to provide a certain amount of power in the day-ahead market. The price of power is <span class="math inline">\(\$p\)</span> per MW.</p>
 <p>If the operator commits to provide <span class="math inline">\(a\)</span> MW of power and the wind generation <span class="math inline">\(W\)</span> is less than <span class="math inline">\(a\)</span>, then he has to buy the balance <span class="math inline">\(a - W\)</span> from a reserves market at the cost of <span class="math inline">\(\$ q\)</span> per unit, where <span class="math inline">\(q &gt; p\)</span>. Thus, the reward of the operator is <span class="math inline">\(r(a,W)\)</span> where <span class="math display">\[ r(a, w) = \begin{cases}
   p a, &amp; \text{if } w &gt; a \\
   p a - q (a  - w), &amp; \text{if } w &lt; a.
@@ -1378,17 +1461,15 @@ Graphical interpretation of the result
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
 <p>Perhaps the earliest model of the newsvendor problem appeared in <span class="citation" data-cites="Edgeworth1888">Edgeworth (<a href="../references.html#ref-Edgeworth1888" role="doc-biblioref">1888</a>)</span> in the context of a bank setting the level of cash reserves to cover demands from its customers. The solution to the basic model presented above and some of its variants was provided in <span class="citation" data-cites="Morse1951">Morse and Kimball (<a href="../references.html#ref-Morse1951" role="doc-biblioref">1951</a>)</span>; <span class="citation" data-cites="Arrow1951">Arrow et al. (<a href="../references.html#ref-Arrow1951" role="doc-biblioref">1952</a>)</span>; <span class="citation" data-cites="Whitin1953">Whitin (<a href="../references.html#ref-Whitin1953" role="doc-biblioref">1953</a>)</span>. See <span class="citation" data-cites="Porteus2008">Porteus (<a href="../references.html#ref-Porteus2008" role="doc-biblioref">2008</a>)</span> for an accessible introduction.</p>
-<p>The property <span class="math inline">\(F_1(w) \le F_2(w)\)</span> used in Exercise&nbsp;2 is called <a href="../mdps/monotone-mdps.html#stochastic-dominance">stochastic dominance</a>. Later in the course, we will study how stochastic dominance is useful to establish <a href="../mdps/monotone-mdps.html">monotonicity properties of general MDPs</a>.</p>
-<p>The example of selling random wind in <a href="#exr-newsvendor-wind">Exercise&nbsp;<span>2.3</span></a> is taken from <span class="citation" data-cites="Bitar2012">Bitar et al. (<a href="../references.html#ref-Bitar2012" role="doc-biblioref">2012</a>)</span>.</p>
+<p>The property <span class="math inline">\(F_1(w) \le F_2(w)\)</span> used in <a href="#exr-newsvendor-monotonicity" class="quarto-xref">Exercise&nbsp;<span>2.2</span></a> is called <a href="../mdps/monotone-mdps.html#stochastic-dominance">stochastic dominance</a>. Later in the course, we will study how stochastic dominance is useful to establish <a href="../mdps/monotone-mdps.html">monotonicity properties of general MDPs</a>.</p>
+<p>The example of selling random wind in <a href="#exr-newsvendor-wind" class="quarto-xref">Exercise&nbsp;<span>2.3</span></a> is taken from <span class="citation" data-cites="Bitar2012">Bitar et al. (<a href="../references.html#ref-Bitar2012" role="doc-biblioref">2012</a>)</span>.</p>
 
 
+<div class="ojs-auto-generated hidden">
 <script type="ojs-module-contents">
-{"contents":[
-  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${cost}</span>`", "cellName":"ojs-element-id-1"}
-,
-  {"methodName":"interpret","inline":"true","source":"htl.html`<span>${costD}</span>`", "cellName":"ojs-element-id-2"}
-]}
+eyJjb250ZW50cyI6WyAgeyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiaW5saW5lIjoidHJ1ZSIsInNvdXJjZSI6Imh0bC5odG1sYDxzcGFuPiR7Y29zdH08L3NwYW4+YCIsICJjZWxsTmFtZSI6Im9qcy1lbGVtZW50LWlkLTEifSwgIHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImlubGluZSI6InRydWUiLCJzb3VyY2UiOiJodGwuaHRtbGA8c3Bhbj4ke2Nvc3REfTwvc3Bhbj5gIiwgImNlbGxOYW1lIjoib2pzLWVsZW1lbnQtaWQtMiJ9XX0=
 </script>
+</div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Arrow1951" class="csl-entry" role="listitem">
 <span class="smallcaps">Arrow, K.J., Harris, T., and Marschak, J.</span> 1952. Optimal inventory policy. <em>Econometrica</em> <em>20</em>, 1, 250–272. DOI: <a href="https://doi.org/10.2307/1907830">10.2307/1907830</a>.
@@ -1413,7 +1494,7 @@ Graphical interpretation of the result
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-{"contents":[{"methodName":"interpret","cellName":"ojs-cell-1","inline":false,"source":"p = 0.5\nq = 1\nr = function(w,a){ if(w<=a) { return q*w - p*a } else { return q*a - p*a } }\n\na_opt = inverseCDF( (q-p)/q )\n\nconfig = ({\n  // Kumaraswamy Distribution: https://en.wikipedia.org/wiki/Kumaraswamy_distribution\n  a: 2,\n  b: 5,\n  max: 100\n})\n\npdf = {\n  const a = config.a\n  const b = config.b\n\n  return function(x) {\n    var normalized = x/config.max\n    return a*b*normalized**(a-1)*(1 - normalized**a)**(b-1)\n  }\n}\n\ninverseCDF= {\n  const a = config.a\n  const b = config.b\n  return function(y) {\n     // Closed form expression for inverse CDF of Kumaraswamy distribution \n     return config.max * (1 - (1-y)**(1/b))**(1/a)\n  }\n}\n\npoints = { \n  const n = 1000\n  var points = new Array(n)\n  var cdf = 0;\n  for (var i = 0 ; i < n; i++) {\n    var x = config.max * i/n\n    cdf = cdf + pdf(x) * 1/n\n    points[i] = {demand: x, pdf: pdf(x), CDF: cdf, reward: r(x,action) }\n  }\n  return points\n}\n\ncost_values = {\n  const n = 1000\n  var points = new Array(n)\n  for (var i = 0 ; i < n; i++) {\n    var x = config.max * i/n\n    points[i] = {action: x, performance: J(x)}\n  }\n  return points\n}\n\nJ = {\n  const a = config.a\n  const b = config.b\n\n  return function(action) {\n    const n = 1000\n    var cost = 0\n    var w = 0\n    for (var i = 0; i < n; i++) {\n      w = config.max*i/n\n      if (w <= action) {\n        cost += (q*w - p*action)*pdf(w)/n\n      } else {\n        cost += (q*action - p*action)*pdf(w)/n\n      }\n    }\n    return cost\n  }\n}\n"},{"methodName":"interpret","cellName":"ojs-cell-2","inline":false,"source":"viewof action = Inputs.range([0, 100], {value: 45, step: 0.01, label: \"a\"})\n\ncost = Math.round(J(action)*100)/100\n"},{"methodName":"interpret","cellName":"ojs-cell-3","inline":false,"source":"\nplotJ = Plot.plot({\n    grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.dot([ [action, J(action)] ], {fill: \"blue\", r:4}),\n    Plot.dot([ [a_opt, J(a_opt)] ], {fill: \"red\", r:4}),\n    Plot.line(cost_values, {x:\"action\", y:\"performance\"})\n  ]\n})\n\nplotPDF = Plot.plot({\n  grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line([ [action,0], [action, pdf(action)] ], {stroke: \"blue\"}),\n    Plot.line(points,{x:\"demand\", y:\"pdf\"}),\n    Plot.areaY(points.filter(pt => pt.demand <= action),{x:\"demand\", y:\"pdf\", fill: \"lightblue\"}),\n    Plot.areaY(points.filter(pt => pt.demand > action),{x:\"demand\", y:\"pdf\", fill: \"pink\"})\n  ]\n})\n\nplotReward = Plot.plot({\n  grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(points, {x:\"demand\", y:\"reward\"})\n  ]\n})\n"},{"methodName":"interpret","cellName":"ojs-cell-4","inline":false,"source":"viewof pcts = Inputs.range([0.01,1], {value: 0.5, step: 0.01, label: \"p\"})\nviewof qcts = Inputs.range([0.01,1], {value: 1, step: 0.01, label: \"q\"})\n"},{"methodName":"interpret","cellName":"ojs-cell-5","inline":false,"source":"F_opt = 1 - pcts/qcts\nplotOptCts = Plot.plot({\n  grid: true,\n  y: {domain: [0,1]},\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(points,{x:\"demand\", y:\"CDF\"}),\n    Plot.line([ [0,F_opt], [points[points.length-1].demand, F_opt] ], {stroke: \"red\"})\n  ]\n})\n"},{"methodName":"interpret","cellName":"ojs-cell-6","inline":false,"source":"pointsD = { \n  const n = 100\n  var points = new Array(n)\n  var cdf = 0\n  for (var i = 0 ; i < n; i++) {\n    var x = config.max * i/n\n    cdf = cdf + pdf(x) * 1/n\n    points[i] = {demand: x, pdf: pdf(x) * 1/n, CDF: cdf, reward: r(x,actionD) }\n  }\n  return points\n}\n\ncost_valuesD = {\n  const n = 100\n  var points = new Array(n)\n  for (var i = 0 ; i < n; i++) {\n    var x = config.max * i/n\n    points[i] = {action: x, performance: J(x)}\n  }\n  return points\n}\n\n\na_optD = Math.round(a_opt*100)/100\n"},{"methodName":"interpret","cellName":"ojs-cell-7","inline":false,"source":"viewof actionD = Inputs.range([0, 100], {value: 45, step: 0.01, label: \"a\"})\n\ncostD = Math.round(J(actionD)*100)/100\n"},{"methodName":"interpret","cellName":"ojs-cell-8","inline":false,"source":"\nplotJD = Plot.plot({\n    grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.dot([ [actionD, J(actionD)] ], {fill: \"blue\", r:4}),\n    Plot.dot([ [a_optD, J(a_optD)] ], {fill: \"red\", r:4}),\n    Plot.line(cost_valuesD, {x:\"action\", y:\"performance\", curve: \"step-after\"})\n  ]\n})\n\nplotPDFD = Plot.plot({\n  grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    // Plot.line([ [actionD,0], [actionD, pdf(actionD)] ], {stroke: \"blue\"}),\n    Plot.line(pointsD,{x:\"demand\", y:\"pdf\", curve:\"step-after\"}),\n    Plot.areaY(pointsD.filter(pt => pt.demand <= actionD),{x:\"demand\", y:\"pdf\", curve: \"step-after\", fill: \"lightblue\"}),\n    Plot.areaY(pointsD.filter(pt => pt.demand >= actionD),{x:\"demand\", y:\"pdf\", curve: \"step-after\", fill: \"pink\"})\n  ]\n})\n\nplotRewardD = Plot.plot({\n  grid: true,\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(pointsD, {x:\"demand\", y:\"reward\", curve: \"step-after\"})\n  ]\n})\n"},{"methodName":"interpret","cellName":"ojs-cell-9","inline":false,"source":"viewof pdis = Inputs.range([0.01,1], {value: 0.5, step: 0.01, label: \"p\"})\nviewof qdis = Inputs.range([0.01,1], {value: 1, step: 0.01, label: \"q\"})\n"},{"methodName":"interpret","cellName":"ojs-cell-10","inline":false,"source":"F_opt_dis = 1 - pdis/qdis\nplotOptDts = Plot.plot({\n  grid: true,\n  y: {domain: [0,1]},\n  marks: [\n    // Axes\n    Plot.ruleX([0]),\n    Plot.ruleY([0]),\n    // Data\n    Plot.line(pointsD,{x:\"demand\", y:\"CDF\", curve:\"step-after\"}),\n    Plot.line([ [0,F_opt_dis], [pointsD[pointsD.length-1].demand, F_opt_dis] ], {stroke: \"red\"})\n  ]\n})\n"},{"methodName":"interpretQuiet","source":"shinyInput('action')"},{"methodName":"interpretQuiet","source":"shinyInput('pcts')"},{"methodName":"interpretQuiet","source":"shinyInput('qcts')"},{"methodName":"interpretQuiet","source":"shinyInput('actionD')"},{"methodName":"interpretQuiet","source":"shinyInput('pdis')"},{"methodName":"interpretQuiet","source":"shinyInput('qdis')"}]}
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InAgPSAwLjVcbnEgPSAxXG5yID0gZnVuY3Rpb24odyxhKXsgaWYodzw9YSkgeyByZXR1cm4gcSp3IC0gcCphIH0gZWxzZSB7IHJldHVybiBxKmEgLSBwKmEgfSB9XG5cbmFfb3B0ID0gaW52ZXJzZUNERiggKHEtcCkvcSApXG5cbmNvbmZpZyA9ICh7XG4gIC8vIEt1bWFyYXN3YW15IERpc3RyaWJ1dGlvbjogaHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvS3VtYXJhc3dhbXlfZGlzdHJpYnV0aW9uXG4gIGE6IDIsXG4gIGI6IDUsXG4gIG1heDogMTAwXG59KVxuXG5wZGYgPSB7XG4gIGNvbnN0IGEgPSBjb25maWcuYVxuICBjb25zdCBiID0gY29uZmlnLmJcblxuICByZXR1cm4gZnVuY3Rpb24oeCkge1xuICAgIHZhciBub3JtYWxpemVkID0geC9jb25maWcubWF4XG4gICAgcmV0dXJuIGEqYipub3JtYWxpemVkKiooYS0xKSooMSAtIG5vcm1hbGl6ZWQqKmEpKiooYi0xKVxuICB9XG59XG5cbmludmVyc2VDREY9IHtcbiAgY29uc3QgYSA9IGNvbmZpZy5hXG4gIGNvbnN0IGIgPSBjb25maWcuYlxuICByZXR1cm4gZnVuY3Rpb24oeSkge1xuICAgICAvLyBDbG9zZWQgZm9ybSBleHByZXNzaW9uIGZvciBpbnZlcnNlIENERiBvZiBLdW1hcmFzd2FteSBkaXN0cmlidXRpb24gXG4gICAgIHJldHVybiBjb25maWcubWF4ICogKDEgLSAoMS15KSoqKDEvYikpKiooMS9hKVxuICB9XG59XG5cbnBvaW50cyA9IHsgXG4gIGNvbnN0IG4gPSAxMDAwXG4gIHZhciBwb2ludHMgPSBuZXcgQXJyYXkobilcbiAgdmFyIGNkZiA9IDA7XG4gIGZvciAodmFyIGkgPSAwIDsgaSA8IG47IGkrKykge1xuICAgIHZhciB4ID0gY29uZmlnLm1heCAqIGkvblxuICAgIGNkZiA9IGNkZiArIHBkZih4KSAqIDEvblxuICAgIHBvaW50c1tpXSA9IHtkZW1hbmQ6IHgsIHBkZjogcGRmKHgpLCBDREY6IGNkZiwgcmV3YXJkOiByKHgsYWN0aW9uKSB9XG4gIH1cbiAgcmV0dXJuIHBvaW50c1xufVxuXG5jb3N0X3ZhbHVlcyA9IHtcbiAgY29uc3QgbiA9IDEwMDBcbiAgdmFyIHBvaW50cyA9IG5ldyBBcnJheShuKVxuICBmb3IgKHZhciBpID0gMCA7IGkgPCBuOyBpKyspIHtcbiAgICB2YXIgeCA9IGNvbmZpZy5tYXggKiBpL25cbiAgICBwb2ludHNbaV0gPSB7YWN0aW9uOiB4LCBwZXJmb3JtYW5jZTogSih4KX1cbiAgfVxuICByZXR1cm4gcG9pbnRzXG59XG5cbkogPSB7XG4gIGNvbnN0IGEgPSBjb25maWcuYVxuICBjb25zdCBiID0gY29uZmlnLmJcblxuICByZXR1cm4gZnVuY3Rpb24oYWN0aW9uKSB7XG4gICAgY29uc3QgbiA9IDEwMDBcbiAgICB2YXIgY29zdCA9IDBcbiAgICB2YXIgdyA9IDBcbiAgICBmb3IgKHZhciBpID0gMDsgaSA8IG47IGkrKykge1xuICAgICAgdyA9IGNvbmZpZy5tYXgqaS9uXG4gICAgICBpZiAodyA8PSBhY3Rpb24pIHtcbiAgICAgICAgY29zdCArPSAocSp3IC0gcCphY3Rpb24pKnBkZih3KS9uXG4gICAgICB9IGVsc2Uge1xuICAgICAgICBjb3N0ICs9IChxKmFjdGlvbiAtIHAqYWN0aW9uKSpwZGYodykvblxuICAgICAgfVxuICAgIH1cbiAgICByZXR1cm4gY29zdFxuICB9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgYWN0aW9uID0gSW5wdXRzLnJhbmdlKFswLCAxMDBdLCB7dmFsdWU6IDQ1LCBzdGVwOiAwLjAxLCBsYWJlbDogXCJhXCJ9KVxuXG5jb3N0ID0gTWF0aC5yb3VuZChKKGFjdGlvbikqMTAwKS8xMDBcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxucGxvdEogPSBQbG90LnBsb3Qoe1xuICAgIGdyaWQ6IHRydWUsXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gRGF0YVxuICAgIFBsb3QuZG90KFsgW2FjdGlvbiwgSihhY3Rpb24pXSBdLCB7ZmlsbDogXCJibHVlXCIsIHI6NH0pLFxuICAgIFBsb3QuZG90KFsgW2Ffb3B0LCBKKGFfb3B0KV0gXSwge2ZpbGw6IFwicmVkXCIsIHI6NH0pLFxuICAgIFBsb3QubGluZShjb3N0X3ZhbHVlcywge3g6XCJhY3Rpb25cIiwgeTpcInBlcmZvcm1hbmNlXCJ9KVxuICBdXG59KVxuXG5wbG90UERGID0gUGxvdC5wbG90KHtcbiAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKFsgW2FjdGlvbiwwXSwgW2FjdGlvbiwgcGRmKGFjdGlvbildIF0sIHtzdHJva2U6IFwiYmx1ZVwifSksXG4gICAgUGxvdC5saW5lKHBvaW50cyx7eDpcImRlbWFuZFwiLCB5OlwicGRmXCJ9KSxcbiAgICBQbG90LmFyZWFZKHBvaW50cy5maWx0ZXIocHQgPT4gcHQuZGVtYW5kIDw9IGFjdGlvbikse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwiLCBmaWxsOiBcImxpZ2h0Ymx1ZVwifSksXG4gICAgUGxvdC5hcmVhWShwb2ludHMuZmlsdGVyKHB0ID0+IHB0LmRlbWFuZCA+IGFjdGlvbikse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwiLCBmaWxsOiBcInBpbmtcIn0pXG4gIF1cbn0pXG5cbnBsb3RSZXdhcmQgPSBQbG90LnBsb3Qoe1xuICBncmlkOiB0cnVlLFxuICBtYXJrczogW1xuICAgIC8vIEF4ZXNcbiAgICBQbG90LnJ1bGVYKFswXSksXG4gICAgUGxvdC5ydWxlWShbMF0pLFxuICAgIC8vIERhdGFcbiAgICBQbG90LmxpbmUocG9pbnRzLCB7eDpcImRlbWFuZFwiLCB5OlwicmV3YXJkXCJ9KVxuICBdXG59KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIHBjdHMgPSBJbnB1dHMucmFuZ2UoWzAuMDEsMV0sIHt2YWx1ZTogMC41LCBzdGVwOiAwLjAxLCBsYWJlbDogXCJwXCJ9KVxudmlld29mIHFjdHMgPSBJbnB1dHMucmFuZ2UoWzAuMDEsMV0sIHt2YWx1ZTogMSwgc3RlcDogMC4wMSwgbGFiZWw6IFwicVwifSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IkZfb3B0ID0gMSAtIHBjdHMvcWN0c1xucGxvdE9wdEN0cyA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIHk6IHtkb21haW46IFswLDFdfSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50cyx7eDpcImRlbWFuZFwiLCB5OlwiQ0RGXCJ9KSxcbiAgICBQbG90LmxpbmUoWyBbMCxGX29wdF0sIFtwb2ludHNbcG9pbnRzLmxlbmd0aC0xXS5kZW1hbmQsIEZfb3B0XSBdLCB7c3Ryb2tlOiBcInJlZFwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InBvaW50c0QgPSB7IFxuICBjb25zdCBuID0gMTAwXG4gIHZhciBwb2ludHMgPSBuZXcgQXJyYXkobilcbiAgdmFyIGNkZiA9IDBcbiAgZm9yICh2YXIgaSA9IDAgOyBpIDwgbjsgaSsrKSB7XG4gICAgdmFyIHggPSBjb25maWcubWF4ICogaS9uXG4gICAgY2RmID0gY2RmICsgcGRmKHgpICogMS9uXG4gICAgcG9pbnRzW2ldID0ge2RlbWFuZDogeCwgcGRmOiBwZGYoeCkgKiAxL24sIENERjogY2RmLCByZXdhcmQ6IHIoeCxhY3Rpb25EKSB9XG4gIH1cbiAgcmV0dXJuIHBvaW50c1xufVxuXG5jb3N0X3ZhbHVlc0QgPSB7XG4gIGNvbnN0IG4gPSAxMDBcbiAgdmFyIHBvaW50cyA9IG5ldyBBcnJheShuKVxuICBmb3IgKHZhciBpID0gMCA7IGkgPCBuOyBpKyspIHtcbiAgICB2YXIgeCA9IGNvbmZpZy5tYXggKiBpL25cbiAgICBwb2ludHNbaV0gPSB7YWN0aW9uOiB4LCBwZXJmb3JtYW5jZTogSih4KX1cbiAgfVxuICByZXR1cm4gcG9pbnRzXG59XG5cblxuYV9vcHREID0gTWF0aC5yb3VuZChhX29wdCoxMDApLzEwMFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC03IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIGFjdGlvbkQgPSBJbnB1dHMucmFuZ2UoWzAsIDEwMF0sIHt2YWx1ZTogNDUsIHN0ZXA6IDAuMDEsIGxhYmVsOiBcImFcIn0pXG5cbmNvc3REID0gTWF0aC5yb3VuZChKKGFjdGlvbkQpKjEwMCkvMTAwXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTgiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJcbnBsb3RKRCA9IFBsb3QucGxvdCh7XG4gICAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5kb3QoWyBbYWN0aW9uRCwgSihhY3Rpb25EKV0gXSwge2ZpbGw6IFwiYmx1ZVwiLCByOjR9KSxcbiAgICBQbG90LmRvdChbIFthX29wdEQsIEooYV9vcHREKV0gXSwge2ZpbGw6IFwicmVkXCIsIHI6NH0pLFxuICAgIFBsb3QubGluZShjb3N0X3ZhbHVlc0QsIHt4OlwiYWN0aW9uXCIsIHk6XCJwZXJmb3JtYW5jZVwiLCBjdXJ2ZTogXCJzdGVwLWFmdGVyXCJ9KVxuICBdXG59KVxuXG5wbG90UERGRCA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gRGF0YVxuICAgIC8vIFBsb3QubGluZShbIFthY3Rpb25ELDBdLCBbYWN0aW9uRCwgcGRmKGFjdGlvbkQpXSBdLCB7c3Ryb2tlOiBcImJsdWVcIn0pLFxuICAgIFBsb3QubGluZShwb2ludHNELHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgY3VydmU6XCJzdGVwLWFmdGVyXCJ9KSxcbiAgICBQbG90LmFyZWFZKHBvaW50c0QuZmlsdGVyKHB0ID0+IHB0LmRlbWFuZCA8PSBhY3Rpb25EKSx7eDpcImRlbWFuZFwiLCB5OlwicGRmXCIsIGN1cnZlOiBcInN0ZXAtYWZ0ZXJcIiwgZmlsbDogXCJsaWdodGJsdWVcIn0pLFxuICAgIFBsb3QuYXJlYVkocG9pbnRzRC5maWx0ZXIocHQgPT4gcHQuZGVtYW5kID49IGFjdGlvbkQpLHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgY3VydmU6IFwic3RlcC1hZnRlclwiLCBmaWxsOiBcInBpbmtcIn0pXG4gIF1cbn0pXG5cbnBsb3RSZXdhcmREID0gUGxvdC5wbG90KHtcbiAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50c0QsIHt4OlwiZGVtYW5kXCIsIHk6XCJyZXdhcmRcIiwgY3VydmU6IFwic3RlcC1hZnRlclwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBwZGlzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDAuNSwgc3RlcDogMC4wMSwgbGFiZWw6IFwicFwifSlcbnZpZXdvZiBxZGlzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDEsIHN0ZXA6IDAuMDEsIGxhYmVsOiBcInFcIn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEwIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiRl9vcHRfZGlzID0gMSAtIHBkaXMvcWRpc1xucGxvdE9wdER0cyA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIHk6IHtkb21haW46IFswLDFdfSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50c0Qse3g6XCJkZW1hbmRcIiwgeTpcIkNERlwiLCBjdXJ2ZTpcInN0ZXAtYWZ0ZXJcIn0pLFxuICAgIFBsb3QubGluZShbIFswLEZfb3B0X2Rpc10sIFtwb2ludHNEW3BvaW50c0QubGVuZ3RoLTFdLmRlbWFuZCwgRl9vcHRfZGlzXSBdLCB7c3Ryb2tlOiBcInJlZFwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnYWN0aW9uJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BjdHMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncWN0cycpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdhY3Rpb25EJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BkaXMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncWRpcycpIn1dfQ==
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
@@ -1464,6 +1545,33 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       } else {
         el.classList.add('notransition');
       }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
     }
   }
   const toggleColorMode = (alternate) => {
@@ -1532,13 +1640,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  let localAlternateSentinel = 'default';
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
     // Read the current dark / light value 
     let toAlternate = !hasAlternateSentinel();
     toggleColorMode(toAlternate);
     setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
   };
   // Ensure there is a toggle, if there isn't float one in the top right
   if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
@@ -1617,10 +1727,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1630,8 +1739,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1644,6 +1762,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1687,6 +1924,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1712,6 +1950,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1773,12 +2037,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../stochastic-optimization/intro.html" class="pagination-link">
+      <a href="../stochastic-optimization/intro.html" class="pagination-link  aria-label=" &lt;span="">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../stochastic-optimization/certainty-equivalence.html" class="pagination-link">
+      <a href="../stochastic-optimization/certainty-equivalence.html" class="pagination-link" aria-label="<span class='chapter-number'>3</span>&nbsp; <span class='chapter-title'>Certainty equivalence</span>">
         <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Certainty equivalence</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -1787,5 +2051,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/stochastic-optimization/newsvendor.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>

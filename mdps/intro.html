@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -26,7 +26,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -107,7 +107,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -116,6 +122,7 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -183,13 +190,40 @@ window.MathJax = {
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
             <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -198,12 +232,13 @@ window.MathJax = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../stochastic-control/index.html" rel="" target="">
- <span class="menu-text">Stochastic Control</span></a>
+    <a class="nav-link" href="../../stochastic-control/index.html"> 
+<span class="menu-text">Stochastic Control</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto tools-wide">
-    <a href="https://github.com/adityam/stochastic-control" rel="" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools tools-wide">
+    <a href="https://github.com/adityam/stochastic-control" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
@@ -211,32 +246,23 @@ window.MathJax = {
   </div>
 </a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/intro.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/intro.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -548,20 +574,26 @@ window.MathJax = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
+  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../probability/IPM.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Integral Probablity Metrics</span></span></a>
+  <a href="../probability/markov-chains.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Markov chains</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../probability/martingales.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Martingales</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../probability/stochastic-stability.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span></a>
   </div>
 </li>
       </ul>
@@ -578,25 +610,25 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/positive-definite-matrix.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/svd.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../linear-algebra/rkhs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span></a>
   </div>
 </li>
       </ul>
@@ -613,13 +645,13 @@ window.MathJax = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/convexity.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Convex sets and convex functions</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/duality.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
   </div>
 </li>
       </ul>
@@ -656,7 +688,7 @@ window.MathJax = {
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -664,7 +696,7 @@ window.MathJax = {
    
   <ul>
   <li><a href="#an-example" id="toc-an-example" class="nav-link active" data-scroll-target="#an-example"><span class="header-section-number">5.1</span> An example</a></li>
-  <li><a href="#basic-model-and-strucutre-of-optimal-policies" id="toc-basic-model-and-strucutre-of-optimal-policies" class="nav-link" data-scroll-target="#basic-model-and-strucutre-of-optimal-policies"><span class="header-section-number">5.2</span> Basic model and strucutre of optimal policies</a></li>
+  <li><a href="#basic-model-and-structure-of-optimal-policies" id="toc-basic-model-and-structure-of-optimal-policies" class="nav-link" data-scroll-target="#basic-model-and-structure-of-optimal-policies"><span class="header-section-number">5.2</span> Basic model and structure of optimal policies</a></li>
   <li><a href="#performance" id="toc-performance" class="nav-link" data-scroll-target="#performance"><span class="header-section-number">5.3</span> Performance of Markov policies</a>
   <ul class="collapse">
   <li><a href="#example-continued" id="toc-example-continued" class="nav-link" data-scroll-target="#example-continued"><span class="header-section-number">5.3.1</span> Example (continued)</a></li>
@@ -687,12 +719,12 @@ window.MathJax = {
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/intro.qmd" class="toc-action">Edit this page</a></p></div></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/intro.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Finite horizon MDPs</span></h1>
 </div>
@@ -705,14 +737,14 @@ window.MathJax = {
     <div class="quarto-title-meta-contents">
     <p class="author"><a href="http://www.cim.mcgill.ca/~adityam">Aditya Mahajan</a> </p>
   </div>
-    <div class="quarto-title-meta-contents">
+  <div class="quarto-title-meta-contents">
         <p class="affiliation">
             <a href="http://www.mcgill.ca/ece">
             McGill University
             </a>
           </p>
       </div>
-    </div>
+  </div>
 
 <div class="quarto-title-meta">
 
@@ -728,30 +760,46 @@ window.MathJax = {
   </div>
   
 
+<div>
+  <div class="keywords">
+    <div class="block-title">Keywords</div>
+    <p>MDPs, Markov policies, dynamic programming, comparison principle, principle of irrelevant information</p>
+  </div>
+</div>
+
 </header>
+
 
 <section id="an-example" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="an-example"><span class="header-section-number">5.1</span> An example</h2>
 <p>To fix ideas, we start with an example. Consider a <em>controlled</em> Markov chain defined over <span class="math inline">\(\ALPHABET S = \{-2, -1, 0, 1, 2\}\)</span> with two control actions, i.e., <span class="math inline">\(\ALPHABET A = \{0, 1\}\)</span>. If action <span class="math inline">\(A = 0\)</span> is chosen, the chain evolves according to its “natural” dynamics, which are shown below:</p>
-<div id="fig-peak1" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="figures/peak-control1.svg" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Figure&nbsp;5.1: “Natural” dynamics of the Markov chain</figcaption>
+<div id="fig-peak1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-peak1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/peak-control1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peak1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.1: “Natural” dynamics of the Markov chain
+</figcaption>
 </figure>
 </div>
 <p>When action <span class="math inline">\(A = 1\)</span> is chosen, the chain evolves according to the “forced” dynamics, which are shown below:</p>
-<div id="fig-peak2" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="figures/peak-control2.svg" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Figure&nbsp;5.2: “Forced” dynamics of the Markov chain</figcaption>
+<div id="fig-peak2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-peak2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/peak-control2.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peak2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.2: “Forced” dynamics of the Markov chain
+</figcaption>
 </figure>
 </div>
 <p>Note that under the natural dynamics, the Markov chain will settle to a uniform steady-state distribution; under the forced dynamics, the Markov chain settle to a distribution which is unimodal with a peak at state <span class="math inline">\(0\)</span>.</p>
 <p>Suppose it is desirable to keep the Markov chain close to state <span class="math inline">\(0\)</span>. We capture this by the system incurs a <em>running cost</em> equal to <span class="math inline">\(s^2\)</span> in state <span class="math inline">\(s\)</span>. In addition, choosing action <span class="math inline">\(A=0\)</span> is free but choosing action <span class="math inline">\(A=1\)</span> has a <em>correction cost</em> <span class="math inline">\(p\)</span>.</p>
-<p>Thus, the decision maker is in a conundrum. It may allow the system to follow its natural dynamics, which causes the system to reach states with larger absolute value and incur a running cost <span class="math inline">\(|s|\)</span>; or it may decide to force the system to drift towards state <span class="math inline">\(0\)</span>, which reduces the running cost but, in turn, incurs a correction cost <span class="math inline">\(p\)</span>. How should the decision maker choose its actions?</p>
+<p>Thus, the decision maker is in a conundrum. It may allow the system to follow its natural dynamics, which causes the system to reach states with larger absolute value and incur a running cost <span class="math inline">\(s^2\)</span>; or it may decide to force the system to drift towards state <span class="math inline">\(0\)</span>, which reduces the running cost but, in turn, incurs a correction cost <span class="math inline">\(p\)</span>. How should the decision maker choose its actions?</p>
 </section>
-<section id="basic-model-and-strucutre-of-optimal-policies" class="level2" data-number="5.2">
-<h2 data-number="5.2" class="anchored" data-anchor-id="basic-model-and-strucutre-of-optimal-policies"><span class="header-section-number">5.2</span> Basic model and strucutre of optimal policies</h2>
+<section id="basic-model-and-structure-of-optimal-policies" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="basic-model-and-structure-of-optimal-policies"><span class="header-section-number">5.2</span> Basic model and structure of optimal policies</h2>
 <p>The type of model described above is called Markov decision processes (MDP), and they are the simplest model of a stochastic control system. There are two ways to model MDPs, which we describe below.</p>
 <p>The first method to model MDPs is to think of them as a <strong>controlled</strong> Markov process; in particular, an MDP is a stochastic process <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span>, <span class="math inline">\(S_t \in \ALPHABET S\)</span>, <em>controlled</em> by the process <span class="math inline">\(\{A_t\}_{t \ge 1}\)</span>, <span class="math inline">\(A_t \in \ALPHABET A\)</span>, which satisfies the <strong>controlled Markov property</strong>: <span class="math display">\[
   \PR(S_{t+1} = s_{t+1} \mid S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t})
@@ -787,12 +835,12 @@ P(1) = \MATRIX{ \1&amp; \2&amp;  0&amp;  0&amp;  0\\
 <p>We want to choose a <em>control policy</em> <span class="math inline">\(π = (π_1, \dots, π_T)\)</span> to minimize the expected total cost <span class="math display">\[ J(π) := \EXP\bigg[ \sum_{t=1}^T c_t(S_t, A_t) \bigg]. \]</span> How should we proceed?</p>
 <p>At first glance, the problem looks intimidating. It appears that we have to design a very sophisticated controller: one that analyzes all past data to choose a control input. However, this is not the case. A remarkable result is that the optimal controller can discard all past data and choose the control input based only on the current state of the system. Formally, we have the following:</p>
 <div id="thm-MDP-markov" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 5.1 (Optimality of Markov policies) </strong></span>For the system model described above, there is no loss of optimality in choosing the control action according to <span class="math display">\[ A_t = π_t(S_t), \quad t=1, \dots, T.\]</span> Such a control policy is called a <em>Markov policy</em>.</p>
+<p><span class="theorem-title"><strong>Theorem 5.1 (Optimality of Markov policies)</strong></span> For the system model described above, there is no loss of optimality in choosing the control action according to <span class="math display">\[ A_t = π_t(S_t), \quad t=1, \dots, T.\]</span> Such a control policy is called a <em>Markov policy</em>.</p>
 </div>
-<p>In the context of the example presented at the beginning of this section, <a href="#thm-MDP-markov">Theorem&nbsp;<span>5.1</span></a> says that the decision maker can decide whether to choose action <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span> based on the current state, without any loss of optimality.</p>
-<p>In general, <a href="#thm-MDP-markov">Theorem&nbsp;<span>5.1</span></a> claims that the cost incurred by the best Markov policy is the same as the cost incurred by the best history dependent policy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../stochastic-optimization/intro.html#blackwells-principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a> <span class="citation" data-cites="Blackwell1964">(<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">Blackwell 1964</a>)</span></p>
+<p>In the context of the example presented at the beginning of this section, <a href="#thm-MDP-markov" class="quarto-xref">Theorem&nbsp;<span>5.1</span></a> says that the decision maker can decide whether to choose action <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span> based on the current state, without any loss of optimality.</p>
+<p>In general, <a href="#thm-MDP-markov" class="quarto-xref">Theorem&nbsp;<span>5.1</span></a> claims that the cost incurred by the best Markov policy is the same as the cost incurred by the best history dependent policy. This appears to be a tall claim, so lets see how we can prove it. The main idea of the proof is to repeatedly apply <a href="../stochastic-optimization/intro.html#blackwells-principle-of-irrelevant-information">Blackwell’s principle of irrelevant information</a> <span class="citation" data-cites="Blackwell1964">(<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">Blackwell 1964</a>)</span></p>
 <div id="lem-MDP-two-step-lemma" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 5.1 (Two-Step Lemma) </strong></span>Consider an MDP that operates for two steps (<span class="math inline">\(T=2\)</span>). Then there is no loss of optimality in restricting attention to a Markov control policy at time <span class="math inline">\(t=2\)</span>.</p>
+<p><span class="theorem-title"><strong>Lemma 5.1 (Two-Step Lemma)</strong></span> Consider an MDP that operates for two steps (<span class="math inline">\(T=2\)</span>). Then there is no loss of optimality in restricting attention to a Markov control policy at time <span class="math inline">\(t=2\)</span>.</p>
 </div>
 <p>Note that <span class="math inline">\(π_1\)</span> is Markov because it can only depend <span class="math inline">\(S_1\)</span>.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -812,7 +860,7 @@ Proof
 </div>
 </div>
 <div id="lem-three-step-lemma" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 5.2 (Three-Step Lemma) </strong></span>Consider an MDP that operates for three steps (<span class="math inline">\(T=3\)</span>). Assume that the control law <span class="math inline">\(π_3\)</span> at time <span class="math inline">\(t=3\)</span> is Markov, i.e., <span class="math inline">\(A_3 = π_3(S_3)\)</span>. Then, there is no loss of optimality in restricting attention to Markov control law at time <span class="math inline">\(t=2\)</span>.</p>
+<p><span class="theorem-title"><strong>Lemma 5.2 (Three-Step Lemma)</strong></span> Consider an MDP that operates for three steps (<span class="math inline">\(T=3\)</span>). Assume that the control law <span class="math inline">\(π_3\)</span> at time <span class="math inline">\(t=3\)</span> is Markov, i.e., <span class="math inline">\(A_3 = π_3(S_3)\)</span>. Then, there is no loss of optimality in restricting attention to Markov control law at time <span class="math inline">\(t=2\)</span>.</p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
@@ -850,15 +898,20 @@ A_1) ].\]</span></p>
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Proof of <a href="#thm-MDP-markov">Theorem&nbsp;<span>5.1</span></a>
+Proof of <a href="#thm-MDP-markov" class="quarto-xref">Theorem&nbsp;<span>5.1</span></a>
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The main idea is that any system can be thought of as a two- or three-step system by aggregating time. Suppose that the system operates for <span class="math inline">\(T\)</span> steps. It can be thought of as a two-step system where <span class="math inline">\(t \in \{1, \dots, T - 1\}\)</span> corresponds to step 1 and <span class="math inline">\(t = T\)</span> corresponds to step 2. From the two-step lemma, there is no loss of optimality in restricting attention to Markov control law at step 2 (i.e., at time <span class="math inline">\(t=T\)</span>), i.e., <span class="math display">\[ A_T = π_T(S_T). \]</span></p>
-<p>Now consider a system where we are using a Markov policy at time <span class="math inline">\(t=T\)</span>. This system can be thought of as a three-step system where <span class="math inline">\(t \in \{1, \dots, T-2\}\)</span> corresponds to step 1, <span class="math inline">\(t = T-1\)</span> corresponds to step 2, and <span class="math inline">\(t=T\)</span> corresponds to step 3. Since the controller at time <span class="math inline">\(T\)</span> is Markov, the assumption of the three step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-1\)</span>), i.e., <span class="math display">\[A_{T-1} = π_{T-1}(S_{T-1}).\]</span></p>
-<p>Now consider a system where we are using a Markov policy at time <span class="math inline">\(t \in \{T-1, T\}\)</span>. This can be thought of as a three-step system where <span class="math inline">\(t \in \{1, \dots, T - 3\}\)</span> correspond to step 1, <span class="math inline">\(t = T-2\)</span> correspond to step 2, and <span class="math inline">\(t \in \{T-1, T\}\)</span> correspond to step 3. Since the controllers at time <span class="math inline">\(t \in \{T-1, T\}\)</span> are Markov, the assumption of the three-step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-2\)</span>), i.e., <span class="math display">\[A_{T-2} = π_{T-2}(S_{T-2}).\]</span></p>
+<p>Now consider a system where we are using a Markov policy at time <span class="math inline">\(t=T\)</span>. This system can be thought of as a three-step system where <span class="math inline">\(t \in \{1, \dots,
+T-2\}\)</span> corresponds to step 1, <span class="math inline">\(t = T-1\)</span> corresponds to step 2, and <span class="math inline">\(t=T\)</span> corresponds to step 3. Since the controller at time <span class="math inline">\(T\)</span> is Markov, the assumption of the three step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-1\)</span>), i.e., <span class="math display">\[A_{T-1} = π_{T-1}(S_{T-1}).\]</span></p>
+<p>Now consider a system where we are using a Markov policy at time <span class="math inline">\(t \in
+\{T-1, T\}\)</span>. This can be thought of as a three-step system where <span class="math inline">\(t \in \{1,
+\dots, T - 3\}\)</span> correspond to step 1, <span class="math inline">\(t = T-2\)</span> correspond to step 2, and <span class="math inline">\(t
+\in \{T-1, T\}\)</span> correspond to step 3. Since the controllers at time <span class="math inline">\(t \in
+\{T-1, T\}\)</span> are Markov, the assumption of the three-step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at step 2 (i.e., at time <span class="math inline">\(t=T-2\)</span>), i.e., <span class="math display">\[A_{T-2} = π_{T-2}(S_{T-2}).\]</span></p>
 <p>Proceeding this way, we continue to think of the system as a three step system by different relabeling of time. Once we have shown that the controllers at times <span class="math inline">\(t \in \{s+1, s+2, \dots, T\}\)</span> are Markov, we relabel time as follows: <span class="math inline">\(t=\{1, \dots, s-1\}\)</span> corresponds to step 1, <span class="math inline">\(t = s\)</span> corresponds to step 2, and <span class="math inline">\(t \in \{s+1, \dots, T\}\)</span> corresponds to step 3. Since the controllers at time <span class="math inline">\(t \in \{s+1, \dots, T\}\)</span> are Markov, the assumption of the three-step lemma is satisfied. Thus, by that lemma, there is no loss of optimality in restricting attention to Markov controllers at stage 2 (i.e.&nbsp;at time <span class="math inline">\(s\)</span>), i.e., <span class="math display">\[A_τ = π_τ(S_τ).\]</span></p>
 <p>Proceeding until <span class="math inline">\(s=2\)</span>, completes the proof.</p>
 </div>
@@ -906,8 +959,8 @@ s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> on
                 0&amp;  0&amp;  \3&amp;   0&amp; \3 \\
                 0&amp;  0&amp;   0&amp;  \2&amp; \1}
 \]</span> We start with <span class="math inline">\(V_{t+1} = \VEC(0,0,0,0,0)\)</span> and run the following recursion.</p>
-<div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>cπ <span class="op">=</span> [<span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">5</span>] <span class="co"># FIXME</span></span>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>cπ <span class="op">=</span> [<span class="fl">5</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">5</span>] <span class="co"># </span><span class="al">FIXME</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Pπ <span class="op">=</span> [<span class="fl">1</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">3</span><span class="op">//</span><span class="fl">4</span>  <span class="fl">0</span>     <span class="fl">0</span>     <span class="fl">0</span> </span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">0</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span>     <span class="fl">1</span><span class="op">//</span><span class="fl">2</span>  <span class="fl">0</span></span>
@@ -934,11 +987,15 @@ s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> on
  [0.0, 0.0, 0.0, 0.0, 0.0]</code></pre>
 </div>
 </div>
-<p><a href="#fig-peak-evaluation">Figure&nbsp;<span>5.3</span></a> shows the value functions computed as part of the policy evaluation.</p>
-<div id="fig-peak-evaluation" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="figures/peak-control-evaluation1.svg" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Figure&nbsp;5.3: Value function for policy evaluation of the example. Note that the value functions are computed by proceeding backwards in time.</figcaption>
+<p><a href="#fig-peak-evaluation" class="quarto-xref">Figure&nbsp;<span>5.3</span></a> shows the value functions computed as part of the policy evaluation.</p>
+<div id="fig-peak-evaluation" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-peak-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/peak-control-evaluation1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peak-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.3: Value function for policy evaluation of the example. Note that the value functions are computed by proceeding backwards in time.
+</figcaption>
 </figure>
 </div>
 </section>
@@ -947,7 +1004,8 @@ s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> on
 <h2 data-number="5.4" class="anchored" data-anchor-id="DP"><span class="header-section-number">5.4</span> Dynamic Programming Decomposition</h2>
 <p>Now we are ready to state the main result for MDPs.</p>
 <div id="thm-MDP-DP" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 5.2 (Dynamic program) </strong></span>Recursive define <em>value functions</em> <span class="math inline">\(\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET S \to \reals\)</span> as follows: <span class="math display">\[ \begin{equation} \label{eq:DP-1}
+<p><span class="theorem-title"><strong>Theorem 5.2 (Dynamic program)</strong></span> Recursive define <em>value functions</em> <span class="math inline">\(\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET S
+\to \reals\)</span> as follows: <span class="math display">\[ \begin{equation} \label{eq:DP-1}
   V_{T+1}(s) = 0
 \end{equation} \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>: <span class="math display">\[\begin{align}
    Q_t(s,a) &amp;= c(s,a) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s, A_t = a]
@@ -959,15 +1017,15 @@ s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> on
   π_t^*(s) = \arg \min_{a \in \ALPHABET A} Q_t(s,a).
 \end{equation} \]</span></p>
 </div>
-<p>For the controlled Markov chain representation, the dynamic program of <a href="#thm-MDP-DP">Theorem&nbsp;<span>5.2</span></a> can be written more succinctly. We will view <span class="math inline">\(\{V_t\}_{t=1}^T\)</span> as vectors in <span class="math inline">\(\reals^n\)</span>, where <span class="math inline">\(n = \ABS{\ALPHABET S}\)</span>. Moreover, we will view <span class="math inline">\(\{Q_t\}_{t=1}^T\)</span> and <span class="math inline">\(\{c_t\}_{t=1}^T\)</span> as matrices in <span class="math inline">\(\reals^{n × m}\)</span>, where <span class="math inline">\(m = \ABS{\ALPHABET A}\)</span>.</p>
-<p>Then, the dynamic program of <a href="#thm-MDP-DP">Theorem&nbsp;<span>5.2</span></a> may be written as follows: start with a terminal value function <span class="math inline">\(V_{T+1} ≡ 0\)</span> and then for <span class="math inline">\(t \in \{T, T-1, \dots, 1\}\)</span>, recursively compute: <span class="math display">\[\begin{align*}
+<p>For the controlled Markov chain representation, the dynamic program of <a href="#thm-MDP-DP" class="quarto-xref">Theorem&nbsp;<span>5.2</span></a> can be written more succinctly. We will view <span class="math inline">\(\{V_t\}_{t=1}^T\)</span> as vectors in <span class="math inline">\(\reals^n\)</span>, where <span class="math inline">\(n = \ABS{\ALPHABET S}\)</span>. Moreover, we will view <span class="math inline">\(\{Q_t\}_{t=1}^T\)</span> and <span class="math inline">\(\{c_t\}_{t=1}^T\)</span> as matrices in <span class="math inline">\(\reals^{n × m}\)</span>, where <span class="math inline">\(m = \ABS{\ALPHABET A}\)</span>.</p>
+<p>Then, the dynamic program of <a href="#thm-MDP-DP" class="quarto-xref">Theorem&nbsp;<span>5.2</span></a> may be written as follows: start with a terminal value function <span class="math inline">\(V_{T+1} ≡ 0\)</span> and then for <span class="math inline">\(t \in \{T, T-1, \dots, 1\}\)</span>, recursively compute: <span class="math display">\[\begin{align*}
   Q_t &amp;= c_t + [ P_t(1) V_{t+1} \mid P_t(2) V_{t+1} \mid \cdots \mid P_t(m) V_{t+1} ], \\
   V_t &amp;= \min(Q_t, \hbox{\tt dim}=2), \\
   π_t &amp;= \arg\min(Q_t, \hbox{\tt dim}=2).
 \end{align*}\]</span></p>
 <section id="example-continued-1" class="level3" data-number="5.4.1">
 <h3 data-number="5.4.1" class="anchored" data-anchor-id="example-continued-1"><span class="header-section-number">5.4.1</span> Example (continued)</h3>
-<div class="cell" data-execution_count="3">
+<div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the default indexing (1,...,n) for convenience. </span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>(n,m) <span class="op">=</span> (<span class="fl">5</span>,<span class="fl">2</span>)</span>
@@ -1026,19 +1084,23 @@ s\bigg]. \]</span> Note that <span class="math inline">\(V^{π}_t(s)\)</span> on
  [0, 0, 0, 0, 0]</code></pre>
 </div>
 </div>
-<p><a href="#fig-peak-optimal">Figure&nbsp;<span>5.4</span></a> shows the value functions and optimal policy computed from the dynamic program</p>
-<div id="fig-peak-optimal" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="figures/peak-control-optimal1.svg" class="img-fluid figure-img"></p>
-<figcaption class="figure-caption">Figure&nbsp;5.4: Optimal value function and optimal policy for the example. The red color indicates that the optimal action is <span class="math inline">\(1\)</span>; black indicates that the optimal action is <span class="math inline">\(0\)</span>. Note that the computations are done by proceeding backwards in time.</figcaption>
+<p><a href="#fig-peak-optimal" class="quarto-xref">Figure&nbsp;<span>5.4</span></a> shows the value functions and optimal policy computed from the dynamic program</p>
+<div id="fig-peak-optimal" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-peak-optimal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/peak-control-optimal1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-peak-optimal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.4: Optimal value function and optimal policy for the example. The red color indicates that the optimal action is <span class="math inline">\(1\)</span>; black indicates that the optimal action is <span class="math inline">\(0\)</span>. Note that the computations are done by proceeding backwards in time.
+</figcaption>
 </figure>
 </div>
 </section>
 <section id="back-to-the-proof" class="level3" data-number="5.4.2">
 <h3 data-number="5.4.2" class="anchored" data-anchor-id="back-to-the-proof"><span class="header-section-number">5.4.2</span> Back to the proof</h3>
-<p>Instead of proving <a href="#thm-MDP-DP">Theorem&nbsp;<span>5.2</span></a>, we prove a related result.</p>
+<p>Instead of proving <a href="#thm-MDP-DP" class="quarto-xref">Theorem&nbsp;<span>5.2</span></a>, we prove a related result.</p>
 <div id="thm-comparison-principle" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 5.3 (The comparison principle) </strong></span>For any Markov policy <span class="math inline">\(π\)</span> <span class="math display">\[ V^{π}_t(s) \ge V_t(s) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future policy</em> <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step \eqref{eq:verification}.</p>
+<p><span class="theorem-title"><strong>Theorem 5.3 (The comparison principle)</strong></span> For any Markov policy <span class="math inline">\(π\)</span> <span class="math display">\[ V^{π}_t(s) \ge V_t(s) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future policy</em> <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step \eqref{eq:verification}.</p>
 </div>
 <p>Note that the comparison principle immediately implies that the policy obtained using dynamic programming is optimal.</p>
 <p>The comparison principle also allows us to interpret the value functions. The value function at time <span class="math inline">\(t\)</span> is the minimum of all the cost-to-go functions over all future policies. The comparison principle also allows us to interpret the optimal policy (the interpretation is due to Bellman and is colloquially called Bellman’s principle of optimality).</p>
@@ -1067,7 +1129,8 @@ Proof of the comparison principle
 </div>
 <div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The proof proceeds by backward induction. Consider any Markov policy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>. For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ \begin{align*}
+<p>The proof proceeds by backward induction. Consider any Markov policy <span class="math inline">\(π =
+(π_1, \dots, π_T)\)</span>. For <span class="math inline">\(t = T\)</span>, <span class="math display">\[ \begin{align*}
   V_T(s) &amp;= \min_{a \in \ALPHABET A} Q_T(s,a) \\
   &amp;\stackrel{(a)}= \min_{a \in \ALPHABET A} c_T(s,a) \\
   &amp;\stackrel{(b)}\le c_T(s, π_T(s)) \\
@@ -1130,7 +1193,7 @@ Discount factor
 <h3 data-number="5.5.3" class="anchored" data-anchor-id="multiplicative-cost"><span class="header-section-number">5.5.3</span> Multiplicative cost</h3>
 <p>So far, we have assumed that the cost is additive. The dynamic proramming decomposition also works for models with multiplicative cost. In particular, suppose that the performance of any policy is given by <span class="math display">\[ J(π) = \EXP\Bigl[ \prod_{t=1}^T c_t(S_t, A_t) \Bigr] \]</span> where the per-step cost function is positive. Then, it can be shown that the optimal policy is given by the following dynamic program.</p>
 <div id="prp-DP-multiplicative" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 5.1 (Dynamic Program for multiplicative cost) </strong></span>Initialize <span class="math inline">\(V_{T+1}(s) = 1\)</span> and recursively compute <span class="math display">\[ \begin{align*}
+<p><span class="theorem-title"><strong>Proposition 5.1 (Dynamic Program for multiplicative cost)</strong></span> Initialize <span class="math inline">\(V_{T+1}(s) = 1\)</span> and recursively compute <span class="math display">\[ \begin{align*}
 Q_t(s,a) &amp;= c_t(s,a) \EXP[ V_{t+1}(S_{t+1}) | S_t = s, A_t = a ], \\
 V_t(s) &amp;= \min_{a \in \ALPHABET A} Q_t(s,a).
 \end{align*} \]</span></p>
@@ -1150,7 +1213,7 @@ V_t(s) &amp;= \min_{a \in \ALPHABET A} Q_t(s,a).
 <p>Define the <em>cost-to-go function</em> of any stopping rule as <span class="math display">\[V^{\tau}_t(s) = \EXP\bigg[ \sum_{τ = t}^{\tau - 1} c_{\tau}(S_t) +
 d_\tau(S_\tau) \,\bigg|\, \tau &gt; t \bigg]\]</span> and the <em>value function</em> as <span class="math display">\[V_t(s) = \inf_{\tau} V^{\tau}_t(s). \]</span> Then, it can be shown that the value functions satisfy the following recursion:</p>
 <div id="prp-DP-stopping" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 5.2 </strong></span><strong>Dynamic Program for optimal stopping</strong> <span class="math display">\[ \begin{align*}
+<p><span class="theorem-title"><strong>Proposition 5.2</strong></span> <strong>Dynamic Program for optimal stopping</strong> <span class="math display">\[ \begin{align*}
 V_T(s) &amp;= s_T(s) \\
 V_t(s) &amp;= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 \end{align*}\]</span></p>
@@ -1184,20 +1247,20 @@ V_t(s) &amp;= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 \]</span></p>
 <p>We present a few examples below from <span class="citation" data-cites="Blackwell1965">Blackwell (<a href="../references.html#ref-Blackwell1965" role="doc-biblioref">1965</a>)</span> to highlight technical issues with non-finite state models.</p>
 <div id="exm-Blackwell-no-optimal-policy" class="theorem example">
-<p><span class="theorem-title"><strong>Example 5.1 (No optimal policy) </strong></span>Let <span class="math inline">\(\ALPHABET S = \{s_\circ\}\)</span>, <span class="math inline">\(\ALPHABET A = \integers_{\ge 0}\)</span> Consider <span class="math inline">\(c(s_\circ,a) = (a+1)/a\)</span>. Here <span class="math inline">\(v^*(s_\circ) = 1\)</span> but there is no policy which achieves this cost.</p>
+<p><span class="theorem-title"><strong>Example 5.1 (No optimal policy)</strong></span> Let <span class="math inline">\(\ALPHABET S = \{s_\circ\}\)</span>, <span class="math inline">\(\ALPHABET A = \integers_{\ge 0}\)</span> Consider <span class="math inline">\(c(s_\circ,a) = (a+1)/a\)</span>. Here <span class="math inline">\(v^*(s_\circ) = 1\)</span> but there is no policy which achieves this cost.</p>
 </div>
 <p>In the above example, there is no optimal policy, but given any <span class="math inline">\(ε &gt; 0\)</span>, we can identify an <span class="math inline">\(ε\)</span>-optimal policy. The next example shows that we can have a much severe situation where the value function is not measurable. The example relies on the following fact:</p>
 <blockquote class="blockquote">
 <p>There exist Borel sets in <span class="math inline">\(\reals^2\)</span> whose projection on <span class="math inline">\(\reals\)</span> is not Borel. See <a href="https://en.wikipedia.org/wiki/Projection_(measure_theory)">:the wikipedia article on projections</a> for a discussion.</p>
 </blockquote>
 <div id="exm-Blackwell-non-measurable-value-function" class="theorem example">
-<p><span class="theorem-title"><strong>Example 5.2 (Non-measurable value function) </strong></span>Let <span class="math inline">\(\ALPHABET S = \ALPHABET A = [0,1]\)</span> and let <span class="math inline">\(B \subset \ALPHABET S × \ALPHABET A\)</span> such that <span class="math inline">\(B\)</span> is measurable but its projection on <span class="math inline">\(D\)</span> onto <span class="math inline">\(\ALPHABET S\)</span> is not. Consider <span class="math inline">\(c(s,a) = -\IND\{ (s,a) \in B \}\)</span>. Note that <span class="math display">\[
+<p><span class="theorem-title"><strong>Example 5.2 (Non-measurable value function)</strong></span> Let <span class="math inline">\(\ALPHABET S = \ALPHABET A = [0,1]\)</span> and let <span class="math inline">\(B \subset \ALPHABET S × \ALPHABET A\)</span> such that <span class="math inline">\(B\)</span> is measurable but its projection on <span class="math inline">\(D\)</span> onto <span class="math inline">\(\ALPHABET S\)</span> is not. Consider <span class="math inline">\(c(s,a) = -\IND\{ (s,a) \in B \}\)</span>. Note that <span class="math display">\[
   v(s) = \inf_{a \in \ALPHABET A} c(s,a) =
   \inf_{a \in \ALPHABET A} -\IND\{ (s,a) \in B \} =
   -\IND\{s \in D \}
 \]</span> which is not Borel measurable.</p>
 </div>
-<p>See <span class="citation" data-cites="Piunovskiy2011">Piunovskiy (<a href="../references.html#ref-Piunovskiy2011" role="doc-biblioref">2011</a>)</span> for various examples on what can go wrong in MDPs. In particular, Example 1.4.15 of <span class="citation" data-cites="Piunovskiy2011">Piunovskiy (<a href="../references.html#ref-Piunovskiy2011" role="doc-biblioref">2011</a>)</span> extends <a href="#exm-Blackwell-non-measurable-value-function">Example&nbsp;<span>5.2</span></a> to provide an example where there is no <span class="math inline">\(ε\)</span>-optimal policy! (<span class="citation" data-cites="Blackwell1965">Blackwell (<a href="../references.html#ref-Blackwell1965" role="doc-biblioref">1965</a>)</span> also has such an example, but it is much harder to parse).</p>
+<p>See <span class="citation" data-cites="Piunovskiy2011">Piunovskiy (<a href="../references.html#ref-Piunovskiy2011" role="doc-biblioref">2011</a>)</span> for various examples on what can go wrong in MDPs. In particular, Example 1.4.15 of <span class="citation" data-cites="Piunovskiy2011">Piunovskiy (<a href="../references.html#ref-Piunovskiy2011" role="doc-biblioref">2011</a>)</span> extends <a href="#exm-Blackwell-non-measurable-value-function" class="quarto-xref">Example&nbsp;<span>5.2</span></a> to provide an example where there is no <span class="math inline">\(ε\)</span>-optimal policy! (<span class="citation" data-cites="Blackwell1965">Blackwell (<a href="../references.html#ref-Blackwell1965" role="doc-biblioref">1965</a>)</span> also has such an example, but it is much harder to parse).</p>
 <!-- See example 1.4.15 -->
 <p>There are two ways to resolve the issue with non-existence of optimal policies: either assume that <span class="math inline">\(\ALPHABET A\)</span> is compact or that the function that we are minimizing is coercive, so that the <span class="math inline">\(\arg\inf\)</span> can be replaced by an <span class="math inline">\(\arg\min\)</span>. Or work with <span class="math inline">\(ε\)</span>-optimal policies.</p>
 <p>Resolving the measurability issue is more complicated. There are various <strong>measurable selection theorems</strong> in the literature to identify sufficient conditions for measurability of the value function and optimal policy. See <span class="citation" data-cites="HernandezLerma1996">Hernández-Lerma and Lasserre (<a href="../references.html#ref-HernandezLerma1996" role="doc-biblioref">1996</a>)</span> and <span class="citation" data-cites="HernandezLerma1999">(<a href="../references.html#ref-HernandezLerma1999" role="doc-biblioref">1999</a>)</span> for an accessible treatment of continous state MDPs.</p>
@@ -1205,13 +1268,14 @@ V_t(s) &amp;= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 <section id="exercises" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
 <div id="exr-monotonicity-in-time" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 5.1 (Monotonicity in time) </strong></span>Consider an MDP where the dynamics and per-step cost are time-homogeneous, i.e., the function <span class="math inline">\(f_t\)</span> and the per-step cost <span class="math inline">\(c_t\)</span> do not depend on <span class="math inline">\(t\)</span> (except, possibly at the terminal time <span class="math inline">\(t=T\)</span>). Suppose that <span class="math inline">\(V_{T-1}(s) \le V_T(s)\)</span> for all <span class="math inline">\(s \in \ALPHABET S\)</span>. Then, show that <span class="math display">\[ V_{t}(s) \le V_{t+1}(s), \quad
+<p><span class="theorem-title"><strong>Exercise 5.1 (Monotonicity in time)</strong></span> Consider an MDP where the dynamics and per-step cost are time-homogeneous, i.e., the function <span class="math inline">\(f_t\)</span> and the per-step cost <span class="math inline">\(c_t\)</span> do not depend on <span class="math inline">\(t\)</span> (except, possibly at the terminal time <span class="math inline">\(t=T\)</span>). Suppose that <span class="math inline">\(V_{T-1}(s) \le V_T(s)\)</span> for all <span class="math inline">\(s \in \ALPHABET S\)</span>. Then, show that <span class="math display">\[ V_{t}(s) \le V_{t+1}(s), \quad
    \text{for all $s \in \ALPHABET S$ and $t$}.\]</span></p>
-<p>Similarly, if we have that <span class="math inline">\(V_{T-1}(s) \ge V_T(s)\)</span> for all <span class="math inline">\(s \in \ALPHABET S\)</span>, then <span class="math display">\[ V_{t}(s) \ge V_{t+1}(s), \quad
+<p>Similarly, if we have that <span class="math inline">\(V_{T-1}(s) \ge V_T(s)\)</span> for all <span class="math inline">\(s \in
+\ALPHABET S\)</span>, then <span class="math display">\[ V_{t}(s) \ge V_{t+1}(s), \quad
    \text{for all $s \in \ALPHABET S$ and $t$}.\]</span></p>
 </div>
 <div id="exr-maximizing-tail-probabilities" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 5.2 (Dynamic programming for maximizing tail probabilities) </strong></span>Consider a dynamical system that evolves as follows: <span class="math display">\[
+<p><span class="theorem-title"><strong>Exercise 5.2 (Dynamic programming for maximizing tail probabilities)</strong></span> Consider a dynamical system that evolves as follows: <span class="math display">\[
   S_{t+1} = f_t(S_t, A_t, W_t)
 \]</span> where <span class="math inline">\(\{S_1, W_1, \dots, W_T\}\)</span> are independent random variables and the control actions <span class="math inline">\(A_t\)</span> are chosen according to a history dependent policy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>: <span class="math display">\[
   A_t = π_t(S_{1:t}, A_{1:t-1}).
@@ -1298,6 +1362,33 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       }
     }
   }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
   const toggleColorMode = (alternate) => {
     // Switch the stylesheets
     const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
@@ -1364,13 +1455,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  let localAlternateSentinel = 'default';
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
     // Read the current dark / light value 
     let toAlternate = !hasAlternateSentinel();
     toggleColorMode(toAlternate);
     setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
   };
   // Ensure there is a toggle, if there isn't float one in the top right
   if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
@@ -1449,10 +1542,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1462,8 +1554,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1476,6 +1577,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1519,6 +1739,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1544,6 +1765,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1605,12 +1852,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../stochastic-optimization/interchange.html" class="pagination-link">
+      <a href="../stochastic-optimization/interchange.html" class="pagination-link  aria-label=" &lt;span="" arguments&lt;="" span&gt;"="">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Interchange arguments</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../mdps/gambling.html" class="pagination-link">
+      <a href="../mdps/gambling.html" class="pagination-link" aria-label="<span class='chapter-number'>6</span>&nbsp; <span class='chapter-title'>Optimal gambling</span>">
         <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Optimal gambling</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
@@ -1619,5 +1866,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
