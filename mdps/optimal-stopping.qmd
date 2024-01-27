@@ -19,15 +19,15 @@ Define the _cost-to-go function_ of any stopping rule as
 $$J_{t_0}(s; \tau) = \EXP\bigg[ \sum_{t = t_0}^{\tau - 1} c_{t}(S_t) +
 d_\tau(S_\tau) \,\bigg|\, S_{t_0} = s, \tau > t_0 \bigg]$$
 and the _value function_ as
-$$V_t(s) = \inf_{\tau} J_t(s; \tau). $$
+$$V^*_t(s) = \inf_{\tau} J_t(s; \tau). $$
 Then, it can be shown that the value functions satisfy the following
 recursion:
 
 ::: {.callout-tip}
 #### Dynamic Program for optimal stopping
 $$ \begin{align*}
-V_T(s) &= d_T(s) \\
-V_t(s) &= \min\{ d_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
+V^*_T(s) &= d_T(s) \\
+V^*_t(s) &= \min\{ d_t(s), c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s].
 \end{align*}$$
 :::
 
@@ -35,7 +35,7 @@ V_t(s) &= \min\{ d_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
 Consider an optimal stopping problem and define the _benefit (or advantage) function_ as
 the expected benefit[^1] of delaying the stopping decision at time $t$, i.e.,
 $$\begin{equation}\label{eq:B}
-  B_t(s) = c_t(s) + \EXP[ V_{t+1}( S_{t+1}) | S_t = s] - d_t(s). 
+  B_t(s) = c_t(s) + \EXP[ V^*_{t+1}( S_{t+1}) | S_t = s] - d_t(s). 
 \end{equation}$$
 Thus, it is optimal to stop whenever $B_t(s) \ge 0$. 
 
@@ -46,7 +46,7 @@ Thus, it is optimal to stop whenever $B_t(s) \ge 0$.
 Note that, we can write the value function in terms of the benefit function as
 follows:
 $$\begin{align}
-  V_t(s) &= \min\{ d_t(s), B_t(s) + d_t(s) \} \nonumber \\
+  V^*_t(s) &= \min\{ d_t(s), B_t(s) + d_t(s) \} \nonumber \\
   &= d_t(s) + [ B_t(s) ]^-, \label{eq:V}
 \end{align}$$ 
 where $[y]^-$ is a short hand for $\min\{y, 0\}$. 
@@ -62,7 +62,7 @@ follows.
 $$ B_T(s) = M_T(s) $$
 and
 $$ \begin{align*}
-  B_t(s) &= c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s] - d_t(s) \\
+  B_t(s) &= c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s] - d_t(s) \\
   &= c_t(s) + \EXP[ d_{t+1}(S_{t+1}) + [B_{t+1}(S_{t+1})]^- | S_t = s] - d_t(s)
   \\
   &= M_t(s) + \EXP[ [B_{t+1}(S_{t+1}]^- | S_t = s ].
@@ -139,18 +139,18 @@ $\{S_t\}_{t \ge 1}$ is an independent process with $\PR(S_t = 1) = 1/t$. The con
 :::{.callout-tip}
 #### Dynamic program
 $$ \begin{align*}
-  V_{T+1}(s) &= 0 \\
-  V_t(s) &= \max\bigg\{ s \cdot \frac tT, 
-  \EXP[ V_{t+1}(S_{t+1}) ] \bigg\}
+  V^*_{T+1}(s) &= 0 \\
+  V^*_t(s) &= \max\bigg\{ s \cdot \frac tT, 
+  \EXP[ V^*_{t+1}(S_{t+1}) ] \bigg\}
 \end{align*}$$
 :::
 
 :::{#lem-secretary-problem}
 Define
-$$ L_t = V_t(0) = 
-\frac t{t+1} V_{t+1}(0) + \frac 1{t+1}V_{t+1}(1). $$
+$$ L_t = V^*_t(0) = 
+\frac t{t+1} V^*_{t+1}(0) + \frac 1{t+1}V^*_{t+1}(1). $$
 Then, 
-$$V_t(1) = \max\bigg\{ \frac tT, L_t \bigg\}$$
+$$V^*_t(1) = \max\bigg\{ \frac tT, L_t \bigg\}$$
 and, therefore,
 $$ 
   L_t - L_{t+1} = \bigg[ \frac 1T - \frac {L_{t+1}}{t+1} \bigg]^+
@@ -190,7 +190,7 @@ Note that it is never optimal to select an alternative if it is not the best so 
 
 Note that $L_t - L_{t+1} \ge 0$. Thus, $L_t$ is decreasing with time. 
 
-$V_t(1) = \max\{t/T, L_t\}$ where the first term is increasing with time and the second term is decreasing with time. Thus, the critical time $t_0$ is the first time when $t/T \ge L_t$. Since $L_T = 0$ and $T/T = 1$, such a $t_0 < T$. 
+$V^*_t(1) = \max\{t/T, L_t\}$ where the first term is increasing with time and the second term is decreasing with time. Thus, the critical time $t_0$ is the first time when $t/T \ge L_t$. Since $L_T = 0$ and $T/T = 1$, such a $t_0 < T$. 
 
 For any $t < t_0$ (i.e., $t/T < L_t$), 
 $$
@@ -214,7 +214,7 @@ $$
 $$
 Thus, $t_0 \approx T/e$. Moreover
 $$
-V_1(0) = V_1(1) = L_1 = L_{t_0} \approx \frac{t_0}{T} = \frac 1e.
+V^*_1(0) = V^*_1(1) = L_1 = L_{t_0} \approx \frac{t_0}{T} = \frac 1e.
 $$
 :::
 
@@ -239,34 +239,34 @@ Since this is an optimal stopping problem with perfect state observation, the op
 :::{.callout-tip}
 #### Dynamic program
 $$\begin{align*}
-V_{T}(s) &= \max\{ s-p, 0 \} \\
-V_{t}(s) &= \max\{ s-p, \EXP[ V_{t+1}(s + W) \}.
+V^*_{T}(s) &= \max\{ s-p, 0 \} \\
+V^*_{t}(s) &= \max\{ s-p, \EXP[ V^*_{t+1}(s + W) \}.
 \end{align*}$$
 :::
 
 :::{#lem-call-options-properties}
-1. For all $t$, $V_t(s)$ is increasing in $s$.
-2. For all $t$, $V_t(s) - s$ is decreasing in $s$.
-3. For all $s$, $V_t(s) \ge V_{t+1}(s)$.
+1. For all $t$, $V^*_t(s)$ is increasing in $s$.
+2. For all $t$, $V^*_t(s) - s$ is decreasing in $s$.
+3. For all $s$, $V^*_t(s) \ge V^*_{t+1}(s)$.
 :::
 
 :::{.callout-note collapse="true"}
 #### Proof {-}
 
-The first property follows immediately from monotonicity of terminal reward and the monotonicity of the dynamics. From @exr-monotonicity-in-time, to show the third property, we need to show that $V_{T-1}(s) \ge V_T(s)$. Observe that
-$$ V_{T-1}(s) = 
-\max\{s - p, \EXP[V_{T}(s + W) \} \ge \max\{ s - p, 0 \} = V_T(s).
+The first property follows immediately from monotonicity of terminal reward and the monotonicity of the dynamics. From @exr-monotonicity-in-time, to show the third property, we need to show that $V^*_{T-1}(s) \ge V^*_T(s)$. Observe that
+$$ V^*_{T-1}(s) = 
+\max\{s - p, \EXP[V^*_{T}(s + W) \} \ge \max\{ s - p, 0 \} = V^*_T(s).
 $$
 
 Now we prove the second property using backward induction. At $t=T$,
-$$ V_T(s) - s = \max\{ -p, -s \}$$
+$$ V^*_T(s) - s = \max\{ -p, -s \}$$
 which is decreasing in $s$. This forms the basis of induction. Now assume that
-$V_{t+1}(s) - s$ is decreasing in $s$. Then,
+$V^*_{t+1}(s) - s$ is decreasing in $s$. Then,
 $$ \begin{align*}
-  V_t(s) - s &= \max\{ -p, \EXP[ V_{t+1}(s+W) ] - s  \} \\
-  &= \max\{ -p, \EXP[ V_{t+1}(s+W) - (s + W) ] + \EXP[W] \}.
+  V^*_t(s) - s &= \max\{ -p, \EXP[ V^*_{t+1}(s+W) ] - s  \} \\
+  &= \max\{ -p, \EXP[ V^*_{t+1}(s+W) - (s + W) ] + \EXP[W] \}.
 \end{align*} $$
-By the induction hypothesis the second term is decreasing in $s$. The minimum of a constant and a decreasing function is decreasing in $s$. Thus, $V_t(s) - s$ is decreasing in $s$. This completes the induction step. 
+By the induction hypothesis the second term is decreasing in $s$. The minimum of a constant and a decreasing function is decreasing in $s$. Thus, $V^*_t(s) - s$ is decreasing in $s$. This completes the induction step. 
 :::
 
 
@@ -280,16 +280,16 @@ $s^\circ$, then it is optimal to sell at all $s \ge s^\circ$.
 
 Since it is optimal to sell at $s^\circ$, we must have
 \begin{equation} \label{eq:p1}
-  s^\circ - p \ge \EXP[V_{t+1}(s^\circ + W) ] 
+  s^\circ - p \ge \EXP[V^*_{t+1}(s^\circ + W) ] 
 \end{equation}
-Since $V_{t}(s) - s$ is decreasing in $s$, we have that for any $s \ge
+Since $V^*_{t}(s) - s$ is decreasing in $s$, we have that for any $s \ge
 s^\circ$, 
 \begin{equation} \label{eq:p2}
-\EXP[ V_{t+1}(s + W) - s ] \le \EXP[ V_{t+1}(s^\circ + W) - s^\circ ]
+\EXP[ V^*_{t+1}(s + W) - s ] \le \EXP[ V^*_{t+1}(s^\circ + W) - s^\circ ]
 \le -p 
 \end{equation}
 where the last inequality follows from \\eqref{eq:p1}. Eq \\eqref{eq:p2} implies that 
-$$ \EXP[ V_{t+1}(s+W) ] \le s - p. $$
+$$ \EXP[ V^*_{t+1}(s+W) ] \le s - p. $$
 Thus, the stopping action is also optimal at $s$.
 :::
 
@@ -302,13 +302,13 @@ optimal to exercise the option at time $t$ if and only if $s_t \ge α_t$.
 :::{.callout-note collapse="true"}
 #### Proof 
 
-Let $D_t = \{s : π_t(s) = 1\}$. The previous Lemma shows that $D_t$ is of the form $[α_t, \infty)$, where $α_t = \min \{ s : π_t(s) = 1\}$, where we assume that $α_t = \infty$ is it is not optimal to stop in any state. Thus proves the threshold property. 
+Let $D_t = \{s : π^*_t(s) = 1\}$. The previous Lemma shows that $D_t$ is of the form $[α_t, \infty)$, where $α_t = \min \{ s : π^*_t(s) = 1\}$, where we assume that $α_t = \infty$ is it is not optimal to stop in any state. Thus proves the threshold property. 
 
 To show that the thresholds are decreasing with time, it suffices to show that $D_t \subseteq D_{t+1}$. Suppose $s \in D_t$. Then,
 \begin{equation} \label{eq:p3}
- s - p \ge \EXP[ V_{t+1}(s + W) ] \ge \EXP[ V_{t+2}(s + W) ], 
+ s - p \ge \EXP[ V^*_{t+1}(s + W) ] \ge \EXP[ V^*_{t+2}(s + W) ], 
 \end{equation}
-where the first inequality follows because $s \in D_t$ and the second inequality follows because $V_{t+1}(s) \ge V_{t+2}(s)$. Eq \\eqref{eq:p3} implies that $s \in D_{t+1}$. Hence, $D_t \subseteq D_{t+1}$ and, therefore, the optimal thresholds are decreasing.
+where the first inequality follows because $s \in D_t$ and the second inequality follows because $V^*_{t+1}(s) \ge V^*_{t+2}(s)$. Eq \\eqref{eq:p3} implies that $s \in D_{t+1}$. Hence, $D_t \subseteq D_{t+1}$ and, therefore, the optimal thresholds are decreasing.
 :::
 
 ## Exercises {-}

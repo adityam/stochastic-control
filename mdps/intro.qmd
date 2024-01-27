@@ -226,19 +226,19 @@ policy $π = (π_1, \dots, π_T)$, define _the cost-to-go functions_ or _value f
 follows:
 $$V^{π}_t(s) = \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
 s\bigg]. $$
-Note that $V^{π}_t(s)$ only depends on the future policy $(π_t, \dots, π_T)$. These functions can be computed recursively as follows: we start with a terminal value function $V_{T+1}(s) ≡ 0$ and then for $t \in \{T, T-1, \dots, 1\}$, recursively compute:
+Note that $V^{π}_t(s)$ only depends on the future policy $(π_t, \dots, π_T)$. These functions can be computed recursively as follows: we start with a terminal value function $V^{π}_{T+1}(s) ≡ 0$ and then for $t \in \{T, T-1, \dots, 1\}$, recursively compute:
 \begin{align}
   V^{π}_t(s) &= \EXP^π \bigg[ \sum_{τ = t}^{T} c_τ(S_τ, π_τ(S_τ)) \biggm| S_t =
   s \bigg] \notag \\
   &= \EXP^π \bigg[ c_t(s, π_t(s)) + \EXP^π \bigg[ \sum_{τ = t+1}^T
     c_τ(S_τ, π_τ(S_τ)) \biggm| S_{t+1} \bigg] \biggm| S_t = s \bigg]
   \notag \\
-  &= \EXP^π\big[ c_t(s, π_t(s)) + V_{t+1}(S_{t+1}; π) \big| S_t = s \big]. \label{eq:finite-policy-evaluation}
+  &= \EXP^π\big[ c_t(s, π_t(s)) + V^{π}_{t+1}(S_{t+1}; π) \big| S_t = s \big]. \label{eq:finite-policy-evaluation}
 \end{align}
 
 The formula of Eq. \eqref{eq:finite-policy-evaluation} is called the **policy evaluation formula.** 
 
-For the controlled Markov chain representation, the formula can be written in a vector form. In particular, we will think of $V_t$ to be a vector in $\reals^n$, where $n = \ABS{\ALPHABET S}$. For any policy $π = (π_1, \dots, π_T)$, define the $n × n$ transition matrices $(P^{π}_1, \dots, P^{π}_T)$ as
+For the controlled Markov chain representation, the formula can be written in a vector form. In particular, we will think of $V^π_t$ to be a vector in $\reals^n$, where $n = \ABS{\ALPHABET S}$. For any policy $π = (π_1, \dots, π_T)$, define the $n × n$ transition matrices $(P^{π}_1, \dots, P^{π}_T)$ as
 $$
   P^{π}_t(s'|s) = P_t(s'|s, π_t(s)), 
   \quad t \in \{1,\dots, T\}.
@@ -248,7 +248,7 @@ $$
   c^π_t(s) = c_t(s, π_t(s)), 
   \quad t \in \{1,\dots, T\}.
 $$
-Then, the policy evaluation formula \eqref{eq:finite-policy-evaluation} is equivalent to the following: start with a terminal value function $V_{T+1} ≡ 0$ and then for $t \in \{T, T-1,\dots, 1\}$, recursively compute:
+Then, the policy evaluation formula \eqref{eq:finite-policy-evaluation} is equivalent to the following: start with a terminal value function $V^π_{T+1} ≡ 0$ and then for $t \in \{T, T-1,\dots, 1\}$, recursively compute:
 $$
   V^{π}_t = c^{π}_t + P^{π}_t V^{π}_{t+1}.
 $$
@@ -277,7 +277,7 @@ $$
                 0&  0&  \3&   0& \3 \\
                 0&  0&   0&  \2& \1}
 $$
-We start with $V_{t+1} = \VEC(0,0,0,0,0)$ and run the following recursion.
+We start with $V^π_{t+1} = \VEC(0,0,0,0,0)$ and run the following recursion.
 
 ```{julia}
 #| output: false
@@ -309,13 +309,13 @@ Pπ = [1//4  3//4  0     0     0
 T = 5
 n = size(cπ,1)
 
-V = [ zeros(n) for t ∈ 1:T+1 ]
+Vπ = [ zeros(n) for t ∈ 1:T+1 ]
 
 for t ∈ T:-1:1
-  V[t] = cπ + Pπ*V[t+1]
+  Vπ[t] = cπ + Pπ*Vπ[t+1]
 end
 
-display(V)
+display(Vπ)
 ```
 
 @fig-peak-evaluation shows the value functions computed as part of the policy evaluation.
@@ -328,20 +328,20 @@ Now we are ready to state the main result for MDPs.
 
 :::{#thm-MDP-DP}
 ### Dynamic program
-Recursive define _value functions_ $\{V_t\}_{t = 1}^{T+1} \colon \ALPHABET S
+Recursive define _value functions_ $\{V^*_t\}_{t = 1}^{T+1} \colon \ALPHABET S
 \to \reals$ as follows: 
 $$ \begin{equation} \label{eq:DP-1}
-  V_{T+1}(s) = 0 
+  V^*_{T+1}(s) = 0 
 \end{equation} $$ 
 and for $t \in \{T, \dots, 1\}$:
 $$\begin{align}
-   Q_t(s,a) &= c(s,a) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s, A_t = a] 
+   Q^*_t(s,a) &= c(s,a) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s, A_t = a] 
    \nonumber \\
-   &= c(s,a) + \EXP[ V_{t+1}(f_t(s,a,W_t)) ], \label{eq:DP-2}
+   &= c(s,a) + \EXP[ V^*_{t+1}(f_t(s,a,W_t)) ], \label{eq:DP-2}
 \end{align}$$
 and define
 $$ \begin{equation} \label{eq:DP-3}
-  V_t(s) = \min_{a \in \ALPHABET A} Q_t(s,a).
+  V^*_t(s) = \min_{a \in \ALPHABET A} Q^*_t(s,a).
 \end{equation} $$
 Then, a Markov policy is optimal if and only if it satisfies
 $$ \begin{equation} \label{eq:verification} 
@@ -349,13 +349,13 @@ $$ \begin{equation} \label{eq:verification}
 \end{equation} $$
 :::
 
-For the controlled Markov chain representation, the dynamic program of @thm-MDP-DP can be written more succinctly. We will view $\{V_t\}_{t=1}^T$ as vectors in $\reals^n$, where $n = \ABS{\ALPHABET S}$. Moreover, we will view $\{Q_t\}_{t=1}^T$ and $\{c_t\}_{t=1}^T$ as matrices in $\reals^{n × m}$, where $m = \ABS{\ALPHABET A}$. 
+For the controlled Markov chain representation, the dynamic program of @thm-MDP-DP can be written more succinctly. We will view $\{V^*_t\}_{t=1}^T$ as vectors in $\reals^n$, where $n = \ABS{\ALPHABET S}$. Moreover, we will view $\{Q^*_t\}_{t=1}^T$ and $\{c_t\}_{t=1}^T$ as matrices in $\reals^{n × m}$, where $m = \ABS{\ALPHABET A}$. 
 
-Then, the dynamic program of @thm-MDP-DP may be written as follows: start with a terminal value function $V_{T+1} ≡ 0$ and then for $t \in \{T, T-1, \dots, 1\}$, recursively compute:
+Then, the dynamic program of @thm-MDP-DP may be written as follows: start with a terminal value function $V^*_{T+1} ≡ 0$ and then for $t \in \{T, T-1, \dots, 1\}$, recursively compute:
 \begin{align*}
-  Q_t &= c_t + [ P_t(1) V_{t+1} \mid P_t(2) V_{t+1} \mid \cdots \mid P_t(m) V_{t+1} ], \\
-  V_t &= \min(Q_t, \hbox{\tt dim}=2), \\
-  π_t &= \arg\min(Q_t, \hbox{\tt dim}=2).
+  Q^*_t &= c_t + [ P_t(1) V^*_{t+1} \mid P_t(2) V^*_{t+1} \mid \cdots \mid P_t(m) V^*_{t+1} ], \\
+  V^*_t &= \min(Q^*_t, \hbox{\tt dim}=2), \\
+  π^*_t &= \arg\min(Q^*_t, \hbox{\tt dim}=2).
 \end{align*}
 
 ### Example (continued)
@@ -503,7 +503,7 @@ $$ \begin{align*}
 Thus, we can equivalently consider this as our standard model with the
 per-step cost given by $\tilde c_t(S_t, A_t)$. We can write the recursive step
 of the dynamic program as follows:
-$$ Q_t(s,a) = \EXP[ c_t(s,a, S_{t+1}) + V_{t+1}(S_{t+1}) | S_t = s, A_t = a ].$$
+$$ Q^*_t(s,a) = \EXP[ c_t(s,a, S_{t+1}) + V^*_{t+1}(S_{t+1}) | S_t = s, A_t = a ].$$
 
 For numerically solving the dynamic program when the cost is time-homogeneous
 (i.e., does not depend on $t$), it is more efficient to compute $\tilde c$
@@ -519,7 +519,7 @@ where $γ \in (0,1)$ is called the discount factor.
 {{< include ../snippets/discount-factor.qmd >}}
 
 The recursive step of the dynamic program for such models can be written as
-$$ Q_t(s,a) = c_t(s,a) + γ \, \EXP[ V_{t+1}( S_{t+1}) | S_t = s, A_t = a ].$$
+$$ Q^*_t(s,a) = c_t(s,a) + γ \, \EXP[ V^*_{t+1}( S_{t+1}) | S_t = s, A_t = a ].$$
 
 ### Multiplicative cost {#multiplicative-cost}
 
@@ -534,8 +534,8 @@ optimal policy is given by the following dynamic program.
 ## Dynamic Program for multiplicative cost
 Initialize $V_{T+1}(s) = 1$ and recursively compute
 $$ \begin{align*}
- Q_t(s,a) &= c_t(s,a) \EXP[ V_{t+1}(S_{t+1}) | S_t = s, A_t = a ], \\
- V_t(s) &= \min_{a \in \ALPHABET A} Q_t(s,a).
+ Q^*_t(s,a) &= c_t(s,a) \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s, A_t = a ], \\
+ V^*_t(s) &= \min_{a \in \ALPHABET A} Q^*_t(s,a).
 \end{align*} $$
 :::
 
@@ -573,15 +573,15 @@ Define the _cost-to-go function_ of any stopping rule as
 $$V^{\tau}_t(s) = \EXP\bigg[ \sum_{τ = t}^{\tau - 1} c_{\tau}(S_t) +
 d_\tau(S_\tau) \,\bigg|\, \tau > t \bigg]$$
 and the _value function_ as
-$$V_t(s) = \inf_{\tau} V^{\tau}_t(s). $$
+$$V^*_t(s) = \inf_{\tau} V^{\tau}_t(s). $$
 Then, it can be shown that the value functions satisfy the following
 recursion:
 
 :::{#prp-DP-stopping}
 **Dynamic Program for optimal stopping**
 $$ \begin{align*}
-V_T(s) &= s_T(s) \\
-V_t(s) &= \min\{ s_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
+V^*_T(s) &= s_T(s) \\
+V^*_t(s) &= \min\{ s_t(s), c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s].
 \end{align*}$$
 :::
 
@@ -659,14 +659,14 @@ various **measurable selection theorems** in the literature to identify sufficie
 #### Monotonicity in time
 
 Consider an MDP where the dynamics and per-step cost are time-homogeneous, i.e., the function $f_t$ and the per-step cost $c_t$ do not depend on $t$ (except, possibly at the terminal time $t=T$). Suppose that
-$V_{T-1}(s) \le V_T(s)$ for all $s \in \ALPHABET S$. Then, show
+$V^*_{T-1}(s) \le V^*_T(s)$ for all $s \in \ALPHABET S$. Then, show
 that
-$$ V_{t}(s) \le V_{t+1}(s), \quad
+$$ V^*_{t}(s) \le V^*_{t+1}(s), \quad
    \text{for all $s \in \ALPHABET S$ and $t$}.$$
 
-Similarly, if we have that $V_{T-1}(s) \ge V_T(s)$ for all $s \in
+Similarly, if we have that $V^*_{T-1}(s) \ge V^*_T(s)$ for all $s \in
 \ALPHABET S$, then
-$$ V_{t}(s) \ge V_{t+1}(s), \quad
+$$ V^*_{t}(s) \ge V^*_{t+1}(s), \quad
    \text{for all $s \in \ALPHABET S$ and $t$}.$$
 
 :::

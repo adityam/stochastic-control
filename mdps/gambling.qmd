@@ -182,22 +182,22 @@ the optimal solution is given by dynamic programming.
 ::: {#prp-optimal-gambling-DP}
 # Dynamic programming decomposition
 
-Define the following value function $V_t \colon \reals_{\ge 0} \to \reals$
-$$ V_T(s) = \log s $$
+Define the following value function $V^*_t \colon \reals_{\ge 0} \to \reals$
+$$ V^*_T(s) = \log s $$
 and for $t \in \{T-1, \dots, 1\}$:
 $$ \begin{align*}
-Q_t(s,a) &= \EXP[ r_t(s,a) + V_{t+1}(S_{t+1}) \,|\, S_t = s, A_t = a] \\
-&= p V_{t+1}(s+a) + (1-p) V_{t+1}(s-a),
+Q^*_t(s,a) &= \EXP[ r_t(s,a) + V^*_{t+1}(S_{t+1}) \,|\, S_t = s, A_t = a] \\
+&= p V^*_{t+1}(s+a) + (1-p) V^*_{t+1}(s-a),
 \end{align*}
 $$
 and
 $$ \begin{align*}
-V_t(s) &=  \max_{a \in [0, s]} Q_t(s,a), \\
-π_t(s) &= \arg \max_{a \in [0, s]} Q_t(s,a). \\
+V^*_t(s) &=  \max_{a \in [0, s]} Q^*_t(s,a), \\
+π^*_t(s) &= \arg \max_{a \in [0, s]} Q^*_t(s,a). \\
 \end{align*}
 $$
 
-Then the strategy $π = (π_1, \dots, π_{T-1})$ is optimal.
+Then the strategy $π^* = (π^*_1, \dots, π^*_{T-1})$ is optimal.
 :::
 
 ::: {.callout-note}
@@ -216,14 +216,14 @@ closed form.
 
 When $p \le 0.5$:
 
-- the optimal strategy is to _not gamble_, specifically $π_t(s) = 0$;
-- the value function is $V_t(s) = \log s$. 
+- the optimal strategy is to _not gamble_, specifically $π^*_t(s) = 0$;
+- the value function is $V^*_t(s) = \log s$. 
 
 When $p > 0.5$:
 
 - the optimal strategy is _to bet a fraction of the current fortune_,
-specifically $π_t(s) = (2p - 1)s$;
-- the value function is $V_t(s) = \log s + (T - t) C$, where
+specifically $π^*_t(s) = (2p - 1)s$;
+- the value function is $V^*_t(s) = \log s + (T - t) C$, where
 $$ C = \log 2 + p \log p + (1-p) \log (1-p).$$
 :::
 
@@ -238,15 +238,15 @@ We prove the two cases separately.
 Let $p = \PR(W_t = 1)$ and $q = \PR(W_t = -1)$. Then $p \le 0.5$ implies that
 $p \le 1 - p = q$. 
 
-We proceed by backward induction. For $t = T$, we have that $V_T(s) = \log s$.
-This forms the basis of induction. Now assume that for $t+1$, $V_{t+1}(s) =
+We proceed by backward induction. For $t = T$, we have that $V^*_T(s) = \log s$.
+This forms the basis of induction. Now assume that for $t+1$, $V^*_{t+1}(s) =
 \log s$. Now consider
 
-$$ Q_t(s,a) = p V_{t+1}(s+a) + qV_{t+1}(s-a). $$
+$$ Q^*_t(s,a) = p V^*_{t+1}(s+a) + qV^*_{t+1}(s-a). $$
 
 Differentiating both sides w.r.t. $a$, we get
 $$ \begin{align*} 
-  \frac { \partial Q_t(s,a) } {\partial a} &= 
+  \frac { \partial Q^*_t(s,a) } {\partial a} &= 
    \frac p { s + a} - \frac q { s - a } 
    \\
    & = \frac { (p - q) s - (p + q) a } { s^2 - a^2 } 
@@ -258,12 +258,12 @@ $$ \begin{align*}
   \end{align*}   
 $$
 
-This implies that $Q_t(s,a)$ is decreasing in $a$. Therefore,
+This implies that $Q^*_t(s,a)$ is decreasing in $a$. Therefore,
 
-$$ π_t(s) = \arg\max_{a \in [0, s]} Q_t(s,a) = 0. $$
+$$ π^*_t(s) = \arg\max_{a \in [0, s]} Q^*_t(s,a) = 0. $$
 
 Moreover,
-$$ V_t(s) = Q_t(s, π_t(s)) = \log s.$$
+$$ V^*_t(s) = Q^*_t(s, π^*_t(s)) = \log s.$$
 
 This completes the induction step. 
 :::
@@ -273,15 +273,15 @@ This completes the induction step.
 As in the previous case, let $p = \PR(W_t = 1)$ and $q = \PR(W_t = -1)$. Then
 $p > 0.5$ implies that $p > 1 - p = q$. 
 
-We proceed by backward induction. For $t = T$, we have that $V_T(s) = \log s$.
-This forms the basis of induction. Now assume that for $t+1$, $V_{t+1}(s) =
+We proceed by backward induction. For $t = T$, we have that $V^*_T(s) = \log s$.
+This forms the basis of induction. Now assume that for $t+1$, $V^*_{t+1}(s) =
 \log s + (T -t - 1)C$. Now consider
 
-$$ Q_t(s,a) = p V_{t+1}(s+a) + qV_{t+1}(s-a). $$
+$$ Q^*_t(s,a) = p V^*_{t+1}(s+a) + qV^*_{t+1}(s-a). $$
 
 Differentiating both sides w.r.t. $a$, we get
 $$ \begin{align*} 
-  \frac { \partial Q_t(s,a) } {\partial a} &= 
+  \frac { \partial Q^*_t(s,a) } {\partial a} &= 
    \frac p { s + a} - \frac q { s - a } 
    \\
    & = \frac { (p - q) s - (p + q) a } { s^2 - a^2 } 
@@ -291,22 +291,22 @@ $$ \begin{align*}
   \end{align*}   
 $$
 
-Setting $\partial Q_t(s,a)/\partial a = 0$, we get that the optimal action is
+Setting $\partial Q^*_t(s,a)/\partial a = 0$, we get that the optimal action is
 
-$$ π_t(s) = (p-q) s. $$
+$$ π^*_t(s) = (p-q) s. $$
 
 Note that $(p-q) \in (0,1]$ 
 
 $$ 
-  \frac { \partial^2 Q_t(s,a) } {\partial a^2} = 
+  \frac { \partial^2 Q^*_t(s,a) } {\partial a^2} = 
    - \frac p { (s + a)^2 } - \frac q { (s - a)^2 } 
   < 0;
 $$
 hence the above action is indeed the maximizer. 
 Moreover,
 $$ \begin{align*} 
-  V_t(s) &= Q_t(s, π_t(s))  \\
-  &= p V_{t+1}(s + π_t(s)) + q V_{t+1}( s - π_t(s) )\\
+  V^*_t(s) &= Q^*_t(s, π^*_t(s))  \\
+  &= p V^*_{t+1}(s + π^*_t(s)) + q V^*_{t+1}( s - π^*_t(s) )\\
   &= \log s + p \log (1 + (p-q)) + q \log (1 - (p-q)) + (T - t -1)C \\
   &= \log s + p \log 2p + q \log 2q + (T - t + 1)C \\
   &= \log s + (T - t) C
@@ -328,35 +328,35 @@ Suppose that the terminal reward $r_T(s)$ is monotone increasing[^increasing] in
 
 For the generalized optimal gambling problem:
 
-- For each $t$, the value function $V_t(s)$ is monotone increasing in $s$.
-- For each $s$, the value function $V_t(s)$ is monotone decreasing in $t$.
+- For each $t$, the value function $V^*_t(s)$ is monotone increasing in $s$.
+- For each $s$, the value function $V^*_t(s)$ is monotone decreasing in $t$.
 
 :::
 
 ::: {.callout-note collapse="true"}
 # Proof of monotonicity in $s$ 
 
-We proceed by backward induction. $V_T(s) = r_T(s)$ which is monotone
-increasing in $s$. Assume that $V_{t+1}(s)$ is increasing in $s$. Now,
-consider $V_t(s)$. Consider $s_1, s_2 \in \reals_{\ge 0}$ such that $s_1 \le
+We proceed by backward induction. $V^*_T(s) = r_T(s)$ which is monotone
+increasing in $s$. Assume that $V^*_{t+1}(s)$ is increasing in $s$. Now,
+consider $V^*_t(s)$. Consider $s_1, s_2 \in \reals_{\ge 0}$ such that $s_1 \le
 s_2$. Then for any $a \le s_1$, we have that
 
 $$ \begin{align*}
-    Q_t(s_1, a) &= p V_{t+1}(s_1+a) + q V_{t+1}(s_1-a) \\
-    & \stackrel{(a)}{\le} p V_{t+1}(s_2 + a) + q V_{t+1}(s_2  - a) \\
-    & = Q_t(s_2, a),
+    Q^*_t(s_1, a) &= p V^*_{t+1}(s_1+a) + q V^*_{t+1}(s_1-a) \\
+    & \stackrel{(a)}{\le} p V^*_{t+1}(s_2 + a) + q V^*_{t+1}(s_2  - a) \\
+    & = Q^*_t(s_2, a),
   \end{align*}
 $$
 where $(a)$ uses the induction hypothesis. Now consider
 
 $$ \begin{align*}
-  V_t(s_1) &= \max_{a \in [0, s_1]} Q_t(s_1, a) \\
-  & \stackrel{(b)}{\le} \max_{a \in [0, s_1]} Q_t(s_2, a) \\
-  & \le \max_{a \in [0, s_2]} Q_t(s_2, a) \\
-  &= V_t(s_2),
+  V^*_t(s_1) &= \max_{a \in [0, s_1]} Q^*_t(s_1, a) \\
+  & \stackrel{(b)}{\le} \max_{a \in [0, s_1]} Q^*_t(s_2, a) \\
+  & \le \max_{a \in [0, s_2]} Q^*_t(s_2, a) \\
+  &= V^*_t(s_2),
   \end{align*}
 $$
-where $(b)$ uses monotonicity of $Q_t$ in $s$. This completes the induction
+where $(b)$ uses monotonicity of $Q^*_t$ in $s$. This completes the induction
 step. 
 :::
 
@@ -365,7 +365,7 @@ step.
 
 This is a simple consequence of the following:
 
-$$V_t(s) = \max_{a \in [0, s]} Q_t(s,a) \ge Q_t(s,0) = V_{t+1}(s).$$ 
+$$V^*_t(s) = \max_{a \in [0, s]} Q^*_t(s,a) \ge Q^*_t(s,0) = V^*_{t+1}(s).$$ 
 :::
 
 ## Exercises {-}
@@ -423,7 +423,7 @@ $$ s - (a_1 + a_2 + a_3) + 3 a_2. $$
 The gambler's utility is $\log S_T$, the logarithm of his final
 wealth. Find the strategy that maximizes the gambler's expected utility. 
 
-_Hint:_ Argue that the value function is of the form $V_t(s) = \log s +
+_Hint:_ Argue that the value function is of the form $V^*_t(s) = \log s +
 (T -t)C$, where
 [The constant $C$ is the capacity of a symmetric discrete memoryless with $n$ outputs and for every input, the output probabilities are a permutation of $(p_1, \dots, p_n)$.]{.aside}
 $$C = \log n - H(p_1, \dots, p_n)$$

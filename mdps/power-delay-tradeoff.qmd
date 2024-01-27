@@ -56,7 +56,7 @@ where
 * $p(\cdot)$ is a strictly increasing and convex function where $p(0) = 0$;
 * $q(\cdot)$ is a strictly increasing function.
 
-The objective is to choose a transmission policy $A_t = π_t(X_t, S_t)$ to
+The objective is to choose a transmission policy $A_t = π^*_t(X_t, S_t)$ to
 minimize the weighted sum of transmitted power and delay
 $$ \EXP\bigg[ \sum_{t=1}^T \big[ p(A_t) q(S_t) + \lambda d(X_t - A_t) \big]
 \bigg],$$
@@ -68,18 +68,18 @@ constrained optimization problem.
 We can assume $Y_t = X_t - A_t$ as a post-decision state in the above model
 and write the dynamic program as follows:
 
-$$ V_{T+1}(x,s) = 0 $$
+$$ V^*_{T+1}(x,s) = 0 $$
 and for $t \in \{T, \dots, 1\}$, 
 $$\begin{align*}
-  H_t(y,s) &= \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
-  V_t(x,s) &= \min_{0 \le a \le x} \big\{ p(a) q(s) + H_t(x-a, s) \big\}
+  H_t(y,s) &= \lambda d(y) + \EXP[ V^*_{t+1}(y + W_t, S_{t+1}) | S_t = s ], \\
+  V^*_t(x,s) &= \min_{0 \le a \le x} \big\{ p(a) q(s) + H_t(x-a, s) \big\}
 \end{align*}$$
 
 ### Monotonicity of value functions
 
 ::: {#lem-power-delay-increasing}
 
-For all $t$, $V_t(x,s)$ and $H_t(y,s)$ are increasing in both variables.
+For all $t$, $V^*_t(x,s)$ and $H_t(y,s)$ are increasing in both variables.
 :::
 
 ::: {.callout-note collapse="true"}
@@ -89,11 +89,11 @@ satisfies the conditions that generalize the result of monotonicity to
 constrained actions. 
 
 We prove the two monotonicity properties by backward induction. First note
-that $V_{T+1}(x,s)$ is trivially monotone. This forms the basis of induction.
-Now suppose $V_{t+1}(x,s)$ is increasing in $x$ and $s$. Since
+that $V^*_{T+1}(x,s)$ is trivially monotone. This forms the basis of induction.
+Now suppose $V^*_{t+1}(x,s)$ is increasing in $x$ and $s$. Since
 $\{S_t\}_{t \ge 1}$ is stochastically monotone, 
-$$H_t(y,s) = \lambda d(y) + \EXP[ V_{t+1}(y + W_t, S_{t+1}) | S_t = s ]$$
-is increasing in $s$. Moreover, since both $d(y)$ and $V_{t+1}(y + w, s)$ are
+$$H_t(y,s) = \lambda d(y) + \EXP[ V^*_{t+1}(y + W_t, S_{t+1}) | S_t = s ]$$
+is increasing in $s$. Moreover, since both $d(y)$ and $V^*_{t+1}(y + w, s)$ are
 increasing in $y$, so is $H_t(y,s)$.
 
 Now, for every $a$, $p(a) q(s)$ and $H_t(x-a, s)$ is increasing in $x$ and
@@ -105,18 +105,18 @@ and $s$.
 
 ::: {#lem-power-delay-convex}
 
-For all time $t$ and channel state $s$, $V_t(x,s)$ and $H_t(y,s)$ are convex in the first variable.
+For all time $t$ and channel state $s$, $V^*_t(x,s)$ and $H_t(y,s)$ are convex in the first variable.
 :::
 
 ::: {.callout-note collapse="true"}
 # Proof
-We proceed by backward induction. First note that $V_{T+1}(x,s)$ is trivially
-convex in $x$. Now assume that $V_{t+1}(x,s)$ is convex in $x$. Then,
-$\EXP[V_{t+1}(y + W_t, S_{t+1}) | S_t = s]$ is weighted sum of convex functions
+We proceed by backward induction. First note that $V^*_{T+1}(x,s)$ is trivially
+convex in $x$. Now assume that $V^*_{t+1}(x,s)$ is convex in $x$. Then,
+$\EXP[V^*_{t+1}(y + W_t, S_{t+1}) | S_t = s]$ is weighted sum of convex functions
 and is, therefore, convex in $y$. Therefore, $H_t(y,s)$ is a sum of two convex
 functions and, therefore, convex in $y$. 
 
-We cannot directly show the convexity of $V_t(x,s)$ because the pointwise
+We cannot directly show the convexity of $V^*_t(x,s)$ because the pointwise
 minimum of convex functions is not convex. So, we consider the following
 argument. Fix $s$ and pick $x > 1$. Let $\underline a = π^*_t(x-1,s)$ and
 $\bar a = π^*_t(x+1,s)$. Let $\underline v = \lfloor (\underline a + \bar a)/2
@@ -124,7 +124,7 @@ $\bar a = π^*_t(x+1,s)$. Let $\underline v = \lfloor (\underline a + \bar a)/2
 \rceil$. Note that both $\underline v$ and $\bar v$ are feasible at $x$. Then,
 $$ \begin{align*}
   \hskip 2em & \hskip -2em
-  V_t(x-1, s) + V_t(x+1, s)
+  V^*_t(x-1, s) + V^*_t(x+1, s)
   \\
   &= 
   [ p(\underline a) + p(\bar a) ] q(s) + H_t(x - 1 - \underline a, s)
@@ -133,10 +133,10 @@ $$ \begin{align*}
   &\stackrel{(a)}\ge [ p(\underline v) + p(\bar v)] q(s) + 
     H_t(x - \underline v, s) + H_t(x - \bar v, s) \\
   &\ge 2 \min_{a \le x} \big\{ p(a) q(s) + H_t(x-a, s) \\
-  &= 2 V_t(x,s),
+  &= 2 V^*_t(x,s),
 \end{align*} $$
 where $(a)$ follows from convexity of $p(\cdot)$ and $H_t(\cdot, s)$. Thus,
-$V_t(x,s)$ is convex in $x$. This completes the induction step.
+$V^*_t(x,s)$ is convex in $x$. This completes the induction step.
 :::
 
 ### Monotonicity of optimal policy in queue length
