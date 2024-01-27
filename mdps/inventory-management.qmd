@@ -281,7 +281,7 @@ We will now see how to prove the structure of optimal policy.
 
 ## Structure of optimal solution
 
-In this section, we assume that the state space $\S$ is equal to $\reals$ (instead of $\integers$). 
+In this section, we assume that the state space $\S$ is equal to $\reals$ (instead of $\integers$). See @exr-inventory-discrete for the case when $\S$ is equal to $\integers$.
 
 For this setting, the optimal policy is then characterized as follows.
 
@@ -396,7 +396,7 @@ averagePlot = Plot.plot({
 
 
 2. For any convex function $f \colon \reals \to \reals$, 
-   let $s^* =  \arg \min_{s \in \reals} f(s)$. Then,
+   let $s^* =  \arg \min_{s \in \reals} f(s)$.[^unique] Then,
    $$\arg \min_{a \in \reals_{\ge 0}} f(s + a) = \begin{cases}
    0, & \text{if } s > s^*, \\
    s^* - s, & \text{if } s \le s^*
@@ -407,6 +407,9 @@ averagePlot = Plot.plot({
     f(s^*), & \text{if } s \le s^*
     \end{cases}$$
     and $F(s)$ is convex in $s$.
+
+
+[^unique]: Note that $s^*$ is unique if $f$ is strictly convex. If not, we take $s^*$ to be the _smallest_ arg min.
 
 ```{ojs}
 //| column: margin
@@ -501,23 +504,32 @@ and $V_t(s)$ is of the desired form and convex.
 Thus, the result is holds by induction.
 :::
 
-<!--
+
+
 ## Exercises {-}
 
-::: {#exr-inventory-discrete}
-Consider the setting when $\S = \integers$. Show that there
-exists a sequence $\{s^\circ_t\}_{t \ge 1}$ of numbers such that policy given by
-$$ π_t(s) = \begin{cases}
-   \lceil s_t^\circ - s \rceil, & \text{if } s < s_t^\circ \\
-   0, & \text{if } s \ge s_t^\circ.
-  \end{cases} $$
-is optimal.
+::: {#exr-inventory-discretization}
+
+Consider the case when the state space $\S$ is equal to $\integers$ (i.e., all $S_t, A_t, W_t \in \integers$). In this case, we need the option of discrete convexity, which we explain below.
+
+{{< include ../snippets/discrete-convexity.qmd >}}
+
+1. Argue that the preliminary properties of convex functions established in the preliminary results also hold for discrete convex functions $f \colon Z \to \reals$.
+
+2. Argue that the structure of optimal policies continue to hold, i.e., there exists a sequence $\{s_t^*\}$, $s_t \in \integers$ such that the policy 
+   $$
+    π_t(s) = \begin{cases}
+    s^*_t - s, & \text{if $s \le s_t^*$} \\
+    0, & \text{otherwise}.
+    \end{cases}
+   $$
+
+
+_Remark_: Exactly the same argument works if the state space $\{ n \Delta : n \in \integers \}$.    
 :::
---> 
 
 ## Notes {-}
 
 Inventory management models with deterministic demand were introduced by @Harris1913. The mathematical model of inventory management considered here was originally proposed by @Arrow1951. The optimality of base-stock policy was established by @Bellman1955. See the notes on [infinite horizon](inventory-management-revisited.html) version of this model to see how to find the threshold in closed form. 
 
 A model where $\S = \reals$ but $\ALPHABET A = \integers_{\ge 0}$ is considered in @Veinott1965. It's generalization with non-zero ordering cost is considered in @Tsitsiklis1984. 
-
