@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-07">
+<meta name="dcterms.date" content="2024-01-27">
 <meta name="keywords" content="optimal stopping, threshold policies, monotone policies">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -700,7 +700,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 7, 2024</p>
+      <p class="date">January 27, 2024</p>
     </div>
   </div>
   
@@ -722,7 +722,7 @@ window.Quarto = {
 \bigg].\]</span></p>
 <p>Such problems are called <em>Optimal stopping problems</em>. These can be solved using dynamic programming as follows.</p>
 <p>Define the <em>cost-to-go function</em> of any stopping rule as <span class="math display">\[J_{t_0}(s; \tau) = \EXP\bigg[ \sum_{t = t_0}^{\tau - 1} c_{t}(S_t) +
-d_\tau(S_\tau) \,\bigg|\, S_{t_0} = s, \tau &gt; t_0 \bigg]\]</span> and the <em>value function</em> as <span class="math display">\[V_t(s) = \inf_{\tau} J_t(s; \tau). \]</span> Then, it can be shown that the value functions satisfy the following recursion:</p>
+d_\tau(S_\tau) \,\bigg|\, S_{t_0} = s, \tau &gt; t_0 \bigg]\]</span> and the <em>value function</em> as <span class="math display">\[V^*_t(s) = \inf_{\tau} J_t(s; \tau). \]</span> Then, it can be shown that the value functions satisfy the following recursion:</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -734,23 +734,23 @@ Dynamic Program for optimal stopping
 </div>
 <div class="callout-body-container callout-body">
 <p><span class="math display">\[ \begin{align*}
-V_T(s) &amp;= d_T(s) \\
-V_t(s) &amp;= \min\{ d_t(s), c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s].
+V^*_T(s) &amp;= d_T(s) \\
+V^*_t(s) &amp;= \min\{ d_t(s), c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s].
 \end{align*}\]</span></p>
 </div>
 </div>
 <p>Consider an optimal stopping problem and define the <em>benefit (or advantage) function</em> as the expected benefit<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> of delaying the stopping decision at time <span class="math inline">\(t\)</span>, i.e., <span class="math display">\[\begin{equation}\label{eq:B}
-  B_t(s) = c_t(s) + \EXP[ V_{t+1}( S_{t+1}) | S_t = s] - d_t(s).
+  B_t(s) = c_t(s) + \EXP[ V^*_{t+1}( S_{t+1}) | S_t = s] - d_t(s).
 \end{equation}\]</span> Thus, it is optimal to stop whenever <span class="math inline">\(B_t(s) \ge 0\)</span>.</p>
 <div class="no-row-height column-margin column-container"><p><sup>1</sup>&nbsp;The terminology comes from reward maximization problems. In cost minimization problems, this may be thought of as the <em>disadvantage function</em>.</p></div><p>Note that, we can write the value function in terms of the benefit function as follows: <span class="math display">\[\begin{align}
-  V_t(s) &amp;= \min\{ d_t(s), B_t(s) + d_t(s) \} \nonumber \\
+  V^*_t(s) &amp;= \min\{ d_t(s), B_t(s) + d_t(s) \} \nonumber \\
   &amp;= d_t(s) + [ B_t(s) ]^-, \label{eq:V}
 \end{align}\]</span> where <span class="math inline">\([y]^-\)</span> is a short hand for <span class="math inline">\(\min\{y, 0\}\)</span>.</p>
 <p>Now, define the <em>one-step look-ahead function</em> as the benefit of delaying the stopping decision by one step, i.e., <span class="math display">\[\begin{equation}\label{eq:M}
   M_t(s) = c_t(s) + \EXP[ d_{t+1}(S_{t+1}) | S_t = s] - d_t(s).
 \end{equation}\]</span></p>
 <p>The benefit function and the one-step look-ahead functions are related as follows. <span class="math display">\[ B_T(s) = M_T(s) \]</span> and <span class="math display">\[ \begin{align*}
-  B_t(s) &amp;= c_t(s) + \EXP[ V_{t+1}(S_{t+1}) | S_t = s] - d_t(s) \\
+  B_t(s) &amp;= c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s] - d_t(s) \\
   &amp;= c_t(s) + \EXP[ d_{t+1}(S_{t+1}) + [B_{t+1}(S_{t+1})]^- | S_t = s] - d_t(s)
   \\
   &amp;= M_t(s) + \EXP[ [B_{t+1}(S_{t+1}]^- | S_t = s ].
@@ -825,15 +825,15 @@ Dynamic program
 </div>
 <div class="callout-body-container callout-body">
 <p><span class="math display">\[ \begin{align*}
-  V_{T+1}(s) &amp;= 0 \\
-  V_t(s) &amp;= \max\bigg\{ s \cdot \frac tT,
-  \EXP[ V_{t+1}(S_{t+1}) ] \bigg\}
+  V^*_{T+1}(s) &amp;= 0 \\
+  V^*_t(s) &amp;= \max\bigg\{ s \cdot \frac tT,
+  \EXP[ V^*_{t+1}(S_{t+1}) ] \bigg\}
 \end{align*}\]</span></p>
 </div>
 </div>
 <div id="lem-secretary-problem" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 11.1</strong></span> Define <span class="math display">\[ L_t = V_t(0) =
-\frac t{t+1} V_{t+1}(0) + \frac 1{t+1}V_{t+1}(1). \]</span> Then, <span class="math display">\[V_t(1) = \max\bigg\{ \frac tT, L_t \bigg\}\]</span> and, therefore, <span class="math display">\[
+<p><span class="theorem-title"><strong>Lemma 11.1</strong></span> Define <span class="math display">\[ L_t = V^*_t(0) =
+\frac t{t+1} V^*_{t+1}(0) + \frac 1{t+1}V^*_{t+1}(1). \]</span> Then, <span class="math display">\[V^*_t(1) = \max\bigg\{ \frac tT, L_t \bigg\}\]</span> and, therefore, <span class="math display">\[
   L_t - L_{t+1} = \bigg[ \frac 1T - \frac {L_{t+1}}{t+1} \bigg]^+
   \quad \text{with } L_T = 0.
 \]</span></p>
@@ -885,7 +885,7 @@ Proof
 <div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Note that <span class="math inline">\(L_t - L_{t+1} \ge 0\)</span>. Thus, <span class="math inline">\(L_t\)</span> is decreasing with time.</p>
-<p><span class="math inline">\(V_t(1) = \max\{t/T, L_t\}\)</span> where the first term is increasing with time and the second term is decreasing with time. Thus, the critical time <span class="math inline">\(t_0\)</span> is the first time when <span class="math inline">\(t/T \ge L_t\)</span>. Since <span class="math inline">\(L_T = 0\)</span> and <span class="math inline">\(T/T = 1\)</span>, such a <span class="math inline">\(t_0 &lt; T\)</span>.</p>
+<p><span class="math inline">\(V^*_t(1) = \max\{t/T, L_t\}\)</span> where the first term is increasing with time and the second term is decreasing with time. Thus, the critical time <span class="math inline">\(t_0\)</span> is the first time when <span class="math inline">\(t/T \ge L_t\)</span>. Since <span class="math inline">\(L_T = 0\)</span> and <span class="math inline">\(T/T = 1\)</span>, such a <span class="math inline">\(t_0 &lt; T\)</span>.</p>
 <p>For any <span class="math inline">\(t &lt; t_0\)</span> (i.e., <span class="math inline">\(t/T &lt; L_t\)</span>), <span class="math display">\[
   L_{t-1} = L_t + \bigg[ \frac 1T - \frac{L_t}{t} \bigg]^+ = L_t.
 \]</span></p>
@@ -898,7 +898,7 @@ Proof
   \sum_{k=t}^{T-1} \frac 1k \approx
   \int_{t}^T \frac 1k dk = \log \frac Tt.
 \]</span> Thus, <span class="math inline">\(t_0 \approx T/e\)</span>. Moreover <span class="math display">\[
-V_1(0) = V_1(1) = L_1 = L_{t_0} \approx \frac{t_0}{T} = \frac 1e.
+V^*_1(0) = V^*_1(1) = L_1 = L_{t_0} \approx \frac{t_0}{T} = \frac 1e.
 \]</span></p>
 </div>
 </div>
@@ -922,17 +922,17 @@ Dynamic program
 </div>
 <div class="callout-body-container callout-body">
 <p><span class="math display">\[\begin{align*}
-V_{T}(s) &amp;= \max\{ s-p, 0 \} \\
-V_{t}(s) &amp;= \max\{ s-p, \EXP[ V_{t+1}(s + W) \}.
+V^*_{T}(s) &amp;= \max\{ s-p, 0 \} \\
+V^*_{t}(s) &amp;= \max\{ s-p, \EXP[ V^*_{t+1}(s + W) \}.
 \end{align*}\]</span></p>
 </div>
 </div>
 <div id="lem-call-options-properties" class="theorem lemma">
 <p><span class="theorem-title"><strong>Lemma 11.2</strong></span> &nbsp;</p>
 <ol type="1">
-<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(s)\)</span> is increasing in <span class="math inline">\(s\)</span>.</li>
-<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V_t(s) - s\)</span> is decreasing in <span class="math inline">\(s\)</span>.</li>
-<li>For all <span class="math inline">\(s\)</span>, <span class="math inline">\(V_t(s) \ge V_{t+1}(s)\)</span>.</li>
+<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V^*_t(s)\)</span> is increasing in <span class="math inline">\(s\)</span>.</li>
+<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(V^*_t(s) - s\)</span> is decreasing in <span class="math inline">\(s\)</span>.</li>
+<li>For all <span class="math inline">\(s\)</span>, <span class="math inline">\(V^*_t(s) \ge V^*_{t+1}(s)\)</span>.</li>
 </ol>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -947,13 +947,13 @@ Proof
 </div>
 <div id="callout-8" class="callout-8-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The first property follows immediately from monotonicity of terminal reward and the monotonicity of the dynamics. From <a href="intro.html#exr-monotonicity-in-time" class="quarto-xref">Exercise&nbsp;<span>5.1</span></a>, to show the third property, we need to show that <span class="math inline">\(V_{T-1}(s) \ge V_T(s)\)</span>. Observe that <span class="math display">\[ V_{T-1}(s) =
-\max\{s - p, \EXP[V_{T}(s + W) \} \ge \max\{ s - p, 0 \} = V_T(s).
+<p>The first property follows immediately from monotonicity of terminal reward and the monotonicity of the dynamics. From <a href="intro.html#exr-monotonicity-in-time" class="quarto-xref">Exercise&nbsp;<span>5.1</span></a>, to show the third property, we need to show that <span class="math inline">\(V^*_{T-1}(s) \ge V^*_T(s)\)</span>. Observe that <span class="math display">\[ V^*_{T-1}(s) =
+\max\{s - p, \EXP[V^*_{T}(s + W) \} \ge \max\{ s - p, 0 \} = V^*_T(s).
 \]</span></p>
-<p>Now we prove the second property using backward induction. At <span class="math inline">\(t=T\)</span>, <span class="math display">\[ V_T(s) - s = \max\{ -p, -s \}\]</span> which is decreasing in <span class="math inline">\(s\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(V_{t+1}(s) - s\)</span> is decreasing in <span class="math inline">\(s\)</span>. Then, <span class="math display">\[ \begin{align*}
-  V_t(s) - s &amp;= \max\{ -p, \EXP[ V_{t+1}(s+W) ] - s  \} \\
-  &amp;= \max\{ -p, \EXP[ V_{t+1}(s+W) - (s + W) ] + \EXP[W] \}.
-\end{align*} \]</span> By the induction hypothesis the second term is decreasing in <span class="math inline">\(s\)</span>. The minimum of a constant and a decreasing function is decreasing in <span class="math inline">\(s\)</span>. Thus, <span class="math inline">\(V_t(s) - s\)</span> is decreasing in <span class="math inline">\(s\)</span>. This completes the induction step.</p>
+<p>Now we prove the second property using backward induction. At <span class="math inline">\(t=T\)</span>, <span class="math display">\[ V^*_T(s) - s = \max\{ -p, -s \}\]</span> which is decreasing in <span class="math inline">\(s\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(V^*_{t+1}(s) - s\)</span> is decreasing in <span class="math inline">\(s\)</span>. Then, <span class="math display">\[ \begin{align*}
+  V^*_t(s) - s &amp;= \max\{ -p, \EXP[ V^*_{t+1}(s+W) ] - s  \} \\
+  &amp;= \max\{ -p, \EXP[ V^*_{t+1}(s+W) - (s + W) ] + \EXP[W] \}.
+\end{align*} \]</span> By the induction hypothesis the second term is decreasing in <span class="math inline">\(s\)</span>. The minimum of a constant and a decreasing function is decreasing in <span class="math inline">\(s\)</span>. Thus, <span class="math inline">\(V^*_t(s) - s\)</span> is decreasing in <span class="math inline">\(s\)</span>. This completes the induction step.</p>
 </div>
 </div>
 </div>
@@ -973,12 +973,12 @@ Proof
 <div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Since it is optimal to sell at <span class="math inline">\(s^\circ\)</span>, we must have <span class="math display">\[\begin{equation} \label{eq:p1}
-  s^\circ - p \ge \EXP[V_{t+1}(s^\circ + W) ]
-\end{equation}\]</span> Since <span class="math inline">\(V_{t}(s) - s\)</span> is decreasing in <span class="math inline">\(s\)</span>, we have that for any <span class="math inline">\(s \ge
+  s^\circ - p \ge \EXP[V^*_{t+1}(s^\circ + W) ]
+\end{equation}\]</span> Since <span class="math inline">\(V^*_{t}(s) - s\)</span> is decreasing in <span class="math inline">\(s\)</span>, we have that for any <span class="math inline">\(s \ge
 s^\circ\)</span>, <span class="math display">\[\begin{equation} \label{eq:p2}
-\EXP[ V_{t+1}(s + W) - s ] \le \EXP[ V_{t+1}(s^\circ + W) - s^\circ ]
+\EXP[ V^*_{t+1}(s + W) - s ] \le \EXP[ V^*_{t+1}(s^\circ + W) - s^\circ ]
 \le -p
-\end{equation}\]</span> where the last inequality follows from \eqref{eq:p1}. Eq \eqref{eq:p2} implies that <span class="math display">\[ \EXP[ V_{t+1}(s+W) ] \le s - p. \]</span> Thus, the stopping action is also optimal at <span class="math inline">\(s\)</span>.</p>
+\end{equation}\]</span> where the last inequality follows from \eqref{eq:p1}. Eq \eqref{eq:p2} implies that <span class="math display">\[ \EXP[ V^*_{t+1}(s+W) ] \le s - p. \]</span> Thus, the stopping action is also optimal at <span class="math inline">\(s\)</span>.</p>
 </div>
 </div>
 </div>
@@ -997,10 +997,10 @@ Proof
 </div>
 <div id="callout-10" class="callout-10-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Let <span class="math inline">\(D_t = \{s : π_t(s) = 1\}\)</span>. The previous Lemma shows that <span class="math inline">\(D_t\)</span> is of the form <span class="math inline">\([α_t, \infty)\)</span>, where <span class="math inline">\(α_t = \min \{ s : π_t(s) = 1\}\)</span>, where we assume that <span class="math inline">\(α_t = \infty\)</span> is it is not optimal to stop in any state. Thus proves the threshold property.</p>
+<p>Let <span class="math inline">\(D_t = \{s : π^*_t(s) = 1\}\)</span>. The previous Lemma shows that <span class="math inline">\(D_t\)</span> is of the form <span class="math inline">\([α_t, \infty)\)</span>, where <span class="math inline">\(α_t = \min \{ s : π^*_t(s) = 1\}\)</span>, where we assume that <span class="math inline">\(α_t = \infty\)</span> is it is not optimal to stop in any state. Thus proves the threshold property.</p>
 <p>To show that the thresholds are decreasing with time, it suffices to show that <span class="math inline">\(D_t \subseteq D_{t+1}\)</span>. Suppose <span class="math inline">\(s \in D_t\)</span>. Then, <span class="math display">\[\begin{equation} \label{eq:p3}
-s - p \ge \EXP[ V_{t+1}(s + W) ] \ge \EXP[ V_{t+2}(s + W) ],
-\end{equation}\]</span> where the first inequality follows because <span class="math inline">\(s \in D_t\)</span> and the second inequality follows because <span class="math inline">\(V_{t+1}(s) \ge V_{t+2}(s)\)</span>. Eq \eqref{eq:p3} implies that <span class="math inline">\(s \in D_{t+1}\)</span>. Hence, <span class="math inline">\(D_t \subseteq D_{t+1}\)</span> and, therefore, the optimal thresholds are decreasing.</p>
+s - p \ge \EXP[ V^*_{t+1}(s + W) ] \ge \EXP[ V^*_{t+2}(s + W) ],
+\end{equation}\]</span> where the first inequality follows because <span class="math inline">\(s \in D_t\)</span> and the second inequality follows because <span class="math inline">\(V^*_{t+1}(s) \ge V^*_{t+2}(s)\)</span>. Eq \eqref{eq:p3} implies that <span class="math inline">\(s \in D_{t+1}\)</span>. Hence, <span class="math inline">\(D_t \subseteq D_{t+1}\)</span> and, therefore, the optimal thresholds are decreasing.</p>
 </div>
 </div>
 </div>
