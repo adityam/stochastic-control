@@ -696,15 +696,69 @@ us to use the theory developed in the class to tackle this setup.
 
 :::
 
+:::{#exr-internet-of-things}
+
+#### Optimal strategy in internet of things
+
+Consider an IoT (Internet of Things) device which is observing an autoregressive process
+$\{X_t\}_{t \ge 0}$, $X_t \in \integers$, which starts at $X_1 = 0$ and for
+$t > 1$ evolves as 
+$$ X_{t+1} = X_t + W_t $$
+where $\{W_t\}_{t \ge 1}$ is an i.i.d. process with $W_t \in \{ -5, \dots,
+5 \}$ with 
+$$ \PR(W_t = w) =
+\begin{cases}
+  \frac{1}{5} - \frac{|w|}{25}, & \text{if } |w| \le 5 \\
+  0, & \text{otherwise}
+\end{cases}$$
+
+The IoT device can either transmit its observation (denoted by $A_t = 1$)
+or not (denoted by $A_t = 0$). Transmitting a packet has a cost $\lambda$
+while not transmitting has no cost. 
+
+When $A_t = 0$, the receiver estimates the state of the process as the
+previously transmitted observation $Z_t$ and incurs a cost $(X_t -
+Z_t)^2$. 
+
+The above system can be modeled as an MDP with state $\{S_t \}_{t \ge 0}$,
+where $S_t = X_t - Z_t$. It can be shown that the dynamics of $\{S_t\}_{t
+\ge 1}$ are as follows:
+$$ S_{t+1} = \begin{cases}
+    S_t + W_t, & \text{if } A_t = 0 \\
+    W_t, & \text{if } A_t = 1
+  \end{cases} $$
+
+The per-step cost is given by
+$$ c(s,a) = \lambda a + (1-a)s^2. $$
+
+The objective of this exercise is to find the optimal policy for the above problem using dynamic programming. 
+
+In this model, the state space is unbounded which makes it difficult to use dynamic programming. So, we construct approximate dynamics as follows. We pick a large number $B$ and assume that the dynamics are:
+$$ S_{t+1} = \begin{cases}
+    [S_t + W_t]_{-B}^B, & \text{if } A_t = 0 \\
+    [W_t]_{-B}^B, & \text{if } A_t = 1
+  \end{cases} $$
+
+So, we can effective consider the state space to be $\{-B, \dots, B\}$. 
+
+
+a. Solve the dynamic program for $T = 20$, $λ = 100$, and $B = 100$.
+
+b. Plot the value function for $t \in \{1, 5, 10, 19 \}$ on the same plot.
+
+c. Plot the optimal policy for $t \in \{1, 5, 10, 19 \}$.
+
+d. Change the value of $B$ in the set $\{50, 60, 70, 80 \}$ to make sure
+that our truncation does not have a significant impact on the value
+function and the optimal policy.
+
+:::
 
 ## Notes {-}
 
-The proof idea for the optimality of Markov policies is based on a proof
-by @Witsenhausen1979 on the structure of optimal coding policies for
-real-time communication. Note that the proof does not require us to find a
-dynamic programming decomposition of the problem. This is in contrast with the
-standard textbook proof where the optimality of Markov policies is proved as
-part of the dynamic programming decomposition. 
+The proof idea for the optimality of Markov policies is based on a proof by @Witsenhausen1979 on the structure of optimal coding policies for real-time communication. Note that the proof does not require us to find a dynamic programming decomposition of the problem. This is in contrast with the standard textbook proof where the optimality of Markov policies is proved as part of the dynamic programming decomposition. 
+
+@exr-internet-of-things is adapted from @Chakravorty2018.
 
 <!-- FIXME
 Add notes on the history of MDPs. Zormello's proof of existence of value of chess. Results on inventory management. Bellman's book. Howard's book (Howard's paper on history of MDP). Bellman's anecdote on the term "dynamic programming".
