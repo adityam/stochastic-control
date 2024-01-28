@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-27">
+<meta name="dcterms.date" content="2024-01-28">
 <meta name="keywords" content="MDPs, Markov policies, dynamic programming, comparison principle, principle of irrelevant information">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -752,7 +752,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 27, 2024</p>
+      <p class="date">January 28, 2024</p>
     </div>
   </div>
   
@@ -1285,10 +1285,40 @@ V^*_t(s) &amp;= \min\{ s_t(s), c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s].
 \]</span></p>
 <p>Show that the above cost can be put in an additive form that would enable us to use the theory developed in the class to tackle this setup.</p>
 </div>
+<div id="exr-internet-of-things" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 5.3 (Optimal strategy in internet of things)</strong></span> Consider an IoT (Internet of Things) device which is observing an autoregressive process <span class="math inline">\(\{X_t\}_{t \ge 0}\)</span>, <span class="math inline">\(X_t \in \integers\)</span>, which starts at <span class="math inline">\(X_1 = 0\)</span> and for <span class="math inline">\(t &gt; 1\)</span> evolves as <span class="math display">\[ X_{t+1} = X_t + W_t \]</span> where <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is an i.i.d. process with <span class="math inline">\(W_t \in \{ -5, \dots,
+5 \}\)</span> with <span class="math display">\[ \PR(W_t = w) =
+\begin{cases}
+  \frac{1}{5} - \frac{|w|}{25}, &amp; \text{if } |w| \le 5 \\
+  0, &amp; \text{otherwise}
+\end{cases}\]</span></p>
+<p>The IoT device can either transmit its observation (denoted by <span class="math inline">\(A_t = 1\)</span>) or not (denoted by <span class="math inline">\(A_t = 0\)</span>). Transmitting a packet has a cost <span class="math inline">\(\lambda\)</span> while not transmitting has no cost.</p>
+<p>When <span class="math inline">\(A_t = 0\)</span>, the receiver estimates the state of the process as the previously transmitted observation <span class="math inline">\(Z_t\)</span> and incurs a cost <span class="math inline">\((X_t -
+Z_t)^2\)</span>.</p>
+<p>The above system can be modeled as an MDP with state <span class="math inline">\(\{S_t \}_{t \ge 0}\)</span>, where <span class="math inline">\(S_t = X_t - Z_t\)</span>. It can be shown that the dynamics of <span class="math inline">\(\{S_t\}_{t
+\ge 1}\)</span> are as follows: <span class="math display">\[ S_{t+1} = \begin{cases}
+    S_t + W_t, &amp; \text{if } A_t = 0 \\
+    W_t, &amp; \text{if } A_t = 1
+  \end{cases} \]</span></p>
+<p>The per-step cost is given by <span class="math display">\[ c(s,a) = \lambda a + (1-a)s^2. \]</span></p>
+<p>The objective of this exercise is to find the optimal policy for the above problem using dynamic programming.</p>
+<p>In this model, the state space is unbounded which makes it difficult to use dynamic programming. So, we construct approximate dynamics as follows. We pick a large number <span class="math inline">\(B\)</span> and assume that the dynamics are: <span class="math display">\[ S_{t+1} = \begin{cases}
+    [S_t + W_t]_{-B}^B, &amp; \text{if } A_t = 0 \\
+    [W_t]_{-B}^B, &amp; \text{if } A_t = 1
+  \end{cases} \]</span></p>
+<p>So, we can effective consider the state space to be <span class="math inline">\(\{-B, \dots, B\}\)</span>.</p>
+<ol type="a">
+<li><p>Solve the dynamic program for <span class="math inline">\(T = 20\)</span>, <span class="math inline">\(λ = 100\)</span>, and <span class="math inline">\(B = 100\)</span>.</p></li>
+<li><p>Plot the value function for <span class="math inline">\(t \in \{1, 5, 10, 19 \}\)</span> on the same plot.</p></li>
+<li><p>Plot the optimal policy for <span class="math inline">\(t \in \{1, 5, 10, 19 \}\)</span>.</p></li>
+<li><p>Change the value of <span class="math inline">\(B\)</span> in the set <span class="math inline">\(\{50, 60, 70, 80 \}\)</span> to make sure that our truncation does not have a significant impact on the value function and the optimal policy.</p></li>
+</ol>
+</div>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
 <p>The proof idea for the optimality of Markov policies is based on a proof by <span class="citation" data-cites="Witsenhausen1979">Witsenhausen (<a href="../references.html#ref-Witsenhausen1979" role="doc-biblioref">1979</a>)</span> on the structure of optimal coding policies for real-time communication. Note that the proof does not require us to find a dynamic programming decomposition of the problem. This is in contrast with the standard textbook proof where the optimality of Markov policies is proved as part of the dynamic programming decomposition.</p>
+<p><a href="#exr-internet-of-things" class="quarto-xref">Exercise&nbsp;<span>5.3</span></a> is adapted from <span class="citation" data-cites="Chakravorty2018">Chakravorty and Mahajan (<a href="../references.html#ref-Chakravorty2018" role="doc-biblioref">2018</a>)</span>.</p>
 <!-- FIXME
 Add notes on the history of MDPs. Zormello's proof of existence of value of chess. Results on inventory management. Bellman's book. Howard's book (Howard's paper on history of MDP). Bellman's anecdote on the term "dynamic programming".
 -->
@@ -1300,6 +1330,9 @@ Add notes on the history of MDPs. Zormello's proof of existence of value of ches
 </div>
 <div id="ref-Blackwell1965" class="csl-entry" role="listitem">
 <span class="smallcaps">Blackwell, D.</span> 1965. Discounted dynamic programming. <em>The Annals of Mathematical Statistics</em> <em>36</em>, 1, 226–235. DOI: <a href="https://doi.org/10.1214/aoms/1177700285">10.1214/aoms/1177700285</a>.
+</div>
+<div id="ref-Chakravorty2018" class="csl-entry" role="listitem">
+<span class="smallcaps">Chakravorty, J. and Mahajan, A.</span> 2018. Sufficient conditions for the value function and optimal strategy to be even and quasi-convex. <em>IEEE Transactions on Automatic Control</em> <em>63</em>, 11, 3858–3864. DOI: <a href="https://doi.org/10.1109/TAC.2018.2800796">10.1109/TAC.2018.2800796</a>.
 </div>
 <div id="ref-HernandezLerma1996" class="csl-entry" role="listitem">
 <span class="smallcaps">Hernández-Lerma, O. and Lasserre, J.B.</span> 1996. <em>Discrete-time markov control processes</em>. Springer New York. DOI: <a href="https://doi.org/10.1007/978-1-4612-0729-0">10.1007/978-1-4612-0729-0</a>.
