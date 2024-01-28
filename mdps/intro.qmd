@@ -14,7 +14,10 @@ execute:
 
 ## An example
 
-To fix ideas, we start with an example. Consider a _controlled_ Markov chain defined over $\ALPHABET S = \{-2, -1, 0, 1, 2\}$ with two control actions, i.e., $\ALPHABET A = \{0, 1\}$. If action $A = 0$ is chosen, the chain evolves according to its "natural" dynamics, which are shown below:
+To fix ideas, we start with an example. 
+
+:::{#exm-peak-control}
+Consider a _controlled_ Markov chain defined over $\ALPHABET S = \{-2, -1, 0, 1, 2\}$ with two control actions, i.e., $\ALPHABET A = \{0, 1\}$. If action $A = 0$ is chosen, the chain evolves according to its "natural" dynamics, which are shown below:
 
 !["Natural" dynamics of the Markov chain](figures/peak-control1.svg){#fig-peak1}
 
@@ -27,6 +30,8 @@ Note that under the natural dynamics, the Markov chain will settle to a uniform 
 Suppose it is desirable to keep the Markov chain close to state $0$. We capture this by the system incurs a _running cost_ equal to $s^2$ in state $s$. In addition, choosing action $A=0$ is free but choosing action $A=1$ has a _correction cost_ $p$. 
 
 Thus, the decision maker is in a conundrum. It may allow the system to follow its natural dynamics, which causes the system to reach states with larger absolute value and incur a running cost $s^2$; or it may decide to force the system to drift towards state $0$, which reduces the running cost but, in turn, incurs a correction cost $p$. How should the decision maker choose its actions?
+
+:::
 
 
 ## Basic model and structure of optimal policies
@@ -253,9 +258,9 @@ $$
   V^{π}_t = c^{π}_t + P^{π}_t V^{π}_{t+1}.
 $$
 
-### Example (continued)
+### @exm-peak-control (continued)
 
-As an example, consider the following time-homogeneous policy for the example presented at the beginning of this section:
+As an example, consider the following time-homogeneous policy @exm-peak-control:
 $$
   π_t(s) = \begin{cases}
     1 & \text{if } |s| = 2 \\
@@ -320,7 +325,7 @@ display(Vπ)
 
 @fig-peak-evaluation shows the value functions computed as part of the policy evaluation.
 
-![Value function for policy evaluation of the example. Note that the value functions are computed by proceeding backwards in time.](figures/peak-control-evaluation1.svg){#fig-peak-evaluation}
+![Value function for policy evaluation of @exm-peak-control. Note that the value functions are computed by proceeding backwards in time.](figures/peak-control-evaluation1.svg){#fig-peak-evaluation}
 
 ## Dynamic Programming Decomposition {#DP}
 
@@ -358,7 +363,9 @@ Then, the dynamic program of @thm-MDP-DP may be written as follows: start with a
   π^*_t &= \arg\min(Q^*_t, \hbox{\tt dim}=2).
 \end{align*}
 
-### Example (continued)
+### @exm-peak-control (continued)
+
+Now we present the dynamic programming solution for @exm-peak-control:
 
 ```{julia}
 #| echo: true
@@ -407,7 +414,7 @@ display(π)
 
 @fig-peak-optimal shows the value functions and optimal policy computed from the dynamic program
 
-![Optimal value function and optimal policy for the example. The red color indicates that the optimal action is $1$; black indicates that the optimal action is $0$. Note that the computations are done by proceeding backwards in time.](figures/peak-control-optimal1.svg){#fig-peak-optimal}
+![Optimal value function and optimal policy for @exm-peak-control. The red color indicates that the optimal action is $1$; black indicates that the optimal action is $0$. Note that the computations are done by proceeding backwards in time.](figures/peak-control-optimal1.svg){#fig-peak-optimal}
 
 ### Back to the proof
 
@@ -474,6 +481,117 @@ in step $(c)$ iff $π_{t+1:T}$ is optimal (this is part of the induction
 hypothesis). Thus, the result is true for time $t$ and, by the principle of
 induction, is true for all time.
 :::
+
+## More examples
+
+### Machine repair
+
+::: {#exm-machine-repair}
+#### Machine repair
+Consider a manufacturing process, where the machine used for manufacturing deteriorates over time. Let $\ALPHABET S = \{0, 1, \dots n \}$ represent the condition of the machine. The higher the value of $s$, the worse the condition of the equipment. 
+
+A decision maker observes the state of the machine and has two options: continue operating the machine or replace it with a a new and identical piece of equipment. Operating the machine is state $s$ costs $h(s)$, where $h(⋅)$ is a weakly increasing function; replace the machine costs a constant amount $K$. 
+
+When the machine is operated, it's state deteriorates according to 
+$$
+  S_{t+1} = \min( S_t + W_t , n)
+$$
+where $\{W_t\}_{t \ge 1}$ is an i.i.d.\ process with PMF $μ$.
+:::
+
+The above system may be modelled as an MDP with state space $\ALPHABET S$ and action space $\ALPHABET A = \{0, 1\}$ where $0$ means operating the machine and $1$ means replacing the machine. 
+
+For instance, consider $n = 5$ and $W \sim \text{Bernoulli}(p)$. The evolution of the Markov chain under action $A_t = 0$ and $A_t = 1$ are shown in @fig-machine-repair. 
+
+:::{#fig-machine-repair layout-ncol=2}
+
+![Dynamics under action $A_t = 0$](figures/machine-repair1.svg){#exm-machine-repair1}
+
+![Dynamics under action $A_t = 1$](figures/machine-repair2.svg){#exm-machine-repair2}
+
+State dynamics for the MDP of @exm-machine-repair
+:::
+
+Thus,
+$$
+  P(0) = \MATRIX{q& p& 0& 0& 0& 0\\
+                 0& q& p& 0& 0& 0\\
+                 0& 0& q& p& 0& 0\\
+                 0& 0& 0& q& p& 0\\
+                 0& 0& 0& 0& q& p\\
+                 0& 0& 0& 0& 0& 1}
+  \quad\hbox{and}\quad
+  P(1) = \MATRIX{1& 0& 0& 0& 0& 0\\
+                 1& 0& 0& 0& 0& 0\\
+                 1& 0& 0& 0& 0& 0\\
+                 1& 0& 0& 0& 0& 0\\
+                 1& 0& 0& 0& 0& 0\\
+                 1& 0& 0& 0& 0& 0}
+$$
+where we have set $q = 1-p$ for notational convenience.
+
+The per-step cost is given by
+$$
+  c(s,a) = h(s) + λa.
+$$
+
+Solving the DP for $p=0.2$, $λ=10$, and $T=5$ gives the following:
+
+```{julia}
+#| echo: true
+#| code-fold: true
+#| code-summary: "Show code"
+using SparseArrays
+
+# We use the default indexing (1,...,n) for convenience. 
+
+(n,m) = (6,2)
+S = 1:n
+A = 1:m
+T = 5
+λ = 10
+
+p = 0.2
+q = 1-p
+
+P = [ spzeros(n,n) for a ∈ A ]
+for i in S
+  P[1][i,i] = q
+  P[1][i,min(i+1,n)] += p
+
+  P[2][i,1] = 1
+end
+
+c = zeros(n,m)
+for s ∈ S, a ∈ A
+  # use s-3 and a-1 to convert to "natural" indices -2:2 and 0:1
+  c[s,a] = 2s + λ*a
+end
+
+V = [ zeros(n)     for t ∈ 1:T+1 ]
+π = [ zeros(Int,n) for t ∈ 1:T   ]
+
+for t ∈ T:-1:1
+  Q = c + hcat(P[1]*V[t+1], P[2]*V[t+1])
+
+  # Could be done more efficiently with a single pass
+  V[t] = vec(minimum(Q, dims=2))
+  # Subtract 1 to get to "natural" indices 0:1
+  π[t] = argmin.(eachrow(Q)) .- 1
+end
+
+display(V)
+display(π)
+```
+
+@fig-machine-repair-plot shows the optimal value function and optimal policy as a function of time.
+
+![Optimal value function and optimal policy for @exm-machine-repair. The red color indicates that the optimal action is $1$; black indicates that the optimal action is $0$. Note that the computations are done by proceeding backwards in time.](figures/machine-repair-plot1.svg){#fig-machine-repair-plot}
+
+<!-- TODO:
+#### Rate control/admission control of a queue
+
+-->
 
 ## Variations of a theme 
 
