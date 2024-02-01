@@ -135,7 +135,7 @@ action_plot = Plot.plot({
 
 :::{.callout-caution icon=false}
 # <i class="bi bi-patch-question text-warning"></i> Qualitative property of optimal policy
-In the machine replacement problem shown in @fig-machine-replacement, the optimal policy satisfies a qualitative property: _the optimal policy is monotone_, that is if $s < s'$ then $π^*_t(s) < π^*_t(s')$. Intuitively, it makes sense. But how can we establish that this is the case for other choices of problem parameters as well?
+In the machine replacement problem shown in @fig-machine-replacement, the optimal policy satisfies a qualitative property: _the optimal policy is monotone_, that is if $s < s'$ then $π^*_t(s) \le π^*_t(s')$. Intuitively, it makes sense. But how can we establish that this is the case for other choices of problem parameters as well?
 :::
 
 ## Stochastic dominance
@@ -162,12 +162,21 @@ Thus, visually, $S^1 \succeq_s S^2$ means that the CDF of $S^1$ _lies below_
 the CDF of $S^2$. 
 
 :::{.callout-tip}
-### Example
-$\left[0, \frac 14, \frac 14, \frac 12\right]
-\succeq_s
-\left[\frac 14, 0, \frac 14, \frac 12 \right]
-\succeq_s
-\left[\frac 14, \frac 14, \frac 14, \frac 14 \right].$
+### Examples
+- $[0, 0, \tfrac 14, \tfrac 34]
+   \succeq_s 
+   [0, \tfrac 14, \tfrac 34, 0]
+   \succeq_s 
+   [\tfrac 14, \tfrac 34, 0, 0]$
+
+- $[0,0,0,1] 
+   \succeq_s
+   [0,0, \tfrac 12, \tfrac 12]
+   \succeq_s
+   [0, \tfrac 13, \tfrac 13, \tfrac 13]
+   \succeq_s
+   [\tfrac 14, \tfrac 14, \tfrac 14, \tfrac 14]$
+
 :::
 
 Stochastic dominance is important due to the following property.
@@ -261,7 +270,15 @@ A Markov chain with transition matrix $P$ is stochastically monotone if
 $$ P_i \succeq_s P_j, \quad \forall i > j. $$
 :::
 
-An immediate implication is the following.
+As an example, a birth death Markov chain (without self loops) is stochastically monotone, e.g., for any $p + q = 1$, the following is stochastic monotone
+  $$\MATRIX{ q & p & 0 & 0 & 0 \\
+           q & 0 & p & 0 & 0 \\
+           0 & q & 0 & p & 0 \\
+           0 & 0 & q & 0 & p \\
+           0 & 0 & 0 & q & p }$$
+
+
+An immediate implication of the definition of stochastic monotinicity is the following.
 
 :::{#thm-stochastic-monotonicity}
 Let $\{S_t\}_{t \ge 1}$ be a Markov chain with transition matrix $P$ and $f \colon \ALPHABET S \to \reals$ is a weakly increasing function. Then, for any $s^1, s^2 \in \ALPHABET S$ such that $s^1 > s^2$, 
@@ -274,9 +291,9 @@ if and only if $P$ is stochatically monotone.
 ::: {#thm-monotone-value}
 Consider an MDP where the state space $\ALPHABET S$ is totally ordered. Suppose the following conditions are satisfied.
 
-C1. For every $a \in \ALPHABET A$, the per-step cost $c_t(s,a)$ is weakly inceasing in $s$.
+**C1.** For every $a \in \ALPHABET A$, the per-step cost $c_t(s,a)$ is weakly inceasing in $s$.
 
-C2. For every $a \in \ALPHABET A$, the transition matrix $P(a)$ is stochastically monotone. 
+**C2.** For every $a \in \ALPHABET A$, the transition matrix $P(a)$ is stochastically monotone. 
 
 Then, the value function $V^*_t(s)$ is weakly increasing in $s$.
 :::
@@ -380,7 +397,7 @@ Thus, $π^*(x^+) \le π^*(x^-)$.
 :::{#thm-increasing-policy}
 Consider an MDP where the state space $\ALPHABET S$ and the action space $\ALPHABET A$ are totally ordered. Suppose that, in addition to (C1) and (C2), the following condition is satisfied.
 
-C3. For any weakly increasing function $v$,
+**C3.** For any weakly increasing function $v$,
 $$ c_t(s,a) + \EXP[ v(S_{t+1}) | S_t = s, A_t = a]$$
 is submodular in $(s,a)$.
 
@@ -404,7 +421,7 @@ Consider an MDP with totally ordered state and action spaces. Suppose
 (b) For all $s' \in \ALPHABET S$, 
     $H(s' | s,a) = 1 - \sum_{z \le s'} P_{sz}(a)$ is submodular in $(s,a)$.
 
-The condition (C3) of the previous theorem holds.
+The condition (C3) of @thm-increasing-policy holds.
 :::
 
 :::{.callout-note collapse="true"}
@@ -443,7 +460,7 @@ The analogue of @thm-increasing-policy for supermodular functions is as follows.
 :::{#thm-decreasing-policy}
 Consider an MDP where the state space $\ALPHABET S$ and the action space $\ALPHABET A$ are totally ordered. Suppose that, in addition to (C1) and (C2), the following condition is satisfied.
 
-C4. For any weakly increasing function $v$,
+**C4.** For any weakly increasing function $v$,
 $$ c_t(s,a) + \EXP[ v(S_{t+1}) | S_t = s, A_t = a]$$
 is supermodular in $(s,a)$.
 
@@ -464,7 +481,7 @@ Consider an MDP with totally ordered state and action spaces. Suppose
 (b) For all $s' \in \ALPHABET S$, 
     $H(s' | s,a) = 1 - \sum_{z \le s'} P_{sz}(a)$ is supermodular in $(s,a)$.
 
-The condition (C4) of the previous theorem holds.
+The condition (C4) of @thm-decreasing-policy holds.
 :::
 
 :::{.callout-note collapse="true"}
@@ -530,7 +547,7 @@ computing $Q^*_t(s,a)$ and $V^*_t(s)$, proceed as follows:
 
 ## Example: A machine replacement model
 
-Let's revisit the machine replacement problem presented at the beginning of this section. For simplicity, we'll assume that $n = ∞$, i.e., the state space is countable. In this case, the transition matrices are given by
+Let's revisit the machine replacement problem of @exr-machine-replacement. For simplicity, we'll assume that $n = ∞$, i.e., the state space is countable. In this case, the transition matrices are given by
 $$ P_{sz}(0) = \begin{cases}
   0, & z < s \\
   μ_{z - s}, & z \ge s
