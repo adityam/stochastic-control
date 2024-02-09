@@ -1,48 +1,19 @@
----
-title: Power-delay tradeoff in wireless communication
-keywords:
-   - MDPs
-   - stochastic monotonicity
-   - structural results
-execute:
-  echo: false
----
+## Power-delay tradeoff in wireless communication {#power-delay-tradeoff}
 
-:::{.callout-note icon=false appearance="simple"}
-# <i class="bi bi-journal-text text-primary"></i> Summary
-In this section, a stylized example of power-delay trade-off in wireless communications is presented. The results illustrate that the dynamic programming formulation can be used to identify qualitative properties of the value function and optimal policies.
-:::
+In a cell phone, higher layer applications such as voicecall, email, browsers, etc. generate data packets. These packets are buffered in a queue and the transmission protocol decides how many packets to transmit at each time depending the number of packets in the queue and the quality of the wireless channel.
 
-In a cell phone, higher layer applications such as voicecall, email, browsers,
-etc. generate data packets. These packets are buffered in a queue and the
-transmission protocol decides how many packets to transmit at each time
-depending the number of packets in the queue and the quality of the wireless
-channel.
-
-Let $X_t \in \integers_{\ge 0}$ denote the number of packets buffered at time
-$t$ and $A_t \in \integers_{\ge 0}$, $A_t \le X_t$, denote the number of
-packets transmitted at time $t$. The remaining $X_t - A_t$ packets incur a
-delay penalty given by $d(X_t - A_t)$, where $d(\cdot)$ is a _strictly_
-increasing and discrete-convex function where $d(0) = 0$. 
+Let $X_t \in \integers_{\ge 0}$ denote the number of packets buffered at time $t$ and $A_t \in \integers_{\ge 0}$, $A_t \le X_t$, denote the number of packets transmitted at time $t$. The remaining $X_t - A_t$ packets incur a delay penalty given by $d(X_t - A_t)$, where $d(\cdot)$ is a _strictly_ increasing and discrete-convex function where $d(0) = 0$. 
 
 {{< include ../snippets/discrete-convexity.qmd >}}
 
-During time $t$, $W_t \in \integers_{\ge 0}$ additional packets arrive and 
-$$ X_{t+1} = X_t - A_t + W_t.$$
-We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d. process.
+During time $t$, $W_t \in \integers_{\ge 0}$ additional packets arrive and $$ X_{t+1} = X_t - A_t + W_t.$$ We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d. process.
 
-The packets are transmitted over a wireless fading channel. Let $S_t \in
-\ALPHABET S$ denote the state of the fading channel. We assume that
-the states are ordered such that a lower value of state denotes a better
-channel quality. 
+The packets are transmitted over a wireless fading channel. Let $S_t \in \ALPHABET S$ denote the state of the fading channel. We assume that the states are ordered such that a lower value of state denotes a better channel quality. 
 
 If the channel has two states, say GOOD and BAD, we typically expect that 
 $$ \PR(\text{GOOD} \mid \text{GOOD}) \ge \PR(\text{GOOD} \mid \text{BAD}). $$
 This means that the two state transition matrix is [stochastically
-monotone][monotone]. So, in general (i.e., when the channel has more than two
-states), we assume that $\{S_t\}_{t \ge 1}$ is a
-[stochastically monotone][monotone] Markov process that is independent of
-$\{W_t\}_{t \ge 1}$.
+monotone][monotone]. So, in general (i.e., when the channel has more than two states), we assume that $\{S_t\}_{t \ge 1}$ is a [stochastically monotone][monotone] Markov process that is independent of $\{W_t\}_{t \ge 1}$.
 
 [monotone]: monotone-mdps.qmd#stochastic-monotonicity
 
@@ -56,14 +27,13 @@ where
 * $p(\cdot)$ is a strictly increasing and convex function where $p(0) = 0$;
 * $q(\cdot)$ is a strictly increasing function.
 
-The objective is to choose a transmission policy $A_t = π^*_t(X_t, S_t)$ to
-minimize the weighted sum of transmitted power and delay
+The objective is to choose a transmission policy $A_t = π^*_t(X_t, S_t)$ to minimize the weighted sum of transmitted power and delay
 $$ \EXP\bigg[ \sum_{t=1}^T \big[ p(A_t) q(S_t) + \lambda d(X_t - A_t) \big]
 \bigg],$$
 where $\lambda$ may be viewed as a Lagrange multiplier corresponding to a
 constrained optimization problem. 
 
-## Dynamic program
+### Dynamic program
 
 We can assume $Y_t = X_t - A_t$ as a post-decision state in the above model
 and write the dynamic program as follows:
@@ -143,12 +113,12 @@ $V^*_t(x,s)$ is convex in $x$. This completes the induction step.
 
 ::: {#thm-power-delay-monotone-queue}
 
-For all time $t$ and channel state s$s$, there is an optimal strategy $π^*_t(x,s)$ which is increasing in the queue length $x$.
+For all time $t$ and channel state $s$, there is an optimal strategy $π^*_t(x,s)$ which is increasing in the queue length $x$.
 :::
 
 ::: {.callout-note collapse="true"}
 # Proof
-In the previous lemma, we have shown that $H_t(y,s)$ is convex
+In @lem-power-delay-convex, we have shown that $H_t(y,s)$ is convex
 in $y$. Therefore, $H_t(x-a, s)$ is submodular in $(x,a)$.
 
 [One can show submodularity by finite difference, but for simplicity, we assume that
@@ -159,14 +129,13 @@ Thus, for a fixed $s$, $p(a)q(s) + H_t(x-a, s)$ is submodular in $(x,a)$.
 Therefore, the optimal policy is increasing in $x$.
 :::
 
-### Monotonicity of optimal policy in channel state
+### Lack of monotonicity of optimal policy in channel state
 
-It is natural to expect that for a fixed $x$ the optimal policy is decreasing
-in $s$. However, it is not possible to obtain the monotonicity of optimal
-policy in channel state in general. To see why this is difficult, let us
-impose a mild assumption on the arrival distribution.
+It is natural to expect that for a fixed $x$ the optimal policy is decreasing in $s$. However, it is not possible to obtain the monotonicity of optimal policy in channel state in general. To see why this is difficult, let us impose a mild assumption on the arrival distribution.
 
 ::: {#asm-power-delay-density}
+<!--FIXME: Wait for support in quarto -->
+#### @asm-power-delay-density {-}
 
 The packet arrival distribution is weakly decreasing, i.e., for any $v,w
 \in \integers_{\ge 0}$ such that $v \le w$, we have that $P_W(v) \ge
@@ -178,9 +147,9 @@ We first start with a slight generalization of stochastic monotonicity result.
 
 ::: {#lem-littlewood}
 
-Let $\{p_i\}_{i \ge 0}$ and $\{q_i\}_{i \ge 0}$ be real-valued non-negative
-sequences satisfying
+Let $\{p_i\}_{i \ge 0}$ and $\{q_i\}_{i \ge 0}$ be real-valued non-negative sequences satisfying
 $$ \sum_{i \le j} p_i \le \sum_{i \le j} q_i, \quad \forall j.$$
+(Note that the sequences do not need to add to 1).
 Then, for any increasing sequence $\{v_i\}_{i \ge 0}$, we have
 $$ \sum_{i = 0}^\infty p_i v_i \ge \sum_{i=0}^\infty q_i v_i. $$
 
@@ -195,10 +164,8 @@ Under @asm-power-delay-density, for all $t$, $H_t(y,s)$ is supermodular in $(y,s
 :::
 
 ::: {.callout-note collapse="true"}
-# Proof
-<!--FIXME -->
+#### Proof
 The idea of the proof is similar to @lem-sufficient-C3.
-
 
 Fix $y^+, y^- \in \integers_{\ge 0}$ and $s^+, s^- \in \ALPHABET S$ such that
 $y^+ > y^-$ and $s^+ > s^-$. Now, for any $y' \in \integers_{\ge 0}$ and $s'
@@ -251,40 +218,9 @@ Thus, $H_t(y,s)$ is supermodular in $(y,s)$.
 ::: {.callout-important }
 # Even under @asm-power-delay-density, we cannot establish the monotonicity of $π^*_t(x,s)$ is $s$.
 
-Note that we have established that $H_t(y,s)$ is supermodular in $(y,s)$. Thus,
-for any fixed $x$, $H_t(x-a,s)$ is submodular in $(a,s)$. Furthermore the
-function $p(a)q(s)$ is increasing in both variables and therefore supermodular
-in $(a,s)$. Therefore, we cannot say anything specific about
-$p(a)q(s) + H_t(x-a, s)$ which is a sum of submodular and supermodular
-functions.
+Note that we have established that $H_t(y,s)$ is supermodular in $(y,s)$. Thus, for any fixed $x$, $H_t(x-a,s)$ is submodular in $(a,s)$. Furthermore the function $p(a)q(s)$ is increasing in both variables and therefore supermodular in $(a,s)$. Therefore, we cannot say anything specific about $p(a)q(s) + H_t(x-a, s)$ which is a sum of submodular and supermodular functions.
+
+We need to impose a much stronger assumption to establish monotonicity in channel state. See @exr-power-delay-monotone.
 :::
-
-## Exercises {-}
-
-::: {#exr-power-delay-monotone}
-
-In this exercise, we provide sufficient conditions for the optimal policy
-to be monotone in the channel state. Suppose that the channel state
-$\{S_t\}_{t \ge 1}$ is an i.i.d. process. Then prove that for all time $t$
-and queue state $x$, there is an optimal strategy $π^*_t(x,s)$ which is
-decreasing in channel state $s$.
-
-:::
-
-## Notes {-}
-
-The mathematical model of power-delay trade-off is taken from @Berry2000,
-where the monotonicty results were proved using first principles.
-More detailed characterization of the optimal transmission strategy when the
-average power or the average delay goes to zero are provided in @Berry2002 and
-@Berry2013. A related model is presented in @Ding2016.
-
-For a broader overview of power-delay trade offs in wireless communication,
-see @Berry2012 and @Yeh2012.
-
-The remark after @lem-power-delay-submodular shows the difficulty in establishing monotonicity of optimal policies for a multi-dimensional state space. In fact, sometimes even when monotonicity appears to be intuitively obvious, it may not hold. See @Sayedana2020a for an example. For general discussions on monotonicity for multi-dimensional state spaces, see @Topkis1998 and @Koole2006. As an example of using such general conditions to establish monotonicity, see @Sayedana2020. 
-
-
-
 
 
