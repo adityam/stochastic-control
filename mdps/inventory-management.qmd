@@ -291,7 +291,7 @@ $$ s^*_t = \arg \min_{z \in \reals} \bigl\{ p z + H_t(z) \bigr\} . $$
 Then, 
 \begin{equation} \label{eq:V}
 V^*_t(s) = \begin{cases}
-  H_t(s_t) + p (s_t - s), &\text{if } s \le s^*_t \\
+  H_t(s^*_t) + p (s^*_t - s), &\text{if } s \le s^*_t \\
   H_t(s)   , & \text{otherwise }
 \end{cases} 
 \end{equation}
@@ -468,8 +468,8 @@ the minimizer for the constrained problem is $a = 0$.
 
 ::: {.callout-note collapse="true"}
 #### Proof of the structural result {-}
-Now to prove the result, we define 
-$$ f_t(z) = py + H_t(z). $$
+To prove the result, we define 
+$$ f_t(z) = pz + H_t(z). $$
 Then,
 $$ V^*_t(s) = \min_{a \in \reals_{\ge 0}} \bigl\{ p(s + a) + H_t(s + a)
 \bigr\} - p s 
@@ -504,13 +504,219 @@ and $V^*_t(s)$ is of the desired form and convex.
 Thus, the result is holds by induction.
 :::
 
+## Variations of a theme: positive ordering cost
 
+We now consider the case when the store has pay a fixed cost $K$ everytime it places an order. Thus, the cost of ordering the inventory is
+$$
+  \begin{cases}
+  pa + K, & \hbox{if } a > 0 \\
+  0, & \hbox{otherwise}
+  \end{cases}
+$$
+The rest of the model is the same as before. Therefore, the dynamic programming decomposition in this case is as follows:
+
+:::{#prp-inventory-DP-setup}
+## Dynamic programming
+Define the following value functions $V^*_t \colon \S \to \reals$ 
+$$V^*_{T+1}(s) = 0$$
+and for $t \in \{T, \dots, 1\}$
+$$ Q^*_t(s, a) = p a + \textcolor{red}{K \IND\{a > 0\}} + \EXP[ h(s + a - W_t) + V^*_{t+1}( s + a - W_t ) ]$$
+and
+$$ \begin{align*}
+  V^*_t(s) &= \min_{a \in \S_{\ge 0}} Q^*_t(s,a) \\
+  π^*_t(s) &= \arg \min_{a \in \S_{\ge 0}} Q^*_t(s,a) 
+  \end{align*}
+$$
+Then the strategy $π^* = (π^*_1, \dots, π^*_T)$ is optimal. 
+::: 
+
+The only difference between @prp-inventory-DP and @prp-inventory-DP-setup is the red term in $Q^*_t(s,a)$. 
+
+As before, we simplify the dynamic program by working with a post-decision state $Z_t = S_t + A_t$. To write the dynamic program in terms of the post-decision state, we define
+$$
+  H_t(z) = \EXP[ h(z - W) + V^*_{t+1}(z - W) ].
+$$
+Then, we define the value function as
+$$
+  V^*_t(s) = \min\biggl\{
+  H_t(s), 
+  \min_{a \in \S_{> 0}}
+  \bigl\{ pa + K + H_t(s+a) \bigr\} \biggr\}.
+$$
+Note that we written the case $a=0$ separately.
+
+We cannot use the proof developed for $K=0$, because when $K > 0$, the function $H_t$ is not convex. However, it satisfies a relaxed property known as $K$-convexity.
+
+:::{.callout-tip}
+### K-convexity
+
+A function $f \colon \reals \to \reals$ is called $K$-convex (for $K \ge 0$) if for all $x,y \in \reals$ such that $x \le y$ and $\lambda \in [0,1]$, we have
+$$
+  f(\lambda x + (1 - \lambda) y) 
+  \le
+  \lambda f(x) + (1 - \lambda)[ f(y) + K ].
+$$
+
+Sometimes, $K$-convexity is stated differently. Take any $u, z \ge 0$ and $b > 0$ and consider the change of variables:
+$$
+  \lambda = \frac{z}{z + b},
+  \quad
+  x =  u - b, 
+  \quad
+  y = u + z.
+$$
+Then, the definition of $K$-convexity is equivalent to
+$$
+  f(u) \le \frac{z}{b+z} f(u-b) + \frac{b}{b+z}
+  \biggl[ f(u+z) + K \biggr].
+$$
+Rearranging terms, we get
+$$
+  f(u) + 
+  z \biggl[ \frac{ f(u) - f(u - b) }{ b } \biggr]
+  \le 
+  f(u + z) + K.
+$$
+This definition looks a bit strange, but the right way to interpret it is to assume that $f$ is differentiable and take the limit of $b \to 0$, which gives
+$$
+  K + f(u + z) - f(u) - z f'(u) \ge 0,
+$$
+which can immediately be seen as a generalization of the standard property of convexity (when $K = 0$).
+:::
+
+The definition of $K$-convexity immediately imply the following properties.
+
+:::{#lem-K-convex}
+#### Properties of $K$-convexity
+
+1. If $f$ is $K$ convex, it is also $L$-convex for any $L \ge K$. In particular, if $f$ is convex (i.e., $0$-convex), then it is also $K$-convex for $K \ge 0$. 
+2. If $f$ is $K$-convex and $g$ is $L$-convex, then $αf + βg$ is $(αK + βL)$-convex.
+3. If $f$ is $K$-convex and $W$ is a random variable then $\EXP[f(x-W)]$ is $K$-convex, provided $\EXP[\ABS{f(x-W)}] < ∞$ for all $x \in \reals$.
+:::
+
+The reason that $K$-convexity is useful is because it implies the following.
+
+:::{#lem-s-S-property}
+Let $f \colon \reals \to \reals$ be a continuous $K$-convex function such that $f(x) \to \infty$ as $\ABS{x} \to \infty$. Then, there exist scalars $s$ and $S$ with $s \le S$ such that 
+
+1. $f(S) \le f(x)$, for all $x \in \reals$.
+2. $f(s) = f(S) + K < f(x)$ for all $x < s$. 
+3. $f(x)$ is decreasing in $(-\infty, s)$. 
+4. $f(y) \le f(z) + K$ for all $s \le y \le z$. 
+
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+
+Since $f$ is a continuous function and $f(x) \to ∞$ as $\ABS{x} \to ∞$, there exists a minimizing point of $f$, which we denote by $S$. Let $s$ be defined as
+$$
+  s = \inf\{ z \le S : f(z) = f(S) + K \}.
+$$
+Since $f(-∞) \to ∞$, such a $s$ must exist.
+
+Now we show that $(s,S)$ defined above satisfy the properties on the lemma. 
+
+1. Follows from the definition of $S$.
+2. Follows from the definition of $s$ and continuity of $f$.
+3. Note that for any $x < y < s$, we have (taking $u - b = x$, $u = y$, and $u + z = S$ in the second definition of $K$-convexity)
+   $$
+   K + f(S) \ge f(y) + \frac{S - y}{y - x}( f(y) - f(x) )
+   $$
+   Also from property 2, we know that
+   $$
+   f(y) > K + f(S).
+   $$
+   Adding these two inequalities, we get
+   $$
+   0 > \frac{S - y}{y - x}( f(y) - f(x) )
+   $$
+   which implies $f(x) > f(y)$, proving property 3.
+4. First observe that the property is true for $y = z$, or for $y = S$ or $y = s$. So, there are two remaining possibilities: $y < S$ or $y > S$. 
+
+      If $s < y < S$, then by $K$-convexity we have
+      $$
+        f(s) = f(S) + K \ge f(y) + \frac{S-y}{y-s}(f(y) - f(s)).
+      $$
+      Rearranging terms, we have
+      $$
+      \left( 1 + \frac{S - y}{y - s}\right)f(s) 
+      \ge 
+      \left( 1 + \frac{S - y}{y - s}\right)f(y).
+      $$
+      Thus, $f(s) \ge f(y)$. The result then follows by observing that 
+      $$
+      f(z) + K \ge f(S) + K = f(s) \ge f(y).
+      $$
+
+      If $S < y < z$, then by $K$-convexity we have
+      $$
+        K + f(z) \ge f(y) + \frac{z - y}{y - S}(f(y) - f(S))
+        \ge f(y),
+      $$
+      which proves the result.
+:::
+
+:::{#thm-s-S-policy}
+
+Define 
+$$
+  S^*_t = \arg \min_{z \in \reals} \big\{
+  pz + H_t(z) \bigr \}
+$$
+and 
+$$
+  s^*_t = \inf \{ z \le S^*_t : pz + H_t(z) = pS^*_t + H_t(S^*_t) + K \}.
+$$
+
+Then,
+\begin{equation}\label{eq:value-setup}
+  V^*_t(s) = \begin{cases}
+  K + H_t(S_t^*) + p(S_t^* - s), & \hbox{if } s < s^*_t \\
+  H_t(s), & \hbox{otherwise}
+  \end{cases}
+\end{equation}
+and
+\begin{equation}
+  π^*_t(s) = 
+  \begin{cases}
+  S^*_t - s, & \hbox{if } s \le s^*_t \\
+  0, & \hbox{otherwise}
+  \end{cases}
+\end{equation}
+Furthermore, for all $t$, $pz + H_t(z)$ and $V_t^*(s)$ are $K$-convex in $z$ and $s$, respectively. 
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof of the structural result
+
+To prove the result, we define
+$$
+  f_t(z) = pz + H_t(z).
+$$
+Then,
+\begin{align*}
+  V^*(s) &= \min\biggl\{
+    p s + H_t(s),
+    \min_{a > 0} \bigl\{
+    p(s+a) + K + H_t(s+a) \bigr\} \biggr\} - ps
+    \\
+    &= \min\biggl\{ f_t(s),
+    \min_{a > 0} \bigl\{
+    K + f_t(s+a) \bigr\} \biggr\} - ps.
+\end{align*}
+
+For $t = T$, $Q^*_T(z)$ is convex and therefore $K$-convex. This forms the basis of induction. 
+
+**TODO: Complete the proof**
+
+::::
 
 ## Exercises {-}
 
 ::: {#exr-inventory-discrete}
 
-Consider the case when the state space $\S$ is equal to $\integers$ (i.e., all $S_t, A_t, W_t \in \integers$). In this case, we need the option of discrete convexity, which we explain below.
+Consider inventory management with zero ordering cost for the case when the state space $\S$ is equal to $\integers$ (i.e., all $S_t, A_t, W_t \in \integers$). In this case, we need the option of discrete convexity, which we explain below.
 
 {{< include ../snippets/discrete-convexity.qmd >}}
 
@@ -528,8 +734,20 @@ Consider the case when the state space $\S$ is equal to $\integers$ (i.e., all $
 _Remark_: Exactly the same argument works if the state space $\{ n \Delta : n \in \integers \}$.    
 :::
 
+::: {#exr-inventory-bounded}
+
+Consider inventory management with zero ordering cost with the only difference being that there is an upper bound $\overline B$ and a lower bound $\underline B$ on the allowable value of the stock. In particular, let $W_{\max} > 0$ be the maximum value of the demand (and we assume $\underline B + D < \overline B$), then the bounds impose a constaint
+$$
+  \underline B + D \le  S_t + U_t \le \overline B.
+$$
+Show that the optimal policy i sstill a base-stock policy.
+:::
+
 ## Notes {-}
 
 Inventory management models with deterministic demand were introduced by @Harris1913. The mathematical model of inventory management considered here was originally proposed by @Arrow1951. The optimality of base-stock policy was established by @Bellman1955. See the notes on [infinite horizon](inventory-management-revisited.html) version of this model to see how to find the threshold in closed form. 
 
-A model where $\S = \reals$ but $\ALPHABET A = \integers_{\ge 0}$ is considered in @Veinott1965. It's generalization with non-zero ordering cost is considered in @Tsitsiklis1984. 
+A model where $\S = \reals$ but $\ALPHABET A = \integers_{\ge 0}$ is considered in @Veinott1965. It's generalization with positive ordering cost is considered in @Tsitsiklis1984. 
+
+Sufficient conditions for the optimality of $(s,S)$-policies were presented in @Dvoretzky1953. 
+The notion of $K$-convexity and optimality of $(s,S)$-policies is due to @Scarf1960. The proof of @lem-s-S-property is borrowed from @Bertsekas:book.
