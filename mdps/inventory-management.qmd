@@ -183,7 +183,7 @@ W = 0:n
 T = 15
 ojs_define(T=T)
 
-function generate_binomial_demand(n,q,ch,cs,p,T)
+function generate_binomial_demand(n,q,ch,cs,p,T,K)
   Pw = Binomial(n,q)
   h(s) = (s >= 0) ? ch*s : -cs*s
 
@@ -204,7 +204,7 @@ function generate_binomial_demand(n,q,ch,cs,p,T)
 
           for a ∈ A
               next_z = clamp(s+a, -L, 2L)
-              newVal = p*a + H[next_z]
+              newVal = p*a + H[next_z] + K*(a > 0)
               if newVal <= val
                   opt = a
                   val = newVal
@@ -225,7 +225,7 @@ df = DataFrame(time=Int[], state=Int[], value=Float64[], policy=Int[], shortage=
 Cs = range(start=0.5, step=0.5, stop=5.0)
 
 for cs in Cs
-  (S,V,π) = generate_binomial_demand(n,q,ch,cs,p,T)
+  (S,V,π) = generate_binomial_demand(n,q,ch,cs,p,T,0)
   for t in 1:T, s in S
     push!(df, (t, s, V[t][s], π[t][s],cs))
   end
@@ -504,7 +504,7 @@ and $V^*_t(s)$ is of the desired form and convex.
 Thus, the result is holds by induction.
 :::
 
-## Variations of a theme: positive ordering cost
+## Variations of a theme: positive ordering cost {#positive-ordering-cost}
 
 We now consider the case when the store has pay a fixed cost $K$ everytime it places an order. Thus, the cost of ordering the inventory is
 $$
@@ -543,9 +543,65 @@ $$
   \min_{a \in \S_{> 0}}
   \bigl\{ pa + K + H_t(s+a) \bigr\} \biggr\}.
 $$
-Note that we written the case $a=0$ separately.
+Note that we have written the case $a=0$ separately.
 
-We cannot use the proof developed for $K=0$, because when $K > 0$, the function $H_t$ is not convex. However, it satisfies a relaxed property known as $K$-convexity.
+To understand the nature of the optimal solution, we reperate the simulation given above with $K=4$.
+
+```{julia}
+df_K = DataFrame(time=Int[], state=Int[], value=Float64[], policy=Int[], shortage=Float64[])
+
+for cs in Cs
+  (S,V,π) = generate_binomial_demand(n,q,ch,cs,p,T,4)
+  for t in 1:T, s in S
+    push!(df_K, (t, s, V[t][s], π[t][s],cs))
+  end
+end
+
+ojs_define(DP_K = df_K)
+```
+
+```{ojs}
+//| layout-ncol: 2
+viewof time_K = Object.assign(Inputs.range([1, T], {label: "t", step: 1, value: 1 }), {style: '--label-width:20px'})
+viewof cs_val_K = Object.assign(Inputs.range([0.5, 5], {label: "cs", step: 0.5, value: cs }), {style: '--label-width:20px'})
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| fig-cap: Dynamic programming solution for the example
+//| fig-subcap:
+//|     - Value function
+//|     - Optimal policy
+valuePlot_K = Plot.plot({
+  grid: true,
+  y: { domain: [0, 500] },
+  x: { domain: [-50, 50] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(DP_K.filter(d => d.time == time_K && d.shortage == cs_val_K), {x:"state", y:"value", curve:"step-after"})
+  ]
+})
+
+actionPlot_K = Plot.plot({
+  grid: true,
+  y: { domain: [0, 35] },
+  x: { domain: [-10, 30] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(DP_K.filter(d => d.time == time_K && d.shortage == cs_val_K), {x:"state", y:"policy", curve:"step-after"})
+  ]
+})
+```
+
+Thus, the structure of optimal policy has changed. There is still a threshold $s^*_t$, and we only place an order when $s < s^*_t$. However, when we do place an order, we order an amount $S^*_t$ which is greater than $s^*_t$. Such a policy is called an $(s,S)$-policy.
+
+We need a new proof technique to prove this result. The proof for $K=0$ replied on convexity of $H_t$. However, when $K > 0$, $H_t$ is no longer convex. It does, however, satisfy a relaxed property known as $K$-convexity.
 
 :::{.callout-tip}
 ### K-convexity
@@ -677,7 +733,7 @@ Then,
   \end{cases}
 \end{equation}
 and
-\begin{equation}
+\begin{equation}\label{eq:pi-setup}
   π^*_t(s) = 
   \begin{cases}
   S^*_t - s, & \hbox{if } s \le s^*_t \\
@@ -686,6 +742,14 @@ and
 \end{equation}
 Furthermore, for all $t$, $pz + H_t(z)$ and $V_t^*(s)$ are $K$-convex in $z$ and $s$, respectively. 
 :::
+
+
+:::{.callout-tip collapse="false"}
+
+#### (s-S) policy
+The optimal policy given by \\eqref{eq:pi-setup} is called an $(s,S)$- policy, which state that whenever the stock level falls below $s^*_t$, the optimal action is replenish the stock to level $S^*_t$.
+:::
+
 
 :::{.callout-note collapse="true"} 
 #### Proof of the structural result
