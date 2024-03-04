@@ -740,18 +740,18 @@ and
   0, & \hbox{otherwise}
   \end{cases}
 \end{equation}
-Furthermore, for all $t$, $pz + H_t(z)$ and $V_t^*(s)$ are $K$-convex in $z$ and $s$, respectively. 
+Furthermore, for all $t$, $H_t(z)$ and $V_t^*(s)$ are $K$-convex in $z$ and $s$, respectively. 
 :::
 
 
-:::{.callout-tip collapse="false"}
+:::{.callout-tip collapse="true"}
 
 #### (s-S) policy
 The optimal policy given by \\eqref{eq:pi-setup} is called an $(s,S)$- policy, which state that whenever the stock level falls below $s^*_t$, the optimal action is replenish the stock to level $S^*_t$.
 :::
 
 
-:::{.callout-note collapse="true"} 
+:::{.callout-note collapse="false"} 
 #### Proof of the structural result
 
 To prove the result, we define
@@ -760,7 +760,7 @@ $$
 $$
 Then,
 \begin{align*}
-  V^*(s) &= \min\biggl\{
+  V^*_t(s) &= \min\biggl\{
     p s + H_t(s),
     \min_{a > 0} \bigl\{
     p(s+a) + K + H_t(s+a) \bigr\} \biggr\} - ps
@@ -770,10 +770,46 @@ Then,
     K + f_t(s+a) \bigr\} \biggr\} - ps.
 \end{align*}
 
-For $t = T$, $Q^*_T(z)$ is convex and therefore $K$-convex. This forms the basis of induction. 
+For $t = T$, $H_T(z)$ is convex and therefore $K$-convex. This forms the basis of induction. 
 
-**TODO: Complete the proof**
+We now assume that $H_t(z)$ is $K$-convex. Note that @lem-K-convex implies (part 2) implies thta $f_t(z)$ is also $K$-convex. By definition, $S^*_t$ is the minimizer of $f_t(z)$ and $s^*_t$ is the smallest value of $z$ for which $f_t(z) = f_t(S^*_t) + K$. Therefore,
+\begin{equation}\label{eq:V-setup}
+V^*_t(s) = 
+\begin{cases}
+  K + f_t(S^*_t) - ps, & \hbox{if } s < s^*_t \\
+  f_t(s) - ps,       & \hbox{otherwise}
+\end{cases}
+\end{equation}
+and $\pi^*(s)$ is given by \eqref{eq:pi-setup}. We will now show that $V^*_t$ and $H_{t-1}$ are $K$-convex. 
 
+To simplify the proof, we will assume that $V^*_t$ is differentiable. Thus, to show $K$-convexity, we must verify that for all $z > 0$, 
+\begin{equation}\label{eq:verify-setup}
+K + V^*_t(s + z) - V^*_t(s) - z \GRAD V^*_t(s) \ge 0
+\end{equation}
+(where $\GRAD V^*_t$ denote the derivative of $V^*_t$).
+
+We consider three cases:
+
+#### Case 1: $s^*_t < s \le s + z$ {-}
+
+In this case, $V^*_t(s)$ is the sum of a $K$-convex and an affine (there $0$-convex) function. Hence, by property 2 of @lem-K-convex, it is $K$-convex. Thus, \eqref{eq:verify-setup} is satisfied.
+
+#### Case 2: $s \le s + z \le s^*_t$ {-}
+
+In this region, $V^*_t(s)$ is affine and therefore $K$-convex.
+
+#### Case 3: $s < s^*_t < s + z$ {-}
+
+In this case, left hand side of \eqref{eq:verify-setup} equals
+\begin{align*}
+&K + f_t(s+z) - p(s+z) - [K + f_t(S^*_t) - ps] + pz 
+\\ &\quad
+=
+K + f_t(s+z) - p(s+z) -[K + f_t(S^*_t) - p(s+z)]
+\end{align*}
+which is positive because action we know that at $s + z > s^*_t$, not ordering is better than ordering $S^*_t - (s+z)$.
+
+This completes the proof that $V^*_t$ is $K$-convex. Moreover, properties 2 and 3 of @lem-K-convex imply that $H_{t-1}(z) = \EXP[h(z-W) + V^*_t(z-W)]$ is $K$-convex. This completes the induction step.
 ::::
 
 ## Exercises {-}
@@ -814,4 +850,4 @@ Inventory management models with deterministic demand were introduced by @Harris
 A model where $\S = \reals$ but $\ALPHABET A = \integers_{\ge 0}$ is considered in @Veinott1965. It's generalization with positive ordering cost is considered in @Tsitsiklis1984. 
 
 Sufficient conditions for the optimality of $(s,S)$-policies were presented in @Dvoretzky1953. 
-The notion of $K$-convexity and optimality of $(s,S)$-policies is due to @Scarf1960. The proof of @lem-s-S-property is borrowed from @Bertsekas:book.
+The notion of $K$-convexity and optimality of $(s,S)$-policies is due to @Scarf1960. The proof of @lem-s-S-property is borrowed from @Bertsekas:book. The proof of @thm-s-S-policy is from @Scarf1960. See @Bertsekas:book for an alterantive proof of @thm-s-S-policy.
