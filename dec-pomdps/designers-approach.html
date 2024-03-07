@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.550">
+<meta name="generator" content="quarto-1.4.551">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -750,7 +750,7 @@ window.Quarto = {
 <h2 data-number="31.1" class="anchored" data-anchor-id="the-designers-approach"><span class="header-section-number">31.1</span> The designer’s approach</h2>
 <p>The standard “dynamic-progarmming viewpoint” is to evaluate the value function (or the cost-to-go function) from the point of view of the agent at each time. Instead, consider the problem from the point of view of the system designer before the system starts operating. The system designer knows the system model and the statistics of the primitive random variables but does not know the observation of the agent. The designer is concerned with the optimal decision rule for the agent <em>before the system starts operating</em>.</p>
 <p>The designer may view the system as a stochastic input-output system: the stochastic inputs are the primitive random variables, the control inputs are the decision rules, and the output is the instantenous cost. The input-output relationship can be described consistently by <span class="math inline">\((S_t, Y_t)\)</span>, which represents the state of the environment and the state of the agent.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> However, this state cannot be used for optimization because it is not observed by the system designer. So, the optimization problem at the system designer is conceptually equivalent to a POMDP.</p>
-<div class="no-row-height column-margin column-container"><p><sup>1</sup>&nbsp;In this particular example, we could have worked with just <span class="math inline">\(S_t\)</span> as the state sufficient for input-output mapping, but we carry the “state of the agent” so that the same approach continues to work for more general models.</p></div><p>Hence the designer can obtain a sequential decomposition by forming a belief on the state (sufficient for input-output mapping) of the system, based on all the history of observations and actions available to it (i.e., all the past decision rules, since the designer doesn’t observe anything else). This belief can be described by <span class="math display">\[
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;In this particular example, we could have worked with just <span class="math inline">\(S_t\)</span> as the state sufficient for input-output mapping, but we carry the “state of the agent” so that the same approach continues to work for more general models.</p></div></div><p>Hence the designer can obtain a sequential decomposition by forming a belief on the state (sufficient for input-output mapping) of the system, based on all the history of observations and actions available to it (i.e., all the past decision rules, since the designer doesn’t observe anything else). This belief can be described by <span class="math display">\[
    b_t = \PR(S_t, Y_t \mid π_{1:t-1}),
 \]</span> which is the “conditional probabilty law” of the “state” conditioned on all the past observations and “control actions” of the designer. Technically, <span class="math inline">\(b_t\)</span> is not a conditional probability law, rather it is unconditional probability law; but this fact is a techinicality which does not affect the solution methodology.</p>
 <p>The belief state sastisfies the usual properties of an <a href="../pomdps/intro.html#info-state">information state</a>.</p>
@@ -1209,6 +1209,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/adityam\.github\.io\/stochastic-control\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -1243,7 +1261,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');
