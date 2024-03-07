@@ -191,38 +191,93 @@ the per-step cost is given by $c^*(s)$.
 
 Recall that the optimal policy in the original model was a base stock 
 policy. For the infinite horizon model, the threshold will become
-time-invariant. Thus, the optimal policy will be of the form
-$$
-  π(s) = \begin{cases}
-  s^* - s, & \text{if $s \le s^*$} \\
-  0, & \text{otherwise}.
-\end{cases}$$
-
-The infinite horizon dynamic programming with this modified cost is given by 
+time-invariant. In particular, the infinite horizon dynamic programming with this modified cost is given by 
 $$\begin{equation}\label{eq:DP}
   V^*(s) = \min_{a \in \reals_{\ge 0}} 
    \bigl\{ c^*(s) + γ \EXP[ V^*(s + a - W) ] \bigr\}. 
 \end{equation}$$
 
-Using the structure of the optimal policy identified above, we have two
-properties. First,
-$$\begin{equation}\label{eq:opt}
-V^*(s) = c^*(s) + γ \EXP[ V^*(s^* - W) ], \qquad s \le s^*.
+Define $F(s) = \EXP[V^*(s-W)]$. Thus, the dynamic program may be written as
+$$\begin{equation}\label{eq:DP-1}
+  V^*(s) = c^*(s) + γ \min_{a \in \reals_{\ge 0}} 
+  \bigl\{  F(s+a) \bigr\}. 
 \end{equation}$$
-Second, at $s = 0$, $π(0) = s^*$ (and recall that $c^*(0) = 0$). Therefore,
-$$\begin{equation}\label{eq:opt-policy}
-  s^* = \arg\min_{a \in \reals_{\ge 0}} γ \EXP[V^*(a - W)]
-\end{equation}$$
+Recall that while proving the structure of the optimal policy, we had shown that $s^* = \arg\min_{s \in \reals}F(s)$ and 
+$$
+  \min_{a \in \reals_{\ge 0}} F(s+a)
+  =
+  \begin{cases}
+  F(s^*), & s \le s^* \\
+  F(s)  , & s > s^*.
+  \end{cases}
+$$
+Consequently,
+$$
+  π^*(s)
+  =
+  \begin{cases}
+  s^* - s, & s \le s^* \\
+  0  , & s > s^*.
+  \end{cases}
+$$
+and
+\begin{equation}\label{eq:opt}
+  V^*(s) = 
+  \begin{cases}
+  c^*(s) + γ F(s^*), & s \le s^* \\
+  c^*(s) + γ F(s),   & s > s^*
+  \end{cases}
+\end{equation}
 
-Let $F(s^*)$ denote $\EXP[V^*(s^*-W)]$. Then, substituting $s = s^* - W$ in 
-\\eqref{eq:opt} and taking expectations, we get
-$$F(s^*) = \EXP[ c^*(s^* - W) ] + γ F(s^*).$$
-Thus, 
-$$ \EXP[V^*(s^* - W)] = F(s^*) = \frac{1}{1-γ} \EXP[ c^*(s^*-W) ]. $$
 
-Substituting the above in \\eqref{eq:opt-policy}, we get
-$$ s^* = \arg\min_{s^* \ge 0} \frac{γ}{1-γ} \EXP[ c^*(s^* - W) ].$$
-Consequently, we have the following:
+Pick a $s \le s^*$ 
+Substituting $s' = s - W$ in \\eqref{eq:opt} and taking expectations, we get
+$$
+F(s) = \EXP[ c^*(s - W) ] + γ F(s^*), \quad s \le s^*.
+$$
+Taking $s = s^*$ and rearraning, we get
+$$
+F(s^*) = \frac{1}{1-γ} \EXP[ c^*(s^*-W) ]
+$$
+Thus,
+\begin{equation}\label{eq:F}
+F(s) = \EXP[ c^*(s-W) ] + \frac{γ}{1-γ} \EXP[ c^*(s^* - W) ],
+\quad s \le s^*.
+\end{equation}
+
+::: {#lem-inventory-threshold}
+$F(s)$ and $\EXP[c^*(s-W)]$ have the same minimizer, i.e.,
+$$
+  \arg\min_{s \in \reals}F(s) 
+  =
+  \arg\min_{s \in \reals}\EXP[c^*(s-W)]
+$$
+Therefore,
+$$
+  s^* =
+  \arg\min_{s \in \reals}\EXP[c^*(s-W)]
+$$
+:::
+
+:::{.callout-note collapse="true"} 
+#### Parial Proof
+From the dynamic program, we know that for any $s \le s^*$, not ordering is worse than ordering $s^* - s$. Thus, $F(s) \ge F(s^*)$. Therefore, from \eqref{eq:F}, we get
+$$
+\EXP[ c^*(s-W) ] + \frac{γ}{1-γ} \EXP[ c^*(s^* - W) ]
+\ge
+\EXP[ c^*(s^*-W) ] + \frac{γ}{1-γ} \EXP[ c^*(s^* - W) ]
+$$
+or simply
+\begin{equation}\label{eq:ineq-1}
+  \EXP[ c^*(s-W) ] \ge \EXP[ c^*(s^*-W) ], \quad s \le s^*.
+\end{equation}
+
+**FIXME**: I don't have a proof of the other side. The result is taken from @Whittle1982 (vol 1, §13.3), but it is stated as an obvious result, without a proof. I cannot figure out a proof of the fact that 
+\begin{equation}\label{eq:ineq-2}
+  \EXP[ c^*(s-W) ] \ge \EXP[ c^*(s^*-W) ], \quad s \ge s^*.
+\end{equation}
+Please let me know if you know a proof!
+:::
 
 ::: {#thm-inventory-inf}
 The optimal threshold $s^*$ is given by the value of $s^*$ which minimizes $\EXP[ c^*(s^*-W) ]$. In particular, if $F$ denotes the CDF of the demand, then
