@@ -66,14 +66,16 @@ with initial conditions $θ(0) = θ_0$. For instance, for @exm-urn-model, this m
 #| output: false
 # Install packages
 using Pkg; Pkg.activate(".")
-# for pkg in ["IJulia", "Plots", "LaTeXStrings", "SpecialFunctions",
-#             "Distributions", "DataFrames", "JSON"]
-#     Pkg.add(pkg)
-# end
+for pkg in ["IJulia", "Plots", "LaTeXStrings", "SpecialFunctions",
+            "Distributions", "DataFrames", "JSON", "Revise"]
+    Pkg.add(pkg)
+end
 # Installing Jupyter Cache
 # Pkg.add("Conda")
 # using Conda
 # Conda.add("jupyter-cache")
+
+using Revise
 
 ```
 
@@ -159,7 +161,7 @@ We now summarize the sufficient conditions of convergence.
 
 ## List of assumptions
 
-Let $\mathcal F_t = σ(θ_{1:t}, ξ_{1:t})$. We state the following set of assumptions but note that not every assumption is needed for every result.
+Let $\mathcal F_t = σ(θ_{1:t}, ξ_{1:t}, α_{1:t})$. We state the following set of assumptions but note that not every assumption is needed for every result.
 
 ### Assumptions on the function $f$
 
@@ -369,10 +371,10 @@ Then,
 1. If $\dot V(θ) \coloneqq \langle \GRAD V(θ), f(θ) \rangle \le 0$ for all $θ \in \reals^d$ and (R1) holds, then the iterates $\{θ_t\}_{t \ge 1}$ are bounded almost surely.
 
 2. If, in addition, (R2) holds and there exists a function $\phi \in \ALPHABET B$ such that
-   $$
+   \begin{equation}\label{eq:vidyasagar-cond-3}
     \dot V(θ) \le - \phi(\| θ - θ^*\|_2),
     \quad \forall θ \in \reals^d.
-   $$
+  \end{equation}
    Then, $θ_t \to θ^*$ almost surely as $t \to ∞$. 
 :::
 
@@ -511,6 +513,56 @@ Suppose assumptions (F1'), (F2'), (F3), and (F4) as well as assumptions (N1) and
 1. If (R1) holds then $\{θ_t\}_{t \ge 1}$ is bounded almost surely.
 2. If, in addition, (R2) holds then $\{θ_t\}_{t \ge 1}$ converges almost surely to $θ^*$ as $t \to ∞$. 
 :::
+
+### Example: Temporal difference learning for a pseudo-contraction {#pseudo-contraction}
+
+Suppose $\BELLMAN \colon \reals^d \to \reals^d$ is a pseudo-contraction with respect to the Eucledian norm, i.e., it has a fixed point $θ^*$ and a radius of contraction $γ \in (0, 1)$ such that 
+\begin{equation}\label{eq:pseudo-contraction}
+  \NORM{\BELLMAN θ - θ^*}_2 \le γ\NORM{θ - θ^*}_2, 
+  \quad \forall θ \in \reals^n.
+\end{equation}
+We assume that there is an oracle. When we give an input $θ$ to the oracle, the oracle returns $\BELLMAN θ + ξ$, where $ξ$ is an independent noise. Suppose we run temporal difference update of the form:
+\begin{equation}\label{eq:TD}
+  θ_{t+1} = (1 - α_t) θ_t + α_t \bigl[ \BELLMAN θ_t + ξ_{t+1} \bigr]
+\end{equation}
+where $\{α_t\}_{t \ge 1}$ learning rate. 
+
+As before, we define $\ALPHABET F_t = σ(θ_{1:t}, ξ_{1:t}, α_{1:t})$. Then, we have the following result:
+
+:::{#prp-TD-pseudo-contraction}
+Suppose assumptions (N1) and (N2) hold. Then,
+
+1. If (R1) holds, then the iterates $\{θ_t\}_{t \ge 1}$ are bounded almost surely.
+
+2. If, in addition, (R2) holds, then $θ_t \to θ^*$ almost surely as $t \to ∞$.
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+Observe that \eqref{eq:TD} can be viewed as a special case of \eqref{eq:SA} with $f(θ) = \BELLMAN θ - θ$. We will prove the result using @thm-vidyasagar-1 with 
+$$
+  V(θ) = \NORM{θ - θ^*}_2^2
+$$
+as the candidate Lyapunov function. Clearly, $V$ satisfies \eqref{eq:vidyasagar-cond-1} and \eqref{eq:vidyasagar-cond-2}. Consider
+\begin{align}
+\dot V(\theta) &\coloneqq \langle \GRAD V(θ), f(θ) \rangle 
+\notag \\
+&= \langle θ - θ^*, \BELLMAN θ - θ \rangle 
+\notag \\
+&= \langle θ - θ^*, \BELLMAN θ - θ^* \rangle -
+   \langle θ - θ^*, θ - θ^* \rangle
+\notag \\
+&\stackrel{(a)}\le
+   \NORM{θ - θ^*}_2 \NORM{ \BELLMAN θ - θ^* }_2
+   - 
+   \NORM{θ - θ^*}_2^2
+\notag \\
+&\stackrel{(b)}\le -(1-γ) \NORM{θ - θ^*}_2^2
+\end{align}
+where $(a)$ follows from Cauchy-Schwartz inequality and $(b)$ follows from \eqref{eq:pseudo-contraction}. Thus, $\dot V(θ)$ satisfies \eqref{eq:vidyasagar-cond-3} with $\phi(x) = (1-γ)x^2$. Thus, the result follows from @thm-vidyasagar-1.
+:::
+
+
 
 ## Notes {-}
 
