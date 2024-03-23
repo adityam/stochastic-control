@@ -288,7 +288,7 @@ $$
   \forall θ \in \reals^d.
 $$
 
-b. Origin is asymptotically stable equilibrium of the ODE
+b. Origin is globally asymptotically stable equilibrium of the ODE
 $$
   \dot θ(t) = f_{∞}(θ(t)).
 $$
@@ -337,6 +337,8 @@ Consider a continuous function $f \colon \reals_{\ge 0} \to \reals_{\ge 0}$.
   $$
   \inf_{ε \le r \le M} f(r) > 0.
   $$
+
+**Note** The notation of function class $\ALPHABET B$ clashes with that of the Bellman operator. I hope that the distinction will be clear from context.
 :::
 
 :::{#exm-class-K-vs-B}
@@ -378,6 +380,30 @@ Then,
    Then, $θ_t \to θ^*$ almost surely as $t \to ∞$. 
 :::
 
+:::{.callout-important}
+#### Relationship to Lyapunov stability
+
+Consider the ODE
+$$
+\dot \theta = f(\theta),
+\quad \theta \in \reals^d.
+$$
+Consider a function $V \colon \reals^d \to \reals_{\ge 0}$ that is continuous and differentiable and let $\GRAD V$ denote the gradient of $V$. Then, the time-derivative of $V$ along the trajectories of the ODE is given by
+$$
+\dot V(\theta) = \GRAD V(\theta) \cdot \dot \theta = \GRAD V(\theta) \cdot f(\theta)
+$$
+where the first equality follows from the chain rule. Thus, the conditions of @thm-vidyasagar-1 assert that there exists a Lyapunov function for the ODE (even though we do not use any property of the ODE analysis!)
+
+Note that the typical conditions of Lyapunov stabilty assert that if there exists a Lyapunov function $V \colon \reals^d \to \reals$ and functions $η_1, η_2 \in \ALPHABET K \ALPHABET R$, $\textcolor{red}{\phi \in \ALPHABET K}$ such that
+\begin{align*}
+  η_1(\NORM{θ - θ^*}_2) &\le V(θ) \le η_2(\NORM{θ-θ^*}_2),
+  \quad &&\forall θ \in \reals^d, \\
+ \dot V(θ) &\le - \phi(\NORM{θ -θ^*}_2),
+  \quad &&\forall θ \in \reals^d,
+\end{align*}
+then $θ^*$ is globally asymptotically stable equilibrium of the ODE $\dot θ = f(θ)$. It is shown in [@Vidyasagar2023, Theorem 4] this this condition can be weakended to $\phi \in \ALPHABET B$. Thus, the conditions of @thm-vidyasagar-1 imply (F3).
+:::
+
 :::{.callout-tip}
 #### Discussion of the conditions
 
@@ -387,7 +413,24 @@ It is worthwhile to compare the conditions of @thm-borkar-meyn and @thm-vidyasag
 
 2. The assumptions on $\dot V$ in part 1 of @thm-vidyasagar-1 imply only that $θ^*$ is a _locally stable_ equilibrim of the ODE \\eqref{eq:ODE}. This is in contrast to @thm-borkar-meyn imply that $θ^*$ is _globally asymptotically stable_.
 
-3. The assumptions in part 2 of @thm-vidyasagar-2 ensure that $θ^*$ is globally asymptotically stable equilibrium of the ODE \\eqref{eq:ODE}. Therefore, assumption (F1') is implicit in the second part of @thm-vidyasagar-1.
+3. As an illustration, consider $f \colon \reals \to \reals$ given by
+   $$
+   f(θ) = \begin{cases}
+   -1 + \sin(θ + π/2), & θ \ge 0 \\
+   f(-θ), & θ < 0.
+   \end{cases}
+   $$
+   The roots of $f(θ) = 0$ are all $θ \in \{ 2 πn : n \in \integers \}$. Suppose $θ^* = 0$ is the solution of interest. Since $f(θ) = 0$ has multiple solutions, $θ^* = 0$ cannot be globally asymptotically stable. So (F3) does not hold. More importantly, the limit function $f_{∞} ≡ 0$ because
+   $$
+    f_{∞}(θ) = \lim_{r \to ∞} \frac{f(r θ)}{r} = 0.
+   $$
+   So, the ODE $\dot θ = f_{\infty}(θ)$ cannot be globally asymptotically stable and therefore the results of @thm-borkar-meyn are not applicable. Nonetheless, it is easy to see that the first result of @thm-vidyasagar-1 is applicable.
+
+   In particular, consider the Lyapunov function $V(θ) = θ^2$. Then, $\dot V(θ) =  θ \cdot f(θ) \le 0$ (can verify by plotting). Therefore, \emph{all} assumptions of @thm-vidyasagar-1 are satisfied. Consequently, whenever (R1) is satisfied, $\{θ_t\}_{t \ge 1}$ is almost surely bounded. 
+
+   However note that we cannot verify \eqref{eq:vidyasagar-cond-3}. Therefore, we cannot argue that $\theta_t \to \theta^*$ almost surely. This is not surprising. Since $f(θ) = θ$ has multiple solutions, we will converge to one of them; not a specific one.
+
+4. The assumptions in part 2 of @thm-vidyasagar-2 ensure that $θ^*$ is globally asymptotically stable equilibrium of the ODE \\eqref{eq:ODE}. Therefore, assumption (F1') is implicit in the second part of @thm-vidyasagar-1.
 
 :::
 
@@ -492,13 +535,12 @@ $$
 due to (R2). But this contradicts \\eqref{eq:vidyasagar-1-pf-step-2}. Hence, there is no $ω \in Ω_1$ such that $ζ(ω) > 0$. Therefore, $ζ = 0$ almost surely, i.e., $V(θ_t) \to 0$ almost surely. Finally, it follows from \\eqref{eq:vidyasagar-cond-1} that $θ_t \to θ^*$ almost surely as $t \to ∞$. 
 :::
 
-
 @thm-vidyasagar-1 requires the existence of a suitable Lyapunov function that satisfies various conditions. Verifying whether or not such a function exists can be a bottleneck. 
 
-If can be shown (see Theorem 4 of @Vidyasagar2023) that the conditions on $V$ in @thm-vidyasagar-1 ensure that the equilibrium $θ^*$ of the ODE \\eqref{eq:ODE} is globally asymptotically stable. By strengthening this assumption to global _exponential_ stability of $θ^*$ and adding a few other conditions, it is possible to establish a "converse" Lyapunov theorem that establishes the existence of such a $V$. This is done below.
+As argued above, the conditions of @thm-vidyasagar-1 imply (F3). If instead of (F3), we assume the stronger condition (F3'), then it is possible to establish the following "converse" Lyapunov theorem which guarantees the existence of such a Lyapunov function $V$. 
 
 :::{#thm-vidyasagar-2} 
-Suppose assumptions (F1'), (F2'), (F3) and (F4) hold. Then, there exists a twice differentiable function $V \colon \reals^d \to \reals_{\ge 0}$ such that $V$ and its derivative $\dot V \colon \reals^d \to \reals_{\ge 0}$ defined as $\dot V(θ) \coloneqq \langle \langle \GRAD V(θ), f(θ) \rangle$ together satisfy the following conditions: there exist positive constants $a$, $b$, $c$, and a finite constant $M$ such that for all $θ \in \reals^d$:
+Suppose assumptions (F1'), (F2'), (F3') and (F4) hold. Then, there exists a twice differentiable function $V \colon \reals^d \to \reals_{\ge 0}$ such that $V$ and its derivative $\dot V \colon \reals^d \to \reals_{\ge 0}$ defined as $\dot V(θ) \coloneqq \langle \langle \GRAD V(θ), f(θ) \rangle$ together satisfy the following conditions: there exist positive constants $a$, $b$, $c$, and a finite constant $M$ such that for all $θ \in \reals^d$:
 
 * $a\NORM{θ - θ^*}_2^2 \le V(θ) \le b\NORM{θ - θ^*}_2^2$,
 * $\dot V(θ) \le -c\NORM{θ - θ^*}_2^2$,
@@ -508,7 +550,7 @@ Suppose assumptions (F1'), (F2'), (F3) and (F4) hold. Then, there exists a twice
 Combining @thm-vidyasagar-1 and @thm-vidyasagar-2, we get the following "self-contained" theorem:
 
 :::{#thm-vidyasagar-3}
-Suppose assumptions (F1'), (F2'), (F3), and (F4) as well as assumptions (N1) and (N2) hold. Then,
+Suppose assumptions (F1'), (F2'), (F3'), and (F4) as well as assumptions (N1) and (N2) hold. Then,
 
 1. If (R1) holds then $\{θ_t\}_{t \ge 1}$ is bounded almost surely.
 2. If, in addition, (R2) holds then $\{θ_t\}_{t \ge 1}$ converges almost surely to $θ^*$ as $t \to ∞$. 
