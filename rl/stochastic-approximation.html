@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-03-15">
+<meta name="dcterms.date" content="2024-03-23">
 <meta name="keywords" content="reinforcement learning, stochastic approximation">
 <meta name="description" content="ECES 506 (Stochastic Control and Decision Theory)">
 
@@ -758,7 +758,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 15, 2024</p>
+      <p class="date">March 23, 2024</p>
     </div>
   </div>
   
@@ -1091,7 +1091,7 @@ where $(a)$ uses (N1)
   \lim_{r \to ∞} \frac{f(r θ)}{r} = f_{∞}(θ), \quad
   \forall θ \in \reals^d.
 \]</span></p></li>
-<li><p>Origin is asymptotically stable equilibrium of the ODE <span class="math display">\[
+<li><p>Origin is globally asymptotically stable equilibrium of the ODE <span class="math display">\[
   \dot θ(t) = f_{∞}(θ(t)).
 \]</span></p></li>
 </ol>
@@ -1148,6 +1148,7 @@ Function classes
 \inf_{ε \le r \le M} f(r) &gt; 0.
 \]</span></li>
 </ul>
+<p><strong>Note</strong> The notation of function class <span class="math inline">\(\ALPHABET B\)</span> clashes with that of the Bellman operator. I hope that the distinction will be clear from context.</p>
 </div>
 </div>
 <div id="exm-class-K-vs-B" class="theorem example">
@@ -1179,6 +1180,30 @@ Function classes
   \end{equation}\]</span> Then, <span class="math inline">\(θ_t \to θ^*\)</span> almost surely as <span class="math inline">\(t \to ∞\)</span>.</p></li>
 </ol>
 </div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Relationship to Lyapunov stability
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider the ODE <span class="math display">\[
+\dot \theta = f(\theta),
+\quad \theta \in \reals^d.
+\]</span> Consider a function <span class="math inline">\(V \colon \reals^d \to \reals_{\ge 0}\)</span> that is continuous and differentiable and let <span class="math inline">\(\GRAD V\)</span> denote the gradient of <span class="math inline">\(V\)</span>. Then, the time-derivative of <span class="math inline">\(V\)</span> along the trajectories of the ODE is given by <span class="math display">\[
+\dot V(\theta) = \GRAD V(\theta) \cdot \dot \theta = \GRAD V(\theta) \cdot f(\theta)
+\]</span> where the first equality follows from the chain rule. Thus, the conditions of <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> assert that there exists a Lyapunov function for the ODE (even though we do not use any property of the ODE analysis!)</p>
+<p>Note that the typical conditions of Lyapunov stabilty assert that if there exists a Lyapunov function <span class="math inline">\(V \colon \reals^d \to \reals\)</span> and functions <span class="math inline">\(η_1, η_2 \in \ALPHABET K \ALPHABET R\)</span>, <span class="math inline">\(\textcolor{red}{\phi \in \ALPHABET K}\)</span> such that <span class="math display">\[\begin{align*}
+  η_1(\NORM{θ - θ^*}_2) &amp;\le V(θ) \le η_2(\NORM{θ-θ^*}_2),
+  \quad &amp;&amp;\forall θ \in \reals^d, \\
+\dot V(θ) &amp;\le - \phi(\NORM{θ -θ^*}_2),
+  \quad &amp;&amp;\forall θ \in \reals^d,
+\end{align*}\]</span> then <span class="math inline">\(θ^*\)</span> is globally asymptotically stable equilibrium of the ODE <span class="math inline">\(\dot θ = f(θ)\)</span>. It is shown in <span class="citation" data-cites="Vidyasagar2023">(<a href="../references.html#ref-Vidyasagar2023" role="doc-biblioref">Vidyasagar 2023</a>, Theorem 4)</span> this this condition can be weakended to <span class="math inline">\(\phi \in \ALPHABET B\)</span>. Thus, the conditions of <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> imply (F3).</p>
+</div>
+</div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1193,12 +1218,22 @@ Discussion of the conditions
 <ol type="1">
 <li><p>In <a href="#thm-borkar-meyn" class="quarto-xref">Theorem&nbsp;<span>30.2</span></a>, it is assumed that (F1’) holds while in <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a>, it is assumed that (F1) holds. That is, there is no assumption that <span class="math inline">\(θ^*\)</span> is the unique solution of <span class="math inline">\(f(θ) = 0\)</span>.</p></li>
 <li><p>The assumptions on <span class="math inline">\(\dot V\)</span> in part 1 of <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> imply only that <span class="math inline">\(θ^*\)</span> is a <em>locally stable</em> equilibrim of the ODE \eqref{eq:ODE}. This is in contrast to <a href="#thm-borkar-meyn" class="quarto-xref">Theorem&nbsp;<span>30.2</span></a> imply that <span class="math inline">\(θ^*\)</span> is <em>globally asymptotically stable</em>.</p></li>
+<li><p>As an illustration, consider <span class="math inline">\(f \colon \reals \to \reals\)</span> given by <span class="math display">\[
+f(θ) = \begin{cases}
+-1 + \sin(θ + π/2), &amp; θ \ge 0 \\
+f(-θ), &amp; θ &lt; 0.
+\end{cases}
+\]</span> The roots of <span class="math inline">\(f(θ) = 0\)</span> are all <span class="math inline">\(θ \in \{ 2 πn : n \in \integers \}\)</span>. Suppose <span class="math inline">\(θ^* = 0\)</span> is the solution of interest. Since <span class="math inline">\(f(θ) = 0\)</span> has multiple solutions, <span class="math inline">\(θ^* = 0\)</span> cannot be globally asymptotically stable. So (F3) does not hold. More importantly, the limit function <span class="math inline">\(f_{∞} ≡ 0\)</span> because <span class="math display">\[
+f_{∞}(θ) = \lim_{r \to ∞} \frac{f(r θ)}{r} = 0.
+\]</span> So, the ODE <span class="math inline">\(\dot θ = f_{\infty}(θ)\)</span> cannot be globally asymptotically stable and therefore the results of <a href="#thm-borkar-meyn" class="quarto-xref">Theorem&nbsp;<span>30.2</span></a> are not applicable. Nonetheless, it is easy to see that the first result of <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> is applicable.</p>
+<p>In particular, consider the Lyapunov function <span class="math inline">\(V(θ) = θ^2\)</span>. Then, <span class="math inline">\(\dot V(θ) =  θ \cdot f(θ) \le 0\)</span> (can verify by plotting). Therefore, assumptions of <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> are satisfied. Consequently, whenever (R1) is satisfied, <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span> is almost surely bounded.</p>
+<p>However note that we cannot verify <span class="math inline">\(\eqref{eq:vidyasagar-cond-3}\)</span>. Therefore, we cannot argue that <span class="math inline">\(\theta_t \to \theta^*\)</span> almost surely. This is not surprising. Since <span class="math inline">\(f(θ) = θ\)</span> has multiple solutions, we will converge to one of them; not a specific one.</p></li>
 <li><p>The assumptions in part 2 of <a href="#thm-vidyasagar-2" class="quarto-xref">Theorem&nbsp;<span>30.4</span></a> ensure that <span class="math inline">\(θ^*\)</span> is globally asymptotically stable equilibrium of the ODE \eqref{eq:ODE}. Therefore, assumption (F1’) is implicit in the second part of <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a>.</p></li>
 </ol>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1207,7 +1242,7 @@ Proof
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>We first start by establishing a bound on <span class="math inline">\(\EXP[V(θ_{t+1}) \mid \ALPHABET  F_t]\)</span>. To do so, observe that by Taylor series, we have <span class="math display">\[
   V(θ + η) = V(θ) + \langle \GRAD V(θ), η \rangle
@@ -1261,7 +1296,7 @@ V(θ_t)
 - α_t \phi(\NORM{θ_t - θ^*}_2)
 \end{align*}\]</span> where the first two terms are simplified in the same way as above and the last term corresponds to the upper bound on <span class="math inline">\(\dot V(θ_t) \le -\phi(\NORM{θ_t - θ^*}_2^2)\)</span>.</p>
 <p>We can again apply <a href="../probability/martingales.html#thm-almost-supermartingale" class="quarto-xref">Theorem&nbsp;<span>37.2</span></a> with <span class="math inline">\(X_t = V(θ_t)\)</span>, <span class="math inline">\(β_t = α_t^2 M(L^2 + σ^2)/a\)</span>, <span class="math inline">\(Y_t = α_t^2 M σ^2\)</span>, and <span class="math inline">\(Z_t = α_t \phi(\NORM{θ_t - θ^*}_2)\)</span>. Thus, we can conclude that there exists a random variable <span class="math inline">\(ζ\)</span> such that <span class="math inline">\(V(θ_t) \to ζ\)</span> and <span class="math display">\[\begin{equation}\label{eq:vidyasagar-1-pf-step-2}
-\sum_{t \ge 1} α_t \phi(\NORM{θ_t - θ^*}_2^2) &lt; ∞,
+\sum_{t \ge 1} α_t \phi(\NORM{θ_t - θ^*}_2) &lt; ∞,
 \quad \mathrm{a.s.}
 \end{equation}\]</span></p>
 <p>Let <span class="math inline">\(Ω_1 \subset Ω\)</span> denote the values of <span class="math inline">\(ω\)</span> for which <span class="math display">\[
@@ -1272,7 +1307,7 @@ V(θ_t)
   \sqrt{\frac{ε}{b}} \le \NORM{θ_t}_2 \le \sqrt{\frac{V_M}{a}},
   \quad \forall t \ge T.
 \]</span></p>
-<p>Define <span class="math inline">\(δ = \inf_{\sqrt{ε/b} \le r \le \sqrt{V_M/a}} \phi(r)\)</span> and observe that <span class="math inline">\(δ &gt; 0\)</span> because <span class="math inline">\(\phi\)</span> belongs to class <span class="math inline">\(B\)</span>. Therefore, <span class="math display">\[
+<p>Define <span class="math inline">\(δ = \inf_{\sqrt{ε/b} \le r \le \sqrt{V_M/a}} \phi(r)\)</span> and observe that <span class="math inline">\(δ &gt; 0\)</span> because <span class="math inline">\(\phi\)</span> belongs to class <span class="math inline">\(\ALPHABET  B\)</span>. Therefore, <span class="math display">\[
 \sum_{t \ge T} α_t \phi(\NORM{θ_t - θ^*}_2) \ge
 \sum_{t \ge T} α_t δ = ∞,
 \]</span> due to (R2). But this contradicts \eqref{eq:vidyasagar-1-pf-step-2}. Hence, there is no <span class="math inline">\(ω \in Ω_1\)</span> such that <span class="math inline">\(ζ(ω) &gt; 0\)</span>. Therefore, <span class="math inline">\(ζ = 0\)</span> almost surely, i.e., <span class="math inline">\(V(θ_t) \to 0\)</span> almost surely. Finally, it follows from \eqref{eq:vidyasagar-cond-1} that <span class="math inline">\(θ_t \to θ^*\)</span> almost surely as <span class="math inline">\(t \to ∞\)</span>.</p>
@@ -1281,9 +1316,9 @@ V(θ_t)
 </div>
 </div>
 <p><a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> requires the existence of a suitable Lyapunov function that satisfies various conditions. Verifying whether or not such a function exists can be a bottleneck.</p>
-<p>If can be shown (see Theorem 4 of <span class="citation" data-cites="Vidyasagar2023">Vidyasagar (<a href="../references.html#ref-Vidyasagar2023" role="doc-biblioref">2023</a>)</span>) that the conditions on <span class="math inline">\(V\)</span> in <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> ensure that the equilibrium <span class="math inline">\(θ^*\)</span> of the ODE \eqref{eq:ODE} is globally asymptotically stable. By strengthening this assumption to global <em>exponential</em> stability of <span class="math inline">\(θ^*\)</span> and adding a few other conditions, it is possible to establish a “converse” Lyapunov theorem that establishes the existence of such a <span class="math inline">\(V\)</span>. This is done below.</p>
+<p>As argued above, the conditions of <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> imply (F3). If instead of (F3), we assume the stronger condition (F3’), then it is possible to establish the following “converse” Lyapunov theorem which guarantees the existence of such a Lyapunov function <span class="math inline">\(V\)</span>.</p>
 <div id="thm-vidyasagar-2" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 30.4</strong></span> Suppose assumptions (F1’), (F2’), (F3) and (F4) hold. Then, there exists a twice differentiable function <span class="math inline">\(V \colon \reals^d \to \reals_{\ge 0}\)</span> such that <span class="math inline">\(V\)</span> and its derivative <span class="math inline">\(\dot V \colon \reals^d \to \reals_{\ge 0}\)</span> defined as <span class="math inline">\(\dot V(θ) \coloneqq \langle \langle \GRAD V(θ), f(θ) \rangle\)</span> together satisfy the following conditions: there exist positive constants <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, <span class="math inline">\(c\)</span>, and a finite constant <span class="math inline">\(M\)</span> such that for all <span class="math inline">\(θ \in \reals^d\)</span>:</p>
+<p><span class="theorem-title"><strong>Theorem 30.4</strong></span> Suppose assumptions (F1’), (F2’), (F3’) and (F4) hold. Then, there exists a twice differentiable function <span class="math inline">\(V \colon \reals^d \to \reals_{\ge 0}\)</span> such that <span class="math inline">\(V\)</span> and its derivative <span class="math inline">\(\dot V \colon \reals^d \to \reals_{\ge 0}\)</span> defined as <span class="math inline">\(\dot V(θ) \coloneqq \langle \langle \GRAD V(θ), f(θ) \rangle\)</span> together satisfy the following conditions: there exist positive constants <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, <span class="math inline">\(c\)</span>, and a finite constant <span class="math inline">\(M\)</span> such that for all <span class="math inline">\(θ \in \reals^d\)</span>:</p>
 <ul>
 <li><span class="math inline">\(a\NORM{θ - θ^*}_2^2 \le V(θ) \le b\NORM{θ - θ^*}_2^2\)</span>,</li>
 <li><span class="math inline">\(\dot V(θ) \le -c\NORM{θ - θ^*}_2^2\)</span>,</li>
@@ -1292,7 +1327,7 @@ V(θ_t)
 </div>
 <p>Combining <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> and <a href="#thm-vidyasagar-2" class="quarto-xref">Theorem&nbsp;<span>30.4</span></a>, we get the following “self-contained” theorem:</p>
 <div id="thm-vidyasagar-3" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 30.5</strong></span> Suppose assumptions (F1’), (F2’), (F3), and (F4) as well as assumptions (N1) and (N2) hold. Then,</p>
+<p><span class="theorem-title"><strong>Theorem 30.5</strong></span> Suppose assumptions (F1’), (F2’), (F3’), and (F4) as well as assumptions (N1) and (N2) hold. Then,</p>
 <ol type="1">
 <li>If (R1) holds then <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span> is bounded almost surely.</li>
 <li>If, in addition, (R2) holds then <span class="math inline">\(\{θ_t\}_{t \ge 1}\)</span> converges almost surely to <span class="math inline">\(θ^*\)</span> as <span class="math inline">\(t \to ∞\)</span>.</li>
@@ -1316,7 +1351,7 @@ V(θ_t)
 </ol>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1325,7 +1360,7 @@ Proof
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Observe that <span class="math inline">\(\eqref{eq:TD}\)</span> can be viewed as a special case of <span class="math inline">\(\eqref{eq:SA}\)</span> with <span class="math inline">\(f(θ) = \BELLMAN θ - θ\)</span>. We will prove the result using <a href="#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>30.3</span></a> with <span class="math display">\[
   V(θ) = \NORM{θ - θ^*}_2^2
