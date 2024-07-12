@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-12-26">
+<meta name="dcterms.date" content="2024-06-27">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
-<title>24&nbsp; Upper bounds on policy loss – Stochastic Control and Decision Theory</title>
+<title>30&nbsp; The learning setup – Stochastic Control and Decision Theory</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -52,8 +52,8 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../approx-mdps/model-approximation.html" rel="next">
-<link href="../approx-mdps/approx-DP.html" rel="prev">
+<link href="../rl/stochastic-approximation.html" rel="next">
+<link href="../linear-systems/large-scale-systems.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -219,7 +219,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../approx-mdps/approx-DP.html">Approx DP</a></li><li class="breadcrumb-item"><a href="../approx-mdps/policy-loss.html"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Upper bounds on policy loss</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../rl/intro.html">RL</a></li><li class="breadcrumb-item"><a href="../rl/intro.html"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The learning setup</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -419,7 +419,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../approx-mdps/policy-loss.html" class="sidebar-item-text sidebar-link active">
+  <a href="../approx-mdps/policy-loss.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Upper bounds on policy loss</span></span></a>
   </div>
 </li>
@@ -488,7 +488,7 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../rl/intro.html" class="sidebar-item-text sidebar-link">
+  <a href="../rl/intro.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The learning setup</span></span></a>
   </div>
 </li>
@@ -679,18 +679,20 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#approximate-bellman-update" id="toc-approximate-bellman-update" class="nav-link active" data-scroll-target="#approximate-bellman-update"><span class="header-section-number">24.1</span> Approximate Bellman update</a></li>
-  <li><a href="#policy-loss-for-q-learning" id="toc-policy-loss-for-q-learning" class="nav-link" data-scroll-target="#policy-loss-for-q-learning"><span class="header-section-number">24.2</span> Policy loss for <span class="math inline">\(Q\)</span>-learning</a></li>
+  <li><a href="#the-learning-objective" id="toc-the-learning-objective" class="nav-link active" data-scroll-target="#the-learning-objective"><span class="header-section-number">30.1</span> The learning objective</a></li>
+  <li><a href="#the-different-learning-settings" id="toc-the-different-learning-settings" class="nav-link" data-scroll-target="#the-different-learning-settings"><span class="header-section-number">30.2</span> The different learning settings</a></li>
+  <li><a href="#high-level-overview-of-the-learning-algorithms" id="toc-high-level-overview-of-the-learning-algorithms" class="nav-link" data-scroll-target="#high-level-overview-of-the-learning-algorithms"><span class="header-section-number">30.3</span> High-level overview of the learning algorithms</a></li>
+  <li><a href="#beyond-asymptotic-optimality" id="toc-beyond-asymptotic-optimality" class="nav-link" data-scroll-target="#beyond-asymptotic-optimality"><span class="header-section-number">30.4</span> Beyond asymptotic optimality</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/approx-mdps/policy-loss.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/rl/intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../approx-mdps/approx-DP.html">Approx DP</a></li><li class="breadcrumb-item"><a href="../approx-mdps/policy-loss.html"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Upper bounds on policy loss</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../rl/intro.html">RL</a></li><li class="breadcrumb-item"><a href="../rl/intro.html"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The learning setup</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Upper bounds on policy loss</span></h1>
+<h1 class="title"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">The learning setup</span></h1>
 </div>
 
 
@@ -716,7 +718,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 26, 2023</p>
+      <p class="date">June 27, 2024</p>
     </div>
   </div>
   
@@ -728,187 +730,98 @@ window.Quarto = {
 </header>
 
 
-<p>Consider a candidate value function <span class="math inline">\(\hat V \colon \ALPHABET S \to \reals\)</span> which is approximately optimal, i.e., <span class="math display">\[
-  \| V^* - \hat V \|_{∞} \le α.
-\]</span> Let <span class="math inline">\(π_{\hat V}\)</span> be <em>a greedy policy</em> with respect to <span class="math inline">\(\hat V\)</span>, i.e., <span class="math display">\[
-  π_{\hat V}(s) \in
-  \GREEDY(\hat V)
-  =
-  \arg \min_{a \in \ALPHABET A}
-  \Bigl[ c(s,a) + γ \sum_{s' \in \ALPHABET S} P(s'|s,a) \hat V(s')
-  \Bigr]
-\]</span></p>
-<p>We are interested in bounding the loss in performance when using policy <span class="math inline">\(π_{\hat V}\)</span> instead of the optimal policy, i.e., <span class="math inline">\(\| V^* - V^{π_{\hat V}}\|_{∞}\)</span>. We call this <strong>the policy loss</strong>.</p>
-<div id="thm-policy-loss" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 24.1</strong></span> <span class="math display">\[
-\| V^* - V^{π_{\hat V}}\|_{∞}
-\le
-\frac{2 γ}{1-γ} \| V^* - \hat V\|_{∞}.
-\]</span></p>
-</div>
-<p>It is quite likely this bound is loose. See the discussion in the section of <a href="../approx-mdps/model-approximation.html#bound-comparison">model approximation bound</a> for some remarks.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>From triangle inequality, we have <span class="math display">\[\begin{align*}
-  \| V^* - V^{π_{\hat V}}\|_{∞}
-  &amp;\le
-  \| \BELLMAN V^* - \BELLMAN \hat V \|_{∞}
-  +
-  \| \BELLMAN_{π_{\hat V}} \hat V - \BELLMAN_{π_{\hat V}} V^* \|_{∞}
-  +
-  \| \BELLMAN_{π_{\hat V}} V^* - \BELLMAN_{π_{\hat V}} V^{π_{\hat V}} \|_{∞}
-  \\
-  &amp;\le
-  γ \| V^* - \hat V \|_{∞}
-  +
-  γ \| \hat V -  V^* \|_{∞}
-  +
-  γ \| V^* -  V^{π_{\hat V}} \|_{∞}
-\end{align*}\]</span> where the first inequality uses the fact that <span class="math inline">\(\BELLMAN \hat V = \BELLMAN_{π_{\hat V}} V\)</span>. The result follows from rearranging the terms.</p>
-</div>
-</div>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Practical upper bound
+<i class="bi bi-journal-text text-primary"></i> Notes about modeling assumptions
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The bound of <a href="#thm-policy-loss" class="quarto-xref">Theorem&nbsp;<span>24.1</span></a> can be difficult to apply because <span class="math inline">\(\| V^* - \hat V\|_{∞}\)</span> is not always available. A more practical upper bound can be obtained by using the result from <a href="../mdps/inf-horizon.html#prp-Bellman-bounds" class="quarto-xref">Proposition&nbsp;<span>12.6</span></a>, which implies that <span class="math display">\[
-\| V^* - \hat V\| \le \frac{1}{1-γ} \| \BELLMAN \hat V - \hat V\|_{∞}.
-\]</span> Hence, an upper bound on the result of <a href="#thm-policy-loss" class="quarto-xref">Theorem&nbsp;<span>24.1</span></a> is <span class="math display">\[
-\| V^* - V^{π_{\hat V}}\|_{∞}
-\le
-\frac{2 γ}{(1-γ)^2} \| \BELLMAN \hat V - \hat V\|_{∞}.
-\]</span></p>
+<p>In the planning setting we assumed that the decision maker is interested in minimizing cost. To be consistent with the reinforcement learning literature, in this and subsequent sections, we assume that the decision maker is interested in maximizing rewards. Mathematically, maximizing rewards is the dual of minimizing costs, so going for cost to rewards makes no difference. Though, philosophically, there is a difference. See <span class="citation" data-cites="Lu2023">Lu et al. (<a href="../references.html#ref-Lu2023" role="doc-biblioref">2023</a>)</span> for a discussion.</p>
+<p>In the planning setting we showed that there is no difference between the per-step cost just being a function of the current state and action versus <a href="../mdps/intro.html#sec-cost-depending-on-next-state">the per-step cost depends on next state as well</a>. However, for the learning setting, the two setups are different. So, in the learning setting we will assume that the per-step reward depends on next state as well, i.e., is of the form <span class="math inline">\(r(s_t,a_t,s_{t+1})\)</span>.</p>
 </div>
 </div>
-<section id="approximate-bellman-update" class="level2" data-number="24.1">
-<h2 data-number="24.1" class="anchored" data-anchor-id="approximate-bellman-update"><span class="header-section-number">24.1</span> Approximate Bellman update</h2>
-<p>The definition of <span class="math inline">\(π_{\hat V}\)</span> assumes that we can perform a Bellman update exactly. Similar to the setup in <a href="../approx-mdps/approx-DP.html">approximate DP</a>, suppose all we can guarantee is a policy <span class="math inline">\(\hat π\)</span> such that <span class="math display">\[
-\| \BELLMAN \hat V - \BELLMAN_{\hat π} \hat V\| \le ε
-\]</span> Then, we have the following.</p>
-<div id="thm-policy-loss-approx" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 24.2</strong></span> <span class="math display">\[
-\| V^* - V^{\hat π}\|_{∞}
-\le
-\frac{2 γ}{1-γ} \| V^* - \hat V\|_{∞}
-+
-\frac{ε}{1-γ}
-\]</span></p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>From triangle inequality, we have <span class="math display">\[\begin{align*}
-  \| V^* - V^{\hat π}\|_{∞}
-  &amp;\le
-  \| \BELLMAN V^* - \BELLMAN \hat V \|_{∞}
-  +
-  \textcolor{red}{\| \BELLMAN \hat V - \BELLMAN_{\hat π} \hat V\|_{∞}}
-  \notag \\
-  &amp; \quad
-  +
-  \| \BELLMAN_{\hat π} \hat V - \BELLMAN_{\hat π} V^* \|_{∞}
-  +
-  \| \BELLMAN_{\hat π} V^* - \BELLMAN_{\hat π} V^{\hat π} \|_{∞}
-  \\
-  &amp;\le
-  γ \| V^* - \hat V \|_{∞}
-  +
-  \textcolor{red}{ε}
-  +
-  γ \| \hat V -  V^* \|_{∞}
-  +
-  γ \| V^* -  V^{\hat π} \|_{∞}
-\end{align*}\]</span> The result follows from rearranging the terms.</p>
-</div>
-</div>
-</div>
+<p>So far, we have assumed that the decision maker knows the system model. We now consider the case when the system model is not known but one of the following is true:</p>
+<ul>
+<li>the decision maker can interact with the environment and observes the per-step reward.</li>
+<li>the decision maker has access to a system simulator, can provide state-action input to the simulator and observe the next state and the realized reward.</li>
+<li>the decision maker has access to an offline dataset of interactions with the environment; the data might be generated by a sub-optimal policy.</li>
+</ul>
+<p>To fix ideas, we start with the <a href="../mdps/inf-horizon.html">infinite horizon discounted reward setting</a>. The same fundamental concerns are present in the finite horizon and infinite horizon average cost setting as well.</p>
+<p>Thus, we have the same model as before. There is a controlled Markov process <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span>, <span class="math inline">\(S_t \in \ALPHABET S\)</span>, controlled by the process <span class="math inline">\(\{A_t\}_{t \ge 1}\)</span>, <span class="math inline">\(A_t \in \ALPHABET A\)</span>. The system dynamics are time-homogeneous and are given by the transition matrices <span class="math inline">\(P(a)\)</span>, <span class="math inline">\(a \in \ALPHABET A\)</span>. At each step, the system yields a reward <span class="math inline">\(R_t = r(S_t, A_t, S_{t+1})\)</span>. <strong>The dynamics <span class="math inline">\(P\)</span> and the reward <span class="math inline">\(r\)</span> are not known to the decision maker.</strong></p>
+<p>Let <span class="math inline">\(θ^∘\)</span> denote the unknown parameters of <span class="math inline">\(P\)</span> and <span class="math inline">\(r\)</span>. For simplicity, we assume that <span class="math inline">\(θ^∘ \in Θ\)</span>, where <span class="math inline">\(Θ\)</span> is a compact set. We will assume that the decision maker knows the set <span class="math inline">\(Θ\)</span> but not the parameter <span class="math inline">\(θ^∘\)</span>.</p>
+<p>The objective is to identify a <strong>control policy</strong> <span class="math inline">\(π = (π_1, π_2, \dots)\)</span>, where as before we start with the assumption that the policy is history dependent and the control action at time&nbsp;<span class="math inline">\(t\)</span> is given by <span class="math display">\[ A_t = \pi_t(S_{1:t}, A_{1:t-1}).\]</span></p>
+<p>The performance of a policy is still given the expected discounted reward under that policy, which of course depends on the model parameters. So, we the performance of policy <span class="math inline">\(π\)</span> under model <span class="math inline">\(θ\)</span> by <span class="math display">\[ J(π,θ) = \EXP^{\pi}_{θ} \biggl[ \sum_{t=1}^{∞} R_t \biggr] \]</span> where the notation <span class="math inline">\(\EXP^{π}_{θ}\)</span> denotes the fact that the expectation depends on the policy <span class="math inline">\(π\)</span> and model parameters <span class="math inline">\(θ\)</span>.</p>
+<section id="the-learning-objective" class="level2" data-number="30.1">
+<h2 data-number="30.1" class="anchored" data-anchor-id="the-learning-objective"><span class="header-section-number">30.1</span> The learning objective</h2>
+<p>Modulo the difference between cost minimization and reward maximization, the setup above is the same as the models that we have considered before with one difference: earlier it was assumed that the decision maker knows the system model <span class="math inline">\((P,r)\)</span> while in the current setup it does not.</p>
+<p>The objective is also same as before: choose a policy to maximize the expected discounted reward. There are different ways formalize this objective. The simplest way to pose this is to pose it as a min-max problem: <span class="math display">\[\begin{equation}\label{eq:min-max}
+  \tag{min-max-opt}
+  \max_{π} \min_{θ \in Θ} J(π,θ),
+\end{equation}\]</span> where the max is over all history dependent policies. That is, we want to choose a policy <span class="math inline">\(π^\star\)</span> that has the property that for all other history dependent policies <span class="math inline">\(π\)</span> and all model parameters <span class="math inline">\(θ\)</span>, we have: <span class="math display">\[
+  J(π^\star, θ) \ge J(π,θ).
+\]</span> This approach is akin to a frequentist approach in inference. It is also possible to set up the problem in a Bayesian manner. In particular, suppose there is a prior <span class="math inline">\(μ\)</span> on the set <span class="math inline">\(Θ\)</span>. Then the Bayesian approach is to solve the following: <span class="math display">\[\begin{equation}\label{eq:Bayes}
+  \tag{Bayes-opt}
+  \max_{π} \int_{Θ} J(π,θ) μ(d θ).
+\end{equation}\]</span></p>
+<p>Both <span class="math inline">\(\eqref{eq:min-max}\)</span> and <span class="math inline">\(\eqref{eq:Bayes}\)</span> are difficult problems. Note that unlike the planning setting where we showed that there is no loss of optimality in restricting attention to Markov policies (<a href="../mdps/intro.html#thm-MDP-markov" class="quarto-xref">Theorem&nbsp;<span>5.1</span></a>), we have to use history dependent policies in the learning setting.</p>
+<p>We will start with a simpler optimization problem. Let <span class="math inline">\(\pi^\star_{θ}\)</span> denote the optimal time-homogeneous policy for the system with model parameters <span class="math inline">\(θ\)</span>, <span class="math inline">\(θ \in Θ\)</span>. We say that a learning policy is asymptotically optimal if <span class="math display">\[\begin{equation}
+  \tag{asym-opt}\label{eq:asym}
+  \lim_{t \to ∞} π_t(s_{1:t},a_{1:t-1}) = π^\star_{θ}(s_t),
+  \quad P_{θ} \hbox{ a.s.}
+  \quad \forall θ \in Θ.
+\end{equation}\]</span></p>
 </section>
-<section id="policy-loss-for-q-learning" class="level2" data-number="24.2">
-<h2 data-number="24.2" class="anchored" data-anchor-id="policy-loss-for-q-learning"><span class="header-section-number">24.2</span> Policy loss for <span class="math inline">\(Q\)</span>-learning</h2>
-<p>A related setting is what happens in <span class="math inline">\(Q\)</span>-learning. Suppose <span class="math inline">\(Q^*\)</span> is the optimal action-value function and we obtain an approximation <span class="math inline">\(\hat Q\)</span>. Let <span class="math inline">\(π_{\hat Q}\)</span> be the greedy policy with respect to <span class="math inline">\(\hat Q\)</span>, i.e., <span class="math display">\[
-  π_{\hat Q}(s) \in \arg \min_{a \in \ALPHABET A} \hat Q(s,a).
-\]</span> Then, we have the following.</p>
-<div id="thm-Q-learning-loss" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 24.3</strong></span> <span class="math display">\[
-\| V^* - V^{π_{\hat Q}}\|_{∞}
-\le
-\frac{2}{1-γ} \| Q - \hat Q\|_{∞}
-\]</span></p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>For ease of notation, we use <span class="math inline">\(\hat π\)</span> to denote <span class="math inline">\(π_{\hat Q}\)</span>. Let <span class="math inline">\(α = \| Q - \hat Q\|_{∞}\)</span>. Now consider <span class="math display">\[\begin{align}
-V^{\hat π}(s) - V^*(s)
-&amp;=
-Q^{\hat π}(s, \hat π(s)) - Q^*(s, π^*(s))
-\notag \\
-&amp;\le
-Q^{\hat π}(s, \hat π(s)) - Q^*(s, \hat π(s)) + 2 α
-\label{eq:policy-loss-QL-step1}
-\end{align}\]</span> where the last inequality uses the fact that <span class="math display">\[
-Q^*(s, \hat π(s)) - α
-\le
-\hat Q(s, \hat π(s)) \le Q^*(s, π^*(s))
-\le
-Q^*(s, π^*(s)) + α.
-\]</span> Now observe that <span class="math display">\[
-Q^{\hat π}(s, \hat π(s)) - Q^*(s, \hat π(s))
-=
-γ \sum_{s' \in \ALPHABET S}P(s'|s, \hat π(s)) [ V^{\hat π}(s') - V^*(s') ]
-\le
-γ \| V^{\hat π} - V^* \|_{∞}.
-\]</span> Substituting this in \eqref{eq:policy-loss-QL-step1} and rearranging the terms gives us the result.</p>
-</div>
-</div>
-</div>
+<section id="the-different-learning-settings" class="level2" data-number="30.2">
+<h2 data-number="30.2" class="anchored" data-anchor-id="the-different-learning-settings"><span class="header-section-number">30.2</span> The different learning settings</h2>
+<p>The choice of an algorithm to find a <em>good</em> policy depends on what information is available to the learning agent. The aspirational setting is that of <strong>online learning</strong>: an agent which is operating in the environment and generates an experience <span class="math inline">\((S_1,A_1,R_1,S_2,A_2,R_2,\dots)\)</span> and uses that experience to learn an optimal policy (either in the sense of <span class="math inline">\(\eqref{eq:asym}\)</span> or <span class="math inline">\(\eqref{eq:min-max}\)</span> or <span class="math inline">\(\eqref{eq:Bayes}\)</span>). There are two settings of online learning: <strong>on policy learning</strong>, where the agent adapts its policy over time and <strong>off policy learning</strong>, where the agent acts according to a behavioral policy but learns an optimal policy based on the gathered experience.</p>
+<p>A simpler setting is that of <strong>offline learning</strong>: where the agent has access to a system simulator and, at any time, can input a state action pair <span class="math inline">\((s,a)\)</span> to the simulator and receives <span class="math inline">\(S_{+} \sim P(\cdot | s,a)\)</span> and <span class="math inline">\(R \sim r(S,A,S_{+})\)</span> as outputs. A specific but harder case of offline learning is <strong>learning from a dataset</strong> which is generated by a specific (and not necessarily optimal) behavioral policy.</p>
+</section>
+<section id="high-level-overview-of-the-learning-algorithms" class="level2" data-number="30.3">
+<h2 data-number="30.3" class="anchored" data-anchor-id="high-level-overview-of-the-learning-algorithms"><span class="header-section-number">30.3</span> High-level overview of the learning algorithms</h2>
+<p>Loosely speaking, there are two approaches to find an asymptotically optimal policy. The simplest idea is <strong>model based learning</strong>: use the experience to generate estimates <span class="math inline">\(\hat θ_t\)</span> of the model parameters, and then choose a policy related to the optimal policy of the estimated parameter. These algorithms differ in how they <strong>trade-off exploration and exploitation</strong> are are broadly classified as follows:</p>
+<ol type="1">
+<li><p><strong>Certainty equivalence or plug-in estimator</strong>. In these methods, one generates an estimate <span class="math inline">\(\hat θ_t\)</span> (e.g., least squares estimator or maximum likelihood estimator) and then chooses the control action as a <em>noisy version</em> of <span class="math inline">\(π^\star_{\hat θ_t}(s_t)\)</span>. For continuous state models such as <a href="../linear-systems/lqr.html">LQR</a>, the noisy version is usually just addive noise, thus the control is <span class="math display">\[ a_t = π^\star_{\hat θ_t}(s_t) + ε_t \]</span> where <span class="math inline">\(ε_t \sim {\cal N}(0,σ_t^2I)\)</span> and the variance <span class="math inline">\(σ_t^2\)</span> is slowly reduced in a controlled manner. For disrete state models, the noisy version of control is often chosen as an <span class="math inline">\(ε\)</span>-greedy policy, i.e., <span class="math display">\[ a_t = \begin{cases}
+   π^\star_{\hat θ_t}(s_t), &amp; \hbox{w.p. } 1 - ε_t \\
+   \hbox{random action}, &amp; \hbox{w.p. } ε_t
+\end{cases}
+\]</span> where the <em>exploration rate</em> <span class="math inline">\(ε_t\)</span> is slowly reduced in a controlled manner.</p></li>
+<li><p><strong>Upper confidence based reinfocement learning (UCRL)</strong> In these methods, one generates an upper confidence bound based estimator <span class="math inline">\(\bar θ_t\)</span> and then chooses a control action <span class="math display">\[ a_t = π^\star_{\bar θ_t}(s_t). \]</span></p></li>
+<li><p><strong>Thompson/Posterior sampling (PSRL)</strong> This a Bayesian method, where one maintains a posterior distribution <span class="math inline">\(μ_t\)</span> on the unknown parameters <span class="math inline">\(θ\)</span> of the system model. At appropriately chosen times, one samples a model <span class="math inline">\(θ_t\)</span> from the posterior <span class="math inline">\(μ_t\)</span> and chooses the control action <span class="math display">\[ a_t = π^\star_{θ_t}(s_t). \]</span></p></li>
+</ol>
+<p>Another class of algorithms are <strong>model-free</strong> algorithms, which mimic <a href="../mdps/mdp-algorithms.html">the algorithms to solve MDPs</a>. These are broadly classified as</p>
+<ol type="1">
+<li><p><strong>Value-based algorithms</strong> which may be viewed as sampling based version of <a href="../mdps/mdp-algorithms.html#value-iteration-algorithm">value iteration</a>. Examples include Q-learning and its variations.</p></li>
+<li><p><strong>Policy-based algorithms</strong> which may be viewed as sampling based versions of <a href="../mdps/mdp-algorithms.html#policy-iteration-algorithm">policy iteration</a>. Examples include actor-critic algorithms based on policy gradients.</p></li>
+<li><p><strong>Linear-programming based algorithms</strong> which may be viewed as sampling based versions of <a href="../mdps/linear-programming.html">linear programming approach</a> to solve MDPs.</p></li>
+</ol>
+</section>
+<section id="beyond-asymptotic-optimality" class="level2" data-number="30.4">
+<h2 data-number="30.4" class="anchored" data-anchor-id="beyond-asymptotic-optimality"><span class="header-section-number">30.4</span> Beyond asymptotic optimality</h2>
+<p>Not all asymptotically optimal learning algorithms are equal. Second order optimality considerations include <strong>sample complexity</strong> and <strong>regret</strong>.</p>
+<ol type="1">
+<li><p><strong>Sample complexity</strong>: Given an accuracy-level <span class="math inline">\(α\)</span> and a probability <span class="math inline">\(p\)</span>, how many samples <span class="math inline">\(T = T(α,p)\)</span> are needed such that with probability at least <span class="math inline">\(1-p\)</span> we have <span class="math display">\[ \NORM{V^\star - V^{\pi_T}} \le α? \]</span> The scaling of <span class="math inline">\(T\)</span> with <span class="math inline">\(α\)</span> and <span class="math inline">\(p\)</span> is known as the sample complexity.</p></li>
+<li><p><strong>Regret</strong>: Given a horion <span class="math inline">\(T\)</span>, what is the difference between sample path performance of the learning algorithm until time <span class="math inline">\(T\)</span> compared to the performance of the optimal policy until time <span class="math inline">\(T\)</span>.</p></li>
+</ol>
+<p>The general approach for characterizing sample complexity and regret proceeds as follows. We establish <strong>lower bounds</strong> which construct models such that no algorithm can learn such models without using certain number of samples or incuring a certain regret. Then, one tries to <strong>upper bound</strong> the sample complexity or regret of a specific algorithm. If the lower and the upper bounds match (up to logarithmic factors), we say that the algorithm under consideration is <strong>order optimal</strong>.</p>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>The material in this section is adapted from <span class="citation" data-cites="Singh1994">Singh and Yee (<a href="../references.html#ref-Singh1994" role="doc-biblioref">1994</a>)</span>. The proof of <a href="#thm-policy-loss" class="quarto-xref">Theorem&nbsp;<span>24.1</span></a> is from <span class="citation" data-cites="Tsitsiklis1996">Tsitsiklis and Roy (<a href="../references.html#ref-Tsitsiklis1996" role="doc-biblioref">1996</a>)</span>.</p>
+<p>A good resource for getting started in reinforcement learning in <span class="citation" data-cites="SuttonBarto2018">Sutton and Barto (<a href="../references.html#ref-SuttonBarto2018" role="doc-biblioref">2018</a>)</span>. For a more formal treatment, see <span class="citation" data-cites="BertsekasTsitsiklis1996">Bertsekas and Tsitsiklis (<a href="../references.html#ref-BertsekasTsitsiklis1996" role="doc-biblioref">1996</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
-<div id="ref-Singh1994" class="csl-entry" role="listitem">
-<span class="smallcaps">Singh, S.P. and Yee, R.C.</span> 1994. An upper bound on the loss from approximate optimal-value functions. <em>Machine Learning</em> <em>16</em>, 3, 227–233. DOI: <a href="https://doi.org/10.1007/bf00993308">10.1007/bf00993308</a>.
+<div id="ref-BertsekasTsitsiklis1996" class="csl-entry" role="listitem">
+<span class="smallcaps">Bertsekas, D.P. and Tsitsiklis, J.N.</span> 1996. <em>Neuro-dynamic programming</em>. Athena Scientific.
 </div>
-<div id="ref-Tsitsiklis1996" class="csl-entry" role="listitem">
-<span class="smallcaps">Tsitsiklis, J.N. and Roy, B. van</span>. 1996. Feature-based methods for large scale dynamic programming. <em>Machine Learning</em> <em>22</em>, 1-3, 59–94. DOI: <a href="https://doi.org/10.1007/bf00114724">10.1007/bf00114724</a>.
+<div id="ref-Lu2023" class="csl-entry" role="listitem">
+<span class="smallcaps">Lu, X., Roy, B.V., Dwaracherla, V., Ibrahimi, M., Osband, I., and Wen, Z.</span> 2023. Reinforcement learning, bit by bit. <em>Foundations and Trends<span></span> in Machine Learning</em> <em>16</em>, 6, 733–865. DOI: <a href="https://doi.org/10.1561/2200000097">10.1561/2200000097</a>.
+</div>
+<div id="ref-SuttonBarto2018" class="csl-entry" role="listitem">
+<span class="smallcaps">Sutton, R.S. and Barto, A.G.</span> 2018. <em>Reinforcement learning: An introduction</em>. MIT Press.
 </div>
 </div>
 </section>
@@ -1480,13 +1393,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../approx-mdps/approx-DP.html" class="pagination-link" aria-label="Approximate dynamic programming">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Approximate dynamic programming</span></span>
+      <a href="../linear-systems/large-scale-systems.html" class="pagination-link" aria-label="Large scale systems">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Large scale systems</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../approx-mdps/model-approximation.html" class="pagination-link" aria-label="Model approximation">
-        <span class="nav-page-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Model approximation</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../rl/stochastic-approximation.html" class="pagination-link" aria-label="Stochastic approximation">
+        <span class="nav-page-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Stochastic approximation</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1495,5 +1408,5 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/approx-mdps/policy-loss.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/rl/intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
