@@ -1204,14 +1204,13 @@ Proof
 <p>We now define two classes of <em>Bellman mismatch functions</em>:</p>
 <ul>
 <li><p>Functionals <span class="math inline">\(\MISMATCH^{π}_{φ}, \MISMATCH^*_{φ} \colon [\ALPHABET S \to \reals] \to \reals\)</span>, defined as follows: <span class="math display">\[\begin{align*}
-   \MISMATCH^{π}_{φ}v &amp;= \NORM{ (\BELLMAN^{π} v) \SQ φ - (\hat {\BELLMAN}^{π\SQ φ}(v \SQ φ)}_{∞}
+   \MISMATCH^{π}_{φ}v &amp;= \NORM{ \BELLMAN^{π} v - (\hat {\BELLMAN}^{π\SQ φ}(v\SQ φ)) \circ φ}_{∞}
    \\
-   \MISMATCH^*_{φ} v &amp;= \NORM{ (\BELLMAN^* v) \SQ φ - \hat {\BELLMAN}^* (v \SQ φ) }_{∞}
+   \MISMATCH^*_{φ} v &amp;= \NORM{ \BELLMAN^* v  - (\hat {\BELLMAN}^* (v \SQ φ)) \circ φ }_{∞}
 \end{align*}\]</span> Also define the <em>maximum Bellman mismatch functional</em> as <span class="math display">\[\begin{align*}
-\MISMATCH^{\max}_{φ} v &amp;= \max_{(\hat s,a) \in \hat {\ALPHABET S} × \ALPHABET A}
-\biggl| \sum_{s \in φ^{-1}(\hat s)} \bigg[
-  c(s,a) + γ \sum_{s' \in \ALPHABET S}P(s'|s,a) v(s') \biggr] \\
-&amp;\hskip 4em - \hat c(\hat s, a)  - γ \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | \hat s, a) \sum_{s' \in φ^{-1}(\hat s')} ν(s') v(s') \biggr|
+\MISMATCH^{\max}_{φ} v &amp;= \max_{(s,a) \in {\ALPHABET S} × \ALPHABET A}
+\biggl| c(s,a) + γ \sum_{s' \in \ALPHABET S}P(s'|s,a) v(s') \biggr] \\
+&amp;\hskip 4em - \hat c(φ(s), a)  - γ \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | φ(s), a) \sum_{s' \in φ^{-1}(\hat s')} ν(s') v(s') \biggr|
 \end{align*}\]</span></p></li>
 <li><p>Functionals <span class="math inline">\(\hat \MISMATCH^{\hat π}_{φ}, \hat \MISMATCH^*_{φ} \colon [\hat {\BELLMAN} \to \reals] \to \reals\)</span> defined as follows: <span class="math display">\[\begin{align*}
    \hat \MISMATCH^{\hat π}_{φ}\hat v &amp;= \NORM{ \BELLMAN^{\hat π \circ φ}(\hat v \circ φ) - (\hat {\BELLMAN}^{\hat π} \hat v) \circ φ }_{∞}
@@ -1238,10 +1237,10 @@ Proof
 </div>
 <p>The Bellman mismatch functionals can be used to bound the performance difference of a policy between the true and the approximate model.</p>
 <div id="prp-policy-error-abstract" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 25.3 (Policy error)</strong></span> For any (possibly randomized) policy <span class="math inline">\(π\)</span> in <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\hat π\)</span> in <span class="math inline">\(\hat {\ALPHABET M}\)</span>, we have <span class="math display">\[\begin{align*}
-  \NORM{V^π \SQ φ - \hat V^{π \SQ φ}}_{∞} &amp;\le \frac{1}{1-γ} \MISMATCH^{π}_{φ} V^{π}, \\
-  \NORM{V^{\hat π \circ φ} - \hat V^{\hat π} \circ φ}_{∞} &amp;\le \frac{1}{1-γ} \MISMATCH^{\hat π}_{φ} \hat V^{\hat π}.
-\end{align*}\]</span></p>
+<p><span class="theorem-title"><strong>Proposition 25.3 (Policy error)</strong></span> For any (possibly randomized) policy <span class="math inline">\(π\)</span> in <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\hat π\)</span> in <span class="math inline">\(\hat {\ALPHABET M}\)</span>, we have <span class="math display">\[
+  \NORM{V^{\hat π \circ φ} - \hat V^{\hat π} \circ φ}_{∞} \le
+\frac{1}{1-γ}\min\bigl\{ \MISMATCH^{π}_{φ} V^{π}, \MISMATCH^{\hat π}_{φ} \hat V^{\hat π} \bigr\}.
+\]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
@@ -1256,21 +1255,21 @@ Proof
 <div id="callout-8" class="callout-8-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The proof is similar to the proof of <a href="#prp-policy-error" class="quarto-xref">Proposition&nbsp;<span>25.1</span></a>. The first bound is obtained as follows: <span class="math display">\[\begin{align}
-  \| V^{π} \SQ φ - \hat V^{π \SQ φ} \|_∞
+  \| V^{π} - \hat V^{π \SQ φ} \circ φ \|_∞
   &amp;=
-  \| (\BELLMAN^π V^π) \SQ φ - \hat {\ALPHABET  B}^{π \SQ φ} \hat V^{π \SQ φ} \|_∞
+  \| \BELLMAN^π V^π - (\hat {\ALPHABET  B}^{π \SQ φ} \hat V^{π \SQ φ}) \circ φ \|_∞
   \notag \\
   &amp;\le
-  \| (\BELLMAN^π V^π) \SQ φ - \hat {\ALPHABET  B}^{π\SQ φ} (V^{π} \SQ φ) \|_∞
+  \| \BELLMAN^π V^π - (\hat {\ALPHABET  B}^{π\SQ φ} (V^{π} \SQ φ)) \circ φ \|_∞
   \notag \\
   &amp; \quad +
-  \| \hat {\BELLMAN}^{π\SQ φ} (V^π \SQ φ) - \hat {\ALPHABET  B}^{π \SQ φ} \hat V^{π\SQ φ} \|_∞
+  \| (\hat {\BELLMAN}^{π\SQ φ} (V^π \SQ φ)) \circ φ - (\hat {\ALPHABET  B}^{π \SQ φ} \hat V^{π\SQ φ}) \circ φ \|_∞
   \notag \\
   &amp;\le
   \MISMATCH^π_{φ} V^π + γ \| V^π \SQ φ - \hat V^π \|_∞
   \label{eq:ineq-3-abstract}
-\end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-3-abstract} gives us <span class="math display">\[\begin{equation}
-\| V^{π} \SQ φ - \hat V^{π} \|_∞ \le \frac{ \MISMATCH^π_{φ} V^{π}}{1 - γ}.
+\end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional, the contraction property of Bellman operators, and the fact that <span class="math inline">\(\NORM{f_1 \circ φ - f_2 \circ φ}_{∞} \le \NORM{f_1 - f_2}_{∞}\)</span>. Rearranging terms in&nbsp;\eqref{eq:ineq-3-abstract} gives us <span class="math display">\[\begin{equation}
+\| V^{π} - \hat V^{π} \circ φ \|_∞ \le \frac{ \MISMATCH^π_{φ} V^{π}}{1 - γ}.
 \label{eq:ineq-4-abstract}\end{equation}\]</span> This gives the first bound.</p>
 <p>The second bound is obtained as follows <span class="math display">\[\begin{align}
   \| V^{\hat π \circ φ} - \hat V^{\hat π} \circ φ \|_∞
@@ -1298,10 +1297,10 @@ Proof
 </div>
 <p>Similar to the above, we can also bound the difference between the optimal value functions of the true and approximate model.</p>
 <div id="prp-value-error-abstract" class="theorem proposition">
-<p><span class="theorem-title"><strong>Proposition 25.4 (Value error)</strong></span> Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions for <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\hat {\ALPHABET M}\)</span> respectively. Then, <span class="math display">\[\begin{align*}
-  \NORM{V^* \SQ φ - \hat V^*}_{∞} &amp;\le \frac{1}{1-γ} \MISMATCH^*_{φ} V^* \\
-  \NORM{V^* - \hat V^* \circ φ}_{∞} &amp;\le \frac{1}{1-γ} \hat \MISMATCH^*_{φ} \hat V^*
-  \end{align*}\]</span></p>
+<p><span class="theorem-title"><strong>Proposition 25.4 (Value error)</strong></span> Let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions for <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\hat {\ALPHABET M}\)</span> respectively. Then, <span class="math display">\[
+  \NORM{V^* - \hat V^* \circ φ}_{∞} \le
+  \frac{1}{1-γ} \min\bigl\{ \MISMATCH^*_{φ} V^*, \hat \MISMATCH^*_{φ} \hat V^* \bigr\}.
+  \]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
@@ -1316,20 +1315,20 @@ Proof
 <div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The proof argument is similar to the proof of <a href="#prp-value-error" class="quarto-xref">Proposition&nbsp;<span>25.2</span></a>. The first bound is obtained as follows: <span class="math display">\[\begin{align}
-  \| V^{*} \SQ φ - \hat V^{*} \|_∞
+  \| V^{*} - \hat V^{*} \circ \|_∞
   &amp;=
-  \| (\BELLMAN^* V^*) \SQ φ - \hat {\BELLMAN}^* \hat V^* \|_∞
+  \| \BELLMAN^* V^*  - (\hat {\BELLMAN}^* \hat V^*) \circ φ \|_∞
   \notag \\
   &amp;\le
-  \| (\BELLMAN^* V^*) \SQ φ - \hat {\BELLMAN}^*(V^* \SQ φ)  \|_∞
+  \| \BELLMAN^* V^*  - \hat {\BELLMAN}^*(V^* \SQ φ) \circ φ  \|_∞
   +
-  \| \hat {\BELLMAN}^*(V^* \SQ φ) - \hat {\BELLMAN}^* \hat V^* \|_∞
+  \| \hat {\BELLMAN}^*(V^* \SQ φ) \circ φ - \hat {\BELLMAN}^* \hat V^* \circ φ\|_∞
   \notag \\
   &amp;\le
   \MISMATCH^*_{φ} V^* + γ \| V^* \SQ φ - \hat V^* \|_∞
   \label{eq:ineq-1-abstract}
-\end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-1-abstract} gives us <span class="math display">\[\begin{equation}
-\| V^* \SQ φ - \hat V^* \|_∞ \le \frac{  \MISMATCH^*_{φ} V^*}{1 - γ}.
+\end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional, the contraction property of Bellman operators, and the fact that <span class="math inline">\(\NORM{ f_1 \circ φ - f_2 \circ φ}_{∞} \le \NORM{f_1 - f_2}_{∞}\)</span>. Rearranging terms in&nbsp;\eqref{eq:ineq-1-abstract} gives us <span class="math display">\[\begin{equation}
+\| V^*  - \hat V^* \circ φ\|_∞ \le \frac{  \MISMATCH^*_{φ} V^*}{1 - γ}.
 \label{eq:ineq-2-abstract}\end{equation}\]</span> This gives the first bound.</p>
 <p>The second bound is obtained as follows: and <span class="math inline">\(\hat V^*\)</span>. <span class="math display">\[\begin{align}
   \| V^{*} - \hat V^{*} \circ φ \|_∞
@@ -1371,6 +1370,65 @@ Proof
 \hat V^*\)</span>, we have <span class="math display">\[
     α \le \frac{2}{(1-γ)}  \MISMATCH^{\max}_{φ}  \hat V^*.
 \]</span></p>
+</div>
+<p>Similar to <a href="#thm-model-error-V-star" class="quarto-xref">Theorem&nbsp;<span>25.2</span></a>, we now provide such a bound that depends on <span class="math inline">\(V^*\)</span> rather than <span class="math inline">\(\hat V^*\)</span>.</p>
+<div id="thm-model-error-V-star-abstract" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 25.5 (Model approximation error)</strong></span> The policy <span class="math inline">\(\hat π^*\)</span> is an <span class="math inline">\(α\)</span>-optimal policy of <span class="math inline">\(\ALPHABET M\)</span> where <span class="math display">\[
+    α := \| V^* - V^{\hat π^* \circ φ} \|_∞ \le
+    \frac{1}{1-γ} \MISMATCH^{\hat π^*}_{φ} V^*
+    +
+    \frac{(1+γ)}{(1-γ)^2} \MISMATCH^*_{φ} V^* .
+\]</span></p>
+<p>Moreover, since <span class="math inline">\(\MISMATCH^{\max}_{φ} V^*\)</span> is an upper bound for both <span class="math inline">\(\MISMATCH^{\hat π^*}_{φ} V^*\)</span> and <span class="math inline">\(\MISMATCH^*_{φ} V^*\)</span>, we have <span class="math display">\[
+    α \le \frac{2}{(1-γ)^2}  \MISMATCH^{\max}_{φ}  V^*.
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We bound the first term of <span class="math inline">\(\eqref{eq:triangle-1}\)</span> by <a href="#prp-value-error-abstract" class="quarto-xref">Proposition&nbsp;<span>25.4</span></a> But instead of bounding the second term of <span class="math inline">\(\eqref{eq:triangle-1}\)</span> by <a href="#prp-policy-error-abstract" class="quarto-xref">Proposition&nbsp;<span>25.3</span></a>, we consider the following: <span class="math display">\[\begin{align}
+  \| V^{\hat π^* \circ φ} - \hat V^{\hat π^*} \circ φ \|_∞
+  &amp;=
+  \| V^{\hat π^*  \circ φ} - \hat V^{*} \circ φ \|_∞
+  = \| \BELLMAN^{\hat π^* \circ φ} V^{\hat π^* \circ φ} -
+       (\hat {\BELLMAN}^{\hat π^*} \hat V^{*}) \circ φ \|_∞
+  \notag \\
+  &amp;\le \| \BELLMAN^{\hat π^* \circ φ} V^{\hat π^* \circ φ} -
+          \BELLMAN^{\hat π^* \circ φ} V^{*} \|_∞
+    +  \| \BELLMAN^{\hat π^* \circ φ} V^{*} -
+       (\hat {\BELLMAN}^{\hat π^*} (V^{*} \SQ φ)) \circ φ \|_∞
+  \notag \\
+  &amp; \quad +
+       \| (\hat {\BELLMAN}^{\hat π^*} (V^{*} \SQ φ)) \circ φ -
+       (\hat {\BELLMAN}^{\hat π^*} \hat V^{*}) \circ φ \|_∞
+  \notag \\
+  &amp;\le γ \| V^* - V^{\hat π^*} \|_∞ + \MISMATCH^{\hat π^* \circ φ}_{φ} V^*
+  + γ \| V^* - \hat V^* \|_∞
+  \label{eq:ineq-21-abstract}.
+\end{align}\]</span> where the first inequality follows from the triangle inequality and the second inequality follows from the definition of Bellman mismatch functional, contraction property of Bellman operator, and the fact that <span class="math inline">\(\NORM{f_1 \circ φ - f_2 \circ φ}_{∞} \le \NORM{f_1 - f_2}_{∞}\)</span>.</p>
+<p>Substituting <span class="math inline">\(\eqref{eq:ineq-21-abstract}\)</span> in <span class="math inline">\(\eqref{eq:triangle-1}\)</span> and rearranging terms, we get <span class="math display">\[\begin{align}
+  \| V^* - V^{\hat π^* \circ φ} \|_∞
+  &amp;\le
+  \frac{1}{1-γ} \MISMATCH^{\hat π^* \circ φ}_{φ} V^*
+  +
+  \frac{1+γ}{1-γ} \| V^* - \hat V^* \|_∞
+  \notag \\
+  &amp;\le
+  \frac{1}{1-γ} \MISMATCH^{\hat π^* \circ φ}_{φ} V^*
+  +
+  \frac{(1+γ)}{(1-γ)^2} \MISMATCH^*_{φ} V^* .
+\end{align}\]</span> where the second inequality follows from <a href="#prp-value-error-abstract" class="quarto-xref">Proposition&nbsp;<span>25.4</span></a>.</p>
+</div>
+</div>
 </div>
 </section>
 </section>
