@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-12-18">
+<meta name="dcterms.date" content="2024-07-19">
 <meta name="keywords" content="IPM">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -636,7 +636,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../convexity/duality.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Duality</span></span></a>
+ <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Convex Duality</span></span></a>
   </div>
 </li>
       </ul>
@@ -730,7 +730,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 18, 2023</p>
+      <p class="date">July 19, 2024</p>
     </div>
   </div>
   
@@ -812,9 +812,136 @@ window.Quarto = {
 <p>One may view the total variation metric as the total variation norm of the signed measure <span class="math inline">\(μ - ν\)</span>. An implication of the first property is that total variation can be expressed as an IPM with the generator <span class="math display">\[
    \F = \{ f : \NORM{f}_{∞} \le 1 \}.
 \]</span></p></li>
-<li><p><strong>Kantorovich-Rubinstein metric or Wasserstein distance.</strong></p></li>
-<li><p><strong>Maximum-mean discrepency.</strong></p></li>
-<li><p><strong>Weighted total variation.</strong></p></li>
+<li><p><strong>Kantorovich-Rubinstein metric or Wasserstein distance.</strong> Let <span class="math inline">\((\ALPHABET S, \mathfrak S)\)</span> be a probability space and <span class="math inline">\(d_{\ALPHABET S}\)</span> be a metric on <span class="math inline">\(\ALPHABET S\)</span>. Let <span class="math inline">\(p \in [1, +\infty]\)</span>. Then the Wasserstein <span class="math inline">\(p\)</span>-distance between two measures <span class="math inline">\(μ\)</span> and <span class="math inline">\(ν\)</span> on <span class="math inline">\((\ALPHABET S, \mathfrak S)\)</span> is defined as <span class="math display">\[
+   \text{Was}_p(μ,ν) = \left(\inf_{γ \in Γ(μ,ν)} \int_{\ALPHABET S × \ALPHABET S}
+   d_{\ALPHABET S}(x,y) d γ(x,y) \right)^{1/p}
+\]</span> where <span class="math inline">\(Γ(μ,ν)\)</span> are all <em>couplings</em> (i.e., joint measures on <span class="math inline">\((\ALPHABET S \times \ALPHABET S, \mathfrak S \otimes \mathfrak S)\)</span> with marginals <span class="math inline">\(μ\)</span> and <span class="math inline">\(ν\)</span>. An compact way to write this is <span class="math display">\[
+\text{Was}_p(μ,ν) = \left( \inf_{γ \in Γ(μ,ν)} \EXP_{(X,Y) \sim γ}
+\bigl[ d_{\ALPHABET S}(X,Y)^p \bigr] \right)^{1/p}
+  \]</span></p>
+<p>In this section, we focus on <span class="math inline">\(\text{Was}_1\)</span> distance (i.e., <span class="math inline">\(p = 1\)</span>), and will drop the subscript <span class="math inline">\(1\)</span> for convenience and write <span class="math display">\[
+  \text{Was}(μ,ν) = \inf_{γ \in Γ(μ,ν)} \EXP_{(X,Y) \sim γ}
+  \bigl[ d_{\ALPHABET S}(X,Y) \bigr].
+\]</span></p>
+<div id="thm-Kantorovich" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 36.1 (Kantorovich Rubinstein duality)</strong></span> The Wasserstein distance is equivalent to the following: <span class="math display">\[
+   \text{Was}(μ,ν) = \sup_{f : \| f \|_{L} \le 1}
+   \Bigl| \EXP_{X \sim μ}[ f(X) ] - \EXP_{Y \sim ν}[ f(Y) ] \Bigr|
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The orignal definition is an (infinite dimensional) linear program: <span class="math inline">\(\EXP_{(X,Y) \sim γ}\bigl[ d_{\ALPHABET S}(X,Y) \bigr]\)</span> is a linear function of <span class="math inline">\(γ\)</span> and the of all couplings <span class="math inline">\(Γ(μ,ν)\)</span> is a convex polytope. Taking its dual, we get <span class="math display">\[
+    \text{Was}(μ,ν) = \sup_{f, g \colon \ALPHABET S \to \reals}
+   \bigl[
+   \EXP_{X \sim μ}[ f(X) ] + \EXP_{Y \sim ν}[ g(Y) ]
+   \bigr]
+   \quad\text{such that}\quad
+   f(x) + g(y) \le d(x,y).
+\]</span></p>
+<p>Similar in spirit to <a href="../convexity/duality.html">Legendre transform</a> define the <span class="math inline">\(d_{\ALPHABET S}\)</span>-dual of the function <span class="math inline">\(g\)</span> as <span class="math display">\[
+   g^*(x) = \inf_{u \in \ALPHABET S} \biggl[
+     d(x,u) - g(u)
+   \biggr]
+\]</span> Observe that for any <span class="math inline">\(u\)</span> <span class="math display">\[
+g^*(x) \le d(x,u) - g(u)
+\le d(x,y) + d(y,u) - g(u).
+\]</span> Therefore, <span class="math display">\[
+g^*(x)
+\le d(x,y) + \min_{u \in \ALPHABET S} \biggl[ d(y,u) - g(u) \biggr]
+= d(x,y) + g^*(y).
+\]</span> Thus, <span class="math inline">\(g^*(x) - g^*(y) \le d_{\ALPHABET S}(x,y)\)</span>. Interchanging the role of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, we get <span class="math display">\[
+   | g^*(x) - g^*(y) | \le d_{\ALPHABET S}(x,y).
+\]</span> Thus, <span class="math inline">\(\| g^* \|_{L} \le 1\)</span>.</p>
+<p>Now consider any <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span> that satisfies the constraint <span class="math inline">\(f(x) + g(y) \le d(x,y)\)</span> for all <span class="math inline">\(x,y\)</span>. For any <span class="math inline">\(x\)</span>, let <span class="math inline">\(u^*\)</span> be the value of <span class="math inline">\(u\)</span> that achieves the minimum in the definition of <span class="math inline">\(g^*(x)\)</span>, i.e., <span class="math display">\[
+   g^*(x) = d(x,u^*) - g(u^*) \ge f(x).
+\]</span> Moreover, <span class="math display">\[
+   g^*(x) \le d(x,x) - g(x) = -g(x).
+\]</span> Thus, for any <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span> that satisfy the constraint, we have <span class="math display">\[\begin{align}
+\text{Was}(μ,ν) &amp;=
+\sup_{ f, g : f(x) + g(y) \le d_{\ALPHABET S}(x,y) }
+   \bigl[
+   \EXP_{X \sim μ}[ f(X) ] + \EXP_{Y \sim ν}[ g(Y) ]
+   \bigr]
+\notag \\
+&amp;\le
+\sup_{ g^* }
+   \bigl[
+   \EXP_{X \sim μ}[ g^*(X) ] - \EXP_{Y \sim ν}[ g^*(Y) ]
+   \bigr]
+\notag \\
+&amp;\le
+\sup_{ f : \|f\|_{L} \le 1}
+   \bigl[
+   \EXP_{X \sim μ}[ f(X) ] - \EXP_{Y \sim ν}[ f(Y) ]
+   \bigr]
+\label{eq:lower-bound}
+\end{align}\]</span> where the last inequality follows because we have shown that <span class="math inline">\(\|g^*\|_{L} \le 1\)</span>.</p>
+<p>Now observe that for any <span class="math inline">\(f\)</span> such that <span class="math inline">\(\|f\|_{L} \le 1\)</span>, we have <span class="math inline">\(f(x) - f(y) \le d(x,y)\)</span>. Hence, for any coupling <span class="math inline">\(γ \in Γ(μ,ν)\)</span>, we have <span class="math display">\[
+   \EXP_{(X,Y) \sim γ}[ d(X,Y) ]
+   \ge
+   \EXP_{(X,Y) \sim γ}[ f(X) - f(Y) ]
+   = \EXP_{X \sim μ}[ f(X) ] - \EXP_{Y \sim ν} [ f(Y) ].
+\]</span> Thus, for any function <span class="math inline">\(f\)</span> such that <span class="math inline">\(\|f\|_{L} \le 1\)</span>, we have <span class="math display">\[
+   \EXP_{X \sim μ}[ f(X) ] - \EXP_{Y \sim ν} [ f(Y) ]
+   \le
+   \inf_{γ \in Γ(μ,ν)} \EXP_{(X,Y) \sim γ}[ d(X,Y) ]
+   = \text{Was}(μ,ν).
+\]</span> Consequently, <span class="math display">\[\begin{equation}\label{eq:upper-bound}
+\sup_{ f : \|f\|_{L} \le 1}
+   \bigl[
+   \EXP_{X \sim μ}[ f(X) ] - \EXP_{Y \sim ν}[ f(Y) ]
+   \bigr]
+\le \text{Was}(μ,ν).
+\end{equation}\]</span></p>
+<p>The result then follows from <span class="math inline">\(\eqref{eq:lower-bound}\)</span> and <span class="math inline">\(\eqref{eq:upper-bound}\)</span>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remark about absolute value
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Note that in the proof, we have shown that <span class="math display">\[
+   \text{Was}(μ,ν) = \sup_{f : \| f \|_{L} \le 1}
+   \EXP_{X \sim μ}[ f(X) ] - \EXP_{Y \sim ν}[ f(Y) ]
+\]</span> but in <a href="#thm-Kantorovich" class="quarto-xref">Theorem&nbsp;<span>36.1</span></a>, we use absolute value in the right hand side. This is because (using a slightly terse notation) <span class="math display">\[
+   \left| \int f d μ - \int f d ν \right|
+   \text{ is either}
+    \int f d μ - \int f d ν
+   \text{ or }
+    \int (-f) d μ - \int (-f) d ν
+\]</span> and both <span class="math inline">\(f\)</span> and <span class="math inline">\(-f\)</span> have the same Lipschitz constant. So <span class="math display">\[
+\sup_{f : \|f\|_L \le 1}
+\left[ \int f d μ - \int f d ν \right]
+= \sup_{f : \|f\|_L \le 1}
+\left| \int f d μ - \int f d ν \right|
+\]</span></p>
+</div>
+</div>
+<p><a href="#thm-Kantorovich" class="quarto-xref">Theorem&nbsp;<span>36.1</span></a> implies that Wasserstein distance can be expressed as an IPM with the generator <span class="math display">\[
+   \mathfrak F = \{ f : \| f\|_{L} \le 1 \}.
+\]</span></p></li>
+<li><p><strong>Maximum-mean discrepency.</strong></p>
+<p>TBW</p></li>
+<li><p><strong>Weighted total variation.</strong></p>
+<p>TBW</p></li>
 </ol>
 </section>
 </section>
@@ -874,7 +1001,10 @@ Balanced set
 <li><p><strong>Total-variation metric.</strong> The maximal generator of total-variation metric is <span class="math display">\[
    \ALPHABET G_{\F} = \{ f : \tfrac 12 \SPAN(f) \le 1 \}
 \]</span></p></li>
-<li><p><strong>Kantorovich-Rubinstein metric or Wasserstein distance.</strong></p></li>
+<li><p><strong>Kantorovich-Rubinstein metric or Wasserstein distance.</strong></p>
+<p>The generator of Wasserstein distance given above is actually a maximal generator. Thus, <span class="math display">\[
+   \ALPHABET G_{\F} = \{ f : \| f\|_{L} \le 1 \}
+\]</span></p></li>
 <li><p><strong>Maximum-mean discrepency.</strong></p></li>
 <li><p><strong>Weighted total variation.</strong></p></li>
 </ol>
@@ -896,7 +1026,7 @@ Balanced set
 </ol>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -905,7 +1035,7 @@ Proof
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Non-negativity holds by definition. Absolute homogeneity holds because <span class="math inline">\(\F\)</span> is balanced, in particular <span class="math inline">\(\F = -\F\)</span>. Note that absolute homogeneity implies <span class="math inline">\(ρ_{\F}(0) = 0\)</span>.</p>
 <p>To see why subadditivity holds, let <span class="math inline">\(ρ_1 = ρ_{\F}(f_1)\)</span> and <span class="math inline">\(ρ_2 = ρ_{\F}(f_2)\)</span>. Then, since <span class="math inline">\(\F\)</span> is convex, we have for any <span class="math inline">\(λ \in [0,1]\)</span>, <span class="math display">\[
@@ -924,7 +1054,7 @@ Proof
   \]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -933,7 +1063,7 @@ Proof
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>By the assumptions imposed on <span class="math inline">\(f\)</span>, we know that <span class="math inline">\(ρ_{\F}(ρ) \in (0,∞)\)</span>. Define <span class="math inline">\(f' = f/ρ_{\F}(f) \in \F\)</span>. Then, <span class="math display">\[
 \left| \int f d μ_1 - \int f d μ_2 \right|
@@ -976,11 +1106,14 @@ Why care about maximal generators
    \biggl| \int f d μ - \int f dν \biggr|
    \le \text{KS}(μ,v) V(f).
 \]</span></p></li>
-<li><p><strong>Total variation metric.</strong> The Minkowski functional of a function <span class="math inline">\(f\)</span> for total variation metric is <span class="math inline">\(\tfrac \SPAN(f)\)</span>. Thus, for any function with bounded span: <span class="math display">\[
+<li><p><strong>Total variation metric.</strong> The Minkowski functional of a function <span class="math inline">\(f\)</span> for total variation metric is <span class="math inline">\(\tfrac 12 \SPAN(f)\)</span>. Thus, for any function with bounded span: <span class="math display">\[
    \biggl| \int f d μ - \int f dν \biggr|
    \le \text{TV}(μ,v) \tfrac 12 \SPAN(f).
 \]</span></p></li>
-<li><p><strong>Kantorovich-Rubinstein metric or Wasserstein distance.</strong></p></li>
+<li><p><strong>Kantorovich-Rubinstein metric or Wasserstein distance.</strong> The Minkowski functional of a function <span class="math inline">\(f\)</span> for Wasserstein distance is <span class="math inline">\(\|f\|_{L}\)</span>. Thus, for any function with bounded Lipschitz constant, we have <span class="math display">\[
+   \biggl| \int f d μ - \int f dν \biggr|
+   \le \text{Was}(μ,v) \|f\|_{L}.
+\]</span></p></li>
 <li><p><strong>Maximum-mean discrepency.</strong></p></li>
 <li><p><strong>Weighted total variation.</strong></p></li>
 </ol>
@@ -1019,6 +1152,14 @@ Why care about maximal generators
 \]</span></p>
 </div>
 <p><em>Hint</em>: Suppose <span class="math inline">\(f\)</span> is such that <span class="math inline">\(\max(f) = - \min(f)\)</span>, i.e., the function is <em>centered</em> at <span class="math inline">\(0\)</span>. Then, the inequality holds with equality. What can you say when the function is <em>not</em> centered at <span class="math inline">\(0\)</span>?</p>
+<div id="exr-IPM-convexity" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 36.2 (Convexity of IPMs)</strong></span> Show that IPM is convex, i.e., for any probability measures <span class="math inline">\(μ_1\)</span>, <span class="math inline">\(μ_2\)</span>, and <span class="math inline">\(ν\)</span> and any constant <span class="math inline">\(λ \in [0,1]\)</span>, we have <span class="math display">\[
+d_{\F}\bigl( λ μ_1 + (1-λ)μ_2, ν \bigr)
+\le
+λ d_{\F}(μ_1, ν) + (1-λ) d_{\F}(μ_2, ν).
+\]</span></p>
+<p><em>Hint</em>: Use triangle inequality.</p>
+</div>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
