@@ -1185,7 +1185,7 @@ Proof
 <p>In addition, suppose we are given a surjective function <span class="math inline">\(φ \colon \ALPHABET S \to \hat {\ALPHABET S}\)</span>. We can use <span class="math inline">\(φ\)</span> to <strong>lift</strong> any function <span class="math inline">\(\hat f\)</span> defined on <span class="math inline">\(\hat {\ALPHABET S}\)</span> to a function defined on <span class="math inline">\(\ALPHABET S\)</span> given by <span class="math inline">\(f = \hat f \circ φ\)</span>, i.e., <span class="math display">\[f(s) = \hat f(φ(s)), \quad \forall s \in \ALPHABET  S.\]</span> We can also use <span class="math inline">\(φ\)</span> to <strong>project</strong> any function <span class="math inline">\(f\)</span> defined on <span class="math inline">\(\ALPHABET S\)</span> to a function defined on <span class="math inline">\(\ALPHABET S\)</span>. For this, we assume that we are given a measure <span class="math inline">\(ν\)</span> on <span class="math inline">\(\ALPHABET S\)</span> that has the following property: <span class="math display">\[
   ν(φ^{-1}(\hat s)) = 1, \quad \forall \hat s \in \hat {\ALPHABET S}.
 \]</span> In the sequel, we assume that the measure <span class="math inline">\(ν\)</span> is fixed and do not carry it in the notation. Given <span class="math inline">\(ν\)</span>, and a function <span class="math inline">\(f\)</span> defined on <span class="math inline">\(\ALPHABET S\)</span>, define <span class="math display">\[ \def\SQ{\mathbin{\square}}
-  (f \SQ φ)(\hat s) = \int_{s \in φ^{-1}(s)} f(s) ν(ds),
+  (f \SQ φ)(\hat s) = \sum_{s \in φ^{-1}(s)} f(s) ν(s),
   \quad \forall \hat s \in \hat {\ALPHABET S}.
 \]</span></p>
 <p>As before, let <span class="math inline">\(V^*\)</span> and <span class="math inline">\(\hat V^*\)</span> denote the optimal value functions of the true model <span class="math inline">\(\ALPHABET M\)</span> and the approximate model <span class="math inline">\(\hat {\ALPHABET M}\)</span>, respectively. Moreover, let <span class="math inline">\(π^*\)</span> and <span class="math inline">\(\hat π^*\)</span> be optimal policies for the true model and the approximate model <span class="math inline">\(\widehat {\ALPHABET M}\)</span>, respectively.</p>
@@ -1207,13 +1207,35 @@ Proof
    \MISMATCH^{π}_{φ}v &amp;= \NORM{ (\BELLMAN^{π} v) \SQ φ - (\hat {\BELLMAN}^{π\SQ φ}(v \SQ φ)}_{∞}
    \\
    \MISMATCH^*_{φ} v &amp;= \NORM{ (\BELLMAN^* v) \SQ φ - \hat {\BELLMAN}^* (v \SQ φ) }_{∞}
+\end{align*}\]</span> Also define the <em>maximum Bellman mismatch functional</em> as <span class="math display">\[\begin{align*}
+\MISMATCH^{\max}_{φ} v &amp;= \max_{(\hat s,a) \in \hat {\ALPHABET S} × \ALPHABET A}
+\biggl| \sum_{s \in φ^{-1}(\hat s)} \bigg[
+  c(s,a) + γ \sum_{s' \in \ALPHABET S}P(s'|s,a) v(s') \biggr] \\
+&amp;\hskip 4em - \hat c(\hat s, a)  - γ \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | \hat s, a) \sum_{s' \in φ^{-1}(\hat s')} ν(s') v(s') \biggr|
 \end{align*}\]</span></p></li>
 <li><p>Functionals <span class="math inline">\(\hat \MISMATCH^{\hat π}_{φ}, \hat \MISMATCH^*_{φ} \colon [\hat {\BELLMAN} \to \reals] \to \reals\)</span> defined as follows: <span class="math display">\[\begin{align*}
    \hat \MISMATCH^{\hat π}_{φ}\hat v &amp;= \NORM{ \BELLMAN^{\hat π \circ φ}(\hat v \circ φ) - (\hat {\BELLMAN}^{\hat π} \hat v) \circ φ }_{∞}
    \\
    \hat \MISMATCH^*_{φ} \hat v &amp;= \NORM{ \BELLMAN^*(\hat v \circ φ) - (\hat {\BELLMAN}^* \hat v) \circ φ }_{∞}
+\end{align*}\]</span> Also define the <em>maximum Bellman mismatch functional</em> as <span class="math display">\[\begin{align*}
+\hat \MISMATCH^{\max}_{φ} \hat v &amp;= \max_{(s,a) \in \ALPHABET S × \ALPHABET A}
+\biggl| c(s,a) + γ \sum_{s' \in \ALPHABET S}P(s'|s,a) \hat v(φ(s')) \\
+&amp;\hskip 4em - \hat c(φ(s), a)  - γ \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P(\hat s' | φ(s), a) \hat v(\hat s') \biggr|
 \end{align*}\]</span></p></li>
 </ul>
+<p>Similar to <a href="#lem-mismatch-bellman" class="quarto-xref">Lemma&nbsp;<span>25.1</span></a>, we have the following.</p>
+<div id="lem-mismatch-bellman-abstract" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 25.3</strong></span> The following inequalities hold:</p>
+<ul>
+<li><span class="math inline">\(\sup_{π \in Π} \MISMATCH^{π}_{φ} v = \MISMATCH^{\max}_{φ} v\)</span></li>
+<li><span class="math inline">\(\MISMATCH^*_{φ} v \le \MISMATCH^{\max}_{φ} v\)</span>.</li>
+</ul>
+<p>and also</p>
+<ul>
+<li><span class="math inline">\(\sup_{\hat π \in \hat Π} \hat \MISMATCH^{\hat π}_{φ} v = \hat \MISMATCH^{\max}_{φ} \hat v\)</span></li>
+<li><span class="math inline">\(\hat \MISMATCH^*_{φ} \hat v \le \hat \MISMATCH^{\max}_{φ} \hat v\)</span>.</li>
+</ul>
+</div>
 <p>The Bellman mismatch functionals can be used to bound the performance difference of a policy between the true and the approximate model.</p>
 <div id="prp-policy-error-abstract" class="theorem proposition">
 <p><span class="theorem-title"><strong>Proposition 25.3 (Policy error)</strong></span> For any (possibly randomized) policy <span class="math inline">\(π\)</span> in <span class="math inline">\(\ALPHABET M\)</span> and <span class="math inline">\(\hat π\)</span> in <span class="math inline">\(\hat {\ALPHABET M}\)</span>, we have <span class="math display">\[\begin{align*}
@@ -1307,7 +1329,7 @@ Proof
   \MISMATCH^*_{φ} V^* + γ \| V^* \SQ φ - \hat V^* \|_∞
   \label{eq:ineq-1-abstract}
 \end{align}\]</span> where the first inequality follows from the triangle inequality, and the second inequality follows from the definition of the Bellman mismatch functional and the contraction property of Bellman operators. Rearranging terms in&nbsp;\eqref{eq:ineq-1-abstract} gives us <span class="math display">\[\begin{equation}
-\| V^* \SQ - \hat V^* \|_∞ \le \frac{  \MISMATCH^*_{φ} V^*}{1 - γ}.
+\| V^* \SQ φ - \hat V^* \|_∞ \le \frac{  \MISMATCH^*_{φ} V^*}{1 - γ}.
 \label{eq:ineq-2-abstract}\end{equation}\]</span> This gives the first bound.</p>
 <p>The second bound is obtained as follows: and <span class="math inline">\(\hat V^*\)</span>. <span class="math display">\[\begin{align}
   \| V^{*} - \hat V^{*} \circ φ \|_∞
@@ -1345,6 +1367,9 @@ Proof
     α := \| V^* - V^{\hat π^* \circ} \|_∞ \le
     \frac{1}{1-γ} \bigl[ \MISMATCH^*_{φ} \hat V^* + \MISMATCH^{\hat
     π^*}_{φ} \hat V^* \bigr].
+\]</span> Moreover, since <span class="math inline">\(\MISMATCH^{\max}_{φ} \hat V^*\)</span> is an upper bound for both <span class="math inline">\(\MISMATCH^{\hat π^*}_{φ} \hat V^*\)</span> and <span class="math inline">\(\MISMATCH^*_{φ}
+\hat V^*\)</span>, we have <span class="math display">\[
+    α \le \frac{2}{(1-γ)}  \MISMATCH^{\max}_{φ}  \hat V^*.
 \]</span></p>
 </div>
 </section>
