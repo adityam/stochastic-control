@@ -7,11 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-06-19">
-<meta name="keywords" content="risk sensitive, dynamic programming">
+<meta name="dcterms.date" content="2025-01-06">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
-<title>27&nbsp; Risk Sensitive MDPs – Stochastic Control and Decision Theory</title>
+<title>45&nbsp; Vector and Hilbert spaces – Stochastic Control and Decision Theory</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -53,8 +52,8 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../linear-systems/lqr.html" rel="next">
-<link href="../risk-sensitive/risk-sensitive-utility.html" rel="prev">
+<link href="../linear-algebra/rkhs.html" rel="next">
+<link href="../linear-algebra/svd.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -220,7 +219,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../risk-sensitive/risk-sensitive-utility.html">Risk sensitive MDPs</a></li><li class="breadcrumb-item"><a href="../risk-sensitive/risk-sensitive-mdps.html"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Risk Sensitive MDPs</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html">Linear Algebra Appendix</a></li><li class="breadcrumb-item"><a href="../linear-algebra/vector-and-hilbert-spaces.html"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Vector and Hilbert spaces</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -449,7 +448,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../risk-sensitive/risk-sensitive-mdps.html" class="sidebar-item-text sidebar-link active">
+  <a href="../risk-sensitive/risk-sensitive-mdps.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Risk Sensitive MDPs</span></span></a>
   </div>
 </li>
@@ -612,7 +611,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../linear-algebra/vector-and-hilbert-spaces.html" class="sidebar-item-text sidebar-link">
+  <a href="../linear-algebra/vector-and-hilbert-spaces.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Vector and Hilbert spaces</span></span></a>
   </div>
 </li>
@@ -686,19 +685,21 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#finite-horizon-setup" id="toc-finite-horizon-setup" class="nav-link active" data-scroll-target="#finite-horizon-setup"><span class="header-section-number">27.1</span> Finite horizon setup</a></li>
-  <li><a href="#infinite-horizon-average-cost-setup" id="toc-infinite-horizon-average-cost-setup" class="nav-link" data-scroll-target="#infinite-horizon-average-cost-setup"><span class="header-section-number">27.2</span> Infinite horizon average cost setup</a></li>
-  <li><a href="#infinite-horizon-discounted-cost-setup" id="toc-infinite-horizon-discounted-cost-setup" class="nav-link" data-scroll-target="#infinite-horizon-discounted-cost-setup"><span class="header-section-number">27.3</span> Infinite horizon discounted cost setup</a></li>
+  <li><a href="#vector-space" id="toc-vector-space" class="nav-link active" data-scroll-target="#vector-space"><span class="header-section-number">45.1</span> Vector space</a></li>
+  <li><a href="#pre-hilbert-space" id="toc-pre-hilbert-space" class="nav-link" data-scroll-target="#pre-hilbert-space"><span class="header-section-number">45.2</span> Pre-Hilbert space</a></li>
+  <li><a href="#hilbert-space" id="toc-hilbert-space" class="nav-link" data-scroll-target="#hilbert-space"><span class="header-section-number">45.3</span> Hilbert space</a></li>
+  <li><a href="#examples-of-hilbert-space" id="toc-examples-of-hilbert-space" class="nav-link" data-scroll-target="#examples-of-hilbert-space"><span class="header-section-number">45.4</span> Examples of Hilbert space</a></li>
+  <li><a href="#orthogonal-projection-theorem" id="toc-orthogonal-projection-theorem" class="nav-link" data-scroll-target="#orthogonal-projection-theorem"><span class="header-section-number">45.5</span> Orthogonal Projection Theorem</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/risk-sensitive/risk-sensitive-mdps.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/linear-algebra/vector-and-hilbert-spaces.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../risk-sensitive/risk-sensitive-utility.html">Risk sensitive MDPs</a></li><li class="breadcrumb-item"><a href="../risk-sensitive/risk-sensitive-mdps.html"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Risk Sensitive MDPs</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html">Linear Algebra Appendix</a></li><li class="breadcrumb-item"><a href="../linear-algebra/vector-and-hilbert-spaces.html"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Vector and Hilbert spaces</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Risk Sensitive MDPs</span></h1>
+<h1 class="title"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Vector and Hilbert spaces</span></h1>
 </div>
 
 
@@ -724,7 +725,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 19, 2024</p>
+      <p class="date">January 6, 2025</p>
     </div>
   </div>
   
@@ -732,145 +733,125 @@ window.Quarto = {
   </div>
   
 
-<div>
-  <div class="keywords">
-    <div class="block-title">Keywords</div>
-    <p>risk sensitive, dynamic programming</p>
-  </div>
-</div>
 
 </header>
 
 
-<section id="finite-horizon-setup" class="level2" data-number="27.1">
-<h2 data-number="27.1" class="anchored" data-anchor-id="finite-horizon-setup"><span class="header-section-number">27.1</span> Finite horizon setup</h2>
-<p>Consider an MDP with state space <span class="math inline">\(\ALPHABET
-X\)</span>, action space <span class="math inline">\(\ALPHABET U\)</span>, per-step cost <span class="math inline">\(c \colon \ALPHABET X ×
-\ALPHABET U \to \reals\)</span>, and controlled transition matrix <span class="math inline">\(P\)</span>. However, instead of the risk neutral optimization criteria that we consider <a href="../mdps/intro.html">previously</a>, we consider a <a href="../risk-sensitive/risk-sensitive-utility.html">risk-sensitive objective</a>. In particular, the performance of any (possibly non-Markovian) strategy <span class="math inline">\(g =
-(g_1, \dots, g_T)\)</span> is given by <span class="math display">\[
-  \bar J_θ(g) = \frac{1}{θ} \log \EXP\Bigl[ \exp\Bigl(
-    θ \sum_{t=1}^T c(X_t, U_t)
-  \Bigr) \Bigr].
+<section id="vector-space" class="level2" data-number="45.1">
+<h2 data-number="45.1" class="anchored" data-anchor-id="vector-space"><span class="header-section-number">45.1</span> Vector space</h2>
+<p>A <strong>linear vector space over reals</strong> is a set <span class="math inline">\(\ALPHABET V\)</span> of elements called <em>vectors</em> satisfying the following conditions:</p>
+<ol type="1">
+<li><p><strong>Vector addition:</strong> For any <span class="math inline">\(v, w \in \ALPHABET V\)</span>, there is a unique vector <span class="math inline">\(v + w \in \ALPHABET V\)</span> (called the <em>sum</em>) that satisfies the following properties: for all <span class="math inline">\(u, v,w \in \ALPHABET V\)</span>, we have</p>
+<ul>
+<li><em>Commutativity:</em> <span class="math inline">\(v + w = w + v\)</span></li>
+<li><em>Associativity:</em> <span class="math inline">\((u + v) + w = u + (v + w)\)</span></li>
+<li><em>Existence of an identity:</em> There exists a unique vector <span class="math inline">\(\mathbf{0} \in \ALPHABET V\)</span> such that <span class="math display">\[v + \mathbf{0} = v, \quad \forall v \in \ALPHABET V\]</span></li>
+<li><em>Existence of an inverse:</em> For each <span class="math inline">\(v \in \ALPHABET V\)</span>, there exists <span class="math inline">\((-v) \in \ALPHABET V\)</span> such that <span class="math display">\[ v + (-v) = \mathbf{0}.\]</span></li>
+</ul></li>
+<li><p><strong>Scalar multiplication:</strong> For every scalar <span class="math inline">\(α \in \reals\)</span> and vector <span class="math inline">\(v \in \ALPHABET V\)</span>, there exists a unique vector <span class="math inline">\(αv \in \ALPHABET V\)</span> (called the <em>product</em>) that satisfies the following properties: for all <span class="math inline">\(v, w \in \ALPHABET V\)</span> and <span class="math inline">\(α, β \in \reals\)</span>, we have</p>
+<ul>
+<li><em>Distributed law over vectors:</em> <span class="math inline">\(α ⋅ (v + w) = α ⋅ v + α ⋅ w\)</span></li>
+<li><em>Distributed law over scalars:</em> <span class="math inline">\((α + β) ⋅ v = α ⋅ v + β ⋅ v\)</span>$</li>
+<li><em>Associative law for scalar multiplication:</em> <span class="math inline">\(α ⋅ (β ⋅ v) = (α β) ⋅ v\)</span></li>
+<li><em>Existence of multiplicative identity:</em> <span class="math inline">\(1 ⋅ v = v\)</span>.</li>
+</ul></li>
+</ol>
+<p>A <strong>linear subspace</strong> <span class="math inline">\(\ALPHABET M\)</span> of a vector space <span class="math inline">\(\ALPHABET V\)</span> is a subset of <span class="math inline">\(\ALPHABET V\)</span> such that <span class="math inline">\(v, w \in \ALPHABET M\)</span> implies that <span class="math inline">\(α ⋅ v + β ⋅ w \in \ALPHABET M\)</span> for all <span class="math inline">\(α, β \in \reals\)</span>.</p>
+<p><span class="math inline">\(\ALPHABET M\)</span> is said to be a <strong>proper subspace</strong> if <span class="math inline">\(\ALPHABET M \neq \ALPHABET V\)</span>.</p>
+</section>
+<section id="pre-hilbert-space" class="level2" data-number="45.2">
+<h2 data-number="45.2" class="anchored" data-anchor-id="pre-hilbert-space"><span class="header-section-number">45.2</span> Pre-Hilbert space</h2>
+<p>A <strong>pre-Hilbert space over reals</strong> is a linear vector space <span class="math inline">\(\ALPHABET H\)</span> over reals which is equipped with an <em>inner product</em> function <span class="math inline">\(\IP{⋅}{⋅}\)</span> that satisfies the following conditions: for all <span class="math inline">\(x,y, z \in \ALPHABET H\)</span> and <span class="math inline">\(α, β \in \reals\)</span></p>
+<ol type="1">
+<li><span class="math inline">\(\IP{x}{y} = \IP{y}{x}\)</span></li>
+<li><span class="math inline">\(\IP{x}{x} \ge 0\)</span> and <span class="math inline">\(\IP{x}{x} = 0\)</span> if and only if <span class="math inline">\(x = 0\)</span></li>
+<li><span class="math inline">\(\IP{α ⋅ x + β ⋅ y}{z} = α \IP{x}{z} + β \IP{y}{z}\)</span>.</li>
+</ol>
+<p>The <strong>norm</strong> of a pre-Hilbert space is a function <span class="math inline">\(\NORM{⋅} \colon \ALPHABET H \to \reals_{\ge 0}\)</span> defined by <span class="math display">\[
+  \NORM{x} = \sqrt{\IP{x}{x}}.
 \]</span></p>
-<p>Recall that this is the effective cost for <a href="../risk-sensitive/risk-sensitive-utility.html">an exponential disutility function</a>. Note that <span class="math inline">\(J_θ(g) = \exp(θ \bar J(g))\)</span> may be viewed as a multiplicative cost. Based on the argument for <a href="../mdps/intro.html#multiplicative-cost">multiplicative cost</a>, we can write the dynamic program for <span class="math inline">\(J_θ(g)\)</span> as follows.</p>
+<p>It can be shown that the norm satisfies the following properties: for any <span class="math inline">\(x, y \in \ALPHABET H\)</span>, we have</p>
+<ol type="1">
+<li><p><strong>The Cauchy-Schwarz inequality:</strong> <span class="math display">\[\ABS{\IP{x}{y}} \le \NORM{x} ⋅ \NORM{y}.\]</span></p></li>
+<li><p><strong>The triangle inequality:</strong> <span class="math display">\[\NORM{x + y} \le \NORM{x} + \NORM{y}.\]</span></p></li>
+<li><p><strong>The parallelogram equality:</strong> <span class="math display">\[\NORM{x + y}^2 + \NORM{x - y}^2 = 2 \NORM{x}^2 + 2 \NORM{y}^2. \]</span></p></li>
+</ol>
+</section>
+<section id="hilbert-space" class="level2" data-number="45.3">
+<h2 data-number="45.3" class="anchored" data-anchor-id="hilbert-space"><span class="header-section-number">45.3</span> Hilbert space</h2>
+<ul>
+<li><p>Define a <strong>distance function</strong> <span class="math inline">\(d \colon \ALPHABET H × \ALPHABET H \to \reals\)</span> to be <span class="math inline">\(d(x,y) = \NORM{x - y}\)</span>. It is easy to verify that <span class="math inline">\(d(⋅,⋅)\)</span> satisfies:</p>
+<ul>
+<li><span class="math inline">\(d(x,y) = d(y,x)\)</span></li>
+<li><span class="math inline">\(d(x,y) = 0\)</span> if and only if <span class="math inline">\(x = y\)</span></li>
+<li><span class="math inline">\(d(x,z) \le d(x,y) + d(y,z)\)</span>.</li>
+</ul>
+<p>Thus, <span class="math inline">\(d\)</span> is a metric and, therefore <span class="math inline">\((\ALPHABET H, d)\)</span> is a metric space.</p></li>
+<li><p>It can be shown that the inner product is a continuous function from <span class="math inline">\(\ALPHABET H × \ALPHABET H\)</span> into <span class="math inline">\(\reals\)</span>, i.e., if <span class="math inline">\(x_n \to x\)</span> and <span class="math inline">\(y_n \to y\)</span> as <span class="math inline">\(n \to ∞\)</span> (in the metric topology on <span class="math inline">\(\ALPHABET H\)</span>), then <span class="math inline">\(\IP{x_n}{y_n} \to \IP{x}{y}\)</span> (in the Eucledian topology on <span class="math inline">\(\reals\)</span>).</p></li>
+<li><p>Consequently, if <span class="math inline">\(x_n \to x\)</span> then <span class="math inline">\(\NORM{x_n} \to \NORM{x}\)</span> as <span class="math inline">\(N \to ∞\)</span>.</p></li>
+<li><p>A sequence <span class="math inline">\(\{x_n\}_{n \ge 1}\)</span> in a metric space is called a <strong>Cauchy sequence</strong> if for every <span class="math inline">\(ε &gt; 0\)</span>, there exists an <span class="math inline">\(N\)</span> such that <span class="math display">\[
+    d(x_n, x_m) &lt; ε, \quad \forall n, m \ge N.
+\]</span></p></li>
+<li><p>A pre-Hilbert space <span class="math inline">\(\ALPHABET H\)</span> is said to be <strong>complete</strong> if for every Cauchy sequence <span class="math inline">\(\{x_n\}_{n \ge 1}\)</span>, <span class="math inline">\(x_n \in \ALPHABET H\)</span>, there exists an <span class="math inline">\(x \in \ALPHABET H\)</span> such that <span class="math inline">\(x_n \to x\)</span> as <span class="math inline">\(n \to ∞\)</span>.</p></li>
+<li><p>A <strong>Hilbert space</strong> is a pre-Hilbert space <span class="math inline">\(\ALPHABET H\)</span> that is complete with respect to the metric <span class="math inline">\(d(x,y) = \NORM{x - y}\)</span>, <span class="math inline">\(x, y \in \ALPHABET H\)</span>.</p></li>
+</ul>
+</section>
+<section id="examples-of-hilbert-space" class="level2" data-number="45.4">
+<h2 data-number="45.4" class="anchored" data-anchor-id="examples-of-hilbert-space"><span class="header-section-number">45.4</span> Examples of Hilbert space</h2>
+<ol type="1">
+<li><p>The space <span class="math inline">\(\reals^n\)</span> is a finite-dimensional Hilbert space with the usual inner product <span class="math display">\[ \IP{x}{y} = \TR(x y^\TRANS) = \sum_{i=1}^n x_i y_i. \]</span> The completeness follows from the completeness of each of the coordinate spaces and the fact that inner product is a continuous function.</p></li>
+<li><p>Any finite-dimensional pre-Hilbert space <span class="math inline">\(\ALPHABET H\)</span> is complete. This can be shown by constructing a <em>linear isometry</em> from <span class="math inline">\(\ALPHABET H\)</span> to <span class="math inline">\(\reals^n\)</span> using Gram-Schmidt orthogonalization.</p></li>
+<li><p>The space of continuous functions on <span class="math inline">\([0,1]\)</span>, denoted by <span class="math inline">\(C[0,1]\)</span>, may be made into a pre-Hilbert space by defining <span class="math display">\[
+   \IP{f}{g} = \int_{0}^1 f(t) g(t) dt.
+\]</span> This space <strong>is not</strong> complete.</p></li>
+<li><p>The space of measurable functions on <span class="math inline">\([0,1]\)</span> with finite second moment (i.e., <span class="math inline">\(\int_{0}^1 (f(t))^2 dt &lt; ∞\)</span>), denoted by <span class="math inline">\(L^2([0,1])\)</span>, can also be made into a pre-Hilbert space by defining <span class="math display">\[
+   \IP{f}{g} = \int_{0}^1 f(t) g(t) dt.
+\]</span> This space <strong>is</strong> complete and hence a Hilbert space.</p></li>
+</ol>
+</section>
+<section id="orthogonal-projection-theorem" class="level2" data-number="45.5">
+<h2 data-number="45.5" class="anchored" data-anchor-id="orthogonal-projection-theorem"><span class="header-section-number">45.5</span> Orthogonal Projection Theorem</h2>
+<p>In Eucledian spaces, the shortest path from a point to a plane is along the perpendicular from the point to the plane. This is sometimes called the projection theorem. The main result in the geometry of Hilbert spaces is a generalization of this result called the <em>Orthogonal projection theorem</em>. We start with some notation before describing the result.</p>
+<p>Let <span class="math inline">\(\ALPHABET H\)</span> be a Hilbert space</p>
+<ol type="1">
+<li><p>Two vectors <span class="math inline">\(x, y \in \ALPHABET H\)</span> are said to be <strong>orthogonal</strong> (denoted by <span class="math inline">\(x \perp y\)</span>) if <span class="math inline">\(\IP{x}{y} = 0\)</span>.</p></li>
+<li><p>Given a subset <span class="math inline">\(\ALPHABET S\)</span> of <span class="math inline">\(\ALPHABET H\)</span> and a vector <span class="math inline">\(x \in \ALPHABET H\)</span>, we write <span class="math inline">\(x \perp \ALPHABET S\)</span> if <span class="math inline">\(x \perp s\)</span> for all <span class="math inline">\(s \in \ALPHABET S\)</span>.</p></li>
+<li><p>Given two subsets <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET T\)</span> of <span class="math inline">\(\ALPHABET H\)</span>, we write <span class="math inline">\(\ALPHABET S \perp \ALPHABET T\)</span> if all elements of <span class="math inline">\(\ALPHABET S\)</span> are orthogonal to all elements of <span class="math inline">\(\ALPHABET T\)</span>.</p></li>
+<li><p>Suppose there exist subspaces <span class="math inline">\(\ALPHABET A\)</span> and <span class="math inline">\(\ALPHABET B\)</span> of <span class="math inline">\(\ALPHABET H\)</span> such that <span class="math inline">\(\ALPHABET H = \ALPHABET A + \ALPHABET B\)</span>, that is, for each <span class="math inline">\(x \in \ALPHABET H\)</span> there exists a <span class="math inline">\(a \in \ALPHABET A\)</span> and <span class="math inline">\(b \in \ALPHABET B\)</span> such that <span class="math inline">\(x = a + b\)</span>. If <span class="math inline">\(\ALPHABET A \perp \ALPHABET B\)</span>, then we write <span class="math inline">\(\ALPHABET H = \ALPHABET A \oplus \ALPHABET B\)</span> and say <span class="math inline">\(\ALPHABET H\)</span> is the <strong>direct sum</strong> of <span class="math inline">\(\ALPHABET A\)</span> and <span class="math inline">\(\ALPHABET B\)</span>.</p></li>
+</ol>
+<div id="thm-orthogonal-projection" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 45.1 (The Orthogonal Projection Theorem)</strong></span> Let <span class="math inline">\(\ALPHABET M\)</span> be a proper subspace of a Hilbert space <span class="math inline">\(\ALPHABET H\)</span> and <span class="math inline">\(x\)</span> be a point of <span class="math inline">\(\ALPHABET H\)</span>. Then <span class="math inline">\(x\)</span> can be uniquely represented in the form <span class="math display">\[
+  x = y + z
+\]</span> where <span class="math inline">\(y \in \ALPHABET M\)</span> and <span class="math inline">\(z \perp \ALPHABET M\)</span>. Furthermore, for all <span class="math inline">\(w \in \ALPHABET M\)</span>, we have <span class="math display">\[
+  \NORM{x - w} \ge \NORM{x - y}
+\]</span> with equality if and only if <span class="math inline">\(w = y\)</span>.</p>
+<p>This unique element <span class="math inline">\(y\)</span> is called the <strong>orthogonal projection</strong> of <span class="math inline">\(x\)</span> onto <span class="math inline">\(\ALPHABET M\)</span>.</p>
+</div>
+<p>Note that if <span class="math inline">\(\ALPHABET M\)</span> is not a proper subspace of <span class="math inline">\(\ALPHABET H\)</span>, we can simply take <span class="math inline">\(z = 0\)</span>.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Dynamic program
+Interpretation of the orthogonal projection theorem
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Initialize <span class="math inline">\(V_{T+1}(x) = 1\)</span> and recursively compute</p>
-<p><span class="math display">\[ \begin{align}
-    Q_t(x,u) &amp;= \exp(θ c(x,u)) \sum_{y \in \ALPHABET X} P_{xy}(u) V_{t+1}(y),
-    \label{eq:DP-1}\\
-    V_t(x) &amp;= \min_{u \in \ALPHABET X} Q_t(x,u).
-    \label{eq:DP-2}
-    \end{align} \]</span></p>
-<p>Or, equivalently, working with the effective cost value function:</p>
-<p><span class="math display">\[ \begin{align}
-    Q_t(x,u) &amp;= \exp(θ c(x,u)) \sum_{y \in \ALPHABET X} P_{xy}(u)
-    \exp(θ \bar V_{t+1}(y)),
-    \\
-    \bar V_t(x) &amp;= \frac{1}{θ} \log \bigl( \min_{u \in \ALPHABET X} Q_t(x,u) \bigr).
-    \end{align} \]</span></p>
+<p><a href="#thm-orthogonal-projection" class="quarto-xref">Theorem&nbsp;<span>45.1</span></a> shows that the orthogonal projection of <span class="math inline">\(x\)</span> only <span class="math inline">\(\ALPHABET M\)</span> is equal to <span class="math display">\[
+  \arg \min_{w \in \ALPHABET M} \NORM{x - w}.
+\]</span> Thus, it is a generalization of the projection theorem of Eucledian spaces.</p>
 </div>
 </div>
-<p>The dynamic program of \eqref{eq:DP-1}–\eqref{eq:DP-2} can be made to resemble the standard dynamic program by defining the <em>disutility matrix</em> <span class="math display">\[
-    D_{xy}(u) = \exp(θ c(x,u)) P_{xy}(u).
-\]</span> Note that the elements of <span class="math inline">\(D\)</span> are non-negative. The expression \eqref{eq:DP-1} can then be written in “standard” form: <span class="math display">\[
-  Q_{t+1}(x) = \sum_{y \in \ALPHABET X} D_{xy}(u) V_{t+1}(y).
-\]</span></p>
-</section>
-<section id="infinite-horizon-average-cost-setup" class="level2" data-number="27.2">
-<h2 data-number="27.2" class="anchored" data-anchor-id="infinite-horizon-average-cost-setup"><span class="header-section-number">27.2</span> Infinite horizon average cost setup</h2>
-<p>The objective for infinite-horizon average cost setup is to minimize: <span class="math display">\[
-  J^* = \inf_{g} \limsup_{T \to ∞}
-  \frac{1}{θT} \EXP \Bigl[ \exp\Bigl(
-  θ \sum_{t=1}^T c(X_t, U_t)
-  \Bigr) \Bigr].
-\]</span></p>
-<p>When the matrix <span class="math inline">\(P(u)\)</span> is irreducible and aperiodic for each <span class="math inline">\(u\)</span>, the dynamic program for average cost MDP can be written as follows:</p>
-<div id="thm-risk-sensitive-avg" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 27.1</strong></span> Suppose there exist constant <span class="math inline">\(J\)</span> and a bounded function <span class="math inline">\(v \colon \ALPHABET
-X \to \reals\)</span> such that <span class="math display">\[ \begin{equation} \label{eq:avg}
-  \exp(θ (J + v(x))) =
-  \min_{u \in \ALPHABET U}
-   \sum_{y \in \ALPHABET X} P_{xy}(u) \exp( θ( c(x, u) + v(y)))
-\end{equation} \]</span> Furthermore, let <span class="math inline">\(g^* \colon \ALPHABET X \to \ALPHABET U\)</span> denote the policy that achieves the arg min in the right hand side. Then, <span class="math inline">\(J\)</span> is the optimal performance and the time-homogeneous policy <span class="math inline">\(g^*\)</span> achieves that performance.</p>
-</div>
-<p>The dynamic program of \eqref{eq:avg} can be written in an alternative form using a Legendre-type transformation and the duality relationship between relative entropy function and the logarithmic moment generating function.</p>
-<p>Let <span class="math inline">\(Δ(\ALPHABET X)\)</span> denote the set of probability vectors on <span class="math inline">\(\ALPHABET X\)</span>. Then, for any <span class="math inline">\(ν \in Δ(\ALPHABET X)\)</span>, the relative entropy <span class="math inline">\(I(\cdot \| ν)
-\colon Δ(\ALPHABET X) \to \reals \cup \{+∞\}\)</span> is by given by <span class="math display">\[
-  I(μ \| ν) = \begin{cases}
-    \sum_{x \in \ALPHABET X} \log(λ(x)) μ(x),
-    &amp; \text{if } μ \ll ν, \\
-    +∞, &amp; \text{otherwise}.
-  \end{cases} \]</span> where <span class="math display">\[ λ(x) = \begin{cases}
-  \frac{μ(x)}{ν(x)}, &amp; \text{if } ν(x) \neq 0, \\
-  1, &amp; \text{otherwise}.
-\end{cases}\]</span></p>
-<div id="lem-legendre-mutual-info" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 27.1</strong></span> Let <span class="math inline">\(w \colon \ALPHABET X \to \reals\)</span> be a bounded function and <span class="math inline">\(ν \in
-Δ(\ALPHABET X)\)</span>. Then, <span class="math display">\[
-  \log \sum_{x \in \ALPHABET X} ν(x) \exp( θw(x)) =
-  \inf_{μ \in Δ(\ALPHABET X)} \Bigl\{
-     \sum_{x \in \ALPHABET X}  μ(x) w(x) +
-    \frac{1}{θ} I(μ \| ν)
-  \Bigr\},
-\]</span> where the infimum is attained at the unique probability measure <span class="math inline">\(μ^*\)</span> given by <span class="math display">\[
-  μ^*(x) = \frac{e^{θw(x)}}{\sum_{x \in \ALPHABET X} e^{θw(x)}ν(x)} ν(x).
-\]</span></p>
-</div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Remark
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Such a dual-representation is a fundamental property of all coherent risk measures and not just the entropic risk measure that we are working with here. See, for example, <span class="citation" data-cites="Follmer2010">Föllmer and Schied (<a href="../references.html#ref-Follmer2010" role="doc-biblioref">2010</a>)</span>.</p>
-</div>
-</div>
-<p>Using <a href="#lem-legendre-mutual-info" class="quarto-xref">Lemma&nbsp;<span>27.1</span></a>, the dynamic program of \eqref{eq:avg} can be written as <span class="math display">\[ \begin{equation}
-  J + v(x) = \min_{u \in \ALPHABET U} \inf_{μ \in Δ(\ALPHABET X)}
-  \Bigl\{
-    c(x,u) + \sum_{y \in \ALPHABET X} μ(y) v(y) + \frac{1}{θ}
-    I(μ \| P(\cdot | x, u) )
-  \Bigr\}.
-\end{equation} \]</span> This equation corresponds to the Issacs equation associated with a stochastic dynamic game with average cost-per unit time criterion.</p>
-</section>
-<section id="infinite-horizon-discounted-cost-setup" class="level2" data-number="27.3">
-<h2 data-number="27.3" class="anchored" data-anchor-id="infinite-horizon-discounted-cost-setup"><span class="header-section-number">27.3</span> Infinite horizon discounted cost setup</h2>
-<p><span class="citation" data-cites="Whittle2002">Whittle (<a href="../references.html#ref-Whittle2002" role="doc-biblioref">2002</a>)</span> has a discussion on why discounted cost setup for risk-sensitive MDP is tricky and the solution depends on the interpretation of discounting.</p>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>The basic risk-sensitive MDP was first considered in <span class="citation" data-cites="Howard1972">Howard and Matheson (<a href="../references.html#ref-Howard1972" role="doc-biblioref">1972</a>)</span>. See <span class="citation" data-cites="Howard1972">Howard and Matheson (<a href="../references.html#ref-Howard1972" role="doc-biblioref">1972</a>)</span> for a policy iteration algorithm. It is also mentioned that a version of this result is presented in Bellman’s book. See <span class="citation" data-cites="HernandezHernandez1996">Hernandez-Hernández and Marcus (<a href="../references.html#ref-HernandezHernandez1996" role="doc-biblioref">1996</a>)</span> and <span class="citation" data-cites="HernandezHernandez1999">Hernández-Hernández (<a href="../references.html#ref-HernandezHernandez1999" role="doc-biblioref">1999</a>)</span> for a detailed treatment of the average cost case.</p>
-<hr>
+<p>The material presented in this section is standard. The order of presentation and the examples are adapted from <span class="citation" data-cites="Caines2018">Caines (<a href="../references.html#ref-Caines2018" role="doc-biblioref">2018</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
-<div id="ref-Follmer2010" class="csl-entry" role="listitem">
-<span class="smallcaps">Föllmer, H. and Schied, A.</span> 2010. Convex risk measures. In: <em>Encyclopedia of quantitative finance</em>. American Cancer Society. DOI: <a href="https://doi.org/10.1002/9780470061602.eqf15003">10.1002/9780470061602.eqf15003</a>.
-</div>
-<div id="ref-HernandezHernandez1996" class="csl-entry" role="listitem">
-<span class="smallcaps">Hernandez-Hernández, D. and Marcus, S.I.</span> 1996. Risk sensitive control of markov processes in countable state space. <em>Systems <span>&amp;</span> Control Letters</em> <em>29</em>, 3, 147–155. DOI: <a href="https://doi.org/10.1016/s0167-6911(96)00051-5">10.1016/s0167-6911(96)00051-5</a>.
-</div>
-<div id="ref-HernandezHernandez1999" class="csl-entry" role="listitem">
-<span class="smallcaps">Hernández-Hernández, D.</span> 1999. Existence of risk-sensitive optimal stationary policies for controlled markov processes. <em>Applied Mathematics and Optimization</em> <em>40</em>, 3, 273–285. DOI: <a href="https://doi.org/10.1007/s002459900126">10.1007/s002459900126</a>.
-</div>
-<div id="ref-Howard1972" class="csl-entry" role="listitem">
-<span class="smallcaps">Howard, R.A. and Matheson, J.E.</span> 1972. Risk-sensitive markov decision processes. <em>Management Science</em> <em>18</em>, 7, 356–369. DOI: <a href="https://doi.org/10.1287/mnsc.18.7.356">10.1287/mnsc.18.7.356</a>.
-</div>
-<div id="ref-Whittle2002" class="csl-entry" role="listitem">
-<span class="smallcaps">Whittle, P.</span> 2002. Risk sensitivity, <span>A</span> strangely pervasive concept. <em>Macroeconomic Dynamics</em> <em>6</em>, 1, 5–18. DOI: <a href="https://doi.org/10.1017/s1365100502027025">10.1017/s1365100502027025</a>.
+<div id="ref-Caines2018" class="csl-entry" role="listitem">
+<span class="smallcaps">Caines, P.E.</span> 2018. <em>Linear stochastic systems</em>. SIAM, Philadelphia, PA. DOI: <a href="https://doi.org/10.1137/1.9781611974713">10.1137/1.9781611974713</a>.
 </div>
 </div>
 </section>
@@ -1439,13 +1420,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../risk-sensitive/risk-sensitive-utility.html" class="pagination-link" aria-label="Risk Sensitive Utility">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Risk Sensitive Utility</span></span>
+      <a href="../linear-algebra/svd.html" class="pagination-link" aria-label="Singular value decomposition">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Singular value decomposition</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../linear-systems/lqr.html" class="pagination-link" aria-label="Linear quadratic regulation">
-        <span class="nav-page-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Linear quadratic regulation</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../linear-algebra/rkhs.html" class="pagination-link" aria-label="Reproducing Kernel Hilbert Space">
+        <span class="nav-page-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Reproducing Kernel Hilbert Space</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1454,5 +1435,5 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/risk-sensitive/risk-sensitive-mdps.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/linear-algebra/vector-and-hilbert-spaces.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
