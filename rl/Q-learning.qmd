@@ -1,0 +1,209 @@
+---
+title: "Q-Learning"
+keywords:
+  - reinforcement learning
+  - stochastic approximation
+  - Q-learning
+---
+
+In this section, we consider the simplest algorithm for reinforcement learning. For consistency with the literature, we will consider the problem of maximizing rewards rather than minizing cost. We also assume that the reward depends on the current state, current action, and the next state. As explained in @sec-cost-depending-on-next-state, assuming that the reward/cost that depends on the next state does not impact the planning problem. It doesn't have any conceptual impact on the learning problem either, but we use this modeling framework just to be consistent with the literature.
+
+Suppose there is an MDP $\ALPHABET M = (\ALPHABET S, \ALPHABET A, P, r, γ)$, where the transition matrix $P$ and the reward $r$ are unknown to the decision maker. But the decision maker or the agent can interact with the environment, i.e., it can observe the state, take actions, and observe the rewards. How does such an agent find an optimal policy. 
+
+In this section, we start with the simplest such algorithm: Q-learning, which might be thought of as a [stochastic approximation] version of [value iteration]. In value iteration, we start with an arbitrary initial $V_0$ and then recursively compute $V_{k+1} = \BELLMAN V_k$ and show that $V_k \to V^*$, which is the unique fixed point of $\BELLMAN$.
+
+Observe that value iteration can be written in terms of action-value functions instead of value functions as well: start with an arbitrary initial $Q_0$ and recursively compute 
+$$
+  Q_{k+1}(s,a) = \sum_{s' \in \ALPHABET S}
+  P(s'|s,a) \bigl[ r(s,a,s') + γ \max_{a' \in \ALPHABET A} Q_k(s',a') \bigr],
+  \quad \forall s \in \ALPHABET S, a \in \ALPHABET A.
+$$
+
+[stochastic approximation]: stochastic-approximation.qmd
+[value iteration]: ../mdps/mdp-algorithms.qmd#value-iteration-algorithm
+
+For the ease of notation, we write this step as $Q_{k+1} = \bar{\BELLMAN} Q_k$. A simple argument shows that $\bar \BELLMAN$ is a contraction and $Q^*$ is its unique fixed point. Therefore $Q_k \to Q^*$.
+
+This step requires the knowledge of reward function and the transition dynamics. When they are unknown, we can replace the expectation in the update of $Q_{k}$ by an unbiased sample. That's the main idea of Q-learning.
+
+
+
+## Asyncronous Q-learning algorithm
+
+The simplest version (to implement, not to analyze) of Q-learning is as follows. Suppose we have access to a system simulator $Ψ$. We will
+use the notation $(S_{+},R_{+}) \sim \Psi(s,a)$ to denote the next state sampled using the simulator with the current input $s$ and $a$. 
+
+We assume that there is a behavioral policy (also called an exploration policy) $π_{\text{expl}} \colon \ALPHABET S \to Δ(\ALPHABET A)$ and the agent acts in the environment (i.e, runs the simulator) by following the policy $π_{\text{expl}}$. This means that at each time, the agent takes action $A_t \sim π_{\text{expl}}(S_t)$ and then observes the reward and next state $(R_t, S_{t+1}) \sim Ψ(S_t,A_t)$. Note that $R_t = r(S_t,A_t, S_{t+1})$. The resulting _experience_ is denoted by $(S_1,A_1,R_1,S_2,A_2,R_2,\dots)$. 
+
+The simplest version of Q-learning is as follows:
+\begin{equation}\label{eq:simple-QL}
+  Q_{t+1}(s,a) = 
+  Q_t(s,a) + α_t(s,a)\bigl[ R_{t+1} + γ \max_{a' \in \ALPHABET A} Q_t(S_{t+1}, a') - Q_t(s,a) \bigr],
+  \quad \forall (s,a) \in \ALPHABET S × \ALPHABET A,
+\end{equation}
+
+We impose the following assumptions:
+
+**A0.** For all $(s,a)$, the learning rates $\{α_t(s,a)\}_{t \ge 1}$ are measurable with respect to the natural filtration of $(S_{1:t}, A_{1:t-1})$ and satisfy $\alpha_t(s,a) = 0$ if $(S_t, A_t) \neq (s,a)$. This ensures that the Q-value of only the sampled states changes; all other Q-values remain frozen.
+
+**A1.** The learing rates satisfy the Robbins-Monro [@Robbins1951] condition, i.e., for all $(s,a)$, 
+$$
+  \sum_{t=1}^{∞} α_t(s,a) = ∞, \space a.s., 
+  \quad
+  \sum_{t=1}^{∞} α^2_t(s,a) < ∞, \space a.s., 
+$$
+
+
+**A2.** The exploration policy $π_{\text{expl}}$ is such that the Markov chain $\{S_t,A_t\}_{t \ge 1}$ has a steady state distribution $ξ$. Moreover for each $(s,a) \in \ALPHABET S × \ALPHABET A$, $ξ(s,a) > 0$. Thus, each state-action pair is visited infinitely often.
+
+:::{#thm-QL-convergence}
+  Under assumptions (A1) and (A2), the Q learning iterates $\{Q_t\}_{t \ge 1}$ converge to $Q^*$ almost surely.
+:::
+
+:::{.callout-warning}
+### Remark
+It is implicitly assumed in @thm-QL-convergence that the state and action spaces are finite. 
+:::
+
+The main idea of the proof is as follows. Define an error function $Δ_t = Q_{t} - Q^*$. Observe that since $Q^*$ is the fixed point of $\bar \BELLMAN$, we can write
+\begin{align*}
+  Q^*(s,a) &= (1 - α_t(s,a)) Q^*(s,a) + α_t(s,a) Q^*(s,a) \\
+  &= (1 - α_t(s,a)) Q^*(s,a) + 
+  α_t(s,a) \biggl[ \sum_{s' \in \ALPHABET S} P(s'|s,a) \bigl[ r(s,a,s') + γ \max_{a' \in \ALPHABET A} Q^*(s',a') \bigr] \biggr]
+\end{align*}
+
+Thus, we can write
+\begin{align}
+ Δ_{t+1}(s,a) &= Q_{t+1}(s,a) - Q^*(s,a) \notag \\
+&= (1 - α_t(s,a)) Δ_t(s,a) + α_t(s,a) \bigl[ U^0_t(s,a) + U^1_t(s,a) \bigr], \label{eq:Q-Δ}
+\end{align}
+where
+\begin{align*}
+  U^0_t(s,a) &= \biggl[ r(S_t, A_t, S_{t+1}) + \textcolor{blue}{γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a')} \\
+  & \quad - \sum_{s' \in \ALPHABET S} P(s'|s,a) 
+    \Bigl[ r(s,a,s') + γ\max_{a' \in \ALPHABET A} Q^*(s',a') \Bigr] \biggr] \IND\{S_t = s, A_t = a \}, \\
+  U^2_t(s,a) &=  γ \max_{a' \in \ALPHABET A} Q_{t+1}(S_{t+1}, a') - \textcolor{blue}{γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a')},
+\end{align*}
+where we have added and subtracted the term in blue.
+Note that the additional indicator function $\IND\{S_t =s, A_t = a\}$ in $U^0_t$ does not change the value of the iteration for $\Delta_{t+1}$ because of (A0).
+
+The main idea is that we can view \eqref{eq:Q-Δ} as a linear system with state $Δ_t$ and two inputs $U^0_t$ and $U^1_t$. Using linearity, we can split the state into two components: $Δ_{t+1} = X^0_{t+1} + X^1_{t+1}$, where the components evolve as follows:
+\begin{equation}\label{eq:X-iteration}
+  X^i_{t+1}(s,a) = (1 - α_t(s,a)) X^i_t(s,a) + α_t(s,a) U^i_t(s,a), 
+  \quad i \in \{0, 1\}.
+\end{equation}
+
+We will now separately show that $\NORM{X^0_t} \to 0$ and $\NORM{X^1_t} \to 0$, where $\NORM{⋅}$ denotes the sup-norm. Then, by triangle inequality, we have that $\NORM{Δ_t} \to 0$, which establishes that $Q_t \to Q^*$. 
+
+### Convergence of component $X^0_t$
+
+For the ease of notation, let $\ALPHABET F_t$ denote the sigma-algebra generated by $(S_{1:t}, A_{1:t-1})$. Then, observe that for any $(s,a)$,
+$$
+\EXP\Bigl[ r(S_{t+1}, A_{t+1}, S_{t+1}) + γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a') \Bigm| \ALPHABET F_t \Bigr] = Q^*(s,a).
+$$
+Thus,
+$$ \EXP[ U^0_t(s,a) | \ALPHABET F_t ] = 0. $$
+
+Thus, $\{U^0_t\}_{t \ge 1}$ is a martingale difference sequence. Therefore, the sequence $\{X^0_t\}_{t \ge 1}$ converges almost surely to $0$ (see @exr-recursive-averaging). Thus, $\NORM{X^0_t} \to 0$.
+
+### Convergence of component $X^1_t$
+
+Observe that for any $(s,a) \in \ALPHABET S × \ALPHABET A$,  
+\begin{align}
+  U^1_t(s,a) &=  γ \max_{a' \in \ALPHABET A} Q_{t+1}(S_{t+1}, a')
+  - γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a')
+  \notag \\
+  &\le γ \NORM{Q_{t+1} - Q^*} 
+  = γ \NORM{Δ_t} 
+  \notag \\
+  &\le  γ \NORM{X^0_t} + γ \NORM{X^1_t}
+  \label{eq:U-bound-0}
+\end{align}
+
+Arbitrarily fix $ε > 0$. Since $\NORM{X^0_t} \to 0$, there exists a set $Ω^1$ of measure one such that for all $ω \in Ω^1$, there exists a $T(ω,ε)$ such that for all $t > T(ω, ε)$ and all $(s,a) \in \ALPHABET S × \ALPHABET A$, we have
+$$
+  X^0_t(s,a) < ε.
+$$
+
+Now pick a constant $C$ such that 
+$$
+  κ \coloneqq γ\left( 1 + \frac{1}{C} \right) < 1.
+$$
+
+Suppose for some $t > T(ω, ε)$, $\NORM{X^1_t} > C ε$. Then for all $(s,a) \in \ALPHABET S × \ALPHABET A$, 
+\begin{equation}\label{eq:U-bound}
+  U^1_t(s,a) \le γ ε + γ \NORM{X^1_t} \le γ \left( 1 + \frac{1}{C} \right) \NORM{X^1_t} = κ \NORM{X^1_t}.
+\end{equation}
+Hence, 
+$$
+  X^1_{t+1}(s,a) = (1 - α_t(s,a)) X^1_t(s,a) + α_t(s,a) U^1_t(s,a) 
+  < \NORM{X^1}.
+$$
+Thus, 
+$$
+  \NORM{X^1_{t+1}} < \NORM{X^1_t}.
+$$
+
+Hence, when $\NORM{X^1_t} > C ε$, it decreases monotonically with time. Thus, there are two possibilities:
+
+1. $\NORM{X^1_t}$ always remains above $C ε$; or
+2. it goes below $C ε$ at some stage. 
+
+We show via contradiction that $\NORM{X^1_t}$ cannot remain above $C ε$ forever. Suppose $\NORM{X^1_t}$ remains above $C ε$ forever. As argued earlier, this implies that for any $ω \in Ω_1$, $\NORM{X^1_t(ω)}$, $t > T(ω,ε)$, is a strictly decreasing sequence. So, it must be bounded from above. Let $B^{(0)}(ω) < ∞$ be such that $\NORM{X^1_t} \le B^{(0)}$ for all $t > T(ω,ε)$. Eq. \eqref{eq:U-bound} implies that $\NORM{U^1_t} \le κ B^{(0)}$. Then we have that 
+\begin{align*}
+  X^1_{t+1}(s,a) &\le (1 - α_t(s,a))\NORM{X^1_t(s,a)} + α_t(s,a)\NORM{U^1_t} \\
+  &< (1 - α_t(s,a))\NORM{X^1_t(s,a)} + α_t(s,a)κ B^{(0)} \\
+\end{align*}
+Define a sequence $M^{(0)}_t(s,a)$, $t > T(ω,ε)$ as follows: $M^{(0)}_{T(ω,ε)}(s,a) = X_{T(ω,ε)}(s,a)$ and for $t > T(ω,ε)$, 
+$$
+  M_{t+1}^{(0)}(s,a) = (1 - α_t(s,a)) M_t^{(0)}(s,a) + α_t(s,a) κ B^{(0)}.
+$$
+Then, we can show via induction that $\NORM{X^1_t} \le \NORM{M_{t+1}}$. Moreover, for all $(s,a)$, $M_t(s,a) \to κ B^{(0)}$, a.s. (see @exr-constant-averaging).
+
+Now pick a $\bar ε \in (0, (1-κ)C ε)$. Since $\NORM{M_{t+1}} \to κB^{(0)}$, there exists a $T^{(1)} = T^{(1)}(ω,ε,\bar ε)$ such that for all $t > T^{(1)}$, $\NORM{M^{(0)}_{t}} \le B^{(1)} \coloneqq κ B^{(0)} + \bar ε$. 
+
+Thus, for all $t > T^{(1)}$, we have by \eqref{eq:U-bound}
+$$
+  \NORM{U^1_t} \le κ \NORM{X^{1}_t} \le κ \NORM{M^{(0)}_t} 
+  \le κ B^{(1)}.
+$$
+So, by repeating the above argument, we can show that there exists a time $T^{(2)}$ such that for all $t > T^{(2)}$,
+$$
+  \NORM{X^1_t} \le B^{(2)} \coloneqq κ B^{(1)} + \bar ε
+  = κ^2 B^{(0)} + κ \bar ε + \bar ε.
+$$
+Continuing this way, we will get that 
+$$
+  \NORM{X^1_t} \le B^{(m)} 
+  = κ^m B^{(0)} + κ^{m-1} \bar ε + \cdots + \bar ε
+  = κ^m B^{(0)} + \bar ε \frac{(1 - κ^m)}{(1 - κ)}.
+$$
+Note that we have chosen $\bar ε$ such that $\bar ε/(1-κ) < C ε$. So, eventually $B^{(m)}$ must get below $C ε$ for some $m$, contracticting our assumption that $\NORM{X^1_t}$ remains above $C ε$ forever. 
+
+Thus, there must be some time $t > T(ω,ε)$ at which $\NORM{X^1_t} < C ε$. Thus, by \eqref{eq:U-bound-0}, we get
+$$
+  \NORM{U^1_t} \le γ \NORM{X^0_t} + γ \NORM{X^1_t}
+  \le γ ε + γ C ε = (1 + C)γ ε
+  < C ε
+$$
+where the last inequality follows from the choice of $C$ (such that $κ < 1$). 
+
+Therefore,
+$$
+X^1_{t+1}(s,a) \le (1 - α_t(s,a)) \NORM{X^1_t} + α_t(s,a)\NORM{U^1_t} 
+< C ε
+$$
+where the last inequality uses the fact that both $\NORM{U^1_t}$ and $\NORM{X^1_t}$ are below $C ε$. Hence,
+$$
+\NORM{X^1_{t+1}} < C ε.
+$$
+Hence, once $\NORM{X^1_t}$ goes below $C ε$, it stays below $C ε$. 
+
+Thus, we have shown that for an arbitrary $ε$, $\NORM{X^1_t} < C ε$ for all sufficiently large $t$. Thus, 
+$$
+  \lim_{t \to ∞} \NORM{X^1_t} = 0, \space \text{a.s.}
+$$
+
+## Notes {-}
+
+The Q-learning algorithm is orginally due to @Watkins1992. The proof here is adapted from @Jaakkola1994 where the precise argument for the convergence of $X^1_t$ is due to @Kara2022. 
