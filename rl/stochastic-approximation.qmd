@@ -245,7 +245,7 @@ The following is a restatement of the result of @Gladyshev1965.
 :::{#thm-Gladyshev}
 Suppose assumptions (F1'), (N1), and (N2) hold. In addition, the function $f(\cdot)$ is passive, i.e., for each $0 < ε < M < ∞$, 
 $$ \sup_{ε < \| θ - θ^*\|_2 < M} 
-  \langle θ - θ^*, f(θ) \rangle 
+  \IP{θ - θ^*}{f(θ)} 
  < 0$$
  and
  $$\|f(θ)\|_2 \le K \|θ - θ^*\|_2, \quad K < ∞.$$
@@ -267,7 +267,7 @@ From \\eqref{eq:SA}, we get
 \begin{align}
   \EXP[ \|θ_{t+1} - θ^*\|_2^2 \mid \mathcal F_t] 
    &\stackrel{(a)}= 
-  \|θ_t - θ^*\|_2^2 -2 α_t \langle θ_t - θ^*,  f(θ_t) \rangle 
+  \|θ_t - θ^*\|_2^2 -2 α_t \IP{θ_t - θ^*}{ f(θ_t)} 
   + α_t^2 \bigl[ \| f(θ_t) \|_2^2 + ξ^2 \bigr]
   \notag \\
   &\stackrel{(b)}\le
@@ -325,8 +325,6 @@ Then,
 
 ## Vidyasagar's result
 
-The following is a restatement of the result of @Vidyasagar2023.
-
 :::{.callout-tip}
 #### Function classes
 Consider a continuous function $f \colon \reals_{\ge 0} \to \reals_{\ge 0}$. 
@@ -354,6 +352,8 @@ Then, $f$ belongs to class $\ALPHABET B$.
 However, since $f(r) \to 0$ as $r \to ∞$, $f$ cannot be bounded below by any function of class $\ALPHABET K$. 
 :::
 
+The following is a restatement of the result of @Vidyasagar2023.
+
 :::{#thm-vidyasagar-1}
 Suppose assumptions (F1), (F2), (N1), and (N2) hold. In addition, suppose that there exists a twice differentiable Lyapunov function $V \colon \reals^d \to \reals_{\ge 0}$ that satisfies the following conditions:
 
@@ -370,7 +370,7 @@ Suppose assumptions (F1), (F2), (N1), and (N2) hold. In addition, suppose that t
   \end{equation}
 Then,
 
-1. If $\dot V(θ) \coloneqq \langle \GRAD V(θ), f(θ) \rangle \le 0$ for all $θ \in \reals^d$ and (R1) holds, then the iterates $\{θ_t\}_{t \ge 1}$ are bounded almost surely.
+1. If $\dot V(θ) \coloneqq \IP{\GRAD V(θ)}{f(θ)} \le 0$ for all $θ \in \reals^d$ and (R1) holds, then the iterates $\{θ_t\}_{t \ge 1}$ are bounded almost surely.
 
 2. If, in addition, (R2) holds and there exists a function $\phi \in \ALPHABET B$ such that
    \begin{equation}\label{eq:vidyasagar-cond-3}
@@ -435,28 +435,29 @@ It is worthwhile to compare the conditions of @thm-borkar-meyn and @thm-vidyasag
 :::
 
 :::{.callout-note collapse="true"} 
-#### Proof
+#### Proof of @thm-vidyasagar-1
+
 We first start by establishing a bound on $\EXP[V(θ_{t+1}) \mid \ALPHABET  F_t]$. To do so, observe that by Taylor series, we have
 $$
-  V(θ + η) = V(θ) + \langle \GRAD V(θ), η \rangle
-  + \frac 12 \langle η, \GRAD^2 V(θ + λη)η \rangle
+  V(θ + η) = V(θ) + \IP{\GRAD V(θ)}{η}
+  + \frac 12 \IP{η}{\GRAD^2 V(θ + λη)η}
 $$
 for some $λ \in [0,1]$. Since $\NORM{\GRAD^2 V(θ+λη)}_S \le 2M$, it follows that
 $$
-  V(θ + η) \le V(θ) + \langle \GRAD V(θ), η \rangle
+  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η}
   + M \NORM{η}_2^2.
 $$
 Now apply the above bound with $θ = θ_t$ and $η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}$. This gives
 \begin{align*}
 V(θ_{t+1}) &\le V(θ_t) 
-+ α_t \langle \GRAD V(θ_t), f(θ_t) \rangle
-+ α_t \langle \GRAD V(θ_t), ξ_{t+1} \rangle
++ α_t \IP{\GRAD V(θ_t)}{f(θ_t)}
++ α_t \IP{\GRAD V(θ_t)}{ξ_{t+1}}
   \notag \\
 &\quad  + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 + 
-2 \langle f(θ_t), ξ_{t+1} \rangle
+2 \IP{f(θ_t)}{ξ_{t+1}}
 \bigr] 
 \end{align*}
-Recall that $\langle V(θ), f(θ) \rangle \eqqcolon \dot V(θ)$. 
+Recall that $\IP{V(θ)}{f(θ)} \eqqcolon \dot V(θ)$. 
 Now, we can bound $\EXP[V(θ_{t+1}) \mid \ALPHABET F_t]$ using assumptions (N1) and (N2). 
 \begin{equation*}
 \EXP[V(θ_{t+1}) \mid \ALPHABET F_t] \le V(θ_t) 
@@ -475,7 +476,7 @@ Substituting in the above bound, we get:
 + α_t^2 M \bigl[ σ^2 + (σ^2 + L^2)\NORM{θ_t - θ^*}_2^2 \bigr].
 \end{equation}
 
-### Proof of part 1. {-}
+#### Proof of part 1. {-}
 
 Under the stated assumptions, we can simplify \\eqref{eq:vidyasagar-1-pf-step-1}
 \begin{align*}
@@ -494,7 +495,7 @@ $(b)$ follows from $V(θ) \ge a \NORM{θ - θ^*}_2^2$.
 
 Thus, $\{V(θ_t)\}_{t \ge 1}$ is an "almost" supermartingale. Apply @thm-almost-supermartingale with $X_t = V(θ_t)$, $β_t = α_t^2 M(L^2 + σ^2)/a$, $Y_t = α_t^2 M σ^2$, and $Z_t = 0$. Then, from (R1) it follows that $\lim_{t \to ∞} V(θ_t)$ exists almost surely and is finite. Condition \\eqref{eq:vidyasagar-cond-1} implies that $\{θ_t\}_{t \ge 1}$ is almost surely bounded. 
 
-### Proof of part 2. {-}
+#### Proof of part 2. {-}
 
 Under the stated assumptions, we can simplify \\eqref{eq:vidyasagar-1-pf-step-1}
 \begin{align*}
@@ -546,28 +547,28 @@ Note that the above is a relaxation of \eqref{eq:vidyasagar-cond-2} (since bound
 
 The reason that we can make this change is that in the proof of @thm-vidyasagar-1, \eqref{eq:vidyasagar-cond-2} is used to establish that 
 $$
-  V(θ + η) \le V(θ) + \langle \GRAD V(θ), η \rangle + M \NORM{η}^2_2.
+  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + M \NORM{η}^2_2.
 $$
 
 We now show that the same implication follows from \eqref{eq:vidyasagar-cond-2-alt}. Let $θ, η \in \reals^d$ and $λ$ be a scalar parameter. Define $W(λ) = V(θ + λ η)$. Then, by chain rule, we have 
 $$
-  \left(\frac{d g}{d λ}\right)(λ) = \langle η, \GRAD V(θ + λ η) \rangle.
+  \left(\frac{d g}{d λ}\right)(λ) = \IP{η}{\GRAD V(θ + λ η)}.
 $$
 Therefore, we have
 \begin{align*}
   V(θ + η) - V(θ) &= W(1) - W(0) 
   = \int_{0}^1 \left(\frac{d g}{d λ}\right)(λ) d λ \\
-  &= \int_{0}^{1} \langle η, \GRAD V(θ + λ η) \rangle d λ \\
-  &\le \int_{0}^{1} \langle η, \GRAD V(θ) \rangle d λ 
-  + \biggl| \int_{0}^{1} \langle η, \GRAD V(θ + λ η) - \GRAD V(θ) \rangle d λ \biggr| \\
+  &= \int_{0}^{1} \IP{η}{\GRAD V(θ + λ η)} d λ \\
+  &\le \int_{0}^{1} \IP{η}{\GRAD V(θ)} d λ 
+  + \biggl| \int_{0}^{1} \IP{η}{\GRAD V(θ + λ η) - \GRAD V(θ)} d λ \biggr| \\
   &\stackrel{(a)}\le 
-   \langle η, \GRAD V(θ) \rangle 
+   \IP{η}{\GRAD V(θ)} 
   +  \int_{0}^{1} \NORM{η}_2 \NORM{\GRAD V(θ + λ η) - \GRAD V(θ)}_2 d λ \\
   &\stackrel{(b)}\le 
-   \langle η, \GRAD V(θ) \rangle
+   \IP{η}{\GRAD V(θ)}
   + \NORM{η}_2  \int_{0}^{1} 2 M λ \NORM{η}_{2} d λ \\
   &= 
-   \langle η, \GRAD V(θ) \rangle + M \NORM{λ}^2
+   \IP{η}{\GRAD V(θ)} + M \NORM{λ}^2
 \end{align*}
 where $(a)$ follows from Cauchy-Schwartz inequality and $(b)$ follows from \eqref{eq:vidyasagar-cond-2-alt}.
 
@@ -579,7 +580,7 @@ From this point onwards, we can continue the analysis as in the proof of @thm-vi
 As argued above, the conditions of @thm-vidyasagar-1 imply (F3). If instead of (F3), we assume the stronger condition (F3'), then it is possible to establish the following "converse" Lyapunov theorem which guarantees the existence of such a Lyapunov function $V$. 
 
 :::{#thm-vidyasagar-2} 
-Suppose assumptions (F1'), (F2'), (F3') and (F4) hold. Then, there exists a twice differentiable function $V \colon \reals^d \to \reals_{\ge 0}$ such that $V$ and its derivative $\dot V \colon \reals^d \to \reals_{\ge 0}$ defined as $\dot V(θ) \coloneqq \langle \langle \GRAD V(θ), f(θ) \rangle$ together satisfy the following conditions: there exist positive constants $a$, $b$, $c$, and a finite constant $M$ such that for all $θ \in \reals^d$:
+Suppose assumptions (F1'), (F2'), (F3') and (F4) hold. Then, there exists a twice differentiable function $V \colon \reals^d \to \reals_{\ge 0}$ such that $V$ and its derivative $\dot V \colon \reals^d \to \reals_{\ge 0}$ defined as $\dot V(θ) \coloneqq \IP{\GRAD V(θ)}{f(θ)}$ together satisfy the following conditions: there exist positive constants $a$, $b$, $c$, and a finite constant $M$ such that for all $θ \in \reals^d$:
 
 * $a\NORM{θ - θ^*}_2^2 \le V(θ) \le b\NORM{θ - θ^*}_2^2$,
 * $\dot V(θ) \le -c\NORM{θ - θ^*}_2^2$,
@@ -626,12 +627,12 @@ $$
 $$
 as the candidate Lyapunov function. Clearly, $V$ satisfies \eqref{eq:vidyasagar-cond-1} and \eqref{eq:vidyasagar-cond-2}. Consider
 \begin{align}
-\dot V(\theta) &\coloneqq \langle \GRAD V(θ), f(θ) \rangle 
+\dot V(\theta) &\coloneqq \IP{\GRAD V(θ)}{f(θ)} 
 \notag \\
-&= \langle θ - θ^*, \BELLMAN θ - θ \rangle 
+&= \IP{θ - θ^*}{\BELLMAN θ - θ} 
 \notag \\
-&= \langle θ - θ^*, \BELLMAN θ - θ^* \rangle -
-   \langle θ - θ^*, θ - θ^* \rangle
+&= \IP{θ - θ^*}{\BELLMAN θ - θ^*} -
+   \IP{θ - θ^*}{θ - θ^*}
 \notag \\
 &\stackrel{(a)}\le
    \NORM{θ - θ^*}_2 \NORM{ \BELLMAN θ - θ^* }_2
@@ -642,6 +643,120 @@ as the candidate Lyapunov function. Clearly, $V$ satisfies \eqref{eq:vidyasagar-
 \end{align}
 where $(a)$ follows from Cauchy-Schwartz inequality and $(b)$ follows from \eqref{eq:pseudo-contraction}. Thus, $\dot V(θ)$ satisfies \eqref{eq:vidyasagar-cond-3} with $\phi(x) = (1-γ)x^2$. Thus, the result follows from @thm-vidyasagar-1.
 :::
+
+## Variations of a theme: Biased noise
+
+What
+
+Now we consider the case when the noise is not a martingale difference sequence but has a bias which asymptotically goes to zero. To simplify the analysis, we split the noise into a biased and unbiased component. In particular, we assume that the stochastic approximation iteration is given by
+\begin{equation}\label{eq:SA-biased}
+  θ_{t+1} = θ_t + α_t[ f(θ_t) + ξ_{t+1} + b_{t} ], \quad t \ge 0
+\end{equation}
+where $\{b_t\}_{t \ge 0}$ is an $\mathcal{F}_t$-adapted _bias_ term. We will impose the following conditions on the bias:
+
+**B1.** The bias term satisfies
+$$
+  \NORM{b_{t}}_2 \le μ_t(1 + \NORM{θ_t - θ^*}_2), 
+  \quad \text{a.s.}, \quad forall t \ge 1.
+$$
+for some sequence $\{μ_t\}_{t \ge 1}$ that satisfies
+$$
+  \sum_{t \ge 1} α_t μ_t < ∞.
+$$
+
+The following is a restartment of the result of @Karandikar2024.
+
+:::{#thm-vidyasagar-biased}
+Suppose that (F1), (F2), (N1), and (N2). In addition, the bias satisfies (B1), $\GRAD V(\theta^*) = 0$, and the function 
+$\dot V(θ) \coloneqq \IP{\GRAD V(θ)}{f(θ)}$ is continuous, differentiable and $L_V$-Lipschitz continuous with $\dot V(\mathbf 0) = 0$. 
+
+Then, the result of @thm-vidyasagar-1 is true.
+:::
+
+:::{.callout-note collapse="false"} 
+#### Proof
+
+Following the same steps as in the proof of @thm-vidyasagar-1, we get the following (where the additional terms due to the bias are shown in red)
+\begin{align*}
+V(θ_{t+1}) &\le V(θ_t) 
++ α_t \IP{\GRAD V(θ_t)}{f(θ_t)}
++ α_t \IP{\GRAD V(θ_t)}{ξ_{t+1}}
++ \textcolor{red}{α_t \IP{\GRAD V(θ_t)}{b_{t}}}
+  \notag \\
+&\quad  + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 + \textcolor{red}{\NORM{b_{t}}^2_2} + 
+2 \IP{f(θ_t)}{ξ_{t+1}} 
++ \textcolor{red}{2 \IP{f(θ_t)}{b_{t}}}
+\bigr] 
+\end{align*}
+
+Recall that $\IP{V(θ)}{f(θ)} \eqqcolon \dot V(θ)$. Then, under (N1) and (N2), we have
+\begin{align*}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] &\le V(θ_t) 
++ α_t \dot V(θ_t) + \textcolor{red}{α_t \IP{\GRAD V(θ_t)}{b_{t}}}
+\\
+ &+ α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + 
+ (σ^2 + \textcolor{red}{μ_t})(1 + \NORM{θ_t - θ^*}_2^2) + \textcolor{red}{2 \IP{f(θ_t)}{b_{t}}}
+\bigr] 
+\end{align*}
+
+Now we can make the following simplifications:
+
+- $\NORM{f(θ_t)}_2 = \NORM{f(θ_t) - f(θ^*)} \le L \NORM{θ_t - θ^*}_2$ (because $f$ is Lipschitz)
+
+- $\NORM{\GRAD V(θ)}_2 = \NORM{\GRAD V(θ) - \GRAD V(θ^*)}_2 
+  \le 2M \NORM{θ_t - θ^*}_2$ (because $\GRAD V$ is Lipschitz, see the note on "A small relaxation").
+
+- For any constant $a$, $2a \le 1 + a^2$ (elementary inequality). Thus, $2a(1 + a) \le 1 +3a^2$.
+
+- $\IP{f(θ_t)}{b_t} \le \NORM{f(θ_t)}_2\NORM{b_t}_2$ (by Cauchy-Schwartz). Thus,
+$$
+  2\IP{f(θ_t)}{b_t} \le 2 μ_t L \NORM{θ_t - θ^*}_2 (1 + \NORM{θ_t - θ^*}_2) \le μ_t L + 3 μ_t L \NORM{θ_t - θ^2}_2^2.
+$$
+
+- By the same argument
+$$
+  \IP{\GRAD V(θ)}{b_t} \le μ_t M + 3 μ_t M \NORM{θ_t - θ^2}_2^2.
+$$
+
+Substituting the above, we have
+
+
+\begin{align}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] &\le V(θ_t) 
++ α_t \dot V(θ_t) + \textcolor{red}{α_t μ_t M + 3 α_t μ_t M \NORM{θ_t - θ^*}_2^2 }
+ \notag \\
+ &+ α_t^2 M \bigl[ σ^2 + \textcolor{red}{μ_t} + 
+(σ^2 + \textcolor{red}{μ_t} + L)\NORM{θ_t - θ^*}_2^2 + \textcolor{red}{μ_t L + 3 μ_t L \NORM{θ_t - θ^*}_2}
+\bigr]
+\label{eq:bias-1}
+\end{align}
+
+#### Proof of part 1. {-}
+
+Since $\dot V(θ) < 0$, we can ignore it in \eqref{eq:bias-1}. Substituting $\NORM{θ_t - θ^*}_2^2 \le V(θ)/a$ and rearranging the terms, we get that
+\begin{equation}\label{eq:bias-2}
+\EXP[V(θ_{t+1}) \mid \ALPHABET F_t] 
+\le (1 + β_t) V(θ_t) + α_t μ_t M + α_t^2 σ^2  M 
+\end{equation}
+where 
+$$
+  β_t = \frac{1}{a}\bigl[ 3 α_t μ_t M + α_t^2 M (σ^2 + μ_t + L) + 3 α_t^2 μ_t LM \bigr]
+$$
+Observe that by (B1) $\sum_{t \ge 1} α_t μ_t < ∞$, by (R1) $\sum_{t \ge 1} α_t^2 < ∞$, and since $α_t \to 0$, $\sum_{t \ge 1} α_t^2 μ_t < ∞$. Hence, 
+$$ \sum_{t \ge 1} β_t < ∞. $$
+
+Furthermore, 
+$$
+  \sum_{t \ge 1} \bigl[ α_t μ_t M + α_t^2 σ^2 M  \bigr] < ∞.
+$$
+Hence, by applying @thm-almost-supermartingale to \eqref{eq:bias-2}, we get that $V(θ_t)$ converges almost surely. As before, condition \eqref{eq:vidyasagar-cond-1} implies that $\{θ_t\}_{t \ge 1}$ is almost surely bounded. 
+
+#### Proof of part 2. {-}
+
+Now we reconsider \eqref{eq:bias-1}, but do not ignore the $\dot V(θ_t)$ term but upper bound it by $\dot V(θ_t) \le - φ(\NORM{θ_t - θ^*}_2^2)$. We can then apply @cor-almost-supermartingale to argue that under (R2), $φ(\NORM{θ_t - θ^*}_2^2 \to 0$. Since $φ$ belongs to class $\mathcal{B}$, we have that $\NORM{θ_t - θ^*}_2^2 \to 0$. 
+
+:::
+
 
 ## Exercises {-}
 
