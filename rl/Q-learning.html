@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2025-03-27">
+<meta name="dcterms.date" content="2025-04-15">
 <meta name="keywords" content="reinforcement learning, stochastic approximation, Q-learning">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -700,11 +700,9 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#asyncronous-q-learning-algorithm" id="toc-asyncronous-q-learning-algorithm" class="nav-link active" data-scroll-target="#asyncronous-q-learning-algorithm"><span class="header-section-number">33.1</span> Asyncronous Q-learning algorithm</a>
-  <ul class="collapse">
-  <li><a href="#convergence-of-component-x0_t" id="toc-convergence-of-component-x0_t" class="nav-link" data-scroll-target="#convergence-of-component-x0_t"><span class="header-section-number">33.1.1</span> Convergence of component <span class="math inline">\(X^0_t\)</span></a></li>
-  <li><a href="#convergence-of-component-x1_t" id="toc-convergence-of-component-x1_t" class="nav-link" data-scroll-target="#convergence-of-component-x1_t"><span class="header-section-number">33.1.2</span> Convergence of component <span class="math inline">\(X^1_t\)</span></a></li>
-  </ul></li>
+  <li><a href="#asyncronous-q-learning-algorithm" id="toc-asyncronous-q-learning-algorithm" class="nav-link active" data-scroll-target="#asyncronous-q-learning-algorithm"><span class="header-section-number">33.1</span> Asyncronous Q-learning algorithm</a></li>
+  <li><a href="#a-preliminary-lemma" id="toc-a-preliminary-lemma" class="nav-link" data-scroll-target="#a-preliminary-lemma"><span class="header-section-number">33.2</span> A preliminary lemma</a></li>
+  <li><a href="#convergence-of-q-learning" id="toc-convergence-of-q-learning" class="nav-link" data-scroll-target="#convergence-of-q-learning"><span class="header-section-number">33.3</span> Convergence of Q-learning</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/rl/Q-learning.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
@@ -740,7 +738,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 27, 2025</p>
+      <p class="date">April 15, 2025</p>
     </div>
   </div>
   
@@ -815,83 +813,116 @@ Remark
     \Bigl[ r(s,a,s') + γ\max_{a' \in \ALPHABET A} Q^*(s',a') \Bigr] \biggr] \IND\{S_t = s, A_t = a \}, \\
   U^1_t(s,a) &amp;=  γ \max_{a' \in \ALPHABET A} Q_{t+1}(S_{t+1}, a') - \textcolor{blue}{γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a')},
 \end{align*}\]</span> where we have added and subtracted the term in blue. Note that the additional indicator function <span class="math inline">\(\IND\{S_t =s, A_t = a\}\)</span> in <span class="math inline">\(U^0_t\)</span> does not change the value of the iteration for <span class="math inline">\(\Delta_{t+1}\)</span> because of (A0).</p>
+</section>
+<section id="a-preliminary-lemma" class="level2" data-number="33.2">
+<h2 data-number="33.2" class="anchored" data-anchor-id="a-preliminary-lemma"><span class="header-section-number">33.2</span> A preliminary lemma</h2>
+<p>The crux of the proof argument relies on the following lemma, which is adapted from <span class="citation" data-cites="Jaakkola1994">Jaakkola et al. (<a href="../references.html#ref-Jaakkola1994" role="doc-biblioref">1994</a>)</span> but the precise convergence argument is due to <span class="citation" data-cites="Kara2022">Kara and Yüksel (<a href="../references.html#ref-Kara2022" role="doc-biblioref">2022</a>)</span>.</p>
+<div id="lem-jaakkola" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 33.1</strong></span> Let <span class="math inline">\(\{α_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{X_t\}_{t \ge 1}\)</span>, <span class="math inline">\(\{Y_t\}_{t \ge 1}\)</span> and <span class="math inline">\(\{Z_t\}_{t \ge 1}\)</span> be <span class="math inline">\(\reals^n\)</span>-valued stochastic processes that are adapted to some filtration <span class="math inline">\(\{\ALPHABET F_t\}_{t \ge 1}\)</span>. Suppose <span class="math display">\[
+  X_{t+1}(i) = (1 - α_t(i)) X_t(i) + α_t(i) Y_t(i),
+  \quad i \in \{1, \dots, n\}
+\]</span> and the following assumptions hold for each <span class="math inline">\(i \in \{1, \dots, n\}\)</span>:</p>
+<ul>
+<li><p><span class="math inline">\(Y_t(i) \le γ \NORM{X_t} + γ \NORM{Z_t}\)</span>, for some <span class="math inline">\(γ \in (0, 1)\)</span>.</p></li>
+<li><p><span class="math inline">\(Z_t(i) \to 0\)</span> almost surely.</p></li>
+<li><p><span class="math inline">\(\sum_{t \ge 1} α_t(i) = ∞\)</span> and <span class="math inline">\(\sum_{t \ge 1} α_t^2(i) &lt; ∞\)</span>.</p></li>
+</ul>
+<p>Then, <span class="math inline">\(X_t \to 0\)</span>, almost surely.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>For ease of notation, let <span class="math inline">\(\ALPHABET N \coloneqq \{1, \dots, n\}\)</span>. Arbitrarily fix <span class="math inline">\(ε &gt; 0\)</span>. Since <span class="math inline">\(\NORM{Z_t} \to 0\)</span>, there exists a set <span class="math inline">\(Ω^1\)</span> of measure one such that for all <span class="math inline">\(ω \in Ω^1\)</span>, there exists a <span class="math inline">\(T(ω,ε)\)</span> such that for all <span class="math inline">\(t &gt; T(ω, ε)\)</span> and all <span class="math inline">\(i \in \ALPHABET N\)</span>, we have <span class="math display">\[
+  Z_t(i) &lt; ε.
+\]</span></p>
+<p>Now pick a constant <span class="math inline">\(C\)</span> such that <span class="math display">\[
+  κ \coloneqq γ\left( 1 + \frac{1}{C} \right) &lt; 1.
+\]</span></p>
+<p>Suppose for some <span class="math inline">\(t &gt; T(ω, ε)\)</span>, <span class="math inline">\(\NORM{X_t} &gt; C ε\)</span>. Then for all <span class="math inline">\(i \in \ALPHABET N\)</span>, <span class="math display">\[\begin{equation}\label{eq:U-bound}
+  Y_t(i) \le γ ε + γ \NORM{X_t} \le γ \left( 1 + \frac{1}{C} \right) \NORM{X_t} = κ \NORM{X_t}.
+\end{equation}\]</span> Hence, <span class="math display">\[
+  X_{t+1}(i) = (1 - α_t(i)) X_t(i) + α_t(i) Y_t(i)
+  &lt; \NORM{X}.
+\]</span> Thus, <span class="math display">\[
+  \NORM{X_{t+1}} &lt; \NORM{X_t}.
+\]</span></p>
+<p>Hence, when <span class="math inline">\(\NORM{X_t} &gt; C ε\)</span>, it decreases monotonically with time. Thus, there are two possibilities:</p>
+<ol type="1">
+<li><span class="math inline">\(\NORM{X_t}\)</span> always remains above <span class="math inline">\(C ε\)</span>; or</li>
+<li>it goes below <span class="math inline">\(C ε\)</span> at some stage.</li>
+</ol>
+<p>We show via contradiction that <span class="math inline">\(\NORM{X_t}\)</span> cannot remain above <span class="math inline">\(C ε\)</span> forever. Suppose <span class="math inline">\(\NORM{X_t}\)</span> remains above <span class="math inline">\(C ε\)</span> forever. As argued earlier, this implies that for any <span class="math inline">\(ω \in Ω_1\)</span>, <span class="math inline">\(\NORM{X_t(ω)}\)</span>, <span class="math inline">\(t &gt; T(ω,ε)\)</span>, is a strictly decreasing sequence. So, it must be bounded from above. Let <span class="math inline">\(B^{(0)}(ω) &lt; ∞\)</span> be such that <span class="math inline">\(\NORM{X_t} \le B^{(0)}\)</span> for all <span class="math inline">\(t &gt; T(ω,ε)\)</span>. Eq.&nbsp;<span class="math inline">\(\eqref{eq:U-bound}\)</span> implies that <span class="math inline">\(\NORM{Y_t} \le κ B^{(0)}\)</span>. Then we have that <span class="math display">\[\begin{align*}
+  X_{t+1}(i) &amp;\le (1 - α_t(i))\NORM{X_t(i)} + α_t(i)\NORM{Y_t} \\
+  &amp;&lt; (1 - α_t(i))\NORM{X_t(i)} + α_t(i)κ B^{(0)} \\
+\end{align*}\]</span> Define a sequence <span class="math inline">\(M^{(0)}_t(i)\)</span>, <span class="math inline">\(t &gt; T(ω,ε)\)</span> as follows: <span class="math inline">\(M^{(0)}_{T(ω,ε)}(i) = X_{T(ω,ε)}(i)\)</span> and for <span class="math inline">\(t &gt; T(ω,ε)\)</span>, <span class="math display">\[
+  M_{t+1}^{(0)}(i) = (1 - α_t(i)) M_t^{(0)}(i) + α_t(i) κ B^{(0)}.
+\]</span> Then, we can show via induction that <span class="math inline">\(\NORM{X_t} \le \NORM{M_{t+1}}\)</span>. Moreover, for all <span class="math inline">\(i \in \ALPHABET N\)</span>, <span class="math inline">\(M_t(i) \to κ B^{(0)}\)</span>, a.s. (see <a href="stochastic-approximation.html#exr-constant-averaging" class="quarto-xref">Exercise&nbsp;<span>32.1</span></a>).</p>
+<p>Now pick a <span class="math inline">\(\bar ε \in (0, (1-κ)C ε)\)</span>. Since <span class="math inline">\(\NORM{M_{t+1}} \to κB^{(0)}\)</span>, there exists a <span class="math inline">\(T^{(1)} = T^{(1)}(ω,ε,\bar ε)\)</span> such that for all <span class="math inline">\(t &gt; T^{(1)}\)</span>, <span class="math inline">\(\NORM{M^{(0)}_{t}} \le B^{(1)} \coloneqq κ B^{(0)} + \bar ε\)</span>.</p>
+<p>Thus, for all <span class="math inline">\(t &gt; T^{(1)}\)</span>, we have by <span class="math inline">\(\eqref{eq:U-bound}\)</span> <span class="math display">\[
+  \NORM{Y_t} \le κ \NORM{X^{1}_t} \le κ \NORM{M^{(0)}_t}
+  \le κ B^{(1)}.
+\]</span> So, by repeating the above argument, we can show that there exists a time <span class="math inline">\(T^{(2)}\)</span> such that for all <span class="math inline">\(t &gt; T^{(2)}\)</span>, <span class="math display">\[
+  \NORM{X_t} \le B^{(2)} \coloneqq κ B^{(1)} + \bar ε
+  = κ^2 B^{(0)} + κ \bar ε + \bar ε.
+\]</span> Continuing this way, we will get that <span class="math display">\[
+  \NORM{X_t} \le B^{(m)}
+  = κ^m B^{(0)} + κ^{m-1} \bar ε + \cdots + \bar ε
+  = κ^m B^{(0)} + \bar ε \frac{(1 - κ^m)}{(1 - κ)}.
+\]</span> Note that we have chosen <span class="math inline">\(\bar ε\)</span> such that <span class="math inline">\(\bar ε/(1-κ) &lt; C ε\)</span>. So, eventually <span class="math inline">\(B^{(m)}\)</span> must get below <span class="math inline">\(C ε\)</span> for some <span class="math inline">\(m\)</span>, contracticting our assumption that <span class="math inline">\(\NORM{X_t}\)</span> remains above <span class="math inline">\(C ε\)</span> forever.</p>
+<p>Thus, there must be some time <span class="math inline">\(t &gt; T(ω,ε)\)</span> at which <span class="math inline">\(\NORM{X_t} &lt; C ε\)</span>. Thus, by&nbsp;<span class="math inline">\(\eqref{eq:U-bound-0}\)</span>, we get <span class="math display">\[
+  \NORM{Y_t} \le γ \NORM{Z_t} + γ \NORM{X_t}
+  \le γ ε + γ C ε = (1 + C)γ ε
+  &lt; C ε
+\]</span> where the last inequality follows from the choice of <span class="math inline">\(C\)</span> (such that <span class="math inline">\(κ &lt; 1\)</span>).</p>
+<p>Therefore, <span class="math display">\[
+X_{t+1}(i) \le (1 - α_t(i)) \NORM{X_t} + α_t(i)\NORM{Y_t}
+&lt; C ε
+\]</span> where the last inequality uses the fact that both <span class="math inline">\(\NORM{Y_t}\)</span> and <span class="math inline">\(\NORM{X_t}\)</span> are below <span class="math inline">\(C ε\)</span>. Hence, <span class="math display">\[
+\NORM{X_{t+1}} &lt; C ε.
+\]</span> Hence, once <span class="math inline">\(\NORM{X_t}\)</span> goes below <span class="math inline">\(C ε\)</span>, it stays below <span class="math inline">\(C ε\)</span>.</p>
+<p>Thus, we have shown that for an arbitrary <span class="math inline">\(ε\)</span>, <span class="math inline">\(\NORM{X_t} &lt; C ε\)</span> for all sufficiently large <span class="math inline">\(t\)</span>. Thus, <span class="math display">\[
+  \lim_{t \to ∞} \NORM{X_t} = 0, \space \text{a.s.}
+\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="convergence-of-q-learning" class="level2" data-number="33.3">
+<h2 data-number="33.3" class="anchored" data-anchor-id="convergence-of-q-learning"><span class="header-section-number">33.3</span> Convergence of Q-learning</h2>
 <p>The main idea is that we can view <span class="math inline">\(\eqref{eq:Q-Δ}\)</span> as a linear system with state <span class="math inline">\(Δ_t\)</span> and two inputs <span class="math inline">\(U^0_t\)</span> and <span class="math inline">\(U^1_t\)</span>. Using linearity, we can split the state into two components: <span class="math inline">\(Δ_{t+1} = X^0_{t+1} + X^1_{t+1}\)</span>, where the components evolve as follows: <span class="math display">\[\begin{equation}\label{eq:X-iteration}
   X^i_{t+1}(s,a) = (1 - α_t(s,a)) X^i_t(s,a) + α_t(s,a) U^i_t(s,a),
   \quad i \in \{0, 1\}.
 \end{equation}\]</span></p>
 <p>We will now separately show that <span class="math inline">\(\NORM{X^0_t} \to 0\)</span> and <span class="math inline">\(\NORM{X^1_t} \to 0\)</span>, where <span class="math inline">\(\NORM{⋅}\)</span> denotes the sup-norm. Then, by triangle inequality, we have that <span class="math inline">\(\NORM{Δ_t} \to 0\)</span>, which establishes that <span class="math inline">\(Q_t \to Q^*\)</span>.</p>
-<section id="convergence-of-component-x0_t" class="level3" data-number="33.1.1">
-<h3 data-number="33.1.1" class="anchored" data-anchor-id="convergence-of-component-x0_t"><span class="header-section-number">33.1.1</span> Convergence of component <span class="math inline">\(X^0_t\)</span></h3>
+<ul>
+<li><p><strong>Convergence of component <span class="math inline">\(X^0_t\)</span></strong></p>
 <p>For the ease of notation, let <span class="math inline">\(\ALPHABET F_t\)</span> denote the sigma-algebra generated by <span class="math inline">\((S_{1:t}, A_{1:t-1})\)</span>. Then, observe that for any <span class="math inline">\((s,a)\)</span>, <span class="math display">\[
-\EXP\Bigl[ r(S_{t+1}, A_{t+1}, S_{t+1}) + γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a') \Bigm| \ALPHABET F_t \Bigr] = Q^*(s,a).
-\]</span> Thus, <span class="math display">\[ \EXP[ U^0_t(s,a) | \ALPHABET F_t ] = 0. \]</span></p>
-<p>Thus, <span class="math inline">\(\{U^0_t\}_{t \ge 1}\)</span> is a martingale difference sequence. Therefore, the sequence <span class="math inline">\(\{X^0_t\}_{t \ge 1}\)</span> converges almost surely to <span class="math inline">\(0\)</span> (see <a href="stochastic-approximation.html#exr-recursive-averaging" class="quarto-xref">Exercise&nbsp;<span>32.2</span></a>). Thus, <span class="math inline">\(\NORM{X^0_t} \to 0\)</span>.</p>
-</section>
-<section id="convergence-of-component-x1_t" class="level3" data-number="33.1.2">
-<h3 data-number="33.1.2" class="anchored" data-anchor-id="convergence-of-component-x1_t"><span class="header-section-number">33.1.2</span> Convergence of component <span class="math inline">\(X^1_t\)</span></h3>
+  \EXP\Bigl[ r(S_{t+1}, A_{t+1}, S_{t+1}) + γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a') \Bigm| \ALPHABET F_t \Bigr] = Q^*(s,a).
+  \]</span> Thus, <span class="math display">\[ \EXP[ U^0_t(s,a) | \ALPHABET F_t ] = 0. \]</span></p>
+<p>Thus, <span class="math inline">\(\{U^0_t\}_{t \ge 1}\)</span> is a martingale difference sequence. Therefore, the sequence <span class="math inline">\(\{X^0_t\}_{t \ge 1}\)</span> converges almost surely to <span class="math inline">\(0\)</span> (see <a href="stochastic-approximation.html#exr-recursive-averaging" class="quarto-xref">Exercise&nbsp;<span>32.2</span></a>). Thus, <span class="math inline">\(\NORM{X^0_t} \to 0\)</span>.</p></li>
+<li><p><strong>Convergence of component <span class="math inline">\(X^1_t\)</span></strong></p>
 <p>Observe that for any <span class="math inline">\((s,a) \in \ALPHABET S × \ALPHABET A\)</span>,<br>
 <span class="math display">\[\begin{align}
-  U^1_t(s,a) &amp;=  γ \max_{a' \in \ALPHABET A} Q_{t+1}(S_{t+1}, a')
-  - γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a')
-  \notag \\
-  &amp;\le γ \NORM{Q_{t+1} - Q^*}
-  = γ \NORM{Δ_t}
-  \notag \\
-  &amp;\le  γ \NORM{X^0_t} + γ \NORM{X^1_t}
-  \label{eq:U-bound-0}
-\end{align}\]</span></p>
-<p>Arbitrarily fix <span class="math inline">\(ε &gt; 0\)</span>. Since <span class="math inline">\(\NORM{X^0_t} \to 0\)</span>, there exists a set <span class="math inline">\(Ω^1\)</span> of measure one such that for all <span class="math inline">\(ω \in Ω^1\)</span>, there exists a <span class="math inline">\(T(ω,ε)\)</span> such that for all <span class="math inline">\(t &gt; T(ω, ε)\)</span> and all <span class="math inline">\((s,a) \in \ALPHABET S × \ALPHABET A\)</span>, we have <span class="math display">\[
-  X^0_t(s,a) &lt; ε.
-\]</span></p>
-<p>Now pick a constant <span class="math inline">\(C\)</span> such that <span class="math display">\[
-  κ \coloneqq γ\left( 1 + \frac{1}{C} \right) &lt; 1.
-\]</span></p>
-<p>Suppose for some <span class="math inline">\(t &gt; T(ω, ε)\)</span>, <span class="math inline">\(\NORM{X^1_t} &gt; C ε\)</span>. Then for all <span class="math inline">\((s,a) \in \ALPHABET S × \ALPHABET A\)</span>, <span class="math display">\[\begin{equation}\label{eq:U-bound}
-  U^1_t(s,a) \le γ ε + γ \NORM{X^1_t} \le γ \left( 1 + \frac{1}{C} \right) \NORM{X^1_t} = κ \NORM{X^1_t}.
-\end{equation}\]</span> Hence, <span class="math display">\[
-  X^1_{t+1}(s,a) = (1 - α_t(s,a)) X^1_t(s,a) + α_t(s,a) U^1_t(s,a)
-  &lt; \NORM{X^1}.
-\]</span> Thus, <span class="math display">\[
-  \NORM{X^1_{t+1}} &lt; \NORM{X^1_t}.
-\]</span></p>
-<p>Hence, when <span class="math inline">\(\NORM{X^1_t} &gt; C ε\)</span>, it decreases monotonically with time. Thus, there are two possibilities:</p>
-<ol type="1">
-<li><span class="math inline">\(\NORM{X^1_t}\)</span> always remains above <span class="math inline">\(C ε\)</span>; or</li>
-<li>it goes below <span class="math inline">\(C ε\)</span> at some stage.</li>
-</ol>
-<p>We show via contradiction that <span class="math inline">\(\NORM{X^1_t}\)</span> cannot remain above <span class="math inline">\(C ε\)</span> forever. Suppose <span class="math inline">\(\NORM{X^1_t}\)</span> remains above <span class="math inline">\(C ε\)</span> forever. As argued earlier, this implies that for any <span class="math inline">\(ω \in Ω_1\)</span>, <span class="math inline">\(\NORM{X^1_t(ω)}\)</span>, <span class="math inline">\(t &gt; T(ω,ε)\)</span>, is a strictly decreasing sequence. So, it must be bounded from above. Let <span class="math inline">\(B^{(0)}(ω) &lt; ∞\)</span> be such that <span class="math inline">\(\NORM{X^1_t} \le B^{(0)}\)</span> for all <span class="math inline">\(t &gt; T(ω,ε)\)</span>. Eq.&nbsp;<span class="math inline">\(\eqref{eq:U-bound}\)</span> implies that <span class="math inline">\(\NORM{U^1_t} \le κ B^{(0)}\)</span>. Then we have that <span class="math display">\[\begin{align*}
-  X^1_{t+1}(s,a) &amp;\le (1 - α_t(s,a))\NORM{X^1_t(s,a)} + α_t(s,a)\NORM{U^1_t} \\
-  &amp;&lt; (1 - α_t(s,a))\NORM{X^1_t(s,a)} + α_t(s,a)κ B^{(0)} \\
-\end{align*}\]</span> Define a sequence <span class="math inline">\(M^{(0)}_t(s,a)\)</span>, <span class="math inline">\(t &gt; T(ω,ε)\)</span> as follows: <span class="math inline">\(M^{(0)}_{T(ω,ε)}(s,a) = X_{T(ω,ε)}(s,a)\)</span> and for <span class="math inline">\(t &gt; T(ω,ε)\)</span>, <span class="math display">\[
-  M_{t+1}^{(0)}(s,a) = (1 - α_t(s,a)) M_t^{(0)}(s,a) + α_t(s,a) κ B^{(0)}.
-\]</span> Then, we can show via induction that <span class="math inline">\(\NORM{X^1_t} \le \NORM{M_{t+1}}\)</span>. Moreover, for all <span class="math inline">\((s,a)\)</span>, <span class="math inline">\(M_t(s,a) \to κ B^{(0)}\)</span>, a.s. (see <a href="stochastic-approximation.html#exr-constant-averaging" class="quarto-xref">Exercise&nbsp;<span>32.1</span></a>).</p>
-<p>Now pick a <span class="math inline">\(\bar ε \in (0, (1-κ)C ε)\)</span>. Since <span class="math inline">\(\NORM{M_{t+1}} \to κB^{(0)}\)</span>, there exists a <span class="math inline">\(T^{(1)} = T^{(1)}(ω,ε,\bar ε)\)</span> such that for all <span class="math inline">\(t &gt; T^{(1)}\)</span>, <span class="math inline">\(\NORM{M^{(0)}_{t}} \le B^{(1)} \coloneqq κ B^{(0)} + \bar ε\)</span>.</p>
-<p>Thus, for all <span class="math inline">\(t &gt; T^{(1)}\)</span>, we have by <span class="math inline">\(\eqref{eq:U-bound}\)</span> <span class="math display">\[
-  \NORM{U^1_t} \le κ \NORM{X^{1}_t} \le κ \NORM{M^{(0)}_t}
-  \le κ B^{(1)}.
-\]</span> So, by repeating the above argument, we can show that there exists a time <span class="math inline">\(T^{(2)}\)</span> such that for all <span class="math inline">\(t &gt; T^{(2)}\)</span>, <span class="math display">\[
-  \NORM{X^1_t} \le B^{(2)} \coloneqq κ B^{(1)} + \bar ε
-  = κ^2 B^{(0)} + κ \bar ε + \bar ε.
-\]</span> Continuing this way, we will get that <span class="math display">\[
-  \NORM{X^1_t} \le B^{(m)}
-  = κ^m B^{(0)} + κ^{m-1} \bar ε + \cdots + \bar ε
-  = κ^m B^{(0)} + \bar ε \frac{(1 - κ^m)}{(1 - κ)}.
-\]</span> Note that we have chosen <span class="math inline">\(\bar ε\)</span> such that <span class="math inline">\(\bar ε/(1-κ) &lt; C ε\)</span>. So, eventually <span class="math inline">\(B^{(m)}\)</span> must get below <span class="math inline">\(C ε\)</span> for some <span class="math inline">\(m\)</span>, contracticting our assumption that <span class="math inline">\(\NORM{X^1_t}\)</span> remains above <span class="math inline">\(C ε\)</span> forever.</p>
-<p>Thus, there must be some time <span class="math inline">\(t &gt; T(ω,ε)\)</span> at which <span class="math inline">\(\NORM{X^1_t} &lt; C ε\)</span>. Thus, by&nbsp;<span class="math inline">\(\eqref{eq:U-bound-0}\)</span>, we get <span class="math display">\[
-  \NORM{U^1_t} \le γ \NORM{X^0_t} + γ \NORM{X^1_t}
-  \le γ ε + γ C ε = (1 + C)γ ε
-  &lt; C ε
-\]</span> where the last inequality follows from the choice of <span class="math inline">\(C\)</span> (such that <span class="math inline">\(κ &lt; 1\)</span>).</p>
-<p>Therefore, <span class="math display">\[
-X^1_{t+1}(s,a) \le (1 - α_t(s,a)) \NORM{X^1_t} + α_t(s,a)\NORM{U^1_t}
-&lt; C ε
-\]</span> where the last inequality uses the fact that both <span class="math inline">\(\NORM{U^1_t}\)</span> and <span class="math inline">\(\NORM{X^1_t}\)</span> are below <span class="math inline">\(C ε\)</span>. Hence, <span class="math display">\[
-\NORM{X^1_{t+1}} &lt; C ε.
-\]</span> Hence, once <span class="math inline">\(\NORM{X^1_t}\)</span> goes below <span class="math inline">\(C ε\)</span>, it stays below <span class="math inline">\(C ε\)</span>.</p>
-<p>Thus, we have shown that for an arbitrary <span class="math inline">\(ε\)</span>, <span class="math inline">\(\NORM{X^1_t} &lt; C ε\)</span> for all sufficiently large <span class="math inline">\(t\)</span>. Thus, <span class="math display">\[
-  \lim_{t \to ∞} \NORM{X^1_t} = 0, \space \text{a.s.}
-\]</span></p>
-</section>
+    U^1_t(s,a) &amp;=  γ \max_{a' \in \ALPHABET A} Q_{t+1}(S_{t+1}, a')
+    - γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a')
+    \notag \\
+    &amp;\le γ \NORM{Q_{t+1} - Q^*}
+    = γ \NORM{Δ_t}
+    \notag \\
+    &amp;\le  γ \NORM{X^0_t} + γ \NORM{X^1_t}
+    \label{eq:U-bound-0}
+  \end{align}\]</span></p>
+<p>Thus, the iteration for <span class="math inline">\(X^1_t\)</span> satisfies the assumptions of <a href="#lem-jaakkola" class="quarto-xref">Lemma&nbsp;<span>33.1</span></a> and hence converges to zero, a.s.</p></li>
+</ul>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
