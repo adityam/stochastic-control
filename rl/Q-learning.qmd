@@ -87,6 +87,121 @@ where
 where we have added and subtracted the term in blue.
 Note that the additional indicator function $\IND\{S_t =s, A_t = a\}$ in $U^0_t$ does not change the value of the iteration for $\Delta_{t+1}$ because of (A0).
 
+## A preliminary lemma
+
+The crux of the proof argument relies on the following lemma, which is adapted from @Jaakkola1994 but the precise convergence argument is due to @Kara2022.
+
+:::{#lem-jaakkola}
+Let $\{α_t\}_{t \ge 1}$, $\{X_t\}_{t \ge 1}$, $\{Y_t\}_{t \ge 1}$ and $\{Z_t\}_{t \ge 1}$ be $\reals^n$-valued stochastic processes that are adapted to some filtration $\{\ALPHABET F_t\}_{t \ge 1}$. Suppose 
+$$
+  X_{t+1}(i) = (1 - α_t(i)) X_t(i) + α_t(i) Y_t(i),
+  \quad i \in \{1, \dots, n\}
+$$
+and the following assumptions hold for each $i \in \{1, \dots, n\}$:
+
+- $Y_t(i) \le γ \NORM{X_t} + γ \NORM{Z_t}$, for some $γ \in (0, 1)$.
+
+- $Z_t(i) \to 0$ almost surely.
+
+- $\sum_{t \ge 1} α_t(i) = ∞$ and $\sum_{t \ge 1} α_t^2(i) < ∞$.
+
+Then, $X_t \to 0$, almost surely.
+
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+
+For ease of notation, let $\ALPHABET N \coloneqq \{1, \dots, n\}$.
+Arbitrarily fix $ε > 0$. Since $\NORM{Z_t} \to 0$, there exists a set $Ω^1$ of measure one such that for all $ω \in Ω^1$, there exists a $T(ω,ε)$ such that for all $t > T(ω, ε)$ and all $i \in \ALPHABET N$, we have
+$$
+  Z_t(i) < ε.
+$$
+
+Now pick a constant $C$ such that 
+$$
+  κ \coloneqq γ\left( 1 + \frac{1}{C} \right) < 1.
+$$
+
+Suppose for some $t > T(ω, ε)$, $\NORM{X_t} > C ε$. Then for all $i \in \ALPHABET N$, 
+\begin{equation}\label{eq:U-bound}
+  Y_t(i) \le γ ε + γ \NORM{X_t} \le γ \left( 1 + \frac{1}{C} \right) \NORM{X_t} = κ \NORM{X_t}.
+\end{equation}
+Hence, 
+$$
+  X_{t+1}(i) = (1 - α_t(i)) X_t(i) + α_t(i) Y_t(i) 
+  < \NORM{X}.
+$$
+Thus, 
+$$
+  \NORM{X_{t+1}} < \NORM{X_t}.
+$$
+
+Hence, when $\NORM{X_t} > C ε$, it decreases monotonically with time. Thus, there are two possibilities:
+
+1. $\NORM{X_t}$ always remains above $C ε$; or
+2. it goes below $C ε$ at some stage. 
+
+We show via contradiction that $\NORM{X_t}$ cannot remain above $C ε$ forever. Suppose $\NORM{X_t}$ remains above $C ε$ forever. As argued earlier, this implies that for any $ω \in Ω_1$, $\NORM{X_t(ω)}$, $t > T(ω,ε)$, is a strictly decreasing sequence. So, it must be bounded from above. Let $B^{(0)}(ω) < ∞$ be such that $\NORM{X_t} \le B^{(0)}$ for all $t > T(ω,ε)$. Eq. \eqref{eq:U-bound} implies that $\NORM{Y_t} \le κ B^{(0)}$. Then we have that 
+\begin{align*}
+  X_{t+1}(i) &\le (1 - α_t(i))\NORM{X_t(i)} + α_t(i)\NORM{Y_t} \\
+  &< (1 - α_t(i))\NORM{X_t(i)} + α_t(i)κ B^{(0)} \\
+\end{align*}
+Define a sequence $M^{(0)}_t(i)$, $t > T(ω,ε)$ as follows: $M^{(0)}_{T(ω,ε)}(i) = X_{T(ω,ε)}(i)$ and for $t > T(ω,ε)$, 
+$$
+  M_{t+1}^{(0)}(i) = (1 - α_t(i)) M_t^{(0)}(i) + α_t(i) κ B^{(0)}.
+$$
+Then, we can show via induction that $\NORM{X_t} \le \NORM{M_{t+1}}$. Moreover, for all $i \in \ALPHABET N$, $M_t(i) \to κ B^{(0)}$, a.s. (see @exr-constant-averaging).
+
+Now pick a $\bar ε \in (0, (1-κ)C ε)$. Since $\NORM{M_{t+1}} \to κB^{(0)}$, there exists a $T^{(1)} = T^{(1)}(ω,ε,\bar ε)$ such that for all $t > T^{(1)}$, $\NORM{M^{(0)}_{t}} \le B^{(1)} \coloneqq κ B^{(0)} + \bar ε$. 
+
+Thus, for all $t > T^{(1)}$, we have by \eqref{eq:U-bound}
+$$
+  \NORM{Y_t} \le κ \NORM{X^{1}_t} \le κ \NORM{M^{(0)}_t} 
+  \le κ B^{(1)}.
+$$
+So, by repeating the above argument, we can show that there exists a time $T^{(2)}$ such that for all $t > T^{(2)}$,
+$$
+  \NORM{X_t} \le B^{(2)} \coloneqq κ B^{(1)} + \bar ε
+  = κ^2 B^{(0)} + κ \bar ε + \bar ε.
+$$
+Continuing this way, we will get that 
+$$
+  \NORM{X_t} \le B^{(m)} 
+  = κ^m B^{(0)} + κ^{m-1} \bar ε + \cdots + \bar ε
+  = κ^m B^{(0)} + \bar ε \frac{(1 - κ^m)}{(1 - κ)}.
+$$
+Note that we have chosen $\bar ε$ such that $\bar ε/(1-κ) < C ε$. So, eventually $B^{(m)}$ must get below $C ε$ for some $m$, contracticting our assumption that $\NORM{X_t}$ remains above $C ε$ forever. 
+
+Thus, there must be some time $t > T(ω,ε)$ at which $\NORM{X_t} < C ε$. Thus, by \eqref{eq:U-bound-0}, we get
+$$
+  \NORM{Y_t} \le γ \NORM{Z_t} + γ \NORM{X_t}
+  \le γ ε + γ C ε = (1 + C)γ ε
+  < C ε
+$$
+where the last inequality follows from the choice of $C$ (such that $κ < 1$). 
+
+Therefore,
+$$
+X_{t+1}(i) \le (1 - α_t(i)) \NORM{X_t} + α_t(i)\NORM{Y_t} 
+< C ε
+$$
+where the last inequality uses the fact that both $\NORM{Y_t}$ and $\NORM{X_t}$ are below $C ε$. Hence,
+$$
+\NORM{X_{t+1}} < C ε.
+$$
+Hence, once $\NORM{X_t}$ goes below $C ε$, it stays below $C ε$. 
+
+Thus, we have shown that for an arbitrary $ε$, $\NORM{X_t} < C ε$ for all sufficiently large $t$. Thus, 
+$$
+  \lim_{t \to ∞} \NORM{X_t} = 0, \space \text{a.s.}
+$$
+
+:::
+
+
+## Convergence of Q-learning
+
 The main idea is that we can view \eqref{eq:Q-Δ} as a linear system with state $Δ_t$ and two inputs $U^0_t$ and $U^1_t$. Using linearity, we can split the state into two components: $Δ_{t+1} = X^0_{t+1} + X^1_{t+1}$, where the components evolve as follows:
 \begin{equation}\label{eq:X-iteration}
   X^i_{t+1}(s,a) = (1 - α_t(s,a)) X^i_t(s,a) + α_t(s,a) U^i_t(s,a), 
@@ -95,114 +210,32 @@ The main idea is that we can view \eqref{eq:Q-Δ} as a linear system with state 
 
 We will now separately show that $\NORM{X^0_t} \to 0$ and $\NORM{X^1_t} \to 0$, where $\NORM{⋅}$ denotes the sup-norm. Then, by triangle inequality, we have that $\NORM{Δ_t} \to 0$, which establishes that $Q_t \to Q^*$. 
 
-### Convergence of component $X^0_t$
+- **Convergence of component $X^0_t$**
 
-For the ease of notation, let $\ALPHABET F_t$ denote the sigma-algebra generated by $(S_{1:t}, A_{1:t-1})$. Then, observe that for any $(s,a)$,
-$$
-\EXP\Bigl[ r(S_{t+1}, A_{t+1}, S_{t+1}) + γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a') \Bigm| \ALPHABET F_t \Bigr] = Q^*(s,a).
-$$
-Thus,
-$$ \EXP[ U^0_t(s,a) | \ALPHABET F_t ] = 0. $$
+    For the ease of notation, let $\ALPHABET F_t$ denote the sigma-algebra generated by $(S_{1:t}, A_{1:t-1})$. Then, observe that for any $(s,a)$,
+    $$
+    \EXP\Bigl[ r(S_{t+1}, A_{t+1}, S_{t+1}) + γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a') \Bigm| \ALPHABET F_t \Bigr] = Q^*(s,a).
+    $$
+    Thus,
+    $$ \EXP[ U^0_t(s,a) | \ALPHABET F_t ] = 0. $$
 
-Thus, $\{U^0_t\}_{t \ge 1}$ is a martingale difference sequence. Therefore, the sequence $\{X^0_t\}_{t \ge 1}$ converges almost surely to $0$ (see @exr-recursive-averaging). Thus, $\NORM{X^0_t} \to 0$.
+    Thus, $\{U^0_t\}_{t \ge 1}$ is a martingale difference sequence. Therefore, the sequence $\{X^0_t\}_{t \ge 1}$ converges almost surely to $0$ (see @exr-recursive-averaging). Thus, $\NORM{X^0_t} \to 0$.
 
-### Convergence of component $X^1_t$
+- **Convergence of component $X^1_t$**
 
-Observe that for any $(s,a) \in \ALPHABET S × \ALPHABET A$,  
-\begin{align}
-  U^1_t(s,a) &=  γ \max_{a' \in \ALPHABET A} Q_{t+1}(S_{t+1}, a')
-  - γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a')
-  \notag \\
-  &\le γ \NORM{Q_{t+1} - Q^*} 
-  = γ \NORM{Δ_t} 
-  \notag \\
-  &\le  γ \NORM{X^0_t} + γ \NORM{X^1_t}
-  \label{eq:U-bound-0}
-\end{align}
+    Observe that for any $(s,a) \in \ALPHABET S × \ALPHABET A$,  
+    \begin{align}
+      U^1_t(s,a) &=  γ \max_{a' \in \ALPHABET A} Q_{t+1}(S_{t+1}, a')
+      - γ \max_{a' \in \ALPHABET A} Q^*(S_{t+1}, a')
+      \notag \\
+      &\le γ \NORM{Q_{t+1} - Q^*} 
+      = γ \NORM{Δ_t} 
+      \notag \\
+      &\le  γ \NORM{X^0_t} + γ \NORM{X^1_t}
+      \label{eq:U-bound-0}
+    \end{align}
 
-Arbitrarily fix $ε > 0$. Since $\NORM{X^0_t} \to 0$, there exists a set $Ω^1$ of measure one such that for all $ω \in Ω^1$, there exists a $T(ω,ε)$ such that for all $t > T(ω, ε)$ and all $(s,a) \in \ALPHABET S × \ALPHABET A$, we have
-$$
-  X^0_t(s,a) < ε.
-$$
-
-Now pick a constant $C$ such that 
-$$
-  κ \coloneqq γ\left( 1 + \frac{1}{C} \right) < 1.
-$$
-
-Suppose for some $t > T(ω, ε)$, $\NORM{X^1_t} > C ε$. Then for all $(s,a) \in \ALPHABET S × \ALPHABET A$, 
-\begin{equation}\label{eq:U-bound}
-  U^1_t(s,a) \le γ ε + γ \NORM{X^1_t} \le γ \left( 1 + \frac{1}{C} \right) \NORM{X^1_t} = κ \NORM{X^1_t}.
-\end{equation}
-Hence, 
-$$
-  X^1_{t+1}(s,a) = (1 - α_t(s,a)) X^1_t(s,a) + α_t(s,a) U^1_t(s,a) 
-  < \NORM{X^1}.
-$$
-Thus, 
-$$
-  \NORM{X^1_{t+1}} < \NORM{X^1_t}.
-$$
-
-Hence, when $\NORM{X^1_t} > C ε$, it decreases monotonically with time. Thus, there are two possibilities:
-
-1. $\NORM{X^1_t}$ always remains above $C ε$; or
-2. it goes below $C ε$ at some stage. 
-
-We show via contradiction that $\NORM{X^1_t}$ cannot remain above $C ε$ forever. Suppose $\NORM{X^1_t}$ remains above $C ε$ forever. As argued earlier, this implies that for any $ω \in Ω_1$, $\NORM{X^1_t(ω)}$, $t > T(ω,ε)$, is a strictly decreasing sequence. So, it must be bounded from above. Let $B^{(0)}(ω) < ∞$ be such that $\NORM{X^1_t} \le B^{(0)}$ for all $t > T(ω,ε)$. Eq. \eqref{eq:U-bound} implies that $\NORM{U^1_t} \le κ B^{(0)}$. Then we have that 
-\begin{align*}
-  X^1_{t+1}(s,a) &\le (1 - α_t(s,a))\NORM{X^1_t(s,a)} + α_t(s,a)\NORM{U^1_t} \\
-  &< (1 - α_t(s,a))\NORM{X^1_t(s,a)} + α_t(s,a)κ B^{(0)} \\
-\end{align*}
-Define a sequence $M^{(0)}_t(s,a)$, $t > T(ω,ε)$ as follows: $M^{(0)}_{T(ω,ε)}(s,a) = X_{T(ω,ε)}(s,a)$ and for $t > T(ω,ε)$, 
-$$
-  M_{t+1}^{(0)}(s,a) = (1 - α_t(s,a)) M_t^{(0)}(s,a) + α_t(s,a) κ B^{(0)}.
-$$
-Then, we can show via induction that $\NORM{X^1_t} \le \NORM{M_{t+1}}$. Moreover, for all $(s,a)$, $M_t(s,a) \to κ B^{(0)}$, a.s. (see @exr-constant-averaging).
-
-Now pick a $\bar ε \in (0, (1-κ)C ε)$. Since $\NORM{M_{t+1}} \to κB^{(0)}$, there exists a $T^{(1)} = T^{(1)}(ω,ε,\bar ε)$ such that for all $t > T^{(1)}$, $\NORM{M^{(0)}_{t}} \le B^{(1)} \coloneqq κ B^{(0)} + \bar ε$. 
-
-Thus, for all $t > T^{(1)}$, we have by \eqref{eq:U-bound}
-$$
-  \NORM{U^1_t} \le κ \NORM{X^{1}_t} \le κ \NORM{M^{(0)}_t} 
-  \le κ B^{(1)}.
-$$
-So, by repeating the above argument, we can show that there exists a time $T^{(2)}$ such that for all $t > T^{(2)}$,
-$$
-  \NORM{X^1_t} \le B^{(2)} \coloneqq κ B^{(1)} + \bar ε
-  = κ^2 B^{(0)} + κ \bar ε + \bar ε.
-$$
-Continuing this way, we will get that 
-$$
-  \NORM{X^1_t} \le B^{(m)} 
-  = κ^m B^{(0)} + κ^{m-1} \bar ε + \cdots + \bar ε
-  = κ^m B^{(0)} + \bar ε \frac{(1 - κ^m)}{(1 - κ)}.
-$$
-Note that we have chosen $\bar ε$ such that $\bar ε/(1-κ) < C ε$. So, eventually $B^{(m)}$ must get below $C ε$ for some $m$, contracticting our assumption that $\NORM{X^1_t}$ remains above $C ε$ forever. 
-
-Thus, there must be some time $t > T(ω,ε)$ at which $\NORM{X^1_t} < C ε$. Thus, by \eqref{eq:U-bound-0}, we get
-$$
-  \NORM{U^1_t} \le γ \NORM{X^0_t} + γ \NORM{X^1_t}
-  \le γ ε + γ C ε = (1 + C)γ ε
-  < C ε
-$$
-where the last inequality follows from the choice of $C$ (such that $κ < 1$). 
-
-Therefore,
-$$
-X^1_{t+1}(s,a) \le (1 - α_t(s,a)) \NORM{X^1_t} + α_t(s,a)\NORM{U^1_t} 
-< C ε
-$$
-where the last inequality uses the fact that both $\NORM{U^1_t}$ and $\NORM{X^1_t}$ are below $C ε$. Hence,
-$$
-\NORM{X^1_{t+1}} < C ε.
-$$
-Hence, once $\NORM{X^1_t}$ goes below $C ε$, it stays below $C ε$. 
-
-Thus, we have shown that for an arbitrary $ε$, $\NORM{X^1_t} < C ε$ for all sufficiently large $t$. Thus, 
-$$
-  \lim_{t \to ∞} \NORM{X^1_t} = 0, \space \text{a.s.}
-$$
+    Thus, the iteration for $X^1_t$ satisfies the assumptions of @lem-jaakkola and hence converges to zero, a.s.
 
 ## Notes {-}
 
