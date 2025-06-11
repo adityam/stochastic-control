@@ -121,10 +121,7 @@ Random.seed!(42)
 
 T = 10       # Number of time steps
 M = 25       # Number of different runs
-α = zeros(T)
-for t in 1:T
-    α[t] = 1/(t+1)
-end
+α = [1/(t+1) for t in 1:T]
 
 θ = zeros(T,M)
 for m in 1:M
@@ -147,7 +144,7 @@ ojs_define(theta = df)
 ```{ojs}
 //| label: fig-urn-multiple-runs
 //| fig-cap: Multiple runs of the urn model (@exm-urn-model) for different initial conditions.
-SimulationPlot = Plot.plot({
+Plot.plot({
   grid: true,
   marks: [
     // Axes
@@ -796,6 +793,137 @@ Show that
 a. If (R1) holds then $\{θ_t\}_{t \ge 1}$ is bounded almost surely.
 b. If, in addition, (R2) holds then $\{θ_t\}_{t \ge 1}$ converges almost surely to $0$.
 :::
+
+:::{#exr-SA-cubic}
+Consider the standard stochastic approximation iteration \eqref{eq:SA} with
+$$
+  f(θ) = -θ^3.
+$$
+
+a. Is the ODE $\dot θ = f(θ)$ globally asymptotically stable? (_Hint:_ Show that $V(θ) = θ^2$ is a valid Lyapunov function).
+
+b. Is origin globally asymptotically stable equilibrium point of the scaled ODE $\dot θ = f_{∞}(θ)$. where $f_{∞}(θ)$ is defined as in @thm-borkar-meyn. 
+
+c. Is $\IP{\GRAD V(θ)}{f(θ)} \le 0$ for all $θ$?
+
+d. A simulation of \eqref{eq:SA} for the above choice of $f$ and $\{ξ_t\}_{t \ge 1}$ being i.i.d. noise with $ξ_t \sim \text{Unif}[-1,1]$.for different stating conditions is shown in @fig-cubic. Explain the behavior of the iterates.
+
+    ```{julia}
+    #| echo: false
+    #| output: asis
+
+    Random.seed!(42)
+
+    T = 100      # Number of time steps
+    M = 10       # Number of different runs
+    α = [1/(t+1) for t in 1:T]
+
+    f(θ) = -θ^3
+
+    θ = zeros(T,M)
+    for m in 1:M
+        θ[1,m] = 2*mod((m/M + rand()/M),1) - 1
+        for t in 1:T-1
+            θ[t+1,m] = θ[t,m] + α[t]*f(θ[t,m]) + α[t]*rand(Uniform(-1,1))
+        end
+    end
+    ```
+
+    ```{julia}
+    #| echo: false
+    #| output: asis
+
+    # Convert data to observable
+    df = DataFrame(time=Int[], run=Int[], value=Float64[])
+    for t in 1:T, m in 1:M
+        push!(df, (t, m, θ[t,m]))
+    end
+    ojs_define(cubic = df)
+    ```
+
+```{ojs}
+//| label: fig-cubic
+//| fig-cap: Multiple runs for $f(θ) = -θ^3$
+//| output: asis
+
+Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([1]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(cubic, {x: "time", y: "value", z: "run", stroke: "#9ecae1" })
+  ]}
+)
+```
+:::
+
+:::{#exr-SA-saturation}
+Consider the standard stochastic approximation iteration \eqref{eq:SA} with
+$$
+  f(θ) = -\frac{θ}{\sqrt{1 + θ^2}}.
+$$
+
+a. Is the ODE $\dot θ = f(θ)$ globally asymptotically stable? (_Hint:_ Show that $V(θ) = θ^2$ is a valid Lyapunov function).
+
+b. Is origin globally asymptotically stable equilibrium point of the scaled ODE $\dot θ = f_{∞}(θ)$. where $f_{∞}(θ)$ is defined as in @thm-borkar-meyn. 
+
+c. Is $\IP{\GRAD V(θ)}{f(θ)} \le 0$ for all $θ$?
+
+d. A simulation of \eqref{eq:SA} for the above choice of $f$ and $\{ξ_t\}_{t \ge 1}$ being i.i.d. noise with $ξ_t \sim \text{Unif}[-1,1]$.for different stating conditions is shown in @fig-saturation. Explain the behavior of the iterates.
+
+    ```{julia}
+    #| echo: false
+    #| output: asis
+
+    Random.seed!(42)
+
+    T = 100      # Number of time steps
+    M = 10       # Number of different runs
+    α = [1/(t+1) for t in 1:T]
+
+    f(θ) = -θ/sqrt(1 + θ^2)
+
+    θ = zeros(T,M)
+    for m in 1:M
+        θ[1,m] = 2*mod((m/M + rand()/M),1) - 1
+        for t in 1:T-1
+            θ[t+1,m] = θ[t,m] + α[t]*f(θ[t,m]) + α[t]*rand(Uniform(-1,1))
+        end
+    end
+    ```
+
+    ```{julia}
+    #| echo: false
+    #| output: asis
+
+    # Convert data to observable
+    df = DataFrame(time=Int[], run=Int[], value=Float64[])
+    for t in 1:T, m in 1:M
+        push!(df, (t, m, θ[t,m]))
+    end
+    ojs_define(saturation = df)
+    ```
+
+```{ojs}
+//| label: fig-saturation
+//| fig-cap: Multiple runs for $f(θ) = -θ/\sqrt{1+θ^2}$
+//| output: asis
+
+Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([1]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(saturation, {x: "time", y: "value", z: "run", stroke: "#9ecae1" })
+  ]}
+)
+```
+:::
+
 
 ## Notes {-}
 
