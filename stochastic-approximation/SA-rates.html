@@ -7,10 +7,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-01-18">
+<meta name="dcterms.date" content="2025-07-21">
+<meta name="keywords" content="reinforcement learning, stochastic approximation">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
-<title>Assignment 2 – Stochastic Control and Decision Theory</title>
+<title>32&nbsp; Rate of convergence for stochastic approximation – Stochastic Control and Decision Theory</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,7 +24,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -33,7 +53,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../assignments/01.html" rel="prev">
+<link href="../rl/intro.html" rel="next">
+<link href="../stochastic-approximation/intro.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -366,7 +387,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../assignments/01.html">Assignments</a></li><li class="breadcrumb-item"><a href="../assignments/02.html">Assignment 2</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../stochastic-approximation/intro.html">Stochastic Approximation</a></li><li class="breadcrumb-item"><a href="../stochastic-approximation/SA-rates.html"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Rate of convergence for stochastic approximation</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -647,7 +668,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../stochastic-approximation/SA-rates.html" class="sidebar-item-text sidebar-link">
+  <a href="../stochastic-approximation/SA-rates.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Rate of convergence for stochastic approximation</span></span></a>
   </div>
 </li>
@@ -868,7 +889,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../assignments/02.html" class="sidebar-item-text sidebar-link active">
+  <a href="../assignments/02.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Assignment 2</span></a>
   </div>
 </li>
@@ -879,16 +900,26 @@ window.Quarto = {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#finite-time-convergence-rates-for-exponentially-stable-systems" id="toc-finite-time-convergence-rates-for-exponentially-stable-systems" class="nav-link active" data-scroll-target="#finite-time-convergence-rates-for-exponentially-stable-systems"><span class="header-section-number">32.1</span> Finite-time convergence rates for exponentially stable systems</a></li>
+  <li><a href="#using-averaging-to-improve-the-rate-of-convergence" id="toc-using-averaging-to-improve-the-rate-of-convergence" class="nav-link" data-scroll-target="#using-averaging-to-improve-the-rate-of-convergence"><span class="header-section-number">32.2</span> Using averaging to improve the rate of convergence</a></li>
+  <li><a href="#rates-of-convergence-when-system-is-not-exponentially-stable" id="toc-rates-of-convergence-when-system-is-not-exponentially-stable" class="nav-link" data-scroll-target="#rates-of-convergence-when-system-is-not-exponentially-stable"><span class="header-section-number">32.3</span> Rates of convergence when system is not exponentially stable</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/stochastic-approximation/SA-rates.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../assignments/01.html">Assignments</a></li><li class="breadcrumb-item"><a href="../assignments/02.html">Assignment 2</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../stochastic-approximation/intro.html">Stochastic Approximation</a></li><li class="breadcrumb-item"><a href="../stochastic-approximation/SA-rates.html"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Rate of convergence for stochastic approximation</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Assignment 2</h1>
+<h1 class="title"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Rate of convergence for stochastic approximation</span></h1>
 </div>
 
 
@@ -914,7 +945,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 18, 2024</p>
+      <p class="date">July 21, 2025</p>
     </div>
   </div>
   
@@ -922,33 +953,385 @@ window.Quarto = {
   </div>
   
 
+<div>
+  <div class="keywords">
+    <div class="block-title">Keywords</div>
+    <p>reinforcement learning, stochastic approximation</p>
+  </div>
+</div>
 
 </header>
 
 
-<ol type="1">
-<li><p><strong>Inventory Management</strong>. Consider a variation of the <a href="../mdps/inventory-management.html">inventory management</a> problem considered in class. Suppose that the inventory <span class="math inline">\(S_t\)</span> and the actions <span class="math inline">\(A_t\)</span> takes values in the set <span class="math inline">\(\mathbb S = \{0, 1, \dots,
-L \}\)</span>, and the dynamics are given by <span class="math display">\[
-   S_{t+1} = \bigl[ S_t + A_t - W_t \bigr]_0^L,
-\]</span> where <span class="math inline">\([ s ]_{0}^L\)</span> is a function which clips the values between <span class="math inline">\(0\)</span> and <span class="math inline">\(L\)</span>, i.e., <span class="math display">\[
-   [ s ]_0^L =
-   \begin{cases}
-   0, &amp; \text{if $s &lt; 0$} \\
-   s, &amp; \text{if $0 \le s \le L$} \\
-   L, &amp; \text{if $s &gt; L$}.
-   \end{cases}
-\]</span> The demand <span class="math inline">\(W_t\)</span> takes values in the set <span class="math inline">\(\ALPHABET W = \{0, 1, 2\}\)</span> with probability mass function <span class="math inline">\(P_W = [ 0.1, 0.7, 0.2 ]\)</span>.</p>
-<p>The per-step cost is given by <span class="math display">\[
-   c_t(S_t, A_t, W_t) = (S_t + A_t - W_t)^2.
-\]</span> Note that in this case, the inventoy cannot be negative but the per-step cost does take shortage into account.</p>
-<p>Write the dynamic programming equation and numerically solve it for a horizon <span class="math inline">\(T = 10\)</span> and inventory level <span class="math inline">\(L = 5\)</span>. Plot the value function and the optimal policy for <span class="math inline">\(t=1\)</span> and <span class="math inline">\(t=2\)</span>.</p></li>
-</ol>
-<ol start="2" type="1">
-<li><p><a href="../mdps/intro.html#exr-monotonicity-in-time" class="quarto-xref">Exercise&nbsp;<span>5.1</span></a> from notes on <a href="../mdps/intro.html">Finite horizon MDPs</a>.</p></li>
-<li><p><a href="../mdps/intro.html#exr-maximizing-tail-probabilities" class="quarto-xref">Exercise&nbsp;<span>5.2</span></a> from notes on <a href="../mdps/intro.html">Finite horizon MDPs</a>.</p></li>
-</ol>
+<section id="finite-time-convergence-rates-for-exponentially-stable-systems" class="level2" data-number="32.1">
+<h2 data-number="32.1" class="anchored" data-anchor-id="finite-time-convergence-rates-for-exponentially-stable-systems"><span class="header-section-number">32.1</span> Finite-time convergence rates for exponentially stable systems</h2>
+<p>Consider the simplest form of stochastic approximation <span class="math display">\[
+  θ_{t+1} = θ_t + α_t \bigl[ f(θ_t) + ξ_{t+1} \bigr],
+  \quad t \ge 1
+\]</span></p>
+<p>Suppose we satisfy the following assumptions</p>
+<p><strong>F1.</strong> <span class="math inline">\(θ^*\)</span> is a solution of the equation <span class="math inline">\(f(θ) = 0\)</span>.</p>
+<p><strong>F2.</strong> The function <span class="math inline">\(f\)</span> is globally Lipschitz-continous with constant <span class="math inline">\(L\)</span>, i.e., for any <span class="math inline">\(θ_1, θ_2 \in \reals^d\)</span>, <span class="math display">\[
+  \NORM{f(θ_1) - f(θ_2)}_{2} \le L \NORM{θ_1 - θ_2}.
+\]</span></p>
+<p><strong>N1.</strong> <span class="math inline">\(\{ξ_t\}_{t \ge 0}\)</span> is a [martingale difference sequence][MDS] with respect to <span class="math inline">\(\{ \mathcal F_t\}_{t \ge 1}\)</span>, i.e., <span class="math display">\[ \EXP[ ξ_{t+1} | \mathcal F_t ] = 0, \text{ a.s.}, \quad \forall t \ge 1. \]</span></p>
+<p><strong>N2.</strong> The noise <span class="math inline">\(\{ξ_t\}_{t \ge 1}\)</span> satisfies <span class="math display">\[
+\EXP[ \| ξ_{t+1} \|_2^2 \mid \mathcal F_t ] \le σ^2 \bigl(1 + \NORM{θ_t - θ^*}_2^2 \bigr)
+\space \text{a.s.}, \quad \forall t \ge 1
+\]</span> for some finite constant <span class="math inline">\(σ^2\)</span>.</p>
+<p>Furthermore, we assume that there exists a Lyapunov function <span class="math inline">\(V(θ)\)</span> that satisfies the following properties:</p>
+<p><strong>V1.</strong> The Lyapunov function is upper and lower bounded by quadratic functions, i.e., exist constants <span class="math inline">\(a, b &gt; 0\)</span> such that <span class="math display">\[
+    a \| θ - θ^*\|_2^2 \le V(θ) \le b \| θ - θ^* \|_2^2,
+    \quad \forall θ \in \reals^d.
+\]</span></p>
+<p><strong>V2.</strong> The Lyapunov function is <span class="math inline">\(M\)</span>-smooth, i.e., its gradient is <span class="math inline">\(M\)</span>-Lipschitz. So, for all <span class="math inline">\(θ_1, θ_2 \in \reals^d\)</span>, <span class="math display">\[
+  \NORM{ \GRAD V(θ_1) - \GRAD V(θ_2) }_2 \le 2M \NORM{θ_1 - θ_2}_2.
+\]</span></p>
+<p><strong>V3.</strong> The Lyapunov function is exponentially stable, i.e., there exists a <span class="math inline">\(ρ &gt; 0\)</span> such that for any <span class="math inline">\(θ \in \reals^d\)</span>, we have <span class="math display">\[
+  \dot V(θ) \coloneqq \IP{\GRAD V(θ)}{f(θ)}
+  \le - ρ V(θ).
+\]</span></p>
+<p>In addition, we impose the following assumption on the learning rates.</p>
+<p><strong>R0.</strong> The learning rates are deterministic.</p>
+<p>For simplicity, we will state the rate of convergence for <span class="math inline">\(V(θ) = \NORM{θ - θ^*}^2\)</span>, which always satisfies (V1) and (V2). The following intermediate result is useful for rate of convergence analysis. It is an immediate application of <a href="../analysis/inequalities.html#prp-discrete-gronwall" class="quarto-xref">Proposition&nbsp;<span>37.1</span></a> and has been rediscovered multiple times in the literature.</p>
+<div id="prp-SA-gronwall-bound" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 32.1</strong></span> Let <span class="math inline">\(Δ_t = \EXP[ \NORM{θ_t - θ^*}_2^2 ]\)</span>. Under assumptions (F1), (F2), (N1), (N2), (R0), and <span class="math inline">\(V(θ) = \NORM{θ - θ^*}^2\)</span> satisfying (V3), we have <span class="math display">\[
+  Δ_T \le
+   Φ_{0,T} Δ_0
+  + σ^2 \sum_{t=0}^{T-1} α_t^2 Φ_{t,T}
+\]</span> where <span class="math inline">\(Φ_{t,T} = \prod_{s=t}^{T-1}(1 - 2 α_s ρ + α_s^2(L^2 + σ^2))\)</span>.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As discussed in proof of <a href="intro.html#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>31.3</span></a>, since <span class="math inline">\(V(θ)\)</span> is strongly convex, we have <span class="math display">\[
+  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + \NORM{η}_2^2.
+\]</span></p>
+<p>Therefore, taking <span class="math inline">\(θ = θ_t\)</span> and <span class="math inline">\(η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}\)</span>, gives <span class="math display">\[\begin{align*}
+V(θ_{t+1}) &amp;\le V(θ_t)
++ 2 α_t \IP{θ_t-θ^*}{f(θ_t)}
++ 2 α_t \IP{θ_t-θ^*}{ξ_{t+1}}
+  \notag \\
+&amp;\quad  + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 +
+2 \IP{f(θ_t)}{ξ_{t+1}}
+\bigr]
+\end{align*}\]</span> Taking expectations and using (F2), (N1), (N2), and (V1), we get <span class="math display">\[
+Δ_{t+1} \le
+\bigl[1 - 2 α_t ρ + α_t^2 (L^2 + σ^2)\bigr] Δ_t
++ α_t^2 σ^2
+\]</span></p>
+<p>Therefore, the bound follows from <a href="../analysis/inequalities.html#prp-discrete-gronwall" class="quarto-xref">Proposition&nbsp;<span>37.1</span></a>.</p>
+</div>
+</div>
+</div>
+<p>A key idea for establishing rate of convergence is that for diminishing step sizes, at some stage <span class="math inline">\(α_t &lt; ρ/(L^2 + σ^2)\)</span>. Once that happens, <span class="math display">\[
+  1 - 2 α_t ρ + α_t^2(L^2 + σ^2)
+  &lt;
+  1 - α_t ρ.
+\]</span> Therefore, after such time <span class="math display">\[
+  Φ_{t,T} \le \prod_{s=t}^{T-1}(1 - ρ α_s)
+  \le \exp\left(-ρ \sum_{s=t}^{T-1} α_s \right).
+\]</span></p>
+<p>To understand the rate of convergence for <span class="math inline">\(α_t = C/(t+1)^q\)</span>, we first present some elementary inequalities.</p>
+<div id="lem-harmonic-sums" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 32.1</strong></span> <span class="math display">\[
+\sum_{t=0}^{T-1} \dfrac{1}{(t+1)^q} \le  φ_q(T)
+\coloneqq
+\begin{cases}
+  \dfrac{T^{1-q}}{1-q}, &amp; q \in (0,1) \\
+  \log T, &amp; q = 1 \\
+  &lt; ∞, &amp; q &gt; 1
+\end{cases}
+\]</span></p>
+<p>Moreover for <span class="math inline">\(t &lt; T\)</span> <span class="math display">\[
+\frac 12 \bigl[ φ_q(T) - φ_q(t) \bigr]
+\le
+\sum_{s=t}^{T-1} \dfrac{1}{(s+1)^q}
+\le
+φ_q(T) - φ_q(t).
+\]</span></p>
+</div>
+<p>These bounds can be established by bounding sums by integrals.</p>
+<p>The second result characterizes the rate of convergence of terms of the form of the second term in <a href="#prp-SA-gronwall-bound" class="quarto-xref">Proposition&nbsp;<span>32.1</span></a>.</p>
+<div id="lem-hu-bound" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 32.2</strong></span> Let <span class="math inline">\(α_t = C/(t+1)^q\)</span> for some <span class="math inline">\(q \in (0,1)\)</span> and <span class="math inline">\(β_t\)</span> be a positive sequence such that <span class="math inline">\(β_t = C'/(t+1)^p\)</span>, for some <span class="math inline">\(p \in (0,1)\)</span>. Define <span class="math display">\[
+    A_T =   \sum_{t=0}^{T-1} \left[
+      \prod_{s=t}^{T-1} (1 - 2 ρ α_s + α_s^2(L^2 + σ^2))
+    \right] α_t β_t
+  \]</span> Let <span class="math inline">\(T_0\)</span> be such that <span class="math display">\[
+    α_t \in \left( \frac{1}{ρ(t+1)}, \min\left\{ \frac{ρ}{L^2 + σ^2}, \frac{1}{ρ} \right\} \right), \quad t \ge T_0
+  \]</span> Then, <span class="math display">\[\begin{align*}
+  A_T &amp;\le
+  \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - ρ^{-1} β_{T_0}}
+  + \frac{C'p}{ρT} \bigl[ φ_{p}(T) - φ_{p}(T_0) \bigr] + \frac{1}{ρ T^p}
+  \\
+  &amp;\le
+  \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - ρ^{-1} β_{T_0}}
+  + \frac{C'p + 1}{ρT^p}
+  \\
+&amp;\le \mathcal{O}\left( \frac{1}{T^p} \right).
+\end{align*}\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>For simplicity of notation, let <span class="math inline">\(γ_t = 1 - 2 ρ α_t + α_t^2 (L^2 + σ^2)\)</span>. Observe that for <span class="math inline">\(t &gt; T_0\)</span>, <span class="math inline">\(γ_t \le (1 - ρ α_t)\)</span>. Therefore <span class="math display">\[\begin{align*}
+    A_{T+1} &amp;= \sum_{t=0}^{T-1} \left[
+      \prod_{s=t}^{\textcolor{red}{T}} γ_t
+    \right] α_t β_t + α_T β_T
+    \\
+    &amp;\le (1 - ρ α_T) A_T + α_T β_T
+  \end{align*}\]</span></p>
+<p>Define an operator <span class="math inline">\(\BELLMAN_T\)</span> as follows: <span class="math display">\[
+    \BELLMAN_T(A) = (1 - ρ α_T) A + α_T β_T.
+  \]</span> Observe that <span class="math display">\[
+    \BELLMAN_T(A^1) - \BELLMAN_T(A^2) = (1 - ρ α_T)(A^1 - A^2).
+  \]</span> Therefore, for any <span class="math inline">\(t \ge T_0\)</span>, <span class="math inline">\(\BELLMAN_T\)</span> is a contraction with contraction factor <span class="math inline">\((1 - ρ α_T) &lt; 1\)</span>. Therefore, by Banach fixed point theorem, <span class="math inline">\(\BELLMAN_T\)</span> has a unique fixed point. It is easy to verify that <span class="math inline">\(ρ^{-1} β_T\)</span> is a fixed point of <span class="math inline">\(\BELLMAN_T\)</span>.</p>
+<p>From mean-value theorem, we can say that <span class="math inline">\(β_{t-1} - β_{t} \le C'p/t^{p+1}\)</span>. Therefore, <span class="math display">\[\begin{align*}
+  A_T - ρ^{-1} β_T &amp;\le
+  \BELLMAN_{T-1}(A_{T-1}) - \BELLMAN_{T-1}(ρ^{-1} β_{T-1})
+  \\
+  &amp;\le (1 - ρ α_{T-1}) \ABS{ A_{T-1} - ρ^{-1} β_{T-1} }
+  \\
+  &amp;\le (1 - ρ α_{T-1}) \ABS{ A_{T-1} - ρ^{-1} β_{T-2} }
+     + (1 - ρ α_{T-1}) ρ^{-1} \ABS{ β_{T-1} - β_{T-2} }
+  \\
+  &amp;\le \cdots
+  \\
+  &amp;\le \prod_{t=T_0}^{T}(1- ρ α_t)\ABS{A_{T_0} - β_{T_0}}
+    + \sum_{t=T_0 + 1}^{T-1} \left[ \prod_{s=t}^{T-1} (1 - ρ α_s) \right] ρ^{-1} \ABS{β_{t-1} - β_t}
+  \\
+  &amp;\stackrel{(a)}\le \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - β_{T_0}}
+    + \sum_{t=T_0 + 1}^{T-1} \left[ \prod_{s=t}^{T-1} \left( 1 - \frac{1}{s+1} \right) \right] \frac{C'p}{ρ t^{p+1}}
+  \\
+  &amp;= \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - β_{T_0}}
+  + \frac{C'p}{ρT} \sum_{t={T_0 + 1}}^{T-1} \frac{1}{t^p}
+  \\
+  &amp;\le \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - β_{T_0}}
+  + \frac{C'p}{ρT} \bigl[ φ_{p}(T) - φ_{p}(T_0) \bigr]
+  \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the assumption on <span class="math inline">\(T_0\)</span>,</p>
+</div>
+</div>
+</div>
+<p>We now present the asymptotic rate of convergence based on a simplified version of the analysis in <span class="citation" data-cites="Hu2025">Hu and Fu (<a href="../references.html#ref-Hu2025" role="doc-biblioref">2025</a>)</span> and <span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span>.</p>
+<div id="prp-SA-rate" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 32.2 (Rate of convergence)</strong></span> For simplicity, we assume that <span class="math inline">\(C\)</span> is chosen such that <span class="math inline">\(C &lt; ρ/(L^2 + σ^2)\)</span>. Then, we have the following:</p>
+<ul>
+<li><p>When <span class="math inline">\(q \in (0,1)\)</span>, let <span class="math inline">\(T_0\)</span> be such that <span class="math display">\[
+  α_t \in \left( \frac{1}{ρ(t+1)}, \frac{1}{ρ} \right), \quad t \ge T_0
+\]</span> Then, for all <span class="math inline">\(t \ge T_0\)</span>, we have <span class="math display">\[\begin{align*}
+  Δ_T &amp;\le \left[ Δ_0 + σ^2\left| A_{T_0} - \frac{C}{ρ(T_0+1)} \right| \right] \exp\left( - \frac{ρC}{1-q} T^{1-q} \right)
+  + \frac{C σ^2 + 1}{ρ} \frac{1}{T^q}
+  \\
+  &amp;\le \mathcal{O}\left(\frac {1}{T^q} \right).
+\end{align*}\]</span></p></li>
+<li><p>When <span class="math inline">\(q = 1\)</span>, we have <span class="math display">\[
+  Δ_T \le
+  Δ_0 \frac{1}{T^{ρC}}
+  +
+  σ^2 C^2 \frac{φ_{2-ρC}(T)}{T^{ρC}}.
+\]</span></p>
+<p>Note that when <span class="math inline">\(2 - ρC \in (0,1)\)</span>, i.e., <span class="math inline">\(ρC \in (1,2)\)</span>, we have <span class="math display">\[
+    \frac{φ_{2-ρC}(T)}{T^{ρC}}
+    \le
+    \frac{1}{1 - ρC} \cdot \frac{1}{T}
+  \]</span> while when <span class="math inline">\(2 - ρC = 1\)</span>, i.e., <span class="math inline">\(ρC = 1\)</span> <span class="math display">\[
+    \frac{φ_{2-ρC}(T)}{T^{ρC}}
+    \le
+    \frac{\log T}{T}
+  \]</span> and while <span class="math inline">\(2 - ρC &gt; 1\)</span>, i.e., <span class="math inline">\(ρC &lt; 1\)</span>, we have <span class="math display">\[
+    \frac{φ_{2-ρC}(T)}{T^{ρC}}
+    \le
+    \mathcal{O}\left(\frac{1}{T^{ρC}}\right).
+  \]</span> Thus, the rate of convergence depends on the choice of <span class="math inline">\(C\)</span>. In particular, if <span class="math inline">\(ρC \ge 1\)</span>, then we get a convergence rate of <span class="math inline">\(1/T\)</span> while if <span class="math inline">\(ρC &lt; 1\)</span>, we get a slower convergence rate of <span class="math inline">\(1/T^{ρC}\)</span>.</p></li>
+</ul>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As discussed above, for sufficiently large <span class="math inline">\(t\)</span>, <span class="math inline">\(α_t &lt; ρ/(L^2 + σ^2)\)</span>. Therefore, from <a href="#lem-hu-bound" class="quarto-xref">Lemma&nbsp;<span>32.2</span></a>, we have the following:</p>
+<ul>
+<li><p>When <span class="math inline">\(q \in (0,1)\)</span>, <a href="#lem-harmonic-sums" class="quarto-xref">Lemma&nbsp;<span>32.1</span></a> implies that the first term in <a href="#prp-SA-gronwall-bound" class="quarto-xref">Proposition&nbsp;<span>32.1</span></a> is bounded as <span class="math display">\[
+  Φ_{0,T} \le \exp( -ρC φ_q(T) ) = \exp\left( - \frac{ρC}{1-q} T^{1-q} \right).
+\]</span> Furthermore, from <a href="#lem-hu-bound" class="quarto-xref">Lemma&nbsp;<span>32.2</span></a> with <span class="math inline">\(p=1\)</span>, we get that the second term in <a href="#prp-SA-gronwall-bound" class="quarto-xref">Proposition&nbsp;<span>32.1</span></a> is bounded as <span class="math display">\[
+  σ^2 \left| A_{T_0} - \frac{C}{ρ(T_0+1)} \right| \exp\left( - \frac{ρC}{1-q} T^{1-q} \right)
+  + \frac{σ^2C + 1}{ρ} \frac{1}{T^q}
+\]</span> where we have ignored the negative term.</p></li>
+<li><p>When <span class="math inline">\(q = 1\)</span>, we have <span class="math display">\[\begin{align*}
+  Φ_{t,T} &amp;= \prod_{s=t}^{T-1}(1 - 2 α_s ρ + α_s^2 L^2)
+  \le \prod_{s=t}^{T-1}(1 - α_s ρ)
+  \le \exp\left(-ρC \sum_{s=t}^{T-1} \frac{1}{s+1} \right)
+  \\
+  &amp;\le \exp\left( - ρC \log\left(\frac{T}{t+1}\right)\right)
+  = \left( \frac{t+1}{T} \right)^{ρC}
+\end{align*}\]</span></p>
+<p>Furthermore, we have <span class="math display">\[
+    \sum_{t=0}^{T-1} α_t^2 Φ_{t,T}
+    = \frac{C^2}{T^{ρC}}\sum_{t=0}^{T-1} \frac{1}{(t+1)^{2 - ρC}}
+    = \frac{C^2}{T^{ρC}} φ_{2 - ρC}(T)
+  \]</span></p>
+<p>Substituting these to the individual terms in <a href="#prp-SA-gronwall-bound" class="quarto-xref">Proposition&nbsp;<span>32.1</span></a> gives us the bound.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remarks
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>In the analysis above, we start with the assumption that <span class="math inline">\(C\)</span> is small enough such that <span class="math inline">\(α_t &lt; ρ/(L^2 + σ^2)\)</span>. If <span class="math inline">\(C\)</span> is larger than that, then from time <span class="math inline">\(t=0\)</span> upto <span class="math inline">\(τ = \inf\{ t : α_t &lt; ρ/(L^2 + σ^2) \}\)</span>, the error may grow polynomially. After this initial growth period, it starts decaying at a rate that depends on <span class="math inline">\(ρC\)</span>.</p></li>
+<li><p>The result of <a href="#prp-SA-rate" class="quarto-xref">Proposition&nbsp;<span>32.2</span></a> characterizes the rate of convergence in mean-<strong>squared</strong> sense. From Jensen’s inequality, we get <span class="math display">\[
+  \EXP[ \NORM{θ_t - θ^*}_2 ] \le
+  \sqrt{ \EXP[ \NORM{θ_t - θ^*}_2^2 ] }
+  \le \begin{dcases}
+    \mathcal{O}\left(\dfrac{1}{T^{q/2}}\right), &amp; q \in (0,1) \\
+    \mathcal{O}\left(\dfrac{1}{\sqrt{T}}\right), &amp; q = 1 \text{ and } ρC &gt; 1
+  \end{dcases}
+\]</span></p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="using-averaging-to-improve-the-rate-of-convergence" class="level2" data-number="32.2">
+<h2 data-number="32.2" class="anchored" data-anchor-id="using-averaging-to-improve-the-rate-of-convergence"><span class="header-section-number">32.2</span> Using averaging to improve the rate of convergence</h2>
+<p>It is possible to improve the rate of convergence by averaging. The standard method to do so is called <strong>Polyak-Ruppert averaging</strong>, which takes the Cesaro sum of the iterates <span class="math display">\[
+  \hat Θ_T = \frac{1}{T+1} \sum_{t=0}^{T} θ_t
+\]</span></p>
+<p><strong>To be completed</strong></p>
+</section>
+<section id="rates-of-convergence-when-system-is-not-exponentially-stable" class="level2" data-number="32.3">
+<h2 data-number="32.3" class="anchored" data-anchor-id="rates-of-convergence-when-system-is-not-exponentially-stable"><span class="header-section-number">32.3</span> Rates of convergence when system is not exponentially stable</h2>
+<p>We now consider the setting when the Lyapunov function is not exponentially stable. However, we assume that the following assumption holds:</p>
+<p><strong>V3’.</strong> There exists a <span class="math inline">\(ρ &gt; 0\)</span> and <span class="math inline">\(c &gt; 0\)</span> such that for any <span class="math inline">\(θ \in \reals^d\)</span>, we have <span class="math display">\[
+  \dot V(θ) \coloneqq \IP{\GRAD V(θ)}{f(θ)}
+  \le c - ρ V(θ).
+\]</span></p>
+<p>In this setting an alternative characterization on the rate of convergence (for stochastic gradient descent) was provided in <span class="citation" data-cites="Karimi2019">Karimi et al. (<a href="../references.html#ref-Karimi2019" role="doc-biblioref">2019</a>)</span>, which leverages an idea of random stopping due to <span class="citation" data-cites="Nemirovski2009">Nemirovski et al. (<a href="../references.html#ref-Nemirovski2009" role="doc-biblioref">2009</a>)</span>.</p>
+<div id="prp-SA-random-averaging" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 32.3</strong></span> Suppose we run stochastic approximation for a random time <span class="math inline">\(τ \in \{0, 1, \dots, T\}\)</span>, where <span class="math display">\[
+  \PR(τ = t) = \frac{α_t}{α_0 + \cdots + α_T}.
+\]</span></p>
+<p>Let <span class="math inline">\(Δ_t = \EXP[ \NORM{θ_t - θ^*}^2_2 ]\)</span>. Under assumptions (F1), (F2), (N1), (N2), (R0), and <span class="math inline">\(V(θ) = \NORM{θ - θ^*}^2\)</span> satisfying (V3’), and <span class="math inline">\(α_t &lt; ρ/(L^2 + α^2)\)</span>, we have <span class="math display">\[
+  \EXP[ Δ_{τ} ] = \dfrac{ \sum_{t=0}^{T} α_t Δ_t }
+  {\sum_{t=0}^T α_t }
+  \le
+  \dfrac{ Δ_{T+1} - Δ_0 + σ^2 \sum_{t=0}^{T} α_t^2 }
+  {\sum_{t=0}^T α_t } + c.
+\]</span></p>
+<p>Take <span class="math inline">\(α_t = C/(t+1)^{1/2}\)</span>, where <span class="math inline">\(C &lt; ρ/(L^2 + σ^2)\)</span>, we get that the right hand side is bounded by <span class="math display">\[
+  2 \frac{(Δ_{T+1} - Δ_0) + σ^2 C^2 \log T}{C\sqrt{T}} + c
+  \le \mathcal{O}\left(\frac{\log T}{\sqrt{T}}\right).
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>As argued in the proof of <a href="#prp-SA-rate" class="quarto-xref">Proposition&nbsp;<span>32.2</span></a>, under the stated assumptions we have <span class="math display">\[
+\EXP[\NORM{θ_{t+1}-\theta^*}_2^2] \le
+\bigl[1 - 2 α_t ρ + α_t^2 (L^2 + σ^2)\bigr] \EXP[\NORM{θ_t - θ^*}_2^2]
++ \textcolor{red}{α_t c} + α_t^2 σ^2
+\]</span> Furthermore, since <span class="math inline">\(α_t &lt; ρ/(L^2 + σ^2)\)</span>, we have <span class="math inline">\(1 - 2 α_t ρ + α_t^2 (L^2 + σ^2) &lt; 1 - α_t ρ\)</span>. Thus, <span class="math display">\[
+\EXP[\NORM{θ_{t+1}-\theta^*}_2^2] \le
+\bigl[1 - α_t ρ \bigr] \EXP[\NORM{θ_t - θ^*}_2^2]
++ \textcolor{red}{α_t c} + α_t^2 σ^2
+\]</span> Then, by rearranging terms, we can write the above equation as <span class="math display">\[
+  α_t ρ Δ_t \le Δ_{t+1} - Δ_t + \textcolor{red}{α_t c} + α_t^2 σ^2.
+\]</span> Summing from <span class="math inline">\(t=0\)</span> to <span class="math inline">\(t=T\)</span>, and dividing by <span class="math inline">\(\sum_{t=0}^T α_t\)</span>, we get the first bound.</p>
+<p>The second bound follows immediately from <a href="#lem-harmonic-sums" class="quarto-xref">Lemma&nbsp;<span>32.1</span></a>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Remarks
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p>The convegence rate of <span class="math inline">\(\mathcal{O}(1/\sqrt{T})\)</span> of <a href="#prp-SA-random-averaging" class="quarto-xref">Proposition&nbsp;<span>32.3</span></a> is worse than the best rate of <span class="math inline">\(\mathcal{O}(1/T)\)</span> obtained in <a href="#prp-SA-rate" class="quarto-xref">Proposition&nbsp;<span>32.2</span></a>. However, the key advantage is that they are guaranteed without any global asymptotic stability assumptions. When being used in projection based stochastic approximation, one can bound <span class="math inline">\(Δ_{T+1} - Δ_0\)</span> in terms of the diameter of set where iterates are projected.</p></li>
+<li><p>The analysis also works for constant step sizes. In particular, if we pick <span class="math inline">\(α_t = C/\sqrt{\textcolor{red}{T}}\)</span> (note <span class="math inline">\(α_t\)</span> doesn’t depend on <span class="math inline">\(t\)</span>), then the right hand side of the bound is <span class="math display">\[
+   \frac{(Δ_{T+1} - Δ_0) + σ^2 C^2}{C\sqrt{T}}
+   + c.
+\]</span></p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+</section>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p><a href="#lem-hu-bound" class="quarto-xref">Lemma&nbsp;<span>32.2</span></a> is from <span class="citation" data-cites="Hu2025a">Hu et al. (<a href="../references.html#ref-Hu2025a" role="doc-biblioref">2025</a>)</span>. The first part of <a href="#prp-SA-rate" class="quarto-xref">Proposition&nbsp;<span>32.2</span></a> is adapted from <span class="citation" data-cites="Hu2025">Hu and Fu (<a href="../references.html#ref-Hu2025" role="doc-biblioref">2025</a>)</span>, where it was stated for stochastic gradient descent with biased gradients. Similar analysis is presented in <span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span>, with a more nuanced characterization of the “growth term” <span class="math inline">\(A_{T_0}\)</span>. The second part of <a href="#prp-SA-rate" class="quarto-xref">Proposition&nbsp;<span>32.2</span></a> is adapted from <span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span>, where it was stated for stochastic gradient descent. We have simplified the analysis by assuming that <span class="math inline">\(α_t &lt; ρ/(L^2 + σ^2)\)</span>. <span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span> do not make this assumption and also characterize the rate of expansion until the time when <span class="math inline">\(α_t\)</span> becomes less than <span class="math inline">\(ρ/(L^2 + σ^2)\)</span>.</p>
+<p><span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span> show that for <span class="math inline">\(q \in (1/2, 1)\)</span>, the rate of convergence improves when using Polyak-Ruppert averaging.</p>
+<p>The idea of running stochastic approximation for a random amount of time is based on <span class="citation" data-cites="Nemirovski2009">Nemirovski et al. (<a href="../references.html#ref-Nemirovski2009" role="doc-biblioref">2009</a>)</span>.</p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-Bach2011" class="csl-entry" role="listitem">
+<span class="smallcaps">Bach, F. and Moulines, E.</span> 2011. Non-asymptotic analysis of stochastic approximation algorithms for machine learning. <em>Advances in neural information processing systems</em>, Curran Associates, Inc. Available at: <a href="https://proceedings.neurips.cc/paper_files/paper/2011/file/40008b9a5380fcacce3976bf7c08af5b-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2011/file/40008b9a5380fcacce3976bf7c08af5b-Paper.pdf</a>.
+</div>
+<div id="ref-Hu2025" class="csl-entry" role="listitem">
+<span class="smallcaps">Hu, J. and Fu, M.C.</span> 2025. Technical note—on the convergence rate of stochastic approximation for gradient-based stochastic optimization. <em>Operations Research</em> <em>73</em>, 2, 1143–1150. DOI: <a href="https://doi.org/10.1287/opre.2023.0055">10.1287/opre.2023.0055</a>.
+</div>
+<div id="ref-Hu2025a" class="csl-entry" role="listitem">
+<span class="smallcaps">Hu, J., Song, M., and Fu, M.C.</span> 2025. Quantile optimization via multiple-timescale local search for black-box functions. <em>Operations Research</em> <em>73</em>, 3, 1535–1557. DOI: <a href="https://doi.org/10.1287/opre.2022.0534">10.1287/opre.2022.0534</a>.
+</div>
+<div id="ref-Karimi2019" class="csl-entry" role="listitem">
+<span class="smallcaps">Karimi, B., Miasojedow, B., Moulines, E., and Wai, H.-T.</span> 2019. Non-asymptotic analysis of biased stochastic approximation scheme. <em>Proceedings of the thirty-second conference on learning theory</em>, PMLR, 1944–1974. Available at: <a href="https://proceedings.mlr.press/v99/karimi19a.html">https://proceedings.mlr.press/v99/karimi19a.html</a>.
+</div>
+<div id="ref-Nemirovski2009" class="csl-entry" role="listitem">
+<span class="smallcaps">Nemirovski, A., Juditsky, A., Lan, G., and Shapiro, A.</span> 2009. Robust stochastic approximation approach to stochastic programming. <em>SIAM Journal on Optimization</em> <em>19</em>, 4, 1574–1609. DOI: <a href="https://doi.org/10.1137/070704277">10.1137/070704277</a>.
+</div>
+</div>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1365,11 +1748,14 @@ L \}\)</span>, and the dynamics are given by <span class="math display">\[
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../assignments/01.html" class="pagination-link" aria-label="Assignment 1">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Assignment 1</span>
+      <a href="../stochastic-approximation/intro.html" class="pagination-link" aria-label="Stochastic approximation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Stochastic approximation</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../rl/intro.html" class="pagination-link" aria-label="The learning setup">
+        <span class="nav-page-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">The learning setup</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
@@ -1377,5 +1763,5 @@ L \}\)</span>, and the dynamics are given by <span class="math display">\[
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/assignments/02.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/stochastic-approximation/SA-rates.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
