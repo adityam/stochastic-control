@@ -1,0 +1,420 @@
+---
+title: "Rate of convergence for stochastic approximation"
+keywords:
+  - reinforcement learning
+  - stochastic approximation
+execute:
+  echo: false
+  cache: true
+  freeze: true
+---
+
+```{julia}
+#| output: false
+# Initializtions
+using Revise
+
+using Plots, LaTeXStrings
+current_theme = :bright
+current_colors = theme_palette(current_theme)
+theme(current_theme)
+```
+
+## Finite-time convergence rates for exponentially stable systems
+
+Consider the simplest form of stochastic approximation
+$$
+  θ_{t+1} = θ_t + α_t \bigl[ f(θ_t) + ξ_{t+1} \bigr], 
+  \quad t \ge 1
+$$
+
+Suppose we satisfy the following assumptions 
+
+**F1.** $θ^*$ is a solution of the equation $f(θ) = 0$.
+
+**F2.** The function $f$ is globally Lipschitz-continous with constant $L$, i.e., for any $θ_1, θ_2 \in \reals^d$, 
+$$
+  \NORM{f(θ_1) - f(θ_2)}_{2} \le L \NORM{θ_1 - θ_2}.
+$$
+
+**N1.** $\{ξ_t\}_{t \ge 0}$ is a [martingale difference sequence][MDS] with respect to $\{ \mathcal F_t\}_{t \ge 1}$, i.e.,
+$$ \EXP[ ξ_{t+1} | \mathcal F_t ] = 0, \text{ a.s.}, \quad \forall t \ge 1. $$
+
+**N2.** The noise $\{ξ_t\}_{t \ge 1}$ satisfies
+$$
+\EXP[ \| ξ_{t+1} \|_2^2 \mid \mathcal F_t ] \le σ^2 \bigl(1 + \NORM{θ_t - θ^*}_2^2 \bigr)
+\space \text{a.s.}, \quad \forall t \ge 1
+$$
+for some finite constant $σ^2$. 
+
+Furthermore, we assume that there exists a Lyapunov function $V(θ)$
+that satisfies the following properties:
+
+**V1.** The Lyapunov function is upper and lower bounded by quadratic functions, i.e., exist constants $a, b > 0$ such that
+$$
+    a \| θ - θ^*\|_2^2 \le V(θ) \le b \| θ - θ^* \|_2^2, 
+    \quad \forall θ \in \reals^d.
+$$
+
+**V2.** The Lyapunov function is $M$-smooth, i.e., its gradient is $M$-Lipschitz. So, for all $θ_1, θ_2 \in \reals^d$, 
+$$
+  \NORM{ \GRAD V(θ_1) - \GRAD V(θ_2) }_2 \le 2M \NORM{θ_1 - θ_2}_2.
+$$
+
+**V3.** The Lyapunov function is exponentially stable, i.e., there exists a $ρ > 0$ such that for any $θ \in \reals^d$, we have
+$$
+  \dot V(θ) \coloneqq \IP{\GRAD V(θ)}{f(θ)} 
+  \le - ρ V(θ).
+$$
+
+In addition, we impose the following assumption on the learning rates.
+
+**R0.** The learning rates are deterministic.
+
+For simplicity, we will state the rate of convergence for $V(θ) = \NORM{θ - θ^*}^2$, which always satisfies (V1) and (V2). The following intermediate result is useful for rate of convergence analysis. It is an immediate application of @prp-discrete-gronwall and has been rediscovered multiple times in the literature. 
+
+:::{#prp-SA-gronwall-bound}
+Let $Δ_t = \EXP[ \NORM{θ_t - θ^*}_2^2 ]$. 
+Under assumptions (F1), (F2), (N1), (N2), (R0), and $V(θ) = \NORM{θ - θ^*}^2$ satisfying (V3), we have
+$$
+  Δ_T \le 
+   Φ_{0,T} Δ_0
+  + σ^2 \sum_{t=0}^{T-1} α_t^2 Φ_{t,T}
+$$
+where $Φ_{t,T} = \prod_{s=t}^{T-1}(1 - 2 α_s ρ + α_s^2(L^2 + σ^2))$.
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+
+As discussed in proof of @thm-vidyasagar-1, since $V(θ)$ is strongly convex, we have
+$$
+  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + \NORM{η}_2^2.
+$$
+
+Therefore, taking $θ = θ_t$ and $η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}$, gives
+\begin{align*}
+V(θ_{t+1}) &\le V(θ_t) 
++ 2 α_t \IP{θ_t-θ^*}{f(θ_t)}
++ 2 α_t \IP{θ_t-θ^*}{ξ_{t+1}}
+  \notag \\
+&\quad  + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 + 
+2 \IP{f(θ_t)}{ξ_{t+1}}
+\bigr] 
+\end{align*}
+Taking expectations and using (F2), (N1), (N2), and (V1), we get
+$$
+Δ_{t+1} \le 
+\bigl[1 - 2 α_t ρ + α_t^2 (L^2 + σ^2)\bigr] Δ_t
++ α_t^2 σ^2 
+$$
+
+Therefore, the bound follows from @prp-discrete-gronwall. 
+:::
+
+A key idea for establishing rate of convergence is that for diminishing step sizes, at some stage $α_t < ρ/(L^2 + σ^2)$. Once that happens, 
+$$
+  1 - 2 α_t ρ + α_t^2(L^2 + σ^2) 
+  <
+  1 - α_t ρ.
+$$
+Therefore, after such time
+$$
+  Φ_{t,T} \le \prod_{s=t}^{T-1}(1 - ρ α_s) 
+  \le \exp\left(-ρ \sum_{s=t}^{T-1} α_s \right).
+$$
+
+To understand the rate of convergence for $α_t = C/(t+1)^q$, we first present some elementary inequalities.
+
+:::{#lem-harmonic-sums}
+$$
+\sum_{t=0}^{T-1} \dfrac{1}{(t+1)^q} \le  φ_q(T)
+\coloneqq
+\begin{cases}
+  \dfrac{T^{1-q}}{1-q}, & q \in (0,1) \\
+  \log T, & q = 1 \\
+  < ∞, & q > 1
+\end{cases}
+$$
+
+Moreover for $t < T$
+$$
+\frac 12 \bigl[ φ_q(T) - φ_q(t) \bigr]
+\le
+\sum_{s=t}^{T-1} \dfrac{1}{(s+1)^q}
+\le
+φ_q(T) - φ_q(t).
+$$
+:::
+
+These bounds can be established by bounding sums by integrals.
+
+The second result characterizes the rate of convergence of terms of the form of the second term in @prp-SA-gronwall-bound.
+
+:::{#lem-hu-bound}
+Let $α_t = C/(t+1)^q$ for some $q \in (0,1)$ and $β_t$ be a positive sequence such that $β_t = C'/(t+1)^p$, for some $p \in (0,1)$. 
+Define 
+  $$
+    A_T =   \sum_{t=0}^{T-1} \left[
+      \prod_{s=t}^{T-1} (1 - 2 ρ α_s + α_s^2(L^2 + σ^2))
+    \right] α_t β_t 
+  $$
+Let $T_0$ be such that
+  $$
+    α_t \in \left( \frac{1}{ρ(t+1)}, \min\left\{ \frac{ρ}{L^2 + σ^2}, \frac{1}{ρ} \right\} \right), \quad t \ge T_0
+  $$
+Then,
+\begin{align*}
+  A_T &\le 
+  \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - ρ^{-1} β_{T_0}}
+  + \frac{C'p}{ρT} \bigl[ φ_{p}(T) - φ_{p}(T_0) \bigr] + \frac{1}{ρ T^p}
+  \\
+  &\le
+  \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - ρ^{-1} β_{T_0}}
+  + \frac{C'p + 1}{ρT^p} 
+  \\
+ &\le \mathcal{O}\left( \frac{1}{T^p} \right).
+\end{align*}
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof
+  For simplicity of notation, let $γ_t = 1 - 2 ρ α_t + α_t^2 (L^2 + σ^2)$. Observe that for $t > T_0$, $γ_t \le (1 - ρ α_t)$. 
+  Therefore
+  \begin{align*}
+    A_{T+1} &= \sum_{t=0}^{T-1} \left[
+      \prod_{s=t}^{\textcolor{red}{T}} γ_t
+    \right] α_t β_t + α_T β_T
+    \\
+    &\le (1 - ρ α_T) A_T + α_T β_T
+  \end{align*}
+
+  Define an operator $\BELLMAN_T$ as follows:
+  $$
+    \BELLMAN_T(A) = (1 - ρ α_T) A + α_T β_T.
+  $$
+  Observe that
+  $$
+    \BELLMAN_T(A^1) - \BELLMAN_T(A^2) = (1 - ρ α_T)(A^1 - A^2).
+  $$
+  Therefore, for any $t \ge T_0$, $\BELLMAN_T$ is a contraction with contraction factor $(1 - ρ α_T) < 1$. Therefore, by Banach fixed point theorem, $\BELLMAN_T$ has a unique fixed point. It is easy to verify that $ρ^{-1} β_T$ is a fixed point of $\BELLMAN_T$. 
+
+  From mean-value theorem, we can say that $β_{t-1} - β_{t} \le C'p/t^{p+1}$. Therefore,
+  \begin{align*}
+  A_T - ρ^{-1} β_T &\le 
+  \BELLMAN_{T-1}(A_{T-1}) - \BELLMAN_{T-1}(ρ^{-1} β_{T-1})
+  \\
+  &\le (1 - ρ α_{T-1}) \ABS{ A_{T-1} - ρ^{-1} β_{T-1} }
+  \\
+  &\le (1 - ρ α_{T-1}) \ABS{ A_{T-1} - ρ^{-1} β_{T-2} } 
+     + (1 - ρ α_{T-1}) ρ^{-1} \ABS{ β_{T-1} - β_{T-2} }
+  \\
+  &\le \cdots
+  \\
+  &\le \prod_{t=T_0}^{T}(1- ρ α_t)\ABS{A_{T_0} - β_{T_0}}
+    + \sum_{t=T_0 + 1}^{T-1} \left[ \prod_{s=t}^{T-1} (1 - ρ α_s) \right] ρ^{-1} \ABS{β_{t-1} - β_t}
+  \\
+  &\stackrel{(a)}\le \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - β_{T_0}}
+    + \sum_{t=T_0 + 1}^{T-1} \left[ \prod_{s=t}^{T-1} \left( 1 - \frac{1}{s+1} \right) \right] \frac{C'p}{ρ t^{p+1}}
+  \\
+  &= \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - β_{T_0}}
+  + \frac{C'p}{ρT} \sum_{t={T_0 + 1}}^{T-1} \frac{1}{t^p}
+  \\
+  &\le \exp\left( - ρC \sum_{t=T_0}^{T-1} α_t \right) \ABS{A_{T_0} - β_{T_0}}
+  + \frac{C'p}{ρT} \bigl[ φ_{p}(T) - φ_{p}(T_0) \bigr]
+  \end{align*}
+  where $(a)$ follows from the assumption on $T_0$,
+:::
+
+We now present the asymptotic rate of convergence based on a simplified version of the analysis in @Hu2025 and @Bach2011.
+
+:::{#prp-SA-rate}
+#### Rate of convergence 
+
+For simplicity, we assume that $C$ is chosen such that $C < ρ/(L^2 + σ^2)$. Then, we have the following:
+
+- When $q \in (0,1)$, let $T_0$ be such that 
+  $$
+    α_t \in \left( \frac{1}{ρ(t+1)}, \frac{1}{ρ} \right), \quad t \ge T_0
+  $$
+  Then, for all $t \ge T_0$, we have
+  \begin{align*}
+    Δ_T &\le \left[ Δ_0 + σ^2\left| A_{T_0} - \frac{C}{ρ(T_0+1)} \right| \right] \exp\left( - \frac{ρC}{1-q} T^{1-q} \right)
+    + \frac{C σ^2 + 1}{ρ} \frac{1}{T^q}
+    \\
+    &\le \mathcal{O}\left(\frac {1}{T^q} \right).
+  \end{align*}
+
+- When $q = 1$, we have 
+  $$
+    Δ_T \le 
+    Δ_0 \frac{1}{T^{ρC}}
+    +
+    σ^2 C^2 \frac{φ_{2-ρC}(T)}{T^{ρC}}.
+  $$
+
+    Note that when $2 - ρC \in (0,1)$, i.e., $ρC \in (1,2)$, we have
+    $$
+      \frac{φ_{2-ρC}(T)}{T^{ρC}} 
+      \le
+      \frac{1}{1 - ρC} \cdot \frac{1}{T}
+    $$
+    while when $2 - ρC = 1$, i.e., $ρC = 1$
+    $$
+      \frac{φ_{2-ρC}(T)}{T^{ρC}} 
+      \le
+      \frac{\log T}{T}
+    $$
+    and while $2 - ρC > 1$, i.e., $ρC < 1$, we have
+    $$
+      \frac{φ_{2-ρC}(T)}{T^{ρC}} 
+      \le
+      \mathcal{O}\left(\frac{1}{T^{ρC}}\right).
+    $$
+    Thus, the rate of convergence depends on the choice of $C$. 
+    In particular, if $ρC \ge 1$, then we get a convergence rate of $1/T$ while if $ρC < 1$, we get a slower convergence rate of $1/T^{ρC}$. 
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+
+As discussed above, for sufficiently large $t$, $α_t < ρ/(L^2 + σ^2)$. Therefore, from @lem-hu-bound, we have the following: 
+
+- When $q \in (0,1)$, @lem-harmonic-sums implies that the first term in @prp-SA-gronwall-bound is bounded as 
+  $$
+    Φ_{0,T} \le \exp( -ρC φ_q(T) ) = \exp\left( - \frac{ρC}{1-q} T^{1-q} \right).
+  $$
+  Furthermore, from @lem-hu-bound with $p=1$, we get that the second term in @prp-SA-gronwall-bound is bounded as
+  $$
+    σ^2 \left| A_{T_0} - \frac{C}{ρ(T_0+1)} \right| \exp\left( - \frac{ρC}{1-q} T^{1-q} \right)
+    + \frac{σ^2C + 1}{ρ} \frac{1}{T^q}
+  $$
+  where we have ignored the negative term.
+
+- When $q = 1$, we have
+  \begin{align*}
+    Φ_{t,T} &= \prod_{s=t}^{T-1}(1 - 2 α_s ρ + α_s^2 L^2)
+    \le \prod_{s=t}^{T-1}(1 - α_s ρ) 
+    \le \exp\left(-ρC \sum_{s=t}^{T-1} \frac{1}{s+1} \right) 
+    \\
+    &\le \exp\left( - ρC \log\left(\frac{T}{t+1}\right)\right)
+    = \left( \frac{t+1}{T} \right)^{ρC}
+  \end{align*}
+
+    Furthermore, we have
+    $$
+      \sum_{t=0}^{T-1} α_t^2 Φ_{t,T} 
+      = \frac{C^2}{T^{ρC}}\sum_{t=0}^{T-1} \frac{1}{(t+1)^{2 - ρC}}
+      = \frac{C^2}{T^{ρC}} φ_{2 - ρC}(T)
+    $$
+
+    Substituting these to the individual terms in @prp-SA-gronwall-bound gives us the bound.
+:::
+
+:::{.callout-tip}
+#### Remarks
+- In the analysis above, we start with the assumption that $C$ is small enough such that $α_t < ρ/(L^2 + σ^2)$. If $C$ is larger than that, then from time $t=0$ upto $τ = \inf\{ t : α_t < ρ/(L^2 + σ^2) \}$, the error may grow polynomially. After this initial growth period, it starts decaying at a rate that depends on $ρC$.
+
+- The result of @prp-SA-rate characterizes the rate of convergence in mean-**squared** sense. From Jensen's inequality, we get
+  $$
+    \EXP[ \NORM{θ_t - θ^*}_2 ] \le 
+    \sqrt{ \EXP[ \NORM{θ_t - θ^*}_2^2 ] }
+    \le \begin{dcases}
+      \mathcal{O}\left(\dfrac{1}{T^{q/2}}\right), & q \in (0,1) \\
+      \mathcal{O}\left(\dfrac{1}{\sqrt{T}}\right), & q = 1 \text{ and } ρC > 1 
+    \end{dcases}
+  $$
+:::
+
+
+## Using averaging to improve the rate of convergence
+
+It is possible to improve the rate of convergence by averaging. The standard method to do so is called **Polyak-Ruppert averaging**, which takes the Cesaro sum of the iterates
+$$
+  \hat Θ_T = \frac{1}{T+1} \sum_{t=0}^{T} θ_t
+$$
+
+**To be completed**
+
+
+## Rates of convergence when system is not exponentially stable
+
+We now consider the setting when the Lyapunov function is not exponentially stable. However, we assume that the following assumption holds:
+
+**V3'.** There exists a $ρ > 0$ and $c > 0$ such that for any $θ \in \reals^d$, we have
+$$
+  \dot V(θ) \coloneqq \IP{\GRAD V(θ)}{f(θ)} 
+  \le c - ρ V(θ).
+$$
+
+In this setting an alternative characterization on the rate of convergence (for stochastic gradient descent) was provided in @Karimi2019, which leverages an idea of random stopping due to @Nemirovski2009. 
+
+:::{#prp-SA-random-averaging}
+Suppose we run stochastic approximation for a random time $τ \in \{0, 1, \dots, T\}$, where
+$$
+  \PR(τ = t) = \frac{α_t}{α_0 + \cdots + α_T}.
+$$
+
+Let $Δ_t = \EXP[ \NORM{θ_t - θ^*}^2_2 ]$.
+Under assumptions (F1), (F2), (N1), (N2), (R0), and $V(θ) = \NORM{θ - θ^*}^2$ satisfying (V3'), and $α_t < ρ/(L^2 + α^2)$, we have
+$$
+  \EXP[ Δ_{τ} ] = \dfrac{ \sum_{t=0}^{T} α_t Δ_t }
+  {\sum_{t=0}^T α_t } 
+  \le
+  \dfrac{ Δ_{T+1} - Δ_0 + σ^2 \sum_{t=0}^{T} α_t^2 }
+  {\sum_{t=0}^T α_t } + c.
+$$
+
+Take $α_t = C/(t+1)^{1/2}$, where $C < ρ/(L^2 + σ^2)$, we get that the right hand side is bounded by 
+$$
+  2 \frac{(Δ_{T+1} - Δ_0) + σ^2 C^2 \log T}{C\sqrt{T}} + c
+  \le \mathcal{O}\left(\frac{\log T}{\sqrt{T}}\right).
+$$
+:::
+
+:::{.callout-note collapse="true"} 
+#### Proof
+
+As argued in the proof of @prp-SA-rate, under the stated assumptions we have
+$$
+\EXP[\NORM{θ_{t+1}-\theta^*}_2^2] \le 
+\bigl[1 - 2 α_t ρ + α_t^2 (L^2 + σ^2)\bigr] \EXP[\NORM{θ_t - θ^*}_2^2]
++ \textcolor{red}{α_t c} + α_t^2 σ^2 
+$$
+Furthermore, since $α_t < ρ/(L^2 + σ^2)$, we have $1 - 2 α_t ρ + α_t^2 (L^2 + σ^2) < 1 - α_t ρ$. Thus,
+$$
+\EXP[\NORM{θ_{t+1}-\theta^*}_2^2] \le 
+\bigl[1 - α_t ρ \bigr] \EXP[\NORM{θ_t - θ^*}_2^2]
++ \textcolor{red}{α_t c} + α_t^2 σ^2 
+$$
+Then, by rearranging terms, we can write the above equation as
+$$
+  α_t ρ Δ_t \le Δ_{t+1} - Δ_t + \textcolor{red}{α_t c} + α_t^2 σ^2.
+$$
+Summing from $t=0$ to $t=T$, and dividing by $\sum_{t=0}^T α_t$, we get the first bound.
+
+The second bound follows immediately from @lem-harmonic-sums.
+:::
+
+:::{.callout-tip}
+#### Remarks
+
+- The convegence rate of $\mathcal{O}(1/\sqrt{T})$ of @prp-SA-random-averaging is worse than the best rate of $\mathcal{O}(1/T)$ obtained in @prp-SA-rate. However, the key advantage is that they are guaranteed without any global asymptotic stability assumptions. When being used in projection based stochastic approximation, one can bound $Δ_{T+1} - Δ_0$ in terms of the diameter of set where iterates are projected. 
+
+- The analysis also works for constant step sizes. In particular, if we pick $α_t = C/\sqrt{\textcolor{red}{T}}$ (note $α_t$ doesn't depend on $t$), then the right hand side of the bound is
+  $$
+     \frac{(Δ_{T+1} - Δ_0) + σ^2 C^2}{C\sqrt{T}}
+     + c.
+  $$
+
+:::
+
+## Exercises {-}
+
+## Notes {-}
+
+@lem-hu-bound is from @Hu2025a. The first part of @prp-SA-rate is adapted from @Hu2025, where it was stated for stochastic gradient descent with biased gradients. Similar analysis is presented in @Bach2011, with a more nuanced characterization of the "growth term" $A_{T_0}$. The second part of @prp-SA-rate is adapted from @Bach2011, where it was stated for stochastic gradient descent. We have simplified the analysis by assuming that $α_t < ρ/(L^2 + σ^2)$. @Bach2011 do not make this assumption and also characterize the rate of expansion until the time when $α_t$ becomes less than $ρ/(L^2 + σ^2)$. 
+
+@Bach2011 show that for $q \in (1/2, 1)$, the rate of convergence improves when using Polyak-Ruppert averaging.
+
+The idea of running stochastic approximation for a random amount of time is based on @Nemirovski2009. 
