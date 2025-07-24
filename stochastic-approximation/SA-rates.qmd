@@ -56,7 +56,7 @@ $$
     \quad \forall θ \in \reals^d.
 $$
 
-**V2.** The Lyapunov function is $M$-smooth, i.e., its gradient is $M$-Lipschitz. So, for all $θ_1, θ_2 \in \reals^d$, 
+**V2.** The Lyapunov function is $2M$-smooth, i.e., its gradient is $2M$-Lipschitz. So, for all $θ_1, θ_2 \in \reals^d$, 
 $$
   \NORM{ \GRAD V(θ_1) - \GRAD V(θ_2) }_2 \le 2M \NORM{θ_1 - θ_2}_2.
 $$
@@ -87,18 +87,18 @@ where $Φ_{t,T} = \prod_{s=t}^{T-1}(1 - 2 α_s ρ + α_s^2(L^2 + σ^2))$.
 :::{.callout-note collapse="true"} 
 #### Proof
 
-As discussed in proof of @thm-vidyasagar-1, since $V(θ)$ is strongly convex, we have
+As discussed in proof of @thm-vidyasagar-1, since $V(θ)$ is $2M$-smooth, we have
 $$
-  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + \NORM{η}_2^2.
+  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + M \NORM{η}_2^2.
 $$
 
-Therefore, taking $θ = θ_t$ and $η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}$, gives
+For $V(θ) = \NORM{θ - θ^*}_2^2$, $M = 1$. Therefore, taking $θ = θ_t$ and $η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}$, gives
 \begin{align*}
 V(θ_{t+1}) &\le V(θ_t) 
 + 2 α_t \IP{θ_t-θ^*}{f(θ_t)}
 + 2 α_t \IP{θ_t-θ^*}{ξ_{t+1}}
   \notag \\
-&\quad  + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 + 
+&\quad  + α_t^2 \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 + 
 2 \IP{f(θ_t)}{ξ_{t+1}}
 \bigr] 
 \end{align*}
@@ -406,8 +406,101 @@ The second bound follows immediately from @lem-harmonic-sums.
      \frac{(Δ_{T+1} - Δ_0) + σ^2 C^2}{C\sqrt{T}}
      + c.
   $$
-
 :::
+
+## Connection to reinforcement learning {#sec-moreau-envelop}
+
+One of the most common methods of learning is temporal difference (TD) learning, which may be viewed as an iterative method for solving fixed point problems via noisy samples. In the simplest setting, consider a fixed point equation
+$$
+  θ = H(θ)
+$$
+where $H \colon \reals^d \to \reals^d$ is a contraction with respect to some norm. In many learning settings, we only have access to noisy evaluations of $H(θ)$, so we can try to find the fixed point via the following stochastic approximation iteration:
+$$
+  θ_{t+1} = θ_t + α_t\bigl[ H(θ_t)  - θ_t + ξ_{t+1} \bigr].
+$$
+
+From basic stochastic approximation theory, we know that the above iteration will converge to the equilibrium solution of the ODE
+\begin{equation}\label{eq:contraction-ode}
+  \dot θ = H(θ) - θ.
+\end{equation}
+
+We start by the following result from @Borkar1997.
+
+:::{#lem-contraction-ode}
+Suppose the following condition holds:
+
+**H1.** There exists a $p \in (1, ∞]$ such that $H \colon \reals^d \to \reals^d$ is a $p$-norm contraction with contraction factor $γ$, i.e., for any $θ_1, θ_2 \in \reals^d$, 
+$$
+  \NORM{ H(θ_1) - H(θ_2) }_{p} \le γ \NORM{ θ_1 - θ_2 }.
+$$
+
+Then the ODE \eqref{eq:contraction-ode} is globally asymptotically stable. In particular, 
+$$
+  V(θ) = \NORM{θ - θ^*}_{p}
+$$
+is a Lyapunov function for the ODE and
+$$
+  \frac{d V(θ)}{dt} \le -(1 - γ) V(θ).
+$$
+:::
+
+:::{.callout-note collapse="true"}
+
+#### Proof 
+
+Let $\text{sgn}(θ)$ denote the sign function, i.e., $\text{sgn} = +1$ if $θ > 0$, is $0$ if
+$θ = 0$, and is $-1$ is $θ < 0$. First assume that $p \in (1, ∞)$. By the chain rule
+
+$$\begin{align*}
+  \frac{dV(θ)}{dt} &= \sum_{i=1}^d \frac{∂V}{∂θ_i} \frac{dθ_i}{dt} \\
+  &= \biggl[ \sum_{j = 1}^d | θ_i - θ^*_i |^p \biggr]^{(p-1)/p}
+  \sum_{i=1}^d \text{sign}(θ_i - θ^*_i) | θ_i - θ^*_i |^{1-p} 
+  \bigl( H_i(θ) - θ_i \bigr)
+\end{align*}$$
+Note that the term outside the summation is $\|θ - θ^*\|_{p}^{p-1}$. Moreover, we can write $H_i(θ) - θ_i$ as $H_i(θ) - H_i(θ^*) - (θ_i - θ^*_i)$ (because $H(θ^*) = θ^*$. Making these substitutions in the above equation, we get
+$$
+  \frac{dV(θ)}{dt} = \| θ - θ^*\|_p^{1-p} \biggl[
+  \sum_{i=1}^d \text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigl( H_i(θ) - H_i(θ^*) \bigr) - \| θ - θ^* \|_{p}
+$$
+By Holder's inequality 
+\begin{align*}
+  \sum_{i=1}^d & \text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigl( H_i(θ) - H_i(θ^*) \bigr) - \| θ - θ^* \|_{p}
+  \\
+  &\le 
+  \biggl[ \sum_{i=1}^d \bigl(\text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigr)^{p/(p-1)} \biggr]^{(p-1)/p}
+  \biggl[ \sum_{i=1}^d \bigl( H_i(θ) - H_i(θ^*) \bigr)^p \biggr]^{1/p}
+  \\
+  &= \| θ - θ^* \|_{[}^{p-1}\, \| H(θ) - H(θ^*) \|_{p}.
+\end{align*}
+Substituting this in the previous equation, we get
+$$
+  \frac{dV(θ)}{dt} \le \| H(θ) - H(θ^*)\|_p - \| θ - θ^* \|_{p}
+  \le - (1 - γ) \NORM{ θ - θ^*}_{p}
+$$
+which establishes the result for $p \in (1, ∞)$. 
+
+Note that we can substitute $p=∞$ in the above expression because $\|z\|_p \to \|z \|_{∞}$ uniformly on compact sets. 
+:::
+
+As argued in the proof of @thm-vidyasagar-1 and @prp-SA-gronwall-bound, the key step in the analysis is to establish that
+$$
+  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + M \NORM{η}_2^2.
+$$
+
+
+
+It can be shown that $V(θ) = \NORM{θ - θ^*}_p$ with $p \in (1,∞)$ is $(p-1)$ smooth. However, this is not the case for $p = ∞$. In most RL settings, the contraction is with respect to $\NORM{⋅}_{∞}$, so the rates of convergence derived above are not directly applicable. 
+
+Let
+$$
+  M_{λ}(θ) = \min_{φ \in \reals^d} \left\{
+    \NORM{φ}_{∞} + \frac{1}{2 λ} \NORM{θ - φ}_2^2 \right\}
+$$
+denote the [:Moreau envelop](https://en.wikipedia.org/wiki/Moreau_envelope) of $\NORM{⋅}_{∞}$. A fundamental property of Moreau envelopes is that they close to the original function and $1/λ$-smooth (see [@Chen2020, Lemma 2.1]). Thus, the above results are applicable (with minor changes in constants). 
+
 
 ## Exercises {-}
 
@@ -417,4 +510,6 @@ The second bound follows immediately from @lem-harmonic-sums.
 
 @Bach2011 show that for $q \in (1/2, 1)$, the rate of convergence improves when using Polyak-Ruppert averaging.
 
-The idea of running stochastic approximation for a random amount of time is based on @Nemirovski2009. 
+The idea of running stochastic approximation for a random amount of time is based on @Nemirovski2009, who proposed it for stochastic gradient descent.  
+
+The discussion in @sec-moreau-envelop is based on @Chen2020.
