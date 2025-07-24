@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2025-07-21">
+<meta name="dcterms.date" content="2025-07-24">
 <meta name="keywords" content="reinforcement learning, stochastic approximation">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -908,6 +908,7 @@ window.Quarto = {
   <li><a href="#finite-time-convergence-rates-for-exponentially-stable-systems" id="toc-finite-time-convergence-rates-for-exponentially-stable-systems" class="nav-link active" data-scroll-target="#finite-time-convergence-rates-for-exponentially-stable-systems"><span class="header-section-number">32.1</span> Finite-time convergence rates for exponentially stable systems</a></li>
   <li><a href="#using-averaging-to-improve-the-rate-of-convergence" id="toc-using-averaging-to-improve-the-rate-of-convergence" class="nav-link" data-scroll-target="#using-averaging-to-improve-the-rate-of-convergence"><span class="header-section-number">32.2</span> Using averaging to improve the rate of convergence</a></li>
   <li><a href="#rates-of-convergence-when-system-is-not-exponentially-stable" id="toc-rates-of-convergence-when-system-is-not-exponentially-stable" class="nav-link" data-scroll-target="#rates-of-convergence-when-system-is-not-exponentially-stable"><span class="header-section-number">32.3</span> Rates of convergence when system is not exponentially stable</a></li>
+  <li><a href="#sec-moreau-envelop" id="toc-sec-moreau-envelop" class="nav-link" data-scroll-target="#sec-moreau-envelop"><span class="header-section-number">32.4</span> Connection to reinforcement learning</a></li>
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
@@ -945,7 +946,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 21, 2025</p>
+      <p class="date">July 24, 2025</p>
     </div>
   </div>
   
@@ -984,7 +985,7 @@ window.Quarto = {
     a \| θ - θ^*\|_2^2 \le V(θ) \le b \| θ - θ^* \|_2^2,
     \quad \forall θ \in \reals^d.
 \]</span></p>
-<p><strong>V2.</strong> The Lyapunov function is <span class="math inline">\(M\)</span>-smooth, i.e., its gradient is <span class="math inline">\(M\)</span>-Lipschitz. So, for all <span class="math inline">\(θ_1, θ_2 \in \reals^d\)</span>, <span class="math display">\[
+<p><strong>V2.</strong> The Lyapunov function is <span class="math inline">\(2M\)</span>-smooth, i.e., its gradient is <span class="math inline">\(2M\)</span>-Lipschitz. So, for all <span class="math inline">\(θ_1, θ_2 \in \reals^d\)</span>, <span class="math display">\[
   \NORM{ \GRAD V(θ_1) - \GRAD V(θ_2) }_2 \le 2M \NORM{θ_1 - θ_2}_2.
 \]</span></p>
 <p><strong>V3.</strong> The Lyapunov function is exponentially stable, i.e., there exists a <span class="math inline">\(ρ &gt; 0\)</span> such that for any <span class="math inline">\(θ \in \reals^d\)</span>, we have <span class="math display">\[
@@ -1013,15 +1014,15 @@ Proof
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>As discussed in proof of <a href="intro.html#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>31.3</span></a>, since <span class="math inline">\(V(θ)\)</span> is strongly convex, we have <span class="math display">\[
-  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + \NORM{η}_2^2.
+<p>As discussed in proof of <a href="intro.html#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>31.3</span></a>, since <span class="math inline">\(V(θ)\)</span> is <span class="math inline">\(2M\)</span>-smooth, we have <span class="math display">\[
+  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + M \NORM{η}_2^2.
 \]</span></p>
-<p>Therefore, taking <span class="math inline">\(θ = θ_t\)</span> and <span class="math inline">\(η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}\)</span>, gives <span class="math display">\[\begin{align*}
+<p>For <span class="math inline">\(V(θ) = \NORM{θ - θ^*}_2^2\)</span>, <span class="math inline">\(M = 1\)</span>. Therefore, taking <span class="math inline">\(θ = θ_t\)</span> and <span class="math inline">\(η = θ_{t+1} - θ_t = α_t f(θ_t) + α_t ξ_{t+1}\)</span>, gives <span class="math display">\[\begin{align*}
 V(θ_{t+1}) &amp;\le V(θ_t)
 + 2 α_t \IP{θ_t-θ^*}{f(θ_t)}
 + 2 α_t \IP{θ_t-θ^*}{ξ_{t+1}}
   \notag \\
-&amp;\quad  + α_t^2 M \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 +
+&amp;\quad  + α_t^2 \bigl[ \NORM{f(θ_t)}_2^2 + \NORM{ξ_{t+1}}_2^2 +
 2 \IP{f(θ_t)}{ξ_{t+1}}
 \bigr]
 \end{align*}\]</span> Taking expectations and using (F2), (N1), (N2), and (V1), we get <span class="math display">\[
@@ -1304,6 +1305,77 @@ Remarks
 </div>
 </div>
 </section>
+<section id="sec-moreau-envelop" class="level2" data-number="32.4">
+<h2 data-number="32.4" class="anchored" data-anchor-id="sec-moreau-envelop"><span class="header-section-number">32.4</span> Connection to reinforcement learning</h2>
+<p>One of the most common methods of learning is temporal difference (TD) learning, which may be viewed as an iterative method for solving fixed point problems via noisy samples. In the simplest setting, consider a fixed point equation <span class="math display">\[
+  θ = H(θ)
+\]</span> where <span class="math inline">\(H \colon \reals^d \to \reals^d\)</span> is a contraction with respect to some norm. In many learning settings, we only have access to noisy evaluations of <span class="math inline">\(H(θ)\)</span>, so we can try to find the fixed point via the following stochastic approximation iteration: <span class="math display">\[
+  θ_{t+1} = θ_t + α_t\bigl[ H(θ_t)  - θ_t + ξ_{t+1} \bigr].
+\]</span></p>
+<p>From basic stochastic approximation theory, we know that the above iteration will converge to the equilibrium solution of the ODE <span class="math display">\[\begin{equation}\label{eq:contraction-ode}
+  \dot θ = H(θ) - θ.
+\end{equation}\]</span></p>
+<p>We start by the following result from <span class="citation" data-cites="Borkar1997">Borkar and Soumyanatha (<a href="../references.html#ref-Borkar1997" role="doc-biblioref">1997</a>)</span>.</p>
+<div id="lem-contraction-ode" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 32.3</strong></span> Suppose the following condition holds:</p>
+<p><strong>H1.</strong> There exists a <span class="math inline">\(p \in (1, ∞]\)</span> such that <span class="math inline">\(H \colon \reals^d \to \reals^d\)</span> is a <span class="math inline">\(p\)</span>-norm contraction with contraction factor <span class="math inline">\(γ\)</span>, i.e., for any <span class="math inline">\(θ_1, θ_2 \in \reals^d\)</span>, <span class="math display">\[
+  \NORM{ H(θ_1) - H(θ_2) }_{p} \le γ \NORM{ θ_1 - θ_2 }.
+\]</span></p>
+<p>Then the ODE <span class="math inline">\(\eqref{eq:contraction-ode}\)</span> is globally asymptotically stable. In particular, <span class="math display">\[
+  V(θ) = \NORM{θ - θ^*}_{p}
+\]</span> is a Lyapunov function for the ODE and <span class="math display">\[
+  \frac{d V(θ)}{dt} \le -(1 - γ) V(θ).
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Let <span class="math inline">\(\text{sgn}(θ)\)</span> denote the sign function, i.e., <span class="math inline">\(\text{sgn} = +1\)</span> if <span class="math inline">\(θ &gt; 0\)</span>, is <span class="math inline">\(0\)</span> if <span class="math inline">\(θ = 0\)</span>, and is <span class="math inline">\(-1\)</span> is <span class="math inline">\(θ &lt; 0\)</span>. First assume that <span class="math inline">\(p \in (1, ∞)\)</span>. By the chain rule</p>
+<p><span class="math display">\[\begin{align*}
+  \frac{dV(θ)}{dt} &amp;= \sum_{i=1}^d \frac{∂V}{∂θ_i} \frac{dθ_i}{dt} \\
+  &amp;= \biggl[ \sum_{j = 1}^d | θ_i - θ^*_i |^p \biggr]^{(p-1)/p}
+  \sum_{i=1}^d \text{sign}(θ_i - θ^*_i) | θ_i - θ^*_i |^{1-p}
+  \bigl( H_i(θ) - θ_i \bigr)
+\end{align*}\]</span> Note that the term outside the summation is <span class="math inline">\(\|θ - θ^*\|_{p}^{p-1}\)</span>. Moreover, we can write <span class="math inline">\(H_i(θ) - θ_i\)</span> as <span class="math inline">\(H_i(θ) - H_i(θ^*) - (θ_i - θ^*_i)\)</span> (because <span class="math inline">\(H(θ^*) = θ^*\)</span>. Making these substitutions in the above equation, we get <span class="math display">\[
+  \frac{dV(θ)}{dt} = \| θ - θ^*\|_p^{1-p} \biggl[
+  \sum_{i=1}^d \text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigl( H_i(θ) - H_i(θ^*) \bigr) - \| θ - θ^* \|_{p}
+\]</span> By Holder’s inequality <span class="math display">\[\begin{align*}
+  \sum_{i=1}^d &amp; \text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigl( H_i(θ) - H_i(θ^*) \bigr) - \| θ - θ^* \|_{p}
+  \\
+  &amp;\le
+  \biggl[ \sum_{i=1}^d \bigl(\text{sgn}(θ_i - θ^*_i) | θ_i - θ^*_i|^{p-1}
+  \bigr)^{p/(p-1)} \biggr]^{(p-1)/p}
+  \biggl[ \sum_{i=1}^d \bigl( H_i(θ) - H_i(θ^*) \bigr)^p \biggr]^{1/p}
+  \\
+  &amp;= \| θ - θ^* \|_{[}^{p-1}\, \| H(θ) - H(θ^*) \|_{p}.
+\end{align*}\]</span> Substituting this in the previous equation, we get <span class="math display">\[
+  \frac{dV(θ)}{dt} \le \| H(θ) - H(θ^*)\|_p - \| θ - θ^* \|_{p}
+  \le - (1 - γ) \NORM{ θ - θ^*}_{p}
+\]</span> which establishes the result for <span class="math inline">\(p \in (1, ∞)\)</span>.</p>
+<p>Note that we can substitute <span class="math inline">\(p=∞\)</span> in the above expression because <span class="math inline">\(\|z\|_p \to \|z \|_{∞}\)</span> uniformly on compact sets.</p>
+</div>
+</div>
+</div>
+<p>As argued in the proof of <a href="intro.html#thm-vidyasagar-1" class="quarto-xref">Theorem&nbsp;<span>31.3</span></a> and <a href="#prp-SA-gronwall-bound" class="quarto-xref">Proposition&nbsp;<span>32.1</span></a>, the key step in the analysis is to establish that <span class="math display">\[
+  V(θ + η) \le V(θ) + \IP{\GRAD V(θ)}{η} + M \NORM{η}_2^2.
+\]</span></p>
+<p>It can be shown that <span class="math inline">\(V(θ) = \NORM{θ - θ^*}_p\)</span> with <span class="math inline">\(p \in (1,∞)\)</span> is <span class="math inline">\((p-1)\)</span> smooth. However, this is not the case for <span class="math inline">\(p = ∞\)</span>. In most RL settings, the contraction is with respect to <span class="math inline">\(\NORM{⋅}_{∞}\)</span>, so the rates of convergence derived above are not directly applicable.</p>
+<p>Let <span class="math display">\[
+  M_{λ}(θ) = \min_{φ \in \reals^d} \left\{
+    \NORM{φ}_{∞} + \frac{1}{2 λ} \NORM{θ - φ}_2^2 \right\}
+\]</span> denote the <a href="https://en.wikipedia.org/wiki/Moreau_envelope">:Moreau envelop</a> of <span class="math inline">\(\NORM{⋅}_{∞}\)</span>. A fundamental property of Moreau envelopes is that they close to the original function and <span class="math inline">\(1/λ\)</span>-smooth (see <span class="citation" data-cites="Chen2020">(<a href="../references.html#ref-Chen2020" role="doc-biblioref">Chen et al. 2020</a>, Lemma 2.1)</span>). Thus, the above results are applicable (with minor changes in constants).</p>
+</section>
 <section id="exercises" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
 </section>
@@ -1311,12 +1383,19 @@ Remarks
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
 <p><a href="#lem-hu-bound" class="quarto-xref">Lemma&nbsp;<span>32.2</span></a> is from <span class="citation" data-cites="Hu2025a">Hu et al. (<a href="../references.html#ref-Hu2025a" role="doc-biblioref">2025</a>)</span>. The first part of <a href="#prp-SA-rate" class="quarto-xref">Proposition&nbsp;<span>32.2</span></a> is adapted from <span class="citation" data-cites="Hu2025">Hu and Fu (<a href="../references.html#ref-Hu2025" role="doc-biblioref">2025</a>)</span>, where it was stated for stochastic gradient descent with biased gradients. Similar analysis is presented in <span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span>, with a more nuanced characterization of the “growth term” <span class="math inline">\(A_{T_0}\)</span>. The second part of <a href="#prp-SA-rate" class="quarto-xref">Proposition&nbsp;<span>32.2</span></a> is adapted from <span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span>, where it was stated for stochastic gradient descent. We have simplified the analysis by assuming that <span class="math inline">\(α_t &lt; ρ/(L^2 + σ^2)\)</span>. <span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span> do not make this assumption and also characterize the rate of expansion until the time when <span class="math inline">\(α_t\)</span> becomes less than <span class="math inline">\(ρ/(L^2 + σ^2)\)</span>.</p>
 <p><span class="citation" data-cites="Bach2011">Bach and Moulines (<a href="../references.html#ref-Bach2011" role="doc-biblioref">2011</a>)</span> show that for <span class="math inline">\(q \in (1/2, 1)\)</span>, the rate of convergence improves when using Polyak-Ruppert averaging.</p>
-<p>The idea of running stochastic approximation for a random amount of time is based on <span class="citation" data-cites="Nemirovski2009">Nemirovski et al. (<a href="../references.html#ref-Nemirovski2009" role="doc-biblioref">2009</a>)</span>.</p>
+<p>The idea of running stochastic approximation for a random amount of time is based on <span class="citation" data-cites="Nemirovski2009">Nemirovski et al. (<a href="../references.html#ref-Nemirovski2009" role="doc-biblioref">2009</a>)</span>, who proposed it for stochastic gradient descent.</p>
+<p>The discussion in <a href="#sec-moreau-envelop" class="quarto-xref"><span>Section 32.4</span></a> is based on <span class="citation" data-cites="Chen2020">Chen et al. (<a href="../references.html#ref-Chen2020" role="doc-biblioref">2020</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Bach2011" class="csl-entry" role="listitem">
 <span class="smallcaps">Bach, F. and Moulines, E.</span> 2011. Non-asymptotic analysis of stochastic approximation algorithms for machine learning. <em>Advances in neural information processing systems</em>, Curran Associates, Inc. Available at: <a href="https://proceedings.neurips.cc/paper_files/paper/2011/file/40008b9a5380fcacce3976bf7c08af5b-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2011/file/40008b9a5380fcacce3976bf7c08af5b-Paper.pdf</a>.
+</div>
+<div id="ref-Borkar1997" class="csl-entry" role="listitem">
+<span class="smallcaps">Borkar, V.S. and Soumyanatha, K.</span> 1997. An analog scheme for fixed point computation. I. theory. <em><span>IEEE</span> Transactions on Circuits and Systems I: Fundamental Theory and Applications</em> <em>44</em>, 4, 351–355. DOI: <a href="https://doi.org/10.1109/81.563625">10.1109/81.563625</a>.
+</div>
+<div id="ref-Chen2020" class="csl-entry" role="listitem">
+<span class="smallcaps">Chen, Z., Maguluri, S.T., Shakkottai, S., and Shanmugam, K.</span> 2020. Finite-sample analysis of contractive stochastic approximation using smooth convex envelopes. <em>Advances in neural information processing systems</em>, Curran Associates, Inc., 8223–8234. Available at: <a href="https://proceedings.neurips.cc/paper_files/paper/2020/file/5d44ee6f2c3f71b73125876103c8f6c4-Paper.pdf">https://proceedings.neurips.cc/paper_files/paper/2020/file/5d44ee6f2c3f71b73125876103c8f6c4-Paper.pdf</a>.
 </div>
 <div id="ref-Hu2025" class="csl-entry" role="listitem">
 <span class="smallcaps">Hu, J. and Fu, M.C.</span> 2025. Technical note—on the convergence rate of stochastic approximation for gradient-based stochastic optimization. <em>Operations Research</em> <em>73</em>, 2, 1143–1150. DOI: <a href="https://doi.org/10.1287/opre.2023.0055">10.1287/opre.2023.0055</a>.
