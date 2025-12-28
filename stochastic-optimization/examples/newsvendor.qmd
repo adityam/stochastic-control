@@ -4,22 +4,17 @@
 [newsboy]: ../images/banners/newsboy.jpg "To buy or not to buy" {width=100% style='max-width:40em;'}
 :::
 
-Each morning, a newsvendor has to decide how many newspapers to buy before
-knowing the demand during the day. The newsvendor purchases a newspaper at
-a cost of $\$p$ per newspaper and sells them at a cost of $\$q$ per newspaper,
-where $q > p$. Any unsold newspapers at the end of the day have no salvage
-value.
+:::{#exm-newsvendor}
+#### The Newsvendor Problem
+Each morning, a newsvendor has to decide how many newspapers to buy before knowing the demand during the day. The newsvendor purchases a newspaper at a cost of $\$p$ per newspaper and sells them at a price of $\$q$ per newspaper, where $q > p$. Any unsold newspapers at the end of the day have no salvage value.
 
-Let $a$ denote the number of newspapers bought and $W$ denote
-the demand. If $W < a$, then the newsvendor will sell $W$ newspapers and
-receive a total earnings of $q W - p a$. If $W \ge a$, then the newsvendor will
-sell $a$ newspapers and receive a total earnings of $q a - p a$. Thus, the
-_reward_ is $r(a,W)$, where
+Let $a$ denote the number of newspapers bought and $W$ denote the demand. If $W < a$, then the newsvendor will sell $W$ newspapers and receive total earnings of $q W - p a$. If $W \ge a$, then the newsvendor will sell $a$ newspapers and receive total earnings of $q a - p a$. Thus, the _reward_ is $r(a,W)$, where
 
 $$r(a, w) = \begin{cases}
    q w - p a, & \text{if } w < a, \\
    q a - p a, & \text{if } w \ge a. 
 \end{cases} $$
+:::
 
 ### Interlude with continuous version
 
@@ -179,9 +174,7 @@ $$
 $$
 :::
 
-
-This suggests that we can use calculus to find
-the optimal value. In particular, to find the optimal action, we need to compute the $a$ such that $dJ(a)/da = 0$. 
+This suggests that we can use calculus to find the optimal value. In particular, to find the optimal action, we need to find the $a$ such that $dJ(a)/da = 0$. 
 
 ::: {#prp-newsvendor-cts}
   For the newsvendor problem with continuous demand, the optimal action is
@@ -424,3 +417,27 @@ plotOptDts = Plot.plot({
 ```
 :::
 
+### Acting based on historical data
+
+In the above discussion, we assumed that probability distribution $F$ of the demand is known. In many instances, the decision maker just has access to a database of historical demands, which we denote by
+$$
+  \ALPHABET D_K = \{ w_1, \dots, w_K \}
+$$
+where $K$ denotes the number of samples. How do we choose the number of newspapers to buy?
+
+The simplest way to solve this problem is to estimate the demand distribution from the historical data $\ALPHABET D_K$ as
+$$
+  \hat{F}_K(w) = \frac{1}{K} \sum_{k=1}^K \IND\{ w_k \le w \}.
+$$
+where $\IND\{\cdot\}$ is the indicator function. Then, the decision maker can choose the number of newspapers to buy by solving the optimization problem
+$$
+  \max_{a \in \ALPHABET A} \EXP_{w \sim \hat{F}_K}[ r(a, W)]
+  = \max_{a \in \ALPHABET A} \frac{1}{K} \sum_{k=1}^K r(a, w_k).
+$$
+This simple idea is known by different names in the literature. It is called **certainty equivalence** in adaptive control, **plug-in estimator** in statistics, **empirical risk minimization (ERM)** in machine learning, and **sample average approximation (SAA)** in optimization.
+
+The structure of the optimal solution establised in @prp-newsvendor-cts and @prp-newsvendor-discrete implies that the optimal action is the $\rho$-th quantile of the demand distribution, where $\rho = 1 - p/q$, is the critical fractile. To obtain that, order the historical demand according to their order statistics as:
+$$
+  w_{1:K} \le w_{2:K} \le \cdots \le w_{K:K}.
+$$
+Then, the certainty equivalent action is given by $w_{\lceil \rho K \rceil: K}$.
