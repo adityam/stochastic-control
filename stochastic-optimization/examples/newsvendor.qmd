@@ -245,6 +245,26 @@ plotOptCts = Plot.plot({
 ```
 :::
 
+:::{#exm-newsvendor-exponential}
+Suppose the demand is distributed according to an exponential distribution with mean $\theta$. Find the optimal action.
+:::
+:::{.callout-note collapse="true"}
+#### Solution
+
+Recall that the CDF of the exponential distribution is given by
+$$
+  F(w) = 1 - e^{-\theta w}.
+$$
+Since $F$ is continuous and strictly increasing, the optimal action is the unique $a$ such that $F(a) = 1 - p/q$.
+$$
+  F(a) = 1 - p/q
+  \iff
+  e^{-\theta a} = p/q
+  \iff
+  a = \frac{1}{\theta} \ln \frac{q}{p}.
+$$
+:::
+
 ### Back to discrete version
 
 Now, we come back to the problem with discrete actions and discrete demand.
@@ -365,7 +385,7 @@ $$ \begin{align*} J(w_i) &=
 \end{align*}$$
 
 Thus,
-$$ \begin{align*}
+\begin{align*}
   J(w_{i+1}) - J(w_i) &= 
   -p w_{i+1} + q \Bigl[ \sum_{j < i+1}  μ_j w_j + \sum_{j \ge i+1} μ_j w_{i+1} \Bigr]
   \\
@@ -374,7 +394,7 @@ $$ \begin{align*}
   &= -p (w_{i+1} - w_i) + q \Bigl[ \sum_{j \ge i + 1} μ_j ( w_{i+1} - w_i) \Bigr] 
   \\
   &= \big( - p + q [ 1 - M_i ] \big) (w_{i+1} - w_i).
-\end{align*}$$
+\end{align*}
 Note that 
 $$ 
 M_i \le \dfrac{q-p}{q}
@@ -417,6 +437,32 @@ plotOptDts = Plot.plot({
 ```
 :::
 
+:::{#exm-newsvendor-geometric}
+Suppose the demand is distributed according to a geometric distribution with parameter $\theta$, i.e., $\PR(W = w) = (1-\theta)^w \theta$. Find the optimal action.
+:::
+:::{.callout-note collapse="true"}
+#### Solution
+
+Recall that the CDF of the geometric distribution is given by
+$$
+  F(w) = 1 - (1-\theta)^{\lfloor w \rfloor + 1}.
+$$
+Since $F$ is strictly increasing, the optimal action is the largest integer $a$ such that $F(a) \le 1 - p/q$.
+$$
+  F(a) \le 1 - p/q
+  \iff
+  (1-\theta)^{a + 1} \ge p/q
+  \iff
+  (a + 1) \ln(1-\theta) \ge \ln(p/q)
+  \iff
+  (a + 1) \le \frac{\ln(p/q)}{\ln(1-\theta}
+$$
+Thus,
+$$
+  a=\left\lfloor \frac{\ln(p/q)}{\ln(1-\theta)} \right\rfloor - 1.
+$$
+:::
+
 ### Acting based on historical data
 
 In the above discussion, we assumed that probability distribution $F$ of the demand is known. In many instances, the decision maker just has access to a database of historical demands, which we denote by
@@ -441,3 +487,12 @@ $$
   w_{1:K} \le w_{2:K} \le \cdots \le w_{K:K}.
 $$
 Then, the certainty equivalent action is given by $w_{\lceil \rho K \rceil: K}$.
+
+If we know that the demand is distributed according to a specific distribution, then we can estimate the parameters of the distribution. For example, if we know that the demand is distributed according to an exponential distribution with an unknown mean $\theta$, then we can estimate $\theta$ from the historical data. In particular, an unbiased estimator of $\theta$ is the sample mean:
+$$
+  \hat \theta_{K} = \frac 1K \sum_{k=1}^K w_k.
+$$
+Given the results of @exm-newsvendor-exponential, the certainty equivalent action is given by
+$$
+   a = \frac{1}{\hat \theta_K} \ln \frac{q}{p}.
+$$
