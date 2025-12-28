@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2025-03-02">
-<meta name="keywords" content="stochastic optimization, principle of irrelevant information">
+<meta name="dcterms.date" content="2025-12-28">
+<meta name="keywords" content="stochastic optimization, newsvendor problem">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
 <title>1&nbsp; Introduction – Stochastic Control and Decision Theory</title>
@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 /* CSS for citations */
 div.csl-bib-body { }
@@ -53,7 +88,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../stochastic-optimization/newsvendor.html" rel="next">
+<link href="../stochastic-optimization/observations.html" rel="next">
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -62,9 +97,9 @@ div.csl-indent {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-b68a706d8191437c2c46203d0393f4be.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
@@ -160,6 +195,8 @@ window.MathJax = {
 };
 </script>
 <script async="" data-id="101261731" src="//static.getclicky.com/js"></script>
+<script type="module" src="../site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="../site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -193,7 +230,7 @@ window.Quarto = {
 
 </head>
 
-<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating nav-fixed slimcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -361,10 +398,6 @@ window.Quarto = {
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
-  </div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
@@ -402,10 +435,6 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
-      <a href="../index.html" class="sidebar-logo-link">
-      </a>
-      </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -431,8 +460,8 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></span></a>
+  <a href="../stochastic-optimization/observations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Dealing with observations</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -915,21 +944,19 @@ window.Quarto = {
    
   <ul>
   <li><a href="#the-stochastic-optimization-problem" id="toc-the-stochastic-optimization-problem" class="nav-link active" data-scroll-target="#the-stochastic-optimization-problem"><span class="header-section-number">1.1</span> The stochastic optimization problem</a></li>
-  <li><a href="#key-simplifying-idea" id="toc-key-simplifying-idea" class="nav-link" data-scroll-target="#key-simplifying-idea"><span class="header-section-number">1.2</span> Key simplifying idea</a></li>
-  <li><a href="#an-example-optimal-policy-in-a-card-game" id="toc-an-example-optimal-policy-in-a-card-game" class="nav-link" data-scroll-target="#an-example-optimal-policy-in-a-card-game"><span class="header-section-number">1.3</span> An example: optimal policy in a card game</a></li>
-  <li><a href="#a-tree-representation-of-the-optimization-problem" id="toc-a-tree-representation-of-the-optimization-problem" class="nav-link" data-scroll-target="#a-tree-representation-of-the-optimization-problem"><span class="header-section-number">1.4</span> A tree representation of the optimization problem</a>
+  <li><a href="#newsvendor" id="toc-newsvendor" class="nav-link" data-scroll-target="#newsvendor"><span class="header-section-number">1.2</span> An example: The newsvendor problem</a>
   <ul class="collapse">
-  <li><a href="#one-step-optimization-with-perfect-observation" id="toc-one-step-optimization-with-perfect-observation" class="nav-link" data-scroll-target="#one-step-optimization-with-perfect-observation"><span class="header-section-number">1.4.1</span> One-step optimization with perfect observation</a></li>
-  <li><a href="#one-step-optimization-with-imperfect-observation" id="toc-one-step-optimization-with-imperfect-observation" class="nav-link" data-scroll-target="#one-step-optimization-with-imperfect-observation"><span class="header-section-number">1.4.2</span> One-step optimization with imperfect observation</a></li>
+  <li><a href="#interlude-with-continuous-version" id="toc-interlude-with-continuous-version" class="nav-link" data-scroll-target="#interlude-with-continuous-version"><span class="header-section-number">1.2.1</span> Interlude with continuous version</a></li>
+  <li><a href="#back-to-discrete-version" id="toc-back-to-discrete-version" class="nav-link" data-scroll-target="#back-to-discrete-version"><span class="header-section-number">1.2.2</span> Back to discrete version</a></li>
+  <li><a href="#acting-based-on-historical-data" id="toc-acting-based-on-historical-data" class="nav-link" data-scroll-target="#acting-based-on-historical-data"><span class="header-section-number">1.2.3</span> Acting based on historical data</a></li>
   </ul></li>
-  <li><a href="#blackwells-principle-of-irrelevant-information" id="toc-blackwells-principle-of-irrelevant-information" class="nav-link" data-scroll-target="#blackwells-principle-of-irrelevant-information"><span class="header-section-number">1.5</span> Blackwell’s principle of irrelevant information</a></li>
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/stochastic-optimization/intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../stochastic-optimization/intro.html">Stochastic Optimization</a></li><li class="breadcrumb-item"><a href="../stochastic-optimization/intro.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></a></li></ol></nav>
@@ -960,7 +987,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 2, 2025</p>
+      <p class="date">December 28, 2025</p>
     </div>
   </div>
   
@@ -971,7 +998,7 @@ window.Quarto = {
 <div>
   <div class="keywords">
     <div class="block-title">Keywords</div>
-    <p>stochastic optimization, principle of irrelevant information</p>
+    <p>stochastic optimization, newsvendor problem</p>
   </div>
 </div>
 
@@ -983,8 +1010,8 @@ window.Quarto = {
 \min_{a \in \ALPHABET A} c(a).
 \end{equation}\]</span></p>
 <p>When the <em>action space</em> <span class="math inline">\(\ALPHABET A\)</span> is finite, say <span class="math inline">\(\ALPHABET A = \{1,
-\dots, m\}\)</span>, solving the optimization problem <span class="math inline">\(\eqref{eq:basic}\)</span> is conceptually straight-forward: enumerate the cost of all possible actions, i.e., enumerate the set <span class="math inline">\(C = \{ c(a) : a \in \ALPHABET A \}\)</span> and find the smallest element.</p>
-<p>When the action space <span class="math inline">\(\ALPHABET A\)</span> is continuous, say a compact subset of a Euclidean space, solving the optimization problem \eqref{eq:basic} is conceptually straight-forward only when the cost function <span class="math inline">\(c\)</span> satisfies some regularity conditions. For example, when <span class="math inline">\(c\)</span> is convex, the optimal action can be obtained for solving <span class="math display">\[ \dfrac {d c(a) }{ da } = 0. \]</span></p>
+\dots, m\}\)</span>, solving the optimization problem <span class="math inline">\(\eqref{eq:basic}\)</span> is conceptually straightforward: enumerate the cost of all possible actions, i.e., enumerate the set <span class="math inline">\(C = \{ c(a) : a \in \ALPHABET A \}\)</span> and find the smallest element.</p>
+<p>When the action space <span class="math inline">\(\ALPHABET A\)</span> is continuous, say a compact subset of a Euclidean space, solving the optimization problem <span class="math inline">\(\eqref{eq:basic}\)</span> is conceptually straightforward only when the cost function <span class="math inline">\(c\)</span> satisfies some regularity conditions. For example, when <span class="math inline">\(c\)</span> is convex, the optimal action can be obtained by solving <span class="math display">\[ \dfrac {d c(a) }{ da } = 0. \]</span></p>
 <p>In the absence of appropriate regularity conditions, it is not possible to solve an optimization problem over continuous action spaces.</p>
 <section id="the-stochastic-optimization-problem" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="the-stochastic-optimization-problem"><span class="header-section-number">1.1</span> The stochastic optimization problem</h2>
@@ -992,72 +1019,311 @@ window.Quarto = {
 <p>Formally, the above optimization problem may be written as <span class="math display">\[\begin{equation} \label{eq:stochastic}
   \min_{a \in \ALPHABET A} \EXP[ c(a, W) ].
 \end{equation}\]</span></p>
-<p>Define <span class="math inline">\(J(a) = \EXP[ c(a, W) ]\)</span>. Then Problem&nbsp;\eqref{eq:stochastic} is conceptually the same as Problem&nbsp;\eqref{eq:basic} with the cost function <span class="math inline">\(J(a)\)</span>. Numerically, Problem \eqref{eq:stochastic} is more difficult because computing <span class="math inline">\(J(a)\)</span> involves evaluating an expectation, but we ignore the computational complexity for the time being.</p>
+<p>Define <span class="math inline">\(J(a) = \EXP[ c(a, W) ]\)</span>. Then Problem&nbsp;<span class="math inline">\(\eqref{eq:stochastic}\)</span> is conceptually the same as Problem&nbsp;<span class="math inline">\(\eqref{eq:basic}\)</span> with the cost function <span class="math inline">\(J(a)\)</span>. Numerically, Problem <span class="math inline">\(\eqref{eq:stochastic}\)</span> is more difficult because computing <span class="math inline">\(J(a)\)</span> involves evaluating an expectation, but we ignore the computational complexity for the time being.</p>
+<p>In the rest of this chapter, we present a simple example of a stochastic optimization problem to show that it is possible to obtain qualitative properties of the optimal solution.</p>
 </section>
-<section id="key-simplifying-idea" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="key-simplifying-idea"><span class="header-section-number">1.2</span> Key simplifying idea</h2>
-<p>In the stochastic optimization problems considered above, the decision maker does not observe any data before making a decision. In many situations, the decision maker does observe some data, which is captured by the following model. Suppose a decision maker observes a random variable <span class="math inline">\(S
-\in \ALPHABET S\)</span> and then chooses an action <span class="math inline">\(A \in \ALPHABET A\)</span> as a function of his observation according to a <em>decision rule</em> <span class="math inline">\(π\)</span>, i.e., <span class="math display">\[ A = π(S). \]</span></p>
-<p>Upon choosing the action <span class="math inline">\(A\)</span>, the decision maker incurs a cost <span class="math inline">\(c(S,A,W)\)</span>, where <span class="math inline">\(W \in \ALPHABET W\)</span> is a random variable. We assume that the <em>primitive random variables</em> <span class="math inline">\((S,W)\)</span> are defined on a common probability space and have a known joint distribution. Assume that the decision maker is risk neutral and, therefore, wants to minimize <span class="math inline">\(\EXP[ c(S, π(S), W)]\)</span>, where the expectation is taken with respect to the joint probability distribution of <span class="math inline">\((S,W)\)</span>.</p>
-<p>Formally, the above optimization problem may be written as <span class="math display">\[\begin{equation} \label{eq:obs} \tag{P1}
-  \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
+<section id="newsvendor" class="level2 page-columns page-full" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="newsvendor"><span class="header-section-number">1.2</span> An example: The newsvendor problem</h2>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center" style="max-width:40em;">
+<figure class="figure">
+<p><img src="../images/banners/newsboy.jpg" title="To buy or not to buy" class="img-fluid figure-img" style="width:100.0%"></p>
+<figcaption>Image credit: https://americangallery.wordpress.com/category/cafferty-james-h/</figcaption>
+</figure>
+</div>
+</div></div><div id="exm-newsvendor" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.1 (The Newsvendor Problem)</strong></span> Each morning, a newsvendor has to decide how many newspapers to buy before knowing the demand during the day. The newsvendor purchases a newspaper at a cost of <span class="math inline">\(\$p\)</span> per newspaper and sells them at a price of <span class="math inline">\(\$q\)</span> per newspaper, where <span class="math inline">\(q &gt; p\)</span>. Any unsold newspapers at the end of the day have no salvage value.</p>
+<p>Let <span class="math inline">\(a\)</span> denote the number of newspapers bought and <span class="math inline">\(W\)</span> denote the demand. If <span class="math inline">\(W &lt; a\)</span>, then the newsvendor will sell <span class="math inline">\(W\)</span> newspapers and receive total earnings of <span class="math inline">\(q W - p a\)</span>. If <span class="math inline">\(W \ge a\)</span>, then the newsvendor will sell <span class="math inline">\(a\)</span> newspapers and receive total earnings of <span class="math inline">\(q a - p a\)</span>. Thus, the <em>reward</em> is <span class="math inline">\(r(a,W)\)</span>, where</p>
+<p><span class="math display">\[r(a, w) = \begin{cases}
+   q w - p a, &amp; \text{if } w &lt; a, \\
+   q a - p a, &amp; \text{if } w \ge a.
+\end{cases} \]</span></p>
+</div>
+<section id="interlude-with-continuous-version" class="level3 page-columns page-full" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="interlude-with-continuous-version"><span class="header-section-number">1.2.1</span> Interlude with continuous version</h3>
+<p>The problem above has discrete actions and discrete demand. To build intuition, we first consider the case where both the actions and demand are continuous. Let <span class="math inline">\(f(w)\)</span> denote the probability density of the demand and <span class="math inline">\(F(w)\)</span> denote the cumulative distribution function. Then, the expected reward is <span class="math display">\[ \begin{equation} \label{eq:J}
+J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 \end{equation}\]</span></p>
-<p>Define <span class="math inline">\(J(π) = \EXP[ c(S, π(S), W) ]\)</span>. Then, Problem&nbsp;\eqref{eq:obs} is conceptually the same as Problem&nbsp;\eqref{eq:basic} with one difference: In Problem&nbsp;\eqref{eq:basic}, the minimization is over a parameter <span class="math inline">\(a\)</span>, while in Problem&nbsp;\eqref{eq:obs}, the minimization is over a function <span class="math inline">\(π\)</span>.</p>
-<p>When <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are finite sets, the optimal policy can be obtained by an exhaustive search over all policies as follows: for each policy <span class="math inline">\(π\)</span> compute the performance <span class="math inline">\(J(π)\)</span> and then pick the policy <span class="math inline">\(π\)</span> with the smallest expected cost.</p>
-<p>Such an exhaustive search is not satisfying for two reasons. First, it has a high computational cost. There are <span class="math inline">\(| \ALPHABET A |^{| \ALPHABET S |}\)</span> policies and, for each policy, we have to evaluate an expectation, which can be expensive. Second, the above enumeration procedure does not work when <span class="math inline">\(\ALPHABET S\)</span> or <span class="math inline">\(\ALPHABET A\)</span> are continuous sets.</p>
-<p>There is an alternative way of viewing the problem that simplifies it considerably. Instead of viewing the optimization problem before the system starts running (i.e., the <em>ex ante</em> view), imagine that the decision maker waits until they see the realization <span class="math inline">\(s\)</span> of <span class="math inline">\(S\)</span> (i.e., the <em>interim view</em>). they then asks what action <span class="math inline">\(a\)</span> should they take to minimize the expected <em>conditional</em> cost <span class="math inline">\(Q(s,a) := \EXP[ c(s,a, W) | S = s]\)</span>, i.e., they consider the problem</p>
-<p><span class="math display">\[\begin{equation} \label{eq:cond-1} \tag{P2}
-  \min_{a \in \ALPHABET A} \EXP[ c(s,a,W) | S = s], \quad
-  \forall s \in \ALPHABET S.
-\end{equation}\]</span></p>
-<p>Thus, Problem&nbsp;\eqref{eq:obs}, which is a functional optimization problem, has been reduced to a collection of parameter optimization problems (Problem&nbsp;\eqref{eq:cond-1}), one for each possible of <span class="math inline">\(s\)</span>.</p>
-<p>Now define <span class="math display">\[ \begin{equation} \label{eq:cond} \tag{P2-policy}
-  π^∘(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
-\end{equation} \]</span> where ties (in the minimization) are broken arbitrarily.</p>
-<div id="thm-fact" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 1.1</strong></span> The decision rule <span class="math inline">\(π^∘\)</span> defined in \eqref{eq:cond} is optimal for Problem <span class="math inline">\(\eqref{eq:obs}\)</span>, i.e., <span class="math display">\[
-  \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
-  =
-  \EXP \biggl[ \min_{a \in \ALPHABET A} \EXP[ c(S,a,W) | S ] \biggr]
-  .
-\]</span></p>
+<p>To fix ideas, we consider an example where <span class="math inline">\(p = 0.5\)</span>, <span class="math inline">\(q = 1\)</span>, and the demand is a <a href="https://en.wikipedia.org/wiki/Kumaraswamy_distribution">:Kumaraswamy distribution</a> with parameters <span class="math inline">\((2,5)\)</span> and support <span class="math inline">\([0,100]\)</span>. The performance as a function of action is shown below.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb1-0"><a href="#cb1-0" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="kw">function</span>(w<span class="op">,</span>a){ <span class="cf">if</span>(w<span class="op">&lt;=</span>a) { <span class="cf">return</span> q<span class="op">*</span>w <span class="op">-</span> p<span class="op">*</span>a } <span class="cf">else</span> { <span class="cf">return</span> q<span class="op">*</span>a <span class="op">-</span> p<span class="op">*</span>a } }</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>a_opt <span class="op">=</span> <span class="fu">inverseCDF</span>( (q<span class="op">-</span>p)<span class="op">/</span>q )</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> ({</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Kumaraswamy Distribution: https://en.wikipedia.org/wiki/Kumaraswamy_distribution</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">a</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">b</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">max</span><span class="op">:</span> <span class="dv">100</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>pdf <span class="op">=</span> {</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(x) {</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> normalized <span class="op">=</span> x<span class="op">/</span>config<span class="op">.</span><span class="at">max</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a<span class="op">*</span>b<span class="op">*</span>normalized<span class="op">**</span>(a<span class="op">-</span><span class="dv">1</span>)<span class="op">*</span>(<span class="dv">1</span> <span class="op">-</span> normalized<span class="op">**</span>a)<span class="op">**</span>(b<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>inverseCDF<span class="op">=</span> {</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(y) {</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>     <span class="co">// Closed form expression for inverse CDF of Kumaraswamy distribution </span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>     <span class="cf">return</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> (<span class="dv">1</span><span class="op">-</span>y)<span class="op">**</span>(<span class="dv">1</span><span class="op">/</span>b))<span class="op">**</span>(<span class="dv">1</span><span class="op">/</span>a)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> { </span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> cdf <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    cdf <span class="op">=</span> cdf <span class="op">+</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">demand</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">pdf</span><span class="op">:</span> <span class="fu">pdf</span>(x)<span class="op">,</span> <span class="dt">CDF</span><span class="op">:</span> cdf<span class="op">,</span> <span class="dt">reward</span><span class="op">:</span> <span class="fu">r</span>(x<span class="op">,</span>action) }</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>cost_values <span class="op">=</span> {</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">action</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">performance</span><span class="op">:</span> <span class="fu">J</span>(x)}</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>J <span class="op">=</span> {</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(action) {</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> cost <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> w <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>      w <span class="op">=</span> config<span class="op">.</span><span class="at">max</span><span class="op">*</span>i<span class="op">/</span>n</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (w <span class="op">&lt;=</span> action) {</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>        cost <span class="op">+=</span> (q<span class="op">*</span>w <span class="op">-</span> p<span class="op">*</span>action)<span class="op">*</span><span class="fu">pdf</span>(w)<span class="op">/</span>n</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>        cost <span class="op">+=</span> (q<span class="op">*</span>action <span class="op">-</span> p<span class="op">*</span>action)<span class="op">*</span><span class="fu">pdf</span>(w)<span class="op">/</span>n</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cost</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
 </div>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Remark
 </div>
 </div>
-<div class="callout-body-container callout-body">
-<p>We restricted the proof to finite <span class="math inline">\(\ALPHABET S\)</span>, <span class="math inline">\(\ALPHABET A\)</span>, <span class="math inline">\(\ALPHABET W\)</span>. This is to avoid any measurability issues. If <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are continuous sets, we need to restrict to <em>measurable</em> <span class="math inline">\(π\)</span> in Problem <span class="math inline">\(\eqref{eq:obs}\)</span> (otherwise the expectation is not well defined; of course the cost <span class="math inline">\(c\)</span> also has to be measurable). However, it is not immediately obvious that <span class="math inline">\(π^∘\)</span> defined in \eqref{eq:cond} is measurable. Conditions that ensure this are known as <em>measurable selection theorems</em>.</p>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
 </div>
 </div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-8" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-9" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-10" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell panel-input card bg-light p-2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>viewof action <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">100</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"a"</span>})</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cost <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="fu">J</span>(action)<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-2-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="9" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 8;"><span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>plotJ <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [action<span class="op">,</span> <span class="fu">J</span>(action)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"blue"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [a_opt<span class="op">,</span> <span class="fu">J</span>(a_opt)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"red"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(cost_values<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"action"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"performance"</span>})</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>plotPDF <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [action<span class="op">,</span><span class="dv">0</span>]<span class="op">,</span> [action<span class="op">,</span> <span class="fu">pdf</span>(action)] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"blue"</span>})<span class="op">,</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span>})<span class="op">,</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(points<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&lt;=</span> action)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"lightblue"</span>})<span class="op">,</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(points<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&gt;</span> action)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"pink"</span>})</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>plotReward <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"reward"</span>})</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="fig-newsvendor" class="quarto-layout-panel page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-newsvendor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<div class="quarto-layout-row page-full">
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendor" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendor-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendor-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="ojs-cell-3-1" data-nodetype="declaration">
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendor-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Performance: <span><span id="ojs-element-id-1"></span></span>
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendor" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendor-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendor-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="ojs-cell-3-2" data-nodetype="declaration">
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendor-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) PDF of demand
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendor" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendor-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendor-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="ojs-cell-3-3" data-nodetype="declaration">
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendor-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) reward (as a function of demand)
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-newsvendor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.1: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shaded region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
+</figcaption>
+</figure>
+</div>
+<p>In <a href="#fig-newsvendor" class="quarto-xref">Figure&nbsp;<span>1.1</span></a>(a), the plot of <span class="math inline">\(J(a)\)</span> is concave. We can verify that this is true in general.</p>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Proof
+<span class="screen-reader-only">Note</span>Verify that <span class="math inline">\(J(a)\)</span> is concave
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Let <span class="math inline">\(π\)</span> be any other decision rule. Then, <span class="math display">\[ \begin{align*}
-  \EXP[ c(S, π(S), W) ] &amp;\stackrel{(a)}= \EXP[ \EXP[c(S, π(S), W) | S ] ] \\
-  &amp;\stackrel{(b)}\ge \EXP[\EXP[ c(S, π^∘(S), W) | S ] ] \\
-  &amp;\stackrel{(c)}= \EXP[ c(S, π^∘(S), W) ],
-\end{align*} \]</span> where <span class="math inline">\((a)\)</span> and <span class="math inline">\((c)\)</span> follow from the law of iterated expectations and <span class="math inline">\((b)\)</span> follows from the definition of <span class="math inline">\(π^∘\)</span> in \eqref{eq:cond}.</p>
+<p>To verify that the function <span class="math inline">\(J(a)\)</span> is concave, we compute the second derivative: <span class="math display">\[
+  \frac{d^2 J(a)}{da^2} = - p f(a) - (q - p) f(a) = -q f(a) \le 0.
+\]</span></p>
 </div>
 </div>
 </div>
-<p>We can also provide a partial converse of <a href="#thm-fact" class="quarto-xref">Theorem&nbsp;<span>1.1</span></a>.</p>
-<div id="thm-converse" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 1.2</strong></span> If <span class="math inline">\(\PR(S = s) &gt; 0\)</span> for all <span class="math inline">\(s\)</span>, then any optimal policy <span class="math inline">\(π^∘\)</span> for Problem&nbsp;<span class="math inline">\(\eqref{eq:obs}\)</span> must satisfy&nbsp;<span class="math inline">\(\eqref{eq:cond}\)</span>.</p>
+<p>This suggests that we can use calculus to find the optimal value. In particular, to find the optimal action, we need to find the <span class="math inline">\(a\)</span> such that <span class="math inline">\(dJ(a)/da = 0\)</span>.</p>
+<div id="prp-newsvendor-cts" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 1.1</strong></span> For the newsvendor problem with continuous demand, the optimal action is <span class="math display">\[
+    a = F^{-1}\left( 1 - \frac{p}{q} \right).
+  \]</span> In the literature, the quantity <span class="math inline">\(1 - (p/q)\)</span> is called the <em>critical fractile</em>.</p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
@@ -1071,205 +1337,268 @@ window.Quarto = {
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>We prove this by contradiction. Suppose <span class="math inline">\(π^*\)</span> is an optimal policy that does not satisfy \eqref{eq:cond}. By definition of <span class="math inline">\(π^∘\)</span>, it must be the case that for all states <span class="math display">\[\begin{equation}
-   \EXP[ c(s, π^∘(s), W) | S = s ]
-   \le
-   \EXP[ c(s, π^*(s), W) | S = s ] .
-   \label{eq:ineq:1}
-\end{equation}\]</span> Now, since <span class="math inline">\(π^*\)</span> does not satisfy \eqref{eq:cond}, there exists some state <span class="math inline">\(s^∘ \in \ALPHABET S\)</span> such that <span class="math display">\[\begin{equation}
-   \EXP[ c(s^∘, π^*(s^∘), W) | S = s^∘ ]
-   &gt;
-   \EXP[ c(s^∘, π^∘(s^∘), W) | S = s^∘ ] .
-   \label{eq:ineq:2}
-\end{equation}\]</span> Therefore, <span class="math display">\[\begin{align*}
-   \EXP[ c(S, π^*(S), W) ]
-   &amp;=
-   \sum_{s \in \ALPHABET S} \PR(S = s)
-   \EXP[ \EXP[ c(s, π^*(s), W) | S = s ] ]
-   \\
-   &amp; \stackrel{(a)}&gt;
-   \sum_{s \in \ALPHABET S} \PR(S = s)
-   \EXP[ \EXP[ c(s, π^∘(s), W) | S = s ] ]
-   \\
-   &amp;=
-   \EXP[ c(S, π^∘(S), W) ]
-\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from \eqref{eq:ineq:1} and \eqref{eq:ineq:2} and the inequality is strict becase <span class="math inline">\(\PR(S = s^∘) &gt; 0\)</span>. Thus, <span class="math inline">\(J(π^*) &gt; J(π^∘)\)</span> and, hence, <span class="math inline">\(π^*\)</span> cannot be an optimal policy.</p>
-</div>
-</div>
-</div>
 <div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Leibniz integral rule
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p><span class="math display">\[ \dfrac{d}{dx} \left( \int_{p(x)}^{q(x)} f(x,t) dt \right)
+   = f(x, q(x)) \cdot \dfrac {d}{dx} q(x)
+   - f(x, p(x)) \cdot \dfrac {d}{dx} p(x)
+   + \int_{p(x)}^{q(x)} \dfrac{\partial}{\partial x} f(x,t) dt.
+\]</span></p>
+</div>
+</div>
+</div>
+<p>Using the Leibniz integral rule, the derivative of the first term of <span class="math inline">\(\eqref{eq:J}\)</span> is <span class="math display">\[ [q a - p a ] f(a) + \int_{0}^a [ -p ] f(w) dw
+= [q a - p a ] f(a) - p F(a).
+\]</span></p>
+<p>Similarly, the derivative of the second term of <span class="math inline">\(\eqref{eq:J}\)</span> is <span class="math display">\[ - [q a - p a] f(a) + \int_{a}^{\infty} (q-p)f(w)dw
+= - [q a - p a] f(a) + (q -p)[ 1 - F(a)].
+\]</span></p>
+<p>Combining the two, we get that <span class="math display">\[ \dfrac{dJ(a)}{da} = - p F(a) + (q - p) [ 1 - F(a) ]. \]</span></p>
+<p>Equating this to <span class="math inline">\(0\)</span>, we get <span class="math display">\[ F(a) = \dfrac{ q - p }{ q}
+\quad\text{or}\quad
+a = F^{-1} \left( 1 - \dfrac{  p }{ q } \right).
+\]</span></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Some notation
+<span class="screen-reader-only">Important</span>Graphical interpretation of the result
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>To build up to the notation used in <a href="../mdps/intro.html">MDPs</a>, define <span class="math display">\[
-    Q(s,a) \coloneqq E[ c(s,a,W) \mid S = s],
-\]</span> which is called the <strong>action-value function.</strong> For any policy <span class="math inline">\(π\)</span>, define <span class="math display">\[
-  V^π(s) = Q(s,π(s)),
-\]</span> which is called the <strong>value function</strong> of policy <span class="math inline">\(π\)</span>. The value function of the optimal policy is often denoted by <span class="math inline">\(V^*\)</span> and, by definition of optimality, it has the property that for any policy <span class="math inline">\(π\)</span>: <span class="math display">\[
-  V^*(s) \le V^π(s),
-  \quad \forall s \in \ALPHABET S.
-\]</span></p>
+<p>The result of <a href="#prp-newsvendor-cts" class="quarto-xref">Proposition&nbsp;<span>1.1</span></a> has a nice graphical interpretation. Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line <span class="math inline">\(1 - p/q\)</span>.</p>
+<div class="cell panel-input card bg-light p-2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>viewof pcts <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"p"</span>})</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>viewof qcts <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"q"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-4-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb5-0"><a href="#cb5-0" aria-hidden="true" tabindex="-1"></a>F_opt <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> pcts<span class="op">/</span>qcts</span>
+<span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plotOptCts <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span><span class="dv">1</span>]}<span class="op">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"CDF"</span>})<span class="op">,</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [<span class="dv">0</span><span class="op">,</span>F_opt]<span class="op">,</span> [points[points<span class="op">.</span><span class="at">length</span><span class="op">-</span><span class="dv">1</span>]<span class="op">.</span><span class="at">demand</span><span class="op">,</span> F_opt] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"red"</span>})</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-5-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </section>
-<section id="an-example-optimal-policy-in-a-card-game" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="an-example-optimal-policy-in-a-card-game"><span class="header-section-number">1.3</span> An example: optimal policy in a card game</h2>
-<p>Consier a gamler playing a stylized version of card game played with a deck of <span class="math inline">\(4\)</span> cards: <span class="math inline">\(\{1,2,3,4\}\)</span>. A dealer deals two cards: one to himself and one to the gabler. The gambler looks at his card, and can decide to take one of two actions: fold or challenge. If the gambler folds, the game is over; if he challenges and has a higher card than the dealer, he wins \$1; if he challenges but has a lower than the dealer, he loses \$1. What is the optimal policy?</p>
-<p>We can model this as a stochastic optimization probem. Let <span class="math inline">\(W\)</span> denote the cards dealt, <span class="math inline">\(S\)</span> denote gambler’s card, and <span class="math inline">\(A=0\)</span> denote the fold action and <span class="math inline">\(A=1\)</span> denote the challenge action. Then: <span class="math display">\[
-\ALPHABET W = \{(1,2), (1,3), (1,4), (2,1), (2,3), (2,4), (3,1), (3,2), (3,4), (4,1), (4,2), (4,3) \},
-\]</span> where the first index denotes the card dealt to the dealer and the second denotes the card dealt to the gabmler. We will assume that each of these outcomes is equally likely.</p>
-<p>Note that <span class="math inline">\(\ALPHABET S = \{1,2,3,4\}\)</span> and <span class="math inline">\(\ALPHABET A = \{0,1\}\)</span>. So, a policy <span class="math inline">\(π\)</span> is a mapping from <span class="math inline">\(\ALPHABET S\)</span> to <span class="math inline">\(\ALPHABET A\)</span>, i.e., for each card that could be dealt to the gambler, he needs to decide whether to fold or challenge.</p>
-<p>There are <span class="math inline">\(|\ALPHABET S|^{|\ALPHABET A|} = 4^2 = 16\)</span> policies. The performance of a policy <span class="math inline">\(π\)</span> is: <span class="math display">\[
-  J(π) = \sum_{(d,s) \in \ALPHABET W} \PR(d,s) c(s, π(s), (d,s))
-\]</span> where we are using the variable <span class="math inline">\(d\)</span> to denote the card dealt to the dealer.</p>
-<p>Now consider one specific policy: <span class="math inline">\(π = [0, 0, 1, 1]\)</span>, which means that the gambler folds if he gets card 1 or 2 and challenges if he gets card 3 and 4. Then, we have <span class="math display">\[\begin{align*}
-  J(π) &amp;=
-  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (1,2)}
-  +
-  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (1,3)}
-  +
-  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (1,4)}
-  \\
-  &amp; \quad +
-  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (2,1)}
-  +
-  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (2,3)}
-  +
-  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (2,4)}
-  \\
-  &amp; \quad +
-  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (3,1)}
-  +
-  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (3,2)}
-  +
-  \underbrace{\tfrac 1{12} \cdot 1}_{(d,s) = (3,4)}
-  \\
-  &amp; \quad +
-  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (4,1)}
-  +
-  \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (4,2)}
-  +
-  \underbrace{\tfrac 1{12} \cdot (-1)}_{(d,s) = (4,3)}
-  \\
-  &amp;= \tfrac 4{12} = \tfrac 13.
-\end{align*}\]</span></p>
-<p>A brute force search corresponds to computing the performance of all <span class="math inline">\(16\)</span> policies and picking the one with the best performance.</p>
-<p>The alternative way to compute the optimal policy via <span class="math inline">\(\eqref{eq:cond}\)</span> proceeds as follows. First observe that <span class="math display">\[
-  Q(s,a) \coloneqq
-  \EXP[ c(s,a,W) \mid S = s] = \sum_{ (d,s) \in \ALPHABET W }
-  \PR( (d,s) \mid S = s) c(s,a,(d,s)).
-\]</span> Moreover, <span class="math inline">\(Q(s,0)\)</span> is always <span class="math inline">\(0\)</span>. So, we just need to compute <span class="math inline">\(Q(s,1)\)</span> and check if it is larger or smaller than <span class="math inline">\(0\)</span>.</p>
-<ul>
-<li><span class="math inline">\(Q(1,1) = \tfrac 13 \bigl[ -1 -1 -1 \bigr] = -1 &lt; 0\)</span>.</li>
-<li><span class="math inline">\(Q(2,1) = \tfrac 13[1 -1 -1] = -\tfrac 13 &lt; 0\)</span>.</li>
-<li><span class="math inline">\(Q(3,1) = \tfrac 13[1 + 1 -1] = \tfrac 13 &gt; 0\)</span>.</li>
-<li><span class="math inline">\(Q(4,1) = \tfrac 13 [ 1 + 1 + 1] = 1 &gt; 0\)</span>.</li>
-</ul>
-<p>Thus, the optimal policy is <span class="math inline">\(π = [0, 0, 1, 1]\)</span>. We can also verify that <span class="math display">\[
-  J(π) = \sum_{s \in \ALPHABET S} \PR(s) Q(s,π(s))
-  = \tfrac 14 [ 0 + 0 + \tfrac 13 + 1 ] = \tfrac 13
-\]</span> which is the same value that we had obtained by direct computation above.</p>
-</section>
-<section id="a-tree-representation-of-the-optimization-problem" class="level2" data-number="1.4">
-<h2 data-number="1.4" class="anchored" data-anchor-id="a-tree-representation-of-the-optimization-problem"><span class="header-section-number">1.4</span> A tree representation of the optimization problem</h2>
-<p>When all variables <span class="math inline">\((S,W,A)\)</span> are finite valued, the stochastic optimization problem defined above can also be modeled as a tree. Such a tree formulation has two benefits:</p>
-<ul>
-<li>it provides a geometric view, which can be useful in visualizing the result;</li>
-<li>for general, multi-stage problems, it is possible to exploit the tree structure to obtain efficient computation algorithms, see, e.g., <span class="citation" data-cites="Fu2018">Fu (<a href="../references.html#ref-Fu2018" role="doc-biblioref">2018</a>)</span> for an historical overview.</li>
-</ul>
-<p>There are two ways to construct the tree representation: the first as an one-stage optimization problem with perfect observation and the second as a one-stage optimization problem with imperfect observation. The first is simpler and the second is more general. We explain both formulations below.</p>
-<section id="one-step-optimization-with-perfect-observation" class="level3" data-number="1.4.1">
-<h3 data-number="1.4.1" class="anchored" data-anchor-id="one-step-optimization-with-perfect-observation"><span class="header-section-number">1.4.1</span> One-step optimization with perfect observation</h3>
-<p>We will view the model according to the following timing diagram:</p>
-<div id="fig-timing1" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-timing1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/timing1.svg" class="img-fluid figure-img">
+<section id="back-to-discrete-version" class="level3 page-columns page-full" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="back-to-discrete-version"><span class="header-section-number">1.2.2</span> Back to discrete version</h3>
+<p>Now, we come back to the problem with discrete actions and discrete demand. Suppose <span class="math inline">\(W\)</span> takes the values <span class="math inline">\(\ALPHABET W = \{ w_1, w_2, \dots, w_k \}\)</span> (where <span class="math inline">\(w_1 &lt; w_2 &lt;
+\cdots &lt; w_k\)</span>) with probabilities <span class="math inline">\(\{ μ_1, μ_2, \dots, μ_k \}\)</span>. It is easy to see that in this case the action <span class="math inline">\(a\)</span> should be in the set <span class="math inline">\(\{ w_1, w_2, \dots,
+w_k \}\)</span>.</p>
+<p>To fix ideas, we repeat the above numerical example when <span class="math inline">\(\ALPHABET W = \{0, 1, \dots, 100\}\)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb6-0"><a href="#cb6-0" aria-hidden="true" tabindex="-1"></a>pointsD <span class="op">=</span> { </span>
+<span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> cdf <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    cdf <span class="op">=</span> cdf <span class="op">+</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">demand</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">pdf</span><span class="op">:</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n<span class="op">,</span> <span class="dt">CDF</span><span class="op">:</span> cdf<span class="op">,</span> <span class="dt">reward</span><span class="op">:</span> <span class="fu">r</span>(x<span class="op">,</span>actionD) }</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>cost_valuesD <span class="op">=</span> {</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">action</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">performance</span><span class="op">:</span> <span class="fu">J</span>(x)}</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>a_optD <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(a_opt<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-6-1" data-nodetype="declaration">
+
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-timing1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.1: Timing diagram for modeling as a one-step optimization problem with perfect observation
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-6-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-6-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell panel-input card bg-light p-2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>viewof actionD <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">100</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"a"</span>})</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>costD <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="fu">J</span>(actionD)<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-7-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="9" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 8;"><span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>plotJD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [actionD<span class="op">,</span> <span class="fu">J</span>(actionD)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"blue"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [a_optD<span class="op">,</span> <span class="fu">J</span>(a_optD)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"red"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(cost_valuesD<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"action"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"performance"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span>})</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>plotPDFD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Plot.line([ [actionD,0], [actionD, pdf(actionD)] ], {stroke: "blue"}),</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})<span class="op">,</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(pointsD<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&lt;=</span> actionD)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"lightblue"</span>})<span class="op">,</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(pointsD<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&gt;=</span> actionD)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"pink"</span>})</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>plotRewardD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"reward"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span>})</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="fig-newsvendord" class="quarto-layout-panel page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-newsvendord-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<div class="quarto-layout-row page-full">
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendord" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendord-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendord-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="ojs-cell-8-1" data-nodetype="declaration">
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendord-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Performance: <span><span id="ojs-element-id-2"></span></span>
 </figcaption>
 </figure>
 </div>
-<p>Thus, nature first generate the “state” variable <span class="math inline">\(S\)</span> according to some distribution <span class="math inline">\(P_S\)</span>, agent takes action <span class="math inline">\(A\)</span> according to the policy <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span>, and then nature generates the “disturbance” <span class="math inline">\(W\)</span> according to some distribution <span class="math inline">\(P_{W|S}\)</span>.</p>
-<p>We can view this as a tree, shown in <a href="#fig-tree1" class="quarto-xref">Figure&nbsp;<span>1.2</span></a>, where the root note corresponds to moves nature (denoted by <span class="math inline">\(c\)</span> for chance) to generate <span class="math inline">\(S\)</span>, nodes at depth 1 correspond to the moves of the agent (denoted by <span class="math inline">\(d\)</span> for decision maker) to generate <span class="math inline">\(A\)</span>, and nodes at depth 2 correspond to moves of nature to generate <span class="math inline">\(W\)</span>.[^simplify]</p>
-<p>[^simplify] For simplicity, we set <span class="math inline">\(W = (D,S)\)</span> and only show <span class="math inline">\(D\)</span> (the card dealt to the dealer) on the tree.</p>
-<div id="fig-tree1" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-tree1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/game-tree1.svg" class="img-fluid figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tree1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.2: Tree representation of the one-step optimization problem. Nodes represent the “agent”: nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost <span class="math inline">\(c(s,a,w)\)</span>. The shaded edges represent a policy.
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendord" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendord-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendord-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="ojs-cell-8-2" data-nodetype="declaration">
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendord-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) PDF of demand
 </figcaption>
 </figure>
 </div>
-<p>We can do the calculation to compute the optimal policy on the tree. The calculations proceed by starting at the last level and moving upwards. In particular, at the nodes of depth <span class="math inline">\(2\)</span>, we compute <span class="math inline">\(Q(s,a)\)</span> using: <span class="math display">\[
-Q(s,a) = \EXP[ c(s,a,W) \mid S = s]
-=
-\sum_{w \in \ALPHABET W}P_{W|S}(w|s) c(s,a,w)
-\]</span> If we are given a policy <span class="math inline">\(π\)</span> (like the policy shown by yellow shaded edges in <a href="#fig-tree1" class="quarto-xref">Figure&nbsp;<span>1.2</span></a>), we can compute <span class="math inline">\(V^π(s)\)</span> using: <span class="math display">\[
-  V^π(s) = Q(s,π(s)).
-\]</span> We can also compute the optimal value function <span class="math inline">\(V^*(s)\)</span> using <span class="math display">\[
-  V^*(s) = \min_{a \in \ALPHABET A}Q(s,a)
-\]</span> where the optimal policy is given by <span class="math display">\[
-  π^*(s) \in \arg\min_{a \in \ALPHABET A}Q(s,a).
-\]</span></p>
-<p>These calculations are the same as we did in the previous section; the tree simply helps in visualizing what is going on.</p>
-</section>
-<section id="one-step-optimization-with-imperfect-observation" class="level3" data-number="1.4.2">
-<h3 data-number="1.4.2" class="anchored" data-anchor-id="one-step-optimization-with-imperfect-observation"><span class="header-section-number">1.4.2</span> One-step optimization with imperfect observation</h3>
-<p>In this case, we will view the model according to the following timing diagram:</p>
-<div id="fig-timing2" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-timing2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/timing2.svg" class="img-fluid figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-timing2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.3: Timing diagram for modeling as a one-step optimization problem with imperfect observation
+<div class="cell-output cell-output-display column-page quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-newsvendord" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div id="fig-newsvendord-3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-newsvendord-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="ojs-cell-8-3" data-nodetype="declaration">
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-newsvendord-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) reward (as a function of demand)
 </figcaption>
 </figure>
 </div>
-<p>We can view this as a tree, shown in <a href="#fig-tree2" class="quarto-xref">Figure&nbsp;<span>1.4</span></a>, where the root note corresponds to moves nature to generate <span class="math inline">\((S,W)\)</span>, nodes at depth 1 correspond to the moves of the agent to generate <span class="math inline">\(A\)</span>.</p>
-<div id="fig-tree2" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-tree2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/game-tree2.svg" class="img-fluid figure-img">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tree2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.4: Tree representation of the one-step optimization problem. Nodes represent the “agent”: nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost <span class="math inline">\(c(s,a,w)\)</span>. The shaded edges represent a policy.
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-newsvendord-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.2: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shaded region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
 </figcaption>
 </figure>
 </div>
-<p>In this case, the decision maker cannot distinguish between multiple moves of nature. For example, for <span class="math inline">\(W \in \{ (2,1), (3,1), (4,1) \}\)</span>, the decision maker gets the same observation <span class="math inline">\(S=1\)</span>. This is indicated in the tree diagram by drawing an <strong>information set</strong> around these three nodes, and ensuring that the action taken at these nodes is identical.</p>
-<p>In this formulation, the decision maker has imperfect observation of nature’s move. After making an observation, it forms a <em>posterior belief</em> on the state of nature. For example, <span class="math display">\[
-  \PR(W | S = 1) =
-  \begin{cases}
-    \tfrac 13, &amp; \hbox{if } W \in \{(2,1), (3,1), (4,1) \} \\
-    0, &amp; \hbox{otherwise}
-  \end{cases}
-\]</span> The agent then computes <span class="math inline">\(Q(s,a)\)</span> by averaging over this belief: <span class="math display">\[
-  Q(s,a) = \sum_{w \in \ALPHABET W} \PR(w|s) c(s,a,w).
-\]</span> The value functions <span class="math inline">\(V^π(s)\)</span> and <span class="math inline">\(V^*(s)\)</span> and then computed exactly as before.</p>
-<p>The difference between the two approaches is conceptual. For the one-step optimization problen, the actual mathematical calculations done in both formulations are the same. When we go to multi-stage optimization problem, we will see that perfect and imperfect observation models behave very differently.</p>
-</section>
-</section>
-<section id="blackwells-principle-of-irrelevant-information" class="level2" data-number="1.5">
-<h2 data-number="1.5" class="anchored" data-anchor-id="blackwells-principle-of-irrelevant-information"><span class="header-section-number">1.5</span> Blackwell’s principle of irrelevant information</h2>
-<p>In many scenarios, the decision maker may observe data which is irrelevant for evaluating performance. In such instances, the decision maker may ignore such information without affecting performance. Formally, we have the following result, which is known as <strong>Blackwell’s principle of irrelevant information</strong>.</p>
-<div id="thm-blackwell" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 1.3 (Blackwell’s principle of irrelevant information)</strong></span> Let <span class="math inline">\(\ALPHABET S\)</span>, <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math inline">\(\ALPHABET W\)</span>, and <span class="math inline">\(\ALPHABET A\)</span> be standard Borel spaces and <span class="math inline">\(S \in \ALPHABET S\)</span>, <span class="math inline">\(Y \in \ALPHABET Y\)</span>, <span class="math inline">\(W \in
-\ALPHABET W\)</span> be random variables defined on a common probability space.</p>
-<p>A decision maker observes <span class="math inline">\((S,Y)\)</span> and chooses <span class="math inline">\(A = π(S,Y)\)</span> to minimize <span class="math inline">\(\EXP[c(S,A,W)]\)</span>, where <span class="math inline">\(c \colon \ALPHABET S \times \ALPHABET A \times
-\ALPHABET W \to \reals\)</span> is a measurable function.</p>
-<p><strong>Then, if <span class="math inline">\(W\)</span> is conditionally independent of <span class="math inline">\(Y\)</span> given <span class="math inline">\(S\)</span>, then there is no loss of optimality in choosing <span class="math inline">\(A\)</span> only as a function of <span class="math inline">\(S\)</span>.</strong></p>
-<p>Formally, there exists a <span class="math inline">\(π^* \colon \ALPHABET S \to \ALPHABET A\)</span> such that for all <span class="math inline">\(π \colon \ALPHABET S \times \ALPHABET Y \to \ALPHABET A\)</span>, <span class="math display">\[ \EXP[c(S, π^*(S), W)] \le \EXP[ c(S, π(S,Y), W) ]. \]</span></p>
+<p>In the discrete case, the brute force search is easier (because there are a finite rather than continuous number of values). We cannot directly use the ideas from calculus because functions over discrete domain are not differentiable. But we can use a very similar idea. Instead of checking if <span class="math inline">\(dJ(a)/da = 0\)</span>, we check the sign of <span class="math inline">\(J(w_{i+1}) - J(w_i)\)</span>.</p>
+<div id="prp-newsvendor-discrete" class="theorem proposition">
+<p><span class="theorem-title"><strong>Proposition 1.2</strong></span> Let <span class="math inline">\(\{M_i\}_{i \ge 1}\)</span> denote the cumulative mass function of the demand. Then, the optimal action is the largest value of <span class="math inline">\(w_i\)</span> such that <span class="math display">\[
+    M_i \le 1 - \frac{p}{q}.
+  \]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
@@ -1283,107 +1612,184 @@ Figure&nbsp;1.4: Tree representation of the one-step optimization problem. Nodes
 </div>
 <div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>We prove the result for the case when <span class="math inline">\(\ALPHABET S\)</span>, <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math inline">\(\ALPHABET
-W\)</span>, <span class="math inline">\(\ALPHABET A\)</span> are finite.</p>
-<p>Define <span class="math display">\[π^*(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]. \]</span> Then, by construction, for any <span class="math inline">\(s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>, we have that <span class="math display">\[ \EXP[ c(s, π^*(s), W ) | S = s]  \le \EXP[ c(s,a,W) | S = s]. \]</span> Hence, for any <span class="math inline">\(π \colon \ALPHABET S \times \ALPHABET Y \to \ALPHABET A\)</span>, and for any <span class="math inline">\(s \in \ALPHABET S\)</span> and <span class="math inline">\(y \in \ALPHABET Y\)</span>, we have <span class="math display">\[ \begin{equation} \label{eq:opt}
-  \EXP[ c(s, π^*(s), W) | S = s] \le \EXP[ c(s, π(s,y),W) | S = s].
-\end{equation} \]</span> The result follows by taking the expectation of both sides of \eqref{eq:opt}.</p>
+<p>The expected reward for choice <span class="math inline">\(w_i\)</span> is <span class="math display">\[ \begin{align*} J(w_i) &amp;=
+\sum_{j &lt; i} μ_j [ q w_j - p w_i ] + \sum_{j \ge i} μ_j [q w_i - p w_i]
+\\
+&amp;= -p w_i + q \Bigl[ \sum_{j &lt; i}  μ_j w_j + \sum_{j \ge i} μ_j w_i \Bigr].
+\end{align*}\]</span></p>
+<p>Thus, <span class="math display">\[ \begin{align*}
+  J(w_{i+1}) - J(w_i) &amp;=
+  -p w_{i+1} + q \Bigl[ \sum_{j &lt; i+1}  μ_j w_j + \sum_{j \ge i+1} μ_j w_{i+1} \Bigr]
+  \\
+  &amp;\quad + p w_i - q \Bigl[ \sum_{j &lt; i}  μ_j w_j + \sum_{j \ge i} μ_j w_i \Bigr]
+  \\
+  &amp;= -p (w_{i+1} - w_i) + q \Bigl[ \sum_{j \ge i + 1} μ_j ( w_{i+1} - w_i) \Bigr]
+  \\
+  &amp;= \big( - p + q [ 1 - M_i ] \big) (w_{i+1} - w_i).
+\end{align*}\]</span> Note that <span class="math display">\[
+M_i \le \dfrac{q-p}{q}
+\iff
+-p + q [ 1 - M_i ] \ge 0.
+\]</span> Thus, for all <span class="math inline">\(i\)</span> such that <span class="math inline">\(M_i \le (q-p)/q\)</span>, we have <span class="math inline">\(J(w_{i+1}) \ge J(w_i)\)</span>. On the other hand, for all <span class="math inline">\(i\)</span> such that <span class="math inline">\(M_i &gt; (q-p)/q)\)</span>, we have <span class="math inline">\(J(w_{i+1}) &lt; J(w_i)\)</span>. Thus, the optimal amount to order is the largest <span class="math inline">\(w_i\)</span> such that <span class="math inline">\(M_i \le
+(q-p)/q\)</span>.</p>
 </div>
 </div>
 </div>
-<p>The above proof doesn’t work for general Borel spaces because <span class="math inline">\(π^*\)</span> defined above may not exist (inf vs min) or may not be measurable. See <span class="citation" data-cites="Blackwell1964">Blackwell (<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">1964</a>)</span> for a formal proof.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Graphical interpretation of the result
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The structure of the optimal solution is the same for continuous and discrete demand distributions. In particular, the result of <a href="#prp-newsvendor-discrete" class="quarto-xref">Proposition&nbsp;<span>1.2</span></a> has the same graphical interpretation as that of <a href="#prp-newsvendor-cts" class="quarto-xref">Proposition&nbsp;<span>1.1</span></a>:</p>
+<blockquote class="blockquote">
+<p>Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line <span class="math inline">\(1 - p/q\)</span>.</p>
+</blockquote>
+<div class="cell panel-input card bg-light p-2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>viewof pdis <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"p"</span>})</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>viewof qdis <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"q"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-9-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-9-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb10-0"><a href="#cb10-0" aria-hidden="true" tabindex="-1"></a>F_opt_dis <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> pdis<span class="op">/</span>qdis</span>
+<span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>plotOptDts <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span><span class="dv">1</span>]}<span class="op">,</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"CDF"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})<span class="op">,</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [<span class="dv">0</span><span class="op">,</span>F_opt_dis]<span class="op">,</span> [pointsD[pointsD<span class="op">.</span><span class="at">length</span><span class="op">-</span><span class="dv">1</span>]<span class="op">.</span><span class="at">demand</span><span class="op">,</span> F_opt_dis] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"red"</span>})</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-10-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-10-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="acting-based-on-historical-data" class="level3" data-number="1.2.3">
+<h3 data-number="1.2.3" class="anchored" data-anchor-id="acting-based-on-historical-data"><span class="header-section-number">1.2.3</span> Acting based on historical data</h3>
+<p>In the above discussion, we assumed that probability distribution&nbsp;<span class="math inline">\(F\)</span> of the demand is known. In many instances, the decision maker just has access to a database of historical demands, which we denote by <span class="math display">\[
+  \ALPHABET D_K = \{ w_1, \dots, w_K \}
+\]</span> where <span class="math inline">\(K\)</span> denotes the number of samples. How do we choose the number of newspapers to buy?</p>
+<p>The simplest way to solve this problem is to estimate the demand distribution from the historical data <span class="math inline">\(\ALPHABET D_K\)</span> as <span class="math display">\[
+  \hat{F}_K(w) = \frac{1}{K} \sum_{k=1}^K \IND\{ w_k \le w \}.
+\]</span> where <span class="math inline">\(\IND\{\cdot\}\)</span> is the indicator function. Then, the decision maker can choose the number of newspapers to buy by solving the optimization problem <span class="math display">\[
+  \max_{a \in \ALPHABET A} \EXP_{w \sim \hat{F}_K}[ r(a, W)]
+  = \max_{a \in \ALPHABET A} \frac{1}{K} \sum_{k=1}^K r(a, w_k).
+\]</span> This simple idea is known by different names in the literature. It is called <strong>certainty equivalence</strong> in adaptive control, <strong>plug-in estimator</strong> in statistics, <strong>empirical risk minimization (ERM)</strong> in machine learning, and <strong>sample average approximation (SAA)</strong> in optimization.</p>
+<p>The structure of the optimal solution establised in <a href="#prp-newsvendor-cts" class="quarto-xref">Proposition&nbsp;<span>1.1</span></a> and <a href="#prp-newsvendor-discrete" class="quarto-xref">Proposition&nbsp;<span>1.2</span></a> implies that the optimal action is the <span class="math inline">\(\rho\)</span>-th quantile of the demand distribution, where <span class="math inline">\(\rho = 1 - p/q\)</span>, is the critical fractile. To obtain that, order the historical demand according to their order statistics as: <span class="math display">\[
+  w_{1:K} \le w_{2:K} \le \cdots \le w_{K:K}.
+\]</span> Then, the certainty equivalent action is given by <span class="math inline">\(w_{\lceil \rho K \rceil: K}\)</span>.</p>
+</section>
 </section>
 <section id="exercises" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
-<div id="exr-stoc-optim-computing" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.1 (Computing optimal policies)</strong></span> Suppose <span class="math inline">\(\ALPHABET S = \{1, 2 \}\)</span>, <span class="math inline">\(\ALPHABET A = \{1, 2, 3\}\)</span>, and <span class="math inline">\(\ALPHABET
-W = \{1, 2, 3\}\)</span>. Let <span class="math inline">\((S,W)\)</span> be random variables taking values in <span class="math inline">\(\ALPHABET S × \ALPHABET W\)</span> with joint distribution <span class="math inline">\(P\)</span> shown below.</p>
-<p><span class="math display">\[ P = \MATRIX{ 0.25 &amp; 0.15 &amp; 0.05  \\ 0.30 &amp; 0.10 &amp; 0.15 } \]</span></p>
-<p>Here the row corresponds to the value of <span class="math inline">\(s\)</span> and the column corresponds to the value of <span class="math inline">\(w\)</span>. For example <span class="math inline">\(\PR(S=2, W=1) = P_{21} = 0.30\)</span>.</p>
-<p>The cost function <span class="math inline">\(c \colon \ALPHABET S \times \ALPHABET A \times \ALPHABET
-W \to \reals\)</span> is shown below</p>
-<p><span class="math display">\[
-c(\cdot,\cdot,1) = \MATRIX{3 &amp; 5 &amp; 1 \\ 2 &amp; 3 &amp; 1 }, \quad
-c(\cdot,\cdot,2) = \MATRIX{4 &amp; 3 &amp; 1 \\ 1 &amp; 2 &amp; 8 }, \quad
-c(\cdot,\cdot,3) = \MATRIX{1 &amp; 2 &amp; 2 \\ 4 &amp; 1 &amp; 3 }.
-\]</span></p>
-<p>Here the row corresponds to the value of <span class="math inline">\(s\)</span> and the column corresponds to the value of <span class="math inline">\(a\)</span>. For example <span class="math inline">\(c(s=1,a=2,w=1) = 5\)</span>.</p>
-<p>Find the policy <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span> that minimizes <span class="math inline">\(\EXP[ c(S, π(S), W) ]\)</span>.</p>
+<div id="exr-newsvendor-qualitative" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 1.1 (Qualitative properties of optimal solution)</strong></span> Intuitively, we expect that if the purchase price of the newspaper increases but the selling price remains the same, then the newsvendor should buy fewer newspapers. Formally prove this statement.</p>
+<p><em>Hint</em>: The CDF of a distribution is a weakly increasing function.</p>
 </div>
-<div id="exr-stoc-optim-blackwell" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.2 (Blackwell’s principle)</strong></span> Suppose <span class="math inline">\(\ALPHABET S = \{1, 2\}\)</span>, <span class="math inline">\(\ALPHABET Y = \{1, 2\}\)</span>, <span class="math inline">\(\ALPHABET A =
-\{1, 2, 3\}\)</span>, and <span class="math inline">\(\ALPHABET W = \{1, 2, 3\}\)</span>. Let <span class="math inline">\((S,Y,W)\)</span> be random variables taking values in <span class="math inline">\(\ALPHABET S × \ALPHABET Y × \ALPHABET W\)</span>, with joint distribution <span class="math inline">\(P\)</span> shown below. <span class="math display">\[
-P_{Y = 1} = \MATRIX{0.15 &amp; 0.10 &amp; 0.00 \\ 0.15 &amp; 0.05 &amp; 0.10}
-\qquad
-P_{Y = 2} = \MATRIX{0.10 &amp; 0.05 &amp; 0.05 \\ 0.15 &amp; 0.05 &amp; 0.05}
-\]</span> For a fixed value of <span class="math inline">\(y\)</span>, the row corresponds to the value of <span class="math inline">\(s\)</span> and the column corresponds to the value of <span class="math inline">\(w\)</span>. For example <span class="math inline">\(\PR(S = 1, Y = 1, W = 3) = 0\)</span>. Note that the joint distribution of <span class="math inline">\((S,Y,W)\)</span> is such that the margin on <span class="math inline">\((S,W)\)</span> is the same as the distribution on <span class="math inline">\((S,W)\)</span> given in the previous exercise (<a href="#exr-stoc-optim-computing" class="quarto-xref">Exercise&nbsp;<span>1.1</span></a>).</p>
-<p>The cost function <span class="math inline">\(c \colon \ALPHABET S × \ALPHABET A × \ALPHABET W \to
-\reals\)</span> is the same as the previous exercise.</p>
-<ol type="a">
-<li><p>Find the policy <span class="math inline">\(π \colon \ALPHABET S × \ALPHABET Y \to \ALPHABET A\)</span> that minimizes <span class="math inline">\(\EXP[c(S, π(S,Y), W)]\)</span>.</p></li>
-<li><p>Compare the solution with the solution of the previous exercise (<a href="#exr-stoc-optim-computing" class="quarto-xref">Exercise&nbsp;<span>1.1</span></a>) in view of Blackwell’s principle of irrelevant information. Clearly explain your observations.</p></li>
-<li><p>Repeat the above exercise with the following joint distribution: <span class="math display">\[
-P_{Y = 1} = \MATRIX{0.20 &amp; 0.12 &amp; 0.04 \\ 0.24 &amp; 0.08 &amp; 0.12}
-\qquad
-P_{Y = 2} = \MATRIX{0.05 &amp; 0.03 &amp; 0.01 \\ 0.06 &amp; 0.02 &amp; 0.03}
-\]</span></p></li>
-</ol>
+<div id="exr-newsvendor-monotonicity" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 1.2 (Monotonicity of optimal action)</strong></span> Consider two scenarios for the case with continuous demand and actions. In scenario&nbsp;1, the demand is distributed according to PDF <span class="math inline">\(f_1\)</span>. In scenario&nbsp;2, it is distributed according to PDF <span class="math inline">\(f_2\)</span>. Suppose <span class="math inline">\(F_1(w) \le F_2(w)\)</span> for all <span class="math inline">\(w\)</span>. Show that the optimal action <span class="math inline">\(a_1\)</span> for scenario&nbsp;1 is greater than the optimal action <span class="math inline">\(a_2\)</span> for scenario&nbsp;2.</p>
+<p><em>Hint</em>: Plot the two CDFs and try to interpret the optimal decision rule graphically.</p>
 </div>
-<!-- From page 172 of Whittle, Optimal Control: Basics and Beyond -->
-<div id="exr-stoc-optim-pollution-monitoring" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.3 (Pollution monitoring)</strong></span> Consider the problem of monitoring the pollution level of a river. The river can have a high pollution level if there is a catastrophic failure of a factory upstream. There are then two “pollution states” indicating whether such a failure has occured. We denote them by <span class="math inline">\(W = 0\)</span> (indicating no failure) and <span class="math inline">\(W = 1\)</span> (indicating catastrophic failure). Let <span class="math inline">\([p, 1-p]\)</span> denote the prior probability mass function of <span class="math inline">\(W\)</span>.</p>
-<p>The pollution monitoring system has a sensor which takes a measurement <span class="math inline">\(s\)</span> of the pollution level. Let <span class="math inline">\(f_w(s)\)</span> denote the probabiity density of the observation <span class="math inline">\(s\)</span> conditional on the value of <span class="math inline">\(w\)</span>, <span class="math inline">\(w \in \{0, 1\}\)</span>. Two actions are available at the monitoring system: raise an alarm or not raise an alarm. The cost of raising the alarm is <span class="math inline">\(C_0\)</span> if the state <span class="math inline">\(W\)</span> is <span class="math inline">\(0\)</span> or zero if the state <span class="math inline">\(W\)</span> is <span class="math inline">\(1\)</span>; the cost of not raising the alarm is zero if the state <span class="math inline">\(W\)</span> is <span class="math inline">\(0\)</span> or <span class="math inline">\(C_1\)</span> if the state <span class="math inline">\(W\)</span> is <span class="math inline">\(1\)</span>.</p>
-<p>Show that it is optimal to raise the alarm if <span class="math display">\[ p f_0(s) C_0 &lt; (1 - p) f_1(s) C_1. \]</span> That is, it is optimal to raise the alarm if the <strong>likelihood ratio</strong> <span class="math inline">\(f_1(s)/f_0(s)\)</span> exceeds the threshold value <span class="math inline">\(p C_0/(1-p) C_1\)</span>.</p>
-</div>
-<div id="exr-stoc-optim-pollution-monitoring-cont" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.4 (Pollution monitoring, continued)</strong></span> The decision rule obtain in <a href="#exr-stoc-optim-pollution-monitoring" class="quarto-xref">Exercise&nbsp;<span>1.3</span></a> is of the form: raise the alarm if <span class="math display">\[
-    \frac{f_1(s)}{f_0(s)} &gt; τ,
-    \quad \hbox{where } τ = \frac{p C_0}{(1-p)C_1}.
-\]</span> When the observation density belongs to the <a href="https://en.wikipedia.org/wiki/Exponential_family">:exponential family</a>, it is more convenient to work with the <strong>log-likelihood ratio</strong> <span class="math inline">\(\ALPHABET L(s) \coloneqq \log (f_1(s)/f_0(s))\)</span> and use the test: raise the alarm if <span class="math display">\[
-  \ALPHABET L(s) &gt; \log τ.
-\]</span> This is called the log-likelihood ratio test (LLRT).</p>
-<p>Suppose that the observation density is conditionally Gaussian and is given by: <span class="math display">\[
-  f_w(s) = \exp\biggl( - \frac{ (s-w)^2 }{ 2 σ^2 }\biggr)
-\]</span> where <span class="math inline">\(σ &gt; 0\)</span> is known. Simplify the LLRT. Does the decision rule intuitively make sense?</p>
-</div>
-<div id="exr-stoc-optim-stochastic-policies" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.5 (Stochastic/Randomized policies)</strong></span> In the discussion above, we have assumed that decision rule <span class="math inline">\(π\)</span> is deterministic. It is also possible to consider stochastic/randomized decision rules: <span class="math inline">\(π \colon \ALPHABET S \to Δ(\ALPHABET A)\)</span>, where the performance of a policy is given by <span class="math display">\[
-J(π) = \sum_{s,w \in \ALPHABET S × \ALPHABET W} \sum_{a \in \ALPHABET A}
-P(s,w) π(a \mid s) c(s,a,w).
-\]</span> Now consider the problem of <span class="math inline">\(\min_{π : \ALPHABET S \to Δ(\ALPHABET A)} J(π)\)</span>. Show that the result of <a href="#thm-fact" class="quarto-xref">Theorem&nbsp;<span>1.1</span></a> remains valid even when we allow stochastic/randomization.</p>
-<p><em>Note:</em> This fact is sometimes stated as <em>“randomization does not improve performance”</em>, but is only true for <strong>unconstrained problems</strong>. When constraints are involved, randomization may improve performance.</p>
+<div id="exr-newsvendor-wind" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 1.3 (Selling random wind)</strong></span> The amount <span class="math inline">\(W\)</span> of power generated by the wind turbine is a positive real-valued random variable with probability density function <span class="math inline">\(f\)</span>. The operator of the wind turbine has to commit to provide a certain amount of power in the day-ahead market. The price of power is <span class="math inline">\(\$p\)</span> per MW.</p>
+<p>If the operator commits to provide <span class="math inline">\(a\)</span> MW of power and the wind generation <span class="math inline">\(W\)</span> is less than <span class="math inline">\(a\)</span>, then he has to buy the balance <span class="math inline">\(a - W\)</span> from a reserves market at the cost of <span class="math inline">\(\$ q\)</span> per unit, where <span class="math inline">\(q &gt; p\)</span>. Thus, the reward of the operator is <span class="math inline">\(r(a,W)\)</span> where <span class="math display">\[ r(a, w) = \begin{cases}
+  p a, &amp; \text{if } w &gt; a \\
+  p a - q (a  - w), &amp; \text{if } w &lt; a.
+\end{cases}\]</span></p>
+<p>Find the optimal commitment <span class="math inline">\(a\)</span> that maximizes the expected reward.</p>
 </div>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p><a href="#thm-blackwell" class="quarto-xref">Theorem&nbsp;<span>1.3</span></a> is due to <span class="citation" data-cites="Blackwell1964">Blackwell (<a href="../references.html#ref-Blackwell1964" role="doc-biblioref">1964</a>)</span> in a short 2.5 page paper. A similar result was used by <span class="citation" data-cites="Witsenhausen1979">Witsenhausen (<a href="../references.html#ref-Witsenhausen1979" role="doc-biblioref">1979</a>)</span> to show the structure of optimal coding strategies in real-time communication. Also see the <a href="https://infostructuralist.wordpress.com/2010/11/08/deadly-ninja-weapons-blackwells-principle-of-irrelevant-information/">blog post</a> by Maxim Ragisnsky.</p>
-<p><a href="#exr-stoc-optim-pollution-monitoring" class="quarto-xref">Exercise&nbsp;<span>1.3</span></a> is adaptive from <span class="citation" data-cites="Whittle1996">Whittle (<a href="../references.html#ref-Whittle1996" role="doc-biblioref">1996</a>)</span>. It is a special instance of Bayesian hypothesis testing problem. We will study a generalization of this model later in <a href="../pomdps/sequential-hypothesis.html">sequential hypothesis testing</a></p>
-<p>Historically, the tree representation of optimization problems is due to Kuhn <span class="citation" data-cites="Kuhn1950 Kuhn1953">(<a href="../references.html#ref-Kuhn1950" role="doc-biblioref">1950</a>; <a href="../references.html#ref-Kuhn1953" role="doc-biblioref">1953</a>)</span>, who used them to model multi-player multi-stage games.</p>
+<p>Perhaps the earliest model of the newsvendor problem appeared in <span class="citation" data-cites="Edgeworth1888">Edgeworth (<a href="../references.html#ref-Edgeworth1888" role="doc-biblioref">1888</a>)</span> in the context of a bank setting the level of cash reserves to cover demands from its customers. The solution to the basic model presented above and some of its variants was provided in <span class="citation" data-cites="Morse1951">Morse and Kimball (<a href="../references.html#ref-Morse1951" role="doc-biblioref">1951</a>)</span>; <span class="citation" data-cites="Arrow1951">Arrow et al. (<a href="../references.html#ref-Arrow1951" role="doc-biblioref">1952</a>)</span>; <span class="citation" data-cites="Whitin1953">Whitin (<a href="../references.html#ref-Whitin1953" role="doc-biblioref">1953</a>)</span>. See <span class="citation" data-cites="Porteus2008">Porteus (<a href="../references.html#ref-Porteus2008" role="doc-biblioref">2008</a>)</span> for an accessible introduction.</p>
+<p>The idea of using order statistics is from <span class="citation" data-cites="Besbes2023">Besbes and Mouchtaki (<a href="../references.html#ref-Besbes2023" role="doc-biblioref">2023</a>)</span>. They quantify the regret of the certainty equivalent policy as a function of the number of samples <span class="math inline">\(K\)</span>. <span class="citation" data-cites="Liyanage2005">Liyanage and Shanthikumar (<a href="../references.html#ref-Liyanage2005" role="doc-biblioref">2005</a>)</span> and <span class="citation" data-cites="Chu2008">Chu et al. (<a href="../references.html#ref-Chu2008" role="doc-biblioref">2008</a>)</span> proposed a more general idea of using <em>operational statistics</em>, that integrate estimation and optimization.</p>
+<p>The property <span class="math inline">\(F_1(w) \le F_2(w)\)</span> used in <a href="#exr-newsvendor-monotonicity" class="quarto-xref">Exercise&nbsp;<span>1.2</span></a> is called <a href="../mdps/monotone-mdps.html#stochastic-dominance">stochastic dominance</a>. Later in the course, we will study how stochastic dominance is useful to establish <a href="../mdps/monotone-mdps.html">monotonicity properties of general MDPs</a>.</p>
+<p>The example of selling random wind in <a href="#exr-newsvendor-wind" class="quarto-xref">Exercise&nbsp;<span>1.3</span></a> is taken from <span class="citation" data-cites="Bitar2012">Bitar et al. (<a href="../references.html#ref-Bitar2012" role="doc-biblioref">2012</a>)</span>.</p>
 
 
+<div class="ojs-auto-generated hidden">
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6WyAgeyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiaW5saW5lIjoidHJ1ZSIsInNvdXJjZSI6Imh0bC5odG1sYDxzcGFuPiR7Y29zdH08L3NwYW4+YCIsICJjZWxsTmFtZSI6Im9qcy1lbGVtZW50LWlkLTEifSwgIHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImlubGluZSI6InRydWUiLCJzb3VyY2UiOiJodGwuaHRtbGA8c3Bhbj4ke2Nvc3REfTwvc3Bhbj5gIiwgImNlbGxOYW1lIjoib2pzLWVsZW1lbnQtaWQtMiJ9XX0=
+</script>
+</div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
-<div id="ref-Blackwell1964" class="csl-entry" role="listitem">
-<span class="smallcaps">Blackwell, D.</span> 1964. Memoryless strategies in finite-stage dynamic programming. <em>The Annals of Mathematical Statistics</em> <em>35</em>, 2, 863–865. DOI: <a href="https://doi.org/10.1214/aoms/1177703586">10.1214/aoms/1177703586</a>.
+<div id="ref-Arrow1951" class="csl-entry" role="listitem">
+<span class="smallcaps">Arrow, K.J., Harris, T., and Marschak, J.</span> 1952. Optimal inventory policy. <em>Econometrica</em> <em>20</em>, 1, 250–272. DOI: <a href="https://doi.org/10.2307/1907830">10.2307/1907830</a>.
 </div>
-<div id="ref-Fu2018" class="csl-entry" role="listitem">
-<span class="smallcaps">Fu, M.C.</span> 2018. Monte carlo tree search: A tutorial. <em>2018 winter simulation conference (WSC)</em>, IEEE. DOI: <a href="https://doi.org/10.1109/wsc.2018.8632344">10.1109/wsc.2018.8632344</a>.
+<div id="ref-Besbes2023" class="csl-entry" role="listitem">
+<span class="smallcaps">Besbes, O. and Mouchtaki, O.</span> 2023. How big should your data really be? Data-driven newsvendor: Learning one sample at a time. <em>Management Science</em> <em>69</em>, 10, 5848–5865. DOI: <a href="https://doi.org/10.1287/mnsc.2023.4725">10.1287/mnsc.2023.4725</a>.
 </div>
-<div id="ref-Kuhn1950" class="csl-entry" role="listitem">
-<span class="smallcaps">Kuhn, H.W.</span> 1950. Extensive games. <em>Proceedings of the National Academy of Sciences</em> <em>36</em>, 10, 570–576. DOI: <a href="https://doi.org/10.1073/pnas.36.10.570">10.1073/pnas.36.10.570</a>.
+<div id="ref-Bitar2012" class="csl-entry" role="listitem">
+<span class="smallcaps">Bitar, E., Poolla, K., Khargonekar, P., Rajagopal, R., Varaiya, P., and Wu, F.</span> 2012. Selling random wind. <em>Hawaii international conference on system sciences</em>, IEEE, 1931–1937.
 </div>
-<div id="ref-Kuhn1953" class="csl-entry" role="listitem">
-<span class="smallcaps">Kuhn, H.W.</span> 1953. Extensive games and the problem of information. In: H.W. Kuhn and A.W. Tucker, eds., <em>Contributions to the theory of games</em>. Princeton University Press, 193–216.
+<div id="ref-Chu2008" class="csl-entry" role="listitem">
+<span class="smallcaps">Chu, L.Y., Shanthikumar, J.G., and Shen, Z.-J.M.</span> 2008. Solving operational statistics via a bayesian analysis. <em>Operations Research Letters</em> <em>36</em>, 1, 110–116. DOI: <a href="https://doi.org/10.1016/j.orl.2007.04.010">10.1016/j.orl.2007.04.010</a>.
 </div>
-<div id="ref-Whittle1996" class="csl-entry" role="listitem">
-<span class="smallcaps">Whittle, P.</span> 1996. <em>Optimal control: Basics and beyond</em>. Wiley.
+<div id="ref-Edgeworth1888" class="csl-entry" role="listitem">
+<span class="smallcaps">Edgeworth, F.Y.</span> 1888. The mathematical theory of banking. <em>Journal of the Royal Statistical Society</em> <em>51</em>, 1, 113–127. Available at: <a href="https://www.jstor.org/stable/2979084">https://www.jstor.org/stable/2979084</a>.
 </div>
-<div id="ref-Witsenhausen1979" class="csl-entry" role="listitem">
-<span class="smallcaps">Witsenhausen, H.S.</span> 1979. On the structure of real-time source coders. <em>Bell System Technical Journal</em> <em>58</em>, 6, 1437–1451.
+<div id="ref-Liyanage2005" class="csl-entry" role="listitem">
+<span class="smallcaps">Liyanage, L.H. and Shanthikumar, J.G.</span> 2005. A practical inventory control policy using operational statistics. <em>Operations Research Letters</em> <em>33</em>, 4, 341–348. DOI: <a href="https://doi.org/10.1016/j.orl.2004.08.003">10.1016/j.orl.2004.08.003</a>.
+</div>
+<div id="ref-Morse1951" class="csl-entry" role="listitem">
+<span class="smallcaps">Morse, P. and Kimball, G.</span> 1951. <em>Methods of operations research</em>. Technology Press of MIT.
+</div>
+<div id="ref-Porteus2008" class="csl-entry" role="listitem">
+<span class="smallcaps">Porteus, E.L.</span> 2008. Building intuition: Insights from basic operations management models and principles. In: D. Chhajed and T.J. Lowe, eds., Springer, 115–134. DOI: <a href="https://doi.org/10.1007/978-0-387-73699-0">10.1007/978-0-387-73699-0</a>.
+</div>
+<div id="ref-Whitin1953" class="csl-entry" role="listitem">
+<span class="smallcaps">Whitin, S.</span> 1953. <em>The theory of inventory management</em>. Princeton University Press.
 </div>
 </div>
 </section>
 
 </main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InAgPSAwLjVcbnEgPSAxXG5yID0gZnVuY3Rpb24odyxhKXsgaWYodzw9YSkgeyByZXR1cm4gcSp3IC0gcCphIH0gZWxzZSB7IHJldHVybiBxKmEgLSBwKmEgfSB9XG5cbmFfb3B0ID0gaW52ZXJzZUNERiggKHEtcCkvcSApXG5cbmNvbmZpZyA9ICh7XG4gIC8vIEt1bWFyYXN3YW15IERpc3RyaWJ1dGlvbjogaHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvS3VtYXJhc3dhbXlfZGlzdHJpYnV0aW9uXG4gIGE6IDIsXG4gIGI6IDUsXG4gIG1heDogMTAwXG59KVxuXG5wZGYgPSB7XG4gIGNvbnN0IGEgPSBjb25maWcuYVxuICBjb25zdCBiID0gY29uZmlnLmJcblxuICByZXR1cm4gZnVuY3Rpb24oeCkge1xuICAgIHZhciBub3JtYWxpemVkID0geC9jb25maWcubWF4XG4gICAgcmV0dXJuIGEqYipub3JtYWxpemVkKiooYS0xKSooMSAtIG5vcm1hbGl6ZWQqKmEpKiooYi0xKVxuICB9XG59XG5cbmludmVyc2VDREY9IHtcbiAgY29uc3QgYSA9IGNvbmZpZy5hXG4gIGNvbnN0IGIgPSBjb25maWcuYlxuICByZXR1cm4gZnVuY3Rpb24oeSkge1xuICAgICAvLyBDbG9zZWQgZm9ybSBleHByZXNzaW9uIGZvciBpbnZlcnNlIENERiBvZiBLdW1hcmFzd2FteSBkaXN0cmlidXRpb24gXG4gICAgIHJldHVybiBjb25maWcubWF4ICogKDEgLSAoMS15KSoqKDEvYikpKiooMS9hKVxuICB9XG59XG5cbnBvaW50cyA9IHsgXG4gIGNvbnN0IG4gPSAxMDAwXG4gIHZhciBwb2ludHMgPSBuZXcgQXJyYXkobilcbiAgdmFyIGNkZiA9IDA7XG4gIGZvciAodmFyIGkgPSAwIDsgaSA8IG47IGkrKykge1xuICAgIHZhciB4ID0gY29uZmlnLm1heCAqIGkvblxuICAgIGNkZiA9IGNkZiArIHBkZih4KSAqIDEvblxuICAgIHBvaW50c1tpXSA9IHtkZW1hbmQ6IHgsIHBkZjogcGRmKHgpLCBDREY6IGNkZiwgcmV3YXJkOiByKHgsYWN0aW9uKSB9XG4gIH1cbiAgcmV0dXJuIHBvaW50c1xufVxuXG5jb3N0X3ZhbHVlcyA9IHtcbiAgY29uc3QgbiA9IDEwMDBcbiAgdmFyIHBvaW50cyA9IG5ldyBBcnJheShuKVxuICBmb3IgKHZhciBpID0gMCA7IGkgPCBuOyBpKyspIHtcbiAgICB2YXIgeCA9IGNvbmZpZy5tYXggKiBpL25cbiAgICBwb2ludHNbaV0gPSB7YWN0aW9uOiB4LCBwZXJmb3JtYW5jZTogSih4KX1cbiAgfVxuICByZXR1cm4gcG9pbnRzXG59XG5cbkogPSB7XG4gIGNvbnN0IGEgPSBjb25maWcuYVxuICBjb25zdCBiID0gY29uZmlnLmJcblxuICByZXR1cm4gZnVuY3Rpb24oYWN0aW9uKSB7XG4gICAgY29uc3QgbiA9IDEwMDBcbiAgICB2YXIgY29zdCA9IDBcbiAgICB2YXIgdyA9IDBcbiAgICBmb3IgKHZhciBpID0gMDsgaSA8IG47IGkrKykge1xuICAgICAgdyA9IGNvbmZpZy5tYXgqaS9uXG4gICAgICBpZiAodyA8PSBhY3Rpb24pIHtcbiAgICAgICAgY29zdCArPSAocSp3IC0gcCphY3Rpb24pKnBkZih3KS9uXG4gICAgICB9IGVsc2Uge1xuICAgICAgICBjb3N0ICs9IChxKmFjdGlvbiAtIHAqYWN0aW9uKSpwZGYodykvblxuICAgICAgfVxuICAgIH1cbiAgICByZXR1cm4gY29zdFxuICB9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgYWN0aW9uID0gSW5wdXRzLnJhbmdlKFswLCAxMDBdLCB7dmFsdWU6IDQ1LCBzdGVwOiAwLjAxLCBsYWJlbDogXCJhXCJ9KVxuXG5jb3N0ID0gTWF0aC5yb3VuZChKKGFjdGlvbikqMTAwKS8xMDBcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxucGxvdEogPSBQbG90LnBsb3Qoe1xuICAgIGdyaWQ6IHRydWUsXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gRGF0YVxuICAgIFBsb3QuZG90KFsgW2FjdGlvbiwgSihhY3Rpb24pXSBdLCB7ZmlsbDogXCJibHVlXCIsIHI6NH0pLFxuICAgIFBsb3QuZG90KFsgW2Ffb3B0LCBKKGFfb3B0KV0gXSwge2ZpbGw6IFwicmVkXCIsIHI6NH0pLFxuICAgIFBsb3QubGluZShjb3N0X3ZhbHVlcywge3g6XCJhY3Rpb25cIiwgeTpcInBlcmZvcm1hbmNlXCJ9KVxuICBdXG59KVxuXG5wbG90UERGID0gUGxvdC5wbG90KHtcbiAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKFsgW2FjdGlvbiwwXSwgW2FjdGlvbiwgcGRmKGFjdGlvbildIF0sIHtzdHJva2U6IFwiYmx1ZVwifSksXG4gICAgUGxvdC5saW5lKHBvaW50cyx7eDpcImRlbWFuZFwiLCB5OlwicGRmXCJ9KSxcbiAgICBQbG90LmFyZWFZKHBvaW50cy5maWx0ZXIocHQgPT4gcHQuZGVtYW5kIDw9IGFjdGlvbikse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwiLCBmaWxsOiBcImxpZ2h0Ymx1ZVwifSksXG4gICAgUGxvdC5hcmVhWShwb2ludHMuZmlsdGVyKHB0ID0+IHB0LmRlbWFuZCA+IGFjdGlvbikse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwiLCBmaWxsOiBcInBpbmtcIn0pXG4gIF1cbn0pXG5cbnBsb3RSZXdhcmQgPSBQbG90LnBsb3Qoe1xuICBncmlkOiB0cnVlLFxuICBtYXJrczogW1xuICAgIC8vIEF4ZXNcbiAgICBQbG90LnJ1bGVYKFswXSksXG4gICAgUGxvdC5ydWxlWShbMF0pLFxuICAgIC8vIERhdGFcbiAgICBQbG90LmxpbmUocG9pbnRzLCB7eDpcImRlbWFuZFwiLCB5OlwicmV3YXJkXCJ9KVxuICBdXG59KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIHBjdHMgPSBJbnB1dHMucmFuZ2UoWzAuMDEsMV0sIHt2YWx1ZTogMC41LCBzdGVwOiAwLjAxLCBsYWJlbDogXCJwXCJ9KVxudmlld29mIHFjdHMgPSBJbnB1dHMucmFuZ2UoWzAuMDEsMV0sIHt2YWx1ZTogMSwgc3RlcDogMC4wMSwgbGFiZWw6IFwicVwifSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IkZfb3B0ID0gMSAtIHBjdHMvcWN0c1xucGxvdE9wdEN0cyA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIHk6IHtkb21haW46IFswLDFdfSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50cyx7eDpcImRlbWFuZFwiLCB5OlwiQ0RGXCJ9KSxcbiAgICBQbG90LmxpbmUoWyBbMCxGX29wdF0sIFtwb2ludHNbcG9pbnRzLmxlbmd0aC0xXS5kZW1hbmQsIEZfb3B0XSBdLCB7c3Ryb2tlOiBcInJlZFwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InBvaW50c0QgPSB7IFxuICBjb25zdCBuID0gMTAwXG4gIHZhciBwb2ludHMgPSBuZXcgQXJyYXkobilcbiAgdmFyIGNkZiA9IDBcbiAgZm9yICh2YXIgaSA9IDAgOyBpIDwgbjsgaSsrKSB7XG4gICAgdmFyIHggPSBjb25maWcubWF4ICogaS9uXG4gICAgY2RmID0gY2RmICsgcGRmKHgpICogMS9uXG4gICAgcG9pbnRzW2ldID0ge2RlbWFuZDogeCwgcGRmOiBwZGYoeCkgKiAxL24sIENERjogY2RmLCByZXdhcmQ6IHIoeCxhY3Rpb25EKSB9XG4gIH1cbiAgcmV0dXJuIHBvaW50c1xufVxuXG5jb3N0X3ZhbHVlc0QgPSB7XG4gIGNvbnN0IG4gPSAxMDBcbiAgdmFyIHBvaW50cyA9IG5ldyBBcnJheShuKVxuICBmb3IgKHZhciBpID0gMCA7IGkgPCBuOyBpKyspIHtcbiAgICB2YXIgeCA9IGNvbmZpZy5tYXggKiBpL25cbiAgICBwb2ludHNbaV0gPSB7YWN0aW9uOiB4LCBwZXJmb3JtYW5jZTogSih4KX1cbiAgfVxuICByZXR1cm4gcG9pbnRzXG59XG5cblxuYV9vcHREID0gTWF0aC5yb3VuZChhX29wdCoxMDApLzEwMFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC03IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIGFjdGlvbkQgPSBJbnB1dHMucmFuZ2UoWzAsIDEwMF0sIHt2YWx1ZTogNDUsIHN0ZXA6IDAuMDEsIGxhYmVsOiBcImFcIn0pXG5cbmNvc3REID0gTWF0aC5yb3VuZChKKGFjdGlvbkQpKjEwMCkvMTAwXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTgiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJcbnBsb3RKRCA9IFBsb3QucGxvdCh7XG4gICAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5kb3QoWyBbYWN0aW9uRCwgSihhY3Rpb25EKV0gXSwge2ZpbGw6IFwiYmx1ZVwiLCByOjR9KSxcbiAgICBQbG90LmRvdChbIFthX29wdEQsIEooYV9vcHREKV0gXSwge2ZpbGw6IFwicmVkXCIsIHI6NH0pLFxuICAgIFBsb3QubGluZShjb3N0X3ZhbHVlc0QsIHt4OlwiYWN0aW9uXCIsIHk6XCJwZXJmb3JtYW5jZVwiLCBjdXJ2ZTogXCJzdGVwLWFmdGVyXCJ9KVxuICBdXG59KVxuXG5wbG90UERGRCA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gRGF0YVxuICAgIC8vIFBsb3QubGluZShbIFthY3Rpb25ELDBdLCBbYWN0aW9uRCwgcGRmKGFjdGlvbkQpXSBdLCB7c3Ryb2tlOiBcImJsdWVcIn0pLFxuICAgIFBsb3QubGluZShwb2ludHNELHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgY3VydmU6XCJzdGVwLWFmdGVyXCJ9KSxcbiAgICBQbG90LmFyZWFZKHBvaW50c0QuZmlsdGVyKHB0ID0+IHB0LmRlbWFuZCA8PSBhY3Rpb25EKSx7eDpcImRlbWFuZFwiLCB5OlwicGRmXCIsIGN1cnZlOiBcInN0ZXAtYWZ0ZXJcIiwgZmlsbDogXCJsaWdodGJsdWVcIn0pLFxuICAgIFBsb3QuYXJlYVkocG9pbnRzRC5maWx0ZXIocHQgPT4gcHQuZGVtYW5kID49IGFjdGlvbkQpLHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgY3VydmU6IFwic3RlcC1hZnRlclwiLCBmaWxsOiBcInBpbmtcIn0pXG4gIF1cbn0pXG5cbnBsb3RSZXdhcmREID0gUGxvdC5wbG90KHtcbiAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50c0QsIHt4OlwiZGVtYW5kXCIsIHk6XCJyZXdhcmRcIiwgY3VydmU6IFwic3RlcC1hZnRlclwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBwZGlzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDAuNSwgc3RlcDogMC4wMSwgbGFiZWw6IFwicFwifSlcbnZpZXdvZiBxZGlzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDEsIHN0ZXA6IDAuMDEsIGxhYmVsOiBcInFcIn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEwIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiRl9vcHRfZGlzID0gMSAtIHBkaXMvcWRpc1xucGxvdE9wdER0cyA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIHk6IHtkb21haW46IFswLDFdfSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50c0Qse3g6XCJkZW1hbmRcIiwgeTpcIkNERlwiLCBjdXJ2ZTpcInN0ZXAtYWZ0ZXJcIn0pLFxuICAgIFBsb3QubGluZShbIFswLEZfb3B0X2Rpc10sIFtwb2ludHNEW3BvaW50c0QubGVuZ3RoLTFdLmRlbWFuZCwgRl9vcHRfZGlzXSBdLCB7c3Ryb2tlOiBcInJlZFwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnYWN0aW9uJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BjdHMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncWN0cycpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdhY3Rpb25EJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BkaXMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncWRpcycpIn1dfQ==
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../../stochastic-optimization";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "..";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     // Ensure there is a toggle, if there isn't float one in the top right
@@ -1804,8 +2210,8 @@ P(s,w) π(a \mid s) c(s,a,w).
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../stochastic-optimization/newsvendor.html" class="pagination-link" aria-label="The newsvendor problem">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../stochastic-optimization/observations.html" class="pagination-link" aria-label="Dealing with observations">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Dealing with observations</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

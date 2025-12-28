@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2025-08-26">
+<meta name="dcterms.date" content="2025-12-28">
 <meta name="keywords" content="filtering, Kalman filtering">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -43,9 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-b68a706d8191437c2c46203d0393f4be.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
@@ -342,10 +342,6 @@ window.Quarto = {
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    </a>
-  </div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
@@ -383,10 +379,6 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
-      <a href="../index.html" class="sidebar-logo-link">
-      </a>
-      </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -412,8 +404,8 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../stochastic-optimization/newsvendor.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The newsvendor problem</span></span></a>
+  <a href="../stochastic-optimization/observations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Dealing with observations</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -933,7 +925,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">August 26, 2025</p>
+      <p class="date">December 28, 2025</p>
     </div>
   </div>
   
@@ -956,7 +948,7 @@ window.Quarto = {
 <ol type="1">
 <li><p>Let <span class="math inline">\((Ω, \ALPHABET F, \PR)\)</span> be a probability space. Let <span class="math inline">\(L_2(Ω, \ALPHABET F, \PR)\)</span> denote the family of all <span class="math inline">\(\reals\)</span>-valued random variables on <span class="math inline">\((Ω, \ALPHABET F, \PR)\)</span> that have finite second moments.</p></li>
 <li><p>It can be easily seen that <span class="math inline">\(L_2(Ω, \ALPHABET F, \PR)\)</span> is a vector space with addition and scalar multiplication defined in the usual way for functions.</p></li>
-<li><p>We can make <span class="math inline">\(L_2(Ω, \ALPHABET F, \PR)\)</span> an inner product space with <span class="math display">\[ \IP{x}{y} \coloneqq \EXP[XY]. \]</span> The associate <span class="math inline">\(L_2\)</span>-<em>norm</em> is given by <span class="math display">\[
+<li><p>We can make <span class="math inline">\(L_2(Ω, \ALPHABET F, \PR)\)</span> an inner product space with <span class="math display">\[ \IP{x}{y} \coloneqq \EXP[XY]. \]</span> The associated <span class="math inline">\(L_2\)</span>-<em>norm</em> is given by <span class="math display">\[
    \NORM{x}_{2} = \IP{x}{x}^{1/2} = \sqrt{ \EXP[x^2] }.
 \]</span></p></li>
 <li><p>It can be shown that <span class="math inline">\(L_2(Ω, \ALPHABET F, \PR)\)</span> is complete (e.g., from the completeness of <span class="math inline">\(L_p\)</span> spaces) and therefore an Hilbert space.</p></li>
