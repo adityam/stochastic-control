@@ -16,10 +16,131 @@ Formally, the above optimization problem may be written as
  \min_{a \in \ALPHABET A} c(a).
 \end{equation}
 
+```{ojs}
+//| output: false
+
+points_deterministic_discrete = {
+  const values = Array.from({length: 10}, () => Math.random() * 4 + 1)
+  const minValue = Math.min(...values)
+  const minIndex = values.indexOf(minValue)
+  
+  return values.map((value, index) => ({
+    index: index + 1,
+    value: value,
+    isMin: index === minIndex
+  }))
+}
+
+points_continuous = {
+  // Generate random coefficients for a non-convex 4th order polynomial
+  // c(a) = r1*(a - 2.5)^4 + r2*(a - 2.5)^3 + r3*(a - 2.5)^2 + r4*(a - 2.5) + r5
+  // Coefficients chosen to ensure non-convexity and minimum near center
+  const r1 = 0.5 + Math.random() * 1.5  // positive, ensures growth at edges
+  const r2 = (Math.random() - 0.5) * 4  // can be positive or negative
+  const r3 = -2 - Math.random() * 2      // negative, creates local minimum
+  const r4 = (Math.random() - 0.5) * 2   // small random term
+  const r5 = 5 + Math.random() * 5       // vertical offset
+  
+  // Define a non-convex 4th order polynomial centered around a = 2.5
+  const cost_function = function(a) {
+    const centered = a - 2.5
+    return r1 * centered**4 + 
+           r2 * centered**3 + 
+           r3 * centered**2 + 
+           r4 * centered + 
+           r5
+  }
+  
+  const n = 1000
+  const min_a = 0
+  const max_a = 5
+  var points = new Array(n)
+  var minValue = Infinity
+  var minIndex = 0
+  
+  for (var i = 0; i < n; i++) {
+    var a = min_a + (max_a - min_a) * i / (n - 1)
+    var value = cost_function(a)
+    points[i] = {action: a, cost: value}
+    
+    if (value < minValue) {
+      minValue = value
+      minIndex = i
+    }
+  }
+  
+  return {points: points, minPoint: points[minIndex]}
+}
+
+```
+
+
+```{ojs}
+//| column: margin
+//| label: fig-deterministic-discrete
+//| fig-cap: "An example of a deterministic optimization problem with discrete action space"
+
+Plot.plot({
+  grid: true,
+  y: {domain: [0, 5]},
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+
+    // Vertical lines (stems) from x-axis to each point
+    Plot.ruleX(points_deterministic_discrete, {
+      x: "index",
+      y: "value",
+      stroke: d => d.isMin ? "red" : "black",
+      strokeWidth: 2
+    }),
+    // Points at the top of each stem
+    Plot.dot(points_deterministic_discrete, {
+      x: "index",
+      y: "value",
+      fill: d => d.isMin ? "red" : "black",
+      r: 4
+    })
+  ]
+})
+```
+
+
+
 When the _action space_ $\ALPHABET A$ is finite, say $\ALPHABET A = \{1,
 \dots, m\}$, solving the optimization problem \eqref{eq:basic} is conceptually straightforward:
 enumerate the cost of all possible actions, i.e., enumerate the set 
-$C = \{ c(a) : a \in \ALPHABET A \}$ and find the smallest element. 
+$C = \{ c(a) : a \in \ALPHABET A \}$ and find the smallest element. See @fig-deterministic-discrete for an illustration.
+
+
+```{ojs}
+//| column: margin
+//| label: fig-deterministic-continuous
+//| fig-cap: "An example of a deterministic optimization problem with continuous action space"
+
+Plot.plot({
+  grid: true,
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Cost function curve
+    Plot.line(points_continuous.points, {
+      x: "action",
+      y: "cost",
+      strokeWidth: 2
+    }),
+    // Minimum point highlighted in red
+    Plot.dot([points_continuous.minPoint], {
+      x: "action",
+      y: "cost",
+      fill: "red",
+      r: 5
+    })
+  ]
+})
+```
 
 When the action space $\ALPHABET A$ is continuous, say a compact subset of a
 Euclidean space, solving the optimization problem
