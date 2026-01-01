@@ -76,18 +76,22 @@ points_continuous = {
 
 
 ```{ojs}
+//| label: fig-deterministic-example
+//| fig-cap: "Examples of deterministic optimization problems."
+//| fig-subcap:
+//|     - "Discrete action space"
+//|     - "Continuous action space"
 //| column: margin
-//| label: fig-deterministic-discrete
-//| fig-cap: "An example of a deterministic optimization problem with discrete action space"
 
 Plot.plot({
+  width: Math.min(width, 400),
+  height: 0.75*Math.min(width, 400),
   grid: true,
   y: {domain: [0, 5]},
   marks: [
     // Axes
     Plot.ruleX([0]),
     Plot.ruleY([0]),
-
     // Vertical lines (stems) from x-axis to each point
     Plot.ruleX(points_deterministic_discrete, {
       x: "index",
@@ -104,22 +108,10 @@ Plot.plot({
     })
   ]
 })
-```
-
-
-
-When the _action space_ $\ALPHABET A$ is finite, say $\ALPHABET A = \{1,
-\dots, m\}$, solving the optimization problem \eqref{eq:basic} is conceptually straightforward:
-enumerate the cost of all possible actions, i.e., enumerate the set 
-$C = \{ c(a) : a \in \ALPHABET A \}$ and find the smallest element. See @fig-deterministic-discrete for an illustration.
-
-
-```{ojs}
-//| column: margin
-//| label: fig-deterministic-continuous
-//| fig-cap: "An example of a deterministic optimization problem with continuous action space"
 
 Plot.plot({
+  width: Math.min(width, 400),
+  height: 0.75*Math.min(width, 400),
   grid: true,
   marks: [
     // Axes
@@ -142,6 +134,11 @@ Plot.plot({
 })
 ```
 
+When the _action space_ $\ALPHABET A$ is finite, say $\ALPHABET A = \{1,
+\dots, m\}$, solving the optimization problem \eqref{eq:basic} is conceptually straightforward:
+enumerate the cost of all possible actions, i.e., enumerate the set 
+$C = \{ c(a) : a \in \ALPHABET A \}$ and find the smallest element. See @fig-deterministic-example(a) for an illustration.
+
 When the action space $\ALPHABET A$ is continuous, say a compact subset of a
 Euclidean space, solving the optimization problem
 \eqref{eq:basic} is conceptually
@@ -151,7 +148,7 @@ obtained by solving
 $$ \dfrac {d c(a) }{ da } = 0. $$
 
 In the absence of appropriate regularity conditions, it is not possible to
-solve an optimization problem over continuous action spaces.
+solve an optimization problem over continuous action spaces. See @fig-deterministic-example(b) for an example of a non-convex cost function.
 
 ## The stochastic optimization problem
 
@@ -169,15 +166,106 @@ $$\begin{equation} \label{eq:stochastic}
 
 Define $J(a) = \EXP[ c(a, W) ]$. Then Problem \eqref{eq:stochastic} is conceptually the same as Problem \eqref{eq:basic} with the cost function $J(a)$. Numerically, Problem \eqref{eq:stochastic} is more difficult because computing $J(a)$ involves evaluating an expectation, but we ignore the computational complexity for the time being. 
 
-In the rest of this chapter, we present a simple example of a stochastic optimization problem to show that it is possible to obtain qualitative properties of the optimal solution.
+:::{.callout-tip}
+#### Cost vs reward
 
-## An example: The newsvendor problem {#newsvendor}
+In some settings, it is more natural to maximize a reward function rather than minimize a cost function. The two formulations are equivalent, so we pick the one that is more natural in the given context.
+
+:::
+
+In the rest of this chapter, we present some simple examples of stochastic optimization problems. 
+
+## A simple example: Reliability of Multi-Processor System on Chips (MPSoC)
+
+:::{#exm-mpsoc-reliability}
+
+Consider an MPSoC that requires at least one CPU and one RAM to function properly. The chip has a total capacity for three components, so we can add redundancy to protect against component failure. There are two possible designs:
+
+- Design 1 uses two CPUs and one RAM, whereas 
+- Design 2 uses one CPU and two RAM modules. 
+
+In both cases, the lifetimes of the CPU and RAM are independent and modeled as exponential random variables with parameters $\lambda_{c}$ and $\lambda_{r}$, respectively. When two identical components are present, they operate in cold standby: the backup component activates only after the primary fails. The overall subsystem fails only once both components have ceased to function.
+
+Find the design that maximizes the expected lifetime (i.e.,the mean time to failure) of the system.
+
+:::
+
+
+The above problem can be modeled as a stochastic optimization problem with $W = (W^1_c, W^2_c, W^1_r, W^2_r)$, where $W^i_c$ and $W^i_r$ are the lifetimes of the $i$-th CPU and RAM, $i \in \{1, 2\}$ and $\ALPHABET A = \{1, 2\}$. Then, the lifetime of the system is
+\begin{align*}
+  r(1, W) &= \min\{ W^1_c + W^2_c, W^2_r \}, \\
+  r(2, W) &= \min\{ W^1_c, W^1_r + W^2_r \}.
+\end{align*}
+
+The optimal design is the one that maximizes the expected lifetime of the system, i.e.,
+$$
+  \max_{a \in \ALPHABET A} \EXP[ r(a, W) ].
+$$
+
+Before proceeding further, we recall some basic results from probability theory. 
+
+- If $X_1$ and $X_2$ are independent exponential random variables with parameter $\lambda$, then
+  $$
+    X_1 + X_2 \sim \text{Gamma}(2, \lambda) 
+    \implies \PR(X_1 + X_2 > t) = (1 + \lambda t) e^{-\lambda t}.
+  $$
+
+- The expected value of a non-negative random variable $X$ can be computed as
+  $$ \EXP[X] = \int_0^\infty \PR(X > t) \, dt. $$
+
+- Therefore, the expected value of the minimum of two independent non-negative random variables $X$ and $Y$ can be computed as
+  $$ \EXP[\min\{X, Y\}] = \int_0^\infty \PR(X > t) \PR(Y > t) \, dt. $$
+
+We also recall some standard integration formulas:
+
+- $\int_0^\infty e^{-\lambda t} \, dt = \frac{1}{\lambda}$
+- $\int_0^\infty t e^{-\lambda t} \, dt = \frac{1}{\lambda^2}$
+
+Thus, we have
+\begin{align*}
+  \EXP[r(1, W)] &= \int_0^\infty \PR(W^1_c + W^2_c > t) \PR(W^2_r > t) \, dt \\
+  &= \int_0^\infty (1 + \lambda_c t) e^{-\lambda_c t} e^{-\lambda_r t} \, dt \\
+  &= \int_0^\infty (1 + \lambda_c t) e^{-(\lambda_c + \lambda_r) t} \, dt \\
+  &= \frac{1}{\lambda_c + \lambda_r} + \frac{\lambda_c}{(\lambda_c + \lambda_r)^2} \\
+  &= \frac{2\lambda_c + \lambda_r}{(\lambda_c + \lambda_r)^2},
+\end{align*}
+and
+\begin{align*}
+  \EXP[r(2, W)] &= \int_0^\infty \PR(W^1_c > t) \PR(W^1_r + W^2_r > t) \, dt \\
+  &= \int_0^\infty e^{-\lambda_c t} (1 + \lambda_r t) e^{-\lambda_r t} \, dt \\
+  &= \int_0^\infty (1 + \lambda_r t) e^{-(\lambda_c + \lambda_r) t} \, dt \\
+  &= \frac{1}{\lambda_c + \lambda_r} + \frac{\lambda_r}{(\lambda_c + \lambda_r)^2} \\
+  &= \frac{\lambda_c + 2\lambda_r}{(\lambda_c + \lambda_r)^2}.
+\end{align*}
+
+Thus, we pick Design 1 if $2\lambda_c + \lambda_r > \lambda_c + 2\lambda_r$, i.e., if $\lambda_c > \lambda_r$, and Design 2 otherwise. Thus, we reinforce the weakest component.
+
+
+## An more elaborateexample: The newsvendor problem {#newsvendor}
 
 {{< include examples/newsvendor.qmd >}}
 
 ## Exercises {-}
 
+:::{#exr-mpsoc-four-components}
+# MPSoC with four components
+
+Extend @exm-mpsoc-reliability to the case where the chip has a total capacity for four components. There are three possible designs:
+
+- Design 1 uses three CPUs and one RAM
+- Design 2 uses two CPUs and two RAMs  
+- Design 3 uses one CPU and three RAMs
+
+Find the design that maximizes the expected lifetime of the system.
+
+_Hint_: If $X_1$, $X_2$, and $X_3$ are independent exponential random variables with parameter $\lambda$, then $X_1 + X_2 + X_3 \sim \text{Gamma}(3, \lambda)$ and 
+$$\PR(X_1 + X_2 + X_3 > t) = \left(1 + \lambda t + \frac{(\lambda t)^2}{2}\right) e^{-\lambda t}.$$
+Moreover, in general,
+$$\int_0^{\infty} t^n e^{-\lambda t} \, dt = \frac{n!}{\lambda^{n+1}}, \quad n \in \naturalnumbers.$$
+
 {{< include exercises/newsvendor.qmd >}}
+
+:::
 
 ## Notes {-}
 
