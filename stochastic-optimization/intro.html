@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2025-12-28">
+<meta name="dcterms.date" content="2026-01-01">
 <meta name="keywords" content="stochastic optimization, newsvendor problem">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -165,6 +165,7 @@ window.MathJax = {
       ONES: "\\mathbf{1}",
       reals: "\\mathbb{R}",
       integers: "\\mathbb{Z}",
+      naturalnumbers: "\\mathbb{N}",
       BLANK: "\\mathfrak{E}",
       TRANS: "\\intercal",
       BELLMAN: "\\mathcal{B}",
@@ -944,11 +945,12 @@ window.Quarto = {
    
   <ul>
   <li><a href="#the-stochastic-optimization-problem" id="toc-the-stochastic-optimization-problem" class="nav-link active" data-scroll-target="#the-stochastic-optimization-problem"><span class="header-section-number">1.1</span> The stochastic optimization problem</a></li>
-  <li><a href="#newsvendor" id="toc-newsvendor" class="nav-link" data-scroll-target="#newsvendor"><span class="header-section-number">1.2</span> An example: The newsvendor problem</a>
+  <li><a href="#a-simple-example-reliability-of-multi-processor-system-on-chips-mpsoc" id="toc-a-simple-example-reliability-of-multi-processor-system-on-chips-mpsoc" class="nav-link" data-scroll-target="#a-simple-example-reliability-of-multi-processor-system-on-chips-mpsoc"><span class="header-section-number">1.2</span> A simple example: Reliability of Multi-Processor System on Chips (MPSoC)</a></li>
+  <li><a href="#newsvendor" id="toc-newsvendor" class="nav-link" data-scroll-target="#newsvendor"><span class="header-section-number">1.3</span> An more elaborateexample: The newsvendor problem</a>
   <ul class="collapse">
-  <li><a href="#interlude-with-continuous-version" id="toc-interlude-with-continuous-version" class="nav-link" data-scroll-target="#interlude-with-continuous-version"><span class="header-section-number">1.2.1</span> Interlude with continuous version</a></li>
-  <li><a href="#back-to-discrete-version" id="toc-back-to-discrete-version" class="nav-link" data-scroll-target="#back-to-discrete-version"><span class="header-section-number">1.2.2</span> Back to discrete version</a></li>
-  <li><a href="#acting-based-on-historical-data" id="toc-acting-based-on-historical-data" class="nav-link" data-scroll-target="#acting-based-on-historical-data"><span class="header-section-number">1.2.3</span> Acting based on historical data</a></li>
+  <li><a href="#interlude-with-continuous-version" id="toc-interlude-with-continuous-version" class="nav-link" data-scroll-target="#interlude-with-continuous-version"><span class="header-section-number">1.3.1</span> Interlude with continuous version</a></li>
+  <li><a href="#back-to-discrete-version" id="toc-back-to-discrete-version" class="nav-link" data-scroll-target="#back-to-discrete-version"><span class="header-section-number">1.3.2</span> Back to discrete version</a></li>
+  <li><a href="#acting-based-on-historical-data" id="toc-acting-based-on-historical-data" class="nav-link" data-scroll-target="#acting-based-on-historical-data"><span class="header-section-number">1.3.3</span> Acting based on historical data</a></li>
   </ul></li>
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
@@ -987,7 +989,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 28, 2025</p>
+      <p class="date">January 1, 2026</p>
     </div>
   </div>
   
@@ -1009,10 +1011,165 @@ window.Quarto = {
 <p>Formally, the above optimization problem may be written as <span class="math display">\[\begin{equation} \label{eq:basic}
 \min_{a \in \ALPHABET A} c(a).
 \end{equation}\]</span></p>
+<div class="cell hidden">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="22" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 21;"><span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>points_deterministic_discrete <span class="op">=</span> {</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> values <span class="op">=</span> <span class="bu">Array</span><span class="op">.</span><span class="fu">from</span>({<span class="dt">length</span><span class="op">:</span> <span class="dv">10</span>}<span class="op">,</span> () <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">*</span> <span class="dv">4</span> <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> minValue <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(<span class="op">...</span>values)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> minIndex <span class="op">=</span> values<span class="op">.</span><span class="fu">indexOf</span>(minValue)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> values<span class="op">.</span><span class="fu">map</span>((value<span class="op">,</span> index) <span class="kw">=&gt;</span> ({</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">index</span><span class="op">:</span> index <span class="op">+</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> value<span class="op">,</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">isMin</span><span class="op">:</span> index <span class="op">===</span> minIndex</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  }))</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>points_continuous <span class="op">=</span> {</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Generate random coefficients for a non-convex 4th order polynomial</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="co">// c(a) = r1*(a - 2.5)^4 + r2*(a - 2.5)^3 + r3*(a - 2.5)^2 + r4*(a - 2.5) + r5</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Coefficients chosen to ensure non-convexity and minimum near center</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> r1 <span class="op">=</span> <span class="fl">0.5</span> <span class="op">+</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">*</span> <span class="fl">1.5</span>  <span class="co">// positive, ensures growth at edges</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> r2 <span class="op">=</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="dv">4</span>  <span class="co">// can be positive or negative</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> r3 <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">-</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">*</span> <span class="dv">2</span>      <span class="co">// negative, creates local minimum</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> r4 <span class="op">=</span> (<span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">-</span> <span class="fl">0.5</span>) <span class="op">*</span> <span class="dv">2</span>   <span class="co">// small random term</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> r5 <span class="op">=</span> <span class="dv">5</span> <span class="op">+</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">random</span>() <span class="op">*</span> <span class="dv">5</span>       <span class="co">// vertical offset</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Define a non-convex 4th order polynomial centered around a = 2.5</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> cost_function <span class="op">=</span> <span class="kw">function</span>(a) {</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> centered <span class="op">=</span> a <span class="op">-</span> <span class="fl">2.5</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> r1 <span class="op">*</span> centered<span class="op">**</span><span class="dv">4</span> <span class="op">+</span> </span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>           r2 <span class="op">*</span> centered<span class="op">**</span><span class="dv">3</span> <span class="op">+</span> </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>           r3 <span class="op">*</span> centered<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> </span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>           r4 <span class="op">*</span> centered <span class="op">+</span> </span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>           r5</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> min_a <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> max_a <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> minValue <span class="op">=</span> <span class="kw">Infinity</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> minIndex <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> a <span class="op">=</span> min_a <span class="op">+</span> (max_a <span class="op">-</span> min_a) <span class="op">*</span> i <span class="op">/</span> (n <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> value <span class="op">=</span> <span class="fu">cost_function</span>(a)</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">action</span><span class="op">:</span> a<span class="op">,</span> <span class="dt">cost</span><span class="op">:</span> value}</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (value <span class="op">&lt;</span> minValue) {</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>      minValue <span class="op">=</span> value</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>      minIndex <span class="op">=</span> i</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> {<span class="dt">points</span><span class="op">:</span> points<span class="op">,</span> <span class="dt">minPoint</span><span class="op">:</span> points[minIndex]}</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display hidden">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display hidden">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="86" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 85;"><span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(width<span class="op">,</span> <span class="dv">400</span>)<span class="op">,</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="fl">0.75</span><span class="op">*</span><span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(width<span class="op">,</span> <span class="dv">400</span>)<span class="op">,</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">5</span>]}<span class="op">,</span></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Vertical lines (stems) from x-axis to each point</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>(points_deterministic_discrete<span class="op">,</span> {</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"index"</span><span class="op">,</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>      <span class="dt">stroke</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">isMin</span> <span class="op">?</span> <span class="st">"red"</span> <span class="op">:</span> <span class="st">"black"</span><span class="op">,</span></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>      <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Points at the top of each stem</span></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>(points_deterministic_discrete<span class="op">,</span> {</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"index"</span><span class="op">,</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span> d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">isMin</span> <span class="op">?</span> <span class="st">"red"</span> <span class="op">:</span> <span class="st">"black"</span><span class="op">,</span></span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>      <span class="dt">r</span><span class="op">:</span> <span class="dv">4</span></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="112" data-source-offset="-588"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 111;"><span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>  <span class="dt">width</span><span class="op">:</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(width<span class="op">,</span> <span class="dv">400</span>)<span class="op">,</span></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>  <span class="dt">height</span><span class="op">:</span> <span class="fl">0.75</span><span class="op">*</span><span class="bu">Math</span><span class="op">.</span><span class="fu">min</span>(width<span class="op">,</span> <span class="dv">400</span>)<span class="op">,</span></span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Cost function curve</span></span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points_continuous<span class="op">.</span><span class="at">points</span><span class="op">,</span> {</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"action"</span><span class="op">,</span></span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"cost"</span><span class="op">,</span></span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>      <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span></span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>    })<span class="op">,</span></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Minimum point highlighted in red</span></span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([points_continuous<span class="op">.</span><span class="at">minPoint</span>]<span class="op">,</span> {</span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>      <span class="dt">x</span><span class="op">:</span> <span class="st">"action"</span><span class="op">,</span></span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>      <span class="dt">y</span><span class="op">:</span> <span class="st">"cost"</span><span class="op">,</span></span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a>      <span class="dt">fill</span><span class="op">:</span> <span class="st">"red"</span><span class="op">,</span></span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>      <span class="dt">r</span><span class="op">:</span> <span class="dv">5</span></span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="fig-deterministic-example" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-deterministic-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output cell-output-display">
+<div id="fig-deterministic-example-1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-deterministic-example-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="ojs-cell-2-1" data-nodetype="expression">
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-deterministic-example-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) Discrete action space
+</figcaption>
+</figure>
+</div>
+</div><div class="cell-output cell-output-display">
+<div id="fig-deterministic-example-2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-deterministic-example-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="ojs-cell-2-2" data-nodetype="expression">
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-deterministic-example-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) Continuous action space
+</figcaption>
+</figure>
+</div>
+</div></div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-deterministic-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.1: Examples of deterministic optimization problems.
+</figcaption>
+</figure>
+</div>
+</div>
 <p>When the <em>action space</em> <span class="math inline">\(\ALPHABET A\)</span> is finite, say <span class="math inline">\(\ALPHABET A = \{1,
-\dots, m\}\)</span>, solving the optimization problem <span class="math inline">\(\eqref{eq:basic}\)</span> is conceptually straightforward: enumerate the cost of all possible actions, i.e., enumerate the set <span class="math inline">\(C = \{ c(a) : a \in \ALPHABET A \}\)</span> and find the smallest element.</p>
+\dots, m\}\)</span>, solving the optimization problem <span class="math inline">\(\eqref{eq:basic}\)</span> is conceptually straightforward: enumerate the cost of all possible actions, i.e., enumerate the set <span class="math inline">\(C = \{ c(a) : a \in \ALPHABET A \}\)</span> and find the smallest element. See <a href="#fig-deterministic-example" class="quarto-xref">Figure&nbsp;<span>1.1</span></a>(a) for an illustration.</p>
 <p>When the action space <span class="math inline">\(\ALPHABET A\)</span> is continuous, say a compact subset of a Euclidean space, solving the optimization problem <span class="math inline">\(\eqref{eq:basic}\)</span> is conceptually straightforward only when the cost function <span class="math inline">\(c\)</span> satisfies some regularity conditions. For example, when <span class="math inline">\(c\)</span> is convex, the optimal action can be obtained by solving <span class="math display">\[ \dfrac {d c(a) }{ da } = 0. \]</span></p>
-<p>In the absence of appropriate regularity conditions, it is not possible to solve an optimization problem over continuous action spaces.</p>
+<p>In the absence of appropriate regularity conditions, it is not possible to solve an optimization problem over continuous action spaces. See <a href="#fig-deterministic-example" class="quarto-xref">Figure&nbsp;<span>1.1</span></a>(b) for an example of a non-convex cost function.</p>
 <section id="the-stochastic-optimization-problem" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="the-stochastic-optimization-problem"><span class="header-section-number">1.1</span> The stochastic optimization problem</h2>
 <p>Now consider the simplest stochastic optimization problem. A decision maker has to choose an action <span class="math inline">\(a \in \ALPHABET A\)</span>. Upon choosing the action <span class="math inline">\(a\)</span>, the decision maker incurs a cost <span class="math inline">\(c(a,W)\)</span>, where <span class="math inline">\(W \in \ALPHABET W\)</span> is a random variable with known probability distribution. Assume that the decision maker is <em>risk neutral</em> and, therefore, wants to minimize <span class="math inline">\(\EXP[ c(a, W) ]\)</span>, where the expectation is with respect to the random variable&nbsp;<span class="math inline">\(W\)</span>.</p>
@@ -1020,10 +1177,70 @@ window.Quarto = {
   \min_{a \in \ALPHABET A} \EXP[ c(a, W) ].
 \end{equation}\]</span></p>
 <p>Define <span class="math inline">\(J(a) = \EXP[ c(a, W) ]\)</span>. Then Problem&nbsp;<span class="math inline">\(\eqref{eq:stochastic}\)</span> is conceptually the same as Problem&nbsp;<span class="math inline">\(\eqref{eq:basic}\)</span> with the cost function <span class="math inline">\(J(a)\)</span>. Numerically, Problem <span class="math inline">\(\eqref{eq:stochastic}\)</span> is more difficult because computing <span class="math inline">\(J(a)\)</span> involves evaluating an expectation, but we ignore the computational complexity for the time being.</p>
-<p>In the rest of this chapter, we present a simple example of a stochastic optimization problem to show that it is possible to obtain qualitative properties of the optimal solution.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Cost vs reward
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In some settings, it is more natural to maximize a reward function rather than minimize a cost function. The two formulations are equivalent, so we pick the one that is more natural in the given context.</p>
+</div>
+</div>
+<p>In the rest of this chapter, we present some simple examples of stochastic optimization problems.</p>
 </section>
-<section id="newsvendor" class="level2 page-columns page-full" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="newsvendor"><span class="header-section-number">1.2</span> An example: The newsvendor problem</h2>
+<section id="a-simple-example-reliability-of-multi-processor-system-on-chips-mpsoc" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="a-simple-example-reliability-of-multi-processor-system-on-chips-mpsoc"><span class="header-section-number">1.2</span> A simple example: Reliability of Multi-Processor System on Chips (MPSoC)</h2>
+<div id="exm-mpsoc-reliability" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.1</strong></span> Consider an MPSoC that requires at least one CPU and one RAM to function properly. The chip has a total capacity for three components, so we can add redundancy to protect against component failure. There are two possible designs:</p>
+<ul>
+<li>Design 1 uses two CPUs and one RAM, whereas</li>
+<li>Design 2 uses one CPU and two RAM modules.</li>
+</ul>
+<p>In both cases, the lifetimes of the CPU and RAM are independent and modeled as exponential random variables with parameters <span class="math inline">\(\lambda_{c}\)</span> and <span class="math inline">\(\lambda_{r}\)</span>, respectively. When two identical components are present, they operate in cold standby: the backup component activates only after the primary fails. The overall subsystem fails only once both components have ceased to function.</p>
+<p>Find the design that maximizes the expected lifetime (i.e.,the mean time to failure) of the system.</p>
+</div>
+<p>The above problem can be modeled as a stochastic optimization problem with <span class="math inline">\(W = (W^1_c, W^2_c, W^1_r, W^2_r)\)</span>, where <span class="math inline">\(W^i_c\)</span> and <span class="math inline">\(W^i_r\)</span> are the lifetimes of the <span class="math inline">\(i\)</span>-th CPU and RAM, <span class="math inline">\(i \in \{1, 2\}\)</span> and <span class="math inline">\(\ALPHABET A = \{1, 2\}\)</span>. Then, the lifetime of the system is <span class="math display">\[\begin{align*}
+  r(1, W) &amp;= \min\{ W^1_c + W^2_c, W^2_r \}, \\
+  r(2, W) &amp;= \min\{ W^1_c, W^1_r + W^2_r \}.
+\end{align*}\]</span></p>
+<p>The optimal design is the one that maximizes the expected lifetime of the system, i.e., <span class="math display">\[
+  \max_{a \in \ALPHABET A} \EXP[ r(a, W) ].
+\]</span></p>
+<p>Before proceeding further, we recall some basic results from probability theory.</p>
+<ul>
+<li><p>If <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are independent exponential random variables with parameter <span class="math inline">\(\lambda\)</span>, then <span class="math display">\[
+  X_1 + X_2 \sim \text{Gamma}(2, \lambda)
+  \implies \PR(X_1 + X_2 &gt; t) = (1 + \lambda t) e^{-\lambda t}.
+\]</span></p></li>
+<li><p>The expected value of a non-negative random variable <span class="math inline">\(X\)</span> can be computed as <span class="math display">\[ \EXP[X] = \int_0^\infty \PR(X &gt; t) \, dt. \]</span></p></li>
+<li><p>Therefore, the expected value of the minimum of two independent non-negative random variables <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> can be computed as <span class="math display">\[ \EXP[\min\{X, Y\}] = \int_0^\infty \PR(X &gt; t) \PR(Y &gt; t) \, dt. \]</span></p></li>
+</ul>
+<p>We also recall some standard integration formulas:</p>
+<ul>
+<li><span class="math inline">\(\int_0^\infty e^{-\lambda t} \, dt = \frac{1}{\lambda}\)</span></li>
+<li><span class="math inline">\(\int_0^\infty t e^{-\lambda t} \, dt = \frac{1}{\lambda^2}\)</span></li>
+</ul>
+<p>Thus, we have <span class="math display">\[\begin{align*}
+  \EXP[r(1, W)] &amp;= \int_0^\infty \PR(W^1_c + W^2_c &gt; t) \PR(W^2_r &gt; t) \, dt \\
+  &amp;= \int_0^\infty (1 + \lambda_c t) e^{-\lambda_c t} e^{-\lambda_r t} \, dt \\
+  &amp;= \int_0^\infty (1 + \lambda_c t) e^{-(\lambda_c + \lambda_r) t} \, dt \\
+  &amp;= \frac{1}{\lambda_c + \lambda_r} + \frac{\lambda_c}{(\lambda_c + \lambda_r)^2} \\
+  &amp;= \frac{2\lambda_c + \lambda_r}{(\lambda_c + \lambda_r)^2},
+\end{align*}\]</span> and <span class="math display">\[\begin{align*}
+  \EXP[r(2, W)] &amp;= \int_0^\infty \PR(W^1_c &gt; t) \PR(W^1_r + W^2_r &gt; t) \, dt \\
+  &amp;= \int_0^\infty e^{-\lambda_c t} (1 + \lambda_r t) e^{-\lambda_r t} \, dt \\
+  &amp;= \int_0^\infty (1 + \lambda_r t) e^{-(\lambda_c + \lambda_r) t} \, dt \\
+  &amp;= \frac{1}{\lambda_c + \lambda_r} + \frac{\lambda_r}{(\lambda_c + \lambda_r)^2} \\
+  &amp;= \frac{\lambda_c + 2\lambda_r}{(\lambda_c + \lambda_r)^2}.
+\end{align*}\]</span></p>
+<p>Thus, we pick Design 1 if <span class="math inline">\(2\lambda_c + \lambda_r &gt; \lambda_c + 2\lambda_r\)</span>, i.e., if <span class="math inline">\(\lambda_c &gt; \lambda_r\)</span>, and Design 2 otherwise. Thus, we reinforce the weakest component.</p>
+</section>
+<section id="newsvendor" class="level2 page-columns page-full" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="newsvendor"><span class="header-section-number">1.3</span> An more elaborateexample: The newsvendor problem</h2>
 
 <div class="no-row-height column-margin column-container"><div class="">
 <div class="quarto-figure quarto-figure-center" style="max-width:40em;">
@@ -1033,220 +1250,220 @@ window.Quarto = {
 </figure>
 </div>
 </div></div><div id="exm-newsvendor" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1.1 (The Newsvendor Problem)</strong></span> Each morning, a newsvendor has to decide how many newspapers to buy before knowing the demand during the day. The newsvendor purchases a newspaper at a cost of <span class="math inline">\(\$p\)</span> per newspaper and sells them at a price of <span class="math inline">\(\$q\)</span> per newspaper, where <span class="math inline">\(q &gt; p\)</span>. Any unsold newspapers at the end of the day have no salvage value.</p>
+<p><span class="theorem-title"><strong>Example 1.2 (The Newsvendor Problem)</strong></span> Each morning, a newsvendor has to decide how many newspapers to buy before knowing the demand during the day. The newsvendor purchases a newspaper at a cost of <span class="math inline">\(\$p\)</span> per newspaper and sells them at a price of <span class="math inline">\(\$q\)</span> per newspaper, where <span class="math inline">\(q &gt; p\)</span>. Any unsold newspapers at the end of the day have no salvage value.</p>
 <p>Let <span class="math inline">\(a\)</span> denote the number of newspapers bought and <span class="math inline">\(W\)</span> denote the demand. If <span class="math inline">\(W &lt; a\)</span>, then the newsvendor will sell <span class="math inline">\(W\)</span> newspapers and receive total earnings of <span class="math inline">\(q W - p a\)</span>. If <span class="math inline">\(W \ge a\)</span>, then the newsvendor will sell <span class="math inline">\(a\)</span> newspapers and receive total earnings of <span class="math inline">\(q a - p a\)</span>. Thus, the <em>reward</em> is <span class="math inline">\(r(a,W)\)</span>, where</p>
 <p><span class="math display">\[r(a, w) = \begin{cases}
    q w - p a, &amp; \text{if } w &lt; a, \\
    q a - p a, &amp; \text{if } w \ge a.
 \end{cases} \]</span></p>
 </div>
-<section id="interlude-with-continuous-version" class="level3 page-columns page-full" data-number="1.2.1">
-<h3 data-number="1.2.1" class="anchored" data-anchor-id="interlude-with-continuous-version"><span class="header-section-number">1.2.1</span> Interlude with continuous version</h3>
+<section id="interlude-with-continuous-version" class="level3 page-columns page-full" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="interlude-with-continuous-version"><span class="header-section-number">1.3.1</span> Interlude with continuous version</h3>
 <p>The problem above has discrete actions and discrete demand. To build intuition, we first consider the case where both the actions and demand are continuous. Let <span class="math inline">\(f(w)\)</span> denote the probability density of the demand and <span class="math inline">\(F(w)\)</span> denote the cumulative distribution function. Then, the expected reward is <span class="math display">\[ \begin{equation} \label{eq:J}
 J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 \end{equation}\]</span></p>
 <p>To fix ideas, we consider an example where <span class="math inline">\(p = 0.5\)</span>, <span class="math inline">\(q = 1\)</span>, and the demand is a <a href="https://en.wikipedia.org/wiki/Kumaraswamy_distribution">:Kumaraswamy distribution</a> with parameters <span class="math inline">\((2,5)\)</span> and support <span class="math inline">\([0,100]\)</span>. The performance as a function of action is shown below.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb1-0"><a href="#cb1-0" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="kw">function</span>(w<span class="op">,</span>a){ <span class="cf">if</span>(w<span class="op">&lt;=</span>a) { <span class="cf">return</span> q<span class="op">*</span>w <span class="op">-</span> p<span class="op">*</span>a } <span class="cf">else</span> { <span class="cf">return</span> q<span class="op">*</span>a <span class="op">-</span> p<span class="op">*</span>a } }</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>a_opt <span class="op">=</span> <span class="fu">inverseCDF</span>( (q<span class="op">-</span>p)<span class="op">/</span>q )</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> ({</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Kumaraswamy Distribution: https://en.wikipedia.org/wiki/Kumaraswamy_distribution</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">a</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">b</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">max</span><span class="op">:</span> <span class="dv">100</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>pdf <span class="op">=</span> {</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(x) {</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> normalized <span class="op">=</span> x<span class="op">/</span>config<span class="op">.</span><span class="at">max</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a<span class="op">*</span>b<span class="op">*</span>normalized<span class="op">**</span>(a<span class="op">-</span><span class="dv">1</span>)<span class="op">*</span>(<span class="dv">1</span> <span class="op">-</span> normalized<span class="op">**</span>a)<span class="op">**</span>(b<span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>inverseCDF<span class="op">=</span> {</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(y) {</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>     <span class="co">// Closed form expression for inverse CDF of Kumaraswamy distribution </span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>     <span class="cf">return</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> (<span class="dv">1</span><span class="op">-</span>y)<span class="op">**</span>(<span class="dv">1</span><span class="op">/</span>b))<span class="op">**</span>(<span class="dv">1</span><span class="op">/</span>a)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> { </span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> cdf <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    cdf <span class="op">=</span> cdf <span class="op">+</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">demand</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">pdf</span><span class="op">:</span> <span class="fu">pdf</span>(x)<span class="op">,</span> <span class="dt">CDF</span><span class="op">:</span> cdf<span class="op">,</span> <span class="dt">reward</span><span class="op">:</span> <span class="fu">r</span>(x<span class="op">,</span>action) }</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>cost_values <span class="op">=</span> {</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">action</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">performance</span><span class="op">:</span> <span class="fu">J</span>(x)}</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>J <span class="op">=</span> {</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(action) {</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> cost <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> w <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>      w <span class="op">=</span> config<span class="op">.</span><span class="at">max</span><span class="op">*</span>i<span class="op">/</span>n</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (w <span class="op">&lt;=</span> action) {</span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>        cost <span class="op">+=</span> (q<span class="op">*</span>w <span class="op">-</span> p<span class="op">*</span>action)<span class="op">*</span><span class="fu">pdf</span>(w)<span class="op">/</span>n</span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>        cost <span class="op">+=</span> (q<span class="op">*</span>action <span class="op">-</span> p<span class="op">*</span>action)<span class="op">*</span><span class="fu">pdf</span>(w)<span class="op">/</span>n</span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cost</span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb4-0"><a href="#cb4-0" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> <span class="kw">function</span>(w<span class="op">,</span>a){ <span class="cf">if</span>(w<span class="op">&lt;=</span>a) { <span class="cf">return</span> q<span class="op">*</span>w <span class="op">-</span> p<span class="op">*</span>a } <span class="cf">else</span> { <span class="cf">return</span> q<span class="op">*</span>a <span class="op">-</span> p<span class="op">*</span>a } }</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>a_opt <span class="op">=</span> <span class="fu">inverseCDF</span>( (q<span class="op">-</span>p)<span class="op">/</span>q )</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> ({</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Kumaraswamy Distribution: https://en.wikipedia.org/wiki/Kumaraswamy_distribution</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">a</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">b</span><span class="op">:</span> <span class="dv">5</span><span class="op">,</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">max</span><span class="op">:</span> <span class="dv">100</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>pdf <span class="op">=</span> {</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(x) {</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> normalized <span class="op">=</span> x<span class="op">/</span>config<span class="op">.</span><span class="at">max</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a<span class="op">*</span>b<span class="op">*</span>normalized<span class="op">**</span>(a<span class="op">-</span><span class="dv">1</span>)<span class="op">*</span>(<span class="dv">1</span> <span class="op">-</span> normalized<span class="op">**</span>a)<span class="op">**</span>(b<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>inverseCDF<span class="op">=</span> {</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(y) {</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>     <span class="co">// Closed form expression for inverse CDF of Kumaraswamy distribution </span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>     <span class="cf">return</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> (<span class="dv">1</span><span class="op">-</span>y)<span class="op">**</span>(<span class="dv">1</span><span class="op">/</span>b))<span class="op">**</span>(<span class="dv">1</span><span class="op">/</span>a)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> { </span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> cdf <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    cdf <span class="op">=</span> cdf <span class="op">+</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">demand</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">pdf</span><span class="op">:</span> <span class="fu">pdf</span>(x)<span class="op">,</span> <span class="dt">CDF</span><span class="op">:</span> cdf<span class="op">,</span> <span class="dt">reward</span><span class="op">:</span> <span class="fu">r</span>(x<span class="op">,</span>action) }</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>cost_values <span class="op">=</span> {</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">action</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">performance</span><span class="op">:</span> <span class="fu">J</span>(x)}</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>J <span class="op">=</span> {</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> a <span class="op">=</span> config<span class="op">.</span><span class="at">a</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> b <span class="op">=</span> config<span class="op">.</span><span class="at">b</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">function</span>(action) {</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> cost <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> w <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>      w <span class="op">=</span> config<span class="op">.</span><span class="at">max</span><span class="op">*</span>i<span class="op">/</span>n</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (w <span class="op">&lt;=</span> action) {</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>        cost <span class="op">+=</span> (q<span class="op">*</span>w <span class="op">-</span> p<span class="op">*</span>action)<span class="op">*</span><span class="fu">pdf</span>(w)<span class="op">/</span>n</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>        cost <span class="op">+=</span> (q<span class="op">*</span>action <span class="op">-</span> p<span class="op">*</span>action)<span class="op">*</span><span class="fu">pdf</span>(w)<span class="op">/</span>n</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cost</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-1" data-nodetype="declaration">
+<div id="ojs-cell-3-1" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-2" data-nodetype="declaration">
+<div id="ojs-cell-3-2" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-3" data-nodetype="declaration">
+<div id="ojs-cell-3-3" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-4" data-nodetype="declaration">
+<div id="ojs-cell-3-4" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-5" data-nodetype="declaration">
+<div id="ojs-cell-3-5" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-6" data-nodetype="declaration">
+<div id="ojs-cell-3-6" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-7" data-nodetype="declaration">
+<div id="ojs-cell-3-7" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-8" data-nodetype="declaration">
+<div id="ojs-cell-3-8" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-9" data-nodetype="declaration">
+<div id="ojs-cell-3-9" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-10" data-nodetype="declaration">
+<div id="ojs-cell-3-10" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 </div>
 <div class="cell panel-input card bg-light p-2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>viewof action <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">100</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"a"</span>})</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cost <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="fu">J</span>(action)<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>viewof action <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">100</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"a"</span>})</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>cost <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="fu">J</span>(action)<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-2-1" data-nodetype="declaration">
+<div id="ojs-cell-4-1" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-2-2" data-nodetype="declaration">
+<div id="ojs-cell-4-2" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="9" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 8;"><span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>plotJ <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [action<span class="op">,</span> <span class="fu">J</span>(action)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"blue"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [a_opt<span class="op">,</span> <span class="fu">J</span>(a_opt)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"red"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(cost_values<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"action"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"performance"</span>})</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>plotPDF <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [action<span class="op">,</span><span class="dv">0</span>]<span class="op">,</span> [action<span class="op">,</span> <span class="fu">pdf</span>(action)] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"blue"</span>})<span class="op">,</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span>})<span class="op">,</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(points<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&lt;=</span> action)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"lightblue"</span>})<span class="op">,</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(points<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&gt;</span> action)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"pink"</span>})</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>plotReward <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"reward"</span>})</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="9" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 8;"><span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>plotJ <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [action<span class="op">,</span> <span class="fu">J</span>(action)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"blue"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [a_opt<span class="op">,</span> <span class="fu">J</span>(a_opt)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"red"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(cost_values<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"action"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"performance"</span>})</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>plotPDF <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [action<span class="op">,</span><span class="dv">0</span>]<span class="op">,</span> [action<span class="op">,</span> <span class="fu">pdf</span>(action)] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"blue"</span>})<span class="op">,</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span>})<span class="op">,</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(points<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&lt;=</span> action)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"lightblue"</span>})<span class="op">,</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(points<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&gt;</span> action)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"pink"</span>})</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>plotReward <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"reward"</span>})</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="fig-newsvendor" class="quarto-layout-panel page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-newsvendor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
@@ -1255,7 +1472,7 @@ J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 <div id="fig-newsvendor-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-newsvendor-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ojs-cell-3-1" data-nodetype="declaration">
+<div id="ojs-cell-5-1" data-nodetype="declaration">
 
 </div>
 </div>
@@ -1269,7 +1486,7 @@ J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 <div id="fig-newsvendor-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-newsvendor-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ojs-cell-3-2" data-nodetype="declaration">
+<div id="ojs-cell-5-2" data-nodetype="declaration">
 
 </div>
 </div>
@@ -1283,7 +1500,7 @@ J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 <div id="fig-newsvendor-3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-newsvendor-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ojs-cell-3-3" data-nodetype="declaration">
+<div id="ojs-cell-5-3" data-nodetype="declaration">
 
 </div>
 </div>
@@ -1296,13 +1513,13 @@ J(a) = \int_{0}^a [ q w - p a ] f(w) dw + \int_{a}^\infty [ q a - p a ] f(w) dw.
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-newsvendor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.1: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shaded region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
+Figure&nbsp;1.2: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shaded region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
 </figcaption>
 </figure>
 </div>
-<p>In <a href="#fig-newsvendor" class="quarto-xref">Figure&nbsp;<span>1.1</span></a>(a), the plot of <span class="math inline">\(J(a)\)</span> is concave. We can verify that this is true in general.</p>
+<p>In <a href="#fig-newsvendor" class="quarto-xref">Figure&nbsp;<span>1.2</span></a>(a), the plot of <span class="math inline">\(J(a)\)</span> is concave. We can verify that this is true in general.</p>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1311,7 +1528,7 @@ Figure&nbsp;1.1: An example to illustrate the results. Plot (a) shows the perfor
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>To verify that the function <span class="math inline">\(J(a)\)</span> is concave, we compute the second derivative: <span class="math display">\[
   \frac{d^2 J(a)}{da^2} = - p f(a) - (q - p) f(a) = -q f(a) \le 0.
@@ -1326,7 +1543,7 @@ Figure&nbsp;1.1: An example to illustrate the results. Plot (a) shows the perfor
   \]</span> In the literature, the quantity <span class="math inline">\(1 - (p/q)\)</span> is called the <em>critical fractile</em>.</p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1335,10 +1552,10 @@ Figure&nbsp;1.1: An example to illustrate the results. Plot (a) shows the perfor
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1347,7 +1564,7 @@ Figure&nbsp;1.1: An example to illustrate the results. Plot (a) shows the perfor
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p><span class="math display">\[ \dfrac{d}{dx} \left( \int_{p(x)}^{q(x)} f(x,t) dt \right)
    = f(x, q(x)) \cdot \dfrac {d}{dx} q(x)
@@ -1383,113 +1600,8 @@ a = F^{-1} \left( 1 - \dfrac{  p }{ q } \right).
 <div class="callout-body-container callout-body">
 <p>The result of <a href="#prp-newsvendor-cts" class="quarto-xref">Proposition&nbsp;<span>1.1</span></a> has a nice graphical interpretation. Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line <span class="math inline">\(1 - p/q\)</span>.</p>
 <div class="cell panel-input card bg-light p-2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>viewof pcts <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"p"</span>})</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>viewof qcts <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"q"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-<div id="ojs-cell-4-1" data-nodetype="declaration">
-
-</div>
-</div>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<div id="ojs-cell-4-2" data-nodetype="declaration">
-
-</div>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb5" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb5-0"><a href="#cb5-0" aria-hidden="true" tabindex="-1"></a>F_opt <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> pcts<span class="op">/</span>qcts</span>
-<span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>plotOptCts <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span><span class="dv">1</span>]}<span class="op">,</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"CDF"</span>})<span class="op">,</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [<span class="dv">0</span><span class="op">,</span>F_opt]<span class="op">,</span> [points[points<span class="op">.</span><span class="at">length</span><span class="op">-</span><span class="dv">1</span>]<span class="op">.</span><span class="at">demand</span><span class="op">,</span> F_opt] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"red"</span>})</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display">
-<div>
-<div id="ojs-cell-5-1" data-nodetype="declaration">
-
-</div>
-</div>
-</div>
-<div class="cell-output cell-output-display">
-<div>
-<div id="ojs-cell-5-2" data-nodetype="declaration">
-
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div id="exm-newsvendor-exponential" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1.2</strong></span> Suppose the demand is distributed according to an exponential distribution with mean <span class="math inline">\(\theta\)</span>. Find the optimal action.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Solution
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Recall that the CDF of the exponential distribution is given by <span class="math display">\[
-  F(w) = 1 - e^{-\theta w}.
-\]</span> Since <span class="math inline">\(F\)</span> is continuous and strictly increasing, the optimal action is the unique <span class="math inline">\(a\)</span> such that <span class="math inline">\(F(a) = 1 - p/q\)</span>. <span class="math display">\[
-  F(a) = 1 - p/q
-  \iff
-  e^{-\theta a} = p/q
-  \iff
-  a = \frac{1}{\theta} \ln \frac{q}{p}.
-\]</span></p>
-</div>
-</div>
-</div>
-</section>
-<section id="back-to-discrete-version" class="level3 page-columns page-full" data-number="1.2.2">
-<h3 data-number="1.2.2" class="anchored" data-anchor-id="back-to-discrete-version"><span class="header-section-number">1.2.2</span> Back to discrete version</h3>
-<p>Now, we come back to the problem with discrete actions and discrete demand. Suppose <span class="math inline">\(W\)</span> takes the values <span class="math inline">\(\ALPHABET W = \{ w_1, w_2, \dots, w_k \}\)</span> (where <span class="math inline">\(w_1 &lt; w_2 &lt;
-\cdots &lt; w_k\)</span>) with probabilities <span class="math inline">\(\{ μ_1, μ_2, \dots, μ_k \}\)</span>. It is easy to see that in this case the action <span class="math inline">\(a\)</span> should be in the set <span class="math inline">\(\{ w_1, w_2, \dots,
-w_k \}\)</span>.</p>
-<p>To fix ideas, we repeat the above numerical example when <span class="math inline">\(\ALPHABET W = \{0, 1, \dots, 100\}\)</span>.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb6" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb6-0"><a href="#cb6-0" aria-hidden="true" tabindex="-1"></a>pointsD <span class="op">=</span> { </span>
-<span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> cdf <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    cdf <span class="op">=</span> cdf <span class="op">+</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">demand</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">pdf</span><span class="op">:</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n<span class="op">,</span> <span class="dt">CDF</span><span class="op">:</span> cdf<span class="op">,</span> <span class="dt">reward</span><span class="op">:</span> <span class="fu">r</span>(x<span class="op">,</span>actionD) }</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>cost_valuesD <span class="op">=</span> {</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">action</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">performance</span><span class="op">:</span> <span class="fu">J</span>(x)}</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>a_optD <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(a_opt<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>viewof pcts <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"p"</span>})</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>viewof qcts <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"q"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-6-1" data-nodetype="declaration">
@@ -1504,18 +1616,21 @@ w_k \}\)</span>.</p>
 </div>
 </div>
 </div>
-<div class="cell-output cell-output-display">
-<div>
-<div id="ojs-cell-6-3" data-nodetype="declaration">
-
 </div>
-</div>
-</div>
-</div>
-<div class="cell panel-input card bg-light p-2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb7" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>viewof actionD <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">100</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"a"</span>})</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>costD <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="fu">J</span>(actionD)<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb8-0"><a href="#cb8-0" aria-hidden="true" tabindex="-1"></a>F_opt <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> pcts<span class="op">/</span>qcts</span>
+<span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>plotOptCts <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span><span class="dv">1</span>]}<span class="op">,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(points<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"CDF"</span>})<span class="op">,</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [<span class="dv">0</span><span class="op">,</span>F_opt]<span class="op">,</span> [points[points<span class="op">.</span><span class="at">length</span><span class="op">-</span><span class="dv">1</span>]<span class="op">.</span><span class="at">demand</span><span class="op">,</span> F_opt] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"red"</span>})</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-7-1" data-nodetype="declaration">
@@ -1531,43 +1646,147 @@ w_k \}\)</span>.</p>
 </div>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="9" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 8;"><span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>plotJD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [actionD<span class="op">,</span> <span class="fu">J</span>(actionD)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"blue"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [a_optD<span class="op">,</span> <span class="fu">J</span>(a_optD)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"red"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(cost_valuesD<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"action"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"performance"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span>})</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>plotPDFD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Plot.line([ [actionD,0], [actionD, pdf(actionD)] ], {stroke: "blue"}),</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})<span class="op">,</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(pointsD<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&lt;=</span> actionD)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"lightblue"</span>})<span class="op">,</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(pointsD<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&gt;=</span> actionD)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"pink"</span>})</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>plotRewardD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"reward"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span>})</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div id="exm-newsvendor-exponential" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1.3</strong></span> Suppose the demand is distributed according to an exponential distribution with mean <span class="math inline">\(\theta\)</span>. Find the optimal action.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Recall that the CDF of the exponential distribution with mean <span class="math inline">\(\theta\)</span> is given by <span class="math display">\[
+  F(w) = 1 - e^{-w/\theta}.
+\]</span> Since <span class="math inline">\(F\)</span> is continuous and strictly increasing, the optimal action is the unique <span class="math inline">\(a\)</span> such that <span class="math inline">\(F(a) = 1 - p/q\)</span>. <span class="math display">\[
+  F(a) = 1 - p/q
+  \iff
+  e^{-a/\theta} = p/q
+  \iff
+  -a/\theta = \ln(p/q)
+  \iff
+  a = -\theta \ln(p/q) = \theta \ln \frac{q}{p}.
+\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="back-to-discrete-version" class="level3 page-columns page-full" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="back-to-discrete-version"><span class="header-section-number">1.3.2</span> Back to discrete version</h3>
+<p>Now, we come back to the problem with discrete actions and discrete demand. Suppose <span class="math inline">\(W\)</span> takes the values <span class="math inline">\(\ALPHABET W = \{ w_1, w_2, \dots, w_k \}\)</span> (where <span class="math inline">\(w_1 &lt; w_2 &lt;
+\cdots &lt; w_k\)</span>) with probabilities <span class="math inline">\(\{ μ_1, μ_2, \dots, μ_k \}\)</span>. It is easy to see that in this case the action <span class="math inline">\(a\)</span> should be in the set <span class="math inline">\(\{ w_1, w_2, \dots,
+w_k \}\)</span>.</p>
+<p>To fix ideas, we repeat the above numerical example when <span class="math inline">\(\ALPHABET W = \{0, 1, \dots, 100\}\)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb9-0"><a href="#cb9-0" aria-hidden="true" tabindex="-1"></a>pointsD <span class="op">=</span> { </span>
+<span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> cdf <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    cdf <span class="op">=</span> cdf <span class="op">+</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">demand</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">pdf</span><span class="op">:</span> <span class="fu">pdf</span>(x) <span class="op">*</span> <span class="dv">1</span><span class="op">/</span>n<span class="op">,</span> <span class="dt">CDF</span><span class="op">:</span> cdf<span class="op">,</span> <span class="dt">reward</span><span class="op">:</span> <span class="fu">r</span>(x<span class="op">,</span>actionD) }</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>cost_valuesD <span class="op">=</span> {</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">var</span> points <span class="op">=</span> <span class="kw">new</span> <span class="bu">Array</span>(n)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (<span class="kw">var</span> i <span class="op">=</span> <span class="dv">0</span> <span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++</span>) {</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> x <span class="op">=</span> config<span class="op">.</span><span class="at">max</span> <span class="op">*</span> i<span class="op">/</span>n</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    points[i] <span class="op">=</span> {<span class="dt">action</span><span class="op">:</span> x<span class="op">,</span> <span class="dt">performance</span><span class="op">:</span> <span class="fu">J</span>(x)}</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> points</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>a_optD <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(a_opt<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-8-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-8-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-8-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell panel-input card bg-light p-2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>viewof actionD <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">100</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">45</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"a"</span>})</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>costD <span class="op">=</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">round</span>(<span class="fu">J</span>(actionD)<span class="op">*</span><span class="dv">100</span>)<span class="op">/</span><span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-9-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-9-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb11" data-startfrom="9" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 8;"><span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>plotJD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [actionD<span class="op">,</span> <span class="fu">J</span>(actionD)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"blue"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">dot</span>([ [a_optD<span class="op">,</span> <span class="fu">J</span>(a_optD)] ]<span class="op">,</span> {<span class="dt">fill</span><span class="op">:</span> <span class="st">"red"</span><span class="op">,</span> <span class="dt">r</span><span class="op">:</span><span class="dv">4</span>})<span class="op">,</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(cost_valuesD<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"action"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"performance"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span>})</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>plotPDFD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Plot.line([ [actionD,0], [actionD, pdf(actionD)] ], {stroke: "blue"}),</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})<span class="op">,</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(pointsD<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&lt;=</span> actionD)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"lightblue"</span>})<span class="op">,</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">areaY</span>(pointsD<span class="op">.</span><span class="fu">filter</span>(pt <span class="kw">=&gt;</span> pt<span class="op">.</span><span class="at">demand</span> <span class="op">&gt;=</span> actionD)<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"pdf"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span> <span class="dt">fill</span><span class="op">:</span> <span class="st">"pink"</span>})</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>plotRewardD <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"reward"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span>})</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="fig-newsvendord" class="quarto-layout-panel page-columns page-full">
 <figure class="quarto-float quarto-float-fig figure page-columns page-full">
 <div aria-describedby="fig-newsvendord-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
@@ -1576,7 +1795,7 @@ w_k \}\)</span>.</p>
 <div id="fig-newsvendord-1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-newsvendord-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ojs-cell-8-1" data-nodetype="declaration">
+<div id="ojs-cell-10-1" data-nodetype="declaration">
 
 </div>
 </div>
@@ -1590,7 +1809,7 @@ w_k \}\)</span>.</p>
 <div id="fig-newsvendord-2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-newsvendord-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ojs-cell-8-2" data-nodetype="declaration">
+<div id="ojs-cell-10-2" data-nodetype="declaration">
 
 </div>
 </div>
@@ -1604,7 +1823,7 @@ w_k \}\)</span>.</p>
 <div id="fig-newsvendord-3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-subfloat-fig figure">
 <div aria-describedby="fig-newsvendord-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div id="ojs-cell-8-3" data-nodetype="declaration">
+<div id="ojs-cell-10-3" data-nodetype="declaration">
 
 </div>
 </div>
@@ -1617,7 +1836,7 @@ w_k \}\)</span>.</p>
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-newsvendord-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1.2: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shaded region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
+Figure&nbsp;1.3: An example to illustrate the results. Plot (a) shows the performance as a function of action; the blue dot shows the value of chosen action and the red dot shows the value of optimal action. Plot (b) shows the PDF of the demand where the blue shaded region shows the probability of getting a demand less than ordered goods and the red shaded region shows the probability of getting a demand greater than ordered goods. Plot (c) shows the reward function <span class="math inline">\(r(a,\cdot)\)</span>, which depends on the values of <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.
 </figcaption>
 </figure>
 </div>
@@ -1628,7 +1847,7 @@ Figure&nbsp;1.2: An example to illustrate the results. Plot (a) shows the perfor
   \]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1637,7 +1856,7 @@ Figure&nbsp;1.2: An example to illustrate the results. Plot (a) shows the perfor
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The expected reward for choice <span class="math inline">\(w_i\)</span> is <span class="math display">\[ \begin{align*} J(w_i) &amp;=
 \sum_{j &lt; i} μ_j [ q w_j - p w_i ] + \sum_{j \ge i} μ_j [q w_i - p w_i]
@@ -1677,47 +1896,47 @@ M_i \le \dfrac{q-p}{q}
 <p>Draw the CDF of the demand. The optimal action is the point where the CDF intersects the horizontal line <span class="math inline">\(1 - p/q\)</span>.</p>
 </blockquote>
 <div class="cell panel-input card bg-light p-2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>viewof pdis <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"p"</span>})</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>viewof qdis <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"q"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb12" data-startfrom="1" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>viewof pdis <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="fl">0.5</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"p"</span>})</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>viewof qdis <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="fl">0.01</span><span class="op">,</span><span class="dv">1</span>]<span class="op">,</span> {<span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="fl">0.01</span><span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"q"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-9-1" data-nodetype="declaration">
+<div id="ojs-cell-11-1" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-9-2" data-nodetype="declaration">
+<div id="ojs-cell-11-2" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb10" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb10-0"><a href="#cb10-0" aria-hidden="true" tabindex="-1"></a>F_opt_dis <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> pdis<span class="op">/</span>qdis</span>
-<span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>plotOptDts <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span><span class="dv">1</span>]}<span class="op">,</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"CDF"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})<span class="op">,</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [<span class="dv">0</span><span class="op">,</span>F_opt_dis]<span class="op">,</span> [pointsD[pointsD<span class="op">.</span><span class="at">length</span><span class="op">-</span><span class="dv">1</span>]<span class="op">.</span><span class="at">demand</span><span class="op">,</span> F_opt_dis] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"red"</span>})</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb13" data-startfrom="0" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line -1;"><span id="cb13-0"><a href="#cb13-0" aria-hidden="true" tabindex="-1"></a>F_opt_dis <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> pdis<span class="op">/</span>qdis</span>
+<span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>plotOptDts <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {<span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span><span class="dv">1</span>]}<span class="op">,</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Axes</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Data</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(pointsD<span class="op">,</span>{<span class="dt">x</span><span class="op">:</span><span class="st">"demand"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span><span class="st">"CDF"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span><span class="st">"step-after"</span>})<span class="op">,</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>([ [<span class="dv">0</span><span class="op">,</span>F_opt_dis]<span class="op">,</span> [pointsD[pointsD<span class="op">.</span><span class="at">length</span><span class="op">-</span><span class="dv">1</span>]<span class="op">.</span><span class="at">demand</span><span class="op">,</span> F_opt_dis] ]<span class="op">,</span> {<span class="dt">stroke</span><span class="op">:</span> <span class="st">"red"</span>})</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-10-1" data-nodetype="declaration">
+<div id="ojs-cell-12-1" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-10-2" data-nodetype="declaration">
+<div id="ojs-cell-12-2" data-nodetype="declaration">
 
 </div>
 </div>
@@ -1726,10 +1945,10 @@ M_i \le \dfrac{q-p}{q}
 </div>
 </div>
 <div id="exm-newsvendor-geometric" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1.3</strong></span> Suppose the demand is distributed according to a geometric distribution with parameter <span class="math inline">\(\theta\)</span>, i.e., <span class="math inline">\(\PR(W = w) = (1-\theta)^w \theta\)</span>. Find the optimal action.</p>
+<p><span class="theorem-title"><strong>Example 1.4</strong></span> Suppose the demand is distributed according to a geometric distribution with parameter <span class="math inline">\(\theta\)</span>, i.e., <span class="math inline">\(\PR(W = w) = (1-\theta)^w \theta\)</span>. Find the optimal action.</p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1738,7 +1957,7 @@ M_i \le \dfrac{q-p}{q}
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Recall that the CDF of the geometric distribution is given by <span class="math display">\[
   F(w) = 1 - (1-\theta)^{\lfloor w \rfloor + 1}.
@@ -1757,8 +1976,8 @@ M_i \le \dfrac{q-p}{q}
 </div>
 </div>
 </section>
-<section id="acting-based-on-historical-data" class="level3" data-number="1.2.3">
-<h3 data-number="1.2.3" class="anchored" data-anchor-id="acting-based-on-historical-data"><span class="header-section-number">1.2.3</span> Acting based on historical data</h3>
+<section id="acting-based-on-historical-data" class="level3" data-number="1.3.3">
+<h3 data-number="1.3.3" class="anchored" data-anchor-id="acting-based-on-historical-data"><span class="header-section-number">1.3.3</span> Acting based on historical data</h3>
 <p>In the above discussion, we assumed that probability distribution&nbsp;<span class="math inline">\(F\)</span> of the demand is known. In many instances, the decision maker just has access to a database of historical demands, which we denote by <span class="math display">\[
   \ALPHABET D_K = \{ w_1, \dots, w_K \}
 \]</span> where <span class="math inline">\(K\)</span> denotes the number of samples. How do we choose the number of newspapers to buy?</p>
@@ -1770,22 +1989,33 @@ M_i \le \dfrac{q-p}{q}
 \]</span> This simple idea is known by different names in the literature. It is called <strong>certainty equivalence</strong> in adaptive control, <strong>plug-in estimator</strong> in statistics, <strong>empirical risk minimization (ERM)</strong> in machine learning, and <strong>sample average approximation (SAA)</strong> in optimization.</p>
 <p>The structure of the optimal solution establised in <a href="#prp-newsvendor-cts" class="quarto-xref">Proposition&nbsp;<span>1.1</span></a> and <a href="#prp-newsvendor-discrete" class="quarto-xref">Proposition&nbsp;<span>1.2</span></a> implies that the optimal action is the <span class="math inline">\(\rho\)</span>-th quantile of the demand distribution, where <span class="math inline">\(\rho = 1 - p/q\)</span>, is the critical fractile. To obtain that, order the historical demand according to their order statistics as: <span class="math display">\[
   w_{1:K} \le w_{2:K} \le \cdots \le w_{K:K}.
-\]</span> Then, the certainty equivalent action is given by <span class="math inline">\(w_{\lceil \rho K \rceil: K}\)</span>.</p>
+\]</span> Then, the certainty equivalent action is given by <span class="math inline">\(w_{\lceil \rho K \rceil: K}\)</span>. This approach is called the <strong>non-parametric approach</strong>, because it does not make any assumption about the distribution of the demand.</p>
 <p>If we know that the demand is distributed according to a specific distribution, then we can estimate the parameters of the distribution. For example, if we know that the demand is distributed according to an exponential distribution with an unknown mean <span class="math inline">\(\theta\)</span>, then we can estimate <span class="math inline">\(\theta\)</span> from the historical data. In particular, an unbiased estimator of <span class="math inline">\(\theta\)</span> is the sample mean: <span class="math display">\[
   \hat \theta_{K} = \frac 1K \sum_{k=1}^K w_k.
-\]</span> Given the results of <a href="#exm-newsvendor-exponential" class="quarto-xref">Example&nbsp;<span>1.2</span></a>, the certainty equivalent action is given by <span class="math display">\[
-   a = \frac{1}{\hat \theta_K} \ln \frac{q}{p}.
-\]</span></p>
+\]</span> Given the results of <a href="#exm-newsvendor-exponential" class="quarto-xref">Example&nbsp;<span>1.3</span></a>, the certainty equivalent action is given by <span class="math display">\[
+   a = \hat \theta_K \ln \frac{q}{p}.
+\]</span> This approach is called the <strong>parametric approach</strong>, because it makes an assumption about the distribution of the demand.</p>
+<p>If the assumption that the demand is distributed according to an exponential distribution is correct, both approaches asymptotically converge to the same result but for small sample sizes the parameteric approach is more efficient. However, if the assumption is incorrect, the parametric approach may perform poorly. Therefore, the non-parametric approach is more robust.</p>
 </section>
 </section>
 <section id="exercises" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
+<div id="exr-mpsoc-four-components" class="theorem exercise">
+<p><span class="theorem-title"><strong>Exercise 1.4 (MPSoC with four components)</strong></span> Extend <a href="#exm-mpsoc-reliability" class="quarto-xref">Example&nbsp;<span>1.1</span></a> to the case where the chip has a total capacity for four components. There are three possible designs:</p>
+<ul>
+<li>Design 1 uses three CPUs and one RAM</li>
+<li>Design 2 uses two CPUs and two RAMs<br>
+</li>
+<li>Design 3 uses one CPU and three RAMs</li>
+</ul>
+<p>Find the design that maximizes the expected lifetime of the system.</p>
+<p><em>Hint</em>: If <span class="math inline">\(X_1\)</span>, <span class="math inline">\(X_2\)</span>, and <span class="math inline">\(X_3\)</span> are independent exponential random variables with parameter <span class="math inline">\(\lambda\)</span>, then <span class="math inline">\(X_1 + X_2 + X_3 \sim \text{Gamma}(3, \lambda)\)</span> and <span class="math display">\[\PR(X_1 + X_2 + X_3 &gt; t) = \left(1 + \lambda t + \frac{(\lambda t)^2}{2}\right) e^{-\lambda t}.\]</span> Moreover, in general, <span class="math display">\[\int_0^{\infty} t^n e^{-\lambda t} \, dt = \frac{n!}{\lambda^{n+1}}, \quad n \in \naturalnumbers.\]</span></p>
 <div id="exr-newsvendor-qualitative" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.1 (Qualitative properties of optimal solution)</strong></span> Intuitively, we expect that if the purchase price of the newspaper increases but the selling price remains the same, then the newsvendor should buy fewer newspapers. Formally prove this statement.</p>
+<p><span class="theorem-title"><strong>Exercise 1.1 (Qualitative properties of optimal solution)</strong></span> Intuitively, in <a href="#exm-newsvendor" class="quarto-xref">Example&nbsp;<span>1.2</span></a>, we expect that if the purchase price of the newspaper increases but the selling price remains the same, then the newsvendor should buy fewer newspapers. Formally prove this statement.</p>
 <p><em>Hint</em>: The CDF of a distribution is a weakly increasing function.</p>
 </div>
 <div id="exr-newsvendor-monotonicity" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1.2 (Monotonicity of optimal action)</strong></span> Consider two scenarios for the case with continuous demand and actions. In scenario&nbsp;1, the demand is distributed according to PDF <span class="math inline">\(f_1\)</span>. In scenario&nbsp;2, it is distributed according to PDF <span class="math inline">\(f_2\)</span>. Suppose <span class="math inline">\(F_1(w) \le F_2(w)\)</span> for all <span class="math inline">\(w\)</span>. Show that the optimal action <span class="math inline">\(a_1\)</span> for scenario&nbsp;1 is greater than the optimal action <span class="math inline">\(a_2\)</span> for scenario&nbsp;2.</p>
+<p><span class="theorem-title"><strong>Exercise 1.2 (Monotonicity of optimal action)</strong></span> Consider two scenarios for the case with continuous demand and actions in <a href="#exm-newsvendor" class="quarto-xref">Example&nbsp;<span>1.2</span></a>. In scenario&nbsp;1, the demand is distributed according to PDF <span class="math inline">\(f_1\)</span>. In scenario&nbsp;2, it is distributed according to PDF <span class="math inline">\(f_2\)</span>. Suppose <span class="math inline">\(F_1(w) \le F_2(w)\)</span> for all <span class="math inline">\(w\)</span>. Show that the optimal action <span class="math inline">\(a_1\)</span> for scenario&nbsp;1 is greater than the optimal action <span class="math inline">\(a_2\)</span> for scenario&nbsp;2.</p>
 <p><em>Hint</em>: Plot the two CDFs and try to interpret the optimal decision rule graphically.</p>
 </div>
 <div id="exr-newsvendor-wind" class="theorem exercise">
@@ -1795,6 +2025,7 @@ M_i \le \dfrac{q-p}{q}
   p a - q (a  - w), &amp; \text{if } w &lt; a.
 \end{cases}\]</span></p>
 <p>Find the optimal commitment <span class="math inline">\(a\)</span> that maximizes the expected reward.</p>
+</div>
 </div>
 </section>
 <section id="notes" class="level2 unnumbered">
@@ -1843,7 +2074,7 @@ eyJjb250ZW50cyI6WyAgeyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiaW5saW5lIjoidHJ1ZSIsInNv
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InAgPSAwLjVcbnEgPSAxXG5yID0gZnVuY3Rpb24odyxhKXsgaWYodzw9YSkgeyByZXR1cm4gcSp3IC0gcCphIH0gZWxzZSB7IHJldHVybiBxKmEgLSBwKmEgfSB9XG5cbmFfb3B0ID0gaW52ZXJzZUNERiggKHEtcCkvcSApXG5cbmNvbmZpZyA9ICh7XG4gIC8vIEt1bWFyYXN3YW15IERpc3RyaWJ1dGlvbjogaHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvS3VtYXJhc3dhbXlfZGlzdHJpYnV0aW9uXG4gIGE6IDIsXG4gIGI6IDUsXG4gIG1heDogMTAwXG59KVxuXG5wZGYgPSB7XG4gIGNvbnN0IGEgPSBjb25maWcuYVxuICBjb25zdCBiID0gY29uZmlnLmJcblxuICByZXR1cm4gZnVuY3Rpb24oeCkge1xuICAgIHZhciBub3JtYWxpemVkID0geC9jb25maWcubWF4XG4gICAgcmV0dXJuIGEqYipub3JtYWxpemVkKiooYS0xKSooMSAtIG5vcm1hbGl6ZWQqKmEpKiooYi0xKVxuICB9XG59XG5cbmludmVyc2VDREY9IHtcbiAgY29uc3QgYSA9IGNvbmZpZy5hXG4gIGNvbnN0IGIgPSBjb25maWcuYlxuICByZXR1cm4gZnVuY3Rpb24oeSkge1xuICAgICAvLyBDbG9zZWQgZm9ybSBleHByZXNzaW9uIGZvciBpbnZlcnNlIENERiBvZiBLdW1hcmFzd2FteSBkaXN0cmlidXRpb24gXG4gICAgIHJldHVybiBjb25maWcubWF4ICogKDEgLSAoMS15KSoqKDEvYikpKiooMS9hKVxuICB9XG59XG5cbnBvaW50cyA9IHsgXG4gIGNvbnN0IG4gPSAxMDAwXG4gIHZhciBwb2ludHMgPSBuZXcgQXJyYXkobilcbiAgdmFyIGNkZiA9IDA7XG4gIGZvciAodmFyIGkgPSAwIDsgaSA8IG47IGkrKykge1xuICAgIHZhciB4ID0gY29uZmlnLm1heCAqIGkvblxuICAgIGNkZiA9IGNkZiArIHBkZih4KSAqIDEvblxuICAgIHBvaW50c1tpXSA9IHtkZW1hbmQ6IHgsIHBkZjogcGRmKHgpLCBDREY6IGNkZiwgcmV3YXJkOiByKHgsYWN0aW9uKSB9XG4gIH1cbiAgcmV0dXJuIHBvaW50c1xufVxuXG5jb3N0X3ZhbHVlcyA9IHtcbiAgY29uc3QgbiA9IDEwMDBcbiAgdmFyIHBvaW50cyA9IG5ldyBBcnJheShuKVxuICBmb3IgKHZhciBpID0gMCA7IGkgPCBuOyBpKyspIHtcbiAgICB2YXIgeCA9IGNvbmZpZy5tYXggKiBpL25cbiAgICBwb2ludHNbaV0gPSB7YWN0aW9uOiB4LCBwZXJmb3JtYW5jZTogSih4KX1cbiAgfVxuICByZXR1cm4gcG9pbnRzXG59XG5cbkogPSB7XG4gIGNvbnN0IGEgPSBjb25maWcuYVxuICBjb25zdCBiID0gY29uZmlnLmJcblxuICByZXR1cm4gZnVuY3Rpb24oYWN0aW9uKSB7XG4gICAgY29uc3QgbiA9IDEwMDBcbiAgICB2YXIgY29zdCA9IDBcbiAgICB2YXIgdyA9IDBcbiAgICBmb3IgKHZhciBpID0gMDsgaSA8IG47IGkrKykge1xuICAgICAgdyA9IGNvbmZpZy5tYXgqaS9uXG4gICAgICBpZiAodyA8PSBhY3Rpb24pIHtcbiAgICAgICAgY29zdCArPSAocSp3IC0gcCphY3Rpb24pKnBkZih3KS9uXG4gICAgICB9IGVsc2Uge1xuICAgICAgICBjb3N0ICs9IChxKmFjdGlvbiAtIHAqYWN0aW9uKSpwZGYodykvblxuICAgICAgfVxuICAgIH1cbiAgICByZXR1cm4gY29zdFxuICB9XG59XG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJ2aWV3b2YgYWN0aW9uID0gSW5wdXRzLnJhbmdlKFswLCAxMDBdLCB7dmFsdWU6IDQ1LCBzdGVwOiAwLjAxLCBsYWJlbDogXCJhXCJ9KVxuXG5jb3N0ID0gTWF0aC5yb3VuZChKKGFjdGlvbikqMTAwKS8xMDBcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMyIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxucGxvdEogPSBQbG90LnBsb3Qoe1xuICAgIGdyaWQ6IHRydWUsXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gRGF0YVxuICAgIFBsb3QuZG90KFsgW2FjdGlvbiwgSihhY3Rpb24pXSBdLCB7ZmlsbDogXCJibHVlXCIsIHI6NH0pLFxuICAgIFBsb3QuZG90KFsgW2Ffb3B0LCBKKGFfb3B0KV0gXSwge2ZpbGw6IFwicmVkXCIsIHI6NH0pLFxuICAgIFBsb3QubGluZShjb3N0X3ZhbHVlcywge3g6XCJhY3Rpb25cIiwgeTpcInBlcmZvcm1hbmNlXCJ9KVxuICBdXG59KVxuXG5wbG90UERGID0gUGxvdC5wbG90KHtcbiAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKFsgW2FjdGlvbiwwXSwgW2FjdGlvbiwgcGRmKGFjdGlvbildIF0sIHtzdHJva2U6IFwiYmx1ZVwifSksXG4gICAgUGxvdC5saW5lKHBvaW50cyx7eDpcImRlbWFuZFwiLCB5OlwicGRmXCJ9KSxcbiAgICBQbG90LmFyZWFZKHBvaW50cy5maWx0ZXIocHQgPT4gcHQuZGVtYW5kIDw9IGFjdGlvbikse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwiLCBmaWxsOiBcImxpZ2h0Ymx1ZVwifSksXG4gICAgUGxvdC5hcmVhWShwb2ludHMuZmlsdGVyKHB0ID0+IHB0LmRlbWFuZCA+IGFjdGlvbikse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwiLCBmaWxsOiBcInBpbmtcIn0pXG4gIF1cbn0pXG5cbnBsb3RSZXdhcmQgPSBQbG90LnBsb3Qoe1xuICBncmlkOiB0cnVlLFxuICBtYXJrczogW1xuICAgIC8vIEF4ZXNcbiAgICBQbG90LnJ1bGVYKFswXSksXG4gICAgUGxvdC5ydWxlWShbMF0pLFxuICAgIC8vIERhdGFcbiAgICBQbG90LmxpbmUocG9pbnRzLCB7eDpcImRlbWFuZFwiLCB5OlwicmV3YXJkXCJ9KVxuICBdXG59KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIHBjdHMgPSBJbnB1dHMucmFuZ2UoWzAuMDEsMV0sIHt2YWx1ZTogMC41LCBzdGVwOiAwLjAxLCBsYWJlbDogXCJwXCJ9KVxudmlld29mIHFjdHMgPSBJbnB1dHMucmFuZ2UoWzAuMDEsMV0sIHt2YWx1ZTogMSwgc3RlcDogMC4wMSwgbGFiZWw6IFwicVwifSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IkZfb3B0ID0gMSAtIHBjdHMvcWN0c1xucGxvdE9wdEN0cyA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIHk6IHtkb21haW46IFswLDFdfSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50cyx7eDpcImRlbWFuZFwiLCB5OlwiQ0RGXCJ9KSxcbiAgICBQbG90LmxpbmUoWyBbMCxGX29wdF0sIFtwb2ludHNbcG9pbnRzLmxlbmd0aC0xXS5kZW1hbmQsIEZfb3B0XSBdLCB7c3Ryb2tlOiBcInJlZFwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InBvaW50c0QgPSB7IFxuICBjb25zdCBuID0gMTAwXG4gIHZhciBwb2ludHMgPSBuZXcgQXJyYXkobilcbiAgdmFyIGNkZiA9IDBcbiAgZm9yICh2YXIgaSA9IDAgOyBpIDwgbjsgaSsrKSB7XG4gICAgdmFyIHggPSBjb25maWcubWF4ICogaS9uXG4gICAgY2RmID0gY2RmICsgcGRmKHgpICogMS9uXG4gICAgcG9pbnRzW2ldID0ge2RlbWFuZDogeCwgcGRmOiBwZGYoeCkgKiAxL24sIENERjogY2RmLCByZXdhcmQ6IHIoeCxhY3Rpb25EKSB9XG4gIH1cbiAgcmV0dXJuIHBvaW50c1xufVxuXG5jb3N0X3ZhbHVlc0QgPSB7XG4gIGNvbnN0IG4gPSAxMDBcbiAgdmFyIHBvaW50cyA9IG5ldyBBcnJheShuKVxuICBmb3IgKHZhciBpID0gMCA7IGkgPCBuOyBpKyspIHtcbiAgICB2YXIgeCA9IGNvbmZpZy5tYXggKiBpL25cbiAgICBwb2ludHNbaV0gPSB7YWN0aW9uOiB4LCBwZXJmb3JtYW5jZTogSih4KX1cbiAgfVxuICByZXR1cm4gcG9pbnRzXG59XG5cblxuYV9vcHREID0gTWF0aC5yb3VuZChhX29wdCoxMDApLzEwMFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC03IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIGFjdGlvbkQgPSBJbnB1dHMucmFuZ2UoWzAsIDEwMF0sIHt2YWx1ZTogNDUsIHN0ZXA6IDAuMDEsIGxhYmVsOiBcImFcIn0pXG5cbmNvc3REID0gTWF0aC5yb3VuZChKKGFjdGlvbkQpKjEwMCkvMTAwXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTgiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJcbnBsb3RKRCA9IFBsb3QucGxvdCh7XG4gICAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5kb3QoWyBbYWN0aW9uRCwgSihhY3Rpb25EKV0gXSwge2ZpbGw6IFwiYmx1ZVwiLCByOjR9KSxcbiAgICBQbG90LmRvdChbIFthX29wdEQsIEooYV9vcHREKV0gXSwge2ZpbGw6IFwicmVkXCIsIHI6NH0pLFxuICAgIFBsb3QubGluZShjb3N0X3ZhbHVlc0QsIHt4OlwiYWN0aW9uXCIsIHk6XCJwZXJmb3JtYW5jZVwiLCBjdXJ2ZTogXCJzdGVwLWFmdGVyXCJ9KVxuICBdXG59KVxuXG5wbG90UERGRCA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gRGF0YVxuICAgIC8vIFBsb3QubGluZShbIFthY3Rpb25ELDBdLCBbYWN0aW9uRCwgcGRmKGFjdGlvbkQpXSBdLCB7c3Ryb2tlOiBcImJsdWVcIn0pLFxuICAgIFBsb3QubGluZShwb2ludHNELHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgY3VydmU6XCJzdGVwLWFmdGVyXCJ9KSxcbiAgICBQbG90LmFyZWFZKHBvaW50c0QuZmlsdGVyKHB0ID0+IHB0LmRlbWFuZCA8PSBhY3Rpb25EKSx7eDpcImRlbWFuZFwiLCB5OlwicGRmXCIsIGN1cnZlOiBcInN0ZXAtYWZ0ZXJcIiwgZmlsbDogXCJsaWdodGJsdWVcIn0pLFxuICAgIFBsb3QuYXJlYVkocG9pbnRzRC5maWx0ZXIocHQgPT4gcHQuZGVtYW5kID49IGFjdGlvbkQpLHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgY3VydmU6IFwic3RlcC1hZnRlclwiLCBmaWxsOiBcInBpbmtcIn0pXG4gIF1cbn0pXG5cbnBsb3RSZXdhcmREID0gUGxvdC5wbG90KHtcbiAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50c0QsIHt4OlwiZGVtYW5kXCIsIHk6XCJyZXdhcmRcIiwgY3VydmU6IFwic3RlcC1hZnRlclwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBwZGlzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDAuNSwgc3RlcDogMC4wMSwgbGFiZWw6IFwicFwifSlcbnZpZXdvZiBxZGlzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDEsIHN0ZXA6IDAuMDEsIGxhYmVsOiBcInFcIn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEwIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiRl9vcHRfZGlzID0gMSAtIHBkaXMvcWRpc1xucGxvdE9wdER0cyA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIHk6IHtkb21haW46IFswLDFdfSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50c0Qse3g6XCJkZW1hbmRcIiwgeTpcIkNERlwiLCBjdXJ2ZTpcInN0ZXAtYWZ0ZXJcIn0pLFxuICAgIFBsb3QubGluZShbIFswLEZfb3B0X2Rpc10sIFtwb2ludHNEW3BvaW50c0QubGVuZ3RoLTFdLmRlbWFuZCwgRl9vcHRfZGlzXSBdLCB7c3Ryb2tlOiBcInJlZFwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnYWN0aW9uJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BjdHMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncWN0cycpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdhY3Rpb25EJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BkaXMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncWRpcycpIn1dfQ==
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxucG9pbnRzX2RldGVybWluaXN0aWNfZGlzY3JldGUgPSB7XG4gIGNvbnN0IHZhbHVlcyA9IEFycmF5LmZyb20oe2xlbmd0aDogMTB9LCAoKSA9PiBNYXRoLnJhbmRvbSgpICogNCArIDEpXG4gIGNvbnN0IG1pblZhbHVlID0gTWF0aC5taW4oLi4udmFsdWVzKVxuICBjb25zdCBtaW5JbmRleCA9IHZhbHVlcy5pbmRleE9mKG1pblZhbHVlKVxuICBcbiAgcmV0dXJuIHZhbHVlcy5tYXAoKHZhbHVlLCBpbmRleCkgPT4gKHtcbiAgICBpbmRleDogaW5kZXggKyAxLFxuICAgIHZhbHVlOiB2YWx1ZSxcbiAgICBpc01pbjogaW5kZXggPT09IG1pbkluZGV4XG4gIH0pKVxufVxuXG5wb2ludHNfY29udGludW91cyA9IHtcbiAgLy8gR2VuZXJhdGUgcmFuZG9tIGNvZWZmaWNpZW50cyBmb3IgYSBub24tY29udmV4IDR0aCBvcmRlciBwb2x5bm9taWFsXG4gIC8vIGMoYSkgPSByMSooYSAtIDIuNSleNCArIHIyKihhIC0gMi41KV4zICsgcjMqKGEgLSAyLjUpXjIgKyByNCooYSAtIDIuNSkgKyByNVxuICAvLyBDb2VmZmljaWVudHMgY2hvc2VuIHRvIGVuc3VyZSBub24tY29udmV4aXR5IGFuZCBtaW5pbXVtIG5lYXIgY2VudGVyXG4gIGNvbnN0IHIxID0gMC41ICsgTWF0aC5yYW5kb20oKSAqIDEuNSAgLy8gcG9zaXRpdmUsIGVuc3VyZXMgZ3Jvd3RoIGF0IGVkZ2VzXG4gIGNvbnN0IHIyID0gKE1hdGgucmFuZG9tKCkgLSAwLjUpICogNCAgLy8gY2FuIGJlIHBvc2l0aXZlIG9yIG5lZ2F0aXZlXG4gIGNvbnN0IHIzID0gLTIgLSBNYXRoLnJhbmRvbSgpICogMiAgICAgIC8vIG5lZ2F0aXZlLCBjcmVhdGVzIGxvY2FsIG1pbmltdW1cbiAgY29uc3QgcjQgPSAoTWF0aC5yYW5kb20oKSAtIDAuNSkgKiAyICAgLy8gc21hbGwgcmFuZG9tIHRlcm1cbiAgY29uc3QgcjUgPSA1ICsgTWF0aC5yYW5kb20oKSAqIDUgICAgICAgLy8gdmVydGljYWwgb2Zmc2V0XG4gIFxuICAvLyBEZWZpbmUgYSBub24tY29udmV4IDR0aCBvcmRlciBwb2x5bm9taWFsIGNlbnRlcmVkIGFyb3VuZCBhID0gMi41XG4gIGNvbnN0IGNvc3RfZnVuY3Rpb24gPSBmdW5jdGlvbihhKSB7XG4gICAgY29uc3QgY2VudGVyZWQgPSBhIC0gMi41XG4gICAgcmV0dXJuIHIxICogY2VudGVyZWQqKjQgKyBcbiAgICAgICAgICAgcjIgKiBjZW50ZXJlZCoqMyArIFxuICAgICAgICAgICByMyAqIGNlbnRlcmVkKioyICsgXG4gICAgICAgICAgIHI0ICogY2VudGVyZWQgKyBcbiAgICAgICAgICAgcjVcbiAgfVxuICBcbiAgY29uc3QgbiA9IDEwMDBcbiAgY29uc3QgbWluX2EgPSAwXG4gIGNvbnN0IG1heF9hID0gNVxuICB2YXIgcG9pbnRzID0gbmV3IEFycmF5KG4pXG4gIHZhciBtaW5WYWx1ZSA9IEluZmluaXR5XG4gIHZhciBtaW5JbmRleCA9IDBcbiAgXG4gIGZvciAodmFyIGkgPSAwOyBpIDwgbjsgaSsrKSB7XG4gICAgdmFyIGEgPSBtaW5fYSArIChtYXhfYSAtIG1pbl9hKSAqIGkgLyAobiAtIDEpXG4gICAgdmFyIHZhbHVlID0gY29zdF9mdW5jdGlvbihhKVxuICAgIHBvaW50c1tpXSA9IHthY3Rpb246IGEsIGNvc3Q6IHZhbHVlfVxuICAgIFxuICAgIGlmICh2YWx1ZSA8IG1pblZhbHVlKSB7XG4gICAgICBtaW5WYWx1ZSA9IHZhbHVlXG4gICAgICBtaW5JbmRleCA9IGlcbiAgICB9XG4gIH1cbiAgXG4gIHJldHVybiB7cG9pbnRzOiBwb2ludHMsIG1pblBvaW50OiBwb2ludHNbbWluSW5kZXhdfVxufVxuXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTIiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJcblBsb3QucGxvdCh7XG4gIHdpZHRoOiBNYXRoLm1pbih3aWR0aCwgNDAwKSxcbiAgaGVpZ2h0OiAwLjc1Kk1hdGgubWluKHdpZHRoLCA0MDApLFxuICBncmlkOiB0cnVlLFxuICB5OiB7ZG9tYWluOiBbMCwgNV19LFxuICBtYXJrczogW1xuICAgIC8vIEF4ZXNcbiAgICBQbG90LnJ1bGVYKFswXSksXG4gICAgUGxvdC5ydWxlWShbMF0pLFxuICAgIC8vIFZlcnRpY2FsIGxpbmVzIChzdGVtcykgZnJvbSB4LWF4aXMgdG8gZWFjaCBwb2ludFxuICAgIFBsb3QucnVsZVgocG9pbnRzX2RldGVybWluaXN0aWNfZGlzY3JldGUsIHtcbiAgICAgIHg6IFwiaW5kZXhcIixcbiAgICAgIHk6IFwidmFsdWVcIixcbiAgICAgIHN0cm9rZTogZCA9PiBkLmlzTWluID8gXCJyZWRcIiA6IFwiYmxhY2tcIixcbiAgICAgIHN0cm9rZVdpZHRoOiAyXG4gICAgfSksXG4gICAgLy8gUG9pbnRzIGF0IHRoZSB0b3Agb2YgZWFjaCBzdGVtXG4gICAgUGxvdC5kb3QocG9pbnRzX2RldGVybWluaXN0aWNfZGlzY3JldGUsIHtcbiAgICAgIHg6IFwiaW5kZXhcIixcbiAgICAgIHk6IFwidmFsdWVcIixcbiAgICAgIGZpbGw6IGQgPT4gZC5pc01pbiA/IFwicmVkXCIgOiBcImJsYWNrXCIsXG4gICAgICByOiA0XG4gICAgfSlcbiAgXVxufSlcblxuUGxvdC5wbG90KHtcbiAgd2lkdGg6IE1hdGgubWluKHdpZHRoLCA0MDApLFxuICBoZWlnaHQ6IDAuNzUqTWF0aC5taW4od2lkdGgsIDQwMCksXG4gIGdyaWQ6IHRydWUsXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gQ29zdCBmdW5jdGlvbiBjdXJ2ZVxuICAgIFBsb3QubGluZShwb2ludHNfY29udGludW91cy5wb2ludHMsIHtcbiAgICAgIHg6IFwiYWN0aW9uXCIsXG4gICAgICB5OiBcImNvc3RcIixcbiAgICAgIHN0cm9rZVdpZHRoOiAyXG4gICAgfSksXG4gICAgLy8gTWluaW11bSBwb2ludCBoaWdobGlnaHRlZCBpbiByZWRcbiAgICBQbG90LmRvdChbcG9pbnRzX2NvbnRpbnVvdXMubWluUG9pbnRdLCB7XG4gICAgICB4OiBcImFjdGlvblwiLFxuICAgICAgeTogXCJjb3N0XCIsXG4gICAgICBmaWxsOiBcInJlZFwiLFxuICAgICAgcjogNVxuICAgIH0pXG4gIF1cbn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTMiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJwID0gMC41XG5xID0gMVxuciA9IGZ1bmN0aW9uKHcsYSl7IGlmKHc8PWEpIHsgcmV0dXJuIHEqdyAtIHAqYSB9IGVsc2UgeyByZXR1cm4gcSphIC0gcCphIH0gfVxuXG5hX29wdCA9IGludmVyc2VDREYoIChxLXApL3EgKVxuXG5jb25maWcgPSAoe1xuICAvLyBLdW1hcmFzd2FteSBEaXN0cmlidXRpb246IGh0dHBzOi8vZW4ud2lraXBlZGlhLm9yZy93aWtpL0t1bWFyYXN3YW15X2Rpc3RyaWJ1dGlvblxuICBhOiAyLFxuICBiOiA1LFxuICBtYXg6IDEwMFxufSlcblxucGRmID0ge1xuICBjb25zdCBhID0gY29uZmlnLmFcbiAgY29uc3QgYiA9IGNvbmZpZy5iXG5cbiAgcmV0dXJuIGZ1bmN0aW9uKHgpIHtcbiAgICB2YXIgbm9ybWFsaXplZCA9IHgvY29uZmlnLm1heFxuICAgIHJldHVybiBhKmIqbm9ybWFsaXplZCoqKGEtMSkqKDEgLSBub3JtYWxpemVkKiphKSoqKGItMSlcbiAgfVxufVxuXG5pbnZlcnNlQ0RGPSB7XG4gIGNvbnN0IGEgPSBjb25maWcuYVxuICBjb25zdCBiID0gY29uZmlnLmJcbiAgcmV0dXJuIGZ1bmN0aW9uKHkpIHtcbiAgICAgLy8gQ2xvc2VkIGZvcm0gZXhwcmVzc2lvbiBmb3IgaW52ZXJzZSBDREYgb2YgS3VtYXJhc3dhbXkgZGlzdHJpYnV0aW9uIFxuICAgICByZXR1cm4gY29uZmlnLm1heCAqICgxIC0gKDEteSkqKigxL2IpKSoqKDEvYSlcbiAgfVxufVxuXG5wb2ludHMgPSB7IFxuICBjb25zdCBuID0gMTAwMFxuICB2YXIgcG9pbnRzID0gbmV3IEFycmF5KG4pXG4gIHZhciBjZGYgPSAwO1xuICBmb3IgKHZhciBpID0gMCA7IGkgPCBuOyBpKyspIHtcbiAgICB2YXIgeCA9IGNvbmZpZy5tYXggKiBpL25cbiAgICBjZGYgPSBjZGYgKyBwZGYoeCkgKiAxL25cbiAgICBwb2ludHNbaV0gPSB7ZGVtYW5kOiB4LCBwZGY6IHBkZih4KSwgQ0RGOiBjZGYsIHJld2FyZDogcih4LGFjdGlvbikgfVxuICB9XG4gIHJldHVybiBwb2ludHNcbn1cblxuY29zdF92YWx1ZXMgPSB7XG4gIGNvbnN0IG4gPSAxMDAwXG4gIHZhciBwb2ludHMgPSBuZXcgQXJyYXkobilcbiAgZm9yICh2YXIgaSA9IDAgOyBpIDwgbjsgaSsrKSB7XG4gICAgdmFyIHggPSBjb25maWcubWF4ICogaS9uXG4gICAgcG9pbnRzW2ldID0ge2FjdGlvbjogeCwgcGVyZm9ybWFuY2U6IEooeCl9XG4gIH1cbiAgcmV0dXJuIHBvaW50c1xufVxuXG5KID0ge1xuICBjb25zdCBhID0gY29uZmlnLmFcbiAgY29uc3QgYiA9IGNvbmZpZy5iXG5cbiAgcmV0dXJuIGZ1bmN0aW9uKGFjdGlvbikge1xuICAgIGNvbnN0IG4gPSAxMDAwXG4gICAgdmFyIGNvc3QgPSAwXG4gICAgdmFyIHcgPSAwXG4gICAgZm9yICh2YXIgaSA9IDA7IGkgPCBuOyBpKyspIHtcbiAgICAgIHcgPSBjb25maWcubWF4KmkvblxuICAgICAgaWYgKHcgPD0gYWN0aW9uKSB7XG4gICAgICAgIGNvc3QgKz0gKHEqdyAtIHAqYWN0aW9uKSpwZGYodykvblxuICAgICAgfSBlbHNlIHtcbiAgICAgICAgY29zdCArPSAocSphY3Rpb24gLSBwKmFjdGlvbikqcGRmKHcpL25cbiAgICAgIH1cbiAgICB9XG4gICAgcmV0dXJuIGNvc3RcbiAgfVxufVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC00IiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoidmlld29mIGFjdGlvbiA9IElucHV0cy5yYW5nZShbMCwgMTAwXSwge3ZhbHVlOiA0NSwgc3RlcDogMC4wMSwgbGFiZWw6IFwiYVwifSlcblxuY29zdCA9IE1hdGgucm91bmQoSihhY3Rpb24pKjEwMCkvMTAwXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTUiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJcbnBsb3RKID0gUGxvdC5wbG90KHtcbiAgICBncmlkOiB0cnVlLFxuICBtYXJrczogW1xuICAgIC8vIEF4ZXNcbiAgICBQbG90LnJ1bGVYKFswXSksXG4gICAgUGxvdC5ydWxlWShbMF0pLFxuICAgIC8vIERhdGFcbiAgICBQbG90LmRvdChbIFthY3Rpb24sIEooYWN0aW9uKV0gXSwge2ZpbGw6IFwiYmx1ZVwiLCByOjR9KSxcbiAgICBQbG90LmRvdChbIFthX29wdCwgSihhX29wdCldIF0sIHtmaWxsOiBcInJlZFwiLCByOjR9KSxcbiAgICBQbG90LmxpbmUoY29zdF92YWx1ZXMsIHt4OlwiYWN0aW9uXCIsIHk6XCJwZXJmb3JtYW5jZVwifSlcbiAgXVxufSlcblxucGxvdFBERiA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gRGF0YVxuICAgIFBsb3QubGluZShbIFthY3Rpb24sMF0sIFthY3Rpb24sIHBkZihhY3Rpb24pXSBdLCB7c3Ryb2tlOiBcImJsdWVcIn0pLFxuICAgIFBsb3QubGluZShwb2ludHMse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwifSksXG4gICAgUGxvdC5hcmVhWShwb2ludHMuZmlsdGVyKHB0ID0+IHB0LmRlbWFuZCA8PSBhY3Rpb24pLHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgZmlsbDogXCJsaWdodGJsdWVcIn0pLFxuICAgIFBsb3QuYXJlYVkocG9pbnRzLmZpbHRlcihwdCA9PiBwdC5kZW1hbmQgPiBhY3Rpb24pLHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgZmlsbDogXCJwaW5rXCJ9KVxuICBdXG59KVxuXG5wbG90UmV3YXJkID0gUGxvdC5wbG90KHtcbiAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50cywge3g6XCJkZW1hbmRcIiwgeTpcInJld2FyZFwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtNiIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBwY3RzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDAuNSwgc3RlcDogMC4wMSwgbGFiZWw6IFwicFwifSlcbnZpZXdvZiBxY3RzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDEsIHN0ZXA6IDAuMDEsIGxhYmVsOiBcInFcIn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTciLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJGX29wdCA9IDEgLSBwY3RzL3FjdHNcbnBsb3RPcHRDdHMgPSBQbG90LnBsb3Qoe1xuICBncmlkOiB0cnVlLFxuICB5OiB7ZG9tYWluOiBbMCwxXX0sXG4gIG1hcmtzOiBbXG4gICAgLy8gQXhlc1xuICAgIFBsb3QucnVsZVgoWzBdKSxcbiAgICBQbG90LnJ1bGVZKFswXSksXG4gICAgLy8gRGF0YVxuICAgIFBsb3QubGluZShwb2ludHMse3g6XCJkZW1hbmRcIiwgeTpcIkNERlwifSksXG4gICAgUGxvdC5saW5lKFsgWzAsRl9vcHRdLCBbcG9pbnRzW3BvaW50cy5sZW5ndGgtMV0uZGVtYW5kLCBGX29wdF0gXSwge3N0cm9rZTogXCJyZWRcIn0pXG4gIF1cbn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTgiLCJpbmxpbmUiOmZhbHNlLCJzb3VyY2UiOiJwb2ludHNEID0geyBcbiAgY29uc3QgbiA9IDEwMFxuICB2YXIgcG9pbnRzID0gbmV3IEFycmF5KG4pXG4gIHZhciBjZGYgPSAwXG4gIGZvciAodmFyIGkgPSAwIDsgaSA8IG47IGkrKykge1xuICAgIHZhciB4ID0gY29uZmlnLm1heCAqIGkvblxuICAgIGNkZiA9IGNkZiArIHBkZih4KSAqIDEvblxuICAgIHBvaW50c1tpXSA9IHtkZW1hbmQ6IHgsIHBkZjogcGRmKHgpICogMS9uLCBDREY6IGNkZiwgcmV3YXJkOiByKHgsYWN0aW9uRCkgfVxuICB9XG4gIHJldHVybiBwb2ludHNcbn1cblxuY29zdF92YWx1ZXNEID0ge1xuICBjb25zdCBuID0gMTAwXG4gIHZhciBwb2ludHMgPSBuZXcgQXJyYXkobilcbiAgZm9yICh2YXIgaSA9IDAgOyBpIDwgbjsgaSsrKSB7XG4gICAgdmFyIHggPSBjb25maWcubWF4ICogaS9uXG4gICAgcG9pbnRzW2ldID0ge2FjdGlvbjogeCwgcGVyZm9ybWFuY2U6IEooeCl9XG4gIH1cbiAgcmV0dXJuIHBvaW50c1xufVxuXG5cbmFfb3B0RCA9IE1hdGgucm91bmQoYV9vcHQqMTAwKS8xMDBcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtOSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBhY3Rpb25EID0gSW5wdXRzLnJhbmdlKFswLCAxMDBdLCB7dmFsdWU6IDQ1LCBzdGVwOiAwLjAxLCBsYWJlbDogXCJhXCJ9KVxuXG5jb3N0RCA9IE1hdGgucm91bmQoSihhY3Rpb25EKSoxMDApLzEwMFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMCIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxucGxvdEpEID0gUGxvdC5wbG90KHtcbiAgICBncmlkOiB0cnVlLFxuICBtYXJrczogW1xuICAgIC8vIEF4ZXNcbiAgICBQbG90LnJ1bGVYKFswXSksXG4gICAgUGxvdC5ydWxlWShbMF0pLFxuICAgIC8vIERhdGFcbiAgICBQbG90LmRvdChbIFthY3Rpb25ELCBKKGFjdGlvbkQpXSBdLCB7ZmlsbDogXCJibHVlXCIsIHI6NH0pLFxuICAgIFBsb3QuZG90KFsgW2Ffb3B0RCwgSihhX29wdEQpXSBdLCB7ZmlsbDogXCJyZWRcIiwgcjo0fSksXG4gICAgUGxvdC5saW5lKGNvc3RfdmFsdWVzRCwge3g6XCJhY3Rpb25cIiwgeTpcInBlcmZvcm1hbmNlXCIsIGN1cnZlOiBcInN0ZXAtYWZ0ZXJcIn0pXG4gIF1cbn0pXG5cbnBsb3RQREZEID0gUGxvdC5wbG90KHtcbiAgZ3JpZDogdHJ1ZSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgLy8gUGxvdC5saW5lKFsgW2FjdGlvbkQsMF0sIFthY3Rpb25ELCBwZGYoYWN0aW9uRCldIF0sIHtzdHJva2U6IFwiYmx1ZVwifSksXG4gICAgUGxvdC5saW5lKHBvaW50c0Qse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwiLCBjdXJ2ZTpcInN0ZXAtYWZ0ZXJcIn0pLFxuICAgIFBsb3QuYXJlYVkocG9pbnRzRC5maWx0ZXIocHQgPT4gcHQuZGVtYW5kIDw9IGFjdGlvbkQpLHt4OlwiZGVtYW5kXCIsIHk6XCJwZGZcIiwgY3VydmU6IFwic3RlcC1hZnRlclwiLCBmaWxsOiBcImxpZ2h0Ymx1ZVwifSksXG4gICAgUGxvdC5hcmVhWShwb2ludHNELmZpbHRlcihwdCA9PiBwdC5kZW1hbmQgPj0gYWN0aW9uRCkse3g6XCJkZW1hbmRcIiwgeTpcInBkZlwiLCBjdXJ2ZTogXCJzdGVwLWFmdGVyXCIsIGZpbGw6IFwicGlua1wifSlcbiAgXVxufSlcblxucGxvdFJld2FyZEQgPSBQbG90LnBsb3Qoe1xuICBncmlkOiB0cnVlLFxuICBtYXJrczogW1xuICAgIC8vIEF4ZXNcbiAgICBQbG90LnJ1bGVYKFswXSksXG4gICAgUGxvdC5ydWxlWShbMF0pLFxuICAgIC8vIERhdGFcbiAgICBQbG90LmxpbmUocG9pbnRzRCwge3g6XCJkZW1hbmRcIiwgeTpcInJld2FyZFwiLCBjdXJ2ZTogXCJzdGVwLWFmdGVyXCJ9KVxuICBdXG59KVxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0IiwiY2VsbE5hbWUiOiJvanMtY2VsbC0xMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6InZpZXdvZiBwZGlzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDAuNSwgc3RlcDogMC4wMSwgbGFiZWw6IFwicFwifSlcbnZpZXdvZiBxZGlzID0gSW5wdXRzLnJhbmdlKFswLjAxLDFdLCB7dmFsdWU6IDEsIHN0ZXA6IDAuMDEsIGxhYmVsOiBcInFcIn0pXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXQiLCJjZWxsTmFtZSI6Im9qcy1jZWxsLTEyIiwiaW5saW5lIjpmYWxzZSwic291cmNlIjoiRl9vcHRfZGlzID0gMSAtIHBkaXMvcWRpc1xucGxvdE9wdER0cyA9IFBsb3QucGxvdCh7XG4gIGdyaWQ6IHRydWUsXG4gIHk6IHtkb21haW46IFswLDFdfSxcbiAgbWFya3M6IFtcbiAgICAvLyBBeGVzXG4gICAgUGxvdC5ydWxlWChbMF0pLFxuICAgIFBsb3QucnVsZVkoWzBdKSxcbiAgICAvLyBEYXRhXG4gICAgUGxvdC5saW5lKHBvaW50c0Qse3g6XCJkZW1hbmRcIiwgeTpcIkNERlwiLCBjdXJ2ZTpcInN0ZXAtYWZ0ZXJcIn0pLFxuICAgIFBsb3QubGluZShbIFswLEZfb3B0X2Rpc10sIFtwb2ludHNEW3BvaW50c0QubGVuZ3RoLTFdLmRlbWFuZCwgRl9vcHRfZGlzXSBdLCB7c3Ryb2tlOiBcInJlZFwifSlcbiAgXVxufSlcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnYWN0aW9uJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BjdHMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncWN0cycpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdhY3Rpb25EJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BkaXMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncWRpcycpIn1dfQ==
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
