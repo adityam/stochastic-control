@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2025-12-28">
+<meta name="dcterms.date" content="2026-01-02">
 <meta name="keywords" content="stochastic optimization, principle of irrelevant information">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -194,7 +194,7 @@ window.Quarto = {
 
 </head>
 
-<body class="nav-sidebar floating nav-fixed slimcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -907,20 +907,18 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#an-example-optimal-policy-in-a-card-game" id="toc-an-example-optimal-policy-in-a-card-game" class="nav-link active" data-scroll-target="#an-example-optimal-policy-in-a-card-game"><span class="header-section-number">2.1</span> An example: optimal policy in a card game</a></li>
-  <li><a href="#a-tree-representation-of-the-optimization-problem" id="toc-a-tree-representation-of-the-optimization-problem" class="nav-link" data-scroll-target="#a-tree-representation-of-the-optimization-problem"><span class="header-section-number">2.2</span> A tree representation of the optimization problem</a>
-  <ul class="collapse">
-  <li><a href="#one-step-optimization-with-perfect-observation" id="toc-one-step-optimization-with-perfect-observation" class="nav-link" data-scroll-target="#one-step-optimization-with-perfect-observation"><span class="header-section-number">2.2.1</span> One-step optimization with perfect observation</a></li>
-  <li><a href="#one-step-optimization-with-imperfect-observation" id="toc-one-step-optimization-with-imperfect-observation" class="nav-link" data-scroll-target="#one-step-optimization-with-imperfect-observation"><span class="header-section-number">2.2.2</span> One-step optimization with imperfect observation</a></li>
-  </ul></li>
-  <li><a href="#blackwells-principle-of-irrelevant-information" id="toc-blackwells-principle-of-irrelevant-information" class="nav-link" data-scroll-target="#blackwells-principle-of-irrelevant-information"><span class="header-section-number">2.3</span> Blackwell’s principle of irrelevant information</a></li>
+  <li><a href="#stochastic-optimization-with-partial-observations" id="toc-stochastic-optimization-with-partial-observations" class="nav-link active" data-scroll-target="#stochastic-optimization-with-partial-observations"><span class="header-section-number">2.1</span> Stochastic optimization with partial observations</a></li>
+  <li><a href="#a-tree-representation-of-stochastic-optimization-with-partial-information" id="toc-a-tree-representation-of-stochastic-optimization-with-partial-information" class="nav-link" data-scroll-target="#a-tree-representation-of-stochastic-optimization-with-partial-information"><span class="header-section-number">2.2</span> A tree representation of stochastic optimization with partial information</a></li>
+  <li><a href="#the-main-simplifying-idea" id="toc-the-main-simplifying-idea" class="nav-link" data-scroll-target="#the-main-simplifying-idea"><span class="header-section-number">2.3</span> The main simplifying idea</a></li>
+  <li><a href="#policy-evaluation" id="toc-policy-evaluation" class="nav-link" data-scroll-target="#policy-evaluation"><span class="header-section-number">2.4</span> Policy evaluation</a></li>
+  <li><a href="#blackwells-principle-of-irrelevant-information" id="toc-blackwells-principle-of-irrelevant-information" class="nav-link" data-scroll-target="#blackwells-principle-of-irrelevant-information"><span class="header-section-number">2.5</span> Blackwell’s principle of irrelevant information</a></li>
   <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/stochastic-optimization/observations.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../stochastic-optimization/intro.html">Stochastic Optimization</a></li><li class="breadcrumb-item"><a href="../stochastic-optimization/observations.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Dealing with observations</span></a></li></ol></nav>
@@ -951,7 +949,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 28, 2025</p>
+      <p class="date">January 2, 2026</p>
     </div>
   </div>
   
@@ -969,33 +967,108 @@ window.Quarto = {
 </header>
 
 
-<p>In the stochastic optimization problems considered in the <a href="../stochastic-optimization/intro.html">previous chapter</a>, the decision maker does not observe any data before making a decision. In many situations, the decision maker does observe some data before making a decision. In this chapter, we present various models for capturing such situations.</p>
-<div id="exm-simple-card-game" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2.1 (A simple card game)</strong></span> Consider a gambler playing a stylized version of card game played with a deck of <span class="math inline">\(4\)</span> cards: <span class="math inline">\(\{1,2,3,4\}\)</span>. A dealer deals two cards: one to himself and one to the gambler. The gambler looks at his card, and can decide to take one of two actions: fold or challenge. If the gambler folds, the game is over; if he challenges and has a higher card than the dealer, he wins \$1; if he challenges but has a lower card than the dealer, he loses \$1. What is the optimal policy?</p>
+<p>A key feature that differentiates stochastic optimization problems from deterministic ones is that the decision maker may have some information about the state of the world, before it makes a decision. In the <a href="../stochastic-optimization/intro.html">previous chapter</a>, we assumed that this was not the case but in many situations, the decision maker does observe some data before making a decision. In this chapter, we present various models for capturing such situations.</p>
+<section id="stochastic-optimization-with-partial-observations" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="stochastic-optimization-with-partial-observations"><span class="header-section-number">2.1</span> Stochastic optimization with partial observations</h2>
+<p>A general model of stochastic optimization with partial observations is as follows. Let <span class="math inline">\(W \in \ALPHABET W\)</span> denote the state of the world. The decision maker makes an observation <span class="math inline">\(S \in \ALPHABET S\)</span> and then chooses an action <span class="math inline">\(A \in \ALPHABET A\)</span> as function of his observations according to a <em>decision rule</em> or <em>policy</em> <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span>, i.e., <span class="math display">\[ A = π(S). \]</span></p>
+<p>For the ease of notation, we will use <span class="math inline">\(Π\)</span> to denote all deterministic (and measurable) policies <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span>.</p>
+<p>Upon choosing the action <span class="math inline">\(A\)</span>, the decision maker incurs a cost <span class="math inline">\(c(S,A,W)\)</span>. We assume that the <strong>primitive random variables</strong> <span class="math inline">\((W,S)\)</span> are defined on a common probability space and have a known joint distribution. Assume that the decision maker is risk neutral and, therefore, wants to minimize <span class="math inline">\(\EXP[ c(S, π(S), W)]\)</span>, where the expectation is taken with respect to the joint probability distribution of <span class="math inline">\((W,S)\)</span>.</p>
+<p>The temporal order in which the system variables are generated is as follows. First nature acts and generates all the primitive <span class="math inline">\(ω = (W,S)\)</span> according to a given probability distribution. The agent them observes <span class="math inline">\(S(ω)\)</span> and takes an action <span class="math inline">\(A\)</span> according to a policy <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span>. The temporal order can be visualized according to the following timing diagram.</p>
+<div id="fig-timing2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-timing2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/svg/timing2.svg" class="img-fluid figure-img">
 </div>
-<p>We can model the above example as follows. Let <span class="math inline">\(W \in \ALPHABET W\)</span> denote the state of the world. The decision maker makes an observation <span class="math inline">\(S \in \ALPHABET S\)</span> and then chooses an action <span class="math inline">\(A \in \ALPHABET A\)</span> as function of his observations according to a <em>decision rule</em> or <em>policy</em> <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span>, i.e., <span class="math display">\[ A = π(S). \]</span></p>
-<p>Upon choosing the action <span class="math inline">\(A\)</span>, the decision maker incurs a cost $c(S,A,W). We assume that the <em>primitive random variables</em> <span class="math inline">\((W,S)\)</span> are defined on a common probability space and have a known joint distribution. Assume that the decision maker is risk neutral and, therefore, wants to minimize <span class="math inline">\(\EXP[ c(S, π(S), W)]\)</span>, where the expectation is taken with respect to the joint probability distribution of <span class="math inline">\((W,S)\)</span>.</p>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-timing2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.1: Timing diagram for modeling as a one-step optimization problem with partial observation
+</figcaption>
+</figure>
+</div>
 <p>Formally, the above optimization problem may be written as <span class="math display">\[\begin{equation} \label{eq:obs} \tag{P1}
-  \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
+  \min_{π \in Π} \EXP[ c(S, π(S), W) ].
 \end{equation}\]</span></p>
-<p>Define <span class="math inline">\(J(π) = \EXP[ c(S, Y, π(S)) ]\)</span>. Then, Problem&nbsp;<span class="math inline">\(\eqref{eq:obs}\)</span> is conceptually the same as the stochastic optimization problems considered in the previous section but with one difference: the basic stochastic optimization problem is a <strong>parameter optimization problem</strong> where the minimization is over a parameter <span class="math inline">\(a\)</span>, while Problem&nbsp;<span class="math inline">\(\eqref{eq:obs}\)</span> is a <strong>functional optimization problem</strong> where the minimization is over a function <span class="math inline">\(π\)</span>.</p>
+<p>Define <span class="math display">\[J(π) = \EXP[ c(S, π(S), W) ].\]</span> Then, a policy <span class="math inline">\(π^*\)</span> is optimal if <span class="math display">\[ J(π^*) \le J(π). \]</span> When <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are finite sets, then an optimal policy always exists and can be found by brute force search. When <span class="math inline">\(\ALPHABET S\)</span> and/or <span class="math inline">\(\ALPHABET A\)</span> are continuous, we need some regularity assumptions on the model to ensure the existence of an optimal policy.</p>
+<p>Then, Problem&nbsp;<span class="math inline">\(\eqref{eq:obs}\)</span> is conceptually the same as the stochastic optimization problems considered in the previous section but with one difference: the basic stochastic optimization problem is a <strong>parameter optimization problem</strong> where the minimization is over a parameter <span class="math inline">\(a\)</span>, while Problem&nbsp;<span class="math inline">\(\eqref{eq:obs}\)</span> is a <strong>functional optimization problem</strong> where the minimization is over a function <span class="math inline">\(π\)</span>.</p>
 <p>When <span class="math inline">\(\ALPHABET S\)</span> and <span class="math inline">\(\ALPHABET A\)</span> are finite sets, the optimal policy can be obtained by an exhaustive search over all policies as follows: for each policy <span class="math inline">\(π\)</span> compute the performance <span class="math inline">\(J(π)\)</span> and then pick the policy <span class="math inline">\(π\)</span> with the smallest expected cost.</p>
 <p>Such an exhaustive search is not satisfying for two reasons. First, it has a high computational cost. There are <span class="math inline">\(| \ALPHABET A |^{| \ALPHABET S |}\)</span> policies and, for each policy, we have to evaluate an expectation, which can be expensive. Second, the above enumeration procedure does not work when <span class="math inline">\(\ALPHABET S\)</span> or <span class="math inline">\(\ALPHABET A\)</span> are continuous sets.</p>
-<p>There is an alternative way of viewing the problem that simplifies it considerably. Instead of viewing the optimization problem before the system starts running (i.e., the <em>ex ante</em> view), imagine that the decision maker waits until they see the realization <span class="math inline">\(s\)</span> of <span class="math inline">\(S\)</span> (i.e., the <em>interim view</em>). They then ask what action <span class="math inline">\(a\)</span> should they take to minimize the expected <em>conditional</em> cost <span class="math inline">\(Q(s,a) := \EXP[ c(s,a, W) | S = s]\)</span>, i.e., they consider the problem</p>
-<p><span class="math display">\[\begin{equation} \label{eq:cond-1} \tag{P2}
-  \min_{a \in \ALPHABET A} \EXP[ c(s,a,W) | S = s], \quad
-  \forall s \in \ALPHABET S.
-\end{equation}\]</span></p>
-<p>Thus, Problem&nbsp;<span class="math inline">\(\eqref{eq:obs}\)</span>, which is a functional optimization problem, has been reduced to a collection of parameter optimization problems (Problem <span class="math inline">\(\eqref{eq:cond-1}\)</span>), one for each possible value of <span class="math inline">\(s\)</span>.</p>
-<p>Now define <span class="math display">\[ \begin{equation} \label{eq:cond} \tag{P2-policy}
-  π^∘(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
-\end{equation} \]</span> where ties (in the minimization) are broken arbitrarily.</p>
-<div id="thm-fact" class="theorem">
+<p>There is an alternative way of viewing the problem that simplifies it considerably. Before presenting this alternative, we present a way for modeling such optimization problem using trees when all variables <span class="math inline">\((W,S,A)\)</span> are finite valued. Such a tree formulation has two benefits:</p>
+<ul>
+<li>it provides a geometric view, which can be useful in visualizing the result;</li>
+<li>for general, multi-stage problems, it is possible to exploit the tree structure to obtain efficient computation algorithms, see, e.g., <span class="citation" data-cites="Fu2018">Fu (<a href="../references.html#ref-Fu2018" role="doc-biblioref">2018</a>)</span> for an historical overview.</li>
+</ul>
+</section>
+<section id="a-tree-representation-of-stochastic-optimization-with-partial-information" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="a-tree-representation-of-stochastic-optimization-with-partial-information"><span class="header-section-number">2.2</span> A tree representation of stochastic optimization with partial information</h2>
+<p>To fix ideas, we will work with the following simple example.</p>
+<div id="exm-simple-card-game" class="theorem example">
+<p><span class="theorem-title"><strong>Example 2.1 (A simple card game)</strong></span> Consider a gambler playing a stylized version of card game played with a perfectly shuffled deck of <span class="math inline">\(4\)</span> cards: <span class="math inline">\(\{1,2,3,4\}\)</span>. A dealer deals two cards: one to himself and one to the gambler. The gambler looks at his card, and can decide to take one of two actions: fold or challenge. If the gambler folds, the game is over; if he challenges and has a higher card than the dealer, he wins \$1; if he challenges but has a lower card than the dealer, he loses \$1. What is the optimal policy?</p>
+</div>
+<p>To map <a href="#exm-simple-card-game" class="quarto-xref">Example&nbsp;<span>2.1</span></a> to the general model, let <span class="math inline">\(W\)</span> denote the cards dealt, <span class="math inline">\(S\)</span> denote gambler’s card, and <span class="math inline">\(A=0\)</span> denote the fold action and <span class="math inline">\(A=1\)</span> denote the challenge action. Then: <span class="math display">\[
+\ALPHABET W = \{(1,2), (1,3), (1,4), (2,1), (2,3), (2,4), (3,1), (3,2), (3,4), (4,1), (4,2), (4,3) \},
+\]</span> where the first index denotes the card dealt to the dealer and the second denotes the card dealt to the gambler. We have assumed that each of these outcomes is equally likely.</p>
+<p>Note that <span class="math inline">\(\ALPHABET S = \{1,2,3,4\}\)</span> and <span class="math inline">\(\ALPHABET A = \{0,1\}\)</span>. So, a policy <span class="math inline">\(π\)</span> is a mapping from <span class="math inline">\(\ALPHABET S\)</span> to <span class="math inline">\(\ALPHABET A\)</span>, i.e., for each card that could be dealt to the gambler, he needs to decide whether to fold or challenge.</p>
+<p>We can view the sequence of events in <a href="#exm-simple-card-game" class="quarto-xref">Example&nbsp;<span>2.1</span></a> as a tree, shown in <a href="#fig-tree2" class="quarto-xref">Figure&nbsp;<span>2.2</span></a>, where the root node corresponds to moves of nature to generate <span class="math inline">\((W,S)\)</span>, nodes at depth 1 correspond to the moves of the agent to generate <span class="math inline">\(A\)</span>.</p>
+<div id="fig-tree2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-tree2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/svg/game-tree2.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tree2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.2: Tree representation of the one-step optimization problem. Nodes represent the “agent”: nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost <span class="math inline">\(c(s,a,w)\)</span>. The shaded edges represent a policy.
+</figcaption>
+</figure>
+</div>
+<p>In this case, the observation <span class="math inline">\(S\)</span> gives the decision maker some partial information about the move of nature. For example, when <span class="math inline">\(S=1\)</span>, the decision maker knows that <span class="math inline">\(W \in \{ (2,1), (3,1), (4,1) \}\)</span>, but cannot further distinguish between them This information is indicated in the tree diagram by drawing an <strong>information set</strong> around these three nodes, and ensuring that the action taken at these nodes is identical.</p>
+</section>
+<section id="the-main-simplifying-idea" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="the-main-simplifying-idea"><span class="header-section-number">2.3</span> The main simplifying idea</h2>
+<p>The key simplifying idea is that instead of viewing the optimization problem before the system starts running (i.e., the <em>ex ante</em> view), imagine that the decision maker waits until they see the realization <span class="math inline">\(s\)</span> of <span class="math inline">\(S\)</span> (i.e., the <em>interim view</em>). In other words, we think of the decision maker at each information set as a separate agent and determine the optimal action for that agent.</p>
+<p>For instance, in <a href="#exm-simple-card-game" class="quarto-xref">Example&nbsp;<span>2.1</span></a>, after making an observation <span class="math inline">\(S=1\)</span>, the gambler forms a posterior belief on the possible states of nature using Bayes rule. In particular, <span class="math display">\[
+  \PR(W | S = 1) =
+  \begin{cases}
+    \tfrac 13, &amp; \hbox{if } W \in \{(2,1), (3,1), (4,1) \} \\
+    0, &amp; \hbox{otherwise}
+  \end{cases}
+\]</span></p>
+<p>Now consider the sub-tree corresponding to observation <span class="math inline">\(S=1\)</span>. In this sub-tree, the agent has two actions: <span class="math inline">\(A = 0\)</span> or <span class="math inline">\(A = 1\)</span>. We compute the expected cost corresponding to each action, i.e., compute <span class="math display">\[
+  Q(s,a) = \EXP[ c(s,a,W) \mid S = s ]
+  = \sum_{w \in \ALPHABET W} \PR(w|s) c(s,a,w).
+\]</span> where the expectation is with respect to the posterior belief <span class="math inline">\(P_{W|S}\)</span> computed above. The function <span class="math inline">\(Q\)</span> is called the <strong>action-value</strong> function.</p>
+<p>For <a href="#exm-simple-card-game" class="quarto-xref">Example&nbsp;<span>2.1</span></a> <span class="math inline">\(Q(s,0)\)</span> is always <span class="math inline">\(0\)</span>. We explicitly compute <span class="math inline">\(Q(s,1)\)</span> for all values of <span class="math inline">\(s\)</span>:</p>
+<ul>
+<li><span class="math inline">\(Q(1,1) = \tfrac 13 \bigl[ -1 -1 -1 \bigr] = -1 &lt; 0\)</span>.</li>
+<li><span class="math inline">\(Q(2,1) = \tfrac 13[1 -1 -1] = -\tfrac 13 &lt; 0\)</span>.</li>
+<li><span class="math inline">\(Q(3,1) = \tfrac 13[1 + 1 -1] = \tfrac 13 &gt; 0\)</span>.</li>
+<li><span class="math inline">\(Q(4,1) = \tfrac 13 [ 1 + 1 + 1] = 1 &gt; 0\)</span>.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Main claim
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The action value functions are sufficient to compute the optimal policy as well as the performance of any policy.</p>
+<p>In particular, for any (deterministic) policy <span class="math inline">\(\pi\)</span>, we define the <strong>value function</strong> of the policy as <span class="math display">\[
+   V^{π}(s) = Q(s, π(s)).
+\]</span> Then, <span class="math inline">\(J(π) = \EXP[ V^{π}(S) ]\)</span>.</p>
+<p>Define the <strong>optimal value function</strong> as <span class="math display">\[
+  V^*(s) = \min_{a \in \ALPHABET A} Q(s,a), \quad \forall s \in \ALPHABET S.
+\]</span> Note that to compute the optimal value function, we need to solve a collection of parameter optimization problems, one for each value of <span class="math inline">\(s\)</span>.</p>
+<p>Now define <span class="math display">\[\begin{equation} \label{eq:cond} \tag{P2-policy}
+  π^∘(s) \in \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
+\end{equation}\]</span> where ties (in the minimization) are broken arbitrarily.</p>
+<div id="thm-structure-stochastic-optimization" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 2.1</strong></span> The decision rule <span class="math inline">\(π^∘\)</span> defined in <span class="math inline">\(\eqref{eq:cond}\)</span> is optimal for Problem <span class="math inline">\(\eqref{eq:obs}\)</span>, i.e., <span class="math display">\[
-  \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
+  \min_{π \in Π} \EXP[ c(S, π(S), W) ].
   = \EXP \biggl[ \min_{a \in \ALPHABET A} \EXP[ c(S,a,W) | S ] \biggr]
   .
 \]</span></p>
+</div>
+</div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1011,30 +1084,6 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>Let <span class="math inline">\(π\)</span> be any other decision rule. Then, <span class="math display">\[ \begin{align*}
-  \EXP[ c(S, π(S), W) ] &amp;\stackrel{(a)}= \EXP[ \EXP[c(S, π(S), W) | S ] ] \\
-  &amp;\stackrel{(b)}\ge \EXP[\EXP[ c(S, π^∘(S), W) | S ] ] \\
-  &amp;\stackrel{(c)}= \EXP[ c(S, π^∘(S), W) ],
-\end{align*} \]</span> where <span class="math inline">\((a)\)</span> and <span class="math inline">\((c)\)</span> follow from the law of iterated expectations and <span class="math inline">\((b)\)</span> follows from the definition of <span class="math inline">\(π^∘\)</span> in <span class="math inline">\(\eqref{eq:cond}\)</span>.</p>
-</div>
-</div>
-</div>
-<p>We can also provide a partial converse of <a href="#thm-fact" class="quarto-xref">Theorem&nbsp;<span>2.1</span></a>.</p>
-<div id="thm-converse" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 2.2</strong></span> If <span class="math inline">\(\PR(S = s) &gt; 0\)</span> for all <span class="math inline">\(s\)</span>, then any optimal policy <span class="math inline">\(π^∘\)</span> for Problem&nbsp;<span class="math inline">\(\eqref{eq:obs}\)</span> must satisfy&nbsp;<span class="math inline">\(\eqref{eq:cond}\)</span>.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -1046,62 +1095,55 @@ window.Quarto = {
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>We prove this by contradiction. Suppose <span class="math inline">\(π^*\)</span> is an optimal policy that does not satisfy <span class="math inline">\(\eqref{eq:cond}\)</span>. By definition of <span class="math inline">\(π^∘\)</span>, it must be the case that for all states <span class="math display">\[\begin{equation}
-   \EXP[ c(s, π^∘(s), W) | S = s ]
-   \le
-   \EXP[ c(s, π^*(s), W) | S = s ] .
-   \label{eq:ineq:1}
-\end{equation}\]</span> Now, since <span class="math inline">\(π^*\)</span> does not satisfy <span class="math inline">\(\eqref{eq:cond}\)</span>, there exists some state <span class="math inline">\(s^∘ \in \ALPHABET S\)</span> such that <span class="math display">\[\begin{equation}
-   \EXP[ c(s^∘, π^*(s^∘), W) | S = s^∘ ]
-   &gt;
-   \EXP[ c(s^∘, π^∘(s^∘), W) | S = s^∘ ] .
-   \label{eq:ineq:2}
-\end{equation}\]</span> Therefore, <span class="math display">\[\begin{align*}
-   \EXP[ c(S, π^*(S), W) ]
-   &amp;=
-   \sum_{s \in \ALPHABET S} \PR(S = s)
-   \EXP[ \EXP[ c(s, π^*(s), W) | S = s ] ]
-   \\
-   &amp; \stackrel{(a)}&gt;
-   \sum_{s \in \ALPHABET S} \PR(S = s)
-   \EXP[ \EXP[ c(s, π^∘(s), W) | S = s ] ]
-   \\
-   &amp;=
-   \EXP[ c(S, π^∘(S), W) ]
-\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from <span class="math inline">\(\eqref{eq:ineq:1}\)</span> and <span class="math inline">\(\eqref{eq:ineq:2}\)</span> and the inequality is strict because <span class="math inline">\(\PR(S = s^∘) &gt; 0\)</span>. Thus, <span class="math inline">\(J(π^*) &gt; J(π^∘)\)</span> and, hence, <span class="math inline">\(π^*\)</span> cannot be an optimal policy.</p>
+<p>Let <span class="math inline">\(π\)</span> be any arbitrary policy. Then, <span class="math display">\[
+  V^{π}(s) \stackrel{(a)}\ge V^*(s) \stackrel{(b)}= V^{π^∘}(s)
+\]</span> where <span class="math inline">\((a)\)</span> follows from the definition of <span class="math inline">\(V^*\)</span> and <span class="math inline">\((b)\)</span> follows from the definition of <span class="math inline">\(π^∘\)</span> in <span class="math inline">\(\eqref{eq:cond}\)</span>. Taking expectation of both sides, we get <span class="math display">\[
+  J(π) \ge J(π^∘).
+\]</span> Since <span class="math inline">\(π\)</span> was arbitrary, this implies that <span class="math inline">\(π^∘\)</span> is optimal.</p>
 </div>
 </div>
 </div>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
+<p>We can also provide a partial converse of <a href="#thm-structure-stochastic-optimization" class="quarto-xref">Theorem&nbsp;<span>2.1</span></a></p>
+<div id="thm-converse-structure-stochastic-optimization" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 2.2</strong></span> If <span class="math inline">\(\PR(S = s) &gt; 0\)</span> for all <span class="math inline">\(s\)</span>, then any optimal policy <span class="math inline">\(π^∘\)</span> for Problem&nbsp;<span class="math inline">\(\eqref{eq:obs}\)</span> must satisfy&nbsp;<span class="math inline">\(\eqref{eq:cond}\)</span>.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Some notation
+<span class="screen-reader-only">Note</span>Proof
 </div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>To build up to the notation used in <a href="../mdps/intro.html">MDPs</a>, define <span class="math display">\[
-    Q(s,a) \coloneqq E[ c(s,a,W) \mid S = s],
-\]</span> which is called the <strong>action-value function.</strong> For any policy <span class="math inline">\(π\)</span>, define <span class="math display">\[
-  V^π(s) = Q(s,π(s)),
-\]</span> which is called the <strong>value function</strong> of policy <span class="math inline">\(π\)</span>. The value function of the optimal policy is often denoted by <span class="math inline">\(V^*\)</span> and, by definition of optimality, it has the property that for any policy <span class="math inline">\(π\)</span>: <span class="math display">\[
-  V^*(s) \le V^π(s),
-  \quad \forall s \in \ALPHABET S.
-\]</span></p>
+<p>We prove this by contradiction. Suppose <span class="math inline">\(π^*\)</span> is an optimal policy that does not satisfy <span class="math inline">\(\eqref{eq:cond}\)</span>. By definition of <span class="math inline">\(π^∘\)</span>, it must be the case that for all states <span class="math display">\[\begin{equation}
+   V^{π^∘}(s) \le V^{π^*}(s)
+   \label{eq:ineq:1}
+\end{equation}\]</span> Now, since <span class="math inline">\(π^*\)</span> does not satisfy <span class="math inline">\(\eqref{eq:cond}\)</span>, there exists some state <span class="math inline">\(s^∘ \in \ALPHABET S\)</span> such that <span class="math display">\[\begin{equation}
+   V^{π^*}(s ^∘) &gt; V^{π^∘}(s ^∘).
+   \label{eq:ineq:2}
+\end{equation}\]</span> Therefore, <span class="math display">\[\begin{align*}
+   J(π^*)
+   &amp;=
+   \sum_{s \in \ALPHABET S} \PR(S = s) V^{π^*}(s)
+   \\
+   &amp; \stackrel{(a)}&gt;
+   \sum_{s \in \ALPHABET S} \PR(S = s)
+   V^{π^∘}(s)
+   \\
+   &amp;=
+   J(π^∘)
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from <span class="math inline">\(\eqref{eq:ineq:1}\)</span> and <span class="math inline">\(\eqref{eq:ineq:2}\)</span> and the inequality is strict because <span class="math inline">\(\PR(S = s^∘) &gt; 0\)</span>. Thus, <span class="math inline">\(J(π^*) &gt; J(π^∘)\)</span> and, hence, <span class="math inline">\(π^*\)</span> cannot be an optimal policy.</p>
 </div>
 </div>
-<section id="an-example-optimal-policy-in-a-card-game" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="an-example-optimal-policy-in-a-card-game"><span class="header-section-number">2.1</span> An example: optimal policy in a card game</h2>
-<p>We can model this as a stochastic optimization problem. Let <span class="math inline">\(W\)</span> denote the cards dealt, <span class="math inline">\(S\)</span> denote gambler’s card, and <span class="math inline">\(A=0\)</span> denote the fold action and <span class="math inline">\(A=1\)</span> denote the challenge action. Then: <span class="math display">\[
-\ALPHABET W = \{(1,2), (1,3), (1,4), (2,1), (2,3), (2,4), (3,1), (3,2), (3,4), (4,1), (4,2), (4,3) \},
-\]</span> where the first index denotes the card dealt to the dealer and the second denotes the card dealt to the gambler. We will assume that each of these outcomes is equally likely.</p>
-<p>Note that <span class="math inline">\(\ALPHABET S = \{1,2,3,4\}\)</span> and <span class="math inline">\(\ALPHABET A = \{0,1\}\)</span>. So, a policy <span class="math inline">\(π\)</span> is a mapping from <span class="math inline">\(\ALPHABET S\)</span> to <span class="math inline">\(\ALPHABET A\)</span>, i.e., for each card that could be dealt to the gambler, he needs to decide whether to fold or challenge.</p>
-<p>There are <span class="math inline">\(|\ALPHABET A|^{|\ALPHABET S|} = 2^4 = 16\)</span> policies. The performance of a policy <span class="math inline">\(π\)</span> is: <span class="math display">\[
-  J(π) = \sum_{(d,s) \in \ALPHABET W} \PR(d,s) c(s, π(s), (d,s))
-\]</span> where we are using the variable <span class="math inline">\(d\)</span> to denote the card dealt to the dealer.</p>
-<p>Now consider one specific policy: <span class="math inline">\(π = [0, 0, 1, 1]\)</span>, which means that the gambler folds if he gets card 1 or 2 and challenges if he gets card 3 and 4. Then, we have <span class="math display">\[\begin{align*}
+</div>
+</section>
+<section id="policy-evaluation" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="policy-evaluation"><span class="header-section-number">2.4</span> Policy evaluation</h2>
+<p>A brute force evaluation of a policy is tedious. For instance, consider a specific policy for <a href="#exm-simple-card-game" class="quarto-xref">Example&nbsp;<span>2.1</span></a>: <span class="math inline">\(π = [0, 0, 1, 1]\)</span>, which means that the gambler folds if he gets card 1 or 2 and challenges if he gets card 3 and 4. Then, we have <span class="math display">\[\begin{align*}
   J(π) &amp;=
   \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (1,2)}
   +
@@ -1132,107 +1174,13 @@ window.Quarto = {
   \\
   &amp;= \tfrac 4{12} = \tfrac 13.
 \end{align*}\]</span></p>
-<p>A brute force search corresponds to computing the performance of all <span class="math inline">\(16\)</span> policies and picking the one with the best performance.</p>
-<p>The alternative way to compute the optimal policy via <span class="math inline">\(\eqref{eq:cond}\)</span> proceeds as follows. First observe that <span class="math display">\[
-  Q(s,a) \coloneqq
-  \EXP[ c(s,a,W) \mid S = s] = \sum_{ (d,s) \in \ALPHABET W }
-  \PR( (d,s) \mid S = s) c(s,a,(d,s)).
-\]</span> Moreover, <span class="math inline">\(Q(s,0)\)</span> is always <span class="math inline">\(0\)</span>. So, we just need to compute <span class="math inline">\(Q(s,1)\)</span> and check if it is larger or smaller than <span class="math inline">\(0\)</span>.</p>
-<ul>
-<li><span class="math inline">\(Q(1,1) = \tfrac 13 \bigl[ -1 -1 -1 \bigr] = -1 &lt; 0\)</span>.</li>
-<li><span class="math inline">\(Q(2,1) = \tfrac 13[1 -1 -1] = -\tfrac 13 &lt; 0\)</span>.</li>
-<li><span class="math inline">\(Q(3,1) = \tfrac 13[1 + 1 -1] = \tfrac 13 &gt; 0\)</span>.</li>
-<li><span class="math inline">\(Q(4,1) = \tfrac 13 [ 1 + 1 + 1] = 1 &gt; 0\)</span>.</li>
-</ul>
-<p>Thus, the optimal policy is <span class="math inline">\(π = [0, 0, 1, 1]\)</span>. We can also verify that <span class="math display">\[
+<p>We can evaluate the performance of a policy using the action value functions we well. Note that the policy <span class="math inline">\(π\)</span> is shown by the shaded edges in <a href="#fig-tree2" class="quarto-xref">Figure&nbsp;<span>2.2</span></a>. The action value functions capture the performance of the policy in the sub-trees corresponding to each information set. So, the overall performance is obtained by averaging over the probability of each information set, i.e., <span class="math display">\[
   J(π) = \sum_{s \in \ALPHABET S} \PR(s) Q(s,π(s))
   = \tfrac 14 [ 0 + 0 + \tfrac 13 + 1 ] = \tfrac 13
 \]</span> which is the same value that we had obtained by direct computation above.</p>
 </section>
-<section id="a-tree-representation-of-the-optimization-problem" class="level2 page-columns page-full" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="a-tree-representation-of-the-optimization-problem"><span class="header-section-number">2.2</span> A tree representation of the optimization problem</h2>
-<p>When all variables <span class="math inline">\((S,W,A)\)</span> are finite valued, the stochastic optimization problem defined above can also be modeled as a tree. Such a tree formulation has two benefits:</p>
-<ul>
-<li>it provides a geometric view, which can be useful in visualizing the result;</li>
-<li>for general, multi-stage problems, it is possible to exploit the tree structure to obtain efficient computation algorithms, see, e.g., <span class="citation" data-cites="Fu2018">Fu (<a href="../references.html#ref-Fu2018" role="doc-biblioref">2018</a>)</span> for an historical overview.</li>
-</ul>
-<p>There are two ways to construct the tree representation: the first as an one-stage optimization problem with perfect observation and the second as a one-stage optimization problem with imperfect observation. The first is simpler and the second is more general. We explain both formulations below.</p>
-<section id="one-step-optimization-with-perfect-observation" class="level3 page-columns page-full" data-number="2.2.1">
-<h3 data-number="2.2.1" class="anchored" data-anchor-id="one-step-optimization-with-perfect-observation"><span class="header-section-number">2.2.1</span> One-step optimization with perfect observation</h3>
-<p>We will view the model according to the following timing diagram:</p>
-<div id="fig-timing1" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-timing1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/timing1.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-timing1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.1: Timing diagram for modeling as a one-step optimization problem with perfect observation
-</figcaption>
-</figure>
-</div>
-<p>Thus, nature first generate the “state” variable <span class="math inline">\(S\)</span> according to some distribution <span class="math inline">\(P_S\)</span>, agent takes action <span class="math inline">\(A\)</span> according to the policy <span class="math inline">\(π \colon \ALPHABET S \to \ALPHABET A\)</span>, and then nature generates the “disturbance” <span class="math inline">\(W\)</span> according to some distribution <span class="math inline">\(P_{W|S}\)</span>.</p>
-<p>We can view this as a tree, shown in <a href="#fig-tree1" class="quarto-xref">Figure&nbsp;<span>2.2</span></a>, where the root node corresponds to moves of nature (denoted by <span class="math inline">\(c\)</span> for chance) to generate <span class="math inline">\(S\)</span>, nodes at depth 1 correspond to the moves of the agent (denoted by <span class="math inline">\(d\)</span> for decision maker) to generate <span class="math inline">\(A\)</span>, and nodes at depth 2 correspond to moves of nature to generate <span class="math inline">\(W\)</span>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
-<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;For simplicity, we set <span class="math inline">\(W = (D,S)\)</span> and only show <span class="math inline">\(D\)</span> (the card dealt to the dealer) on the tree.</p></div></div><div id="fig-tree1" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-tree1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/game-tree1.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tree1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.2: Tree representation of the one-step optimization problem. Nodes represent the “agent”: nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost <span class="math inline">\(c(s,a,w)\)</span>. The shaded edges represent a policy.
-</figcaption>
-</figure>
-</div>
-<p>We can do the calculation to compute the optimal policy on the tree. The calculations proceed by starting at the last level and moving upwards. In particular, at the nodes of depth <span class="math inline">\(2\)</span>, we compute <span class="math inline">\(Q(s,a)\)</span> using: <span class="math display">\[
-Q(s,a) = \EXP[ c(s,a,W) \mid S = s]
-= \sum_{w \in \ALPHABET W}P_{W|S}(w|s) c(s,a,w)
-\]</span> If we are given a policy <span class="math inline">\(π\)</span> (like the policy shown by yellow shaded edges in <a href="#fig-tree1" class="quarto-xref">Figure&nbsp;<span>2.2</span></a>), we can compute <span class="math inline">\(V^π(s)\)</span> using: <span class="math display">\[
-  V^π(s) = Q(s,π(s)).
-\]</span> We can also compute the optimal value function <span class="math inline">\(V^*(s)\)</span> using <span class="math display">\[
-  V^*(s) = \min_{a \in \ALPHABET A}Q(s,a)
-\]</span> where the optimal policy is given by <span class="math display">\[
-  π^*(s) \in \arg\min_{a \in \ALPHABET A}Q(s,a).
-\]</span></p>
-<p>These calculations are the same as we did in the previous section; the tree simply helps in visualizing what is going on.</p>
-</section>
-<section id="one-step-optimization-with-imperfect-observation" class="level3" data-number="2.2.2">
-<h3 data-number="2.2.2" class="anchored" data-anchor-id="one-step-optimization-with-imperfect-observation"><span class="header-section-number">2.2.2</span> One-step optimization with imperfect observation</h3>
-<p>In this case, we will view the model according to the following timing diagram:</p>
-<div id="fig-timing2" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-timing2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/timing2.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-timing2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.3: Timing diagram for modeling as a one-step optimization problem with imperfect observation
-</figcaption>
-</figure>
-</div>
-<p>We can view this as a tree, shown in <a href="#fig-tree2" class="quarto-xref">Figure&nbsp;<span>2.4</span></a>, where the root node corresponds to moves of nature to generate <span class="math inline">\((W,S)\)</span>, nodes at depth 1 correspond to the moves of the agent to generate <span class="math inline">\(A\)</span>.</p>
-<div id="fig-tree2" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-tree2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="figures/game-tree2.svg" class="img-fluid figure-img">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tree2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2.4: Tree representation of the one-step optimization problem. Nodes represent the “agent”: nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost <span class="math inline">\(c(s,a,w)\)</span>. The shaded edges represent a policy.
-</figcaption>
-</figure>
-</div>
-<p>In this case, the decision maker cannot distinguish between multiple moves of nature. For example, for <span class="math inline">\(W \in \{ (2,1), (3,1), (4,1) \}\)</span>, the decision maker gets the same observation <span class="math inline">\(S=1\)</span>. This is indicated in the tree diagram by drawing an <strong>information set</strong> around these three nodes, and ensuring that the action taken at these nodes is identical.</p>
-<p>In this formulation, the decision maker has imperfect observation of nature’s move. After making an observation, it forms a <em>posterior belief</em> on the state of nature. For example, <span class="math display">\[
-  \PR(W | S = 1) =
-  \begin{cases}
-    \tfrac 13, &amp; \hbox{if } W \in \{(2,1), (3,1), (4,1) \} \\
-    0, &amp; \hbox{otherwise}
-  \end{cases}
-\]</span> The agent then computes <span class="math inline">\(Q(s,a)\)</span> by averaging over this belief: <span class="math display">\[
-  Q(s,a) = \sum_{w \in \ALPHABET W} \PR(w|s) c(s,a,w).
-\]</span> The value functions <span class="math inline">\(V^π(s)\)</span> and <span class="math inline">\(V^*(s)\)</span> and then computed exactly as before.</p>
-<p>The difference between the two approaches is conceptual. For the one-step optimization problem, the actual mathematical calculations done in both formulations are the same. When we go to multi-stage optimization problem, we will see that perfect and imperfect observation models behave very differently.</p>
-</section>
-</section>
-<section id="blackwells-principle-of-irrelevant-information" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="blackwells-principle-of-irrelevant-information"><span class="header-section-number">2.3</span> Blackwell’s principle of irrelevant information</h2>
+<section id="blackwells-principle-of-irrelevant-information" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="blackwells-principle-of-irrelevant-information"><span class="header-section-number">2.5</span> Blackwell’s principle of irrelevant information</h2>
 <p>In many scenarios, the decision maker may observe data which is irrelevant for evaluating performance. In such instances, the decision maker may ignore such information without affecting performance. Formally, we have the following result, which is known as <strong>Blackwell’s principle of irrelevant information</strong>.</p>
 <div id="thm-blackwell" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 2.3 (Blackwell’s principle of irrelevant information)</strong></span> Let <span class="math inline">\(\ALPHABET S\)</span>, <span class="math inline">\(\ALPHABET Y\)</span>, <span class="math inline">\(\ALPHABET W\)</span>, and <span class="math inline">\(\ALPHABET A\)</span> be standard Borel spaces and <span class="math inline">\(S \in \ALPHABET S\)</span>, <span class="math inline">\(Y \in \ALPHABET Y\)</span>, <span class="math inline">\(W \in
@@ -1321,7 +1269,7 @@ P_{Y = 2} = \MATRIX{0.05 &amp; 0.03 &amp; 0.01 \\ 0.06 &amp; 0.02 &amp; 0.03}
 <p><span class="theorem-title"><strong>Exercise 2.5 (Stochastic/Randomized policies)</strong></span> In the discussion above, we have assumed that decision rule <span class="math inline">\(π\)</span> is deterministic. It is also possible to consider stochastic/randomized decision rules: <span class="math inline">\(π \colon \ALPHABET S \to Δ(\ALPHABET A)\)</span>, where the performance of a policy is given by <span class="math display">\[
 J(π) = \sum_{s,w \in \ALPHABET S × \ALPHABET W} \sum_{a \in \ALPHABET A}
 P(s,w) π(a \mid s) c(s,a,w).
-\]</span> Now consider the problem of <span class="math inline">\(\min_{π : \ALPHABET S \to Δ(\ALPHABET A)} J(π)\)</span>. Show that the result of <a href="#thm-fact" class="quarto-xref">Theorem&nbsp;<span>2.1</span></a> remains valid even when we allow stochastic/randomization.</p>
+\]</span> Now consider the problem of <span class="math inline">\(\min_{π : \ALPHABET S \to Δ(\ALPHABET A)} J(π)\)</span>. Show that the result of <a href="#thm-structure-stochastic-optimization" class="quarto-xref">Theorem&nbsp;<span>2.1</span></a> remains valid even when we allow stochastic/randomization.</p>
 <p><em>Note:</em> This fact is sometimes stated as <em>“randomization does not improve performance”</em>, but is only true for <strong>unconstrained problems</strong>. When constraints are involved, randomization may improve performance.</p>
 </div>
 </section>
@@ -1353,7 +1301,6 @@ P(s,w) π(a \mid s) c(s,a,w).
 </div>
 </div>
 </section>
-
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
