@@ -5,60 +5,129 @@ keywords:
    - principle of irrelevant information
 ---
 
-In the stochastic optimization problems considered in the [previous chapter](intro.qmd), the decision maker does not observe any data before making a decision. In many situations, the decision maker does observe some data before making a decision. In this chapter, we present various models for capturing such situations.
+A key feature that differentiates stochastic optimization problems from deterministic ones is that the decision maker may have some information about the state of the world, before it makes a decision. In the [previous chapter](intro.qmd), we assumed that this was not the case but in many situations, the decision maker does observe some data before making a decision. In this chapter, we present various models for capturing such situations.
 
-:::{#exm-simple-card-game}
-#### A simple card game
-Consider a gambler playing a stylized version of card game played with 
-a deck of $4$ cards: $\{1,2,3,4\}$. A dealer deals two cards: one to himself and one to the gambler. The gambler looks at his card, and can decide to take one of two actions: fold or challenge. If the gambler folds, the game is over; if he challenges and has a higher card than the dealer, he wins \\$1; if he challenges but has a lower card than the dealer, he loses \\$1. What is the optimal policy?
-:::
+## Stochastic optimization with partial observations
 
-We can model the above example as follows. Let $W \in \ALPHABET W$ denote the state of the world. The decision maker makes an observation $S \in \ALPHABET S$ and then chooses an action $A \in \ALPHABET A$ as function of his observations according to a _decision rule_ or _policy_ $π \colon \ALPHABET S \to \ALPHABET A$, i.e., $$ A = π(S). $$
+A general model of stochastic optimization with partial observations is as follows. Let $W \in \ALPHABET W$ denote the state of the world. The decision maker makes an observation $S \in \ALPHABET S$ and then chooses an action $A \in \ALPHABET A$ as function of his observations according to a _decision rule_ or _policy_ $π \colon \ALPHABET S \to \ALPHABET A$, i.e., $$ A = π(S). $$
 
-Upon choosing the action $A$, the decision maker incurs a cost $c(S,A,W). We assume that the _primitive random variables_ $(W,S)$ are defined on a common probability space and have a known joint distribution. Assume that the decision maker is risk neutral and, therefore, wants to minimize $\EXP[ c(S, π(S), W)]$, where the expectation is taken with respect to the joint probability distribution of $(W,S)$. 
+For the ease of notation, we will use $Π$ to denote all deterministic (and measurable) policies $π \colon \ALPHABET S \to \ALPHABET A$.
+
+Upon choosing the action $A$, the decision maker incurs a cost $c(S,A,W)$. We assume that the **primitive random variables** $(W,S)$ are defined on a common probability space and have a known joint distribution. Assume that the decision maker is risk neutral and, therefore, wants to minimize $\EXP[ c(S, π(S), W)]$, where the expectation is taken with respect to the joint probability distribution of $(W,S)$. 
+
+The temporal order in which the system variables are generated is as follows. First nature acts and generates all the primitive $ω = (W,S)$ according to a given probability distribution. The agent them observes $S(ω)$ and takes an action $A$ according to a policy $π \colon \ALPHABET S \to \ALPHABET A$. The temporal order can be visualized according to the following timing diagram. 
+
+![Timing diagram for modeling as a one-step optimization problem with partial observation](figures/svg/timing2.svg){#fig-timing2}
 
 Formally, the above optimization problem may be written as
 $$\begin{equation} \label{eq:obs} \tag{P1}
-  \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
+  \min_{π \in Π} \EXP[ c(S, π(S), W) ].
 \end{equation}$$
 
-Define $J(π) = \EXP[ c(S, Y, π(S)) ]$. Then, Problem \eqref{eq:obs} is conceptually the same as the stochastic optimization problems considered in the previous section but with one difference: the basic stochastic optimization problem is a **parameter optimization problem** where the minimization is over a parameter $a$, while Problem \eqref{eq:obs} is a **functional optimization problem** where the minimization is over a function $π$. 
+Define 
+$$J(π) = \EXP[ c(S, π(S), W) ].$$
+Then, a policy $π^*$ is optimal if 
+$$ J(π^*) \le J(π). $$
+When $\ALPHABET S$ and $\ALPHABET A$ are finite sets, then an optimal policy always exists and can be found by brute force search. When $\ALPHABET S$ and/or $\ALPHABET A$ are continuous, we need some regularity assumptions on the model to ensure the existence of an optimal policy. 
+
+Then, Problem \eqref{eq:obs} is conceptually the same as the stochastic optimization problems considered in the previous section but with one difference: the basic stochastic optimization problem is a **parameter optimization problem** where the minimization is over a parameter $a$, while Problem \eqref{eq:obs} is a **functional optimization problem** where the minimization is over a function $π$. 
 
 When $\ALPHABET S$ and $\ALPHABET A$ are finite sets, the optimal policy can be obtained by an exhaustive search over all policies as follows: for each policy $π$ compute the performance $J(π)$ and then pick the policy $π$ with the smallest expected cost. 
 
 Such an exhaustive search is not satisfying for two reasons. First, it has a high computational cost. There are $| \ALPHABET A |^{| \ALPHABET S |}$ policies and, for each policy, we have to evaluate an expectation, which can be expensive. Second, the above enumeration procedure does not work when $\ALPHABET S$ or $\ALPHABET A$ are continuous sets.
 
 There is an alternative way of viewing the problem that simplifies it
-considerably. Instead of viewing the optimization problem before the system
-starts running (i.e., the _ex ante_ view), imagine that the decision maker
-waits until they see the realization $s$ of $S$ (i.e., the _interim view_).
-They then ask what action $a$ should they take to minimize the expected
-_conditional_ cost $Q(s,a) := \EXP[ c(s,a, W) | S = s]$, i.e., they consider
-the problem
+considerably. Before presenting this alternative, we present a way for modeling such optimization problem using trees when all variables $(W,S,A)$ are finite valued. Such a tree formulation has two benefits:
 
-\begin{equation} \label{eq:cond-1} \tag{P2}
-  \min_{a \in \ALPHABET A} \EXP[ c(s,a,W) | S = s], \quad
-  \forall s \in \ALPHABET S.
-\end{equation}
+- it provides a geometric view, which can be useful in visualizing the result;
+- for general, multi-stage problems, it is possible to exploit the tree structure to obtain efficient computation algorithms, see, e.g., @Fu2018 for an historical overview.
 
-Thus, Problem \eqref{eq:obs}, which is a functional optimization problem,
-has been reduced to a collection of parameter optimization problems
-(Problem \eqref{eq:cond-1}), one for each possible value of $s$. 
+## A tree representation of stochastic optimization with partial information
+
+To fix ideas, we will work with the following simple example.
+
+:::{#exm-simple-card-game}
+#### A simple card game
+Consider a gambler playing a stylized version of card game played with 
+a perfectly shuffled deck of $4$ cards: $\{1,2,3,4\}$. A dealer deals two cards: one to himself and one to the gambler. The gambler looks at his card, and can decide to take one of two actions: fold or challenge. If the gambler folds, the game is over; if he challenges and has a higher card than the dealer, he wins \\$1; if he challenges but has a lower card than the dealer, he loses \\$1. What is the optimal policy?
+:::
+
+To map @exm-simple-card-game to the general model, let $W$ denote the cards dealt, $S$ denote gambler's card, and $A=0$ denote the fold action and $A=1$ denote the challenge action. Then:
+$$
+\ALPHABET W = \{(1,2), (1,3), (1,4), (2,1), (2,3), (2,4), (3,1), (3,2), (3,4), (4,1), (4,2), (4,3) \},
+$$
+where the first index denotes the card dealt to the dealer and the second denotes the card dealt to the gambler. We have assumed that each of these outcomes is equally likely. 
+
+Note that $\ALPHABET S = \{1,2,3,4\}$ and $\ALPHABET A = \{0,1\}$. So, a policy $π$ is a mapping from $\ALPHABET S$ to $\ALPHABET A$, i.e., for each card that could be dealt to the gambler, he needs to decide whether to fold or challenge. 
+
+We can view the sequence of events in @exm-simple-card-game as a tree, shown in @fig-tree2, where the root node corresponds to moves of nature to generate $(W,S)$, nodes at depth 1 correspond to the moves of the agent to generate $A$.
+
+![Tree representation of the one-step optimization problem. Nodes represent the "agent": nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost $c(s,a,w)$. The shaded edges represent a policy.](figures/svg/game-tree2.svg){#fig-tree2}
+
+In this case, the observation $S$ gives the decision maker some partial information about the move of nature. For example, when $S=1$, the decision maker knows that $W \in \{ (2,1), (3,1), (4,1) \}$, but cannot further distinguish between them This information is indicated in the tree diagram by drawing an **information set** around these three nodes, and ensuring that the action taken at these nodes is identical.
+
+
+## The main simplifying idea
+
+The key simplifying idea is that instead of viewing the optimization problem before the system starts running (i.e., the _ex ante_ view), imagine that the decision maker waits until they see the realization $s$ of $S$ (i.e., the _interim view_). In other words, we think of the decision maker at each information set as a separate agent and determine the optimal action for that agent. 
+
+For instance, in @exm-simple-card-game, after making an observation $S=1$, the gambler forms a posterior belief on the possible states of nature using Bayes rule. In particular,
+$$
+  \PR(W | S = 1) = 
+  \begin{cases}
+    \tfrac 13, & \hbox{if } W \in \{(2,1), (3,1), (4,1) \} \\
+    0, & \hbox{otherwise}
+  \end{cases}
+$$
+
+Now consider the sub-tree corresponding to observation $S=1$. In this sub-tree, the agent has two actions: $A = 0$ or $A = 1$. We compute the expected cost corresponding to each action, i.e., compute
+$$
+  Q(s,a) = \EXP[ c(s,a,W) \mid S = s ]
+  = \sum_{w \in \ALPHABET W} \PR(w|s) c(s,a,w).
+$$
+where the expectation is with respect to the posterior belief $P_{W|S}$ computed above. The function $Q$ is called the **action-value** function.
+
+For @exm-simple-card-game $Q(s,0)$ is always $0$. We explicitly compute $Q(s,1)$ for all values of $s$:
+
+- $Q(1,1) = \tfrac 13 \bigl[ -1 -1 -1 \bigr] = -1 < 0$.
+- $Q(2,1) = \tfrac 13[1 -1 -1] = -\tfrac 13 < 0$.
+- $Q(3,1) = \tfrac 13[1 + 1 -1] = \tfrac 13 > 0$.
+- $Q(4,1) = \tfrac 13 [ 1 + 1 + 1] = 1 > 0$.
+
+
+:::{.callout-tip}
+### Main claim
+
+The action value functions are sufficient to compute the optimal policy as well as the performance of any policy. 
+
+In particular, for any (deterministic) policy $\pi$, we define the **value function** of the policy as
+$$
+   V^{π}(s) = Q(s, π(s)).
+$$
+Then, $J(π) = \EXP[ V^{π}(S) ]$.
+
+Define the **optimal value function** as
+$$
+  V^*(s) = \min_{a \in \ALPHABET A} Q(s,a), \quad \forall s \in \ALPHABET S.
+$$
+Note that to compute the optimal value function, we need to solve a collection of parameter optimization problems, one for each value of $s$. 
 
 Now define
-$$ \begin{equation} \label{eq:cond} \tag{P2-policy}
-  π^∘(s) = \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
-\end{equation} $$
+\begin{equation} \label{eq:cond} \tag{P2-policy}
+  π^∘(s) \in \arg \min_{a \in \ALPHABET A} \EXP[ c(s,a, W) | S = s]
+\end{equation}
 where ties (in the minimization) are broken arbitrarily. 
 
-::: {#thm-fact}
+::: {#thm-structure-stochastic-optimization}
 The decision rule $π^∘$ defined in \eqref{eq:cond} is optimal for Problem \eqref{eq:obs}, i.e., 
 $$
-  \min_{π \colon \ALPHABET S \to \ALPHABET A} \EXP[ c(S, π(S), W) ].
+  \min_{π \in Π} \EXP[ c(S, π(S), W) ].
   = \EXP \biggl[ \min_{a \in \ALPHABET A} \EXP[ c(S,a,W) | S ] \biggr]
   .
 $$
 :::
+:::
+
 
 ::: {.callout-important}
 
@@ -76,19 +145,20 @@ Conditions that ensure this are known as _measurable selection theorems_.
 
 ::::{.callout-note collapse="true"}
 # Proof
-Let $π$ be any other decision rule. Then,
-$$ \begin{align*}
-  \EXP[ c(S, π(S), W) ] &\stackrel{(a)}= \EXP[ \EXP[c(S, π(S), W) | S ] ] \\
-  &\stackrel{(b)}\ge \EXP[\EXP[ c(S, π^∘(S), W) | S ] ] \\
-  &\stackrel{(c)}= \EXP[ c(S, π^∘(S), W) ],
-\end{align*} $$
-where $(a)$ and $(c)$ follow from the law of iterated expectations and $(b)$
-follows from the definition of $π^∘$ in \eqref{eq:cond}. 
+Let $π$ be any arbitrary policy. Then,
+$$
+  V^{π}(s) \stackrel{(a)}\ge V^*(s) \stackrel{(b)}= V^{π^∘}(s)
+$$
+where $(a)$ follows from the definition of $V^*$ and $(b)$ follows from the definition of $π^∘$ in \eqref{eq:cond}. Taking expectation of both sides, we get
+$$
+  J(π) \ge J(π^∘).
+$$
+Since $π$ was arbitrary, this implies that $π^∘$ is optimal.
 :::
 
-We can also provide a partial converse of @thm-fact.
+We can also provide a partial converse of @thm-structure-stochastic-optimization
 
-::: {#thm-converse}
+::: {#thm-converse-structure-stochastic-optimization}
 
 If $\PR(S = s) > 0$ for all $s$, then any optimal policy $π^∘$ for
 Problem \eqref{eq:obs} must satisfy \eqref{eq:cond}.
@@ -101,74 +171,35 @@ We prove this by contradiction. Suppose $π^*$ is an optimal policy that does
 not satisfy \eqref{eq:cond}. 
 By definition of $π^∘$, it must be the case that for all states
 \begin{equation} 
-   \EXP[ c(s, π^∘(s), W) | S = s ] 
-   \le
-   \EXP[ c(s, π^*(s), W) | S = s ] .
+   V^{π^∘}(s) \le V^{π^*}(s)
    \label{eq:ineq:1}
 \end{equation}
 Now, since $π^*$ does not satisfy \eqref{eq:cond}, there exists some state $s^∘ \in \ALPHABET S$ such that 
 \begin{equation}
-   \EXP[ c(s^∘, π^*(s^∘), W) | S = s^∘ ] 
-   > 
-   \EXP[ c(s^∘, π^∘(s^∘), W) | S = s^∘ ] .
+   V^{π^*}(s ^∘) > V^{π^∘}(s ^∘).
    \label{eq:ineq:2}
 \end{equation}
 Therefore, 
-$$\begin{align*}
-   \EXP[ c(S, π^*(S), W) ]
+\begin{align*}
+   J(π^*) 
    &=
-   \sum_{s \in \ALPHABET S} \PR(S = s) 
-   \EXP[ \EXP[ c(s, π^*(s), W) | S = s ] ]
+   \sum_{s \in \ALPHABET S} \PR(S = s) V^{π^*}(s)
    \\
    & \stackrel{(a)}> 
    \sum_{s \in \ALPHABET S} \PR(S = s) 
-   \EXP[ \EXP[ c(s, π^∘(s), W) | S = s ] ]
+   V^{π^∘}(s)
    \\
    &=
-   \EXP[ c(S, π^∘(S), W) ]
-\end{align*}$$
+   J(π^∘)
+\end{align*}
 where $(a)$ follows from \eqref{eq:ineq:1} and \eqref{eq:ineq:2} and the
 inequality is strict because $\PR(S = s^∘) > 0$. Thus, $J(π^*) > J(π^∘)$ and,
 hence, $π^*$ cannot be an optimal policy.
 :::
 
-::: {.callout-tip}
-### Some notation
+## Policy evaluation
 
-To build up to the notation used in [MDPs], define
-$$
-    Q(s,a) \coloneqq E[ c(s,a,W) \mid S = s],
-$$
-which is called the **action-value function.** For any policy $π$, define
-$$
-  V^π(s) = Q(s,π(s)),
-$$
-which is called the **value function** of policy $π$. The value function of the optimal policy is often denoted by $V^*$ and, by definition of optimality, it has the property that for any policy $π$:
-$$
-  V^*(s) \le V^π(s), 
-  \quad \forall s \in \ALPHABET S.
-$$
-:::
-
-[MDPs]: ../mdps/intro.qmd
-
-## An example: optimal policy in a card game
-
-We can model this as a stochastic optimization problem. Let $W$ denote the cards dealt, $S$ denote gambler's card, and $A=0$ denote the fold action and $A=1$ denote the challenge action. Then:
-$$
-\ALPHABET W = \{(1,2), (1,3), (1,4), (2,1), (2,3), (2,4), (3,1), (3,2), (3,4), (4,1), (4,2), (4,3) \},
-$$
-where the first index denotes the card dealt to the dealer and the second denotes the card dealt to the gambler. We will assume that each of these outcomes is equally likely. 
-
-Note that $\ALPHABET S = \{1,2,3,4\}$ and $\ALPHABET A = \{0,1\}$. So, a policy $π$ is a mapping from $\ALPHABET S$ to $\ALPHABET A$, i.e., for each card that could be dealt to the gambler, he needs to decide whether to fold or challenge. 
-
-There are $|\ALPHABET A|^{|\ALPHABET S|} = 2^4 = 16$ policies. The performance of a policy $π$ is:
-$$
-  J(π) = \sum_{(d,s) \in \ALPHABET W} \PR(d,s) c(s, π(s), (d,s))
-$$
-where we are using the variable $d$ to denote the card dealt to the dealer.
-
-Now consider one specific policy: $π = [0, 0, 1, 1]$, which means that the gambler folds if he gets card 1 or 2 and challenges if he gets card 3 and 4. Then, we have
+A brute force evaluation of a policy is tedious. For instance, consider a specific policy for @exm-simple-card-game: $π = [0, 0, 1, 1]$, which means that the gambler folds if he gets card 1 or 2 and challenges if he gets card 3 and 4. Then, we have
 \begin{align*}
   J(π) &=
   \underbrace{\tfrac 1{12} \cdot 0}_{(d,s) = (1,2)}
@@ -201,99 +232,12 @@ Now consider one specific policy: $π = [0, 0, 1, 1]$, which means that the gamb
   &= \tfrac 4{12} = \tfrac 13.
 \end{align*}
 
-A brute force search corresponds to computing the performance of all $16$ policies and picking the one with the best performance.
-
-The alternative way to compute the optimal policy via \eqref{eq:cond} proceeds as follows. First observe that
-$$
-  Q(s,a) \coloneqq 
-  \EXP[ c(s,a,W) \mid S = s] = \sum_{ (d,s) \in \ALPHABET W }
-  \PR( (d,s) \mid S = s) c(s,a,(d,s)).
-$$
-Moreover, $Q(s,0)$ is always $0$. So, we just need to compute $Q(s,1)$ and check if it is larger or smaller than $0$.
-
-- $Q(1,1) = \tfrac 13 \bigl[ -1 -1 -1 \bigr] = -1 < 0$.
-- $Q(2,1) = \tfrac 13[1 -1 -1] = -\tfrac 13 < 0$.
-- $Q(3,1) = \tfrac 13[1 + 1 -1] = \tfrac 13 > 0$.
-- $Q(4,1) = \tfrac 13 [ 1 + 1 + 1] = 1 > 0$.
-
-Thus, the optimal policy is $π = [0, 0, 1, 1]$. We can also verify that
+We can evaluate the performance of a policy using the action value functions we well. Note that the policy $π$ is shown by the shaded edges in @fig-tree2. The action value functions capture the performance of the policy in the sub-trees corresponding to each information set. So, the overall performance is obtained by averaging over the probability of each information set, i.e., 
 $$
   J(π) = \sum_{s \in \ALPHABET S} \PR(s) Q(s,π(s)) 
   = \tfrac 14 [ 0 + 0 + \tfrac 13 + 1 ] = \tfrac 13
 $$
 which is the same value that we had obtained by direct computation above.
-
-## A tree representation of the optimization problem
-
-When all variables $(S,W,A)$ are finite valued, the stochastic optimization problem defined above can also be modeled as a tree. Such a tree formulation has two benefits: 
-
-- it provides a geometric view, which can be useful in visualizing the result;
-- for general, multi-stage problems, it is possible to exploit the tree structure to obtain efficient computation algorithms, see, e.g., @Fu2018 for an historical overview.
-
-There are two ways to construct the tree representation: the first as an one-stage optimization problem with perfect observation and the second as a one-stage optimization problem with imperfect observation. The first is simpler and the second is more general. We explain both formulations below.
-
-### One-step optimization with perfect observation 
-
-We will view the model according to the following timing diagram:
-
-![Timing diagram for modeling as a one-step optimization problem with perfect observation](figures/timing1.svg){#fig-timing1}
-
-Thus, nature first generate the "state" variable $S$ according to some distribution $P_S$, agent takes action $A$ according to the policy $π \colon \ALPHABET S \to \ALPHABET A$, and then nature generates the "disturbance" $W$ according to some distribution $P_{W|S}$. 
-
-We can view this as a tree, shown in @fig-tree1, where the root node corresponds to moves of nature (denoted by $c$ for chance) to generate $S$, nodes at depth 1 correspond to the moves of the agent (denoted by $d$ for decision maker) to generate $A$, and nodes at depth 2 correspond to moves of nature to generate $W$.[^simplify]
-
-[^simplify]: For simplicity, we set $W = (D,S)$ and only show $D$ (the card dealt to the dealer) on the tree.
-
-![Tree representation of the one-step optimization problem. Nodes represent the "agent": nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost $c(s,a,w)$. The shaded edges represent a policy.](figures/game-tree1.svg){#fig-tree1}
-
-We can do the calculation to compute the optimal policy on the tree. The calculations proceed by starting at the last level and moving upwards. In particular, at the nodes of depth $2$, we compute $Q(s,a)$ using:
-$$
-Q(s,a) = \EXP[ c(s,a,W) \mid S = s]
-= \sum_{w \in \ALPHABET W}P_{W|S}(w|s) c(s,a,w)
-$$
-If we are given a policy $π$ (like the policy shown by yellow shaded edges in @fig-tree1), we can compute $V^π(s)$ using:
-$$
-  V^π(s) = Q(s,π(s)).
-$$
-We can also compute the optimal value function $V^*(s)$ using
-$$
-  V^*(s) = \min_{a \in \ALPHABET A}Q(s,a)
-$$
-where the optimal policy is given by
-$$
-  π^*(s) \in \arg\min_{a \in \ALPHABET A}Q(s,a).
-$$
-
-These calculations are the same as we did in the previous section; the tree simply helps in visualizing what is going on.
-
-
-### One-step optimization with imperfect observation
-
-In this case, we will view the model according to the following timing diagram:
-
-![Timing diagram for modeling as a one-step optimization problem with imperfect observation](figures/timing2.svg){#fig-timing2}
-
-We can view this as a tree, shown in @fig-tree2, where the root node corresponds to moves of nature to generate $(W,S)$, nodes at depth 1 correspond to the moves of the agent to generate $A$.
-
-![Tree representation of the one-step optimization problem. Nodes represent the "agent": nature or decision maker; the edges represent the moves of the agents; and the numbers at the leaf nodes represent the cost $c(s,a,w)$. The shaded edges represent a policy.](figures/game-tree2.svg){#fig-tree2}
-
-In this case, the decision maker cannot distinguish between multiple moves of nature. For example, for $W \in \{ (2,1), (3,1), (4,1) \}$, the decision maker gets the same observation $S=1$. This is indicated in the tree diagram by drawing an **information set** around these three nodes, and ensuring that the action taken at these nodes is identical.
-
-In this formulation, the decision maker has imperfect observation of nature's move. After making an observation, it forms a _posterior belief_ on the state of nature. For example, 
-$$
-  \PR(W | S = 1) = 
-  \begin{cases}
-    \tfrac 13, & \hbox{if } W \in \{(2,1), (3,1), (4,1) \} \\
-    0, & \hbox{otherwise}
-  \end{cases}
-$$
-The agent then computes $Q(s,a)$ by averaging over this belief:
-$$
-  Q(s,a) = \sum_{w \in \ALPHABET W} \PR(w|s) c(s,a,w).
-$$
-The value functions $V^π(s)$ and $V^*(s)$ and then computed exactly as before.
-
-The difference between the two approaches is conceptual. For the one-step optimization problem, the actual mathematical calculations done in both formulations are the same. When we go to multi-stage optimization problem, we will see that perfect and imperfect observation models behave very differently. 
 
 ## Blackwell's principle of irrelevant information
 
@@ -468,7 +412,7 @@ $$
 J(π) = \sum_{s,w \in \ALPHABET S × \ALPHABET W} \sum_{a \in \ALPHABET A} 
 P(s,w) π(a \mid s) c(s,a,w).
 $$
-Now consider the problem of $\min_{π : \ALPHABET S \to Δ(\ALPHABET A)} J(π)$. Show that the result of @thm-fact remains valid even when we allow stochastic/randomization.
+Now consider the problem of $\min_{π : \ALPHABET S \to Δ(\ALPHABET A)} J(π)$. Show that the result of @thm-structure-stochastic-optimization remains valid even when we allow stochastic/randomization.
 
 _Note:_ This fact is sometimes stated as _"randomization does not improve performance"_, but is only true for **unconstrained problems**. When constraints are involved, randomization may improve performance.
 
