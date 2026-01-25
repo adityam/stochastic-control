@@ -5,10 +5,11 @@ keywords:
   - post-decision state
   - base-stock policy
   - structural results
+engine: julia
 execute:
   echo: false
   freeze: true
-  cache: true
+  cache: false
 ---
 
 ::: {.column-margin}
@@ -106,26 +107,26 @@ properties of the optimal solution.
 
 ```{julia}
 #| output: false
-# Install packages
-using Pkg; Pkg.activate(".")
-# for pkg in ["IJulia", "Revise", "Distributions", "OffsetArrays", "DataFrames", "JSON"]
-#    Pkg.add(pkg)
-# end
-# for url in [ "https://github.com/adityam/MDP.jl.git"]
-#   Pkg.add(url=url)
-# end
-# # Installing Jupyter Cache
-# Pkg.add("Conda")
-# using Conda
-# Conda.add("jupyter-cache")
-
-using Revise
+# # Install packages
+# using Pkg; Pkg.activate(".")
+# # for pkg in ["IJulia", "Revise", "Distributions", "OffsetArrays", "DataFrames", "JSON", "JSON3"]
+# #    Pkg.add(pkg)
+# # end
+# # for url in [ "https://github.com/adityam/MDP.jl.git"]
+# #   Pkg.add(url=url)
+# # end
+# # # Installing Jupyter Cache
+# # Pkg.add("Conda")
+# # using Conda
+# # Conda.add("jupyter-cache")
+# 
+# using Revise
 
 using Distributions: Binomial, pdf, cdf
 using OffsetArrays
 using MDP
 
-using DataFrames
+using JSON3, DataFrames
 ```
 
 ```{julia}
@@ -178,7 +179,8 @@ W = 0:n
 T = 15
 xmin, xmax = -50, 50
 ojs_define(T=T, xmin=xmin, xmax=xmax)
-
+```
+```{julia}
 function generate_binomial_demand(n,q,ch,cs,p,T,K)
   Pw = Binomial(n,q)
   h(s) = (s >= 0) ? ch*s : -cs*s
@@ -226,7 +228,6 @@ for cs in Cs
     push!(df, (t, s, V[t][s], π[t][s],cs))
   end
 end
-
 ojs_define(DP = df)
 ```
 
