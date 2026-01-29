@@ -130,7 +130,6 @@ using JSON3, DataFrames
 ```
 
 ```{julia}
-
 n, q = 50, 0.4
 ch, cs, p = 2, 5, 1
 
@@ -270,8 +269,7 @@ actionPlot = Plot.plot({
 })
 ```
 
-The plots above suggest that the optimal policy has a structure. Play around
-with the value of the shortage cost to see if that structure is retained.
+The plots above suggest that the optimal policy has a structure. Play around with the value of the shortage cost to see if that structure is retained.
 
 
 We will now see how to prove the structure of optimal policy.
@@ -522,6 +520,120 @@ $$ \begin{align*}
   V^*_t(s) &= \min_{a \ge 0} \bigl\{  f_t(s+a) \bigr\} - ps , \\
   π^*_t(s) &= \arg \min_{a \ge 0} \bigl\{ f_t(s+a) \bigr\}.
 \end{align*} $$
+
+To understand the nature of the optimal policy, we plot the optimal solution for the same choice of parameter values as before. 
+
+```{julia}
+module LostSales
+    using Distributions: Binomial, pdf, cdf
+    using OffsetArrays
+    using MDP
+
+    using JSON3, DataFrames
+
+    n, q = 50, 0.4
+    ch, cs, p = 2, 5, 1
+
+    L = 100
+    S = 0:L
+    A = 0:L
+    W = 0:n
+
+    T = 15
+
+    function generate_binomial_demand(n,q,ch,cs,p,T,K)
+      Pw = Binomial(n,q)
+      h(s) = (s >= 0) ? ch*s : -cs*s
+
+      function bellmanUpdate!(v_next, π_next, v; discount=1.0)
+          # Assume that v is of size 2L + 1
+          # Construct a post-decision state value function
+          H = OffsetArray(zeros(2L+1),0:2L)
+          # h(z) = E[ h([z-W]^{+}) + γ V([z-W]^{+}) ]
+          for z ∈ 0:2L, w ∈ W
+              next_s = clamp(z-w, 0, L)
+              H[z] += ( h(z-w) + discount * v[next_s] )* pdf(Pw,w)
+          end
+
+          # V(s) = min_{a } { p*a + H(s+a) }
+          for s ∈ S
+              opt = 0
+              val = H[s]
+
+              for a ∈ A
+                  next_z = clamp(s+a, 0, 2L)
+                  newVal = p*a + H[next_z] + K*(a > 0)
+                  if newVal <= val
+                      opt = a
+                      val = newVal
+                  end
+              end
+              v_next[s] = val
+              π_next[s] = opt
+          end
+      end
+      model = DynamicModel(bellmanUpdate!; objective=:Min)
+      v_final = OffsetArray(zeros(size(S)), S)
+      (V, π) = finiteHorizon(model, v_final, horizon=T)
+      return (S,V,π)
+    end
+
+    df = DataFrame(time=Int[], state=Int[], value=Float64[], policy=Int[], holding=Float64[])
+
+    Ch = range(start=0.5, step=0.5, stop=4)
+
+    for ch in Ch
+      (S,V,π) = generate_binomial_demand(n,q,ch,cs,p,T,0)
+      for t in 1:T, s in S
+        push!(df, (t, s, V[t][s], π[t][s], ch))
+      end
+    end
+end
+
+ojs_define(LostSales_T = LostSales.T, LostSales_data = LostSales.df)
+```
+
+```{ojs}
+//| layout-ncol: 2
+
+viewof LostSales_time = Object.assign(Inputs.range([1, LostSales_T], {label: "t", step: 1, value: 1 }), {style: '--label-width:20px'})
+viewof LostSales_ch  = Object.assign(Inputs.range([0.5, 5], {label: "ch", step: 0.5, value: 2}), {style: '--label-width:20px'})
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| fig-cap: Dynamic programming solution for the example
+//| fig-subcap:
+//|     - Value function
+//|     - Optimal policy
+Plot.plot({
+  grid: true,
+  y: { domain: [0, 500] },
+  x: { domain: [0, 50] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(LostSales_data.filter(d => d.time == LostSales_time && d.holding == LostSales_ch), {x:"state", y:"value", curve:"step-after"})
+  ]
+})
+
+Plot.plot({
+  grid: true,
+  y: { domain: [0, 25] },
+  x: { domain: [0, 50] },
+  marks: [
+    // Axes
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    // Data
+    Plot.line(LostSales_data.filter(d => d.time == LostSales_time && d.holding == LostSales_ch), {x:"state", y:"policy", curve:"step-after"})
+  ]
+})
+```
+
+As we can see, the optimal policy still appears to have a base-stock structure. This is indeed the case, as shown by the following result.
 
 
 :::{#thm-inventory-lost-sales}
@@ -908,6 +1020,19 @@ $$
   \underline B + W_{\max} \le  S_t + A_t \le \overline B.
 $$
 Show that the optimal policy is still a base-stock policy.
+:::
+
+:::{#exr-inventory-uncertain-demand}
+Consider inventory management with zero ordering cost (with continuous valued states and actions). Suppose that the demand $W_t$ depends on an exogenous Bernoulli process $\{D_t\}_{t \ge 1}$, where $\PR(D_t = 1) = α$. When $D_t = 0$, the demand $W_t$ is low and is distributed according to PDF $f_0$ and when $D_t = 1$, the demand $W_t$ is high and distributed according to PDF $f_1$. 
+
+At the beginning of each time period, in addition to knowing the stock level $S_t$, the decision maker also observes $D_t$.
+
+a. Write the dynamic program taking $(S_t, D_t)$ as the state.
+
+b. Identify the post-decision state to simplify the dynamic program.
+
+c. Obtain the structure of the optimal policy (you may wish to numerically solve the DP for some choices of the model parameter to guess the structure).
+
 :::
 
 ## Notes {-}

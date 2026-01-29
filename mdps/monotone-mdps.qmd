@@ -10,7 +10,7 @@ execute:
 
 :::{.callout-note icon=false appearance="simple"}
 # <i class="bi bi-journal-text text-primary"></i> Summary
-In many applications, it is useful to know if the value function and the optimal policy is weakly increasing (or weakly decreasing) in state. Sufficient conditions are presented under which such monotonicity properties hold. These properties are useful because they makes it easy to search and implement the optimal policy.
+In many applications, it is useful to know if the value function and the optimal policy are weakly increasing (or weakly decreasing) in state. Sufficient conditions are presented under which such monotonicity properties hold. These properties are useful because they make it easy to search and implement the optimal policy.
 :::
 
 Consider the machine repair example from @exr-machine-replacement. We compute the optimal value function and optimal policy at $t=1$ for this model when $W \sim \text{Binom}(n,p)$ when $n = 10$, $T = 20$, $h(s) = 2s$, and $λ=20$ for different values of $p$.
@@ -228,7 +228,7 @@ For the ease of notation, let $f_i$ to denote $f(i)$ and define ${\rm M}^1_0 = {
 which completes the proof. In the above equations, both steps marked $(a)$ use summation by parts and $(b)$ uses the following facts:
 
 1. For any $i$, ${\rm M}^1_{i-1} \le {\rm M}^2_{i-1}$ (because of \\eqref{eq:cdf}) and
-   $f_{i-1} - f_{i} < 0$ (because $f$ is increasing function). Thus,
+   $f_{i-1} - f_{i} \le 0$ (because $f$ is weakly increasing). Thus,
    $${\rm M}^1_{i-1}(f_{i-1} - f_i) \ge {\rm M}^2_{i-1}(f_{i-1} - f_i). $$
 2. ${\rm M}^1_n = {\rm M}^2_n = 1$. 
 :::
@@ -236,7 +236,7 @@ which completes the proof. In the above equations, both steps marked $(a)$ use s
 :::{.callout-note collapse="true"}
 #### Proof (monotone expectations implies stochastic monotonicity)
 Suppose for any increasing function $f$, \\eqref{eq:inc-fun} holds. Given any $i \in \{1, \dots, n\}$, define the function $f_i(k) = \IND\{k > i\}$, which is an increasing function of $k$. Then,
-$$ \EXP[f_i(S)] = \sum_{k=1}^n f_i(k) \mu^1_k = \sum_{k > i} \mu^1_k = 1 - {\rm M}^1_i.
+$$ \EXP[f_i(S^1)] = \sum_{k=1}^n f_i(k) \mu^1_k = \sum_{k > i} \mu^1_k = 1 - {\rm M}^1_i.
 $$
 By a similar argument, we have
 $$ \EXP[f_i(S^2)] = 1 - {\rm M}^2_i. $$
@@ -278,10 +278,10 @@ As an example, a birth death Markov chain (without self loops) is stochastically
            0 & 0 & 0 & q & p }$$
 
 
-An immediate implication of the definition of stochastic monotinicity is the following.
+An immediate implication of the definition of stochastic monotonicity is the following.
 
 :::{#thm-stochastic-monotonicity}
-Let $\{S_t\}_{t \ge 1}$ be a Markov chain with transition matrix $P$ and $f \colon \ALPHABET S \to \reals$ is a weakly increasing function. Then, for any $s^1, s^2 \in \ALPHABET S$ such that $s^1 > s^2$, 
+Let $\{S_t\}_{t \ge 1}$ be a Markov chain with transition matrix $P$ and let $f \colon \ALPHABET S \to \reals$ be a weakly increasing function. Then, for any $s^1, s^2 \in \ALPHABET S$ such that $s^1 > s^2$, 
 $$ \EXP[f(S_{t+1}) | S_t = s^1] \ge \EXP[ f(S_{t+1}) | S_t = s^2], $$
 if and only if $P$ is stochatically monotone.
 :::
@@ -315,9 +315,9 @@ functions in $s$; hence $Q^*_t(s,a)$ is weakly increasing in $s$.
 
 Now consider $s_1, s_2 \in \ALPHABET S$ such that $s_1 > s_2$. Suppose $a_1^*$ is the optimal action at state $s_1$. Then
 $$ 
-  V^*_t(s^1) = Q^*_t(s^1, a_1^*) \stackrel{(a)}\ge Q^*_t(s^2,a_1^*) \stackrel{(b)}\ge V^*_t(s_2),
+  V^*_t(s_1) = Q^*_t(s_1, a_1^*) \stackrel{(a)}\ge Q^*_t(s_2, a_1^*) \stackrel{(b)}\ge V^*_t(s_2),
 $$
-where $(a)$ follows because $Q^*_t(\cdot, u^*)$ is weakly increasing and $(b)$
+where $(a)$ follows because $Q^*_t(\cdot, a_1^*)$ is weakly increasing and $(b)$
 follows from the definition of the value function. 
 :::
 
@@ -401,14 +401,14 @@ Consider an MDP where the state space $\ALPHABET S$ and the action space $\ALPHA
 $$ c_t(s,a) + \EXP[ v(S_{t+1}) | S_t = s, A_t = a]$$
 is submodular in $(s,a)$.
 
-Let $π^*_t(s) = \max\{ a^* \in \arg \min_{a \in \ALPHABET A} Q^*_t(s,a) \}$. Then, $π^*(s)$ is weakly increasing in $s$.
+Let $π^*_t(s) = \max\{ a^* \in \arg \min_{a \in \ALPHABET A} Q^*_t(s,a) \}$. Then, $π^*_t(s)$ is weakly increasing in $s$.
 :::
 
 :::{.callout-note collapse="true"}
 #### Proof 
 Conditions (C1) and (C2) imply that the value function $V^*_{t+1}(s)$ is weakly
 increasing. Therefore, condition (C3) implies that $Q^*_t(s,a)$ is submodular in
-$(s,a)$. Therefore, the arg min is weakly increasing in $x$
+$(s,a)$. Therefore, the arg min is weakly increasing in $s$.
 :::
 
 It is difficult to verify condition (C3). The following conditions
@@ -421,7 +421,7 @@ Consider an MDP with totally ordered state and action spaces. Suppose
 (b) For all $s' \in \ALPHABET S$, 
     $H(s' | s,a) = 1 - \sum_{z \le s'} P_{sz}(a)$ is submodular in $(s,a)$.
 
-The condition (C3) of @thm-increasing-policy holds.
+Then condition (C3) of @thm-increasing-policy holds.
 :::
 
 :::{.callout-note collapse="true"}
@@ -464,12 +464,12 @@ Consider an MDP where the state space $\ALPHABET S$ and the action space $\ALPHA
 $$ c_t(s,a) + \EXP[ v(S_{t+1}) | S_t = s, A_t = a]$$
 is supermodular in $(s,a)$.
 
-Let $π^*_t(s) = \min\{ a^* \in \arg \min_{a \in \ALPHABET S} Q^*_t(s,a) \}$. Then, $π^*(s)$ is weakly decreasing in $s$.
+Let $π^*_t(s) = \min\{ a^* \in \arg \min_{a \in \ALPHABET A} Q^*_t(s,a) \}$. Then, $π^*_t(s)$ is weakly decreasing in $s$.
 :::
 
 :::{.callout-note collapse="true"}
 #### Proof 
-Conditions (C1) and (C2) imply that the value function $V^*_{t+1}(s)$ is weakly increasing. Therefore, condition (C4) implies that $Q^*_t(s,a)$ is supermodular in $(s,a)$. Therefore, the arg min is decreasing in $s$
+Conditions (C1) and (C2) imply that the value function $V^*_{t+1}(s)$ is weakly increasing. Therefore, condition (C4) implies that $Q^*_t(s,a)$ is supermodular in $(s,a)$. Therefore, the arg min is weakly decreasing in $s$.
 :::
 
 It is difficult to verify condition (C4). The following conditions are sufficient for (C4).
@@ -481,7 +481,7 @@ Consider an MDP with totally ordered state and action spaces. Suppose
 (b) For all $s' \in \ALPHABET S$, 
     $H(s' | s,a) = 1 - \sum_{z \le s'} P_{sz}(a)$ is supermodular in $(s,a)$.
 
-The condition (C4) of @thm-decreasing-policy holds.
+Then condition (C4) of @thm-decreasing-policy holds.
 :::
 
 :::{.callout-note collapse="true"}
@@ -495,9 +495,9 @@ $$\begin{align*}
 Since $H(s' | s,a)$ is supermodular, we have
 $$ H(s' | s^+, a^+) + H(s' | s^-, a^-) \ge H(s' | s^+, a^-) + H(s' | s^-, a^+) $$
 or equivalently,
-$$\sum_{s' \le s'} \big[ P_{s^+ s'}(a^+) + P_{s^- s'}(a^-) \big]
+$$\sum_{z \le s'} \big[ P_{s^+ z}(a^+) + P_{s^- z}(a^-) \big]
   \le 
-  \sum_{s' \le s'} \big[ P_{s^+ s'}(a^-) + P_{s^- s'}(a^+) \big]. $$
+  \sum_{z \le s'} \big[ P_{s^+ z}(a^-) + P_{s^- z}(a^+) \big]. $$
 which implies
 $$ M_1(s') \le M_2(s')$$
 where $M_1$ and $M_2$ are the CDFs of $μ_1$ and $μ_2$. Thus, $μ_1 \succeq_s
@@ -526,14 +526,14 @@ conditions are satisfied:
 
 ## Monotone dynamic programming
 
-If we can establish that the optimal policy is monontone, then we can use this
-structure to implement the dynamic program more efficient. Suppose 
-$\ALPHABET S = \{1, \dots, n\}$ and $\ALPHABET A = \{1, \dots. m\}$. The main
-idea is as follows. Suppose $V^*_{t+1}(\cdot)$ has been caclulated. Insead of
+If we can establish that the optimal policy is monotone, then we can use this
+structure to implement the dynamic program more efficiently. Suppose 
+$\ALPHABET S = \{1, \dots, n\}$ and $\ALPHABET A = \{1, \dots, m\}$. The main
+idea is as follows. Suppose $V^*_{t+1}(\cdot)$ has been calculated. Instead of
 computing $Q^*_t(s,a)$ and $V^*_t(s)$, proceed as follows:
 
 1. Set $s = 1$ and $α = 1$. 
-2. For all $u \in \{α, \dots, m\}$, compute $Q^*_t(s,a)$ as usual. 
+2. For all $a \in \{α, \dots, m\}$, compute $Q^*_t(s,a)$ as usual. 
 3. Compute 
 
      $$V^*_t(s) = \min_{ α \le a \le m } Q^*_t(s,a)$$
@@ -558,7 +558,7 @@ $$
 where $μ$ is the PMF of $W$.
 
 ::: {#prp-machine-replacement}
-For the machine replacement problem, there exist a series of thresholds $\{s^*_t\}_{t = 1}^T$ such that the optimal policy at time $t$ is a threshold policy with threshold $s_t$, i.e.,
+For the machine replacement problem, there exists a sequence of thresholds $\{s^*_t\}_{t = 1}^T$ such that the optimal policy at time $t$ is a threshold policy with threshold $s^*_t$, i.e.,
 $$
   π^*_t(s) = \begin{cases}
   0 & \text{if $s < s_t^*$} \\
@@ -609,7 +609,7 @@ optimal decision is to operate the machine for another period.
 ## Exercises {-}
 
 :::{#exr-sd-1}
-Let $T$ denote a upper triangular matrix with 1's on or below the diagonal and 0's above the diagonal. Then 
+Let $T$ denote a lower triangular matrix with 1's on or below the diagonal and 0's above the diagonal. Then 
 $$ T^{-1}_{ij} = \begin{cases}
   1, & \text{if } i = j, \\
  -1, & \text{if } i = j - 1, \\
@@ -688,7 +688,7 @@ a. We say that the transition probability matrix $P(a)$ is even if for all
 :::{#prp-even-value}
 Suppose the MDP satisfies the following properties:
 
-(A1) For every $t$ and $a \in \ALPHABET A$, $c_t(s,a)$ is even
+(A1) For every $t$ and $a \in \ALPHABET A$, $c_t(s,a)$ is an even
     function of $s$.
 
 (A2) For every $a \in \ALPHABET A$, $P(a)$ is even.
