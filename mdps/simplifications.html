@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2026-01-25">
+<meta name="dcterms.date" content="2026-01-26">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
 <title>8&nbsp; Some simplifying structures – Stochastic Control and Decision Theory</title>
@@ -506,7 +506,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../mdps/computational-complexity-vi.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Computational complexity of value interation</span></span></a>
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Computational complexity of value iteration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -887,6 +887,12 @@ window.Quarto = {
  <span class="menu-text">Assignment 3</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../assignments/04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Assignment 4</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -936,7 +942,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 25, 2026</p>
+      <p class="date">January 26, 2026</p>
     </div>
   </div>
   
@@ -950,7 +956,7 @@ window.Quarto = {
 
 <section id="post-decision-state" class="level2" data-number="8.1">
 <h2 data-number="8.1" class="anchored" data-anchor-id="post-decision-state"><span class="header-section-number">8.1</span> Post-decision state</h2>
-<p>In the <a href="../mdps/inventory-management.html">inventory management example</a>, we simplified the dynamic program using a post-decision state. This is a general idea that works when the noise in the dynamics does not depend on the action. Consider, for example, the game of tetris. The random shape that appears next does not depend on how the player moves.</p>
+<p>In the <a href="../mdps/inventory-management.html">inventory management example</a>, we simplified the dynamic program using a post-decision state. This idea works in more general settings as long as the noise in the dynamics does not depend on the action. Consider, for example, the game of tetris. The random shape that appears next does not depend on how the player moves.</p>
 <p>We can model such situations with a <strong>post-decision state</strong> <span class="math inline">\(Z_t \in \ALPHABET Z\)</span> such that the dynamics can be split into two parts: <span class="math display">\[\begin{equation}\label{eq:pd-dynamics}
   f(s,a,w) = f^{\rm stoc} ( f^{\rm ctrl}_t(s,a), w )
 \end{equation}\]</span> where <span class="math inline">\(f^{\rm ctrl} \colon \ALPHABET S × \ALPHABET A \to \ALPHABET Z\)</span> is the <em>controlled</em> part of the dynamics that depend on the action but not the noise and <span class="math inline">\(f^{\rm stoc} \colon \ALPHABET Z \times \ALPHABET W \to \ALPHABET S\)</span> is the _ (exogenous) stochastic_ part of the dynamics that depend on the noise but not the action.</p>
@@ -958,7 +964,7 @@ window.Quarto = {
   f(s,a,w) = s + a - w.
 \]</span> A non-example is <a href="../mdps/gambling.html">optimal gambling</a>, where the dynamics <span class="math display">\[
   f(s,a,w) = s + a w
-\]</span> cannot be written in the structured form described above (or more precisely, the only way to write it in the above for is to take <span class="math inline">\(z = (s,a)\)</span>, which does not lead to any simplification).</p>
+\]</span> cannot be written in the structured form described above (or more precisely, the only way to write it in the above form is to take <span class="math inline">\(z = (s,a)\)</span>, which does not lead to any simplification).</p>
 <p>If the model is such that the cost depends on the next state, then it is assumed that the per-step cost can also be decomposed as <span class="math display">\[\begin{equation}\label{eq:pd-cost}
   c(s,a,s') = c^{\rm ctrl}(s,a) + c^{\rm stoc}( f^{\rm ctrl}_t(s,a), s').
 \end{equation}\]</span></p>
@@ -972,12 +978,12 @@ window.Quarto = {
   V^{\rm ctrl}_t(s)   &amp;= \min_{a \in \ALPHABET A} Q^{\rm ctrl}_t(s,a),
   \quad \forall s \in \ALPHABET S.
 \end{align*}\]</span></p>
-<p>There are two advantages of post-decsion state models:</p>
+<p>There are two advantages of post-decision state models:</p>
 <ol type="1">
 <li><p>The <em>optimization step</em> <span class="math display">\[
   \min_{a \in \ALPHABET A} \bigl\{ c^{\rm ctrl}(s,a) + V^{\rm stoc}_t( f^{\rm ctrl}(s,a) ) \bigr\}
 \]</span> does not require any expectations, so it can be solved using standard optimization tools.</p></li>
-<li><p>The complexity of computing the action-value function at time <span class="math inline">\(t\)</span> is <span class="math inline">\(\mathcal{O}(\ABS{\ALPHABET Z} \ABS{\ALPHABET W} + \ABS{\ALPHABET S} \ABS{\ALPHABET A})\)</span>, which in general is much smaller than the usual complexity of <span class="math inline">\(\mathcal{O}(\ABS{\ALPHABET S}\ABS{\ALPHABET A}\ABS{\ALPHABET W})\)</span>. As long as post-decision state is small (typically <span class="math inline">\(\ABS{\ALPHABET Z} \approx \ABS{\ALPHABET S}\)</span>), we avoid the multiplicative blow-up of <span class="math inline">\(\ABS{\ALPHABET S}\ABS{\ALPHABET A}\ABS{\ALPHABET W}\)</span>.</p></li>
+<li><p>The complexity of computing the action-value function at time <span class="math inline">\(t\)</span> is <span class="math inline">\(\mathcal{O}(\ABS{\ALPHABET Z} \ABS{\ALPHABET W} + \ABS{\ALPHABET S} \ABS{\ALPHABET A})\)</span>, which is typically much smaller than the standard complexity of <span class="math inline">\(\mathcal{O}(\ABS{\ALPHABET S}\ABS{\ALPHABET A}\ABS{\ALPHABET W})\)</span>. As long as post-decision state is small (typically <span class="math inline">\(\ABS{\ALPHABET Z} \approx \ABS{\ALPHABET S}\)</span>), we avoid the multiplicative blow-up of <span class="math inline">\(\ABS{\ALPHABET S}\ABS{\ALPHABET A}\ABS{\ALPHABET W}\)</span>.</p></li>
 </ol>
 </section>
 <section id="a-slight-generalization" class="level2" data-number="8.2">
