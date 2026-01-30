@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2026-01-26">
+<meta name="dcterms.date" content="2026-01-30">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
 <title>8&nbsp; Some simplifying structures – Stochastic Control and Decision Theory</title>
@@ -23,7 +23,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -907,6 +926,10 @@ window.Quarto = {
   <ul>
   <li><a href="#post-decision-state" id="toc-post-decision-state" class="nav-link active" data-scroll-target="#post-decision-state"><span class="header-section-number">8.1</span> Post-decision state</a></li>
   <li><a href="#a-slight-generalization" id="toc-a-slight-generalization" class="nav-link" data-scroll-target="#a-slight-generalization"><span class="header-section-number">8.2</span> A slight generalization</a></li>
+  <li><a href="#mdps-with-side-information" id="toc-mdps-with-side-information" class="nav-link" data-scroll-target="#mdps-with-side-information"><span class="header-section-number">8.3</span> MDPs with side information</a>
+  <ul class="collapse">
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/simplifications.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -942,7 +965,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 26, 2026</p>
+      <p class="date">January 30, 2026</p>
     </div>
   </div>
   
@@ -1003,8 +1026,38 @@ window.Quarto = {
   \quad \forall s \in \ALPHABET S.
 \end{align*}\]</span></p>
 <p>The complexity of this step is <span class="math inline">\(\mathcal{O}(nk + nmk)\)</span>, in contrast to <span class="math inline">\(\mathcal{O}(n^2m)\)</span> of standard DP.</p>
+</section>
+<section id="mdps-with-side-information" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="mdps-with-side-information"><span class="header-section-number">8.3</span> MDPs with side information</h2>
+<p>In many scenarios, the decision maker observes some “side information” <span class="math inline">\(X_t\)</span> that affects the current cost but does not influence the future evolution of the “core” state <span class="math inline">\(S_t\)</span>. For example, consider an inventory management model where the price fluctuates over time but the user knows the price before placing an order.</p>
+<p>We can model such scenarios as an MDP where the state is the pair <span class="math inline">\((S_t, X_t)\)</span>. We assume the dynamics factorize as: <span class="math display">\[P(S_{t+1}, X_{t+1} | S_t, X_t, A_t) = P(S_{t+1} | S_t, A_t) P^{\rm info}(X_{t+1} | S_{t+1})\]</span> where <span class="math inline">\(P^{\rm info}(x|s)\)</span> is the probability of observing side information <span class="math inline">\(x\)</span> given the state is <span class="math inline">\(s\)</span>. The per-step cost is given by <span class="math inline">\(c(s_t, x_t, a_t)\)</span>.</p>
+<p>The standard DP for this model is: <span class="math display">\[V_{T+1}(s,x) = 0\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, <span class="math display">\[V_t(s,x) = \min_{a \in \mathcal{A}} \left[ c(s,x,a) + \sum_{s_{+} \in \mathcal{S}} \sum_{x_{+} \in \mathcal{X}} P(s_{+}|s,a) P^{\rm info}(x_{+}|s_{+}) V_{t+1}(s_{+}, x_{+}) \right].\]</span>.</p>
+<p>Since <span class="math inline">\(X_t\)</span> doesn’t affect the transition of <span class="math inline">\(S_t\)</span>, we can simplify the state space by defining an <strong>averaged value function</strong> <span class="math inline">\(V^{\rm info}_t(s)\)</span>, which represents the expected future cost at time <span class="math inline">\(t\)</span> before <span class="math inline">\(X_t\)</span> is observed: <span class="math display">\[V^{\rm info}_t(s) = \sum_{x \in \mathcal{X}} P^{\rm info}(x|s) V_t(s,x).\]</span></p>
+<p>With this notation, we can write the recursive step of the dynamic program as follows:</p>
+<p><span class="math display">\[
+  V^{\rm info}_t(s)
+  = \sum_{x \in \ALPHABET X} P^{\rm info}(x|s)
+  \min_{a \in \ALPHABET A}
+  \left[ c(s,x,a) + \sum_{s_{+} \in \ALPHABET S} P(s_{+}|s,a) V^{\rm info}_{t+1}(s_{+}) \right]
+\]</span></p>
+<p>If the inner optimization problem can be solved efficiently, then we only need to store <span class="math inline">\(V^{\rm info}(\cdot)\)</span>. This is particularly efficient when <span class="math inline">\(\ALPHABET X\)</span> is high-dimensional.</p>
+<section id="notes" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="notes">Notes</h3>
+<p>The idea of post-decision state is due to <span class="citation" data-cites="VanRoy1997">Van Roy et al. (<a href="../references.html#ref-VanRoy1997" role="doc-biblioref">1997</a>)</span> and is sometimes referred to as <em>afterstates</em> in the RL literature. <span class="citation" data-cites="SuttonBarto2018">Sutton and Barto (<a href="../references.html#ref-SuttonBarto2018" role="doc-biblioref">2018</a>)</span>. Post-decision states are also useful in approximate dynamic programming; see <span class="citation" data-cites="Powell2011">Powell (<a href="../references.html#ref-Powell2011" role="doc-biblioref">2011</a>)</span>.</p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-Powell2011" class="csl-entry" role="listitem">
+<span class="smallcaps">Powell, W.B.</span> 2011. <em>Approximate dynamic programming: Solving the curses of dimensionality</em>. John Wiley &amp; Sons.
+</div>
+<div id="ref-SuttonBarto2018" class="csl-entry" role="listitem">
+<span class="smallcaps">Sutton, R.S. and Barto, A.G.</span> 2018. <em>Reinforcement learning: An introduction</em>. MIT Press.
+</div>
+<div id="ref-VanRoy1997" class="csl-entry" role="listitem">
+<span class="smallcaps">Van Roy, B., Bertsekas, D.P., Lee, Y., and Tsitsiklis, J.N.</span> 1997. A neuro-dynamic programming approach to retailer inventory management. <em>IEEE conference on decision and control</em>, IEEE, 4052–4057. DOI: <a href="https://doi.org/10.1109/cdc.1997.652501">10.1109/cdc.1997.652501</a>.
+</div>
+</div>
+</section>
 </section>
 
 </main> <!-- /main -->
