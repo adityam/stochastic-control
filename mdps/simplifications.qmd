@@ -76,3 +76,34 @@ With this notation, we can write the recursive step of the dynamic program as fo
 \end{align*}
 
 The complexity of this step is $\mathcal{O}(nk + nmk)$, in contrast to $\mathcal{O}(n^2m)$ of standard DP. 
+
+## MDPs with side information
+
+In many scenarios, the decision maker observes some "side information" $X_t$ that affects the current cost but does not influence the future evolution of the "core" state $S_t$. For example, consider an inventory management model where the price fluctuates over time but the user knows the price before placing an order.
+
+We can model such scenarios as an MDP where the state is the pair $(S_t, X_t)$. We assume the dynamics factorize as:
+$$P(S_{t+1}, X_{t+1} | S_t, X_t, A_t) = P(S_{t+1} | S_t, A_t) P^{\rm info}(X_{t+1} | S_{t+1})$$
+where $P^{\rm info}(x|s)$ is the probability of observing side information $x$ given the state is $s$. The per-step cost is given by $c(s_t, x_t, a_t)$.
+
+The standard DP for this model is:
+$$V_{T+1}(s,x) = 0$$
+and for $t \in \{T, \dots, 1\}$, 
+$$V_t(s,x) = \min_{a \in \mathcal{A}} \left[ c(s,x,a) + \sum_{s_{+} \in \mathcal{S}} \sum_{x_{+} \in \mathcal{X}} P(s_{+}|s,a) P^{\rm info}(x_{+}|s_{+}) V_{t+1}(s_{+}, x_{+}) \right].$$.
+
+Since $X_t$ doesn't affect the transition of $S_t$, we can simplify the state space by defining an **averaged value function** $V^{\rm info}_t(s)$, which represents the expected future cost at time $t$ before $X_t$ is observed:
+$$V^{\rm info}_t(s) = \sum_{x \in \mathcal{X}} P^{\rm info}(x|s) V_t(s,x).$$
+
+With this notation, we can write the recursive step of the dynamic program as follows:
+
+$$
+  V^{\rm info}_t(s) 
+  = \sum_{x \in \ALPHABET X} P^{\rm info}(x|s)
+  \min_{a \in \ALPHABET A} 
+  \left[ c(s,x,a) + \sum_{s_{+} \in \ALPHABET S} P(s_{+}|s,a) V^{\rm info}_{t+1}(s_{+}) \right]
+$$
+
+If the inner optimization problem can be solved efficiently, then we only need to store $V^{\rm info}(\cdot)$. This is particularly efficient when $\ALPHABET X$ is high-dimensional. 
+
+### Notes {-}
+
+The idea of post-decision state is due to @VanRoy1997 and is sometimes referred to as _afterstates_ in the RL literature. @SuttonBarto2018. Post-decision states are also useful in approximate dynamic programming; see @Powell2011.
