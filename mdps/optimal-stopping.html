@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2025-10-11">
+<meta name="dcterms.date" content="2026-01-31">
 <meta name="keywords" content="optimal stopping, threshold policies, monotone policies">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -925,11 +925,10 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#example-time-to-market-model" id="toc-example-time-to-market-model" class="nav-link active" data-scroll-target="#example-time-to-market-model"><span class="header-section-number">12.1</span> Example: Time-to-Market Model</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">12.1</span> Introduction</a></li>
   <li><a href="#example-optimal-choice-of-the-best-alternative" id="toc-example-optimal-choice-of-the-best-alternative" class="nav-link" data-scroll-target="#example-optimal-choice-of-the-best-alternative"><span class="header-section-number">12.2</span> Example: Optimal choice of the best alternative</a></li>
-  <li><a href="#example-call-options" id="toc-example-call-options" class="nav-link" data-scroll-target="#example-call-options"><span class="header-section-number">12.3</span> Example: Call options</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
-  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#monotonicity-of-optimal-policies" id="toc-monotonicity-of-optimal-policies" class="nav-link" data-scroll-target="#monotonicity-of-optimal-policies"><span class="header-section-number">12.3</span> Monotonicity of Optimal Policies</a></li>
+  <li><a href="#example-call-options" id="toc-example-call-options" class="nav-link" data-scroll-target="#example-call-options"><span class="header-section-number">12.4</span> Example: Call options</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/optimal-stopping.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -965,7 +964,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 11, 2025</p>
+      <p class="date">January 31, 2026</p>
     </div>
   </div>
   
@@ -983,100 +982,37 @@ window.Quarto = {
 </header>
 
 
-<p>Let <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> be a Markov chain. At each time <span class="math inline">\(t\)</span>, a decision maker observes the state <span class="math inline">\(S_t\)</span> of the Markov chain and decides whether to continue or stop the process. If the decision maker decides to continue, he incurs a <em>continuation cost</em> <span class="math inline">\(c_t(S_t)\)</span> and the state evolves. If the DM decides to stop, he incurs a <em>stopping cost</em> of <span class="math inline">\(d_t(S_t)\)</span> and the problem is terminated. The objective is to determine an optimal <em>stopping time</em> <span class="math inline">\(\tau\)</span> to minimize <span class="math display">\[J(\tau) := \EXP\bigg[ \sum_{t=1}^{\tau-1} c_t(S_t) + d_\tau(S_\tau)
-\bigg].\]</span></p>
-<p>Such problems are called <em>Optimal stopping problems</em>. These can be solved using dynamic programming as follows.</p>
-<p>Define the <em>cost-to-go function</em> of any stopping rule as <span class="math display">\[J_{t_0}(s; \tau) = \EXP\bigg[ \sum_{t = t_0}^{\tau - 1} c_{t}(S_t) +
-d_\tau(S_\tau) \,\bigg|\, S_{t_0} = s, \tau &gt; t_0 \bigg]\]</span> and the <em>value function</em> as <span class="math display">\[V^*_t(s) = \inf_{\tau} J_t(s; \tau). \]</span> Then, it can be shown that the value functions satisfy the following recursion:</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Dynamic Program for optimal stopping
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><span class="math display">\[ \begin{align*}
-V^*_T(s) &amp;= d_T(s) \\
-V^*_t(s) &amp;= \min\{ d_t(s), c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s].
-\end{align*}\]</span></p>
-</div>
-</div>
-<p>Consider an optimal stopping problem and define the <em>benefit (or advantage) function</em> as the expected benefit<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> of delaying the stopping decision at time <span class="math inline">\(t\)</span>, i.e., <span class="math display">\[\begin{equation}\label{eq:B}
-  B_t(s) = c_t(s) + \EXP[ V^*_{t+1}( S_{t+1}) | S_t = s] - d_t(s).
-\end{equation}\]</span> Thus, it is optimal to stop whenever <span class="math inline">\(B_t(s) \ge 0\)</span>.</p>
-<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;The terminology comes from reward maximization problems. In cost minimization problems, this may be thought of as the <em>disadvantage function</em>.</p></div></div><p>Note that, we can write the value function in terms of the benefit function as follows: <span class="math display">\[\begin{align}
-  V^*_t(s) &amp;= \min\{ d_t(s), B_t(s) + d_t(s) \} \nonumber \\
-  &amp;= d_t(s) + [ B_t(s) ]^-, \label{eq:V}
-\end{align}\]</span> where <span class="math inline">\([y]^-\)</span> is a short hand for <span class="math inline">\(\min\{y, 0\}\)</span>.</p>
-<p>Now, define the <em>one-step look-ahead function</em> as the benefit of delaying the stopping decision by one step, i.e., <span class="math display">\[\begin{equation}\label{eq:M}
-  M_t(s) = c_t(s) + \EXP[ d_{t+1}(S_{t+1}) | S_t = s] - d_t(s).
-\end{equation}\]</span></p>
-<p>The benefit function and the one-step look-ahead functions are related as follows. <span class="math display">\[ B_T(s) = M_T(s) \]</span> and <span class="math display">\[ \begin{align*}
-  B_t(s) &amp;= c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s] - d_t(s) \\
-  &amp;= c_t(s) + \EXP[ d_{t+1}(S_{t+1}) + [B_{t+1}(S_{t+1})]^- | S_t = s] - d_t(s)
-  \\
-  &amp;= M_t(s) + \EXP[ [B_{t+1}(S_{t+1}]^- | S_t = s ].
-\end{align*} \]</span></p>
-<div id="thm-monotone-stopping" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 12.1</strong></span> Suppose the state space is totally ordered and the following conditions hold.</p>
+<section id="introduction" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">12.1</span> Introduction</h2>
+<p>In an optimal stopping problem, a decision maker observes a stochastic process and must decide whether to stop the process or continue. The goal is to balance the <strong>immediate cost of stopping</strong> against the <strong>expected future costs</strong> of continuing. Such problems are modelled as follows:</p>
+<p>Let <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> be a Markov chain. At each time <span class="math inline">\(t\)</span>, a decision maker observes the state <span class="math inline">\(S_t\)</span> of the Markov chain and has two options:</p>
 <ol type="1">
-<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(M_t(s)\)</span> is weakly increasing in <span class="math inline">\(s\)</span>.</li>
-<li><span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is stochastic monotone.</li>
+<li><p><strong>Stop</strong>: The process terminates, and the decision maker incurs a <em>stopping cost</em> <span class="math inline">\(d_t(S_t)\)</span>.</p></li>
+<li><p><strong>Continue</strong>: The decision maker incurs a <em>continuation cost</em> <span class="math inline">\(c_t(S_t)\)</span>, and the process evolves to state <span class="math inline">\(S_{t+1}\)</span>.</p></li>
 </ol>
-<p>Then <span class="math inline">\(B_t(s)\)</span> is weakly increasing in <span class="math inline">\(s\)</span> for all <span class="math inline">\(t\)</span> and there exists a sequence <span class="math inline">\(\{\lambda_t\}_{t \ge 1}\)</span> such that it is optimal to stop at time <span class="math inline">\(t\)</span> if and only if <span class="math inline">\(S_t \ge \lambda_t\)</span>.</p>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Proof
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>We first prove monotonicity of <span class="math inline">\(B_t(s)\)</span>. As usual, the proof is by backward induction. For <span class="math inline">\(t = T\)</span>, <span class="math inline">\(B_T(s) = M_T(s)\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(B_{t+1}(s)\)</span> is increasing in <span class="math inline">\(s\)</span> and consider the problem at time <span class="math inline">\(t\)</span>.</p>
-<p>Since <span class="math inline">\(B_{t+1}(s)\)</span> is increasing so is <span class="math inline">\([B_{t+1}(s)]^{-}\)</span>. Moreover, since <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math inline">\(\EXP[ [B_{t+1}(S_{t+1})]^- | S_t = s]\)</span> is increasing in <span class="math inline">\(s\)</span>. Therefore, <span class="math display">\[ B_t(s) = M_t(s) + \EXP[ [B_{t+1}(S_{t+1})]^- | S_t = s] \]</span> is increasing in <span class="math inline">\(s\)</span>. Thus, by induction, <span class="math inline">\(B_t(s)\)</span> is increasing in <span class="math inline">\(s\)</span> for all <span class="math inline">\(t\)</span>.</p>
-<p>Recall that it is optimal to stop iff <span class="math inline">\(B_t(s) \ge 0\)</span>. Since <span class="math inline">\(B_t(s)\)</span> is increasing in <span class="math inline">\(s\)</span>, the optimal decision rule is of a threshold type.</p>
-</div>
-</div>
-</div>
+<p>The objective is to determine a stopping time <span class="math inline">\(\tau\)</span> to minimize the total expected cost: <span class="math display">\[J(\tau) := \EXP\bigg[ \sum_{t=1}^{\tau-1} c_t(S_t) + d_\tau(S_\tau) \bigg].\]</span></p>
+<p>In principle, the process can be modelled as a MDP with an augmented state <span class="math inline">\((S_t, Z_t)\)</span> where <span class="math inline">\(Z_t\)</span> is an indicator function indicating if a stopping decision has been taken until (but not including) time~<span class="math inline">\(t\)</span>. However, we do not need this elaborate setup if we simply define the value function as the cost to go under the assumption that the system has not stooped so far. This yields the following dynamic programming recursion:</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Remark on the assumptions
+<span class="screen-reader-only">Tip</span>Dynamic Program for Optimal Stopping
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Let’s contrast the result of <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.1</span></a> from the monotonicity of optimal policies in general MDPs. Here, in addition to stochastic monotonicity of the Markov chain, we only require the one-step look-ahead function to be monotone. There is no assumption on the submodularity of the cost.</p>
+<p>At the terminal time <span class="math inline">\(T\)</span>: <span class="math display">\[V^*_T(s) = d_T(s)\]</span></p>
+<p>For any time <span class="math inline">\(t \in \{T-1, \dots, 1\}\)</span>: <span class="math display">\[V^*_t(s) = \min \Big\{ \underbrace{d_t(s)}_{\text{Stopping cost}}, \quad \underbrace{c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) \mid S_t = s]}_{\text{Continuation cost}} \Big\}\]</span></p>
 </div>
 </div>
-<section id="example-time-to-market-model" class="level2" data-number="12.1">
-<h2 data-number="12.1" class="anchored" data-anchor-id="example-time-to-market-model"><span class="header-section-number">12.1</span> Example: Time-to-Market Model</h2>
-<p>Consider a firm that decides when to introduce a new product. When the firm introduces the product earlier than the competition, it captures a larger market share. However, an early introduction results in high production costs and low profit margins due to low manufacturing yields. Hence, the firm needs to determine the optimal time to enter the market. Suppose that the total market demand <span class="math inline">\(D\)</span> is deterministic. Let <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> denote the number of competitors at time <span class="math inline">\(t\)</span>. It is assumed that <span class="math display">\[ S_{t+1} = S_t + W_t, \]</span> where <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is an independent process independent of <span class="math inline">\(S_1\)</span>.</p>
-<p>Let <span class="math inline">\(r(s)\)</span> denote the market share of the firm when it enters the market after the <span class="math inline">\(s\)</span>-th competitor. It is assumed that <span class="math inline">\(r(s)\)</span> is decreasing and concave in <span class="math inline">\(s\)</span>.</p>
-<p>Let <span class="math inline">\(p_*\)</span> denote the sale price of the product and <span class="math inline">\(p_t\)</span> denote the production cost at time <span class="math inline">\(t\)</span>. It is assumed that <span class="math inline">\(p_t\)</span> decreases with <span class="math inline">\(t\)</span>.</p>
-<p>The continuation reward is zero and the stopping reward at time <span class="math inline">\(t\)</span> is <span class="math display">\[ d_t(s) = r(s)(p_* - p_t) D. \]</span> When should the firm enter the market?</p>
-<p>First observe that <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is a monotone process. Now consider the one step look-ahead function <span class="math display">\[ \begin{align*}
-M_t(s) &amp;= \EXP[ d_{t+1}(s + W) ] - d_t(s) \\
-&amp;= \EXP[ r(s + W) (p_* - p_{t+1}) D ] - r(s)(p_* - p_t) D \\
-&amp;= \EXP[ r(s + W) - r(s) ] (p_* - p_{t+1}) D
-    + r(s)( p_* - p_{t+1})D  - r(s)(p_* - p_t ) D \\
-&amp;= \EXP[ r(s + W) - r(s) ] (p_* - p_{t+1}) D
-    + r(s) (p_t - p_{t+1}) D.
-\end{align*} \]</span> Since <span class="math inline">\(r(s)\)</span> is concave, the first term is decreasing in <span class="math inline">\(s\)</span>. The second term is also decreasing in <span class="math inline">\(s\)</span> because <span class="math inline">\(r(s)\)</span> is decreasing in <span class="math inline">\(s\)</span> and <span class="math inline">\(p_t \ge p_{t+1}\)</span>. Therefore, <span class="math inline">\(M_t(s)\)</span> is decreasing in <span class="math inline">\(s\)</span>. Hence, by <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.1</span></a>, there exist a sequence of thresholds <span class="math inline">\(\{\lambda_t\}_{t \ge 1}\)</span> such that the firm should enter the market at time <span class="math inline">\(t\)</span> iff <span class="math inline">\(S_t \ge \lambda_t\)</span>.</p>
 </section>
 <section id="example-optimal-choice-of-the-best-alternative" class="level2" data-number="12.2">
 <h2 data-number="12.2" class="anchored" data-anchor-id="example-optimal-choice-of-the-best-alternative"><span class="header-section-number">12.2</span> Example: Optimal choice of the best alternative</h2>
-<p>A decision maker (DM) wants to select the best alternative from a set of <span class="math inline">\(T\)</span> alternatives. The DM evaluates the alternatives sequentially. After evaluating alternative <span class="math inline">\(t\)</span>, the DM knows whether alternative <span class="math inline">\(t\)</span> was the best alternative so far or not. Based on this information, the DM must decide whether to choose alternative <span class="math inline">\(t\)</span> and stop the search, or to permanently reject alternative <span class="math inline">\(t\)</span> and evaluate remaining alternatives. The DM may reject the last alternative and not make a choice at all. All alternatives are equally likely to be the best. Find the optimal choice strategy that maximize the probability of picking the best alternative.</p>
+<p>As was the case for general MDPs, for some special cases, it is possible to obtain an analytic solution of the dynamic program, as is illustrated by the following example.</p>
+<div id="exm-optimal-choice" class="theorem example">
+<p><span class="theorem-title"><strong>Example 12.1 (Optimal choice)</strong></span> A decision maker (DM) wants to select the best alternative from a set of <span class="math inline">\(T\)</span> alternatives. The DM evaluates the alternatives sequentially. After evaluating alternative <span class="math inline">\(t\)</span>, the DM knows whether alternative <span class="math inline">\(t\)</span> was the best alternative so far or not. Based on this information, the DM must decide whether to choose alternative <span class="math inline">\(t\)</span> and stop the search, or to permanently reject alternative <span class="math inline">\(t\)</span> and evaluate remaining alternatives. The DM may reject the last alternative and not make a choice at all. All alternatives are equally likely to be the best. Find the optimal choice strategy that maximize the probability of picking the best alternative.</p>
+</div>
 <p>This optimization problem is known by different names including <em>secretary problem</em> (in which the alternatives correspond to finding the best candidate as a secretary), <em>marriage problem</em> (in which the alternatives correspond of find the best spouse), <em>Googol</em> (in which the alternatives consist of finding the biggest number), <em>parking problem</em> (in which the alternatives correspond to finding the nearest parking spot) and so on</p>
 <p>We can view this an optimal stopping problem with binary state <span class="math inline">\(S_t\)</span>. <span class="math inline">\(S_t = 1\)</span> means that alternative <span class="math inline">\(t\)</span> is the best alternative so far. Thus, <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is an independent process with <span class="math inline">\(\PR(S_t = 1) = 1/t\)</span>. The continuation reward is zero. The DM receives a stopping reward only if the current alternative is best, i.e., the current alternative is best so far (<span class="math inline">\(S_t = 1\)</span>) and better than all future alternative (<span class="math inline">\(S_\tau = 0, \tau &gt; t\)</span>). Thus, the expected stopping reward conditioned on <span class="math inline">\(S_t\)</span> is <span class="math display">\[ d_t(s) = \IND\{ s = 1 \} \cdot \PR( S_{t+1:T} = 0 | S_t = s ) = s \cdot \frac tT. \]</span> Thus, the optimal strategy is given by the solution of the following dynamic program.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -1104,7 +1040,7 @@ M_t(s) &amp;= \EXP[ d_{t+1}(s + W) ] - d_t(s) \\
 \]</span></p>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="true" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1113,7 +1049,7 @@ M_t(s) &amp;= \EXP[ d_{t+1}(s + W) ] - d_t(s) \\
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse show">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse show">
 <div class="callout-body-container callout-body">
 <p>The result follows immediately from the definition of <span class="math inline">\(L_t\)</span>.</p>
 </div>
@@ -1121,7 +1057,7 @@ M_t(s) &amp;= \EXP[ d_{t+1}(s + W) ] - d_t(s) \\
 </div>
 <p>Note that it is never optimal to select an alternative if it is not the best so far (i.e., <span class="math inline">\(S_t = 0\)</span>). Thus, we can completely characterize an optimal strategy by solving for <span class="math inline">\(\{L_t\}_{t=1}^T\)</span> in a backward manner.</p>
 <div id="thm-secretary-problem" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 12.2</strong></span> &nbsp;</p>
+<p><span class="theorem-title"><strong>Theorem 12.1</strong></span> &nbsp;</p>
 <ol type="1">
 <li><p>There exists a critical time <span class="math inline">\(t_0\)</span>, <span class="math inline">\(t_0 &lt; T\)</span>, such that it is optimal to reject all alternatives until <span class="math inline">\(t_0 - 1\)</span> and then select the first alternative that is superior to all previous ones, if it occurs.</p></li>
 <li><p>The critical time is the smallest integer <span class="math inline">\(t_0\)</span> such that <span class="math display">\[
@@ -1138,7 +1074,7 @@ M_t(s) &amp;= \EXP[ d_{t+1}(s + W) ] - d_t(s) \\
 </ol>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1147,7 +1083,7 @@ M_t(s) &amp;= \EXP[ d_{t+1}(s + W) ] - d_t(s) \\
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Note that <span class="math inline">\(L_t - L_{t+1} \ge 0\)</span>. Thus, <span class="math inline">\(L_t\)</span> is decreasing with time.</p>
 <p><span class="math inline">\(V^*_t(1) = \max\{t/T, L_t\}\)</span> where the first term is increasing with time and the second term is decreasing with time. Thus, the critical time <span class="math inline">\(t_0\)</span> is the first time when <span class="math inline">\(t/T \ge L_t\)</span>. Since <span class="math inline">\(L_T = 0\)</span> and <span class="math inline">\(T/T = 1\)</span>, such a <span class="math inline">\(t_0 &lt; T\)</span>.</p>
@@ -1169,9 +1105,87 @@ V^*_1(0) = V^*_1(1) = L_1 = L_{t_0} \approx \frac{t_0}{T} = \frac 1e.
 </div>
 </div>
 </section>
-<section id="example-call-options" class="level2" data-number="12.3">
-<h2 data-number="12.3" class="anchored" data-anchor-id="example-call-options"><span class="header-section-number">12.3</span> Example: Call options</h2>
-<p>An investor has a <a href="https://en.wikipedia.org/wiki/Call_option">:call option</a> to buy one share of a stock at a fixed price <span class="math inline">\(p\)</span> dollars and has <span class="math inline">\(T\)</span> days to <em>exercise</em> this option. For simplicity, we assume that the investor makes a decision at the beginning of each day.</p>
+<section id="monotonicity-of-optimal-policies" class="level2 page-columns page-full" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="monotonicity-of-optimal-policies"><span class="header-section-number">12.3</span> Monotonicity of Optimal Policies</h2>
+<p>Recall that in the section on <a href="../mdps/monotone-mdps.html">monotone MDPs</a>, we identified sufficient conditions (based on submodularity) under which the optimal policy is monotone. Such a structure is desirable for optimal stopping problems as well, where it takes the form of a <strong>threshold policy</strong>.</p>
+<p>Since optimal stopping is a restricted class of MDPs, the sufficient conditions for establishing monotonicity here are significantly simpler than for general MDPs. The key intuition is that instead of comparing the raw values of stopping versus continuing, we analyze the <strong>benefit</strong> (or advantage) of delaying the decision.</p>
+<p>Formally, we define the <em>benefit (or advantage) function</em> as the expected benefit<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> of delaying the stopping decision at time <span class="math inline">\(t\)</span>, i.e., <span class="math display">\[\begin{equation}\label{eq:B}
+  B_t(s) = c_t(s) + \EXP[ V^*_{t+1}( S_{t+1}) | S_t = s] - d_t(s).
+\end{equation}\]</span> Thus, it is optimal to stop whenever <span class="math inline">\(B_t(s) \ge 0\)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;The terminology comes from reward maximization problems. In cost minimization problems, this may be thought of as the <em>disadvantage function</em>.</p></div></div><p>Note that, we can write the value function in terms of the benefit function as follows: <span class="math display">\[\begin{align}
+  V^*_t(s) &amp;= \min\{ d_t(s), B_t(s) + d_t(s) \} \nonumber \\
+  &amp;= d_t(s) + [ B_t(s) ]^-, \label{eq:V}
+\end{align}\]</span> where <span class="math inline">\([y]^-\)</span> is a short hand for <span class="math inline">\(\min\{y, 0\}\)</span>.</p>
+<p>Now, define the <em>one-step look-ahead function</em> as the benefit of delaying the stopping decision by one step, i.e., <span class="math display">\[\begin{equation}\label{eq:M}
+  M_t(s) = c_t(s) + \EXP[ d_{t+1}(S_{t+1}) | S_t = s] - d_t(s).
+\end{equation}\]</span></p>
+<p>The benefit function and the one-step look-ahead functions are related as follows. <span class="math display">\[ B_T(s) = M_T(s) \]</span> and <span class="math display">\[ \begin{align*}
+  B_t(s) &amp;= c_t(s) + \EXP[ V^*_{t+1}(S_{t+1}) | S_t = s] - d_t(s) \\
+  &amp;= c_t(s) + \EXP[ d_{t+1}(S_{t+1}) + [B_{t+1}(S_{t+1})]^- | S_t = s] - d_t(s)
+  \\
+  &amp;= M_t(s) + \EXP[ [B_{t+1}(S_{t+1}]^- | S_t = s ].
+\end{align*} \]</span></p>
+<div id="thm-monotone-stopping" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 12.2</strong></span> Suppose the state space is totally ordered and the following conditions hold.</p>
+<ol type="1">
+<li>For all <span class="math inline">\(t\)</span>, <span class="math inline">\(M_t(s)\)</span> is weakly increasing in <span class="math inline">\(s\)</span>.</li>
+<li><span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is stochastic monotone.</li>
+</ol>
+<p>Then <span class="math inline">\(B_t(s)\)</span> is weakly increasing in <span class="math inline">\(s\)</span> for all <span class="math inline">\(t\)</span> and there exists a sequence <span class="math inline">\(\{\lambda_t\}_{t \ge 1}\)</span> such that it is optimal to stop at time <span class="math inline">\(t\)</span> if and only if <span class="math inline">\(S_t \ge \lambda_t\)</span>.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Proof
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>We first prove monotonicity of <span class="math inline">\(B_t(s)\)</span>. As usual, the proof is by backward induction. For <span class="math inline">\(t = T\)</span>, <span class="math inline">\(B_T(s) = M_T(s)\)</span>. This forms the basis of induction. Now assume that <span class="math inline">\(B_{t+1}(s)\)</span> is increasing in <span class="math inline">\(s\)</span> and consider the problem at time <span class="math inline">\(t\)</span>.</p>
+<p>Since <span class="math inline">\(B_{t+1}(s)\)</span> is increasing so is <span class="math inline">\([B_{t+1}(s)]^{-}\)</span>. Moreover, since <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is stochastically monotone, <span class="math inline">\(\EXP[ [B_{t+1}(S_{t+1})]^- | S_t = s]\)</span> is increasing in <span class="math inline">\(s\)</span>. Therefore, <span class="math display">\[ B_t(s) = M_t(s) + \EXP[ [B_{t+1}(S_{t+1})]^- | S_t = s] \]</span> is increasing in <span class="math inline">\(s\)</span>. Thus, by induction, <span class="math inline">\(B_t(s)\)</span> is increasing in <span class="math inline">\(s\)</span> for all <span class="math inline">\(t\)</span>.</p>
+<p>Recall that it is optimal to stop iff <span class="math inline">\(B_t(s) \ge 0\)</span>. Since <span class="math inline">\(B_t(s)\)</span> is increasing in <span class="math inline">\(s\)</span>, the optimal decision rule is of a threshold type.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Remark on the assumptions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Let’s contrast the result of <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a> from the monotonicity of optimal policies in general MDPs. Here, in addition to stochastic monotonicity of the Markov chain, we only require the one-step look-ahead function to be monotone. There is no assumption on the submodularity of the cost.</p>
+</div>
+</div>
+<p>We now present an example where we can use <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a> to determine monotonicity of optimal policies.</p>
+<div id="exm-time-to-market" class="theorem example">
+<p><span class="theorem-title"><strong>Example 12.2 (Time-to-Market Model)</strong></span> Consider a firm that decides when to introduce a new product. When the firm introduces the product earlier than the competition, it captures a larger market share. However, an early introduction results in high production costs and low profit margins due to low manufacturing yields. Hence, the firm needs to determine the optimal time to enter the market. Suppose that the total market demand <span class="math inline">\(D\)</span> is deterministic. Let <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> denote the number of competitors at time <span class="math inline">\(t\)</span>. It is assumed that <span class="math display">\[ S_{t+1} = S_t + W_t, \]</span> where <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is an independent process independent of <span class="math inline">\(S_1\)</span>.</p>
+<p>Let <span class="math inline">\(r(s)\)</span> denote the market share of the firm when it enters the market after the <span class="math inline">\(s\)</span>-th competitor. It is assumed that <span class="math inline">\(r(s)\)</span> is decreasing and concave in <span class="math inline">\(s\)</span>.</p>
+<p>Let <span class="math inline">\(p_*\)</span> denote the sale price of the product and <span class="math inline">\(p_t\)</span> denote the production cost at time <span class="math inline">\(t\)</span>. It is assumed that <span class="math inline">\(p_t\)</span> decreases with <span class="math inline">\(t\)</span>.</p>
+<p>The continuation reward is zero and the stopping reward at time <span class="math inline">\(t\)</span> is <span class="math display">\[ d_t(s) = r(s)(p_* - p_t) D. \]</span> When should the firm enter the market?</p>
+</div>
+<p>We will use <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a> to show that the optimal stopping decision is monotone in the state.</p>
+<p>First observe that <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span> is a monotone process. Now consider the one step look-ahead function <span class="math display">\[\begin{align*}
+M_t(s) &amp;= \EXP[ d_{t+1}(s + W) ] - d_t(s) \\
+&amp;= \EXP[ r(s + W) (p_* - p_{t+1}) D ] - r(s)(p_* - p_t) D \\
+&amp;= \EXP[ r(s + W) - r(s) ] (p_* - p_{t+1}) D
+    + r(s)( p_* - p_{t+1})D  - r(s)(p_* - p_t ) D \\
+&amp;= \EXP[ r(s + W) - r(s) ] (p_* - p_{t+1}) D
+    + r(s) (p_t - p_{t+1}) D.
+\end{align*}\]</span> Since <span class="math inline">\(r(s)\)</span> is concave, the first term is decreasing in <span class="math inline">\(s\)</span>. The second term is also decreasing in <span class="math inline">\(s\)</span> because <span class="math inline">\(r(s)\)</span> is decreasing in <span class="math inline">\(s\)</span> and <span class="math inline">\(p_t \ge p_{t+1}\)</span>. Therefore, <span class="math inline">\(M_t(s)\)</span> is decreasing in <span class="math inline">\(s\)</span>. Hence, by <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a>, there exist a sequence of thresholds <span class="math inline">\(\{\lambda_t\}_{t \ge 1}\)</span> such that the firm should enter the market at time <span class="math inline">\(t\)</span> iff <span class="math inline">\(S_t \ge \lambda_t\)</span>.</p>
+</section>
+<section id="example-call-options" class="level2" data-number="12.4">
+<h2 data-number="12.4" class="anchored" data-anchor-id="example-call-options"><span class="header-section-number">12.4</span> Example: Call options</h2>
+<p>Note that <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a> is a sufficient condition for monotonicity and cannot always establish monotonicity. We now present an example where we verify monotonicity from first principles.</p>
+<div id="exm-call-options" class="theorem example">
+<p><span class="theorem-title"><strong>Example 12.3 (Call Options)</strong></span> An investor has a <a href="https://en.wikipedia.org/wiki/Call_option">:call option</a> to buy one share of a stock at a fixed price <span class="math inline">\(p\)</span> dollars and has <span class="math inline">\(T\)</span> days to <em>exercise</em> this option. For simplicity, we assume that the investor makes a decision at the beginning of each day.</p>
 <p>The investor may decide not to exercise the option but if he does exercise the option when the stock price is <span class="math inline">\(s\)</span>, he effectively gets <span class="math inline">\((s-p)\)</span>.</p>
 <p>Assume that the price of the stock varies with independent increments, i.e., the price on day <span class="math inline">\(t+1\)</span> is <span class="math display">\[S_{t+1} = S_t + W_t\]</span> where <span class="math inline">\(\{W_t\}_{t \ge 1}\)</span> is an i.i.d.&nbsp;process with mean <span class="math inline">\(\mu\)</span>.</p>
 <p>Let <span class="math inline">\(\tau\)</span> denote the stopping time when the investor exercises his option. Then the optimization problem is to maximize <span class="math display">\[ \EXP\big[ (S_{\tau} - p )\cdot \IND\{\tau \le T \} \big].\]</span></p>
@@ -1269,17 +1283,16 @@ s - p \ge \EXP[ V^*_{t+1}(s + W) ] \ge \EXP[ V^*_{t+2}(s + W) ],
 </div>
 </div>
 </div>
-</section>
 <section id="exercises" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="exercises">Exercises</h2>
 <div id="exr-monotone-stopping-decreasing" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 12.1</strong></span> Derive a version of <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.1</span></a> where <span class="math inline">\(M_t(s)\)</span> is weakly decreasing in <span class="math inline">\(s\)</span>.</p>
+<p><span class="theorem-title"><strong>Exercise 12.1</strong></span> Derive a version of <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a> where <span class="math inline">\(M_t(s)\)</span> is weakly decreasing in <span class="math inline">\(s\)</span>.</p>
 </div>
 <div id="exr-monotone-stopping-maximization" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 12.2</strong></span> Derive a version of <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.1</span></a> for an optimal stopping problem where the objective is reward maximization instead of cost minimization. In particular, assume that <span class="math inline">\(c_t\)</span> denotes the continuation reward and <span class="math inline">\(d_t\)</span> denote the stopping reward at time <span class="math inline">\(t\)</span>. Define the benefit function <span class="math inline">\(B_t(s)\)</span> and the one-step look-ahead function <span class="math inline">\(M_t(s)\)</span> as above.</p>
+<p><span class="theorem-title"><strong>Exercise 12.2</strong></span> Derive a version of <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a> for an optimal stopping problem where the objective is reward maximization instead of cost minimization. In particular, assume that <span class="math inline">\(c_t\)</span> denotes the continuation reward and <span class="math inline">\(d_t\)</span> denote the stopping reward at time <span class="math inline">\(t\)</span>. Define the benefit function <span class="math inline">\(B_t(s)\)</span> and the one-step look-ahead function <span class="math inline">\(M_t(s)\)</span> as above.</p>
 <ol type="a">
 <li>Write the benefit function in terms of the one-step look-ahead function.</li>
-<li>Derive a version similar to <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.1</span></a> assuming <span class="math inline">\(M_t(s)\)</span> is increasing in <span class="math inline">\(s\)</span>.</li>
+<li>Derive a version similar to <a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a> assuming <span class="math inline">\(M_t(s)\)</span> is increasing in <span class="math inline">\(s\)</span>.</li>
 </ol>
 </div>
 <div id="exr-selling-an-asset" class="theorem exercise">
@@ -1288,11 +1301,13 @@ s - p \ge \EXP[ V^*_{t+1}(s + W) ] \ge \EXP[ V^*_{t+2}(s + W) ],
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p><a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.1</span></a> is taken from <span class="citation" data-cites="Oh2016">Oh and Özer (<a href="../references.html#ref-Oh2016" role="doc-biblioref">2016</a>)</span>.</p>
+<p><a href="#thm-monotone-stopping" class="quarto-xref">Theorem&nbsp;<span>12.2</span></a> is taken from <span class="citation" data-cites="Oh2016">Oh and Özer (<a href="../references.html#ref-Oh2016" role="doc-biblioref">2016</a>)</span>.</p>
 <p>The solution of the secretary problem presented here is due to <span class="citation" data-cites="Lindley1961">Lindley (<a href="../references.html#ref-Lindley1961" role="doc-biblioref">1961</a>)</span>. For a history of the secretary problem and some generalizations, see <span class="citation" data-cites="Ferguson1989">Ferguson (<a href="../references.html#ref-Ferguson1989" role="doc-biblioref">1989</a>)</span> and <span class="citation" data-cites="Freeman1983">Freeman (<a href="../references.html#ref-Freeman1983" role="doc-biblioref">1983</a>)</span>. An interesting generalization is <strong>Robbins’ problem</strong>, which was introduced by Herbert Robbins. See <span class="citation" data-cites="Bruss2005">Bruss (<a href="../references.html#ref-Bruss2005" role="doc-biblioref">2005</a>)</span> for a detailed discussion and history.</p>
 <p>The above model for pricing options was introduced by <span class="citation" data-cites="Taylor1967">Taylor (<a href="../references.html#ref-Taylor1967" role="doc-biblioref">1967</a>)</span>.</p>
 
 
+</section>
+</div>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
 <div id="ref-Bruss2005" class="csl-entry" role="listitem">
 <span class="smallcaps">Bruss, F.T.</span> 2005. What is known about robbins’ problem? <em>Journal of Applied Probability</em> <em>42</em>, 1, 108–120. DOI: <a href="https://doi.org/10.1239/jap/1110381374">10.1239/jap/1110381374</a>.
