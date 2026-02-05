@@ -1,0 +1,217 @@
+---
+title: Continuous state spaces
+engine: julia
+execute:
+  echo: false
+  cache: true
+  freeze: true
+---
+
+In this section, we discuss various approximation schemes for continuous state spaces. For simplicity of exposition, we assume that the action spaces is finite. 
+
+To fix ideas, let's consider a varation of the model considered in @exr-internet-of-things where the state space is a subset of $\reals$ rather than $\integers$. 
+
+:::{#exm-internet-of-things-cts}
+#### Internet of things
+
+Assume that $\ALPHABET S = [-B, B]$, $\ALPHABET A = \{0, 1\}$ and the dynamics are given by
+$$
+  S_{t+1} = \begin{cases}
+      [S_t + W_t]_{-B}^B, & \text{if }A_t = 0 \\
+      [W_t]_{-B}^B, & \text{if }A_t = 1
+  \end{cases}
+$$
+where $[x]_{-B}^B = \text{clip}(x,-B,B)$. We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d. process with known distribution $F_W$. 
+The per-step cost is given by
+$$ c(s,a) = \lambda a + (1-a)s^2. $$
+Find the policy that minimizes the expected total cost over a finite horizon.
+:::
+
+As usual, the dynamic program for @exm-internet-of-things-cts is given by $V_{T+1}(s) = 0$ for all $s \in \ALPHABET S$ and for $T \in \{T, \dots, 1\}$, 
+$$
+  V_{t}(s) = \min\biggl\{ s^2 + \int V_{t+1}([s + W]_{-B}^B) F_W(dW),
+             λ + V_{t+1}([W]_{-B}^B) F_W(dW) \biggr\},
+  \quad \forall s \in \ALPHABET S
+$$
+
+Since the DP is continuous, it cannot be solved exactly (unless there exists a closed form solution, like in the [optimal gambling](gambling.qmd). For numerical solution, we need some form of approximation that needs to tackle two conceptual difficulties: 
+
+1. Solve the DP recursion for all $s \in \ALPHABET S$
+2. Compute the expectation with respect to a continuous random variable. 
+
+We will touch up on how to handle both these difficulties. But before that we start with the simplest approximation scheme.
+
+## State discretization or quantization
+
+In low dimensions, the simplest approximation scheme is state discretization or quantization: partition the state space $\ALPHABET S$ into a partition $\{\ALPHABET C_1, \dots, \ALPHABET C_n\}$ with $n$ "cells", where each cell $\ALPHABET C_i$ is represented by a single element $\hat s_i$. This gives a finite state space $\hat {\ALPHABET S} \coloneqq \{ \hat s_1, \dots, \hat s_n \}$. 
+
+For example, in @exm-internet-of-things-cts we can define a parition using boundary points
+$$
+   -B = b_1 < b_1 < \cdots < b_{n+1} = B
+$$
+and set the representative points as $\hat s_i = (b_i + b_{i+1})/2$, $i \in \{1, \dots, n\}$. 
+
+The next step is to define a quantized model with dynamics $\hat P$ and per-step cost $\hat c$ on $\hat {\ALPHABET S} × \ALPHABET A$. The simplest way to define such a quantized model is:
+\begin{align*}
+  \hat c(\hat s, a) &= c(s,a) \\
+  \hat P(\hat s_j | \hat s_i, a) &= 
+  P(\ALPHABET C_j | \hat s_i, a) = \int_{\ALPHABET C_j} P(ds'|\hat s_i, a).
+\end{align*}
+
+Let $\{ (\hat V_t, \hat π_t) \}_{t=1}^T$ denote the solution of the DP for the model $(\hat P, \hat c)$. Note that $\hat π_t$ is a policy on the state space $\hat {\ALPHABET S}$. To obtain a policy defined on $\ALPHABET S$, define the quantization function $φ \colon \ALPHABET S \to \hat {\ALPHABET S}$ to be a function which maps any state $s$ to the representative of the cell containing it. 
+Define $\bar V_t = \hat V_t \circ φ$ and $\bar π_t = \hat π \circ φ$, i.e., 
+$$
+   \bar V_t(s) = \hat V_t(φ(s))
+   \quad\text{and}\quad
+   \bar π_t(s) = \hat π(φ(s)).
+$$
+$\{(\bar V_t, \bar π_t) \}_{t=1}^T$ may be viewed as  an approximate value function and approximate policy for the model $(P,c)$. 
+
+As an illustration, we solve @exm-internet-of-things-cts using such a quantization scheme.
+
+```{julia}
+#| output: false
+#| echo: true
+
+module IOT_quantization
+  using Distributions, OffsetArrays, LinearAlgebra
+
+  function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n_cells=51)
+    dist_W = Normal(0, σ)
+    A = 0:1
+
+    boundaries = range(-B, B, length=n_cells+1)
+    S_hat = [(boundaries[i] + boundaries[i+1])/2 for i in 1:n_cells]
+
+    c(s, a) = λ * a + (1 - a) * s^2
+    P_hat = OffsetArray(zeros(n_cells, n_cells, 2), 1:n_cells, 1:n_cells, 0:1)
+    c_hat = OffsetArray(zeros(n_cells, 2), 1:n_cells, 0:1)
+
+    for a in A
+      for i in 1:n_cells
+        si = S_hat[i]
+        c_hat[i, a] = c(si, a)
+
+        s_post = (a == 0) ? si : 0.0
+
+        for j in 1:n_cells
+            P_hat[i, j, a] = cdf(dist_W, boundaries[j+1] - s_post) - cdf(dist_W, boundaries[j] - s_post)
+        end
+
+        P_hat[i, 1, a] += cdf(dist_W, boundaries[1] - s_post)
+        P_hat[i, n_cells, a] += 1.0 - cdf(dist_W, boundaries[end] - s_post)
+      end
+    end
+
+    V = [zeros(n_cells) for t in 1:T+1]
+    π = [zeros(Int, n_cells) for t in 1:T]
+
+    for t in T:-1:1
+      for i in 1:n_cells
+        Q0 = c_hat[i, 0] + dot(P_hat[i, :, 0], V[t+1])
+        Q1 = c_hat[i, 1] + dot(P_hat[i, :, 1], V[t+1])
+
+        (V[t][i], π[t][i]) = (Q0 <= Q1) ? (Q0,0) : (Q1,1)
+      end
+    end
+
+    return V, π, S_hat
+  end
+end
+```
+
+We solve this model with $n = 2^k + 1$, for different values of $k$. This sequence is chosen so that the number of quantization in $(0,B]$ doubles every iteration. The plots 
+
+Observe that the distance between the points is $Δ = 2B/2^{k}$, so for $k = 10$, we have $Δ \approx 0.0195$, and the approximation looks almost continuous. Thus, we expect the corresponding approximate value function and policy to be close to the optimal value function and policy.
+
+```{julia}
+using DataFrames, JSON3
+
+k_values = 5:10
+iot_df = DataFrame(n=Int[], s=Float64[], value=Float64[], policy=Int[])
+
+for k in k_values
+    n = 2^k + 1
+    V, π, S_hat = IOT_quantization.solve(n_cells=n)
+    for i in 1:length(S_hat)
+        push!(iot_df, (n, S_hat[i], V[1][i], π[1][i]))
+    end
+end
+
+ojs_define(iot_df = iot_df)
+```
+
+```{ojs}
+viewof iot_k = Object.assign(Inputs.range([5,10], {label: "k", step: 1, value: 5}), {style: '--label-width:20px'})
+iot_n = 2**iot_k + 1
+```
+
+```{ojs}
+//| label: fig-iot-quantization
+//| fig-cap: "Value function $V_1(s)$ and optimal policy $π_1(s)$ at $t=1$ (number of cells $n$)"
+//| fig-subcap:
+//|     - Approx value function
+//|     - Approx policy
+//| layout-ncol: 2
+
+Plot.plot({
+  grid: true,
+  x: { label: "State s" },
+  y: { label: "Value", domain: [0, 175] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(iot_df.filter(d => d.n === iot_n), {x: "s", y: "value", curve: "step"})
+  ]
+})
+
+Plot.plot({
+  grid: true,
+  x: { label: "State s" },
+  y: { label: "Action", ticks: [0, 1] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(iot_df.filter(d => d.n === iot_n), {x: "s", y: "policy", curve: "step"})
+  ]
+})
+```
+
+## Linear function approximation
+
+State quantization can be alternatively viewed as a linear function approximation.
+
+Consider the following piecewise linear model defined on the original state space:
+\begin{align*}
+  \bar c(s,a) &= \hat c(φ(s), a) = c(φ(s), a) \\
+  \bar P(s'|s,a) &= \sum_{i=1}^n \hat P(\hat s_i | φ(s), a) δ_{\hat s_i}(s') = 
+  \sum_{i=1}^n P(\ALPHABET C_i | φ(s), a) δ_{\hat s_i}(s')
+\end{align*}
+where $δ_{\hat s}(s)$ denotes a Dirac-delta measure at $\hat s$. 
+
+We can show (via backward induction) that the approximate solution $\{ (\bar V_t, \bar π_t) \}_{t=1}^T$ constructed above is the DP solution of the model $(\bar P, \bar c)$. 
+
+We now present a different way of looking at $(\bar P, \bar c)$. Let $\ALPHABET H$ denote the space of measurable functions on $\ALPHABET S$, with the inner product
+$$
+  \IP{f}{g} = \int_{\ALPHABET S} f(s) g(s) ds.
+$$
+Then $\ALPHABET H$ is a Hilbert space. We will use $\NORM{f}$ to denote the norm $\IP{f}{f}^{\frac 12}$. 
+
+Consider the following basis functions, $\{\phi_i(s)\}_{i = 1}^n$, where
+$$
+    \phi_i(s) =\frac{1}{c_i} \IND\{ s \in \ALPHABET C_i \}, \quad i \in \{1, \dots, n\}.
+$$
+where the constants $c_i$ are chosen such that $\NORM{\phi_i(s)}_2^2 = 1$. Observe that $\{ \phi_i(s)\}_{i=1}^n$ are orthogonal and hence span a subspace $\ALPHABET V_n$ of $\ALPHABET H$. 
+
+Now consider the following linear operator from $\ALPHABET H$ to $\ALPHABET H$: for any $v \in \ALPHABET S$,
+$$
+  [\bar {\ALPHABET P}_a v](s)
+  = \int_{\ALPHABET S} v(s') \bar P(ds'|s,a)
+$$
+Observe that for any $a \in \ALPHABET A$, if $v \in \ALPHABET V_n$, then $\bar {\ALPHABET P}_a v \in \ALPHABET V_n$. Moreover, by construction, $\bar c(⋅ , a) \in \ALPHABET V_n$ 
+
+Therefore, for any $v \in \ALPHABET V_n$, and any $a \in \ALPHABET A$, 
+$$
+    \bar c(s,a) + \int_{\ALPHABET S} v(s') \bar P(ds'|s,a) \in \ALPHABET V_n.
+$$
+Thus, the value functions $\{\bar V_t\}_{t=1}^T$ obtained at each step of the approximate dynamic programming belong to $\ALPHABET V_n$. 
