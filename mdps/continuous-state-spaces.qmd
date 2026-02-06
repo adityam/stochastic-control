@@ -247,6 +247,10 @@ The code below implements the construction of the transition matrix using Monte 
 module IOT_interpolation_MC
   using Distributions, OffsetArrays, LinearAlgebra
 
+  function K(s, center, Δ)
+      return max(0.0, 1.0 - abs(s - center) / Δ)
+  end
+
   function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n=51, M=1000)
     dist_W = Normal(0, σ)
     A = 0:1
@@ -260,29 +264,24 @@ module IOT_interpolation_MC
     c_hat = OffsetArray(zeros(n, length(A)), 1:n, A)
     
     for a in A
-        for i in 1:n
-            si = S_hat[i]
-            c_hat[i, a] = c(si, a)
-            
-            s_post = (a == 0) ? si : 0.0
-            
-            W_samples = rand(dist_W, M)
-            
-            for w in W_samples
-                s_next = clamp(s_post + w, -B, B)
-                
-                # Find the index 'j' such that S_hat[j] <= s_next <= S_hat[j+1]
-                j = floor(Int, (s_next - S_hat[1]) / Δ) + 1
-                
-                # boundary case: if s_next is exactly B, j becomes n.
-                j = clamp(j, 1, n - 1)
-                
-                weight = (s_next - S_hat[j]) / Δ
-                
-                P_hat[i, j,   a] += (1.0 - weight) / M
-                P_hat[i, j+1, a] += weight / M
+      for i in 1:n
+        si = S_hat[i]
+        c_hat[i, a] = c(si, a)
+        
+        s_post = (a == 0) ? si : 0.0
+        
+        W_samples = rand(dist_W, M)
+        for w in W_samples
+          s_next = clamp(s_post + w, -B, B)
+
+          for j in 1:n
+            weight = K(s_next, S_hat[j], Δ)
+            if weight > 0
+              P_hat[i, j, a] += weight / M
             end
+          end
         end
+      end
     end
 
     # 3. Value Iteration
@@ -302,7 +301,7 @@ module IOT_interpolation_MC
 end
 ```
 
-We solve this for $n = 2^k+1$ for different values of $k$. Observe that in this case, we get a good approximation of the value function at $k = 7$. 
+We solve this for $n = 2^k+1$ for different values of $k$. Observe that in this case, we get a good approximation of the value function at $k = 8$. 
 
 ```{julia}
 using DataFrames, JSON3
