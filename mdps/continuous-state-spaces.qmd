@@ -76,38 +76,38 @@ As an illustration, we solve @exm-internet-of-things-cts using such a quantizati
 module IOT_quantization
   using Distributions, OffsetArrays, LinearAlgebra
 
-  function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n_cells=51)
+  function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n=51)
     dist_W = Normal(0, σ)
     A = 0:1
 
-    boundaries = range(-B, B, length=n_cells+1)
-    S_hat = [(boundaries[i] + boundaries[i+1])/2 for i in 1:n_cells]
+    boundaries = range(-B, B, length=n+1)
+    S_hat = [(boundaries[i] + boundaries[i+1])/2 for i in 1:n]
 
     c(s, a) = λ * a + (1 - a) * s^2
-    P_hat = OffsetArray(zeros(n_cells, n_cells, 2), 1:n_cells, 1:n_cells, 0:1)
-    c_hat = OffsetArray(zeros(n_cells, 2), 1:n_cells, 0:1)
+    P_hat = OffsetArray(zeros(n, n, length(A)), 1:n, 1:n, A)
+    c_hat = OffsetArray(zeros(n, length(A)), 1:n, A)
 
     for a in A
-      for i in 1:n_cells
+      for i in 1:n
         si = S_hat[i]
         c_hat[i, a] = c(si, a)
 
         s_post = (a == 0) ? si : 0.0
 
-        for j in 1:n_cells
+        for j in 1:n
             P_hat[i, j, a] = cdf(dist_W, boundaries[j+1] - s_post) - cdf(dist_W, boundaries[j] - s_post)
         end
 
         P_hat[i, 1, a] += cdf(dist_W, boundaries[1] - s_post)
-        P_hat[i, n_cells, a] += 1.0 - cdf(dist_W, boundaries[end] - s_post)
+        P_hat[i, n, a] += 1.0 - cdf(dist_W, boundaries[end] - s_post)
       end
     end
 
-    V = [zeros(n_cells) for t in 1:T+1]
-    π = [zeros(Int, n_cells) for t in 1:T]
+    V = [zeros(n) for t in 1:T+1]
+    π = [zeros(Int, n) for t in 1:T]
 
     for t in T:-1:1
-      for i in 1:n_cells
+      for i in 1:n
         Q0 = c_hat[i, 0] + dot(P_hat[i, :, 0], V[t+1])
         Q1 = c_hat[i, 1] + dot(P_hat[i, :, 1], V[t+1])
 
@@ -132,7 +132,7 @@ iot_df = DataFrame(n=Int[], s=Float64[], value=Float64[], policy=Int[])
 
 for k in k_values
     n = 2^k + 1
-    V, π, S_hat = IOT_quantization.solve(n_cells=n)
+    V, π, S_hat = IOT_quantization.solve(n=n)
     for i in 1:length(S_hat)
         push!(iot_df, (n, S_hat[i], V[1][i], π[1][i]))
     end
@@ -176,6 +176,187 @@ Plot.plot({
   ]
 })
 ```
+## First-order hold
+
+The above approximation can be thought of as a "zero-order hold" method of doing digital to analog conversion. A better option is to do **"first-order hold"**, where we do linear interpolation between the discrete points. 
+
+To do so, we start with a discretized state space $\mathcal{S} = \{\hat s_1, \dots, \hat s_n\}$ where
+$$
+  -B = \hat s_1 < \hat s_2 < \cdots < \hat s_n = B.
+$$
+The approximate per-step cost $\hat c(\hat s, a)$ is also constructed as before. But we construct the approximate transition matrix differently. 
+
+Suppose the system transitions to a continuous state $s'$. If $s'$ falls between two grid points $\hat s_i$ and $\hat s_{i+1}$, the zero-order hold would force us to round $s'$ to whichever is closer. In contrast, **first-order hold** represents $s'$ as a convex combination of its neighbors:
+
+$$
+s' = (1 - λ) \hat s_i + λ \hat s_{i+1}, \quad \text{where } λ = \frac{s' - \hat s_i}{\hat s_{i+1} - \hat s_i}.
+$$
+
+This linear interpolation implies that a transition to the exact state $s'$ is equivalent to transitioning to $\hat s_i$ with "weight" $(1-λ)$ and to $\hat s_{i+1}$ with "weight" $λ$.
+
+To formalize this, we define a set of **triangular interpolation kernels**  $K_i(s)$ for each representative point $\hat s_i$. Assuming a uniform grid spacing of $\Delta$, these are defined as:
+
+$$
+K_i(s) = \max\left(0, 1 - \frac{|s - \hat s_i|}{\Delta}\right).
+$$
+
+If the grid is not uniform, the slopes on the left and right sides are determined by the distance to the specific neighbors: 
+
+$$
+K_i(s) = \begin{cases} 
+\frac{s - \hat s_{i-1}}{\hat s_i - \hat s_{i-1}}, & \text{if } \hat s_{i-1} \le s < \hat s_i, \\
+\frac{\hat s_{i+1} - s}{\hat s_{i+1} - \hat s_i}, & \text{if } \hat s_i \le s < \hat s_{i+1}, \\
+0, & \text{otherwise}.
+\end{cases}
+$$
+
+For the boundary points ($i=1$ and $i=n$), we simply omit the undefined side (e.g., $K_1$ only has the right-side slope descending to $\hat s_2$). 
+
+A key property of these kernels for any $s \in \ALPHABET S$, $\sum_i K_i(s) = 1$. This ensures that the interpolation is a valid convex combination of the grid points.
+
+The approximate transition matrix is now constructed as
+$$
+\hat P(\hat s_j | \hat s_i, a) = \EXP\bigl[\Lambda_j(S_{t+1}) \mid S_t = \hat s_i, A_t = a\bigr] 
+= \int_{\ALPHABET S} K_j(s') P(ds' | \hat s_i, a).
+$$
+
+In contrast to the zero-order hold, where we could simply compute $\EXP[ \IND_{\ALPHABET C_j}(S_{t+1}) | \hat s_i, a]$ using CDFs, in this case we need to resort to a numerical method to compute the integral. The most common approach is Monte Carlo estimation, where we approximate the expectation using $M$ samples. For each starting state $\hat s_i$ and action $a$:
+
+1.  Sample $M$ next states $s^{(1)}, \dots, s^{(M)}$ according to the dynamics $s^{(m)} \sim P(\cdot | \hat s_i, a)$.
+2.  Evaluate the kernel $K_j$ at each sample state.
+3.  Average the results:
+    $$
+    \hat P_{ij}(a) \approx \frac{1}{M} \sum_{m=1}^M K_j(s^{(m)}).
+    $$
+
+:::{.callout-important}
+
+#### Computing expectations
+
+There are other methods to compute expectations, including [:Guassian quadrature methods](https://en.wikipedia.org/wiki/Gaussian_quadrature) and specialized calculations for specific noise distributions. 
+:::
+
+As an illustration, we solve @exm-internet-of-things-cts using this linear interpolation scheme.
+
+The code below implements the construction of the transition matrix using Monte Carlo sampling. For each state and action, we simulate $M$ transitions, calculate the interpolation weights for the neighboring grid points, and average them.
+
+```{julia}
+#| output: false
+#| echo: true
+
+module IOT_interpolation_MC
+  using Distributions, OffsetArrays, LinearAlgebra
+
+  function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n=51, M=1000)
+    dist_W = Normal(0, σ)
+    A = 0:1
+
+    S_hat = range(-B, B, length=n)
+    Δ = step(S_hat)
+    
+    c(s, a) = λ * a + (1 - a) * s^2
+
+    P_hat = OffsetArray(zeros(n, n, length(A)), 1:n, 1:n, A)
+    c_hat = OffsetArray(zeros(n, length(A)), 1:n, A)
+    
+    for a in A
+        for i in 1:n
+            si = S_hat[i]
+            c_hat[i, a] = c(si, a)
+            
+            s_post = (a == 0) ? si : 0.0
+            
+            W_samples = rand(dist_W, M)
+            
+            for w in W_samples
+                s_next = clamp(s_post + w, -B, B)
+                
+                # Find the index 'j' such that S_hat[j] <= s_next <= S_hat[j+1]
+                j = floor(Int, (s_next - S_hat[1]) / Δ) + 1
+                
+                # boundary case: if s_next is exactly B, j becomes n.
+                j = clamp(j, 1, n - 1)
+                
+                weight = (s_next - S_hat[j]) / Δ
+                
+                P_hat[i, j,   a] += (1.0 - weight) / M
+                P_hat[i, j+1, a] += weight / M
+            end
+        end
+    end
+
+    # 3. Value Iteration
+    V = [zeros(n) for t in 1:T+1]
+    π = [zeros(Int, n) for t in 1:T]
+
+    for t in T:-1:1
+      for i in 1:n
+        Q0 = c_hat[i, 0] + dot(P_hat[i, :, 0] , V[t+1])
+        Q1 = c_hat[i, 1] + dot(P_hat[i, :, 1] , V[t+1])
+        
+        (V[t][i], π[t][i]) = (Q0 <= Q1) ? (Q0,0) : (Q1,1)
+      end
+    end
+    return V, π, S_hat
+  end
+end
+```
+
+We solve this for $n = 2^k+1$ for different values of $k$. Observe that in this case, we get a good approximation of the value function at $k = 7$. 
+
+```{julia}
+using DataFrames, JSON3
+
+k_values = 3:8 
+iot_mc_df = DataFrame(n=Int[], s=Float64[], value=Float64[], policy=Int[])
+
+for k in k_values
+    n = 2^k + 1
+    # We use M=2000 samples for the transition approximation
+    V, π, S = IOT_interpolation_MC.solve(n=n, M=2000)
+    for i in 1:length(S)
+        push!(iot_mc_df, (n, S[i], V[1][i], π[1][i]))
+    end
+end
+
+ojs_define(iot_mc_df = iot_mc_df)
+```
+
+```{ojs}
+viewof iot_mc_k = Object.assign(Inputs.range([3,8], {label: "k", step: 1, value: 5}), {style: '--label-width:20px'})
+iot_mc_n = 2**iot_mc_k + 1
+```
+
+```{ojs}
+//| label: fig-iot-interpolation-mc
+//| fig-cap: "Linear Interpolation (MC): Value function $V_1(s)$ and policy $π_1(s)$"
+//| fig-subcap:
+//|      - Approx value function
+//|      - Approx policy
+//| layout-ncol: 2
+
+Plot.plot({
+  grid: true,
+  x: { label: "State s" },
+  y: { label: "Value", domain: [0, 175] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(iot_mc_df.filter(d => d.n === iot_mc_n), {x: "s", y: "value", curve: "linear"})
+  ]
+})
+
+Plot.plot({
+  grid: true,
+  x: { label: "State s" },
+  y: { label: "Action", ticks: [0, 1] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(iot_mc_df.filter(d => d.n === iot_mc_n), {x: "s", y: "policy", curve: "step"})
+  ]
+})
+```
 
 ## Linear function approximation
 
@@ -214,4 +395,5 @@ Therefore, for any $v \in \ALPHABET V_n$, and any $a \in \ALPHABET A$,
 $$
     \bar c(s,a) + \int_{\ALPHABET S} v(s') \bar P(ds'|s,a) \in \ALPHABET V_n.
 $$
-Thus, the value functions $\{\bar V_t\}_{t=1}^T$ obtained at each step of the approximate dynamic programming belong to $\ALPHABET V_n$. 
+
+This means that if $V_{t+1} \in \ALPHABET V_n$, then $Q_t(\cdot, a) \in \ALPHABET V_n$ for each $a$. 
