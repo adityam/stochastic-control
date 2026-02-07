@@ -361,38 +361,98 @@ Plot.plot({
 
 State quantization can be alternatively viewed as a linear function approximation.
 
-Consider the following piecewise linear model defined on the original state space:
+As an illustration, we first consider **zero-order hold**. Consider the following piecewise linear model defined on the original state space.
 \begin{align*}
-  \bar c(s,a) &= \hat c(φ(s), a) = c(φ(s), a) \\
-  \bar P(s'|s,a) &= \sum_{i=1}^n \hat P(\hat s_i | φ(s), a) δ_{\hat s_i}(s') = 
-  \sum_{i=1}^n P(\ALPHABET C_i | φ(s), a) δ_{\hat s_i}(s')
+  \bar c(s,a) &= \sum_{i=1}^n \IND_{\ALPHABET C_i}(s) c(\hat s_i, a) \\
+  \bar P(ds'|s,a) &= \sum_{i=1}^n \IND_{\ALPHABET C_i}(s) \left[
+  \sum_{j=1}^n \hat P(\hat s_j | \hat s_i, a) \delta_{\hat s_j}(ds') \right]
 \end{align*}
-where $δ_{\hat s}(s)$ denotes a Dirac-delta measure at $\hat s$. 
+where $\delta_{\hat s}(s)$ denotes a Dirac-delta measure at $\hat s$. 
 
-We can show (via backward induction) that the approximate solution $\{ (\bar V_t, \bar π_t) \}_{t=1}^T$ constructed above is the DP solution of the model $(\bar P, \bar c)$. 
+:::{#lem-lfa-quantization}
+Let $\{ \bar V_t\}_{t =1}^T$ and $\{\bar Q_t\}_{t=1}^T$ be the solution of the piecewise linear model defined above. Then, for each $t$:
+$$
+  \bar Q_t(s,a) = \sum_{i=1}^n \hat Q_t(\hat s_i,a) \IND_{\ALPHABET C_i}(s)
+  \quad\text{and}\quad
+  \bar V_t(s) = \sum_{i=1}^n \hat V_t(\hat s_i) \IND_{\ALPHABET C_i}(s)
+$$
+:::  
 
-We now present a different way of looking at $(\bar P, \bar c)$. Let $\ALPHABET H$ denote the space of measurable functions on $\ALPHABET S$, with the inner product
-$$
-  \IP{f}{g} = \int_{\ALPHABET S} f(s) g(s) ds.
-$$
-Then $\ALPHABET H$ is a Hilbert space. We will use $\NORM{f}$ to denote the norm $\IP{f}{f}^{\frac 12}$. 
+:::{.callout-note collapse="true"} 
+#### Proof
+As usual, we proceed by backward induction. The result holds trivially for $t = T$. This forms the basis of induction. Assume that the result holds for $t+1$ and consider time $t$. 
+\begin{align*}
+  \bar Q_t(s,a) &= \bar c(s,a) + \int_{\ALPHABET S} \bar V_{t+1}(s') \bar P(ds'|s,a) \\
+  &= \sum_{i=1}^n \hat c(\hat s_i,a) \IND_{\ALPHABET C_i}(s) + \sum_{i=1}^n \left( \sum_{j=1}^n \hat P(\hat s_j | \hat s_i, a) \int_{\ALPHABET S} \hat V_{t+1}(s') \delta_{\hat s_j}(ds') \right) \IND_{\ALPHABET C_i}(s) \\
+  &= \sum_{i=1}^n \hat c(\hat s_i,a) \IND_{\ALPHABET C_i}(s) + \sum_{i=1}^n \left( \sum_{j=1}^n \hat P(\hat s_j | \hat s_i, a) \hat V_{t+1}(\hat s_j) \right) \IND_{\ALPHABET C_i}(s) \\
+  &= \sum_{i=1}^n \left( \hat c(\hat s_i,a) + \sum_{j=1}^n \hat P(\hat s_j | \hat s_i, a) \hat V_{t+1}(\hat s_j) \right) \IND_{\ALPHABET C_i}(s) \\
+  &= \sum_{i=1}^n \hat Q_{t}(\hat s_i,a) \IND_{\ALPHABET C_i}(s).
+\end{align*}
 
-Consider the following basis functions, $\{ψ_i(s)\}_{i = 1}^n$, where
-$$
-    ψ_i(s) =\frac{1}{c_i} \IND\{ s \in \ALPHABET C_i \}, \quad i \in \{1, \dots, n\}.
-$$
-where the constants $c_i$ are chosen such that $\NORM{ψ_i(s)}_2^2 = 1$. Observe that $\{ ψ_i(s)\}_{i=1}^n$ are orthogonal and hence form the basis of a subspace $\ALPHABET V_n$ of $\ALPHABET H$. 
+Now consider the value function.
+\begin{align*}
+  \bar V_t(s) &= \max_{a \in \ALPHABET A} \bar Q_t(s,a) \\
+  &= \max_{a \in \ALPHABET A} \sum_{i=1}^n \hat Q_t(\hat s_i, a) \IND_{\ALPHABET C_i}(s) \\
+  &\stackrel{(a)}= \sum_{i=1}^n \left( \max_{a \in \ALPHABET A} \hat Q_t(\hat s_i, a) \right) \IND_{\ALPHABET C_i}(s) \\
+  &= \sum_{i=1}^n \hat V_{t}(\hat s_i) \IND_{\ALPHABET C_i}(s)
+\end{align*}
+where $(a)$ follows from the fact that for a particular $s$, $\IND_{\ALPHABET C_i}(s)$ is non-zero for exactly one $i$.
 
-Now consider the following linear operator from $\ALPHABET H$ to $\ALPHABET H$: for any $v \in \ALPHABET S$,
-$$
-  [\bar {\ALPHABET P}_a v](s)
-  = \int_{\ALPHABET S} v(s') \bar P(ds'|s,a)
-$$
-Observe that for any $a \in \ALPHABET A$, if $v \in \ALPHABET V_n$, then $\bar {\ALPHABET P}_a v \in \ALPHABET V_n$. Moreover, by construction, $\bar c(⋅ , a) \in \ALPHABET V_n$ 
+Thus, the result holds for $t$.
+:::
 
-Therefore, for any $v \in \ALPHABET V_n$, and any $a \in \ALPHABET A$, 
+Therefore, we can view the solution of zero-order hold as a function in a vector space. In particular, define
 $$
-    \bar c(s,a) + \int_{\ALPHABET S} v(s') \bar P(ds'|s,a) \in \ALPHABET V_n.
+    ψ_i(s) = \IND\{ s \in \ALPHABET C_i \}, \quad i \in \{1, \dots, n\}.
+$$
+Let $\ALPHABET V_n = \text{span}(ψ_1, \dots, ψ_n)$. Then @lem-lfa-quantization implies that $\bar V_t \in \ALPHABET V_n$ and for each $a$, $\bar Q_t(\cdot, a) \in \ALPHABET V_n$.
+
+General linear function approximation generalizes this idea to any basis functions. But we need one additional ingredient. To illustrate that, consider **first-order hold**. The approximate model is now constructed as
+\begin{align*}
+  \bar c(s,a) &= \sum_{i=1}^n K_i(s) c(\hat s_i, a) \\
+  \bar P(ds'|s,a) &= \sum_{i=1}^n K_i(s) \left[
+  \sum_{j=1}^n \hat P(\hat s_j | \hat s_i, a) \delta_{\hat s_j}(ds') \right]
+\end{align*}
+where $K_i(s)$ are the triangular interpolation kernels. As in the proof of @lem-lfa-quantization, we can show that if 
+$$
+    \bar V_{t+1}(s) = \sum_{i=1}^n \hat V_{t+1}(\hat s_i) K_i(s)
+$$
+then $\bar Q_t(\cdot, a) \in \ALPHABET V_n$ for each $a$. However, in general, a vector space is not closed under pointwise minimization. So, if we define $\bar V_t(s) = \min_{a \in \ALPHABET A}Q_t(s,a)$, then in general $\bar V_t(s) \not\in \ALPHABET V_n$. 
+
+One way to ensure that $\bar V_t(s) \in \ALPHABET V_n$ is to define
+$$
+  \bar V_t(s) = \sum_{i=1}^n \hat V_t(\hat s_i) K_i(s).
+$$
+Thus, rather than obtaining $\bar V_t(s)$ at each state $s$, we obtain $\bar V_t(\hat s_i)$ for $\hat s_i \in \hat {\ALPHABET S}$ and then interpolate to get $\bar V_t(s)$.
+However, the interpolation step is specific to first-order hold because the hat functions are **nodal** (i.e., $K_i(\hat s_j) = \delta_{ij}$). For general linear function approximation with arbitrary basis functions $\{\phi_i\}_{i=1}^n$, such a direct mapping does not exist. 
+
+Instead, we view this step generally as a **projection**. The simplest way to do so is as follows. Pick $K$ **collocation points** $\{\hat s_k\}_{k=1}^K$ and construct the collocation matrix $Ψ \in \reals^{K \times n}$ as
+$$
+   Ψ_{ki} = ψ_i(\hat s_k).
+$$
+Then, construct a **target** $Y_t \in \reals^{K}$ as
+$$
+   [Y_t]_k = \min_{a \in \ALPHABET A} Q_t(\hat s_k, a).
 $$
 
-This means that if $V_{t+1} \in \ALPHABET V_n$, then $Q_t(\cdot, a) \in \ALPHABET V_n$ for each $a$. 
+Then set
+$$
+    \bar V_t(s) = \sum_{i=1}^n α_i ψ_i(s)
+$$
+where the weights $α = (α_1, \dots, α_n)$ to are the solution to the following the least squares (or regression) problem:
+$$
+   \min_{\alpha \in \mathbb{R}^n} \| Y_t - Ψ \alpha \|_2^2.
+$$
+
+The solution is given by the normal equations:
+$$
+   α = (Ψ^\TRANS Ψ)^{-1} Ψ^\TRANS Y_t.
+$$
+The matrix $M^\dagger = (Ψ^\TRANS Ψ)^{-1} Ψ^\TRANS$ is the **Moore-Penrose pseudoinverse** of $Ψ$ (assuming $Ψ$ has full column rank). In the special case of interpolation where $K=n$ and the points are chosen such that $Ψ$ is invertible (e.g., nodal basis), this simplifies to $α = Ψ^{-1} Y_t$.
+
+Substituting this back into the approximation, the projected value function at any state $s$ is given by:
+$$
+   \bar V_t(s) = ψ(s)^\TRANS (Ψ^\TRANS Ψ)^{-1} Ψ^\TRANS Y_t
+$$
+where $ψ(s) = [ψ_1(s), \dots, ψ_n(s)]^\TRANS$.
+
