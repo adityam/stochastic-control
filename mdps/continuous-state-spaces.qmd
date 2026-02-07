@@ -448,11 +448,148 @@ The solution is given by the normal equations:
 $$
    α = (Ψ^\TRANS Ψ)^{-1} Ψ^\TRANS Y_t.
 $$
-The matrix $M^\dagger = (Ψ^\TRANS Ψ)^{-1} Ψ^\TRANS$ is the **Moore-Penrose pseudoinverse** of $Ψ$ (assuming $Ψ$ has full column rank). In the special case of interpolation where $K=n$ and the points are chosen such that $Ψ$ is invertible (e.g., nodal basis), this simplifies to $α = Ψ^{-1} Y_t$.
+The matrix $Ψ^\dagger = (Ψ^\TRANS Ψ)^{-1} Ψ^\TRANS$ is the **Moore-Penrose pseudoinverse** of $Ψ$ (assuming $Ψ$ has full column rank). In the special case of interpolation where $K=n$ and the points are chosen such that $Ψ$ is invertible (e.g., nodal basis), this simplifies to $α = Ψ^{-1} Y_t$.
 
-Substituting this back into the approximation, the projected value function at any state $s$ is given by:
-$$
-   \bar V_t(s) = ψ(s)^\TRANS (Ψ^\TRANS Ψ)^{-1} Ψ^\TRANS Y_t
-$$
-where $ψ(s) = [ψ_1(s), \dots, ψ_n(s)]^\TRANS$.
+The following two observations can be used to improve implementation efficiency. 
 
+1. The Moore-Penrose pseudoinverse $Ψ^\dagger$ can be precomputed.
+2. Given any $v(s) = \sum_{i=1}^n α_i ψ_i(s)$, 
+   $$
+      \EXP[v(S_{t+1}|S_t = \hat s_k, A_t = a ]
+      = \sum_{i=1}^n α_i \underbrace{\EXP[ ψ_i(S_{t+1}) \mid S_t = \hat s_k, A_t = a]}_{\eqqcolon E_{kj}(a)}.
+   $$
+   We can pre-compute the matrix $E \in \reals^{K × n}$ (using Monte-Carlo simulation) 
+
+As an illustration, we solve @exm-internet-of-things-cts by using [:Legendre Polynomials](https://en.wikipedia.org/wiki/Legendre_polynomials) as the basis functions. Recall that from @exr-folded-monotonicity, we know that the value function is even; so we only consider even Legendre polynomials.
+
+```{julia}
+#| output: false
+#| echo: true
+
+module IOT_LFA
+
+  using Distributions, LinearAlgebra, SpecialPolynomials
+
+  function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n=5, K=100, M=1000)
+      
+    S_hat = range(-B, B, length=K)
+
+    scale(s) = clamp(s / B, -1.0, 1.0)
+    
+    # Using even degrees (0, 2, 4...) because the value function is even
+    psi = [basis(Legendre, 2*(i-1)) for i in 1:n]
+    
+    Psi = zeros(K, n)
+    for k in 1:K, i in 1:n
+      Psi[k, i] = psi[i](scale(S_hat[k]))
+    end
+    
+    # Pre-compute Pseudo-inverse for projection
+    PsiInv = pinv(Psi)
+
+    # Pre-compute Expected Basis Features (Monte Carlo)
+    E0 = zeros(K, n)
+    E1 = zeros(K, n)
+    dist_W = Normal(0, σ)
+
+    for k in 1:K
+      s = S_hat[k]
+      for _ in 1:M
+        w = rand(dist_W)
+        
+        s_next_0 = scale(s + w)
+        s_next_1 = scale(w) 
+
+        for i in 1:n
+          E0[k, i] += psi[i](s_next_0)
+          E1[k, i] += psi[i](s_next_1)
+        end
+      end
+    end
+    E0 ./= M
+    E1 ./= M
+
+    # 4. Costs
+    C0 = [s^2 for s in S_hat] 
+    C1 = [λ   for s in S_hat] 
+
+    α = [zeros(n) for t in 1:T+1]
+    
+    V = [zeros(K) for t in 1:T]
+    π = [zeros(Int, K) for t in 1:T]
+    
+    for t in T:-1:1
+      Q0 = C0 + E0 * α[t+1]
+      Q1 = C1 + E1 * α[t+1]
+      
+      for k in 1:K
+        if Q0[k] <= Q1[k]
+          V[t][k] = Q0[k]
+          π[t][k] = 0
+        else
+          V[t][k] = Q1[k]
+          π[t][k] = 1
+        end
+      end
+
+      α[t] = PsiInv * V[t]
+    end
+
+    return V, π, S_hat
+  end
+end
+
+```
+
+```{julia}
+using DataFrames, JSON3
+
+n_values = 3:15
+iot_lfa_df = DataFrame(n=Int[], s=Float64[], value=Float64[], policy=Int[])
+
+for n in n_values
+    V, π, S = IOT_LFA.solve(n=n)
+    for i in 1:length(S)
+        push!(iot_lfa_df, (n, S[i], V[1][i], π[1][i]))
+    end
+end
+
+ojs_define(iot_lfa_df = iot_lfa_df)
+```
+
+We solve this for different number $n$ of basis vectors (recall that we are only choosing even Legendre polynomials). Observe that in this case we have very good approximation with $n=10$ basis functions. Contrast this with the state quantization methods where we needed $1000$ grid points to do a good approximation.
+
+```{ojs}
+viewof iot_lfa_n = Object.assign(Inputs.range([3,15], {label: "n", step: 1, value: 5}), {style: '--label-width:20px'})
+```
+
+```{ojs}
+//| label: fig-iot-lfa
+//| fig-cap: "Linear function approximation with Legendre polynomials: Value function $V_1(s)$ and policy $π_1(s)$"
+//| fig-subcap:
+//|      - Approx value function
+//|      - Approx policy
+//| layout-ncol: 2
+
+Plot.plot({
+  grid: true,
+  x: { label: "State s" },
+  y: { label: "Value", domain: [0, 175] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(iot_lfa_df.filter(d => d.n === iot_lfa_n), {x: "s", y: "value", curve: "linear"})
+  ]
+})
+
+Plot.plot({
+  grid: true,
+  x: { label: "State s" },
+  y: { label: "Action", ticks: [0, 1] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(iot_lfa_df.filter(d => d.n === iot_lfa_n), {x: "s", y: "policy", curve: "step"})
+  ]
+})
+```
