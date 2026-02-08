@@ -128,13 +128,13 @@ Observe that the distance between the points is $Δ = 2B/2^{k}$, so for $k = 10$
 using DataFrames, JSON3
 
 k_values = 5:10
-iot_df = DataFrame(n=Int[], s=Float64[], value=Float64[], policy=Int[])
+iot_df = DataFrame(n=Int[], s=Float16[], value=Float16[], policy=Int[])
 
 for k in k_values
     n = 2^k + 1
     V, π, S_hat = IOT_quantization.solve(n=n)
     for i in 1:length(S_hat)
-        push!(iot_df, (n, S_hat[i], V[1][i], π[1][i]))
+        push!(iot_df, (n, Float16(S_hat[i]), Float16(V[1][i]), π[1][i]))
     end
 end
 
@@ -307,14 +307,14 @@ We solve this for $n = 2^k+1$ for different values of $k$. Observe that in this 
 using DataFrames, JSON3
 
 k_values = 3:8 
-iot_mc_df = DataFrame(n=Int[], s=Float64[], value=Float64[], policy=Int[])
+iot_mc_df = DataFrame(n=Int[], s=Float16[], value=Float16[], policy=Int[])
 
 for k in k_values
     n = 2^k + 1
     # We use M=2000 samples for the transition approximation
     V, π, S = IOT_interpolation_MC.solve(n=n, M=2000)
     for i in 1:length(S)
-        push!(iot_mc_df, (n, S[i], V[1][i], π[1][i]))
+        push!(iot_mc_df, (n, Float16(S[i]), Float16(V[1][i]), π[1][i]))
     end
 end
 
@@ -460,7 +460,7 @@ The following two observations can be used to improve implementation efficiency.
    $$
    We can pre-compute the matrix $E \in \reals^{K × n}$ (using Monte-Carlo simulation) 
 
-As an illustration, we solve @exm-internet-of-things-cts by using [:Legendre Polynomials](https://en.wikipedia.org/wiki/Legendre_polynomials) as the basis functions. Recall that from @exr-folded-monotonicity, we know that the value function is even; so we only consider even Legendre polynomials.
+As an illustration, we solve @exm-internet-of-things-cts by using [:Legendre Polynomials](https://en.wikipedia.org/wiki/Legendre_polynomials) as the basis functions. Recall that from @exr-folded-monotonicity, we know that the value function is even; so we only consider even Legendre polynomials. Furthermore, we choose [:Chebyshev-Lobatto points](https://en.wikipedia.org/wiki/Chebyshev%E2%80%93Lobatto_nodes) as the collocation points to prevent oscillations (Gibb's phenomenon).
 
 ```{julia}
 #| output: false
@@ -470,9 +470,12 @@ module IOT_LFA
 
   using Distributions, LinearAlgebra, SpecialPolynomials
 
-  function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n=5, K=100, M=1000)
-      
-    S_hat = range(-B, B, length=K)
+  function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n=5, K=50, K_eval=500, M=2000)
+    # Collocation points (where we solve): Chebyshev-Lobatto on [-B, B]
+    cheb_nodes = K > 1 ? [-cos(π * (k - 1) / (K - 1)) for k in 1:K] : [0.0]
+    S_hat = B .* cheb_nodes
+    # Evaluation points (where we return V, π; can differ from K)
+    S_eval = range(-B, B, length=K_eval)
 
     scale(s) = clamp(s / B, -1.0, 1.0)
     
@@ -486,6 +489,12 @@ module IOT_LFA
     
     # Pre-compute Pseudo-inverse for projection
     PsiInv = pinv(Psi)
+
+    # Basis at evaluation points (for second pass)
+    Psi_eval = zeros(K_eval, n)
+    for k in 1:K_eval, i in 1:n
+      Psi_eval[k, i] = psi[i](scale(S_eval[k]))
+    end
 
     # Pre-compute Expected Basis Features (Monte Carlo)
     E0 = zeros(K, n)
@@ -509,33 +518,54 @@ module IOT_LFA
     E0 ./= M
     E1 ./= M
 
-    # 4. Costs
-    C0 = [s^2 for s in S_hat] 
-    C1 = [λ   for s in S_hat] 
+    # Expected basis features at evaluation points (Monte Carlo)
+    E_eval0 = zeros(K_eval, n)
+    E_eval1 = zeros(K_eval, n)
+    for k in 1:K_eval
+      s = S_eval[k]
+      for _ in 1:M
+        w = rand(dist_W)
+        s_next_0 = scale(s + w)
+        s_next_1 = scale(w)
+        for i in 1:n
+          E_eval0[k, i] += psi[i](s_next_0)
+          E_eval1[k, i] += psi[i](s_next_1)
+        end
+      end
+    end
+    E_eval0 ./= M
+    E_eval1 ./= M
 
+    # Costs at collocation and evaluation points
+    C0 = [s^2 for s in S_hat] 
+    C1 = [λ   for s in S_hat]
+    C0_eval = [s^2 for s in S_eval]
+    C1_eval = [λ   for s in S_eval] 
+
+    # Backward pass: compute α only (no storage of V, π)
     α = [zeros(n) for t in 1:T+1]
-    
-    V = [zeros(K) for t in 1:T]
-    π = [zeros(Int, K) for t in 1:T]
-    
+
     for t in T:-1:1
       Q0 = C0 + E0 * α[t+1]
       Q1 = C1 + E1 * α[t+1]
-      
-      for k in 1:K
-        if Q0[k] <= Q1[k]
-          V[t][k] = Q0[k]
-          π[t][k] = 0
-        else
-          V[t][k] = Q1[k]
-          π[t][k] = 1
-        end
-      end
-
-      α[t] = PsiInv * V[t]
+      V_colloc = min.(Q0, Q1)
+      α[t] = PsiInv * V_colloc
     end
 
-    return V, π, S_hat
+    # Second pass: recompute V and π at evaluation points from α to show the plot
+    V_eval = [zeros(K_eval) for t in 1:T]
+    π_eval = [zeros(Int, K_eval) for t in 1:T]
+
+    for t in 1:T
+      V_eval[t] = Psi_eval * α[t]
+      Q0_eval = C0_eval + E_eval0 * α[t+1]
+      Q1_eval = C1_eval + E_eval1 * α[t+1]
+      for k in 1:K_eval
+        π_eval[t][k] = Q0_eval[k] <= Q1_eval[k] ? 0 : 1
+      end
+    end
+
+    return V_eval, π_eval, S_eval
   end
 end
 
@@ -545,19 +575,19 @@ end
 using DataFrames, JSON3
 
 n_values = 3:15
-iot_lfa_df = DataFrame(n=Int[], s=Float64[], value=Float64[], policy=Int[])
+iot_lfa_df = DataFrame(n=Int[], s=Float16[], value=Float16[], policy=Int[])
 
 for n in n_values
     V, π, S = IOT_LFA.solve(n=n)
     for i in 1:length(S)
-        push!(iot_lfa_df, (n, S[i], V[1][i], π[1][i]))
+        push!(iot_lfa_df, (n, Float16(S[i]), Float16(V[1][i]), π[1][i]))
     end
 end
 
 ojs_define(iot_lfa_df = iot_lfa_df)
 ```
 
-We solve this for different number $n$ of basis vectors (recall that we are only choosing even Legendre polynomials). Observe that in this case we have very good approximation with $n=10$ basis functions. Contrast this with the state quantization methods where we needed $1000$ grid points to do a good approximation.
+We solve this for different number $n$ of basis vectors (recall that we are only choosing even Legendre polynomials). Observe that in this case we have very good approximation with $n=10$ basis functions. Contrast this with the state quantization methods where we needed $1000$ grid points to do a good approximation. 
 
 ```{ojs}
 viewof iot_lfa_n = Object.assign(Inputs.range([3,15], {label: "n", step: 1, value: 5}), {style: '--label-width:20px'})
@@ -593,3 +623,6 @@ Plot.plot({
   ]
 })
 ```
+
+### Notes {-}
+There is a huge literature on approximation methods for continuous state spaces. We only present a brief discussion from a peadagogical point of view. For a more detailed discussion, see @bryson-book-1999. The lecture notes of [Pierre-Luc Bacon](https://pierrelucbacon.com/rlbook/projection/) provide a comprehensive discussion of linear function approximation.
