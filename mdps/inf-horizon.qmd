@@ -30,27 +30,27 @@ _Note_: Throughout this section, we assume that $\ALPHABET S$ and $\ALPHABET A$ 
 :::{.callout-note icon=false appearance="simple"}
 # <i class="bi bi-journal-text text-primary"></i> Summary of the main result
 
-The main result for infinite horizon MDPs is that there is there is no loss of optimality in restricting attention to time-homogenous deterministic Markov policies. In other words, for any time-varaying, possible history dependent and randomized policy, there is a time-homogeneous deterministic Markov policy that performs as well. 
+The main result for infinite horizon MDPs is that there is no loss of optimality in restricting attention to time-homogeneous deterministic Markov policies. In other words, for any time-varying, possible history dependent and randomized policy, there is a time-homogeneous deterministic Markov policy that performs as well. 
 
 For finite horizon models, we have already established that there is no loss of optimality in restricting attention to deterministic Markov policies. So, the only new bit here is that for infinite horizon discounted cost models, we can restrict attention to **time-homogeneous** policies as well.
 
 
 
-Intuitively, this seems obvious. The system from time 1 onwards looks the same as the system from time 2 onwards. So, the decision rule which is optimal at time 1 should also be optimal at time 2. This intuition is correct as long as the future behavior is **stable,** which is always the case for discounted models with bounded per-step cost. We formally estabish this rest below. Formally establishing this intuition is a bit more subtle in other models such as the infinite-horizon total cost, infinite-horizon long-term average cost, and even discounted cost models with unbounded per-step cost.
+Intuitively, this seems obvious. The system from time 1 onwards looks the same as the system from time 2 onwards. So, the decision rule which is optimal at time 1 should also be optimal at time 2. This intuition is correct as long as the future behavior is **stable,** which is always the case for discounted models with bounded per-step cost. We formally establish this result below. Formally establishing this intuition is a bit more subtle in other models such as the infinite-horizon total cost, infinite-horizon long-term average cost, and even discounted cost models with unbounded per-step cost.
 
 :::
 
 ## Performance of a time-homogeneous Markov policy
 
-An infinite horizon Markov policy $(π_1, π_2, \ldots)$ is called time-homongeous[^0] if $π_1 = π_2 = π_3 = \cdots$. With a slight abuse of notation, we will denote a time-homogenous policy $(π,π,\ldots)$ simply by $π$. 
+An infinite horizon Markov policy $(π_1, π_2, \ldots)$ is called time-homogeneous[^0] if $π_1 = π_2 = π_3 = \cdots$. With a slight abuse of notation, we will denote a time-homogeneous policy $(π,π,\ldots)$ simply by $π$. 
 
-[^0]: Time-homogenous policies are sometimes also called stationary policies in the literature. I personally feel that the term _stationary_ can be a bit confusing because _stationary processes_ has a precise but  different meaning in probability theory. 
+[^0]: Time-homogeneous policies are sometimes also called stationary policies in the literature. I personally feel that the term _stationary_ can be a bit confusing because _stationary processes_ has a precise but  different meaning in probability theory. 
 
 The expected discounted cost of a time-homogeneous Markov policy is given by
 $$ V^π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
 \bigg].$$
 
-We now introduce a vector notation. Let $V^π$ denote the $n × 1$ vector given by $[V^π]_s = V^π(s)$. Furthermore, define Define the $n × 1$ vector $c_π$ and the $n × n$ matrix $P_π$ as follows:
+We now introduce a vector notation. Let $V^π$ denote the $n × 1$ vector given by $[V^π]_s = V^π(s)$. Furthermore, define the $n × 1$ vector $c_π$ and the $n × n$ matrix $P_π$ as follows:
 $$ [c_π]_s = c(s, π(s))
    \quad\text{and}\quad
    [P_π]_{ss'} = P_{ss'}(π(s)).
@@ -68,7 +68,7 @@ $$ \begin{align*}
 \EXP^π\big[ c(S_t, π(S_t)) \bigm| S_1 = s \big]
   &= \sum_{s' \in \ALPHABET S} \PR^π(S_t = s' | S_1 = s) c(s', π(s'))
   \\
-  &= \sum_{s' \in \ALPHABET S} [P_π^{t-1}]_{ss'} [c_π]_y
+  &= \sum_{s' \in \ALPHABET S} [P_π^{t-1}]_{ss'} [c_π]_{s'}
   \\
   &= δ_s P_π^{t-1} c_π.
 \end{align*} $$
@@ -92,14 +92,14 @@ $$ V^π = (I - γP_π)^{-1} c_π. $$
 
 ## Bellman operators
 
-To succinctly describe the analysys, we define two operaors:
+To succinctly describe the analysis, we define two operators:
 
 1. **The Bellman operator for policy $π$ denoted by $\BELLMAN^π$:** For any $v \in \reals^n$, 
    $$ \BELLMAN^π v = c_{π} + γ P_{π} v. $$
 
 2. **The Bellman optimality operator denoted by $\BELLMAN^*$:** For any $v \in \reals^n$:
   $$ [\BELLMAN^* v]_s = \min_{a \in \ALPHABET A}
-  \Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v_y \Big\}.$$
+  \Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v(s') \Big\}.$$
    We say that a policy $π$ is **a greedy policy with respect to $v$**, written as $π = \GREEDY(v)$, if 
    $$ B^* v = B^π v. $$
    
@@ -380,7 +380,7 @@ Again, we only prove the first part. The proof of the second part is the same. W
 $$ V + m \ONES \ge \BELLMAN^* V. $$
 From discounting and monotonicity properties, we get
 $$ \BELLMAN^* V + γ m \ONES \ge \BELLMAN^*^2 V. $$
-Again, from discounting and monotonitiy properties, we get
+Again, from discounting and monotonicity properties, we get
 $$ \BELLMAN^*^2 V + γ^2 m \ONES \ge \BELLMAN^*^3 V. $$
 Continuing this way, we get
 $$ \BELLMAN^*^k V + γ^k m \ONES \ge \BELLMAN^*^{k+1} V. $$
@@ -418,7 +418,7 @@ Among all the solutions, only the one corresponding to $α = 0$ is bounded, whic
 :::
 
 :::{#exm-birth-death-dp-solution}
-Consider a birth-death Markov chain with $0$ as an aborbing state. In particular, $\ALPHABET S = \integers_{\ge 0}$, $\ALPHABET A = \{a_\circ\}$ (dummy action), and $c(s,a) = \IND\{s > 0\}$. The transition dynamics are given by: for $s = 0$, $P(s'|0,a) = \IND\{s' = 0\}$ and for $s > 0$, we have
+Consider a birth-death Markov chain with $0$ as an absorbing state. In particular, $\ALPHABET S = \integers_{\ge 0}$, $\ALPHABET A = \{a_\circ\}$ (dummy action), and $c(s,a) = \IND\{s > 0\}$. The transition dynamics are given by: for $s = 0$, $P(s'|0,a) = \IND\{s' = 0\}$ and for $s > 0$, we have
 $$
 P(s'|s,a) = p \IND\{ s' = s+1\} + (1-p) \IND\{s' = s-1\}.
 $$
