@@ -4,6 +4,11 @@ keywords:
   - optimal stopping
   - threshold policies
   - monotone policies
+engine: julia
+execute:
+  echo: false
+  cache: true
+  freeze: true
 ---
 
 ## Introduction
@@ -257,6 +262,170 @@ V^*_{T}(s) &= \max\{ s-p, 0 \} \\
 V^*_{t}(s) &= \max\{ s-p, \EXP[ V^*_{t+1}(s + W) \}.
 \end{align*}$$
 :::
+
+We solve @exm-call-options numerically. Since this is a continuous state model, we are solving using [linear function approximation](continuous-state-spaces.qmd#linear-function-approximation) with Gauss-Hermite quadrature for the expectation and Chebyshev collocation points.
+
+```{julia}
+#| output: false
+
+module CallOptions_LFA
+  using Distributions, LinearAlgebra, SpecialPolynomials, FastGaussQuadrature
+
+  function solve(; p=5.0, μ=0.0, σ=1.0, T=20, n=8, K=50, K_eval=500, n_quad=32)
+    # State bounds: assume stock price in [0, 2p] (reasonable range)
+    s_min, s_max = 0.0, 2.0 * p
+    
+    # Collocation points: Chebyshev-Lobatto on [s_min, s_max]
+    cheb_nodes = K > 1 ? [-cos(π * (k - 1) / (K - 1)) for k in 1:K] : [0.0]
+    S_hat = s_min .+ (s_max - s_min) .* (cheb_nodes .+ 1.0) ./ 2.0
+    
+    # Evaluation points
+    S_eval = range(s_min, s_max, length=K_eval)
+
+    # Scale to [-1, 1] for Legendre polynomials
+    scale(s) = clamp(2.0 * (s - s_min) / (s_max - s_min) - 1.0, -1.0, 1.0)
+    
+    # Basis functions: Legendre polynomials (all degrees, not just even)
+    psi = [basis(Legendre, i-1) for i in 1:n]
+    
+    # Basis matrix at collocation points
+    Psi = zeros(K, n)
+    for k in 1:K, i in 1:n
+      Psi[k, i] = psi[i](scale(S_hat[k]))
+    end
+    PsiInv = pinv(Psi)
+
+    # Basis matrix at evaluation points
+    Psi_eval = zeros(K_eval, n)
+    for k in 1:K_eval, i in 1:n
+      Psi_eval[k, i] = psi[i](scale(S_eval[k]))
+    end
+
+    # Gauss-Hermite quadrature for E[V(s + W)] where W ~ N(μ, σ²)
+    z_gh, w_gh = gausshermite(n_quad; normalize=true)
+    W_nodes = μ .+ σ .* z_gh
+    W_weights = w_gh
+
+    # Expected basis features at collocation points
+    E = zeros(K, n)
+    for k in 1:K
+      s = S_hat[k]
+      for (w, ww) in zip(W_nodes, W_weights)
+        s_next = clamp(s + w, s_min, s_max)
+        s_scaled = scale(s_next)
+        for i in 1:n
+          E[k, i] += ww * psi[i](s_scaled)
+        end
+      end
+    end
+
+    # Expected basis features at evaluation points
+    E_eval = zeros(K_eval, n)
+    for k in 1:K_eval
+      s = S_eval[k]
+      for (w, ww) in zip(W_nodes, W_weights)
+        s_next = clamp(s + w, s_min, s_max)
+        s_scaled = scale(s_next)
+        for i in 1:n
+          E_eval[k, i] += ww * psi[i](s_scaled)
+        end
+      end
+    end
+
+    # Terminal reward: V_T(s) = max{s-p, 0}
+    R_terminal = [max(s - p, 0.0) for s in S_hat]
+    R_terminal_eval = [max(s - p, 0.0) for s in S_eval]
+
+    # Backward pass: compute α only
+    α = [zeros(n) for t in 1:T]
+    α[T] = PsiInv * R_terminal
+
+    for t in (T-1):-1:1
+      # Q-value: max{s-p, E[V_{t+1}(s + W)]}
+      Q_exercise = [s - p for s in S_hat]
+      Q_continue = E * α[t+1]
+      V_colloc = max.(Q_exercise, Q_continue)
+      α[t] = PsiInv * V_colloc
+    end
+
+    # Second pass: recompute V and π at evaluation points from α
+    V_eval = [zeros(K_eval) for t in 1:T]
+    π_eval = [zeros(Int, K_eval) for t in 1:T]
+
+    for t in 1:T
+      if t == T
+        V_eval[t] = R_terminal_eval
+        # At terminal time, exercise if s > p
+        for k in 1:K_eval
+          π_eval[t][k] = S_eval[k] > p ? 1 : 0
+        end
+      else
+        V_eval[t] = Psi_eval * α[t]
+        Q_exercise_eval = [s - p for s in S_eval]
+        Q_continue_eval = E_eval * α[t+1]
+        for k in 1:K_eval
+          π_eval[t][k] = Q_exercise_eval[k] >= Q_continue_eval[k] ? 1 : 0
+        end
+      end
+    end
+
+    return V_eval, π_eval, collect(S_eval)
+  end
+end
+```
+
+```{julia}
+using DataFrames, JSON3
+
+const T_horizon = 20
+V, π, S = CallOptions_LFA.solve(T=T_horizon, n=15)
+
+call_options_df = DataFrame(time=Int[], s=Float16[], value=Float16[], policy=Int[])
+for t in 1:T_horizon
+    for i in 1:length(S)
+        push!(call_options_df, (t, Float16(S[i]), Float16(V[t][i]), π[t][i]))
+    end
+end
+
+ojs_define(call_options_T = T_horizon, call_options_df = call_options_df)
+```
+
+```{ojs}
+viewof call_options_time = Object.assign(Inputs.range([1, call_options_T], {label: "t", step: 1, value: call_options_T/2}), {style: '--label-width:20px'})
+```
+
+```{ojs}
+//| label: fig-call-options
+//| fig-cap: "Call option: Value function $V_t(s)$ and optimal exercise policy $π_t(s)$ at time $t$"
+//| fig-subcap:
+//|     - Value function
+//|     - Exercise policy (1=exercise, 0=continue)
+//| layout-ncol: 2
+
+Plot.plot({
+  grid: true,
+  x: { label: "Stock price s" },
+  y: { label: "Value" },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(call_options_df.filter(d => d.time === call_options_time), {x: "s", y: "value", curve: "linear"})
+  ]
+})
+
+Plot.plot({
+  grid: true,
+  x: { label: "Stock price s" },
+  y: { label: "Exercise", ticks: [0, 1] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(call_options_df.filter(d => d.time === call_options_time), {x: "s", y: "policy", curve: "step"})
+  ]
+})
+```
+
+We now prove some qualitative properties that can be inferred from the plots show in @fig-call-options.
 
 :::{#lem-call-options-properties}
 1. For all $t$, $V^*_t(s)$ is increasing in $s$.
