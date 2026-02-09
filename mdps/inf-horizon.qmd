@@ -230,7 +230,7 @@ $$
 
 ::: {#prp-policy-evaluation}
 The performance of a time-homogeneous Markov policy may be computed by solving a system of linear equations given by:
-$$ V^{π} = (1 - γ P_{π})^{-1} c_{π}. $$
+$$ V^π = (I - γ P_π)^{-1} c_π. $$
 :::
 
 :::{.callout-note collapse="true"} 
@@ -254,8 +254,8 @@ V^π &= c_π + γ P_π c_π + γ^2 P_π^2 c_π + \cdots \\
 Rearranging terms, we have
 $$ (I - γ P_π) V^π = c_π. $$
 
-The [:spectral radius] $ρ(γ P_d)$ of a matrix is upper bounded by its [:spectral
-norm] $\lVert γ P_d \rVert = γ < 1$. Therefore, the matrix $(I - γ P_π)$ has an inverse and by left multiplying both sides by $(I - γ P_π)^{-1}$, we get
+The [:spectral radius] $ρ(γ P_π)$ of a matrix is upper bounded by its [:spectral
+norm] $\lVert γ P_π \rVert = γ < 1$. Therefore, the matrix $(I - γ P_π)$ has an inverse and by left multiplying both sides by $(I - γ P_π)^{-1}$, we get
 $$ V^π = (I - γP_π)^{-1} c_π. $$
 :::
 
@@ -273,7 +273,7 @@ To succinctly describe the analysis, we define two operators:
   $$ [\BELLMAN^* v]_s = \min_{a \in \ALPHABET A}
   \Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v(s') \Big\}.$$
    We say that a policy $π$ is **a greedy policy with respect to $v$**, written as $π = \GREEDY(v)$, if 
-   $$ B^* v = B^π v. $$
+   $$ \BELLMAN^* v = \BELLMAN^π v. $$
    
 Note that the Bellman optimality operator may also be written as[^1]
 $$ \BELLMAN^* v = \min_{π \in \Pi} \BELLMAN^π v, $$
@@ -328,7 +328,7 @@ $$\begin{align*}
 \end{align*} $$
 
 By a similar argument, we can show that $[\BELLMAN^* w - \BELLMAN^* v](s) \le
-γ \| v - w \|$, which proves the other side of the inequality. 
+γ \NORM{v - w}_{∞}$, which proves the other side of the inequality. 
 :::
 
 Let's revisit the result of @prp-policy-evaluation, which may be written as
@@ -543,8 +543,8 @@ $(\BELLMAN^π, V^π)$.
 #### Remark
 The above result can also be stated as follows:
 
-* $\displaystyle \| V^π - V \| \le \frac{1}{1-γ}\| \BELLMAN^π V - V \|$.
-* $\displaystyle \| V^* - V \| \le \frac{1}{1-γ}\| \BELLMAN^* V - V \|$.
+* $\displaystyle \NORM{V^π - V}_{∞} \le \frac{1}{1-γ}\NORM{\BELLMAN^π V - V}_{∞}$.
+* $\displaystyle \NORM{V^* - V}_{∞} \le \frac{1}{1-γ}\NORM{\BELLMAN^* V - V}_{∞}$.
 :::
 
 :::{.callout-note collapse="true"}  
@@ -583,9 +583,9 @@ and is satisfied by any linear function $V^*(s) = α s$!
 
 To apply the Banach fixed point theorem, we need to be in a Banach space, i.e., a complete normed metric space. So, what was the Banach space in @thm-Bellman-fixed-point? Implicitly, we had used the space 
 $$
-  \ALPHABET V^M \coloneqq \{ v \colon \ALPHABET S \to \reals \text{ such that } \| v \|_{∞} \le M \}
+  \ALPHABET V^M \coloneqq \{ v \colon \ALPHABET S \to \reals \text{ such that } \NORM{v}_{∞} \le M \}
 $$
-where $M$ is any constant greater than $\|c\|_{∞}/(1-γ)$. Banach fixed point theorem says that DP has a **unique** fixed point in $\ALPHABET V^M$. It does not say anything about solutions outside $\ALPHABET V^M$!
+where $M$ is any constant greater than $\NORM{c}_{∞}/(1-γ)$. Banach fixed point theorem says that DP has a **unique** fixed point in $\ALPHABET V^M$. It does not say anything about solutions outside $\ALPHABET V^M$!
 
 Among all the solutions, only the one corresponding to $α = 0$ is bounded, which is also the optimal value function.
 :::
@@ -622,12 +622,12 @@ Again we have multiple solutions of the DP and the correct solution is the only 
 Given any $V \in \reals^n$, let $π$ be such that $\BELLMAN^* V = \BELLMAN^π V$. Moreover, let $V^*$ denote the unique fixed point of $\BELLMAN^*$ and $V^π$ denote the unique fixed point of $\BELLMAN^π$.
 Then, show that
 
-a. $$ \| V^* - V \| \le \frac{1}{1-γ} \| \BELLMAN^* V - V \|. $$
-b. $$ \| V^* - \BELLMAN^* V \| \le \frac{γ}{1-γ} \| \BELLMAN^* V - V \|. $$
-c. $$ \| V^π - V \| \le \frac{1}{1-γ} \| \BELLMAN^π V - V \|. $$
-d. $$ \| V^π - \BELLMAN^π V \| \le \frac{γ}{1-γ} \| \BELLMAN^π V - V \|. $$
-e. $$ \| V^π - V^* \| \le \frac{2}{1-γ} \| \BELLMAN^* V - V \|. $$
-f. $$ \| V^π - V^* \| \le \frac{2γ}{1 - γ} \| V - V^* \|. $$
+a. $$ \NORM{V^* - V}_{∞} \le \frac{1}{1-γ} \NORM{\BELLMAN^* V - V}_{∞}. $$
+b. $$ \NORM{V^* - \BELLMAN^* V}_{∞} \le \frac{γ}{1-γ} \NORM{\BELLMAN^* V - V}_{∞}. $$
+c. $$ \NORM{V^π - V}_{∞} \le \frac{1}{1-γ} \NORM{\BELLMAN^π V - V}_{∞}. $$
+d. $$ \NORM{V^π - \BELLMAN^π V}_{∞} \le \frac{γ}{1-γ} \NORM{\BELLMAN^π V - V}_{∞}. $$
+e. $$ \NORM{V^π - V^*}_{∞} \le \frac{2}{1-γ} \NORM{\BELLMAN^* V - V}_{∞}. $$
+f. $$ \NORM{V^π - V^*}_{∞} \le \frac{2γ}{1 - γ} \NORM{V - V^*}_{∞}. $$
 
 :::
 
