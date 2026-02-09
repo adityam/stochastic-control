@@ -271,7 +271,7 @@ We solve @exm-call-options numerically. Since this is a continuous state model, 
 module CallOptions_LFA
   using Distributions, LinearAlgebra, SpecialPolynomials, FastGaussQuadrature
 
-  function solve(; p=5.0, μ=0.0, σ=1.0, T=20, n=8, K=50, K_eval=500, n_quad=32)
+  function solve(; p=5.0, σ=1.0, T=20, n=8, K=50, K_eval=500, n_quad=32)
     # State bounds: assume stock price in [0, 2p] (reasonable range)
     s_min, s_max = 0.0, 2.0 * p
     
@@ -301,9 +301,11 @@ module CallOptions_LFA
       Psi_eval[k, i] = psi[i](scale(S_eval[k]))
     end
 
-    # Gauss-Hermite quadrature for E[V(s + W)] where W ~ N(μ, σ²)
+    # Gauss-Hermite quadrature for E[V(s + W)] where W ~ N(0, σ²):
+    # ∫ V(s+w) φ(w;0,σ²)dw = ∫ V(s+σz) φ(z)dz ≈ Σ w_gh[i] V(s+σ*z_gh[i]).
+    # normalize=true gives nodes/weights for standard normal φ(z); same weights work after affine transform.
     z_gh, w_gh = gausshermite(n_quad; normalize=true)
-    W_nodes = μ .+ σ .* z_gh
+    W_nodes = σ .* z_gh
     W_weights = w_gh
 
     # Expected basis features at collocation points
