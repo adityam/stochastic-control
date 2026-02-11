@@ -39,13 +39,10 @@ The main result for infinite horizon MDPs is that there is no loss of optimality
 
 For finite horizon models, we have already established that there is no loss of optimality in restricting attention to deterministic Markov policies. So, the only new bit here is that for infinite horizon discounted cost models, we can restrict attention to **time-homogeneous** policies as well.
 
-
-
 Intuitively, this seems obvious. The system from time 1 onwards looks the same as the system from time 2 onwards. So, the decision rule which is optimal at time 1 should also be optimal at time 2. This intuition is correct as long as the future behavior is **stable,** which is always the case for discounted models with bounded per-step cost. We formally establish this result below. Formally establishing this intuition is a bit more subtle in other models such as the infinite-horizon total cost, infinite-horizon long-term average cost, and even discounted cost models with unbounded per-step cost.
-
 :::
 
-As an illustration, we solve @exm-call-options (call options problem) for a **large horizon** $T = 100$ (with parameters $p = 10$, $\sigma = 0.5$, $\gamma = 0.9$). We plot the value function and policy for $t = 1, \ldots, 20$. The plot shows that $V_t(s)$ and the optimal threshold change very little over these first time steps showing that the solution is already close to time-homogeneous near the beginning, which motivates the infinite-horizon approximation.
+As an illustration, we solve @exm-call-options (call options problem) for a **large horizon** $T = 100$ (with parameters $p = 10$, $\sigma = 0.5$, $γ = 0.9$). We plot the value function and policy for $t = 1, \ldots, 10$. 
 
 ```{julia}
 #| output: false
@@ -163,7 +160,7 @@ end
 using DataFrames, JSON3
 
 const T_horizon = 100
-const t_plot_max = 20
+const t_plot_max = 10
 
 V, π, S = CallOptions_LFA.solve(T=T_horizon, n=15)
 
@@ -212,11 +209,25 @@ Plot.plot({
 })
 ```
 
-## Performance of a time-homogeneous Markov policy
+The plot shows that $V_t(s)$ and the optimal policy change very little over these first time steps showing that the solution is already close to time-homogeneous near the beginning. This motivates us to restrict our attention to **time-homogeneous policies.**
 
 An infinite horizon Markov policy $(π_1, π_2, \ldots)$ is called time-homogeneous[^0] if $π_1 = π_2 = π_3 = \cdots$. With a slight abuse of notation, we will denote a time-homogeneous policy $(π,π,\ldots)$ simply by $π$. 
 
 [^0]: Time-homogeneous policies are sometimes also called stationary policies in the literature. I personally feel that the term _stationary_ can be a bit confusing because _stationary processes_ has a precise but  different meaning in probability theory. 
+
+The roadmap of the rest of this section is as follows:
+
+1. We first show that the performance of a time-homogeneous Markov policy can be computed by solving a system of linear equations.
+
+2. To shorten the notation and streamline the analysis, we introduce the Bellman operators and show that they are contractions under the sup-norm. 
+
+3. We then use Banach fixed point theorem to show that the Bellman operators have unique fixed points.
+
+4. Finally, we show that the time-homoengeous policy that is greedywith respect to the fixed point of the Bellman operator is optimal.
+
+## Performance of a time-homogeneous Markov policy
+
+How do we evaluate the performance of a time-homongeous policy? Unlike the finite horizon setting, we cannot simply iterate backwards from a terminal cost. Instead, we look for a self-consistent value.
 
 The expected discounted cost of a time-homogeneous Markov policy is given by
 $$ V^π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
@@ -419,22 +430,22 @@ where $V^0$ is the all zeros vector.
 Now by construction, 
 $$V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [(\BELLMAN^*)^T V^0](s). $$
 Taking limit as $T \to ∞$, we get that
-$$\begin{equation}\label{eq:1}
+\begin{equation}\label{eq:1}
   V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [(\BELLMAN^*)^T V^0](s) = V^*(s). 
-\end{equation}$$
+\end{equation}
 
 Since $0 \le c(s,a) \le M$,  for any $T$,
-$$ \begin{align*}
+\begin{align*}
 V^{\text{opt}}_∞(s) &\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) 
 \biggm| S_1 = s \bigg] + \sum_{t=T+1}^∞ γ^{t-1} M \\
 &= V^{\text{opt}}_T(s) + γ^T M / (1 - γ) \\
 &= [(\BELLMAN^*)^T V^0](s) + γ^T M / (1-γ). 
-\end{align*} $$
+\end{align*}
 Taking limit as $T \to ∞$, we get that
-$$\begin{equation}\label{eq:2}
+\begin{equation}\label{eq:2}
   V^{\text{opt}}_∞(s) \le \lim_{T \to ∞}
   \big\{ [(\BELLMAN^*)^T V^0](s) + γ^T M / (1-γ) \big\} = V^*(s). 
-\end{equation}$$
+\end{equation}
 
 From \\eqref{eq:1} and \\eqref{eq:2}, we get that $V^{\text{opt}}_∞ = V^*$. 
 :::
@@ -459,6 +470,59 @@ Thus, $V^*$ is a fixed point of $\BELLMAN^{π^*}$ and therefore equal to $V^{π^
 
 :::
 
+## An example
+
+As was the case in the finite horizon setting, in some instances it is possible to solve the Bellman equation explicitly.
+
+:::{#exm-optimal-consumption}
+### Optimal Consumption 
+
+Consider an investor with wealth $S_t \in \reals_{\ge 0}$. At each time step, the investor consumes an amount $A_t \in (0, S_t]$ and invests the remainder in a risky asset with an i.i.d. random rate of return $W_t > 0$. The wealth dynamics are given by:
+$$S_{t+1} = (S_t - A_t) W_t.$$
+
+The investor wishes to maximize the expected discounted utility 
+$$\EXP\biggl[\sum_{t=1}^\infty γ^{t-1} \log(A_t)\biggr].$$
+ Find the optimal value function and the optimal consumption policy.
+:::
+
+:::{.callout-note collapse="true"}
+#### Solution
+The Bellman optimality equation for maximizing rewards is:
+$$V(s) = \max_{0 < a \le s} \Big\{ \log(a) + γ \EXP\big[ V( (s-a)W ) \big] \Big\}.$$
+
+We guess that the value function has the form $V(s) = C \log s + D$. Substituting this into the Bellman equation:
+\begin{align*}
+C \log s + D &= \max_{0 < a \le s} \Big\{ \log a + γ \EXP[ C \log((s-a)W) + D ] \Big\} \\
+&= \max_{0 < a \le s} \Big\{ \log a + γ C \log(s-a) + γ C \EXP[\log W] + γ D \Big\}.
+\end{align*}
+To find the optimal $a$, we differentiate the term inside the max with respect to $a$:
+$$\frac{1}{a} - \frac{γ C}{s-a} = 0 \implies s - a = γ C a \implies a = \frac{1}{1 + γ C} s.$$
+Thus, the optimal policy is linear in wealth: $A^*(s) = \lambda s$. Substituting $a = \lambda s$ back into the equation and matching coefficients for $\log s$:
+$$\log(\lambda s) + γ C \log((1-\lambda)s) = (1 + γ C) \log s + \text{constants}.$$
+For the LHS to match $C \log s$ on the RHS, we must have:
+$$1 + γ C = C \implies C = \frac{1}{1-γ}.$$
+
+Substituting $C$ back into the expression for $a$:
+$$a = \frac{1}{1 + \frac{γ}{1-γ}} s = (1-γ)s.$$
+
+To find the constant $D$, we substitute the optimal policy $a = (1-γ)s$ back into the Bellman equation.
+$$
+   C \log s + D = \log(1-γ)s + γ C \log γ s + γ C \EXP[\log W] + γ D
+$$
+We now  equate the constant terms (those not attached to $\log s$): 
+$$
+  D = \log(1-γ) + γ C \log γ + γ C \EXP[\log W] + γ D
+$$
+Solving for $D$:
+$$D = \frac{\log(1-γ)}{1-γ} + \frac{γ \log γ }{(1-γ)^2} + \frac{\EXP[\log W]}{(1-γ)^2}$$
+
+
+**Result:** The value function is of the form $V(s) = C \log s + D$, with the values of $C$ and $D$ as given above. The optimal policy is 
+$$π^*(s) = (1-γ)s.$$
+Thus, it is optimal to consume a constant fraction of wealth at every step, regardless of the distribution of $W$:
+:::
+
+Explicit closed-form solutions for infinite-horizon MDPs are rare; instead, we typically rely on the numerical algorithms discussed in the [next section](mdp-algorithms.qmd).
 
 ## Properties of Bellman operator
 
@@ -660,3 +724,5 @@ Let $V^*$ denote the optimal value function of an MDP. Suppose that two determin
 The discounted cost formulation for infinite-horizon MDPs is due to @Blackwell1965. The operator viewpoint and the use of contraction mappings in this setting were introduced by @Denardo1967.
 
 The material included here is referenced from different sources. Perhaps the best sources to study this material are the books by @Puterman2014, @Whittle1982, and @Bertsekas:book.
+
+The model of @exm-optimal-consumption is due to @Phelps1962.
