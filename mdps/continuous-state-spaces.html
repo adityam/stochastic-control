@@ -1391,6 +1391,7 @@ Figure&nbsp;11.2: Linear Interpolation (MC): Value function <span class="math in
 </figcaption>
 </figure>
 </div>
+<p>We can go beyond linear interpolation by using <a href="https://en.wikipedia.org/wiki/B-spline">:B-splines</a>. As an illustration of using cubic splines, see <span class="citation" data-cites="Johnson1993">Johnson et al. (<a href="../references.html#ref-Johnson1993" role="doc-biblioref">1993</a>)</span>.</p>
 </section>
 <section id="linear-function-approximation" class="level2" data-number="11.3">
 <h2 data-number="11.3" class="anchored" data-anchor-id="linear-function-approximation"><span class="header-section-number">11.3</span> Linear function approximation</h2>
@@ -1582,33 +1583,33 @@ Figure&nbsp;11.2: Linear Interpolation (MC): Value function <span class="math in
 </div>
 <p>We solve this for different number <span class="math inline">\(n\)</span> of basis vectors (recall that we are only choosing even Legendre polynomials). Observe that in this case we have very good approximation with <span class="math inline">\(n=10\)</span> basis functions. Contrast this with the state quantization methods where we needed <span class="math inline">\(1000\)</span> grid points to do a good approximation.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="592" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 591;"><span id="cb8-592"><a href="#cb8-592" aria-hidden="true" tabindex="-1"></a>viewof iot_lfa_n <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>(Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">3</span><span class="op">,</span><span class="dv">15</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">5</span>})<span class="op">,</span> {<span class="dt">style</span><span class="op">:</span> <span class="st">'--label-width:20px'</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb8" data-startfrom="594" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 593;"><span id="cb8-594"><a href="#cb8-594" aria-hidden="true" tabindex="-1"></a>viewof iot_lfa_n <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>(Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">3</span><span class="op">,</span><span class="dv">15</span>]<span class="op">,</span> {<span class="dt">label</span><span class="op">:</span> <span class="st">"n"</span><span class="op">,</span> <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span> <span class="dt">value</span><span class="op">:</span> <span class="dv">5</span>})<span class="op">,</span> {<span class="dt">style</span><span class="op">:</span> <span class="st">'--label-width:20px'</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-5" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="604" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 603;"><span id="cb9-604"><a href="#cb9-604" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb9-605"><a href="#cb9-605" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb9-606"><a href="#cb9-606" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">label</span><span class="op">:</span> <span class="st">"State s"</span> }<span class="op">,</span></span>
-<span id="cb9-607"><a href="#cb9-607" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> { <span class="dt">label</span><span class="op">:</span> <span class="st">"Value"</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">175</span>] }<span class="op">,</span></span>
-<span id="cb9-608"><a href="#cb9-608" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb9-609"><a href="#cb9-609" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb9-610"><a href="#cb9-610" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb9-611"><a href="#cb9-611" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(iot_lfa_df<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">n</span> <span class="op">===</span> iot_lfa_n)<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"s"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"linear"</span>})</span>
-<span id="cb9-612"><a href="#cb9-612" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb9-613"><a href="#cb9-613" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb9-614"><a href="#cb9-614" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb9-615"><a href="#cb9-615" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb9-616"><a href="#cb9-616" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">label</span><span class="op">:</span> <span class="st">"State s"</span> }<span class="op">,</span></span>
-<span id="cb9-617"><a href="#cb9-617" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> { <span class="dt">label</span><span class="op">:</span> <span class="st">"Action"</span><span class="op">,</span> <span class="dt">ticks</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>] }<span class="op">,</span></span>
-<span id="cb9-618"><a href="#cb9-618" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb9-619"><a href="#cb9-619" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb9-620"><a href="#cb9-620" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb9-621"><a href="#cb9-621" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(iot_lfa_df<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">n</span> <span class="op">===</span> iot_lfa_n)<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"s"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"policy"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step"</span>})</span>
-<span id="cb9-622"><a href="#cb9-622" aria-hidden="true" tabindex="-1"></a>  ]</span>
-<span id="cb9-623"><a href="#cb9-623" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb9" data-startfrom="606" data-source-offset="-1"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 605;"><span id="cb9-606"><a href="#cb9-606" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb9-607"><a href="#cb9-607" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb9-608"><a href="#cb9-608" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">label</span><span class="op">:</span> <span class="st">"State s"</span> }<span class="op">,</span></span>
+<span id="cb9-609"><a href="#cb9-609" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> { <span class="dt">label</span><span class="op">:</span> <span class="st">"Value"</span><span class="op">,</span> <span class="dt">domain</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">175</span>] }<span class="op">,</span></span>
+<span id="cb9-610"><a href="#cb9-610" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb9-611"><a href="#cb9-611" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb9-612"><a href="#cb9-612" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb9-613"><a href="#cb9-613" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(iot_lfa_df<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">n</span> <span class="op">===</span> iot_lfa_n)<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"s"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"linear"</span>})</span>
+<span id="cb9-614"><a href="#cb9-614" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb9-615"><a href="#cb9-615" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb9-616"><a href="#cb9-616" aria-hidden="true" tabindex="-1"></a>Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb9-617"><a href="#cb9-617" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb9-618"><a href="#cb9-618" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">label</span><span class="op">:</span> <span class="st">"State s"</span> }<span class="op">,</span></span>
+<span id="cb9-619"><a href="#cb9-619" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> { <span class="dt">label</span><span class="op">:</span> <span class="st">"Action"</span><span class="op">,</span> <span class="dt">ticks</span><span class="op">:</span> [<span class="dv">0</span><span class="op">,</span> <span class="dv">1</span>] }<span class="op">,</span></span>
+<span id="cb9-620"><a href="#cb9-620" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb9-621"><a href="#cb9-621" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb9-622"><a href="#cb9-622" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb9-623"><a href="#cb9-623" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(iot_lfa_df<span class="op">.</span><span class="fu">filter</span>(d <span class="kw">=&gt;</span> d<span class="op">.</span><span class="at">n</span> <span class="op">===</span> iot_lfa_n)<span class="op">,</span> {<span class="dt">x</span><span class="op">:</span> <span class="st">"s"</span><span class="op">,</span> <span class="dt">y</span><span class="op">:</span> <span class="st">"policy"</span><span class="op">,</span> <span class="dt">curve</span><span class="op">:</span> <span class="st">"step"</span>})</span>
+<span id="cb9-624"><a href="#cb9-624" aria-hidden="true" tabindex="-1"></a>  ]</span>
+<span id="cb9-625"><a href="#cb9-625" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="fig-iot-lfa" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-iot-lfa-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1650,8 +1651,8 @@ Figure&nbsp;11.3: Linear function approximation with Legendre polynomials: Value
 </div>
 <section id="notes" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="notes">Notes</h3>
-<p>There is a huge literature on approximation methods for continuous state spaces. We only present a brief discussion from a peadagogical point of view. For a more detailed discussion, see <span class="citation" data-cites="bryson-book-1999">Bryson (<a href="../references.html#ref-bryson-book-1999" role="doc-biblioref">1999</a>)</span>.</p>
-<p>See <span class="citation" data-cites="Chow1991">Chow and Tsitsiklis (<a href="../references.html#ref-Chow1991" role="doc-biblioref">1991</a>)</span> for a multi-grid methods, which successively discretize the state space using a non-uniform grid.</p>
+<p>There is a huge literature on approximation methods for continuous state spaces. We only present a brief discussion from a peadagogical point of view. For a more detailed discussion, see <span class="citation" data-cites="bryson-book-1999">Bryson (<a href="../references.html#ref-bryson-book-1999" role="doc-biblioref">1999</a>)</span> and <span class="citation" data-cites="Rust1996">Rust (<a href="../references.html#ref-Rust1996" role="doc-biblioref">1996</a>)</span>.</p>
+<p>Our discussion on state quantization assumed uniform grids. We can also employ non-uniform schemes, such as quadrature grids <span class="citation" data-cites="Tauchen1991">(<a href="../references.html#ref-Tauchen1991" role="doc-biblioref">Tauchen and Hussey 1991</a>)</span> or successive discretization <span class="citation" data-cites="Chow1991">(<a href="../references.html#ref-Chow1991" role="doc-biblioref">Chow and Tsitsiklis 1991</a>)</span>. Generally, deterministic discretization methods suffer from the curse of dimensionality. However, choosing random grid points can break this curse <span class="citation" data-cites="Rust1997">(<a href="../references.html#ref-Rust1997" role="doc-biblioref">Rust 1997</a>)</span>.</p>
 <p>The lecture notes of <a href="https://pierrelucbacon.com/rlbook/projection/">Pierre-Luc Bacon</a> provide a comprehensive discussion of linear function approximation. See <span class="citation" data-cites="Schweitzer1985">Schweitzer and Seidmann (<a href="../references.html#ref-Schweitzer1985" role="doc-biblioref">1985</a>)</span> for different algorithms for linear function approximations for infinite horizon MDPs.</p>
 
 
@@ -1662,8 +1663,20 @@ Figure&nbsp;11.3: Linear function approximation with Legendre polynomials: Value
 <div id="ref-Chow1991" class="csl-entry" role="listitem">
 <span class="smallcaps">Chow, C.-S. and Tsitsiklis, J.N.</span> 1991. An optimal one-way multigrid algorithm for discrete-time stochastic control. <em>IEEE Transactions on Automatic Control</em> <em>36</em>, 8, 898–914. DOI: <a href="https://doi.org/10.1109/9.133184">10.1109/9.133184</a>.
 </div>
+<div id="ref-Johnson1993" class="csl-entry" role="listitem">
+<span class="smallcaps">Johnson, S.A., Stedinger, J.R., Shoemaker, C.A., Li, Y., and Tejada-Guibert, J.A.</span> 1993. Numerical solution of continuous-state dynamic programs using linear and spline interpolation. <em>Operations Research</em> <em>41</em>, 3, 484–500. DOI: <a href="https://doi.org/10.1287/opre.41.3.484">10.1287/opre.41.3.484</a>.
+</div>
+<div id="ref-Rust1996" class="csl-entry" role="listitem">
+<span class="smallcaps">Rust, J.</span> 1996. Numerical dynamic programming in economics. In: <em>Handbook of computational economics</em>. Elsevier, 619–729. DOI: <a href="https://doi.org/10.1016/s1574-0021(96)01016-7">10.1016/s1574-0021(96)01016-7</a>.
+</div>
+<div id="ref-Rust1997" class="csl-entry" role="listitem">
+<span class="smallcaps">Rust, J.</span> 1997. Using randomization to break the curse of dimensionality. <em>Econometrica</em> <em>65</em>, 3, 487. DOI: <a href="https://doi.org/10.2307/2171751">10.2307/2171751</a>.
+</div>
 <div id="ref-Schweitzer1985" class="csl-entry" role="listitem">
 <span class="smallcaps">Schweitzer, P.J. and Seidmann, A.</span> 1985. Generalized polynomial approximations in markovian decision processes. <em>Journal of Mathematical Analysis and Applications</em> <em>110</em>, 2, 568–582. DOI: <a href="https://doi.org/10.1016/0022-247x(85)90317-8">10.1016/0022-247x(85)90317-8</a>.
+</div>
+<div id="ref-Tauchen1991" class="csl-entry" role="listitem">
+<span class="smallcaps">Tauchen, G. and Hussey, R.</span> 1991. Quadrature-based methods for obtaining approximate solutions to nonlinear asset pricing models. <em>Econometrica</em> <em>59</em>, 2, 371. DOI: <a href="https://doi.org/10.2307/2938261">10.2307/2938261</a>.
 </div>
 </div>
 </section>
