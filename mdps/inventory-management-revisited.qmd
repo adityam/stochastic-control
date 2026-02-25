@@ -8,6 +8,7 @@ keywords:
   - stochastic optimization
   - infinite horizon
   - discounted cost
+engine: julia
 execute:
   echo: false
   cache: true
@@ -19,7 +20,12 @@ execute:
 One of the potential benefits of modeling a system as infinite horizon discounted cost MDP is that it can be simpler to identify an optimal policy. We illustrate this using the inventory management example.
 :::
 
-Let's reconsider the model for [inventory management] and assume that it runs for an infinite horizon. We assume that the per-step cost is given by $$c(s,a,s_{+}) = p a + γ h(s_{+}), $$ where 
+
+Let's reconsider the model for [inventory management] and assume that it runs for an infinite horizon. For simplicity, we consider the case when the state and action spaces are real valued. Recall that the dynamics are given by 
+$$
+  S_{t+1} = S_t + A_t - W_t
+$$
+We take the the per-step cost to be $$c(s,a,s_{+}) = p a + γ h(s_{+}), $$ where 
 $$ h(s) = \begin{cases}
   c_h s, & \text{if $s \ge 0$} \\
   -c_s s, & \text{if $s < 0$},
@@ -47,7 +53,7 @@ using Revise
 using Distributions: Exponential, Binomial, pdf, cdf
 using OffsetArrays
 using MDP
-using DataFrames
+using DataFrames, JSON3
 ```
 
 As an illustration, let's reconsider the example used for the [finite horizon
@@ -169,126 +175,112 @@ PolicyPlotBin = Plot.plot({
 
 We are interested in the following question: _Is it possible to identify the optimal threshold of the base-stock policy without explicitly solving the dynamic program?_ In this section, we show that the answer is affirmative.
 
-As a first step, we modify the per-step cost using [reward shaping]. In
-particular, we consider the following potential function
-
-$$\varphi(s) = h(s) + \frac1{γ} p s - \frac{1}{1-γ}p\mu,$$
-where $\mu = \EXP[W]$ is the expected number of arrivals at each time period. 
-
-Now consider a new cost function
-$$\begin{align*}
-  c'(s,a,s_{+}) &= c(s,a,s_{+}) + \varphi(s) - γ \varphi(s_{+}) \\
-  &= pa + γ h(s_{+}) + h(s) + \frac{1}{γ} p s - \frac{1}{1-γ} p \mu
-  - γ h(s_{+}) - p s_{+} - \frac{γ}{1-γ} p \mu \\
-  &= h(s) + \frac{1-γ}{γ} ps + p w - p \mu.
-\end{align*} $$
-Note that 
-$$ \EXP[ c'(s,a,S_{+}) | S = s, A = a ] = h(s) + \frac{1-γ}{γ} ps 
-=: c^*(s). $$
-Thus, the optimal policy of the original model is the same as that in which
-the per-step cost is given by $c^*(s)$. 
-
-Recall that the optimal policy in the original model was a base stock 
-policy. For the infinite horizon model, the threshold will become
-time-invariant. In particular, the infinite horizon dynamic programming with this modified cost is given by 
-$$\begin{equation}\label{eq:DP}
-  V^*(s) = \min_{a \in \reals_{\ge 0}} 
-   \bigl\{ c^*(s) + γ \EXP[ V^*(s + a - W) ] \bigr\}. 
-\end{equation}$$
-
-Define $F(s) = \EXP[V^*(s-W)]$. Thus, the dynamic program may be written as
-$$\begin{equation}\label{eq:DP-1}
-  V^*(s) = c^*(s) + γ \min_{a \in \reals_{\ge 0}} 
-  \bigl\{  F(s+a) \bigr\}. 
-\end{equation}$$
-Recall that while proving the structure of the optimal policy, we had shown that $σ = \arg\min_{s \in \reals}F(s)$ and 
+As was the case for the finite horizon, we use a post-decision state formulation where we take $Z_t = S_t + A_t$ as the post-decision state. The corresponding dynamic program is given by the following coupled fixed point equations:
+\begin{align*}
+  H(z) &= \EXP[ h(z - W) + V^*(z - W) ] \\
+  V^*(s) &= \min_{a \in \reals_{\ge 0}} \bigl\{ pa + γ H(s+a) \}
+\end{align*}
+with the optimal time-homogeneous policy given by 
 $$
-  \min_{a \in \reals_{\ge 0}} F(s+a)
-  =
-  \begin{cases}
-  F(σ), & s \le σ \\
-  F(s)  , & s > σ.
-  \end{cases}
-$$
-Consequently,
-$$
-  π^*(s)
-  =
-  \begin{cases}
-  σ - s, & s \le σ \\
-  0  , & s > σ.
-  \end{cases}
-$$
-and
-$$
-  V^*(s) = 
-  \begin{cases}
-  c^*(s) + γ F(σ), & s \le σ \\
-  c^*(s) + γ F(s),   & s > σ
-  \end{cases}
-$$
-which can be written more compactly as
-\begin{equation}\label{eq:opt}
-  V^*(s) = c^*(s) + γ F(\max\{s,σ\})
-\end{equation}
-
-Substituting in the definition of $F(s) = \EXP[V^*(s-W)]$, we get
-$$
-  F(s) = \EXP[c^*(s-W)] + γ \EXP[ F(\max\{s-W, σ\}) ].
-$$
-Rearranging the terms, we get
-$$
-  \EXP[c^*(s-W)] = F(s) - γ \EXP[ F(\max\{s-W, σ\}) ].
+  π^*(s) = \arg \min_{a \in \reals_{\ge 0}} \bigl\{ pa + γ H(s+a) \}
 $$
 
+Suppose we find the fixed point by starting from an initial guess $V_0(s) = 0$ and iteratively computing $\{ V_t \}_{t \ge 0}$ and $\{H_t \}_{t \ge 0}$. Then from the result of @thm-inventory-structure, we know that $V_t$ and $H_t$ are convex and have the structure given in @thm-inventory-structure. Therefore, the limit will also have these properties. 
 
-Pick a $s \le σ$ 
-Substituting $s' = s - W$ in \\eqref{eq:opt} and taking expectations, we get
+In particular, define
 $$
-F(s) = \EXP[ c^*(s - W) ] + γ F(σ), \quad s \le σ.
+  f(z) = pz + γ H(z)
 $$
-Taking $s = σ$ and rearraning, we get
+Then, 
 $$
-F(σ) = \frac{1}{1-γ} \EXP[ c^*(σ-W) ]
+ V^*(s) = \min_{a \in \reals_{\ge 0}} f(s+a) - p s
+ = f(\max\{s, σ\}) - ps
+ $$ 
+ where
 $$
-Thus,
+  σ = \arg \min_{z \in \reals} f(z)
+$$
+
+Therefore, we have
+
+\begin{align*}
+  f(z) &= pz + γH(z) \\
+  &= pz + γ \EXP[h(z - W)] + γ \EXP[ V^*(z - W)] \\
+  &= (1 - γ) p z + γ p μ + γ \EXP[ h(z - W) ] + γ \EXP[ f(\max\{z - W, σ\}) ]
+\end{align*}
+where $μ = \EXP[W]$. For the ease of notation, define
+$$
+  c^*(z) = (1 - γ) p z + γ \EXP[h(z - W)] + γ p μ
+$$
+Then, we have
 \begin{equation}\label{eq:F}
-F(s) = \EXP[ c^*(s-W) ] + \frac{γ}{1-γ} \EXP[ c^*(σ - W) ],
-\quad s \le σ.
+  f(z) = \EXP[c^*(z - W)] + γ \EXP[ f(\max\{s - W, σ\})]
 \end{equation}
+
+The main result is the following.
 
 ::: {#lem-inventory-threshold}
-$F(s)$ and $\EXP[c^*(s-W)]$ have the same minimizer, i.e.,
+$f(z)$ and $\EXP[c^*(z-W)]$ have the same minimizer, i.e.,
 $$
-  \arg\min_{s \in \reals}F(s) 
-  =
-  \arg\min_{s \in \reals}\EXP[c^*(s-W)]
+  \arg\min_{z \in \reals}f(z) 
+  = \arg\min_{z \in \reals}\EXP[c^*(z-W)]
 $$
 Therefore,
 $$
-  σ =
-  \arg\min_{s \in \reals}\EXP[c^*(s-W)]
+  σ = \arg\min_{z \in \reals}\EXP[c^*(z-W)]
 $$
 :::
 
-:::{.callout-note collapse="true"} 
-#### Partial Proof
-From the dynamic program, we know that for any $s \le σ$, not ordering is worse than ordering $σ - s$. Thus, $F(s) \ge F(σ)$. Therefore, from \eqref{eq:F}, we get
-$$
-\EXP[ c^*(s-W) ] + \frac{γ}{1-γ} \EXP[ c^*(σ - W) ]
-\ge
-\EXP[ c^*(σ-W) ] + \frac{γ}{1-γ} \EXP[ c^*(σ - W) ]
-$$
-or simply
-\begin{equation}\label{eq:ineq-1}
-  \EXP[ c^*(s-W) ] \ge \EXP[ c^*(σ-W) ], \quad s \le σ.
-\end{equation}
+:::{.callout-note collapse="true"}
+### Solution
 
-**FIXME**: I don't have a proof of the other side. The result is taken from @Whittle1982 (vol 1, §13.3), but it is stated as an obvious result, without a proof. I cannot figure out a proof of the fact that 
-\begin{equation}\label{eq:ineq-2}
-  \EXP[ c^*(s-W) ] \ge \EXP[ c^*(σ-W) ], \quad s \ge σ.
-\end{equation}
-Please let me know if you know a proof!
+For the ease of notation, we define $g(z) = \EXP[c^*(z - W)]$ and $\bar f(z) = \EXP[f(\max\{z - W, σ\})$. Then, \eqref{eq:F} can be written as
+$$
+  f(z) = g(z) + γ \bar f(z)
+$$
+We know that all three functions are convex. Moreover, $σ$ is a minimizer of $f$. Thus, 
+$$
+  0 \in ∂ f(σ)
+  \iff
+  f'_{-}(σ) \le 0 \le f'_{+}(σ).
+$$
+We will show that
+$$
+  0 \in ∂ g(σ)
+  \iff
+  g'_{-}(σ) \le 0 \le g'_{+}(σ).
+$$
+
+**Left derivative:** Since the demand $W \ge 0$, we have $\bar f(z) = f(σ)$ for $z \le σ$. Thus, 
+$$
+  f(z) = g(z) + γ f(σ), \quad z \le σ
+$$
+which implies that
+$$
+  g'_{-}(z) = f'_{-}(z) = 0.
+$$
+
+**Right derivative:** By dominated convegence theorem, we can interchange derivatives and expectation. Therefore, 
+$$
+  \bar f'_{+}(z) = \EXP[ f'_{+}(z - W) \IND\{ z - W \ge σ \} ], \quad z \ge σ.
+$$
+Thus,
+$$
+  \bar f'_{+}(σ) = f'_{+}(σ) \PR(W = 0).
+$$
+
+Taking the right derivative of $f(z) = g(z) + γ \bar f(z)$, we get
+$$
+f'_{+}(σ) = g'_{+}(σ) + γ f'_{+}(σ) \PR(W = 0)
+\implies
+g'_{+}(σ) = f'_{+}(σ)(1 - γ \PR(W = 0)) 
+$$
+We know that $f'_{+}(σ) \ge 0$ and $(1 - γ\PR(W = 0)) \ge 0$. Thus, 
+$$
+  g'_{+}(σ) \ge 0.
+$$
+
+Hence, $σ$ is a minimizer of $g$. 
 :::
 
 ::: {#thm-inventory-inf}
@@ -299,26 +291,27 @@ $$\begin{equation}
 \end{equation}$$
 ::: 
 
-::: {.callout-note collapse="true"}
+::: {.callout-note collapse="false"}
 #### Proof {-}
 The proof idea is the same approach as that used for the [newsvendor
-problem][newsvendor]. In particular, let $f$ denote the
+problem][newsvendor]. In particular, let $f_W$ denote the
 distribution of $W$, $F$ denote the CDF, and $μ = \EXP[W]$. Then,
-$$\begin{align}
-\EXP[c^*(σ-W)] &= \EXP[h(σ-W)] + \frac{1-γ}{γ}p(σ - μ) 
-\notag \\
-&= \int_{0}^{σ} c_h(σ-w)f(w)dw + 
-   \int_{σ}^{∞} c_s(w-σ)f(w)dw + \frac{1-γ}{γ}p(σ - μ) \notag
-\end{align}$$
+\begin{align*}
+\EXP[c^*(σ-W)] &= γ\EXP[h(σ-W)] + (1-γ) \EXP[p(σ - W)] + γ p μ \\
+&= γ \EXP[h(σ - W)] + (1-γ)p σ + p μ
+\\
+&= γ \int_{0}^{σ} c_h(σ-w)f_W(w)dw + 
+   γ \int_{σ}^{∞} c_s(w-σ)f_W(w)dw \\
+&\quad + (1-γ)p σ + p μ
+\end{align*}
 Thereore, 
-$$\begin{align}
+\begin{align*}
 \frac{∂ \EXP[c^*(σ-W)]}{∂σ} &=
-  \int_{0}^{σ} c_h f(w)dw
-+ \int_{σ}^{\infty}[-c_s] f(w)dw 
-+ \frac{1-γ}{γ}p \notag \\
-&= c_h F(σ) - c_s(1 - F(σ))
-+ \frac{1-γ}{γ}p \notag \\
-\end{align}$$
+  γ \int_{0}^{σ} c_h f_W(w)dw
++ γ\int_{σ}^{\infty}[-c_s] f_W(w)dw 
++ (1-γ)p \\
+&= γ c_h F(σ) - γ c_s(1 - F(σ)) + (1-γ) p 
+\end{align*}
 To find the optimal threshold, we set the derivative to $0$ and simplify to
 obtain \\eqref{eq:opt-threshold}.
 :::
@@ -458,8 +451,7 @@ end
 ```
 
 ```{julia}
-ojs_define(exponential = df_exp)
-ojs_define(threshold_exp = df_threshold)
+ojs_define(exponential = df_exp, threshold_exp = df_threshold)
 ```
 
 
@@ -503,13 +495,13 @@ ValuePlotExp = Plot.plot({
 
 ## Notes {-}
 
-The idea of using [reward shaping] to derive a closed form expression for inventory management is taken from @Whittle1982. It is interesting to note that @Whittle1982 uses the idea of reward shaping more than 17 years before the paper by @Ng1999 on reward shaping. It is possible that Whittle was using the results of @Porteus1975. As far as I know, the explicit formula of the threshold presented in @thm-inventory-inf has not appeared in the literature before.
+As far as I know, the explicit formula of the threshold presented in @thm-inventory-inf has not appeared in the literature before. A partial version of this result is presented in @Whittle1982, using essentially the idea of [reward shaping]. It is interesting to note that @Whittle1982 uses the idea of reward shaping more than 17 years before the paper by @Ng1999 on reward shaping. It is possible that Whittle was using the results of @Porteus1975. 
 
 As established in the notes on [Lipschitz MDPs], it can be shown that the optimal value function for the inventory management model above is Lipschitz continuous.
 
 In the analysis above, we did not formally verify that all the functions exist and infinimizations were well defined. For a detailed discussion of such technical details, see @Feinberg2016.
 
-For the models with [positive ordering cost](inventory-management.qmd#positive-ordering-cost) An efficient algorithm for computing the optimal $(s,S)$ policy is presented in @Zheng1991.
+For the models with [positive ordering cost](inventory-management.qmd#positive-ordering-cost) an efficient algorithm for computing the optimal $(s,S)$ policy is presented in @Zheng1991.
 
 [inventory management]: inventory-management.qmd
 [reward shaping]: reward-shaping.qmd
