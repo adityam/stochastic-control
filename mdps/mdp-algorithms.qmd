@@ -8,64 +8,70 @@ There are three main algorithms for solving infinite horizon MDPs: value iterati
 
 :::{.callout-important icon="false"}
 # <i class="bi bi-cpu text-important"></i> Value Iteration Algorithm
-1. Start with any $V_0 \in \reals^n$.
-2. Recursively compute $π_k = \GREEDY(V_k)$ and $V_{k+1} = \BELLMAN^{π_k} V_k = \BELLMAN^* V_k$.
+1. Start with any $V^{(0)} \in \reals^n$.
+2. Recursively compute $π^{(k)} = \GREEDY(V^{(k)})$ and $V^{(k+1)} = \BELLMAN^{π^{(k)}} V^{(k)} = \BELLMAN^* V^{(k)}$.
 3. Define 
    $$ \begin{align*}
-      \underline δ_k &= \frac{γ}{1-γ} \min_s \{ V_k(s) - V_{k-1}(s) \}, \\
-      \bar δ_k &=       \frac{γ}{1-γ} \max_s \{ V_k(s) - V_{k-1}(s) \}.
+      \underline δ^{(k)} &= \frac{γ}{1-γ} \min_s \{ V^{(k)}(s) - V^{(k-1)}(s) \}, \\
+      \bar δ^{(k)} &=       \frac{γ}{1-γ} \max_s \{ V^{(k)}(s) - V^{(k-1)}(s) \}.
     \end{align*} $$
 
 Then, for all $k$
 
-1. $V_k + \underline δ_k \ONES \le V^* \le V_k + \bar δ_k \ONES$.
-2. $(\underline δ_k - \bar δ_k) \ONES  \le V^{π_k} - V^* \le (\bar δ_k -
-   \underline δ_k) \ONES.$
+1. $V^{(k)} + \underline δ^{(k)} \ONES \le V^* \le V^{(k)} + \bar δ^{(k)} \ONES$.
+2. $(\underline δ^{(k)} - \bar δ^{(k)}) \ONES  \le V^{π^{(k)}} - V^* \le (\bar δ^{(k)} -
+   \underline δ^{(k)}) \ONES.$
 :::  
 
 :::{.callout-note collapse="true"}  
 #### Proof {-}
 By construction, 
 $$ \begin{align*} 
-   \BELLMAN^* V_k - V_k &= \BELLMAN^* V_k - \BELLMAN^* V_{k-1} \\ 
-   & \le \BELLMAN^{π_{k-1}} V_k - \BELLMAN^{π_{k-1}} V_{k-1}\\
-   & \le γ P_{π_{k-1}}[ V_k - V_{k-1} ] \\
-   &= (1-γ) \bar δ_k \ONES.
+   \BELLMAN^* V^{(k)} - V^{(k)} &= \BELLMAN^* V^{(k)} - \BELLMAN^* V^{(k-1)} \\ 
+   & \le \BELLMAN^{π^{(k-1)}} V^{(k)} - \BELLMAN^{π^{(k-1)}} V^{(k-1)}\\
+   & \le γ P_{π^{(k-1)}}[ V^{(k)} - V^{(k-1)} ] \\
+   &= (1-γ) \bar δ^{(k)} \ONES.
 \end{align*} $$
 Thus, by @prp-Bellman-bounds, we have
 $$\begin{equation} \label{eq:VI-1}
-  V^* \le V_k + \bar δ_k \ONES.
+  V^* \le V^{(k)} + \bar δ^{(k)} \ONES.
 \end{equation}$$
-Note that $\BELLMAN^* V_k = \BELLMAN^{π_k} V_k$. So, we have also show that
-$\BELLMAN^{π_k} V_k - V_k \le (1-γ) \bar δ_k \ONES$. Thus, again by
+Note that $\BELLMAN^* V^{(k)} = \BELLMAN^{π^{(k)}} V^{(k)}$. So, we have also show that
+$\BELLMAN^{π^{(k)}} V^{(k)} - V^{(k)} \le (1-γ) \bar δ^{(k)} \ONES$. Thus, again by
 @prp-Bellman-bounds, we have
 $$\begin{equation}\label{eq:VI-2}
-  V^{π_k} \le V_k + \bar δ_k \ONES. 
+  V^{π^{(k)}} \le V^{(k)} + \bar δ^{(k)} \ONES. 
 \end{equation}$$
 
 By a similar argument, we can show
 $$\begin{equation}\label{eq:VI-3}
-  V^* \ge V_k + \underline δ_k \ONES
+  V^* \ge V^{(k)} + \underline δ^{(k)} \ONES
 \quad\text{and}\quad
- V^{π_k} \ge V_k + \underline δ_k \ONES. 
+ V^{π^{(k)}} \ge V^{(k)} + \underline δ^{(k)} \ONES. 
 \end{equation}$$
 
 Eq. \\eqref{eq:VI-1} and \\eqref{eq:VI-3} imply the first relationship of the
 result. To establish the second relationship, note that the triangle
 inequality
-$$ \max\{ V^{π_k} - V^* \} \le 
-   \max\{ V^{π_k} - V_k \} + \max\{ V_{k} - V^* \}
-   \le (\bar δ_k - \underline δ_k) \ONES.
+$$ \max\{ V^{π^{(k)}} - V^* \} \le 
+   \max\{ V^{π^{(k)}} - V^{(k)} \} + \max\{ V^{(k)} - V^* \}
+   \le (\bar δ^{(k)} - \underline δ^{(k)}) \ONES.
 $$
 Similarly,
 $$ 
-  \max\{ V^* - V^{π_k} \} \le
-   \max \{ V^* - V_k \} + \max\{ V_k - V^{π_k} \}
-   \le (\bar δ_k - \underline δ_k) \ONES.
+  \max\{ V^* - V^{π^{(k)}} \} \le
+   \max \{ V^* - V^{(k)} \} + \max\{ V^{(k)} - V^{π^{(k)}} \}
+   \le (\bar δ^{(k)} - \underline δ^{(k)}) \ONES.
 $$
 Combining the above two equation, we get the second relationship of the
 result. 
 :::
+
+### Some remarks {-}
+
+1. An implication of @prp-Bellman-properties is that if the initial estimate $V^{(0)} < V^*$, then $\{V^{(k)}\}_{k \ge 0}$ is a monotone increasing sequence that converges to $V^*$. Similarly, if $V^{(0)} > V^*$, then $\{V^{(k)}\}_{k \ge 0}$ is a monotone decreasing sequence that converges to $V^*$.
+
+2. By the same argument, if at some stage $V^{(k)} \ge V^{(k+1)}$, then for all $\ell \ge k$, we have $V^{(\ell)} \le V^{(\ell+1)}$. Similar behavior will be observed if the inequalities are reversed. 
 
 ## Policy Iteration Algorithm
 
@@ -96,21 +102,21 @@ and $π$ are optimal.
 :::{.callout-important icon=false}
 # <i class="bi bi-cpu text-important"></i> Policy Iteration Algorithm
 
-1. Start with an arbitrary policy $π_0$. Compute $V_0 = \BELLMAN^{π_0} V_0$.
-2. Recursively compute a policy $π_k$ such that
-   $$ π_k \in \GREEDY(V_{k-1})$$
+1. Start with an arbitrary policy $π^{(0)}$. Compute $V^{(0)} = \BELLMAN^{π^{(0)}} V^{(0)}$.
+2. Recursively compute a policy $π^{(k)}$ such that
+   $$ π^{(k)} \in \GREEDY(V^{(k-1)})$$
    and compute the performance of the policy using
-   $$ V_k = \BELLMAN^{π_k} V_k.$$ 
+   $$ V^{(k)} = \BELLMAN^{π^{(k)}} V^{(k)}.$$ 
 
-3. Stop if $V_k = V_{k-1}$ (or $π_k = π_{k-1}$). 
+3. Stop if $V^{(k)} = V^{(k-1)}$ (or $π^{(k)} = π^{(k-1)}$). 
 :::
 
-The policy improvement lemma (@lem-policy-improvement) implies that $V_{k-1} \ge
-V_k$. Since the state and action spaces are finite, there are only a finite
+The policy improvement lemma (@lem-policy-improvement) implies that $V^{(k-1)} \ge
+V^{(k)}$. Since the state and action spaces are finite, there are only a finite
 number of policies. The value function improves at each step. So the process
-must converge in finite number of iterations. At convergence, $V_k = V_{k-1}$
-and the policy improvement lemma implies that the corresponding policies $π_k$
-or $π_{k-1}$ are optimal. 
+must converge in finite number of iterations. At convergence, $V^{(k)} = V^{(k-1)}$
+and the policy improvement lemma implies that the corresponding policies $π^{(k)}$
+or $π^{(k-1)}$ are optimal. 
 
 ### Policy iteration as Newton-Raphson algoritm
 
@@ -118,29 +124,29 @@ or $π_{k-1}$ are optimal.
 
 Recall that the main idea behind Newton-Raphson is as follows.
 Suppose we want to solve a fixed point equation $V = \BELLMAN^* V$ and we have
-an approximate solution $V_k$. Then we can search for an improved soluiton
-$V_{k+1} = V_k + Δ_k$ by setting
+an approximate solution $V^{(k)}$. Then we can search for an improved soluiton
+$V^{(k+1)} = V^{(k)} + Δ^{(k)}$ by setting
 $$\begin{equation} \label{eq:NR}
-V_k + Δ_k = \mathcal{B}( V_k + Δ_k ), 
+V^{(k)} + Δ^{(k)} = \mathcal{B}( V^{(k)} + Δ^{(k)} ), 
 \end{equation} $$
-expanding the right-hand side as far as first-order terms in $Δ_k$ and solving
-the consequent linear equation for $Δ_k$. 
+expanding the right-hand side as far as first-order terms in $Δ^{(k)}$ and solving
+the consequent linear equation for $Δ^{(k)}$. 
 
 Now, let's try to apply this idea to find the fixed point of the Bellman
-equation. Suppose we have identified a guess $V_k$ and $\BELLMAN^* V_k =
-\BELLMAN^{π_{k+1}} V_k$. Because the choice of control action $a$ is
+equation. Suppose we have identified a guess $V^{(k)}$ and $\BELLMAN^* V^{(k)} =
+\BELLMAN^{π_{k+1}} V^{(k)}$. Because the choice of control action $a$ is
 optimization out in $\BELLMAN^*$, the varation of $a$ induced by the variation
-$Δ_k$ of $V_k$ has no first-order effect on the value of $\BELLMAN^*(V_k +
-Δ_k)$. Therefore,
+$Δ^{(k)}$ of $V^{(k)}$ has no first-order effect on the value of $\BELLMAN^*(V^{(k)} +
+Δ^{(k)})$. Therefore,
 $$
-  \mathcal{B}(V_k + Δ_k) = \BELLMAN^{π_{k+1}}(V_k + Δ_k) + o(Δ_k).
+  \mathcal{B}(V^{(k)} + Δ^{(k)}) = \BELLMAN^{π^{(k+1)}}(V^{(k)} + Δ^{(k)}) + o(Δ^{(k)}).
 $$
 It follows that the linearized version of \\eqref{eq:NR} is just
 $$ 
-  V_{k+1} = \BELLMAN^{π_{k+1}} V_{k+1}.
+  V^{(k+1)} = \BELLMAN^{π^{(k+1)}} V^{(k+1)}.
 $$
-That is, $V_{k+1}$ is just the value function for the policy $π_{k+1}$, where
-$π_{k+1}$ was deduced from the value function $V_k$ exactly by the policy
+That is, $V^{(k+1)}$ is just the value function for the policy $π^{(k+1)}$, where
+$π^{(k+1)}$ was deduced from the value function $V^{(k)}$ exactly by the policy
 improvement procedure. Therefore, we can conclude the following.
 
 :::{#thm-PI-NR}
@@ -160,12 +166,12 @@ why policy iteration approaches converge in few iterations.
 
 1. Fix a sequence of integers $\{\ell_k\}_{k \in \integers_{\ge 0}}$. 
 
-2. Start with an initial guess $V_0 \in \reals^n$. 
+2. Start with an initial guess $V^{(0)} \in \reals^n$. 
 
-3. For $k=0, 1, 2, \dots$, recursively compute a policy $π_k$ such that
-   $$ π_k \in \GREEDY(V_k) $$
+3. For $k=0, 1, 2, \dots$, recursively compute a policy $π^{(k)}$ such that
+   $$ π^{(k)} \in \GREEDY(V^{(k)}) $$
    and then update the value function
-   $$ V_{k+1} = (\BELLMAN^{π_k})^{\ell_k} V_k. $$
+   $$ V^{(k+1)} = (\BELLMAN^{π^{(k)}})^{\ell_k} V^{(k)}. $$
 :::
 
 Note that if $\ell_k = 1$, the optimistic policy iteration is equivalent to
@@ -188,23 +194,23 @@ For any $V \in \reals^n$ and $m \ONES \in \reals_{\ge 0}$
 The proof is left as an exercise.
 
 :::{#prp-PI-optimistic-bound}
-Let $\{(V_k, π_k)\}_{k \ge 0}$ be generated as per the optimistic policy
+Let $\{(V^{(k)}, π^{(k)})\}_{k \ge 0}$ be generated as per the optimistic policy
 iteration algorithm. Define
 $$ \alpha_k = \begin{cases}
   1, & \text{if } k = 0 \\
   γ^{\ell_0 + \ell_1 + \dots + \ell_{k-1}}, & \text{if } k > 0.
  \end{cases}$$
  Suppose there exists an $m \in \reals$ such that 
- $$ \| V_0 - \BELLMAN^* V_0 \| \le m. $$
+ $$ \| V^{(0)} - \BELLMAN^* V^{(0)} \| \le m. $$
  Then, for all $k \ge 0$,
- $$ \BELLMAN^* V_{k+1} - \alpha_{k+1} m \le V_{k+1} \le 
- \BELLMAN^* V_k + \frac{γ}{1-γ} \alpha_k m.
+ $$ \BELLMAN^* V^{(k+1)} - \alpha_{k+1} m \le V^{(k+1)} \le 
+ \BELLMAN^* V^{(k)} + \frac{γ}{1-γ} \alpha_k m.
  $$
  Moreover,
- $$ V_{k} - \frac{(k+1) γ^k}{1-γ} m \le
+ $$ V^{(k)} - \frac{(k+1) γ^k}{1-γ} m \le
     V^* \le 
-    V_k + \frac{\alpha_k}{1 - γ} m \le 
-    V_k + \frac{γ^k}{1 - γ} m. $$
+    V^{(k)} + \frac{\alpha_k}{1 - γ} m \le 
+    V^{(k)} + \frac{γ^k}{1 - γ} m. $$
 ::: 
 
 ## Exercises {-}
@@ -212,9 +218,9 @@ $$ \alpha_k = \begin{cases}
 :::{#exr-VI-bounds}
 Show that the error bound for value iteration is monotone with the number
  of iterations, i.e,
- $$ V_k + \underline δ_k \ONES \le V_{k+1} + \underline δ_{k+1} \ONES
+ $$ V^{(k)} + \underline δ^{(k)} \ONES \le V^{(k+1)} + \underline δ^{(k+1)} \ONES
  \le V^* 
- \le V_{k+1} + \bar δ_{k+1} \ONES \le V_k + \bar δ_k \ONES. $$
+ \le V^{(k+1)} + \bar δ^{(k+1)} \ONES \le V^{(k)} + \bar δ^{(k)} \ONES. $$
 :::
 
 <!-- TODO: Add the example of policy improvement for the harvesting example
