@@ -18,8 +18,8 @@ There are three main algorithms for solving infinite horizon MDPs: value iterati
 
 Then, for all $k$
 
-1. $V^{(k)} + \underline δ^{(k)} \ONES \le V^* \le V^{(k)} + \bar δ^{(k)} \ONES$.
-2. $(\underline δ^{(k)} - \bar δ^{(k)}) \ONES  \le V^{π^{(k)}} - V^* \le (\bar δ^{(k)} -
+1. $V^{(k)} + \underline δ^{(k)} \ONES \le V^\star \le V^{(k)} + \bar δ^{(k)} \ONES$.
+2. $(\underline δ^{(k)} - \bar δ^{(k)}) \ONES  \le V^{π^{(k)}} - V^\star \le (\bar δ^{(k)} -
    \underline δ^{(k)}) \ONES.$
 :::  
 
@@ -34,7 +34,7 @@ $$ \begin{align*}
 \end{align*} $$
 Thus, by @prp-Bellman-bounds, we have
 $$\begin{equation} \label{eq:VI-1}
-  V^* \le V^{(k)} + \bar δ^{(k)} \ONES.
+  V^\star \le V^{(k)} + \bar δ^{(k)} \ONES.
 \end{equation}$$
 Note that $\BELLMAN^* V^{(k)} = \BELLMAN^{π^{(k)}} V^{(k)}$. So, we have also show that
 $\BELLMAN^{π^{(k)}} V^{(k)} - V^{(k)} \le (1-γ) \bar δ^{(k)} \ONES$. Thus, again by
@@ -45,7 +45,7 @@ $$\begin{equation}\label{eq:VI-2}
 
 By a similar argument, we can show
 $$\begin{equation}\label{eq:VI-3}
-  V^* \ge V^{(k)} + \underline δ^{(k)} \ONES
+  V^\star \ge V^{(k)} + \underline δ^{(k)} \ONES
 \quad\text{and}\quad
  V^{π^{(k)}} \ge V^{(k)} + \underline δ^{(k)} \ONES. 
 \end{equation}$$
@@ -53,14 +53,14 @@ $$\begin{equation}\label{eq:VI-3}
 Eq. \\eqref{eq:VI-1} and \\eqref{eq:VI-3} imply the first relationship of the
 result. To establish the second relationship, note that the triangle
 inequality
-$$ \max\{ V^{π^{(k)}} - V^* \} \le 
-   \max\{ V^{π^{(k)}} - V^{(k)} \} + \max\{ V^{(k)} - V^* \}
+$$ \max\{ V^{π^{(k)}} - V^\star \} \le 
+   \max\{ V^{π^{(k)}} - V^{(k)} \} + \max\{ V^{(k)} - V^\star \}
    \le (\bar δ^{(k)} - \underline δ^{(k)}) \ONES.
 $$
 Similarly,
 $$ 
-  \max\{ V^* - V^{π^{(k)}} \} \le
-   \max \{ V^* - V^{(k)} \} + \max\{ V^{(k)} - V^{π^{(k)}} \}
+  \max\{ V^\star - V^{π^{(k)}} \} \le
+   \max \{ V^\star - V^{(k)} \} + \max\{ V^{(k)} - V^{π^{(k)}} \}
    \le (\bar δ^{(k)} - \underline δ^{(k)}) \ONES.
 $$
 Combining the above two equation, we get the second relationship of the
@@ -69,7 +69,7 @@ result. 
 
 ### Some remarks {-}
 
-1. An implication of @prp-Bellman-properties is that if the initial estimate $V^{(0)} < V^*$, then $\{V^{(k)}\}_{k \ge 0}$ is a monotone increasing sequence that converges to $V^*$. Similarly, if $V^{(0)} > V^*$, then $\{V^{(k)}\}_{k \ge 0}$ is a monotone decreasing sequence that converges to $V^*$.
+1. An implication of @prp-Bellman-properties is that if the initial estimate $V^{(0)} < V^\star$, then $\{V^{(k)}\}_{k \ge 0}$ is a monotone increasing sequence that converges to $V^\star$. Similarly, if $V^{(0)} > V^\star$, then $\{V^{(k)}\}_{k \ge 0}$ is a monotone decreasing sequence that converges to $V^\star$.
 
 2. By the same argument, if at some stage $V^{(k)} \ge V^{(k+1)}$, then for all $\ell \ge k$, we have $V^{(\ell)} \le V^{(\ell+1)}$. Similar behavior will be observed if the inequalities are reversed. 
 
@@ -208,7 +208,7 @@ $$ \alpha_k = \begin{cases}
  $$
  Moreover,
  $$ V^{(k)} - \frac{(k+1) γ^k}{1-γ} m \le
-    V^* \le 
+    V^\star \le 
     V^{(k)} + \frac{\alpha_k}{1 - γ} m \le 
     V^{(k)} + \frac{γ^k}{1 - γ} m. $$
 ::: 
@@ -219,8 +219,35 @@ $$ \alpha_k = \begin{cases}
 Show that the error bound for value iteration is monotone with the number
  of iterations, i.e,
  $$ V^{(k)} + \underline δ^{(k)} \ONES \le V^{(k+1)} + \underline δ^{(k+1)} \ONES
- \le V^* 
+ \le V^\star 
  \le V^{(k+1)} + \bar δ^{(k+1)} \ONES \le V^{(k)} + \bar δ^{(k)} \ONES. $$
+:::
+
+:::{#exr-inventory-infinite}
+Consider the infinite horizon discounted version of the inventory management problem with real valued state space. Assume that the demand is exponential with rate $1/μ$. Assume that the parameters of the model are:
+$$
+  c_h = 1, \quad c_s = 4, \quad p = 1, \quad γ = 0.9, \quad μ = 5.
+$$
+
+To numerically solve the problem, we truncate the state space to $[-B, B]$, the post-decision state to $[-B, 2B]$, and the action space to $[0, 2B]$. Thus, we consider the truncated dynamics where
+$$
+  Z_t = [S_t + A_t]_{-B}^{2B}
+  \quad
+  S_{t+1} = [Z_t - W_t]_{-B}^B
+$$
+We then discretize all the spaces using a uniform grid of size $δ$. Pick
+$$
+  B = 10, \quad δ = 0.1
+$$
+
+a. Solve the truncated and discretized model using value iteration until the span seminorm between the successive iterates is less than $10e^{-6}$. Benchmark the number of iterations, memory usage, and the time needed to compute the solution.
+
+b. Solve the truncated and discretized model using policy iteration. Benchmark the number of iterations, memory usage, and the time needed to compute the solution.
+
+c. Solve the truncated and discretized model using optimistic policy iteration. Pick $\ell = 20$ and stop the algorithm when the span semi-norm of $V^{(k+1)} - V^{(k)}$ is less than $10e^{-6}$. Benchmark the number of iterations, memory usage, and the time needed to compute the solution.
+
+d. Solve the truncated and discretized model using linear programming. Benchmark the memory usage and time needed to compute the solution.
+
 :::
 
 <!-- TODO: Add the example of policy improvement for the harvesting example

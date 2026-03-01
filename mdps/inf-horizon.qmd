@@ -280,16 +280,16 @@ To succinctly describe the analysis, we define two operators:
 1. **The Bellman operator for policy $π$ denoted by $\BELLMAN^π$:** For any $v \in \reals^n$, 
    $$ \BELLMAN^π v = c_{π} + γ P_{π} v. $$
 
-2. **The Bellman optimality operator denoted by $\BELLMAN^*$:** For any $v \in \reals^n$:
-  $$ [\BELLMAN^* v]_s = \min_{a \in \ALPHABET A}
+2. **The Bellman optimality operator denoted by $\BELLMAN^\star$:** For any $v \in \reals^n$:
+  $$ [\BELLMAN^\star v]_s = \min_{a \in \ALPHABET A}
   \Big\{ c(s,a) + γ \sum_{s' \in \ALPHABET S} P_{ss'}(a) v(s') \Big\}.$$
    We say that a policy $π$ is **a greedy policy with respect to $v$**, written as $π = \GREEDY(v)$, if 
-   $$ \BELLMAN^* v = \BELLMAN^π v. $$
+   $$ \BELLMAN^\star v = \BELLMAN^π v. $$
    
 Note that the Bellman optimality operator may also be written as[^1]
-$$ [\BELLMAN^* v] = \min_{π \in \Pi} [\BELLMAN^π v](s), \quad \forall s \in \ALPHABET S $$
+$$ [\BELLMAN^\star v] = \min_{π \in \Pi} [\BELLMAN^π v](s), \quad \forall s \in \ALPHABET S $$
 or more succinctly,
-$$ \BELLMAN^* v = \min_{π \in \Pi} \BELLMAN^π v, $$
+$$ \BELLMAN^\star v = \min_{π \in \Pi} \BELLMAN^π v, $$
 where $\Pi$ denotes the set of all deterministic Markov policies. 
 
 [^1]: This is true for general models only when the arg min at each state
@@ -300,9 +300,9 @@ For any $v \in \reals^n$, let $\NORM{v}_{∞}$ denote the sup-norm of $v$, i.e.,
 [:Banach space]: https://en.wikipedia.org/wiki/Banach_space
 
 :::{#prp-Bellman-contraction}
-The operators $\BELLMAN^π$ and $\BELLMAN^*$ are contractions under the sup-norm, i.e., for any $v, w \in \reals^n$,
+The operators $\BELLMAN^π$ and $\BELLMAN^\star$ are contractions under the sup-norm, i.e., for any $v, w \in \reals^n$,
 $$ \NORM{\BELLMAN v - \BELLMAN w} \le γ \NORM{v - w}, $$
-where $\BELLMAN \in \{\BELLMAN^π, \BELLMAN^*\}$.
+where $\BELLMAN \in \{\BELLMAN^π, \BELLMAN^\star\}$.
 :::
 
 :::{.callout-note collapse="true"}
@@ -322,11 +322,11 @@ $$
   = γ \NORM{v - w}_{∞}.
 $$
 
-Now consider the case of $\BELLMAN^*$.
-Fix a state $s \in \ALPHABET S$ and consider $[\BELLMAN^* v](s) - [\BELLMAN^* w](s)$. In particular, let $a^*$ be the optimal action in the right hand side
-of $[\BELLMAN^* w](s)$. Then,
+Now consider the case of $\BELLMAN^\star$.
+Fix a state $s \in \ALPHABET S$ and consider $[\BELLMAN^\star v](s) - [\BELLMAN^\star w](s)$. In particular, let $a^*$ be the optimal action in the right hand side
+of $[\BELLMAN^\star w](s)$. Then,
 $$\begin{align*}
-  [\BELLMAN^* v - \BELLMAN^* w](s) &= 
+  [\BELLMAN^\star v - \BELLMAN^\star w](s) &= 
   \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
   P_{ss'}(a) v(s') \bigr\} - 
   \min_{a \in \ALPHABET A}\bigl\{ c(s,a) + γ \sum_{s' \in \ALPHABET S}
@@ -340,7 +340,7 @@ $$\begin{align*}
   &= γ \NORM{v - w}_{∞}.
 \end{align*} $$
 
-By a similar argument, we can show that $[\BELLMAN^* w - \BELLMAN^* v](s) \le
+By a similar argument, we can show that $[\BELLMAN^\star w - \BELLMAN^\star v](s) \le
 γ \NORM{v - w}_{∞}$, which proves the other side of the inequality. 
 :::
 
@@ -353,25 +353,25 @@ V^π = \BELLMAN^π V^π.
 
 Thus, we can equivalently state the result of @prp-policy-evaluation by saying that $V^π$ is the _unique_ bounded fixed point of \eqref{eq:policy-evaluation}. 
 
-What about the Bellman optimality operator? Does the equation $V^* = \BELLMAN V^*$ have a solution? The contraction property (@prp-Bellman-contraction) and the [:Banach fixed point theorem][BFPT] imply the following.
+What about the Bellman optimality operator? Does the equation $V^\star = \BELLMAN V^\star$ have a solution? The contraction property (@prp-Bellman-contraction) and the [:Banach fixed point theorem][BFPT] imply the following.
 
 [BFPT]: https://proofwiki.org/wiki/Banach_Fixed-Point_Theorem
 
 :::{#thm-Bellman-fixed-point}
-There is a unique bounded $V^* \in \reals^n$ that satisfies the 
+There is a unique bounded $V^\star \in \reals^n$ that satisfies the 
 _Bellman equation_
-$$ V^* = \BELLMAN^* V^* $$
+$$ V^\star = \BELLMAN^\star V^\star $$
 
 Moreover, if we start from any $V^{(0)} \in \reals^n$ and recursively define
-$V^{(n)} = \BELLMAN^* V^{(n-1)}$
+$V^{(n)} = \BELLMAN^\star V^{(n-1)}$
 then
-$$ \lim_{n \to ∞} V^{(n)} = V^*. $$
+$$ \lim_{n \to ∞} V^{(n)} = V^\star. $$
 :::
 
 
 ## Optimal time-homogeneous policy
 
-What does $V^*$ signify? What about a policy $π^* \in \GREEDY(V^*)$? We answer these questions below.
+What does $V^\star$ signify? What about a policy $π^\star \in \GREEDY(V^\star)$? We answer these questions below.
 
 <!--
 ::: highlight :::
@@ -410,8 +410,8 @@ $$ V^{\text{opt}}_∞(s) := \min_{π} \EXP^π \bigg[ \sum_{t=1}^∞ γ^{t-1} c(S
 \biggm| S_1 = s \bigg], $$
 where the minimum is over all (possibly randomized) history dependent
 policies. Then, 
-$$ V^{\text{opt}}_∞ = V^*, $$
-where $V^*$ is the solution of the Bellman equation.
+$$ V^{\text{opt}}_∞ = V^\star, $$
+where $V^\star$ is the solution of the Bellman equation.
 :::
 
 :::{.callout-note collapse="true"} 
@@ -424,14 +424,14 @@ Consider the finite horizon truncation
 $$ V^{\text{opt}}_T(s) =  \min_{π} \EXP^π\bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) | S_1 = s \bigg].
 $$
 From the results for finite horizon MDP, we have that
-$$ V^{\text{opt}}_T = (\BELLMAN^*)^T V^0 $$
+$$ V^{\text{opt}}_T = (\BELLMAN^\star)^T V^0 $$
 where $V^0$ is the all zeros vector. 
 
 Now by construction, 
-$$V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [(\BELLMAN^*)^T V^0](s). $$
+$$V^{\text{opt}}_∞(s) \ge V^{\text{opt}}_T(s) = [(\BELLMAN^\star)^T V^0](s). $$
 Taking limit as $T \to ∞$, we get that
 \begin{equation}\label{eq:1}
-  V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [(\BELLMAN^*)^T V^0](s) = V^*(s). 
+  V^{\text{opt}}_∞(s) \ge \lim_{T \to ∞} [(\BELLMAN^\star)^T V^0](s) = V^\star(s). 
 \end{equation}
 
 Since $0 \le c(s,a) \le M$,  for any $T$,
@@ -439,34 +439,34 @@ Since $0 \le c(s,a) \le M$,  for any $T$,
 V^{\text{opt}}_∞(s) &\le \min_π \EXP^π \bigg[ \sum_{t=1}^T γ^{t-1} c(S_t, A_t) 
 \biggm| S_1 = s \bigg] + \sum_{t=T+1}^∞ γ^{t-1} M \\
 &= V^{\text{opt}}_T(s) + γ^T M / (1 - γ) \\
-&= [(\BELLMAN^*)^T V^0](s) + γ^T M / (1-γ). 
+&= [(\BELLMAN^\star)^T V^0](s) + γ^T M / (1-γ). 
 \end{align*}
 Taking limit as $T \to ∞$, we get that
 \begin{equation}\label{eq:2}
   V^{\text{opt}}_∞(s) \le \lim_{T \to ∞}
-  \big\{ [(\BELLMAN^*)^T V^0](s) + γ^T M / (1-γ) \big\} = V^*(s). 
+  \big\{ [(\BELLMAN^\star)^T V^0](s) + γ^T M / (1-γ) \big\} = V^\star(s). 
 \end{equation}
 
-From \\eqref{eq:1} and \\eqref{eq:2}, we get that $V^{\text{opt}}_∞ = V^*$. 
+From \\eqref{eq:1} and \\eqref{eq:2}, we get that $V^{\text{opt}}_∞ = V^\star$. 
 :::
 
-Thus, $V^*$ is the optimal performance. Now we can formally state the main result.
+Thus, $V^\star$ is the optimal performance. Now we can formally state the main result.
 
 ::: {#thm-inf-DP}
-A time-homogeneous Markov policy $π^*$ is optimal if and only if it satisfies $π^* \in \GREEDY(V^*)$, where $V^*$ is the unique uniformly bounded solution of the following fixed point equation:
+A time-homogeneous Markov policy $π^\star$ is optimal if and only if it satisfies $π^\star \in \GREEDY(V^\star)$, where $V^\star$ is the unique uniformly bounded solution of the following fixed point equation:
 $$
-  V^* = \BELLMAN^* V^*.
+  V^\star = \BELLMAN^\star V^\star.
 $$
 :::
 
 ::: {.callout-note collapse="false"}
 #### Proof
 
-From @thm-Bellman-fixed-point, we know that the equation $V^* = \BELLMAN^* V^*$ has a unique bounded solution $V^*$. From @prp-value-optimal, we know that $V^*$ is the optimal value function.
+From @thm-Bellman-fixed-point, we know that the equation $V^\star = \BELLMAN^\star V^\star$ has a unique bounded solution $V^\star$. From @prp-value-optimal, we know that $V^\star$ is the optimal value function.
 
-Take a policy $π^*$ such that $π^* \in \GREEDY(V^*)$. Note that 
-$$ V^* = \BELLMAN^* V^* = \BELLMAN^{π^*} V^*. $$
-Thus, $V^*$ is a fixed point of $\BELLMAN^{π^*}$ and therefore equal to $V^{π^*}$. Thus, any policy that is greedy wrt $V^*$ has performance $V^*$ and (by @prp-value-optimal) is optimal.
+Take a policy $π^\star$ such that $π^\star \in \GREEDY(V^\star)$. Note that 
+$$ V^\star = \BELLMAN^\star V^\star = \BELLMAN^{π^\star} V^\star. $$
+Thus, $V^\star$ is a fixed point of $\BELLMAN^{π^\star}$ and therefore equal to $V^{π^\star}$. Thus, any policy that is greedy wrt $V^\star$ has performance $V^\star$ and (by @prp-value-optimal) is optimal.
 
 :::
 
@@ -518,7 +518,7 @@ $$D = \frac{\log(1-γ)}{1-γ} + \frac{γ \log γ }{(1-γ)^2} + \frac{\EXP[\log W
 
 
 **Result:** The value function is of the form $V(s) = C \log s + D$, with the values of $C$ and $D$ as given above. The optimal policy is 
-$$π^*(s) = (1-γ)s.$$
+$$π^\star(s) = (1-γ)s.$$
 Thus, it is optimal to consume a constant fraction of wealth at every step, regardless of the distribution of $W$:
 :::
 
@@ -531,11 +531,11 @@ The Bellman operator satisfies the following properties
 
 * _Monotonicity_. For any $v, w \in \reals^n$, if $v \le w$, then
   $\BELLMAN^π v \le \BELLMAN^π w$ and 
-  $\BELLMAN^* v \le \BELLMAN^* w$. 
+  $\BELLMAN^\star v \le \BELLMAN^\star w$. 
 * _Discounting_. For any $v \in \reals^n$ and $m \in \reals$, 
   $\BELLMAN^π (v + m \ONES) = \BELLMAN^π v + γ m \ONES$
   and 
-  $\BELLMAN^* (v + m \ONES) = \BELLMAN^* v + γ m \ONES$.
+  $\BELLMAN^\star (v + m \ONES) = \BELLMAN^\star v + γ m \ONES$.
 :::
 
 :::{.callout-note collapse="true"}
@@ -545,10 +545,10 @@ $$ \BELLMAN^π v = c_π + γ P_π v. $$
 So, monotonicity of $\BELLMAN^π$ follows immediately from monotonicity of
 matrix multiplication for positive matrices. 
 
-Let $μ$ be such that $\BELLMAN^* w = \BELLMAN^μ w$. 
+Let $μ$ be such that $\BELLMAN^\star w = \BELLMAN^μ w$. 
 Then,
-$$ \BELLMAN^* v \le \BELLMAN^μ v 
-\stackrel{(a)} \le \BELLMAN^μ w = \BELLMAN^* w,
+$$ \BELLMAN^\star v \le \BELLMAN^μ v 
+\stackrel{(a)} \le \BELLMAN^μ w = \BELLMAN^\star w,
 $$
 where $(a)$ uses the monotonicity of $\BELLMAN^μ$. 
 :::
@@ -562,20 +562,20 @@ $$ \BELLMAN^π(v+m \ONES) = c_π + γ P_π (v+m \ONES) = c_π + γ P_π v + γ m
 \ONES = \BELLMAN^π
 v + γ m \ONES.$$ 
 Thus, $\BELLMAN^π$ is discounting. Now consider 
-$$ \BELLMAN^* (v + m \ONES ) = \min_{π} \BELLMAN^π (v+m \ONES)
-= \min_π (\BELLMAN^π v + γ m \ONES) = \BELLMAN^* v + γ m \ONES.$$
-Thus, $\BELLMAN^*$ is discounting.
+$$ \BELLMAN^\star (v + m \ONES ) = \min_{π} \BELLMAN^π (v+m \ONES)
+= \min_π (\BELLMAN^π v + γ m \ONES) = \BELLMAN^\star v + γ m \ONES.$$
+Thus, $\BELLMAN^\star$ is discounting.
 :::
 
 :::{#prp-Bellman-coarse-bounds}
 For any $V \in \reals^n$,
 
-* If $V \ge \BELLMAN^* V$, then $V \ge V^*$;
-* If $V \le \BELLMAN^* V$, then $V \le V^*$;
-* If $V = \BELLMAN^* V$, then $V$ is the only vector with this property
-  and $V = V^*$.
+* If $V \ge \BELLMAN^\star V$, then $V \ge V^\star$;
+* If $V \le \BELLMAN^\star V$, then $V \le V^\star$;
+* If $V = \BELLMAN^\star V$, then $V$ is the only vector with this property
+  and $V = V^\star$.
 
-The same bounds are true when $(\BELLMAN^*, V^*)$ is replaced with
+The same bounds are true when $(\BELLMAN^\star, V^\star)$ is replaced with
 $(\BELLMAN^π, V^π)$. 
 :::
 
@@ -584,24 +584,24 @@ $(\BELLMAN^π, V^π)$.
 We prove the first part. The proof of the other parts is similar.
 
 We are given that
-$$V \ge \BELLMAN^* V.$$ 
+$$V \ge \BELLMAN^\star V.$$ 
 Then, by monotonicity of the Bellman operator, 
-$$ \BELLMAN^* V \ge (\BELLMAN^*)^2 V.$$ 
+$$ \BELLMAN^\star V \ge (\BELLMAN^\star)^2 V.$$ 
 Continuing this way, we get
-$$ (\BELLMAN^*)^k V \ge (\BELLMAN^*)^{k+1} V.$$
+$$ (\BELLMAN^\star)^k V \ge (\BELLMAN^\star)^{k+1} V.$$
 Adding the above equations, we get
-$$ V \ge (\BELLMAN^*)^{k+1} V.$$
+$$ V \ge (\BELLMAN^\star)^{k+1} V.$$
 Taking limit as $k \to ∞$, we get 
-$$V \ge V^*.$$
+$$V \ge V^\star.$$
 :::
 
 :::{#prp-Bellman-bounds}
 For any $V \in \reals^n$ and $m \in \reals$, 
 
-* If $V + m \ONES \ge \BELLMAN^* V$, then $V  + m \ONES/(1-γ) \ge V^*$;
-* If $V + m \ONES \le \BELLMAN^* V$, then $V  + m \ONES/(1-γ) \le V^*$;
+* If $V + m \ONES \ge \BELLMAN^\star V$, then $V  + m \ONES/(1-γ) \ge V^\star$;
+* If $V + m \ONES \le \BELLMAN^\star V$, then $V  + m \ONES/(1-γ) \le V^\star$;
 
-The same bounds are true when $(\BELLMAN^*, V^*)$ is replaced with
+The same bounds are true when $(\BELLMAN^\star, V^\star)$ is replaced with
 $(\BELLMAN^π, V^π)$. 
 :::
 
@@ -610,23 +610,23 @@ $(\BELLMAN^π, V^π)$.
 The above result can also be stated as follows:
 
 * $\displaystyle \NORM{V^π - V}_{∞} \le \frac{1}{1-γ}\NORM{\BELLMAN^π V - V}_{∞}$.
-* $\displaystyle \NORM{V^* - V}_{∞} \le \frac{1}{1-γ}\NORM{\BELLMAN^* V - V}_{∞}$.
+* $\displaystyle \NORM{V^\star - V}_{∞} \le \frac{1}{1-γ}\NORM{\BELLMAN^\star V - V}_{∞}$.
 :::
 
 :::{.callout-note collapse="true"}  
 #### Proof {-}
 Again, we only prove the first part. The proof of the second part is the same. We have that
-$$ V + m \ONES \ge \BELLMAN^* V. $$
+$$ V + m \ONES \ge \BELLMAN^\star V. $$
 From discounting and monotonicity properties, we get
-$$ \BELLMAN^* V + γ m \ONES \ge (\BELLMAN^*)^2 V. $$
+$$ \BELLMAN^\star V + γ m \ONES \ge (\BELLMAN^\star)^2 V. $$
 Again, from discounting and monotonicity properties, we get
-$$ (\BELLMAN^*)^2 V + γ^2 m \ONES \ge (\BELLMAN^*)^3 V. $$
+$$ (\BELLMAN^\star)^2 V + γ^2 m \ONES \ge (\BELLMAN^\star)^3 V. $$
 Continuing this way, we get
-$$ (\BELLMAN^*)^k V + γ^k m \ONES \ge (\BELLMAN^*)^{k+1} V. $$
+$$ (\BELLMAN^\star)^k V + γ^k m \ONES \ge (\BELLMAN^\star)^{k+1} V. $$
 Adding all the above equations, we get
-$$ V + \sum_{\ell = 0}^k γ^\ell m \ONES \ge (\BELLMAN^*)^{k+1} V. $$
+$$ V + \sum_{\ell = 0}^k γ^\ell m \ONES \ge (\BELLMAN^\star)^{k+1} V. $$
 Taking the limit as $k \to ∞$, we get
-$$ V + \frac{m}{1-γ} \ONES \ge V^*. $$
+$$ V + \frac{m}{1-γ} \ONES \ge V^\star. $$
 :::
 
 ## Countable or continuous state and action spaces 
@@ -637,11 +637,11 @@ For infinite horizon problems, there are additional technical challenges. We fir
 
 :::{#exm-Bertsekas-linear-dp-soln}
 ### Phantom solutions of DP [@Bertsekas:book]
-Consider an MDP with $\ALPHABET S = [0,∞)$, $\ALPHABET A = \{a_\circ\}$ (dummy action), $p(ds'\mid s,a) = δ_{s' - s/γ}$ (so the state deterministically transitions to $s/γ$) and $c(s,a) ≡ 0$. It is clear that the optimal value function $V^*(s) ≡ 0$. However, the dynamic programming equation is
+Consider an MDP with $\ALPHABET S = [0,∞)$, $\ALPHABET A = \{a_\circ\}$ (dummy action), $p(ds'\mid s,a) = δ_{s' - s/γ}$ (so the state deterministically transitions to $s/γ$) and $c(s,a) ≡ 0$. It is clear that the optimal value function $V^\star(s) ≡ 0$. However, the dynamic programming equation is
 $$
-  V^*(s) = γ V^*(s/γ)
+  V^\star(s) = γ V^\star(s/γ)
 $$
-and is satisfied by any linear function $V^*(s) = α s$!
+and is satisfied by any linear function $V^\star(s) = α s$!
 :::
 
 :::{.callout-warning}
@@ -663,11 +663,11 @@ P(s'|s,a) = p \IND\{ s' = s+1\} + (1-p) \IND\{s' = s-1\}.
 $$
 So, the DP is given by $v(0) = 0$ and for $s > 0$
 $$
-V^*(s) = 1 + γ p  V^*(s+1) + γ(1-p) V^*(s-1),
+V^\star(s) = 1 + γ p  V^\star(s+1) + γ(1-p) V^\star(s-1),
 $$
 which is a harmonic equation and has a generic solution of the form:
 $$
-  V^*(s) = \frac{1}{1-γ} - 
+  V^\star(s) = \frac{1}{1-γ} - 
   \biggl[ \frac{1}{1-γ} + C \biggr] q_1^s +
   C q_2^s
 $$
@@ -686,15 +686,15 @@ Again we have multiple solutions of the DP and the correct solution is the only 
 ## One-step look-ahead error bounds.
 
 Given any $V \in \reals^n$, let $π \in \GREEDY V$ be a greedy policy with respect to $V$, i.e., 
-$$\BELLMAN^* V = \BELLMAN^π V.$$
-Let $V^π$ denote the performance of policy $π$, i.e., $V^π$ is unique fixed point of $\BELLMAN^π$ and let $V^*$ denote the optimal performance, i.e., $V^*$ is the unique fixed point of $\BELLMAN^*$. We refer to $\NORM{V - V^*}_{∞}$ as the **value error** and $\NORM{V - V^π}_{∞}$ as the **policy error**.
+$$\BELLMAN^\star V = \BELLMAN^π V.$$
+Let $V^π$ denote the performance of policy $π$, i.e., $V^π$ is unique fixed point of $\BELLMAN^π$ and let $V^\star$ denote the optimal performance, i.e., $V^\star$ is the unique fixed point of $\BELLMAN^\star$. We refer to $\NORM{V - V^\star}_{∞}$ as the **value error** and $\NORM{V - V^π}_{∞}$ as the **policy error**.
 
 Show the following.
 
 a. The value approximation error of $V$ can be bounded in terms of the one-step Bellman error of $V$ as follows:
 
 \begin{align*}
-\NORM{V^* - V}_{∞} &\le \frac{1}{1-γ} \NORM{\BELLMAN^* V - V}_{∞}, \\
+\NORM{V^\star - V}_{∞} &\le \frac{1}{1-γ} \NORM{\BELLMAN^\star V - V}_{∞}, \\
 \NORM{V^π - V}_{∞} &\le \frac{1}{1-γ} \NORM{\BELLMAN^π V - V}_{∞}. 
 \end{align*}
 
@@ -702,17 +702,17 @@ a. The value approximation error of $V$ can be bounded in terms of the one-step 
 b. Performing an additional Bellman update on $V$ reduces the value approximation error by a factor of $γ$:
 
 \begin{align*}
-\NORM{V^* - \BELLMAN^* V}_{∞} &\le \frac{γ}{1-γ} \NORM{\BELLMAN^* V - V}_{∞}, \\ 
+\NORM{V^\star - \BELLMAN^\star V}_{∞} &\le \frac{γ}{1-γ} \NORM{\BELLMAN^\star V - V}_{∞}, \\ 
 \NORM{V^π - \BELLMAN^π V}_{∞} &\le \frac{γ}{1-γ} \NORM{\BELLMAN^π V - V}_{∞}. 
 \end{align*}
 
 c. The sub-optimality gap of using the policy $π$ can be bounded in terms of one step Bellman error of $V$:
 
-$$ \NORM{V^π - V^*}_{∞} \le \frac{2}{1-γ} \NORM{\BELLMAN^* V - V}_{∞}. $$
+$$ \NORM{V^π - V^\star}_{∞} \le \frac{2}{1-γ} \NORM{\BELLMAN^\star V - V}_{∞}. $$
 
 d. A tighter bound on the sub-optimality gap can be obtained in terms of the value error of $V$:
 
-$$ \NORM{V^π - V^*}_{∞} \le \frac{2γ}{1 - γ} \NORM{V - V^*}_{∞}. $$
+$$ \NORM{V^π - V^\star}_{∞} \le \frac{2γ}{1 - γ} \NORM{V - V^\star}_{∞}. $$
 
 :::
 
@@ -731,7 +731,7 @@ where $\BELLMAN^n$ is the Bellman operator $\BELLMAN$ applied $n$-times. Use the
 
 
 :::{#exr-multiple-greedy}
-Let $V^*$ denote the optimal value function of an MDP. Suppose that two deterministic policies $π_1$ and $π_2$ are both greedy with respect to $V^*$.
+Let $V^\star$ denote the optimal value function of an MDP. Suppose that two deterministic policies $π_1$ and $π_2$ are both greedy with respect to $V^\star$.
 
 (a) Consider the stochastic policy $π = α π_1 + (1-α) π_2$, which, at each stage picks policy $π_1$ with probability $α$ and picks policy $π_2$ with probability $(1-α)$, where $α \in (0,1)$ is a constant. Show that policy $π$ is also optimal.
 
