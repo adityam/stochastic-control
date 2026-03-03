@@ -227,16 +227,16 @@ The roadmap of the rest of this section is as follows:
 
 ## Performance of a time-homogeneous Markov policy
 
-How do we evaluate the performance of a time-homongeous policy? Unlike the finite horizon setting, we cannot simply iterate backwards from a terminal cost. Instead, we look for a self-consistent value.
+How do we evaluate the performance of a (possibly randomized) time-homongeous policy? Unlike the finite horizon setting, we cannot simply iterate backwards from a terminal cost. Instead, we look for a self-consistent value.
 
-The expected discounted cost of a time-homogeneous Markov policy is given by
+The expected discounted cost of a randomized time-homogeneous Markov policy $π$ is given by
 $$ V^π(s) = \EXP^π\bigg[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \biggm| S_1 = s
 \bigg].$$
 
 We now introduce a vector notation. Let $V^π$ denote the $n × 1$ vector given by $[V^π]_s = V^π(s)$. Furthermore, define the $n × 1$ vector $c_π$ and the $n × n$ matrix $P_π$ as follows:
 $$ [c_π]_s = c(s, π(s))
    \quad\text{and}\quad
-   [P_π]_{ss'} = P_{ss'}(π(s)).
+   [P_π]_{ss'} = \sum_{a \in \ALPHABET A} \PR(s'|s,a) π(a|s).
 $$
 
 ::: {#prp-policy-evaluation}
@@ -272,6 +272,114 @@ $$ V^π = (I - γP_π)^{-1} c_π. $$
 
 [:spectral radius]: https://en.wikipedia.org/wiki/Spectral_radius
 [:spectral norm]: https://en.wikipedia.org/wiki/Matrix_norm
+
+
+## Optimality of Markov policies
+
+For finite horizon models, we have already shown that there is no loss of optimality in restricting attention to deterministic Markov policies. In principle, we can use that result to argue that there is no loss of optimality in restricting attention to Markov deterministic policies for infinite horizon discounted setup as well. However, in this section, we provide an alternative proof, which is useful in its own right. 
+
+We start by showing that for any history dependent, possible randomized, policy, there is a randomized Markov policy that has the same performance.
+
+:::{#prp-optimal-Markov-randomized}
+Let $μ$ be any (possibly randomized) history dependent policy. Then,     there exists a time-homogeneous randomized Markov policy $π$ that has the same performance as $μ$.
+:::
+
+:::{.callout-note collapse="false"} 
+#### Proof
+
+For any policy $μ$ and initial state $s^∘$ define the _occupation measure_
+$$ ζ(s,a | s^∘; μ) 
+  \coloneqq \EXP^μ \biggl[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
+  \biggm| S_1 = s^∘ \biggr]
+$$
+Then, the performance starting from state $s^∘$ is given by
+\begin{equation}\label{eq:perf-history}
+J(s^∘; μ) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
+   ζ(s,a | s^∘; μ) c(s,a).
+\end{equation}
+
+Let $ζ(s|s^∘;μ) = \sum_{a \in \ALPHABET A} ζ(s,a | s^∘; μ)$ denote the margin of $ζ$ on $s$. Note that the performance only depends on states for which $ζ(s|s ^∘,; μ) > 0$. States where $ζ(s| s ^∘; μ) = 0$ are never visited under policy $μ$. Note that
+\begin{align*}
+  ζ(s | s^∘; μ) 
+  &= \EXP^μ \biggl[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s\} 
+      \biggm| S_1 = s^∘ \biggr]
+  \\
+  &= \sum_{t=1}^∞ γ^{t-1} \PR^μ(S_t = s \mid S_1 = s ^∘)
+  \\
+  &= \IND\{s = s ^∘\} + \sum_{t=2}^∞ γ^{t-1} \PR^μ(S_t = s \mid S_1 = s ^∘)
+\end{align*}
+Using the law of total probability, we have
+$$
+  \PR^μ(S_t = s \mid S_1 = s ^∘) 
+  = \sum_{s_{-} \in \ALPHABET S} \sum_{a_{-} \in \ALPHABET A}
+  \PR(s | s_{-}, a_{-}) \PR^μ(S_{t-1} = s_{-}, A_{t-1} = a_{-} \mid S_1 = s ^∘)
+$$
+Therefore,
+\begin{align*}
+  \hskip 2em & \hskip -2em
+  \sum_{t=2}^∞ γ^{t-1} \PR^μ(S_t = s \mid S_1 = s ^∘)
+  \\
+  &= \sum_{t=2}^{∞} γ^{t-1} 
+     \sum_{s_{-} \in \ALPHABET S} \sum_{a_{-} \in \ALPHABET A}
+     \PR(s | s_{-}, a_{-}) 
+     \PR^μ(S_{t-1} = s_{-}, A_{t-1} = a_{-} \mid S_1 = s ^∘)
+  \\
+  &= γ \sum_{s_{-} \in \ALPHABET S} \sum_{a_{-} \in \ALPHABET A}
+     \PR(s | s_{-}, a_{-}) 
+     \sum_{t=2}^∞ γ^{t-2} \PR^μ(S_{t-1} = s_{-}, A_{t-1} = a_{-} \mid S_1 = s ^∘)
+  \\
+&= γ \sum_{s_{-} \in \ALPHABET S} \sum_{a_{-} \in \ALPHABET A} 
+     \PR(s | s_{-}, a_{-}) ζ(s_{-},a_{-} | s ^∘; μ)
+\end{align*}
+Thus, we have
+\begin{equation}\label{eq:flow}
+  ζ(s|s ^∘; μ) = \IND\{s = s ^∘\} 
+  + γ \sum_{s_{-} \in \ALPHABET S} \sum_{a_{-} \in \ALPHABET A} 
+     \PR(s | s_{-}, a_{-}) ζ(s_{-},a_{-} | s ^∘; μ)
+\end{equation}
+which is the flow equation for occupancy measure.
+
+Now, define a time-homogeneous randomized Markov policy $π$ as follows:
+$$π(a | s) = \frac{ ζ(s, a| s^∘; μ) } { ζ(s | s^∘; μ) }$$
+which implies
+\begin{equation}\label{eq:mu-total}
+  ζ(s, a | s ^∘; μ) = ζ(s| s ^∘; μ) π(a | s). 
+\end{equation}
+
+Substituting the above in \eqref{eq:flow} we get
+\begin{align*}
+  ζ(s|s ^∘; μ) &= \IND\{s = s ^∘\} 
+  + γ \sum_{s_{-} \in \ALPHABET S} \sum_{a_{-} \in \ALPHABET A} 
+     \PR(s | s_{-}, a_{-}) π(a_{-}|s_{-}) ζ(s_{-} | s ^∘; μ)
+  \\
+  &= \IND\{s = s ^∘\} 
+  + γ \sum_{s_{-} \in \ALPHABET S} 
+     \PR_{π}(s | s_{-}) ζ(s_{-} | s ^∘; μ)
+\end{align*}
+where $\PR_{π}(s | s_{-}) = \sum_{a_{-} \in \ALPHABET A} \PR(s|s_{-}) π(a_{-}|s_{-})$. This equation is the same as the policy evaluation equation derived in @prp-policy-evaluation. Therefore, the occupancy measure is given by
+$$
+  ζ^μ = (1 - γ P_{π})^{-1} δ_{s ^∘} 
+$$
+
+Now, consider the occupancy measure of policy $π$. Since $π$ is Markov, we have
+\begin{equation}\label{eq:pi-total}
+  ζ(s,a | s ^∘; π) = ζ(s | s ^∘; π) π(a | s)
+\end{equation}
+Substituting this in the flow equation \eqref{eq:flow} for $π$, we get
+$$
+  ζ(s|s ^∘; π) = \IND\{s = s ^∘\} 
+  + γ \sum_{s_{-} \in \ALPHABET S} 
+     \PR_{π}(s | s_{-}) ζ(s_{-} | s ^∘; π).
+$$
+From @prp-policy-evaluation, we have
+$$
+  ζ^π = (1 - γ P_{π})^{-1} δ_{s ^∘}.
+$$
+
+Thus, $π$ and $μ$ have the same occupancy measure on the state. By \eqref{eq:mu-total} and \eqref{eq:pi-total}, we get that they have the same occupancy measure on state and action.
+
+Since the performance of a policy depends only on its occupancy measure, $μ$ and $π$ have the same performance.
+:::
 
 ## Bellman operators
 
@@ -372,37 +480,6 @@ $$ \lim_{n \to ∞} V^{(n)} = V^\star. $$
 ## Optimal time-homogeneous policy
 
 What does $V^\star$ signify? What about a policy $π^\star \in \GREEDY(V^\star)$? We answer these questions below.
-
-<!--
-::: highlight :::
-Prop.
-
-:   Let $μ$ be any (possibly randomized) history dependent policy. Then,      
-    there exists a randomized Markov policy $π$ that has the same performance
-    as $μ$.
-:::
-
-#### Proof {-}
-
-For any policy $μ$, define the _occupation measure_
-$$ \mu(s,a | s^∘; μ) 
-  := \EXP^μ \bigg[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} 
-  \biggm| S_1 = s^∘ \bigg]
-$$
-Then 
-$$ J(s^∘; μ) = \sum_{s \in \ALPHABET S, a \in \ALPHABET A}
-   μ(s,a | s^∘; μ) c(s,a).
-$$ {#eq:performance}
-
-Now, define a randomized Markov policy $π$ as follows:
-$$\PR(A_t = a | S_t = s; π) = \frac{ μ(s, a| s^∘; μ) } { μ(s | s^∘; μ) }$$
-where $μ(s|s^∘;μ) = \sum_{a \in \ALPHABET A} μ(s,a | s^∘; μ)$. Then, by
-construction, 
-$ μ(s,a | s^∘; π) = μ(s,a | s^∘; μ) $
-and therefore by \\eqref{eq:performance}, we have that $J(s^∘; π) = J(s^∘; μ).$
-
--->
-
 
 :::{#prp-value-optimal}
 Define 
