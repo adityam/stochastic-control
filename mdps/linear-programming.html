@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-10-19">
+<meta name="dcterms.date" content="2026-03-03">
 <meta name="keywords" content="infinite horizon, discounted cost, Linear programming, Constrained MDPs">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -995,7 +995,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 19, 2023</p>
+      <p class="date">March 3, 2026</p>
     </div>
   </div>
   
@@ -1030,16 +1030,17 @@ V(s) \le c(s,a) + γ\sum_{z \in \ALPHABET S} P(z|s,a) V(z),
 </section>
 <section id="dual-linear-program" class="level3 unnumbered page-columns page-full">
 <h3 class="unnumbered anchored" data-anchor-id="dual-linear-program">Dual Linear Program</h3>
-<p>Now consider the dual version of the primal LP \eqref{eq:primal}. We associate a positive dual variable <span class="math inline">\(\mu(s,a)\)</span> for each constraint consider the following linear program:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math display">\[\begin{gather}
-  \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) c(s,a)
+<p>Now consider the dual version of the primal LP \eqref{eq:primal}. We associate a positive dual variable <span class="math inline">\(ζ(s,a)\)</span> for each constraint consider the following linear program:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <span class="math display">\[\begin{gather}
+  \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} ζ(s,a) c(s,a)
   \notag \\
   \text{subject to}\quad
-  \mu(s,a) - γ\sum_{z \in \ALPHABET S} \sum_{a \in \ALPHABET A}
-  P(s | z, a) \mu(z,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
-  \mu(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A.
+  ζ(s,a) - γ\sum_{z \in \ALPHABET S} \sum_{a \in \ALPHABET A}
+  P(s | z, a) ζ(z,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
+  ζ(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A.
   \label{eq:dual}
 \end{gather}\]</span></p>
-<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;<a href="https://en.wikipedia.org/wiki/Dual_linear_program">Wikipedia</a> has a decent description of how to construct a dual LP from a primal LP. I find the explanation in <a href="http://slahaie.net/docs/lpdual.pdf">Sebastien Lahaie’s notes</a> to be more illuminating.</p></div></div><p>The primal LP has <span class="math inline">\(n\)</span> variables (<span class="math inline">\(V(1), V(2), \dots, V(n)\)</span>) and <span class="math inline">\(n \times m\)</span> constraints, while the dual LP has <span class="math inline">\(n \times m\)</span> variables. So, in general, the dual is more efficient to solve.</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;<a href="https://en.wikipedia.org/wiki/Dual_linear_program">Wikipedia</a> has a decent description of how to construct a dual LP from a primal LP. I find the explanation in <a href="http://slahaie.net/docs/lpdual.pdf">Sebastien Lahaie’s notes</a> to be more illuminating.</p></div></div><p>Note that the constraint on the occupancy measure <span class="math inline">\(ζ\)</span> is same as the flow equation derived in the proof of <a href="inf-horizon.html#prp-optimal-Markov-randomized" class="quarto-xref">Proposition&nbsp;<span>15.2</span></a>.</p>
+<p>The primal LP has <span class="math inline">\(n\)</span> variables (<span class="math inline">\(V(1), V(2), \dots, V(n)\)</span>) and <span class="math inline">\(n \times m\)</span> constraints, while the dual LP has <span class="math inline">\(n \times m\)</span> variables. So, in general, the dual is more efficient to solve.</p>
 </section>
 <section id="basic-solution-and-stationary-policies" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="basic-solution-and-stationary-policies">Basic solution and stationary policies</h3>
@@ -1047,23 +1048,23 @@ V(s) \le c(s,a) + γ\sum_{z \in \ALPHABET S} P(z|s,a) V(z),
 <ol type="1">
 <li><p>Let <span class="math inline">\(π\)</span> be any possibly randomized history dependent policy. Define the <em>occupancy measure</em></p>
 <p><span class="math display">\[\begin{align*}
-\mu_π(s,a) &amp;= (1-γ)
+ζ_π(s,a) &amp;= (1-γ)
 \EXP\biggl[ \sum_{t=1}^∞ γ^{t-1} \IND\{S_t = s, A_t = a\} \biggr]
 \\
 &amp;= (1-γ) \sum_{z \in \ALPHABET S} p(z)
 \sum_{t=1}^\infty γ^{t-1} \PR^{π}(S_t = s, A_t = a \mid S_1 = z).
 \end{align*}\]</span></p>
-<p>Then, <span class="math inline">\(\mu_π\)</span> is a feasible solution to the dual LP \eqref{eq:dual}.</p></li>
-<li><p>Suppose <span class="math inline">\(\mu(s,a)\)</span> is a feasible solution to the dual LP. Then for each <span class="math inline">\(s
-\in \ALPHABET S\)</span> such that <span class="math inline">\(\sum_{a \in \ALPHABET A} \mu(s,a) &gt; 0\)</span>, define a stationary randomized policy <span class="math inline">\(π\)</span> by <span class="math display">\[\begin{equation} \label{eq:policy}
-π(a|s) = π_\mu(a|s) = \frac{ \mu(s,a) } { \displaystyle \sum_{a \in \ALPHABET A} \mu(s,a) }.
-\end{equation} \]</span> Then, <span class="math inline">\(\mu_{π}(s,a) = \mu(s,a)\)</span> for all <span class="math inline">\(s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>.</p></li>
-<li><p>A feasible solution of an LP is called a <em>basic feasible solution</em> if it cannot be expression as a nontrivial convex combination of other feasible solutions. A key property of a basic feasible solution is that when the LP has <span class="math inline">\(k\)</span> constraints, then all basic feasible solutions have at most <span class="math inline">\(k\)</span> positive components. Using this, one can show that if <span class="math inline">\(\mu\)</span> is a basic feasible solution, then the policy <span class="math inline">\(π_{μ}\)</span> given by \eqref{eq:policy} is a deterministic policy.</p></li>
-<li><p>Similarly, for any deterministic policy <span class="math inline">\(π\)</span>, the occupancy measure <span class="math inline">\(\mu_{π}\)</span> is a basic feasible solution to the dual LP.</p></li>
-<li><p>If <span class="math inline">\(\mu^*\)</span> is an <em>optimal</em> solution to the dual LP, then <span class="math inline">\(π_{\mu}\)</span> is an optimal policy.</p></li>
-<li><p>If <span class="math inline">\(\mu^*\)</span> is an <em>optimal basic</em> solution to the dual LP, then <span class="math inline">\(π_{\mu}\)</span> is a deterministic optimal policy.</p></li>
-<li><p>If <span class="math inline">\(π\)</span> is a possibly randomized optimal policy for the MDP, then <span class="math inline">\(\mu_{π}\)</span> is a optimal solution to the dual LP.</p></li>
-<li><p>If <span class="math inline">\(π\)</span> is a deterministic optimal policy for the MDP, then <span class="math inline">\(\mu_{π}\)</span> is a optimal basic solution to the dual LP.</p></li>
+<p>Then, <span class="math inline">\(ζ_π\)</span> is a feasible solution to the dual LP \eqref{eq:dual}.</p></li>
+<li><p>Suppose <span class="math inline">\(ζ(s,a)\)</span> is a feasible solution to the dual LP. Then for each <span class="math inline">\(s
+\in \ALPHABET S\)</span> such that <span class="math inline">\(\sum_{a \in \ALPHABET A} ζ(s,a) &gt; 0\)</span>, define a stationary randomized policy <span class="math inline">\(π\)</span> by <span class="math display">\[\begin{equation} \label{eq:policy}
+π(a|s) = π_ζ(a|s) = \frac{ ζ(s,a) } { \displaystyle \sum_{a \in \ALPHABET A} ζ(s,a) }.
+\end{equation} \]</span> Then, <span class="math inline">\(ζ_{π}(s,a) = ζ(s,a)\)</span> for all <span class="math inline">\(s \in \ALPHABET S\)</span> and <span class="math inline">\(a \in \ALPHABET A\)</span>. <a href="inf-horizon.html#prp-optimal-Markov-randomized" class="quarto-xref">This was derived in the proof of&nbsp;<span>15.2</span></a>.</p></li>
+<li><p>A feasible solution of an LP is called a <em>basic feasible solution</em> if it cannot be expression as a nontrivial convex combination of other feasible solutions. A key property of a basic feasible solution is that when the LP has <span class="math inline">\(k\)</span> constraints, then all basic feasible solutions have at most <span class="math inline">\(k\)</span> positive components. Using this, one can show that if <span class="math inline">\(ζ\)</span> is a basic feasible solution, then the policy <span class="math inline">\(π_{ζ}\)</span> given by \eqref{eq:policy} is a deterministic policy.</p></li>
+<li><p>Similarly, for any deterministic policy <span class="math inline">\(π\)</span>, the occupancy measure <span class="math inline">\(ζ_{π}\)</span> is a basic feasible solution to the dual LP.</p></li>
+<li><p>If <span class="math inline">\(ζ^*\)</span> is an <em>optimal</em> solution to the dual LP, then <span class="math inline">\(π_{ζ}\)</span> is an optimal policy.</p></li>
+<li><p>If <span class="math inline">\(ζ^*\)</span> is an <em>optimal basic</em> solution to the dual LP, then <span class="math inline">\(π_{ζ}\)</span> is a deterministic optimal policy.</p></li>
+<li><p>If <span class="math inline">\(π\)</span> is a possibly randomized optimal policy for the MDP, then <span class="math inline">\(ζ_{π}\)</span> is a optimal solution to the dual LP.</p></li>
+<li><p>If <span class="math inline">\(π\)</span> is a deterministic optimal policy for the MDP, then <span class="math inline">\(ζ_{π}\)</span> is a optimal basic solution to the dual LP.</p></li>
 <li><p>As long as <span class="math inline">\(p(s) &gt; 0\)</span> for all <span class="math inline">\(s\)</span>, the policy <span class="math inline">\(π_\mu\)</span> based of optimal solution the dual LP does not depend on <span class="math inline">\(p(s)\)</span>. This means that <span class="math inline">\(p(s)\)</span> need not sum to 1.</p></li>
 </ol>
 <p>There are various trade-offs between solving a DP using value iteration, policy iteration, and LP and we will not go into these trade-offs here. But one benefit of the LP formulation is that it is easy to add constraints, which we discuss next.</p>
@@ -1079,15 +1080,15 @@ V(s) \le c(s,a) + γ\sum_{z \in \ALPHABET S} P(z|s,a) V(z),
 \EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} d(S_t, A_t) \Bigr] \le D.
 \end{gather*}\]</span></p>
 <p>The dual LP in this case is given by <span class="math display">\[\begin{gather}
-  \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) c(s,a)
+  \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} ζ(s,a) c(s,a)
   \notag \\
   \text{subject to}\quad
-  \mu(s,a) - γ\sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A}
-  P(s | z, a) \mu(s,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
-  \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} \mu(s,a) d(s,a) \le D \notag \\
-  \mu(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A.
+  ζ(s,a) - γ\sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A}
+  P(s | z, a) ζ(s,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
+  \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} ζ(s,a) d(s,a) \le D \notag \\
+  ζ(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A.
 \end{gather}\]</span></p>
-<p>If we interpret <span class="math inline">\(\mu(s,a)\)</span> as the occupation measure of any policy, then this formulation follows immediately.</p>
+<p>If we interpret <span class="math inline">\(ζ(s,a)\)</span> as the occupation measure of any policy, then this formulation follows immediately.</p>
 <hr>
 </section>
 <section id="notes" class="level2 unnumbered">
