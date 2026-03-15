@@ -1,0 +1,182 @@
+---
+title: "Policy Gradient Theorem"
+engine: markdown
+---
+
+::: {.callout-note icon=false appearance="simple"}
+# <i class="bi bi-journal-text text-primary"></i> Summary
+The performance difference lemma provides a formula for the difference in performance of two given policies. This expression is a building block to develop approximation bounds and policy search algorithms. 
+:::
+
+Consider a finite-horizon MDP with state space $\ALPHABET S$, action space $\ALPHABET A$, dynamics $\{P_t\}_{t=1}^T$ and per-step cost $\{c_t\}_{t=1}^T$ that runs for a horizon $T$. Define the **advantage** function of taking action $a$ at state $s$ under policy $π$ as
+$$
+  \ADVANTAGE^π_t(s,a) = Q^π_t(s,a) - V^π_t(s).
+$$
+
+:::{#lem-performance-difference}
+
+### Performance Difference Lemma
+
+  Let $π^{(1)} = (π^{(1)}_1, \dots, π^{(1)}_T)$ and $π^{(2)} = (π^{(2)}_2, \dots, π^{(2)}_T)$ be two deterministic policies. We will use $V^{(i)}_t$, $Q^{(i)}_t$ and $\ADVANTAGE^{(i)}_t$ to denote the value, action-value, and advantage function corresponding to policy $π^{(i)}$, $i \in \{1, 2\}$. Then, the **performance difference**
+  $$
+    Δ_t(s) \coloneqq V^{(2)}_t(s) - V^{(1)}_t(s)
+  $$
+  satisfies
+  $$
+    Δ_t(s) = \ADVANTAGE^{(1)}_t(s, π^{(2)}_t(s)) 
+    + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) Δ_{t+1}(s') 
+$$
+  Unrolling this recursion gives:
+  $$
+    V^{(2)}_1(s_1) - V^{(1)}_1(s_1)
+    = \EXP^{(2)} \biggl[ 
+      \sum_{t=1}^T \ADVANTAGE_t^{(1)}(S_t, π^{(2)}_t(S_t)) \biggm|
+      S_1 = s_1 \biggr]
+  $$
+  where the expectation is according to the distribution induced by policy $π^{(2)}$.
+:::
+
+:::{.callout-note} 
+### Proof
+At time $T+1$, $Δ_{T+1}(s) = 0$. This forms the basis of induction. Now assume that the recursive formula holds at time $t+1$ and consider time $t$. Then,
+\begin{align*}
+  Δ_t(s) &= V^{(2)}_t(s) - V^{(1)}_t(s) \\
+  &= c_t(s, π^{(2)}_t(s)) 
+   + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) V^{(2)}_{t+1}(s') 
+   - V^{(1)}_t(s) \\
+  &= c_t(s, π^{(2)}_t(s))  
+   + \textcolor{red}{\sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) V^{(1)}_{t+1}(s')} 
+   - V^{(1)}_t(s) \\
+  &\quad 
+   + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s))
+    \bigl[ V^{(2)}_{t+1}(s') - \textcolor{red}{V^{(1)}_{t+1}(s')} \bigr]
+   \\
+  &= Q^{(1)}_t(s, π^{(2)}_t(s)) - V^{(1)}_t(s) 
+   + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) Δ_{t+1}(s') \\
+  &= \ADVANTAGE^{(1)}_t(s, π^{(2)}_t(s)) 
+   + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) Δ_{t+1}(s') \\
+\end{align*}
+This completes the induction step.
+:::
+
+:::{.callout-important}
+### Remark
+
+Although we assumed that the policy was deterministic, the final result is true for randomized policies as well. 
+:::
+
+## Generalization to infinite horizon
+
+Consider an infinite horizon MDP. Then, an immediate corollary of @lem-performance-difference is the following.
+
+:::{#lem-performance-difference-inf}
+Let $π^{(1)}$ and $π^{(2)}$ be two (possibly time-varying) infinite horizon policies. Then
+$$
+  V^{(2)}(s_1) - V^{(1)}(s_1) 
+  = \EXP^{(2)}\biggl[ \sum_{t=1}^{∞} γ^{t-1} \ADVANTAGE^{(1)}(S_t, π^{(2)}_t(S_t)) \biggm| S_1 = s_1 \biggr].
+$$
+If $π^{(1)}$ and $π^{(2)}$ are time-invariant, then we have
+$$
+  V^{(2)}(s_1) - V^{(1)}(s_1) 
+  = \frac{1}{1 - γ} \sum_{(s,a) \in \ALPHABET S \times \ALPHABET A} 
+    ζ^{(2)}(s, a) \ADVANTAGE^{(1)}(s, a)
+$$
+where $ζ^{(2)}$ is the occupancy measure of policy $π^{(2)}$ and therefore satisfies $ζ^{(2)}(s,a) = ζ^{(2)}(s) π^{(2)}(a|s)$. 
+:::  
+
+## Policy Gradient Theorem
+
+Now suppose we restrict attention to some parameterized class of policies denoted by $π_{θ}$, where $θ \in Θ$ is some parameter (e.g., the value of a threshold in a threshold based policy). For the ease of notation, we define
+$$  J(θ) = V^{π_θ}(s_1)$$
+where $s_1$ is a pre-defined initial state. 
+We wish to compute the policy gradient $\GRAD_θ J(θ)$.
+
+Let $π^{(1)} = π_θ$ denote the base policy and consider a perturbed policy $π^{(2)} = π_{θ + Δθ}$, where the policy parameters are perturbed by a small amount $Δθ$. 
+
+From @lem-performance-difference-inf), we get that 
+
+\begin{equation}\label{eq:parameter-diff}
+J(θ + Δθ) - J(θ) = \frac{1}{1 - γ} \sum_{s,a} 
+    ζ^{π_{θ + Δθ}}(s) π_{θ + Δθ}(a|s) \ADVANTAGE^{π_θ}(s, a)
+\end{equation}
+
+Note that the advantage function $\ADVANTAGE^{π_θ}(s, a)$ is fixed to the *base* policy.
+
+Express the perturbed state occupancy measure and the perturbed policy using their first-order Taylor expansions around $θ$:
+
+\begin{align*}
+  ζ^{π_{θ + Δθ}}(s) 
+  &= ζ^{π_θ}(s) + \IP{\GRAD_θ ζ^{π_θ}(s)}{Δθ} 
+  + o(\NORM{Δθ}^2_2)
+  \\
+  π_{θ + Δθ}(a|s) &= π_θ(a|s) + \IP{\GRAD_θ π_θ(a|s)}{Δθ}
+  + o(\NORM{Δθ}^2_2)
+\end{align*}
+
+Substituting this in the performance difference \eqref{eq:parameter-diff}, we get
+
+\begin{align*}
+  \hskip 2em & \hskip -2em
+  J(θ + Δθ) - J(θ) \\
+  &= 
+  \frac{1}{1 - γ} \sum_{s, a} \Bigl[ ζ^{π_θ}(s) π_θ(a|s) 
+  \IP{\vphantom{\Big(} π_θ(a|s) \GRAD_θ ζ^{π_θ}(s) + ζ^{π_θ}(s) \GRAD_θ π_θ(a|s)}{Δθ} \Bigr] \ADVANTAGE^{π_θ}(s, a) \\
+  &\quad  + o(\NORM{Δθ}^2_2)
+\end{align*}
+
+A key property for the advantage function is that it averages to zero, i.e., 
+\begin{equation}\label{eq:adv-average}
+  \sum_{a \in \ALPHABET A} π_θ(a|s) \ADVANTAGE^{π_θ}(s, a)
+  = \sum_{a \in \ALPHABET A} π_θ(a|s) \bigl[ Q^{π_θ}(s, a) - V^{π_θ}(s) \bigr]
+  = V^{π_θ}(s) - V^{π_θ}(s) = 0
+\end{equation}
+Therefore, the first two terms of $J(θ + Δθ) - J(Θ)$ are zero. Hence, we get
+$$ 
+  J(θ + Δθ) = J(θ) +
+  \IP{\frac{1}{1 - γ} \sum_{s, a} ζ^{π_θ}(s) \GRAD_θ π_θ(a|s) \ADVANTAGE^{π_θ}(s, a)}{Δθ}
+  + o(\NORM{Δθ}_2^2)
+$$
+
+Compare this to the first-order Talor expansion of $J(θ + Δθ)$,
+$$J(θ + Δθ) = J(θ) + \IP{\GRAD_θ J(θ)}{Δθ} + o(\NORM{Δθ}_2^2).$$
+
+By matching the coefficients of $Δθ$, we get:
+$$
+  \bbox[5pt,border: 1px solid]{
+  \GRAD_θ J(θ) = \frac{1}{1 - γ} \sum_{s, a} ζ^{π_θ}(s) \GRAD_θ π_θ(a|s) \ADVANTAGE^{π_θ}(s, a)}
+$$
+
+Thus, we get the following result.
+
+:::{#thm-policy-gradient}
+### Policy Gradient Theorem
+
+For a parameterized policy, we have
+$$
+\GRAD_θ J(θ) = \frac{1}{1 - γ} \EXP_{(s,a) \sim ζ^{π_θ}} 
+    \bigl[ \GRAD_θ \log π_θ(a|s) \ADVANTAGE^{π_θ}(s, a) \bigr]
+$$
+:::
+
+:::{.callout-note} 
+### Proof
+This is an immediate consequence of the pervious derivation combined with what is called the **log-derivative trick**:
+$$\GRAD_θ π_θ(a|s) = π_θ(a|s) \GRAD_θ \log π_θ(a|s).$$
+
+Substituting this in the previously derived formula, we get 
+$$
+  \GRAD_θ J(θ) = \frac{1}{1 - γ} \sum_{s \in \ALPHABET S}
+  ζ^{π_θ}(s) \sum_{a \in \ALPHABET A} 
+  π_θ(a|s) \GRAD_θ \log π_θ(a|s) \ADVANTAGE^{π_θ}(s, a).
+$$
+The result follows by observing that $ζ^{π_{θ}}(s,a) = ζ^{π_{θ}}(s) π_{θ}(a|s)$. 
+:::
+
+
+## Notes {-}
+The notion of advantage function is due to @Baird1994, who proposed it in the context of adapting Q-learning to continuous-time models. It is similar to the idea of benefit function used in [optimal stopping](../mdps/optimal-stopping.qmd).
+
+The performance difference lemma (@lem-performance-difference-inf) is due to @Kakade2002, where it was used to establish performance improvement guarantees for conservative policy improvement algorithm.
+
+The policy gradient theorem (@thm-policy-gradient) is due to @Sutton1999. The idea of gradient based optimization in MDPs/RL is due to @Williams1992, who proposed the REINFORCE algorithm. Effectively, these methods are equivalent to the the likelihood ratio method for gradient estimation in the stochastic simulation community (@Glynn1987), which is also referred to as the score function method (@Rubinstein1986).
+Also see @Marbach2001 and @Cao2005.
