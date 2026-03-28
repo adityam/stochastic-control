@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2025-02-18">
+<meta name="dcterms.date" content="2026-03-28">
 <meta name="keywords" content="POMDPs, Dynamic programming, Information state">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
@@ -1006,7 +1006,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 18, 2025</p>
+      <p class="date">March 28, 2026</p>
     </div>
   </div>
   
@@ -1065,12 +1065,12 @@ window.Quarto = {
   \biggr].
 \]</span> Note that <span class="math inline">\(J_t(h_t; π)\)</span> only depends on the future strategy <span class="math inline">\((π_t, \dots,
 π_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align*}
-  J_t(h_t; π) &amp;= \EXP^π\biggl[ \sum_{s=t}^T c_s(H_s, π_s(H_s)) \biggm|
+  J_t(h_t; π) &amp;= \EXP^π\biggl[ \sum_{\tau=t}^T c_\tau(S_\tau, π_\tau(H_\tau)) \biggm|
     H_t = h_t \biggr] \\
-    &amp;\stackrel{(a)}= \EXP^π \biggl[ c_t(h_t, π_t(h_t)) + \EXP^π\biggl[
-    \sum_{s=t+1}^T c_s(S_s, π_s(S_s)) \biggm| H_{t+1} \biggr] \biggm|
+    &amp;\stackrel{(a)}= \EXP^π \biggl[ c_t(S_t, π_t(h_t)) + \EXP^π\biggl[
+    \sum_{\tau=t+1}^T c_\tau(S_\tau, π_\tau(S_\tau)) \biggm| H_{t+1} \biggr] \biggm|
     H_t = h_t \biggr]  \\
-    &amp;= \EXP^π[ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid H_t = h_t ],
+    &amp;= \EXP^π[ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid H_t = h_t ],
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the towering property of conditional expectation and the fact that <span class="math inline">\(H_t \subseteq H_{t+1}\)</span>.</p>
 <p>Thus, we can use the following dynamic program to recursively compute the performance of a history-dependent strategy: <span class="math inline">\(J_{T+1}(h_{T+1}) = 0\)</span> and for <span class="math inline">\(t
 \in \{T, \dots, 1\}\)</span>, <span class="math display">\[
@@ -1095,7 +1095,7 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
 </div>
 <p>The proof idea is similar to the proof for MDPs. Instead of proving the above result, we prove a related result.</p>
 <div id="thm-pomdp-history-comparison" class="theorem">
-<p><span class="theorem-title"><strong>Theorem 23.2 (The comparison principle)</strong></span> For any history-dependent strategy <span class="math inline">\(π\)</span> <span class="math display">\[ J_t(h_t; π) \ge V_t(h_t) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future</em> straegy <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step&nbsp;\eqref{eq:history-verification}.</p>
+<p><span class="theorem-title"><strong>Theorem 23.2 (The comparison principle)</strong></span> For any history-dependent strategy <span class="math inline">\(π\)</span> <span class="math display">\[ J_t(h_t; π) \ge V_t(h_t) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future</em> strategy <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step&nbsp;\eqref{eq:history-verification}.</p>
 </div>
 <p>Note that the comparison principle immediately implies that the strategy obtained using dynamic program of <a href="#thm-pomdp-history-dp" class="quarto-xref">Theorem&nbsp;<span>23.1</span></a> is optimal. The proof of the comparison principle is almost identical to the proof for MDPs.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1113,15 +1113,15 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
 <p>The proof proceeds by backward induction. Consider any history dependent policy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>. For <span class="math inline">\(t = T+1\)</span>, the comparison principle is satisfied by definition and this forms the basis of induction. We assume that the result holds for time&nbsp;<span class="math inline">\(t+1\)</span>, which is the induction hypothesis. Then for time&nbsp;<span class="math inline">\(t\)</span>, we have <span class="math display">\[\begin{align*}
   V_t(h_t) &amp;= \min_{a_t \in \ALPHABET A} Q_t(h_t, a_t) \\
   &amp;\stackrel{(a)}= \min_{a_t \in \ALPHABET A}
-   \EXP^π[ c_t(S_t, π_t(h_t)) + V_{t+1}(H_{t+1}) \mid
-  H_t = h_t, A_t = π_t(h_t) ]
+   \EXP^π[ c_t(S_t, A_t) + V_{t+1}(H_{t+1}) \mid
+  H_t = h_t, A_t = a_t ]
   \\
   &amp;\stackrel{(b)}\le
-   \EXP^π[ c_t(S_t, π_t(h_t)) + V_{t+1}(H_{t+1}) \mid
+   \EXP^π[ c_t(S_t, A_t) + V_{t+1}(H_{t+1}) \mid
   H_t = h_t, A_t = π_t(h_t)]
   \\
   &amp;\stackrel{(c)}\le
-   \EXP^π[ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
+   \EXP^π[ c_t(S_t, A_t) + J_{t+1}(H_{t+1}; π) \mid
   H_t = h_t, A_t = π_t(h_t)]
   \\
   &amp;= J_t(h_t, π).
@@ -1204,10 +1204,10 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
   \stackrel{(a)}= \sum_{y_{t+1} \in \ALPHABET Y} \PR(Y_{t+1} = y_{t+1}, Z_{t+1} \in B
   \mid H_t = h_t, A_t = a_t ]
   \\
-  &amp;\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \}
+  &amp;\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \in B \}
   \PR(Y_{t+1} = y_{t+1} \mid H_t = h_t, A_t = a_t)
   \\
-  &amp;\stackrel{(c)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \}
+  &amp;\stackrel{(c)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \in B \}
   \PR(Y_{t+1} = y_{t+1} \mid Z_t = φ_t(h_t), A_t = a_t)
   \\
   &amp;\stackrel{(d)}=
@@ -1230,7 +1230,7 @@ S)\)</span> as follows: for any <span class="math inline">\(s \in \ALPHABET S\)<
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Significance of policy indepdendence of conditional independence
+<span class="screen-reader-only">Important</span>Significance of policy independence of conditional independence
 </div>
 </div>
 <div class="callout-body-container callout-body">
