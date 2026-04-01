@@ -15,7 +15,7 @@ the state of the system. In many applications, the decision maker may not
 directly observe the state of the system but only observe a noisy version of
 it. Such systems are modeled as partially observable Markov decision processes
 (POMDPs). We will describe the simplest model of POMDPs, which builds upon the
-[model of MDPs descibed earlier][MDP].
+[model of MDPs described earlier][MDP].
 
 [MDP]: ../mdps/intro.html
 
@@ -59,16 +59,16 @@ $$
 $$
 How should we proceed?
 
-Note that the only difference from the MDP model is decision maker observes
+Note that the only difference from the MDP model is that the decision maker observes
 $Y_t$ instead of $S_t$. Apart from this, the other modeling assumptions are
-the same. So, the conceptual difficulties of the model are the same as that of
+the same. So, the conceptual difficulties of the model are the same as those of
 MDPs:
 
 :::{.callout-warning icon=false}
 # <i class="bi bi-patch-question text-warning"></i> Key conceptual question
 The data $(Y_{1:t}, A_{1:t-1})$ available at the controller is increasing
-with time. Therefore, the number of possible control laws at time $t$ are
-increasing exponentially with time. How can we search for efficiently search
+with time. Therefore, the number of possible control laws at time $t$ is
+increasing exponentially with time. How can we efficiently search
 for optimal control strategies?
 :::
 
@@ -79,7 +79,7 @@ programming). So, what is the equivalent result for POMDPs?
 
 ## History dependent dynamic program
 
-Our first step to develop an efficient dynamic programming decomposition is to
+Our first step toward developing an efficient dynamic programming decomposition is to
 simply ignore efficiency and develop _a_ dynamic programming decomposition.
 We start by deriving a recursive formula to compute the performance of a
 generic history dependent strategy $π = (π_1, \dots, π_T)$. 
@@ -100,7 +100,7 @@ Note that $J_t(h_t; π)$ only depends on the future strategy $(π_t, \dots,
   J_t(h_t; π) &= \EXP^π\biggl[ \sum_{\tau=t}^T c_\tau(S_\tau, π_\tau(H_\tau)) \biggm|
     H_t = h_t \biggr] \\
     &\stackrel{(a)}= \EXP^π \biggl[ c_t(S_t, π_t(h_t)) + \EXP^π\biggl[ 
-    \sum_{\tau=t+1}^T c_\tau(S_\tau, π_\tau(S_\tau)) \biggm| H_{t+1} \biggr] \biggm| 
+    \sum_{\tau=t+1}^T c_\tau(S_\tau, π_\tau(H_\tau)) \biggm| H_{t+1} \biggr] \biggm| 
     H_t = h_t \biggr]  \\
     &= \EXP^π[ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid H_t = h_t ],
 \end{align*}
@@ -111,7 +111,7 @@ Thus, we can use the following dynamic program to recursively compute the
 performance of a history-dependent strategy: $J_{T+1}(h_{T+1}) = 0$ and for $t
 \in \{T, \dots, 1\}$, 
 $$
-J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
+J_t(h_t; π) = \EXP^π [ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
   H_t = h_t ].
 $$
 
@@ -121,7 +121,7 @@ derive a history-dependent dynamic program.
 
 ::: {#thm-pomdp-history-dp}
 Recursively define _value functions_ $\{V_t\}_{t = 1}^{T+1}$, where $V_t
-\colon \ALPHABET H_t \to \reals$ as follows:
+\colon \ALPHABET H_t \to \reals$, as follows:
 \begin{equation}
   V_{T+1}(h_{T+1}) = 0 
 \end{equation}
@@ -151,7 +151,7 @@ satisfies the verification step \\eqref{eq:history-verification}.
 ::: 
 
 Note that the comparison principle immediately implies that the strategy
-obtained using dynamic program of @thm-pomdp-history-dp is optimal. The proof of
+obtained using the dynamic program of @thm-pomdp-history-dp is optimal. The proof of
 the comparison principle is almost identical to the proof for MDPs.
 
 :::{.callout-note collapse="true"}
@@ -176,11 +176,11 @@ time $t$, we have
    \EXP^π[ c_t(S_t, A_t) + J_{t+1}(H_{t+1}; π) \mid
   H_t = h_t, A_t = π_t(h_t)] 
   \\
-  &= J_t(h_t, π).
+  &= J_t(h_t; π).
 \end{align*}
 where $(a)$ follows from the definition of the $Q$-function; $(b)$ follows
 from the definition of minimization; and $(c)$ follows from the induction
-hyothesis. We have the equality at step $(b)$ iff $π_t$ satisfies the
+hypothesis. We have the equality at step $(b)$ iff $π_t$ satisfies the
 verification step \\eqref{eq:history-verification} and have the equality in step $(c)$
 iff $π_{t+1:T}$ is optimal (this is part of the induction hypothesis). Thus,
 the result is true for time $t$ and, by the principle of induction, is true
@@ -195,7 +195,7 @@ simplify it. To do so, we define the notion of an _information state_.
 :::{.callout-tip}
 ### Information state
 A stochastic process $\{Z_t\}_{t = 1}^T$, $Z_t \in \ALPHABET Z$, is called an
-_information state_ if $Z_t$ be a function of $H_t$ (which we denote by $Z_t =
+_information state_ if $Z_t$ is a function of $H_t$ (which we denote by $Z_t =
 φ_t(H_t)$) and satisfies the following two properties:
 
 **P1. Sufficient for performance evaluation**, i.e., 
@@ -246,7 +246,7 @@ For any Borel measurable subset $B$ of $\ALPHABET Z$, we have
   \hskip 1em & \hskip -1em 
   \PR(Z_{t+1} \in B \mid H_t = h_t, A_t = a_t)  
   \stackrel{(a)}= \sum_{y_{t+1} \in \ALPHABET Y} \PR(Y_{t+1} = y_{t+1}, Z_{t+1} \in B
-  \mid H_t = h_t, A_t = a_t ] 
+  \mid H_t = h_t, A_t = a_t) 
   \\
   &\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \in B \}
   \PR(Y_{t+1} = y_{t+1} \mid H_t = h_t, A_t = a_t) 
@@ -264,7 +264,7 @@ where $(a)$ follows from the law of total probability, $(b)$ follows from
 
 ## Examples of an information state
 
-We start by define the _belief state_ $b_t \in Δ(\ALPHABET
+We start by defining the _belief state_ $b_t \in Δ(\ALPHABET
 S)$ as follows: for any $s \in \ALPHABET S$
 $$ b_t(s) = \PR^π(S_t = s \mid H_t = h_t). $$
 The belief state is a function of the history $h_t$. When we want to
@@ -277,7 +277,7 @@ explicitly show the dependence of $b_t$ on $h_t$, we write it as $b_t[h_t]$.
 :::{.callout-important}
 #### Significance of policy independence of conditional independence
 
-This is an extremely important result which has wide-ranging implications in stochastic control. For a general discussion of this point, see @Witsenhausen1975.
+This is an extremely important result, with wide-ranging implications in stochastic control. For a general discussion of this point, see @Witsenhausen1975.
 :::
 
 :::{.callout-note collapse="true"}
@@ -306,7 +306,7 @@ Now consider
 \end{align*}
 Substitute the above expression in both the numerator and the denominator of
 \\eqref{eq:belief}. Observe that the terms of the form $\IND\{ a_s =
-π_s(y_{1:s}, a_{1:s-1})$ are common to both the numerator and the denominator
+π_s(y_{1:s}, a_{1:s-1}) \}$ are common to both the numerator and the denominator
 and cancel each other. Thus,
 \begin{equation} \label{eq:belief-fn}
   \PR(s_t | y_{1:t}, a_{1:t-1}) = \sum_{s_{1:t-1}}
@@ -318,7 +318,7 @@ not depend on the policy $π$.
 :::
 
 :::{#lem-pomdp-belief-update}
-The belief state $b_t$ updates in a state like manner. In particular, for
+The belief state $b_t$ updates in a state-like manner. In particular, for
 any $s_{t+1} \in \ALPHABET S$, we have
 $$
   b_{t+1}(s_{t+1}) = \sum_{s_t \in \ALPHABET S}
@@ -345,7 +345,7 @@ Now consider
 \PR(s_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) \notag \\
 &= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) 
    \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
-   \PR(s_t | y_{1:t}, a_{1_t-1}) \notag \\
+   \PR(s_t | y_{1:t}, a_{1:t-1}) \notag \\
 &= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) 
    \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
    b_t(s_t). \label{eq:belief-2}
@@ -356,7 +356,7 @@ is common to both the numerator and the denominator and cancels out. Thus, we
 get the result of the lemma.
 :::
 
-Now, we present three examples of information state here. See the
+Now we present three examples of information states. See the
 [Exercises](#exercises) for more examples. 
 
 :::{#exm-pomdp-history}
@@ -404,8 +404,8 @@ Moreover @lem-pomdp-belief-update implies that the belief update satisfies (P2a)
 #### Remark 
 Both the above information states are generic information states which work
 for all models. For specific models, it is possible to identify other
-information states as well. We present some examples of such an information
-state below.
+information states as well. We present some examples of such information
+states below.
 :::
 
 :::{#exm-pomdp-mdp}
@@ -574,7 +574,7 @@ second term:
 which is the sum of PWLC functions of $b_t$ and therefore PWLC in $b_t$. 
 
 Thus, $Q_t(b_t, a_t)$ is PWLC. Hence, $V_t(b_t)$ which is the pointwise
-minimum of PWLC functions is PWLC. Hence, the result holds due to principle of
+minimum of PWLC functions is PWLC. Hence, the result holds by the principle of
 induction.
 :::
 
@@ -611,7 +611,7 @@ Consider an MDP with state space $(\ALPHABET S^1 × \ALPHABET S^2)$ and action s
   \PR(S^2_{t+1} = s^2_{t+1}
   \mid S^1_t = s^1_t, S^2_t = s^2_t, A_t = a_t)
 \end{multline*}
-and the per-step costs does not depend on $s^2$, i.e., 
+and the per-step cost does not depend on $s^2$, i.e., 
 $$
 c(s^1,s^2,a) = c(s^1,a).
 $$
@@ -636,7 +636,7 @@ Consider an MDP where the agent observes the state $S_t$ with a delay $δ$, i.e.
 :::{#exr-info-state-delayed-observation}
 #### POMDP with delayed observations
 
-Consider an POMDP where the agent observes the observation $Y_t$ with a delay $δ$, i.e., the observation $Y_t$ at time $t$ equals $\ell_t(S_{t-δ}, N_{t-δ})$. Show that $(B_{t-δ}, A_{t-δ:t-1})$ is an information state.
+Consider a POMDP where the agent observes the observation $Y_t$ with a delay $δ$, i.e., the observation $Y_t$ at time $t$ equals $\ell_t(S_{t-δ}, N_{t-δ})$. Show that $(B_{t-δ}, A_{t-δ:t-1})$ is an information state.
 :::
 
 
@@ -660,9 +660,9 @@ $$
 $$
 where $Q$ is a positive semi-definite matrix and $R$ is a positive definite
 matrix. We make the standard assumption that the primitive random variables
-$\{s_1, w_1, \dots, w_T, n_1, \dots, n_T \}$ are independent. 
+$\{x_1, w_1, \dots, w_T, n_1, \dots, n_T \}$ are independent. 
 
-Show that if the primitive variables are Guassian, then the conditional
+Show that if the primitive variables are Gaussian, then the conditional
 estimate of the state 
 $$
   \hat x_t = \EXP[ x_t | y_{1:t}, u_{1:t-1} ]
@@ -673,7 +673,7 @@ is an information state.
 :::{#exr-info-state-machine-repair}
 #### Machine repair
 
-Consider a machine which can be in one of $n$ ordered state where the first
+Consider a machine which can be in one of $n$ ordered states where the first
 state is the best and the last state is the worst. The production cost
 increases with the state of the machine. The state evolves in a Markovian
 manner. At each time, an agent has the option to either run the machine or
@@ -690,7 +690,7 @@ t-τ)$ is an information state.
 ## Notes {-}
 
 The discussion in this section is taken from @Subramanian2022.
-Information state may be viewed as a generalization of the
+The information state may be viewed as a generalization of the
 traditional notion of state @Nerode1958, which is defined as a
 statistic (i.e., a function of the observations) sufficient for input-output
 mapping. In contrast, we define an information state as a statistic sufficient
