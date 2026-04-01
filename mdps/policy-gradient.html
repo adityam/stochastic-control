@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2023-10-11">
+<meta name="dcterms.date" content="2026-03-15">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
-<title>48&nbsp; Some useful matrix relationships – Stochastic Control and Decision Theory</title>
+<title>23&nbsp; Policy Gradient Theorem – Stochastic Control and Decision Theory</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,7 +26,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -36,8 +55,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../linear-algebra/positive-definite-matrix.html" rel="next">
-<link href="../probability/stochastic-stability.html" rel="prev">
+<link href="../pomdps/intro.html" rel="next">
+<link href="../mdps/periodic-mdps.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -372,7 +391,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html">Linear Algebra Appendix</a></li><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/policy-gradient.html"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Policy Gradient Theorem</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -544,7 +563,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../mdps/policy-gradient.html" class="sidebar-item-text sidebar-link">
+  <a href="../mdps/policy-gradient.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Policy Gradient Theorem</span></span></a>
   </div>
 </li>
@@ -804,7 +823,7 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link active">
+  <a href="../linear-algebra/matrix-relationships.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></span></a>
   </div>
 </li>
@@ -950,17 +969,19 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#matrix-identities" id="toc-matrix-identities" class="nav-link active" data-scroll-target="#matrix-identities"><span class="header-section-number">48.1</span> Matrix identities</a></li>
+  <li><a href="#generalization-to-infinite-horizon" id="toc-generalization-to-infinite-horizon" class="nav-link active" data-scroll-target="#generalization-to-infinite-horizon"><span class="header-section-number">23.1</span> Generalization to infinite horizon</a></li>
+  <li><a href="#policy-gradient-theorem" id="toc-policy-gradient-theorem" class="nav-link" data-scroll-target="#policy-gradient-theorem"><span class="header-section-number">23.2</span> Policy Gradient Theorem</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/linear-algebra/matrix-relationships.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/policy-gradient.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html">Linear Algebra Appendix</a></li><li class="breadcrumb-item"><a href="../linear-algebra/matrix-relationships.html"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../mdps/intro.html">MDPs</a></li><li class="breadcrumb-item"><a href="../mdps/policy-gradient.html"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Policy Gradient Theorem</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Some useful matrix relationships</span></h1>
+<h1 class="title"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Policy Gradient Theorem</span></h1>
 </div>
 
 
@@ -986,7 +1007,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 11, 2023</p>
+      <p class="date">March 15, 2026</p>
     </div>
   </div>
   
@@ -998,16 +1019,192 @@ window.Quarto = {
 </header>
 
 
-<section id="matrix-identities" class="level2" data-number="48.1">
-<h2 data-number="48.1" class="anchored" data-anchor-id="matrix-identities"><span class="header-section-number">48.1</span> Matrix identities</h2>
-<ol type="1">
-<li><p>If <span class="math inline">\((I + U)\)</span> is invertible, then <span class="math display">\[ U(I + U)^{-1} = I - (I + U)^{-1}. \]</span> This can be verified my multiplying both sides with <span class="math inline">\((I+U)\)</span>.</p></li>
-<li><p><strong>Simplified Sherman-Morrison-Woodbudy formula:</strong> If <span class="math inline">\((I + UV)\)</span> or, equivalently, <span class="math inline">\((I + VU)\)</span> is invertible, then <span class="math display">\[ (I + UV)^{-1} = I - U(I + VU)^{-1}V. \]</span> This can be verified by multiplying both sides with <span class="math inline">\((I + UV)\)</span>. This relationship can also be written as: <span class="math display">\[ (I + UV)^{-1} = I - UV^{1/2}(I + V^{1/2}UV^{1/2})^{-1}V^{1/2}. \]</span></p></li>
-<li><p>A slight generalization of the above is: <span class="math display">\[ (I + U T^{-1} V)^{-1} = I - U(T + VU)^{-1}V. \]</span></p></li>
-<li><p>If <span class="math inline">\((I + UV)\)</span> or, equivalently, <span class="math inline">\((I + VU)\)</span> is invertible, then <span class="math display">\[ V(I + UV)^{-1} = (I + VU)^{-1}V. \]</span> This can be verified by left multiplying by <span class="math inline">\((I + VU)\)</span> and right multiplying by <span class="math inline">\((I + UV)\)</span>.</p></li>
-</ol>
+<div class="callout callout-style-simple callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><i class="bi bi-journal-text text-primary"></i> Summary
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The performance difference lemma provides a formula for the difference in performance of two given policies. This expression is a building block to develop approximation bounds and policy search algorithms.</p>
+</div>
+</div>
+<p>Consider a finite-horizon MDP with state space <span class="math inline">\(\ALPHABET S\)</span>, action space <span class="math inline">\(\ALPHABET A\)</span>, dynamics <span class="math inline">\(\{P_t\}_{t=1}^T\)</span> and per-step cost <span class="math inline">\(\{c_t\}_{t=1}^T\)</span> that runs for a horizon <span class="math inline">\(T\)</span>. Define the <strong>advantage</strong> function of taking action <span class="math inline">\(a\)</span> at state <span class="math inline">\(s\)</span> under policy <span class="math inline">\(π\)</span> as <span class="math display">\[
+  \ADVANTAGE^π_t(s,a) = Q^π_t(s,a) - V^π_t(s).
+\]</span></p>
+<div id="lem-performance-difference" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 23.1 (Performance Difference Lemma)</strong></span> Let <span class="math inline">\(π^{(1)} = (π^{(1)}_1, \dots, π^{(1)}_T)\)</span> and <span class="math inline">\(π^{(2)} = (π^{(2)}_2, \dots, π^{(2)}_T)\)</span> be two deterministic policies. We will use <span class="math inline">\(V^{(i)}_t\)</span>, <span class="math inline">\(Q^{(i)}_t\)</span> and <span class="math inline">\(\ADVANTAGE^{(i)}_t\)</span> to denote the value, action-value, and advantage function corresponding to policy&nbsp;<span class="math inline">\(π^{(i)}\)</span>, <span class="math inline">\(i \in \{1, 2\}\)</span>. Then, the <strong>performance difference</strong> <span class="math display">\[
+    Δ_t(s) \coloneqq V^{(2)}_t(s) - V^{(1)}_t(s)
+  \]</span> satisfies <span class="math display">\[
+    Δ_t(s) = \ADVANTAGE^{(1)}_t(s, π^{(2)}_t(s))
+    + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) Δ_{t+1}(s')
+\]</span> Unrolling this recursion gives: <span class="math display">\[
+    V^{(2)}_1(s_1) - V^{(1)}_1(s_1)
+    = \EXP^{(2)} \biggl[
+      \sum_{t=1}^T \ADVANTAGE_t^{(1)}(S_t, π^{(2)}_t(S_t)) \biggm|
+      S_1 = s_1 \biggr]
+  \]</span> where the expectation is according to the distribution induced by policy <span class="math inline">\(π^{(2)}\)</span>.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Proof
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>At time <span class="math inline">\(T+1\)</span>, <span class="math inline">\(Δ_{T+1}(s) = 0\)</span>. This forms the basis of induction. Now assume that the recursive formula holds at time <span class="math inline">\(t+1\)</span> and consider time <span class="math inline">\(t\)</span>. Then, <span class="math display">\[\begin{align*}
+  Δ_t(s) &amp;= V^{(2)}_t(s) - V^{(1)}_t(s) \\
+  &amp;= c_t(s, π^{(2)}_t(s))
+   + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) V^{(2)}_{t+1}(s')
+   - V^{(1)}_t(s) \\
+  &amp;= c_t(s, π^{(2)}_t(s))  
+   + \textcolor{red}{\sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) V^{(1)}_{t+1}(s')}
+   - V^{(1)}_t(s) \\
+  &amp;\quad
+   + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s))
+    \bigl[ V^{(2)}_{t+1}(s') - \textcolor{red}{V^{(1)}_{t+1}(s')} \bigr]
+   \\
+  &amp;= Q^{(1)}_t(s, π^{(2)}_t(s)) - V^{(1)}_t(s)
+   + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) Δ_{t+1}(s') \\
+  &amp;= \ADVANTAGE^{(1)}_t(s, π^{(2)}_t(s))
+   + \sum_{s' \in \ALPHABET S} P_t(s'|s, π^{(2)}_t(s)) Δ_{t+1}(s') \\
+\end{align*}\]</span> This completes the induction step.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Remark
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Although we assumed that the policy was deterministic, the final result is true for randomized policies as well.</p>
+</div>
+</div>
+<section id="generalization-to-infinite-horizon" class="level2" data-number="23.1">
+<h2 data-number="23.1" class="anchored" data-anchor-id="generalization-to-infinite-horizon"><span class="header-section-number">23.1</span> Generalization to infinite horizon</h2>
+<p>Consider an infinite horizon MDP. Then, an immediate corollary of <a href="#lem-performance-difference" class="quarto-xref">Lemma&nbsp;<span>23.1</span></a> is the following.</p>
+<div id="lem-performance-difference-inf" class="theorem lemma">
+<p><span class="theorem-title"><strong>Lemma 23.2</strong></span> Let <span class="math inline">\(π^{(1)}\)</span> and <span class="math inline">\(π^{(2)}\)</span> be two (possibly time-varying) infinite horizon policies. Then <span class="math display">\[
+  V^{(2)}(s_1) - V^{(1)}(s_1)
+  = \EXP^{(2)}\biggl[ \sum_{t=1}^{∞} γ^{t-1} \ADVANTAGE^{(1)}(S_t, π^{(2)}_t(S_t)) \biggm| S_1 = s_1 \biggr].
+\]</span> If <span class="math inline">\(π^{(1)}\)</span> and <span class="math inline">\(π^{(2)}\)</span> are time-invariant, then we have <span class="math display">\[
+  V^{(2)}(s_1) - V^{(1)}(s_1)
+  = \frac{1}{1 - γ} \sum_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+    ζ^{(2)}(s, a) \ADVANTAGE^{(1)}(s, a)
+\]</span> where <span class="math inline">\(ζ^{(2)}\)</span> is the occupancy measure of policy <span class="math inline">\(π^{(2)}\)</span> and therefore satisfies <span class="math inline">\(ζ^{(2)}(s,a) = ζ^{(2)}(s) π^{(2)}(a|s)\)</span>.</p>
+</div>
+</section>
+<section id="policy-gradient-theorem" class="level2" data-number="23.2">
+<h2 data-number="23.2" class="anchored" data-anchor-id="policy-gradient-theorem"><span class="header-section-number">23.2</span> Policy Gradient Theorem</h2>
+<p>Now suppose we restrict attention to some parameterized class of policies denoted by <span class="math inline">\(π_{θ}\)</span>, where <span class="math inline">\(θ \in Θ\)</span> is some parameter (e.g., the value of a threshold in a threshold based policy). For the ease of notation, we define <span class="math display">\[  J(θ) = V^{π_θ}(s_1)\]</span> where <span class="math inline">\(s_1\)</span> is a pre-defined initial state. We wish to compute the policy gradient <span class="math inline">\(\GRAD_θ J(θ)\)</span>.</p>
+<p>Let <span class="math inline">\(π^{(1)} = π_θ\)</span> denote the base policy and consider a perturbed policy <span class="math inline">\(π^{(2)} = π_{θ + Δθ}\)</span>, where the policy parameters are perturbed by a small amount <span class="math inline">\(Δθ\)</span>.</p>
+<p>From <a href="#lem-performance-difference-inf" class="quarto-xref">Lemma&nbsp;<span>23.2</span></a>), we get that</p>
+<p><span class="math display">\[\begin{equation}\label{eq:parameter-diff}
+J(θ + Δθ) - J(θ) = \frac{1}{1 - γ} \sum_{s,a}
+    ζ^{π_{θ + Δθ}}(s) π_{θ + Δθ}(a|s) \ADVANTAGE^{π_θ}(s, a)
+\end{equation}\]</span></p>
+<p>Note that the advantage function <span class="math inline">\(\ADVANTAGE^{π_θ}(s, a)\)</span> is fixed to the <em>base</em> policy.</p>
+<p>Express the perturbed state occupancy measure and the perturbed policy using their first-order Taylor expansions around <span class="math inline">\(θ\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+  ζ^{π_{θ + Δθ}}(s)
+  &amp;= ζ^{π_θ}(s) + \IP{\GRAD_θ ζ^{π_θ}(s)}{Δθ}
+  + o(\NORM{Δθ}^2_2)
+  \\
+  π_{θ + Δθ}(a|s) &amp;= π_θ(a|s) + \IP{\GRAD_θ π_θ(a|s)}{Δθ}
+  + o(\NORM{Δθ}^2_2)
+\end{align*}\]</span></p>
+<p>Substituting this in the performance difference <span class="math inline">\(\eqref{eq:parameter-diff}\)</span>, we get</p>
+<p><span class="math display">\[\begin{align*}
+  \hskip 2em &amp; \hskip -2em
+  J(θ + Δθ) - J(θ) \\
+  &amp;=
+  \frac{1}{1 - γ} \sum_{s, a} \Bigl[ ζ^{π_θ}(s) π_θ(a|s)
+  \IP{\vphantom{\Big(} π_θ(a|s) \GRAD_θ ζ^{π_θ}(s) + ζ^{π_θ}(s) \GRAD_θ π_θ(a|s)}{Δθ} \Bigr] \ADVANTAGE^{π_θ}(s, a) \\
+  &amp;\quad  + o(\NORM{Δθ}^2_2)
+\end{align*}\]</span></p>
+<p>A key property for the advantage function is that it averages to zero, i.e., <span class="math display">\[\begin{equation}\label{eq:adv-average}
+  \sum_{a \in \ALPHABET A} π_θ(a|s) \ADVANTAGE^{π_θ}(s, a)
+  = \sum_{a \in \ALPHABET A} π_θ(a|s) \bigl[ Q^{π_θ}(s, a) - V^{π_θ}(s) \bigr]
+  = V^{π_θ}(s) - V^{π_θ}(s) = 0
+\end{equation}\]</span> Therefore, the first two terms of <span class="math inline">\(J(θ + Δθ) - J(Θ)\)</span> are zero. Hence, we get <span class="math display">\[
+  J(θ + Δθ) = J(θ) +
+  \IP{\frac{1}{1 - γ} \sum_{s, a} ζ^{π_θ}(s) \GRAD_θ π_θ(a|s) \ADVANTAGE^{π_θ}(s, a)}{Δθ}
+  + o(\NORM{Δθ}_2^2)
+\]</span></p>
+<p>Compare this to the first-order Talor expansion of <span class="math inline">\(J(θ + Δθ)\)</span>, <span class="math display">\[J(θ + Δθ) = J(θ) + \IP{\GRAD_θ J(θ)}{Δθ} + o(\NORM{Δθ}_2^2).\]</span></p>
+<p>By matching the coefficients of <span class="math inline">\(Δθ\)</span>, we get: <span class="math display">\[
+  \bbox[5pt,border: 1px solid]{
+  \GRAD_θ J(θ) = \frac{1}{1 - γ} \sum_{s, a} ζ^{π_θ}(s) \GRAD_θ π_θ(a|s) \ADVANTAGE^{π_θ}(s, a)}
+\]</span></p>
+<p>Thus, we get the following result.</p>
+<div id="thm-policy-gradient" class="theorem">
+<p><span class="theorem-title"><strong>Theorem 23.1 (Policy Gradient Theorem)</strong></span> For a parameterized policy, we have <span class="math display">\[
+\GRAD_θ J(θ) = \frac{1}{1 - γ} \EXP_{(s,a) \sim ζ^{π_θ}}
+    \bigl[ \GRAD_θ \log π_θ(a|s) \ADVANTAGE^{π_θ}(s, a) \bigr]
+\]</span></p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Proof
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is an immediate consequence of the pervious derivation combined with what is called the <strong>log-derivative trick</strong>: <span class="math display">\[\GRAD_θ π_θ(a|s) = π_θ(a|s) \GRAD_θ \log π_θ(a|s).\]</span></p>
+<p>Substituting this in the previously derived formula, we get <span class="math display">\[
+  \GRAD_θ J(θ) = \frac{1}{1 - γ} \sum_{s \in \ALPHABET S}
+  ζ^{π_θ}(s) \sum_{a \in \ALPHABET A}
+  π_θ(a|s) \GRAD_θ \log π_θ(a|s) \ADVANTAGE^{π_θ}(s, a).
+\]</span> The result follows by observing that <span class="math inline">\(ζ^{π_{θ}}(s,a) = ζ^{π_{θ}}(s) π_{θ}(a|s)\)</span>.</p>
+</div>
+</div>
+</section>
+<section id="notes" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
+<p>The notion of advantage function is due to <span class="citation" data-cites="Baird1994">Baird (<a href="../references.html#ref-Baird1994" role="doc-biblioref">1994</a>)</span>, who proposed it in the context of adapting Q-learning to continuous-time models. It is similar to the idea of benefit function used in <a href="../mdps/optimal-stopping.html">optimal stopping</a>.</p>
+<p>The performance difference lemma (<a href="#lem-performance-difference-inf" class="quarto-xref">Lemma&nbsp;<span>23.2</span></a>) is due to <span class="citation" data-cites="Kakade2002">Kakade and Langford (<a href="../references.html#ref-Kakade2002" role="doc-biblioref">2002</a>)</span>, where it was used to establish performance improvement guarantees for conservative policy improvement algorithm.</p>
+<p>The policy gradient theorem (<a href="#thm-policy-gradient" class="quarto-xref">Theorem&nbsp;<span>23.1</span></a>) is due to <span class="citation" data-cites="Sutton1999">Sutton et al. (<a href="../references.html#ref-Sutton1999" role="doc-biblioref">1999</a>)</span>. The idea of gradient based optimization in MDPs/RL is due to <span class="citation" data-cites="Williams1992">Williams (<a href="../references.html#ref-Williams1992" role="doc-biblioref">1992</a>)</span>, who proposed the REINFORCE algorithm. Effectively, these methods are equivalent to the the likelihood ratio method for gradient estimation in the stochastic simulation community (<span class="citation" data-cites="Glynn1987">Glynn (<a href="../references.html#ref-Glynn1987" role="doc-biblioref">1987</a>)</span>), which is also referred to as the score function method (<span class="citation" data-cites="Rubinstein1986">Rubinstein (<a href="../references.html#ref-Rubinstein1986" role="doc-biblioref">1986</a>)</span>). Also see <span class="citation" data-cites="Marbach2001">Marbach and Tsitsiklis (<a href="../references.html#ref-Marbach2001" role="doc-biblioref">2001</a>)</span> and <span class="citation" data-cites="Cao2005">Cao (<a href="../references.html#ref-Cao2005" role="doc-biblioref">2005</a>)</span>.</p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-Baird1994" class="csl-entry" role="listitem">
+<span class="smallcaps">Baird, L.C.</span> 1994. Reinforcement learning in continuous time: Advantage updating. <em>International conference on neural networks</em>, IEEE, 2448–2453. DOI: <a href="https://doi.org/10.1109/icnn.1994.374604">10.1109/icnn.1994.374604</a>.
+</div>
+<div id="ref-Cao2005" class="csl-entry" role="listitem">
+<span class="smallcaps">Cao, X.-R.</span> 2005. Basic ideas for event-based optimization of markov systems. <em>Discrete Event Dynamic Systems</em> <em>15</em>, 2, 169–197. DOI: <a href="https://doi.org/10.1007/s10626-004-6211-4">10.1007/s10626-004-6211-4</a>.
+</div>
+<div id="ref-Glynn1987" class="csl-entry" role="listitem">
+<span class="smallcaps">Glynn, P.W.</span> 1987. Likelilood ratio gradient estimation: An overview. <em>Conference on winter simulation - WSC ’87</em>, ACM Press, 366–375. DOI: <a href="https://doi.org/10.1145/318371.318612">10.1145/318371.318612</a>.
+</div>
+<div id="ref-Kakade2002" class="csl-entry" role="listitem">
+<span class="smallcaps">Kakade, S. and Langford, J.</span> 2002. Approximately optimal approximate reinforcement learning. <em>International conference on machine learning</em>, 267–274.
+</div>
+<div id="ref-Marbach2001" class="csl-entry" role="listitem">
+<span class="smallcaps">Marbach, P. and Tsitsiklis, J.N.</span> 2001. Simulation-based optimization of markov reward processes. <em>IEEE Transactions on Automatic Control</em> <em>46</em>, 2, 191–209. DOI: <a href="https://doi.org/10.1109/9.905687">10.1109/9.905687</a>.
+</div>
+<div id="ref-Rubinstein1986" class="csl-entry" role="listitem">
+<span class="smallcaps">Rubinstein, R.Y.</span> 1986. The score function approach for sensitivity analysis of computer simulation models. <em>Mathematics and Computers in Simulation</em> <em>28</em>, 5, 351–379. DOI: <a href="https://doi.org/10.1016/0378-4754(86)90072-8">10.1016/0378-4754(86)90072-8</a>.
+</div>
+<div id="ref-Sutton1999" class="csl-entry" role="listitem">
+<span class="smallcaps">Sutton, R.S., McAllester, D., Singh, S., and Mansour, Y.</span> 1999. Policy gradient methods for reinforcement learning with function approximation. <em>Advances in neural information processing systems</em>.
+</div>
+<div id="ref-Williams1992" class="csl-entry" role="listitem">
+<span class="smallcaps">Williams, R.J.</span> 1992. Simple statistical gradient-following algorithms for connectionist reinforcement learning. <em>Machine Learning</em> <em>8</em>, 3–4, 229–256. DOI: <a href="https://doi.org/10.1007/bf00992696">10.1007/bf00992696</a>.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
@@ -1426,13 +1623,13 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../probability/stochastic-stability.html" class="pagination-link" aria-label="Stochastic stability">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Stochastic stability</span></span>
+      <a href="../mdps/periodic-mdps.html" class="pagination-link" aria-label="Periodic MDPs">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Periodic MDPs</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../linear-algebra/positive-definite-matrix.html" class="pagination-link" aria-label="Positive definite matrices">
-        <span class="nav-page-text"><span class="chapter-number">49</span>&nbsp; <span class="chapter-title">Positive definite matrices</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../pomdps/intro.html" class="pagination-link" aria-label="Introduction">
+        <span class="nav-page-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Introduction</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1441,5 +1638,5 @@ window.Quarto = {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/linear-algebra/matrix-relationships.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/mdps/policy-gradient.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
