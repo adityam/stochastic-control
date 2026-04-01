@@ -1037,7 +1037,7 @@ window.Quarto = {
 </header>
 
 
-<p>So far, we have considered a setup where the decision maker perfectly observes the state of the system. In many applications, the decision maker may not directly observe the state of the system but only observe a noisy version of it. Such systems are modeled as partially observable Markov decision processes (POMDPs). We will describe the simplest model of POMDPs, which builds upon the <a href="../mdps/intro.html">model of MDPs descibed earlier</a>.</p>
+<p>So far, we have considered a setup where the decision maker perfectly observes the state of the system. In many applications, the decision maker may not directly observe the state of the system but only observe a noisy version of it. Such systems are modeled as partially observable Markov decision processes (POMDPs). We will describe the simplest model of POMDPs, which builds upon the <a href="../mdps/intro.html">model of MDPs described earlier</a>.</p>
 <p>We assume that the system has a state <span class="math inline">\(S_t \in \ALPHABET S\)</span>, control input <span class="math inline">\(A_t \in \ALPHABET A\)</span>, and process noise <span class="math inline">\(W_t \in \ALPHABET W\)</span>. The state evolves as <span class="math display">\[\begin{equation} \label{eq:state}
   S_{t+1} = f_t(S_t, A_t, W_t)
 \end{equation}\]</span> However, unlike the MDP setup, the assumption is that the decision maker does not observe <span class="math inline">\(S_t\)</span>; rather, the observation of the decision maker at time&nbsp;<span class="math inline">\(t\)</span> is given by <span class="math display">\[\begin{equation} \label{eq:obs}
@@ -1053,7 +1053,7 @@ window.Quarto = {
 (π_1, \dots, π_T)\)</span> to minimize the expected total cost <span class="math display">\[
   J(π) := \EXP\Bigl[ \sum_{t=1}^T c_t(S_t, A_t) \Bigr].
 \]</span> How should we proceed?</p>
-<p>Note that the only difference from the MDP model is decision maker observes <span class="math inline">\(Y_t\)</span> instead of <span class="math inline">\(S_t\)</span>. Apart from this, the other modeling assumptions are the same. So, the conceptual difficulties of the model are the same as that of MDPs:</p>
+<p>Note that the only difference from the MDP model is that the decision maker observes <span class="math inline">\(Y_t\)</span> instead of <span class="math inline">\(S_t\)</span>. Apart from this, the other modeling assumptions are the same. So, the conceptual difficulties of the model are the same as those of MDPs:</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1064,13 +1064,13 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The data <span class="math inline">\((Y_{1:t}, A_{1:t-1})\)</span> available at the controller is increasing with time. Therefore, the number of possible control laws at time <span class="math inline">\(t\)</span> are increasing exponentially with time. How can we search for efficiently search for optimal control strategies?</p>
+<p>The data <span class="math inline">\((Y_{1:t}, A_{1:t-1})\)</span> available at the controller is increasing with time. Therefore, the number of possible control laws at time <span class="math inline">\(t\)</span> is increasing exponentially with time. How can we efficiently search for optimal control strategies?</p>
 </div>
 </div>
 <p>Recall that for MDPs, we first showed that there is no loss of optimality in restricting attention to Markov strategies. That structural result was instrumental in developing an efficient search algorithm (dynamic programming). So, what is the equivalent result for POMDPs?</p>
 <section id="history-dependent-dynamic-program" class="level2" data-number="24.1">
 <h2 data-number="24.1" class="anchored" data-anchor-id="history-dependent-dynamic-program"><span class="header-section-number">24.1</span> History dependent dynamic program</h2>
-<p>Our first step to develop an efficient dynamic programming decomposition is to simply ignore efficiency and develop <em>a</em> dynamic programming decomposition. We start by deriving a recursive formula to compute the performance of a generic history dependent strategy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>.</p>
+<p>Our first step toward developing an efficient dynamic programming decomposition is to simply ignore efficiency and develop <em>a</em> dynamic programming decomposition. We start by deriving a recursive formula to compute the performance of a generic history dependent strategy <span class="math inline">\(π = (π_1, \dots, π_T)\)</span>.</p>
 <section id="performance-of-history-dependent-strategies" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="performance-of-history-dependent-strategies">Performance of history-dependent strategies</h3>
 <p>Let <span class="math inline">\(H_t = (Y_{1:t}, A_{1:t-1})\)</span> denote all the information available to the decision maker at time&nbsp;<span class="math inline">\(t\)</span>. Thus, given any history dependent strategy <span class="math inline">\(π\)</span>, we can write <span class="math inline">\(A_t = π_t(H_t)\)</span>. Define <em>the cost-to-go functions</em> as follows: <span class="math display">\[
@@ -1078,16 +1078,16 @@ window.Quarto = {
   \biggr].
 \]</span> Note that <span class="math inline">\(J_t(h_t; π)\)</span> only depends on the future strategy <span class="math inline">\((π_t, \dots,
 π_T)\)</span>. These functions can be computed recursively as follows: <span class="math display">\[\begin{align*}
-  J_t(h_t; π) &amp;= \EXP^π\biggl[ \sum_{\tau=t}^T c_\tau(S_\tau, π_\tau(H_\tau)) \biggm|
+  J_t(h_t; π) &amp;= \EXP^π\biggl[ \sum_{τ=t}^T c_τ(S_τ, π_τ(H_τ)) \biggm|
     H_t = h_t \biggr] \\
     &amp;\stackrel{(a)}= \EXP^π \biggl[ c_t(S_t, π_t(h_t)) + \EXP^π\biggl[
-    \sum_{\tau=t+1}^T c_\tau(S_\tau, π_\tau(S_\tau)) \biggm| H_{t+1} \biggr] \biggm|
+    \sum_{τ=t+1}^T c_τ(S_τ, π_τ(H_τ)) \biggm| H_{t+1} \biggr] \biggm|
     H_t = h_t \biggr]  \\
     &amp;= \EXP^π[ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid H_t = h_t ],
 \end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the towering property of conditional expectation and the fact that <span class="math inline">\(H_t \subseteq H_{t+1}\)</span>.</p>
 <p>Thus, we can use the following dynamic program to recursively compute the performance of a history-dependent strategy: <span class="math inline">\(J_{T+1}(h_{T+1}) = 0\)</span> and for <span class="math inline">\(t
 \in \{T, \dots, 1\}\)</span>, <span class="math display">\[
-J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
+J_t(h_t; π) = \EXP^π [ c_t(S_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
   H_t = h_t ].
 \]</span></p>
 </section>
@@ -1096,7 +1096,7 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
 <p>We can use the above recursive formulation for performance evaluation to derive a history-dependent dynamic program.</p>
 <div id="thm-pomdp-history-dp" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 24.1</strong></span> Recursively define <em>value functions</em> <span class="math inline">\(\{V_t\}_{t = 1}^{T+1}\)</span>, where <span class="math inline">\(V_t
-\colon \ALPHABET H_t \to \reals\)</span> as follows: <span class="math display">\[\begin{equation}
+\colon \ALPHABET H_t \to \reals\)</span>, as follows: <span class="math display">\[\begin{equation}
   V_{T+1}(h_{T+1}) = 0
 \end{equation}\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>: <span class="math display">\[\begin{align}
   Q_t(h_t, a_t) &amp;= \EXP[ c_t(S_t, a_t) + V_{t+1}(H_{t+1}) \mid
@@ -1110,7 +1110,7 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
 <div id="thm-pomdp-history-comparison" class="theorem">
 <p><span class="theorem-title"><strong>Theorem 24.2 (The comparison principle)</strong></span> For any history-dependent strategy <span class="math inline">\(π\)</span> <span class="math display">\[ J_t(h_t; π) \ge V_t(h_t) \]</span> with equality at <span class="math inline">\(t\)</span> if and only if the <em>future</em> strategy <span class="math inline">\(π_{t:T}\)</span> satisfies the verification step&nbsp;\eqref{eq:history-verification}.</p>
 </div>
-<p>Note that the comparison principle immediately implies that the strategy obtained using dynamic program of <a href="#thm-pomdp-history-dp" class="quarto-xref">Theorem&nbsp;<span>24.1</span></a> is optimal. The proof of the comparison principle is almost identical to the proof for MDPs.</p>
+<p>Note that the comparison principle immediately implies that the strategy obtained using the dynamic program of <a href="#thm-pomdp-history-dp" class="quarto-xref">Theorem&nbsp;<span>24.1</span></a> is optimal. The proof of the comparison principle is almost identical to the proof for MDPs.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -1137,8 +1137,8 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
    \EXP^π[ c_t(S_t, A_t) + J_{t+1}(H_{t+1}; π) \mid
   H_t = h_t, A_t = π_t(h_t)]
   \\
-  &amp;= J_t(h_t, π).
-\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the definition of the <span class="math inline">\(Q\)</span>-function; <span class="math inline">\((b)\)</span> follows from the definition of minimization; and <span class="math inline">\((c)\)</span> follows from the induction hyothesis. We have the equality at step <span class="math inline">\((b)\)</span> iff <span class="math inline">\(π_t\)</span> satisfies the verification step&nbsp;\eqref{eq:history-verification} and have the equality in step <span class="math inline">\((c)\)</span> iff <span class="math inline">\(π_{t+1:T}\)</span> is optimal (this is part of the induction hypothesis). Thus, the result is true for time&nbsp;<span class="math inline">\(t\)</span> and, by the principle of induction, is true for all time.</p>
+  &amp;= J_t(h_t; π).
+\end{align*}\]</span> where <span class="math inline">\((a)\)</span> follows from the definition of the <span class="math inline">\(Q\)</span>-function; <span class="math inline">\((b)\)</span> follows from the definition of minimization; and <span class="math inline">\((c)\)</span> follows from the induction hypothesis. We have the equality at step <span class="math inline">\((b)\)</span> iff <span class="math inline">\(π_t\)</span> satisfies the verification step&nbsp;\eqref{eq:history-verification} and have the equality in step <span class="math inline">\((c)\)</span> iff <span class="math inline">\(π_{t+1:T}\)</span> is optimal (this is part of the induction hypothesis). Thus, the result is true for time&nbsp;<span class="math inline">\(t\)</span> and, by the principle of induction, is true for all time.</p>
 </div>
 </div>
 </div>
@@ -1157,7 +1157,7 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A stochastic process <span class="math inline">\(\{Z_t\}_{t = 1}^T\)</span>, <span class="math inline">\(Z_t \in \ALPHABET Z\)</span>, is called an <em>information state</em> if <span class="math inline">\(Z_t\)</span> be a function of <span class="math inline">\(H_t\)</span> (which we denote by <span class="math inline">\(Z_t =
+<p>A stochastic process <span class="math inline">\(\{Z_t\}_{t = 1}^T\)</span>, <span class="math inline">\(Z_t \in \ALPHABET Z\)</span>, is called an <em>information state</em> if <span class="math inline">\(Z_t\)</span> is a function of <span class="math inline">\(H_t\)</span> (which we denote by <span class="math inline">\(Z_t =
 φ_t(H_t)\)</span>) and satisfies the following two properties:</p>
 <p><strong>P1. Sufficient for performance evaluation</strong>, i.e., <span class="math display">\[ \EXP^π[ c_t(S_t, A_t) \mid H_t = h_t, A_t = a_t]
     =  \EXP[ c_t(S_t, A_t) \mid Z_t = φ_t(h_t), A_t = a_t ] \]</span></p>
@@ -1215,7 +1215,7 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
   \hskip 1em &amp; \hskip -1em
   \PR(Z_{t+1} \in B \mid H_t = h_t, A_t = a_t)  
   \stackrel{(a)}= \sum_{y_{t+1} \in \ALPHABET Y} \PR(Y_{t+1} = y_{t+1}, Z_{t+1} \in B
-  \mid H_t = h_t, A_t = a_t ]
+  \mid H_t = h_t, A_t = a_t)
   \\
   &amp;\stackrel{(b)}= \sum_{y_{t+1} \in \ALPHABET Y} \IND\{ ψ_t(φ_t(h_t), y_{t+1}, a_t) \in B \}
   \PR(Y_{t+1} = y_{t+1} \mid H_t = h_t, A_t = a_t)
@@ -1232,7 +1232,7 @@ J_t(h_t; π) = \EXP^π [ c_t(h_t, π_t(h_t)) + J_{t+1}(H_{t+1}; π) \mid
 </section>
 <section id="examples-of-an-information-state" class="level2" data-number="24.3">
 <h2 data-number="24.3" class="anchored" data-anchor-id="examples-of-an-information-state"><span class="header-section-number">24.3</span> Examples of an information state</h2>
-<p>We start by define the <em>belief state</em> <span class="math inline">\(b_t \in Δ(\ALPHABET
+<p>We start by defining the <em>belief state</em> <span class="math inline">\(b_t \in Δ(\ALPHABET
 S)\)</span> as follows: for any <span class="math inline">\(s \in \ALPHABET S\)</span> <span class="math display">\[ b_t(s) = \PR^π(S_t = s \mid H_t = h_t). \]</span> The belief state is a function of the history <span class="math inline">\(h_t\)</span>. When we want to explicitly show the dependence of <span class="math inline">\(b_t\)</span> on <span class="math inline">\(h_t\)</span>, we write it as <span class="math inline">\(b_t[h_t]\)</span>.</p>
 <div id="lem-pomdp-belief-independence" class="theorem lemma">
 <p><span class="theorem-title"><strong>Lemma 24.1</strong></span> The belief state <span class="math inline">\(b_t\)</span> does not depend on the policy <span class="math inline">\(π\)</span>.</p>
@@ -1247,7 +1247,7 @@ S)\)</span> as follows: for any <span class="math inline">\(s \in \ALPHABET S\)<
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This is an extremely important result which has wide-ranging implications in stochastic control. For a general discussion of this point, see <span class="citation" data-cites="Witsenhausen1975">Witsenhausen (<a href="../references.html#ref-Witsenhausen1975" role="doc-biblioref">1975</a>)</span>.</p>
+<p>This is an extremely important result, with wide-ranging implications in stochastic control. For a general discussion of this point, see <span class="citation" data-cites="Witsenhausen1975">Witsenhausen (<a href="../references.html#ref-Witsenhausen1975" role="doc-biblioref">1975</a>)</span>.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -1280,17 +1280,17 @@ S)\)</span> as follows: for any <span class="math inline">\(s \in \ALPHABET S\)<
   π_{t-1}(y_{1:t-1}, a_{1:t-2}) \} \\
   &amp; \times
   \PR(s_{t} | s_{t-1}, a_{t-1}) \PR(y_{t} | s_{t}).
-\end{align*}\]</span> Substitute the above expression in both the numerator and the denominator of \eqref{eq:belief}. Observe that the terms of the form <span class="math inline">\(\IND\{ a_s =
-π_s(y_{1:s}, a_{1:s-1})\)</span> are common to both the numerator and the denominator and cancel each other. Thus, <span class="math display">\[\begin{equation} \label{eq:belief-fn}
+\end{align*}\]</span> Substitute the above expression in both the numerator and the denominator of \eqref{eq:belief}. Observe that the terms of the form <span class="math inline">\(\IND\{ a_τ =
+π_τ(y_{1:τ}, a_{1:τ-1}) \}\)</span> are common to both the numerator and the denominator and cancel each other. Thus, <span class="math display">\[\begin{equation} \label{eq:belief-fn}
   \PR(s_t | y_{1:t}, a_{1:t-1}) = \sum_{s_{1:t-1}}
-  \frac{ \prod_{s=1}^t \PR(s_s \mid s_{s-1}, a_{s-1}) \PR(y_s \mid s_s) }
-  { \sum_{s'_{1:t}} \prod_{s=1}^t \PR(s'_s \mid s'_{s-1}, a_{s-1}) \PR(y_s \mid s'_s) }.
+  \frac{ \prod_{τ=1}^t \PR(s_{τ} \mid s_{τ-1}, a_{τ-1}) \PR(y_{τ} \mid s_{τ}) }
+  { \sum_{s'_{1:t}} \prod_{τ=1}^t \PR(s'_{τ} \mid s'_{τ-1}, a_{τ-1}) \PR(y_{τ} \mid s'_{τ}) }.
 \end{equation}\]</span> None of the terms here depend on the policy <span class="math inline">\(π\)</span>. Hence, the belief state does not depend on the policy <span class="math inline">\(π\)</span>.</p>
 </div>
 </div>
 </div>
 <div id="lem-pomdp-belief-update" class="theorem lemma">
-<p><span class="theorem-title"><strong>Lemma 24.2</strong></span> The belief state <span class="math inline">\(b_t\)</span> updates in a state like manner. In particular, for any <span class="math inline">\(s_{t+1} \in \ALPHABET S\)</span>, we have <span class="math display">\[
+<p><span class="theorem-title"><strong>Lemma 24.2</strong></span> The belief state <span class="math inline">\(b_t\)</span> updates in a state-like manner. In particular, for any <span class="math inline">\(s_{t+1} \in \ALPHABET S\)</span>, we have <span class="math display">\[
   b_{t+1}(s_{t+1}) = \sum_{s_t \in \ALPHABET S}
   \frac{ \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t) b_t(s_t) }
    { \sum_{s'_{t:t+1}} \PR(y_{t+1} | s'_{t+1}) \PR(s'_{t+1} | s'_t, a_t) b_t(s'_t) }.
@@ -1321,7 +1321,7 @@ b_{t+1}(s_{t+1}) &amp;= \PR(s_{t+1} | y_{1:t+1}, a_{1:t}) \notag \\
 \PR(s_{t:t+1}, y_{t+1}, a_t | y_{1:t}, a_{1:t-1}) \notag \\
 &amp;= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t)
    \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
-   \PR(s_t | y_{1:t}, a_{1_t-1}) \notag \\
+   \PR(s_t | y_{1:t}, a_{1:t-1}) \notag \\
 &amp;= \PR(y_{t+1} | s_{t+1}) \PR(s_{t+1} | s_t, a_t)
    \IND\{ a_t = π_t(y_{1:t}, a_{1:t-1}) \}
    b_t(s_t). \label{eq:belief-2}
@@ -1329,7 +1329,7 @@ b_{t+1}(s_{t+1}) &amp;= \PR(s_{t+1} | y_{1:t+1}, a_{1:t}) \notag \\
 </div>
 </div>
 </div>
-<p>Now, we present three examples of information state here. See the <a href="#exercises">Exercises</a> for more examples.</p>
+<p>Now we present three examples of information states. See the <a href="#exercises">Exercises</a> for more examples.</p>
 <div id="exm-pomdp-history" class="theorem example">
 <p><span class="theorem-title"><strong>Example 24.1</strong></span> The complete history <span class="math inline">\(H_t\)</span> is an information state.</p>
 </div>
@@ -1388,7 +1388,7 @@ b_t[h_t](s_t)\)</span>.</p>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Both the above information states are generic information states which work for all models. For specific models, it is possible to identify other information states as well. We present some examples of such an information state below.</p>
+<p>Both the above information states are generic information states which work for all models. For specific models, it is possible to identify other information states as well. We present some examples of such information states below.</p>
 </div>
 </div>
 <div id="exm-pomdp-mdp" class="theorem example">
@@ -1534,7 +1534,7 @@ An illustration of a piecewise linear and concave function. Move the points arou
    \PR(y_{t+1} | s_{t+1}) \sum_{s_t} \PR(s_{t+1} | s_t, a_t) b_t(s_t)
    \Big\rangle
 \end{align*}\]</span> which is the sum of PWLC functions of <span class="math inline">\(b_t\)</span> and therefore PWLC in <span class="math inline">\(b_t\)</span>.</p>
-<p>Thus, <span class="math inline">\(Q_t(b_t, a_t)\)</span> is PWLC. Hence, <span class="math inline">\(V_t(b_t)\)</span> which is the pointwise minimum of PWLC functions is PWLC. Hence, the result holds due to principle of induction.</p>
+<p>Thus, <span class="math inline">\(Q_t(b_t, a_t)\)</span> is PWLC. Hence, <span class="math inline">\(V_t(b_t)\)</span> which is the pointwise minimum of PWLC functions is PWLC. Hence, the result holds by the principle of induction.</p>
 </div>
 </div>
 </div>
@@ -1566,7 +1566,7 @@ An illustration of a piecewise linear and concave function. Move the points arou
   \mid S^1_t = s^1_t, A_t = a_t)
   \PR(S^2_{t+1} = s^2_{t+1}
   \mid S^1_t = s^1_t, S^2_t = s^2_t, A_t = a_t)
-\end{multline*}\]</span> and the per-step costs does not depend on <span class="math inline">\(s^2\)</span>, i.e., <span class="math display">\[
+\end{multline*}\]</span> and the per-step cost does not depend on <span class="math inline">\(s^2\)</span>, i.e., <span class="math display">\[
 c(s^1,s^2,a) = c(s^1,a).
 \]</span> Then, <span class="math inline">\(\{S^1_t\}_{t \ge 1}\)</span> is an information state.</p>
 </div>
@@ -1577,7 +1577,7 @@ c(s^1,s^2,a) = c(s^1,a).
 <p><span class="theorem-title"><strong>Exercise 24.3 (MDP with delayed state observation)</strong></span> Consider an MDP where the agent observes the state <span class="math inline">\(S_t\)</span> with a delay <span class="math inline">\(δ\)</span>, i.e., the observation <span class="math inline">\(Y_t\)</span> at time <span class="math inline">\(t\)</span> equals <span class="math inline">\(S_{t-δ}\)</span>. Show that <span class="math inline">\((S_{t-δ}, A_{t-δ:t-1})\)</span> is an information state.</p>
 </div>
 <div id="exr-info-state-delayed-observation" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 24.4 (POMDP with delayed observations)</strong></span> Consider an POMDP where the agent observes the observation <span class="math inline">\(Y_t\)</span> with a delay <span class="math inline">\(δ\)</span>, i.e., the observation <span class="math inline">\(Y_t\)</span> at time <span class="math inline">\(t\)</span> equals <span class="math inline">\(\ell_t(S_{t-δ}, N_{t-δ})\)</span>. Show that <span class="math inline">\((B_{t-δ}, A_{t-δ:t-1})\)</span> is an information state.</p>
+<p><span class="theorem-title"><strong>Exercise 24.4 (POMDP with delayed observations)</strong></span> Consider a POMDP where the agent observes the observation <span class="math inline">\(Y_t\)</span> with a delay <span class="math inline">\(δ\)</span>, i.e., the observation <span class="math inline">\(Y_t\)</span> at time <span class="math inline">\(t\)</span> equals <span class="math inline">\(\ell_t(S_{t-δ}, N_{t-δ})\)</span>. Show that <span class="math inline">\((B_{t-δ}, A_{t-δ:t-1})\)</span> is an information state.</p>
 </div>
 <div id="exr-info-state-lqg" class="theorem exercise">
 <p><span class="theorem-title"><strong>Exercise 24.5 (LQG control)</strong></span> Consider a linear system with state <span class="math inline">\(x_t \in \reals^n\)</span>, observations <span class="math inline">\(y_t \in \reals^p\)</span>, and action <span class="math inline">\(u_t \in \reals^m\)</span>. Note that we will follow the standard notation of linear systems and denote the system variables by lower case letters <span class="math inline">\((x,u)\)</span> rather than upper case letter <span class="math inline">\((S,A)\)</span>. The dynamics of the system are given by <span class="math display">\[\begin{align*}
@@ -1585,20 +1585,20 @@ c(s^1,s^2,a) = c(s^1,a).
   y_t &amp;= C x_t + n_t
 \end{align*}\]</span> where <span class="math inline">\(A\)</span>, <span class="math inline">\(B\)</span>, and <span class="math inline">\(C\)</span> are matrices of appropriate dimensions. The per-step cost is given by <span class="math display">\[
   c(x_t, u_t) = x_t^\TRANS Q x_t + u_t^\TRANS R u_t,
-\]</span> where <span class="math inline">\(Q\)</span> is a positive semi-definite matrix and <span class="math inline">\(R\)</span> is a positive definite matrix. We make the standard assumption that the primitive random variables <span class="math inline">\(\{s_1, w_1, \dots, w_T, n_1, \dots, n_T \}\)</span> are independent.</p>
-<p>Show that if the primitive variables are Guassian, then the conditional estimate of the state <span class="math display">\[
+\]</span> where <span class="math inline">\(Q\)</span> is a positive semi-definite matrix and <span class="math inline">\(R\)</span> is a positive definite matrix. We make the standard assumption that the primitive random variables <span class="math inline">\(\{x_1, w_1, \dots, w_T, n_1, \dots, n_T \}\)</span> are independent.</p>
+<p>Show that if the primitive variables are Gaussian, then the conditional estimate of the state <span class="math display">\[
   \hat x_t = \EXP[ x_t | y_{1:t}, u_{1:t-1} ]
 \]</span> is an information state.</p>
 </div>
 <div id="exr-info-state-machine-repair" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 24.6 (Machine repair)</strong></span> Consider a machine which can be in one of <span class="math inline">\(n\)</span> ordered state where the first state is the best and the last state is the worst. The production cost increases with the state of the machine. The state evolves in a Markovian manner. At each time, an agent has the option to either run the machine or stop and inspect it for a cost. After inspection, the agent may either repair the machine (at a cost that depends on the state) or replace it (at a fixed cost). Repairing or replacing the machine effectively resets the machine to the best state. The objective is to identify a maintenance policy to minimize the cost of production, inspection, repair, and replacement.</p>
+<p><span class="theorem-title"><strong>Exercise 24.6 (Machine repair)</strong></span> Consider a machine which can be in one of <span class="math inline">\(n\)</span> ordered states where the first state is the best and the last state is the worst. The production cost increases with the state of the machine. The state evolves in a Markovian manner. At each time, an agent has the option to either run the machine or stop and inspect it for a cost. After inspection, the agent may either repair the machine (at a cost that depends on the state) or replace it (at a fixed cost). Repairing or replacing the machine effectively resets the machine to the best state. The objective is to identify a maintenance policy to minimize the cost of production, inspection, repair, and replacement.</p>
 <p>Let <span class="math inline">\(τ\)</span> denote the time of last inspection and <span class="math inline">\(S_τ\)</span> denote the state of the machine after inspection, repair, or replacement. Show that <span class="math inline">\((S_τ,
 t-τ)\)</span> is an information state.</p>
 </div>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>The discussion in this section is taken from <span class="citation" data-cites="Subramanian2022">Subramanian et al. (<a href="../references.html#ref-Subramanian2022" role="doc-biblioref">2022</a>)</span>. Information state may be viewed as a generalization of the traditional notion of state <span class="citation" data-cites="Nerode1958">Nerode (<a href="../references.html#ref-Nerode1958" role="doc-biblioref">1958</a>)</span>, which is defined as a statistic (i.e., a function of the observations) sufficient for input-output mapping. In contrast, we define an information state as a statistic sufficient for performance evaluation (and, therefore, for dynamic programming). Such a definition is hinted in <span class="citation" data-cites="Witsenhausen1976">Witsenhausen (<a href="../references.html#ref-Witsenhausen1976" role="doc-biblioref">1976</a>)</span>. The notion of information state is also related to sufficient statistics for optimal control defined in <span class="citation" data-cites="Striebel1965">Striebel (<a href="../references.html#ref-Striebel1965" role="doc-biblioref">1965</a>)</span> for systems with state space models.</p>
+<p>The discussion in this section is taken from <span class="citation" data-cites="Subramanian2022">Subramanian et al. (<a href="../references.html#ref-Subramanian2022" role="doc-biblioref">2022</a>)</span>. The information state may be viewed as a generalization of the traditional notion of state <span class="citation" data-cites="Nerode1958">Nerode (<a href="../references.html#ref-Nerode1958" role="doc-biblioref">1958</a>)</span>, which is defined as a statistic (i.e., a function of the observations) sufficient for input-output mapping. In contrast, we define an information state as a statistic sufficient for performance evaluation (and, therefore, for dynamic programming). Such a definition is hinted in <span class="citation" data-cites="Witsenhausen1976">Witsenhausen (<a href="../references.html#ref-Witsenhausen1976" role="doc-biblioref">1976</a>)</span>. The notion of information state is also related to sufficient statistics for optimal control defined in <span class="citation" data-cites="Striebel1965">Striebel (<a href="../references.html#ref-Striebel1965" role="doc-biblioref">1965</a>)</span> for systems with state space models.</p>
 <p>As far as we are aware, the informal definition of information state was first proposed by <span class="citation" data-cites="Kwakernaak1965">Kwakernaak (<a href="../references.html#ref-Kwakernaak1965" role="doc-biblioref">1965</a>)</span> for adaptive control systems. Formal definitions for linear control systems were given by <span class="citation" data-cites="Bohlin1970">Bohlin (<a href="../references.html#ref-Bohlin1970" role="doc-biblioref">1970</a>)</span> for discrete time systems and by <span class="citation" data-cites="DavisVaraiya1972">Davis and Varaiya (<a href="../references.html#ref-DavisVaraiya1972" role="doc-biblioref">1972</a>)</span> for continuous time systems. <span class="citation" data-cites="KumarVaraiya1986">Kumar and Varaiya (<a href="../references.html#ref-KumarVaraiya1986" role="doc-biblioref">1986</a>)</span> define an information state as a compression of past history which satisfies property (P2a) but do not formally show that such an information state always leads to a dynamic programming decomposition.</p>
 <p><a href="#exr-info-state-irrelevant" class="quarto-xref">Exercise&nbsp;<span>24.1</span></a> is due to <span class="citation" data-cites="Feinberg2005">Feinberg (<a href="../references.html#ref-Feinberg2005" role="doc-biblioref">2005</a>)</span>. As explained in <span class="citation" data-cites="Feinberg2005">Feinberg (<a href="../references.html#ref-Feinberg2005" role="doc-biblioref">2005</a>)</span>, such models arise in control of queues and transformation of continuous time MDPs to discrete time MDPs using uniformization. It may also be considered an instance of what is called the <em>noisy TV problem</em> in the RL literature <span class="citation" data-cites="Burda2019">(<a href="../references.html#ref-Burda2019" role="doc-biblioref">Burda et al. 2019</a>)</span>.</p>
 <p><a href="#exr-info-state-folded" class="quarto-xref">Exercise&nbsp;<span>24.2</span></a> is due to <span class="citation" data-cites="Chakravorty2018">Chakravorty and Mahajan (<a href="../references.html#ref-Chakravorty2018" role="doc-biblioref">2018</a>)</span>. <a href="#exr-info-state-delayed" class="quarto-xref">Exercise&nbsp;<span>24.3</span></a> is due to <span class="citation" data-cites="Altman1992">Altman and Nain (<a href="../references.html#ref-Altman1992" role="doc-biblioref">1992</a>)</span>. <a href="#exr-info-state-delayed-observation" class="quarto-xref">Exercise&nbsp;<span>24.4</span></a> is due to <span class="citation" data-cites="Bander1999">Bander and White (<a href="../references.html#ref-Bander1999" role="doc-biblioref">1999</a>)</span>. <a href="#exr-info-state-machine-repair" class="quarto-xref">Exercise&nbsp;<span>24.6</span></a> is an instance of incrementally expanding representations for POMDPs presented in <span class="citation" data-cites="Arabneydi2015">Arabneydi and Mahajan (<a href="../references.html#ref-Arabneydi2015" role="doc-biblioref">2015</a>)</span>.</p>
