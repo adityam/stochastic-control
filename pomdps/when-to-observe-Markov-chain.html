@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2024-07-22">
+<meta name="dcterms.date" content="2026-04-12">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
-<title>37&nbsp; The learning setup – Stochastic Control and Decision Theory</title>
+<title>26&nbsp; When to observe a Markov chain – Stochastic Control and Decision Theory</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -55,8 +55,8 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../rl/Q-learning.html" rel="next">
-<link href="../stochastic-approximation/SA-rates.html" rel="prev">
+<link href="../approx-mdps/approx-DP.html" rel="next">
+<link href="../pomdps/sequential-hypothesis.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -391,7 +391,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../rl/intro.html">RL</a></li><li class="breadcrumb-item"><a href="../rl/intro.html"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">The learning setup</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../pomdps/intro.html">POMDPs</a></li><li class="breadcrumb-item"><a href="../pomdps/when-to-observe-Markov-chain.html"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">When to observe a Markov chain</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -592,7 +592,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../pomdps/when-to-observe-Markov-chain.html" class="sidebar-item-text sidebar-link">
+  <a href="../pomdps/when-to-observe-Markov-chain.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">When to observe a Markov chain</span></span></a>
   </div>
 </li>
@@ -713,7 +713,7 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../rl/intro.html" class="sidebar-item-text sidebar-link active">
+  <a href="../rl/intro.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">The learning setup</span></span></a>
   </div>
 </li>
@@ -975,21 +975,23 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#the-learning-objective" id="toc-the-learning-objective" class="nav-link active" data-scroll-target="#the-learning-objective"><span class="header-section-number">37.1</span> The learning objective</a></li>
-  <li><a href="#the-different-learning-settings" id="toc-the-different-learning-settings" class="nav-link" data-scroll-target="#the-different-learning-settings"><span class="header-section-number">37.2</span> The different learning settings</a></li>
-  <li><a href="#high-level-overview-of-the-learning-algorithms" id="toc-high-level-overview-of-the-learning-algorithms" class="nav-link" data-scroll-target="#high-level-overview-of-the-learning-algorithms"><span class="header-section-number">37.3</span> High-level overview of the learning algorithms</a></li>
-  <li><a href="#beyond-asymptotic-optimality" id="toc-beyond-asymptotic-optimality" class="nav-link" data-scroll-target="#beyond-asymptotic-optimality"><span class="header-section-number">37.4</span> Beyond asymptotic optimality</a></li>
+  <li><a href="#history-based-dynamic-programming" id="toc-history-based-dynamic-programming" class="nav-link active" data-scroll-target="#history-based-dynamic-programming"><span class="header-section-number">26.1</span> History based dynamic programming</a></li>
+  <li><a href="#belief-based-dynamic-programming" id="toc-belief-based-dynamic-programming" class="nav-link" data-scroll-target="#belief-based-dynamic-programming"><span class="header-section-number">26.2</span> Belief based dynamic programming</a>
+  <ul class="collapse">
+  <li><a href="#structure-of-optimal-observation-policy." id="toc-structure-of-optimal-observation-policy." class="nav-link" data-scroll-target="#structure-of-optimal-observation-policy."><span class="header-section-number">26.2.1</span> Structure of optimal observation policy.</a></li>
+  </ul></li>
+  <li><a href="#countable-information-state-based-dynamic-program" id="toc-countable-information-state-based-dynamic-program" class="nav-link" data-scroll-target="#countable-information-state-based-dynamic-program"><span class="header-section-number">26.3</span> Countable information state based dynamic program</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/rl/intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/pomdps/when-to-observe-Markov-chain.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../rl/intro.html">RL</a></li><li class="breadcrumb-item"><a href="../rl/intro.html"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">The learning setup</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../pomdps/intro.html">POMDPs</a></li><li class="breadcrumb-item"><a href="../pomdps/when-to-observe-Markov-chain.html"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">When to observe a Markov chain</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">The learning setup</span></h1>
+<h1 class="title"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">When to observe a Markov chain</span></h1>
 </div>
 
 
@@ -1015,7 +1017,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 22, 2024</p>
+      <p class="date">April 12, 2026</p>
     </div>
   </div>
   
@@ -1027,98 +1029,101 @@ window.Quarto = {
 </header>
 
 
-<div class="callout callout-style-simple callout-note no-icon callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span><i class="bi bi-journal-text text-primary"></i> Notes about modeling assumptions
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>In the planning setting we assumed that the decision maker is interested in minimizing cost. To be consistent with the reinforcement learning literature, in this and subsequent sections, we assume that the decision maker is interested in maximizing rewards. Mathematically, maximizing rewards is the dual of minimizing costs, so going from cost to rewards makes no difference. Though, philosophically, there is a difference. See <span class="citation" data-cites="Lu2023">Lu et al. (<a href="../references.html#ref-Lu2023" role="doc-biblioref">2023</a>)</span> for a discussion.</p>
-<p>In the planning setting we showed that there is no difference between the per-step cost just being a function of the current state and action versus <a href="../mdps/intro.html#sec-cost-depending-on-next-state">the per-step cost that depends on the next state as well</a>. However, for the learning setting, the two setups are different. So, in the learning setting we will assume that the per-step reward depends on the next state as well, i.e., is of the form <span class="math inline">\(r(s_t,a_t,s_{t+1})\)</span>.</p>
-</div>
-</div>
-<p>So far, we have assumed that the decision maker knows the system model. We now consider the case when the system model is not known but one of the following is true:</p>
+<p>Conisder a time-homogeneous finite-state Markov chain <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span>, <span class="math inline">\(S_t \in \ALPHABET S\)</span>, with transition matrix <span class="math inline">\(P\)</span>. A remotely located estimator wants to track the Markov process but observations are costly. In particular, at each time, the estimator takes two decisions:</p>
 <ul>
-<li>the decision maker acts in the environments, i.e., observes the state and the per-step reward and chooses the action.</li>
-<li>the decision maker has access to a system simulator, can provide state-action input to the simulator and observe the next state and the realized reward.</li>
-<li>the decision maker has access to an offline dataset of interactions with the environment (i.e., tuples of (current state, current action, current reward, next state)); the data might have been generated by a sub-optimal policy.</li>
+<li><p>First, it decides whether or not to observe the current state. It it decides to take an observation (denoted by <span class="math inline">\(A_t = 1\)</span>), it incurs a cost <span class="math inline">\(λ\)</span> and observes the current state, i.e., its observation <span class="math inline">\(Y_t = S_t\)</span>; if it decides not to take an observation (denoted by <span class="math inline">\(A_t = 0\)</span>), it incurs no cost but its observation is blank, which is denoted by <span class="math inline">\(Y_t = \BLANK\)</span>.</p></li>
+<li><p>Then, it generates an estimate <span class="math inline">\(\hat S_t \in \ALPHABET S\)</span> of the current state and incurs an estimation error <span class="math inline">\(d(S_t, \hat S_t)\)</span>, where <span class="math inline">\(d \colon \ALPHABET S × \ALPHABET  S \to \reals\)</span> is a distortion function.</p></li>
 </ul>
-<p>To fix ideas, we start with the <a href="../mdps/inf-horizon.html">infinite horizon discounted reward setting</a>. The same fundamental concerns are present in the finite horizon and infinite horizon average cost setting as well.</p>
-<p>Thus, we have the same model as before. There is a controlled Markov process <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span>, <span class="math inline">\(S_t \in \ALPHABET S\)</span>, controlled by the process <span class="math inline">\(\{A_t\}_{t \ge 1}\)</span>, <span class="math inline">\(A_t \in \ALPHABET A\)</span>. The system dynamics are time-homogeneous and are given by the transition matrices <span class="math inline">\(P(a)\)</span>, <span class="math inline">\(a \in \ALPHABET A\)</span>. At each step, the system yields a reward <span class="math inline">\(R_t = r(S_t, A_t, S_{t+1})\)</span>. <strong>The dynamics <span class="math inline">\(P\)</span> and the reward <span class="math inline">\(r\)</span> are not known to the decision maker.</strong></p>
-<p>Let <span class="math inline">\(θ^∘\)</span> denote the unknown parameters of <span class="math inline">\(P\)</span> and <span class="math inline">\(r\)</span>. For simplicity, we assume that <span class="math inline">\(θ^∘ \in Θ\)</span>, where <span class="math inline">\(Θ\)</span> is a compact set. We will assume that the decision maker knows the set <span class="math inline">\(Θ\)</span> but not the parameter <span class="math inline">\(θ^∘\)</span>.</p>
-<p>The objective is to identify a <strong>control policy</strong> <span class="math inline">\(π = (π_1, π_2, \dots)\)</span>, where as before we start with the assumption that the policy is history dependent and the control action at time&nbsp;<span class="math inline">\(t\)</span> is given by <span class="math display">\[ A_t = \pi_t(S_{1:t}, A_{1:t-1}).\]</span></p>
-<p>The performance of a policy is still given the expected discounted reward under that policy, which of course depends on the model parameters. So, we the performance of policy <span class="math inline">\(π\)</span> under model <span class="math inline">\(θ\)</span> by <span class="math display">\[ J(π,θ) = \EXP^{\pi}_{θ} \biggl[ \sum_{t=1}^{∞} γ^{t-1} R_t \biggr] \]</span> where the notation <span class="math inline">\(\EXP^{π}_{θ}\)</span> denotes the fact that the expectation depends on the policy <span class="math inline">\(π\)</span> and model parameters <span class="math inline">\(θ\)</span>.</p>
-<section id="the-learning-objective" class="level2" data-number="37.1">
-<h2 data-number="37.1" class="anchored" data-anchor-id="the-learning-objective"><span class="header-section-number">37.1</span> The learning objective</h2>
-<p>Modulo the difference between cost minimization and reward maximization, the setup above is the same as the models that we have considered before with one difference: earlier it was assumed that the decision maker knows the system model <span class="math inline">\((P,r)\)</span> while in the current setup it does not.</p>
-<p>The objective is also the same as before: choose a policy to maximize the expected discounted reward. There are different ways formalize this objective. One possibility is to seek a policy <span class="math inline">\(π^\star\)</span> that has the property that for all other history dependent policies <span class="math inline">\(π\)</span> and all model parameters <span class="math inline">\(θ\)</span>, we have: <span class="math display">\[
-  J(π^\star, θ) \ge J(π,θ).
-\]</span> This is equivalent to a min-max problem: <span class="math display">\[\begin{equation}\label{eq:min-max}
-  \tag{min-max-opt}
-  \max_{π} \min_{θ \in Θ} J(π,θ),
-\end{equation}\]</span> where the max is over all history dependent policies. This approach is akin to a frequentist approach in inference. It is also possible to set up the problem in a Bayesian manner. In particular, suppose there is a prior <span class="math inline">\(μ\)</span> on the set <span class="math inline">\(Θ\)</span>. Then the Bayesian approach is to solve the following: <span class="math display">\[\begin{equation}\label{eq:Bayes}
-  \tag{Bayes-opt}
-  \max_{π} \int_{Θ} J(π,θ) μ(d θ).
-\end{equation}\]</span></p>
-<p>Both <span class="math inline">\(\eqref{eq:min-max}\)</span> and <span class="math inline">\(\eqref{eq:Bayes}\)</span> are difficult problems. Note that unlike the planning setting where we showed that there is no loss of optimality in restricting attention to Markov policies (<a href="../mdps/intro.html#thm-MDP-markov" class="quarto-xref">Theorem&nbsp;<span>5.1</span></a>), we have to use history dependent policies in the learning setting.</p>
-<p>We will start with a simpler optimization problem. Let <span class="math inline">\(\pi^\star_{θ}\)</span> denote the optimal time-homogeneous policy for the system with model parameters <span class="math inline">\(θ\)</span>, <span class="math inline">\(θ \in Θ\)</span>. We say that a learning policy is asymptotically optimal if <span class="math display">\[\begin{equation}
-  \tag{asym-opt}\label{eq:asym}
-  \lim_{t \to ∞} π_t(s_{1:t},a_{1:t-1}) = π^\star_{θ}(s_t),
-  \quad P_{θ} \hbox{ a.s.}
-  \quad \forall θ \in Θ.
-\end{equation}\]</span></p>
+<p>Thus, the per-step cost is given by <span class="math display">\[
+  c(s, a, \hat s) = λ a + d(s, \hat s).
+\]</span></p>
+<p>A timing diagram showing the sequence of system variables is shown below.</p>
+<!-- TODO: Add diagram -->
+<p>For the ease of notation, we divide time into two intervals and use <span class="math inline">\(t|t-1\)</span> to denote the instance at which the estimator chooses <span class="math inline">\(A_t\)</span> and <span class="math inline">\(t|t\)</span> denotes the instance at which the estimator chooses <span class="math inline">\(\hat S_t\)</span>. The history of data available to denote these decisions is denoted by <span class="math inline">\(H_{t|t-1}\)</span> and <span class="math inline">\(H_{t|t}\)</span>. Thus, <span class="math display">\[\begin{align*}
+  H_{t|t-1} &amp;= \{ Y_{1:t-1}, A_{1:t-1}, \hat S_{1:t-1} \} \\
+  H_{t|t} &amp;= \{ Y_{1:t}, A_{1:t}, \hat S_{1:t-1} \}
+\end{align*}\]</span></p>
+<p>Let <span class="math inline">\(π_{t|t-1}\)</span> and <span class="math inline">\(π_{t|t}\)</span> denote the policies used to determine <span class="math inline">\(A_t\)</span> and <span class="math inline">\(\hat S_t\)</span>, i.e., <span class="math display">\[\begin{align*}
+  A_t &amp;= π_{t|t-1}(H_{t|t-1}) \\
+  \hat S_t &amp;= π_{t|t}(H_{t|t})
+\end{align*}\]</span></p>
+<section id="history-based-dynamic-programming" class="level2" data-number="26.1">
+<h2 data-number="26.1" class="anchored" data-anchor-id="history-based-dynamic-programming"><span class="header-section-number">26.1</span> History based dynamic programming</h2>
+<p>We start by presenting a history based dynamic program for the problem. Intialize <span class="math display">\[ V_{T+1|T}(h_{T+1|T}) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, recursively compute <span class="math display">\[\begin{align*}
+  V_{t|t}(h_{t|t}) &amp;=
+  \min_{\hat s_t \in \ALPHABET S} \Bigl\{ d(S_t, \hat s_t)
+  + V_{t+1|t}(h_{t|t} ⋅ \hat s_t) \Bigr\}
+  \\
+  &amp;= \min_{\hat s_t \in \ALPHABET S} \Bigl\{ d(S_t, \hat s_t) \Bigr\}
+  + V_{t+1|t}(h_{t|t} ⋅ \hat s_t)
+  \\
+  V_{t|t-1}(h_{t|t-1}) &amp;=
+  \min\Bigl\{ V_{t|t}(h_{t|t-1} ⋅ (0, \BLANK)),
+          \EXP\bigl[ V_{t|t}(h_{t|t-1} ⋅ (1, S_t)) \mid h_{t|t-1}, a_t = 1 \bigr] \Bigr\}
+\end{align*}\]</span></p>
 </section>
-<section id="the-different-learning-settings" class="level2" data-number="37.2">
-<h2 data-number="37.2" class="anchored" data-anchor-id="the-different-learning-settings"><span class="header-section-number">37.2</span> The different learning settings</h2>
-<p>The choice of an algorithm to find a <em>good</em> policy depends on what information is available to the learning agent. The aspirational setting is that of <strong>online learning</strong>: an agent which is operating in the environment and generates an experience <span class="math inline">\((S_1,A_1,R_1,S_2,A_2,R_2,\dots)\)</span> and uses that experience to learn an optimal policy (either in the sense of <span class="math inline">\(\eqref{eq:asym}\)</span> or <span class="math inline">\(\eqref{eq:min-max}\)</span> or <span class="math inline">\(\eqref{eq:Bayes}\)</span>). There are two settings of online learning: <strong>on policy learning</strong>, where the agent adapts its policy over time and <strong>off policy learning</strong>, where the agent acts according to a behavioral policy but learns an optimal policy based on the gathered experience.</p>
-<p>A simpler setting is that of <strong>offline learning</strong>: where the agent has access to a system simulator and, at any time, can input a state action pair <span class="math inline">\((s,a)\)</span> to the simulator and receives <span class="math inline">\(S_{+} \sim P(\cdot | s,a)\)</span> and <span class="math inline">\(R \sim r(S,A,S_{+})\)</span> as outputs. A specific but harder case of offline learning is <strong>learning from a dataset</strong> which is generated by a specific (and not necessarily optimal) behavioral policy.</p>
+<section id="belief-based-dynamic-programming" class="level2" data-number="26.2">
+<h2 data-number="26.2" class="anchored" data-anchor-id="belief-based-dynamic-programming"><span class="header-section-number">26.2</span> Belief based dynamic programming</h2>
+<p>We now present a belief based dynamic programming decomposition. For that matter, define <span class="math display">\[\begin{align*}
+  b_{t|t-1}(s) &amp;= \PR(S_t = s \mid h_{t|t-1}) \\
+  b_{t|t}(s)   &amp;= \PR(S_t = s \mid h_{t|t})
+\end{align*}\]</span></p>
+<p>The evolution of the beliefs are given as follow <span class="math display">\[
+  b_{t|t}(s) = \begin{cases}
+    b_{t|t-1}(s), &amp;  a_t = 0 \\
+    δ_{y_t}(s),   &amp;  a_t = 1
+  \end{cases}
+\]</span> and <span class="math display">\[
+  b_{t+1|t}(s) = \sum_{s_t \in \ALPHABET S} b_{t|t}(s_t) P(s|s_t).
+\]</span> Thus, <span class="math display">\[
+  b_{t+1|t} = b_{t|t} P.
+\]</span></p>
+<p>Hence, we can write the belief based dynamic program as follows. Initialize <span class="math display">\[  
+  V_{T+1|T}(b_{T+1|T}) = 0
+\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, recursively compute <span class="math display">\[\begin{align*}
+  V_{t|t}(b_{t|t}) &amp;= \underbrace{
+  \min_{\hat s \in \ALPHABET S} \sum_{s_t \in \ALPHABET S} b_{t|t}(s) d(s, \hat s)
+  }_{\eqqcolon D(b_{t|t})}
+  + V_{t+1|t}(b_{t|t} P) \\
+  V_{t|t-1}(b_{t|t-1}) &amp;= \min \Bigl\{
+    V_{t|t}(b_{t|t-1}),
+    λ + \sum_{s \in \ALPHABET S} b_{t|t-1}(s) V_{t|t}(δ_{s})
+  \Bigr\}
+\end{align*}\]</span></p>
+<p>Note that the optimal estimation policy is an open loop policy obtained by solving the optimization problem corresponding to <span class="math inline">\(D(b_{t|t})\)</span>. We now characterize the sturcture of the optimal observation policy.</p>
+<section id="structure-of-optimal-observation-policy." class="level3" data-number="26.2.1">
+<h3 data-number="26.2.1" class="anchored" data-anchor-id="structure-of-optimal-observation-policy."><span class="header-section-number">26.2.1</span> Structure of optimal observation policy.</h3>
+<p>Similar to <a href="intro.html#thm-belief-PWLC" class="quarto-xref">Theorem&nbsp;<span>24.4</span></a>, we can show that the value function <span class="math inline">\(V_{t|t}\)</span> and <span class="math inline">\(V_{t|t-1}\)</span> are piecewise linear and concave. Thus, <span class="math display">\[
+  Q_{t|t-1}(b_{t|t-1}, 0) = V_{t|t}(b_{t|t-1})
+\]</span> is a concave function of <span class="math inline">\(b_{t|t}\)</span> while <span class="math display">\[
+  Q_{t|t-1}(b_{t|t-1},1) =
+    λ + \sum_{s \in \ALPHABET S} b_{t|t-1}(s) V_{t|t}(δ_{s})
+\]</span> is an affine function of <span class="math inline">\(b_{t|t-1}\)</span>. Thus, by an argument similar to one used in <a href="sequential-hypothesis.html#thm-hypothesis-convex" class="quarto-xref">Theorem&nbsp;<span>25.1</span></a>, we get that the set <span class="math inline">\(\{ s \in \ALPHABET S : π_{t|t-1}(s) = 1 \}\)</span> is a convex set.</p>
 </section>
-<section id="high-level-overview-of-the-learning-algorithms" class="level2" data-number="37.3">
-<h2 data-number="37.3" class="anchored" data-anchor-id="high-level-overview-of-the-learning-algorithms"><span class="header-section-number">37.3</span> High-level overview of the learning algorithms</h2>
-<p>Loosely speaking, there are two approaches to find an asymptotically optimal policy. The simplest idea is <strong>model based learning</strong>: use the experience to generate estimates <span class="math inline">\(\hat θ_t\)</span> of the model parameters, and then choose a policy related to the optimal policy of the estimated parameter. These algorithms differ in how they <strong>trade-off exploration and exploitation</strong> are are broadly classified as follows:</p>
-<ol type="1">
-<li><p><strong>Certainty equivalence or plug-in estimator</strong>. In these methods, one generates an estimate <span class="math inline">\(\hat θ_t\)</span> (e.g., least squares estimator or maximum likelihood estimator) and then chooses the control action as a <em>noisy version</em> of <span class="math inline">\(π^\star_{\hat θ_t}(s_t)\)</span>. For continuous state models such as <a href="../linear-systems/lqr.html">LQR</a>, the noisy version is usually just addive noise, thus the control is <span class="math display">\[ a_t = π^\star_{\hat θ_t}(s_t) + ε_t \]</span> where <span class="math inline">\(ε_t \sim {\cal N}(0,σ_t^2I)\)</span> and the variance <span class="math inline">\(σ_t^2\)</span> is slowly reduced in a controlled manner. For discrete state models, the noisy version of control is often chosen as an <span class="math inline">\(ε\)</span>-greedy policy, i.e., <span class="math display">\[ a_t = \begin{cases}
-   π^\star_{\hat θ_t}(s_t), &amp; \hbox{w.p. } 1 - ε_t \\
-   \hbox{random action}, &amp; \hbox{w.p. } ε_t
-\end{cases}
-\]</span> where the <em>exploration rate</em> <span class="math inline">\(ε_t\)</span> is slowly reduced in a controlled manner.</p></li>
-<li><p><strong>Upper confidence based reinfocement learning (UCRL)</strong> In these methods, one generates an upper confidence bound based estimator <span class="math inline">\(\bar θ_t\)</span> and then chooses a control action <span class="math display">\[ a_t = π^\star_{\bar θ_t}(s_t). \]</span></p></li>
-<li><p><strong>Thompson/Posterior sampling (PSRL)</strong> This is a Bayesian method where one maintains a posterior distribution <span class="math inline">\(μ_t\)</span> on the unknown parameters <span class="math inline">\(θ\)</span> of the system model. At appropriately chosen times, one samples a model <span class="math inline">\(θ_t\)</span> from the posterior <span class="math inline">\(μ_t\)</span> and chooses the control action <span class="math display">\[ a_t = π^\star_{θ_t}(s_t). \]</span></p></li>
-</ol>
-<p>Another class of algorithms are <strong>model-free</strong> algorithms, which mimic <a href="../mdps/mdp-algorithms.html">the algorithms to solve MDPs</a>. These are broadly classified as</p>
-<ol type="1">
-<li><p><strong>Value-based algorithms</strong> which may be viewed as sampling based version of <a href="../mdps/mdp-algorithms.html#value-iteration-algorithm">value iteration</a>. Examples include Q-learning and its variations.</p></li>
-<li><p><strong>Policy-based algorithms</strong> which may be viewed as sampling based versions of <a href="../mdps/mdp-algorithms.html#policy-iteration-algorithm">policy iteration</a>. Examples include actor-critic algorithms based on policy gradients.</p></li>
-<li><p><strong>Linear-programming based algorithms</strong> which may be viewed as sampling based versions of <a href="../mdps/linear-programming.html">linear programming approach</a> to solve MDPs.</p></li>
-</ol>
 </section>
-<section id="beyond-asymptotic-optimality" class="level2" data-number="37.4">
-<h2 data-number="37.4" class="anchored" data-anchor-id="beyond-asymptotic-optimality"><span class="header-section-number">37.4</span> Beyond asymptotic optimality</h2>
-<p>Not all asymptotically optimal learning algorithms are equal. Second order optimality considerations include <strong>sample complexity</strong> and <strong>regret</strong>.</p>
-<ol type="1">
-<li><p><strong>Sample complexity</strong>: Given an accuracy-level <span class="math inline">\(α\)</span> and a probability <span class="math inline">\(p\)</span>, how many samples <span class="math inline">\(T = T(α,p)\)</span> are needed such that with probability at least <span class="math inline">\(1-p\)</span> we have <span class="math display">\[ \NORM{V^\star - V^{\pi_T}} \le α? \]</span> The scaling of <span class="math inline">\(T\)</span> with <span class="math inline">\(α\)</span> and <span class="math inline">\(p\)</span> is known as the sample complexity.</p></li>
-<li><p><strong>Regret</strong>: Given a horion <span class="math inline">\(T\)</span>, what is the difference between sample path performance of the learning algorithm until time <span class="math inline">\(T\)</span> compared to the performance of the optimal policy until time <span class="math inline">\(T\)</span>.</p></li>
-</ol>
-<p>The general approach for characterizing sample complexity and regret proceeds as follows. We establish <strong>lower bounds</strong> which construct models such that no algorithm can learn such models without using a certain number of samples or incuring a certain regret. Then, one tries to <strong>upper bound</strong> the sample complexity or regret of a specific algorithm. If the lower and the upper bounds match (up to logarithmic factors), we say that the algorithm under consideration is <strong>order optimal</strong>.</p>
+<section id="countable-information-state-based-dynamic-program" class="level2" data-number="26.3">
+<h2 data-number="26.3" class="anchored" data-anchor-id="countable-information-state-based-dynamic-program"><span class="header-section-number">26.3</span> Countable information state based dynamic program</h2>
+<p>Suppose that when the system starts, the remote estimator knows the state of the Markov chain, i.e., <span class="math inline">\(π_{1|0} = δ_{s_1}\)</span>. Then, any belief <span class="math inline">\(b_{t|t-1}\)</span> can be written as <span class="math inline">\(δ_{z_t} P^{τ_t}\)</span> where <span class="math inline">\(τ_t\)</span> is the time since the last observation and <span class="math inline">\(z_t\)</span> is the state observed at the last observation. Hence, the reachable set of the belief states <span class="math inline">\(b_{t|t-1}\)</span> and <span class="math inline">\(b_{t|t}\)</span> is given by <span class="math display">\[
+  \ALPHABET R = \{ δ_z P^τ : z \in \ALPHABET S, τ \in \naturalnumbers \}.
+\]</span> which is isomorphic to <span class="math inline">\(\ALPHABET S \times \naturalnumbers\)</span>. Hence, <span class="math inline">\((z_t, τ_t)\)</span> may be viewed as an information state for the problem.</p>
+<p>The information state based dynamic program can be written as follow. Initialize <span class="math display">\[
+  V_{T+1|T}(z_{T+1}, τ_{T+1}) = 0
+\]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, recursively compute <span class="math display">\[\begin{align*}
+  V_{t|t}(z, τ) &amp;= D(δ_{z} P^τ) + V_{t+1|t}(z, τ+1) \\
+  V_{t|t-1}(z, τ) &amp;= \min\Bigl\{ V_{t|t}(z, τ),
+    λ + \sum_{s \in \ALPHABET S} [P^t]_{zs} V_{t|t}(s,0)
+  \Bigr\}
+\end{align*}\]</span></p>
+<p>In contrast to the belief state based dynamic program, the above dynamic program has a countable state space. Thus, it can be solved effiiently using state truncation.</p>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
-<p>A good resource for getting started in reinforcement learning is <span class="citation" data-cites="SuttonBarto2018">Sutton and Barto (<a href="../references.html#ref-SuttonBarto2018" role="doc-biblioref">2018</a>)</span>. For a more formal treatment, see <span class="citation" data-cites="BertsekasTsitsiklis1996">Bertsekas and Tsitsiklis (<a href="../references.html#ref-BertsekasTsitsiklis1996" role="doc-biblioref">1996</a>)</span>.</p>
+<p>The model and results of this section are adapted from <span class="citation" data-cites="Shuman2010">Shuman et al. (<a href="../references.html#ref-Shuman2010" role="doc-biblioref">2010</a>)</span>.</p>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
-<div id="ref-BertsekasTsitsiklis1996" class="csl-entry" role="listitem">
-<span class="smallcaps">Bertsekas, D.P. and Tsitsiklis, J.N.</span> 1996. <em>Neuro-dynamic programming</em>. Athena Scientific.
-</div>
-<div id="ref-Lu2023" class="csl-entry" role="listitem">
-<span class="smallcaps">Lu, X., Roy, B.V., Dwaracherla, V., Ibrahimi, M., Osband, I., and Wen, Z.</span> 2023. Reinforcement learning, bit by bit. <em>Foundations and Trends<span>®</span> in Machine Learning</em> <em>16</em>, 6, 733–865. DOI: <a href="https://doi.org/10.1561/2200000097">10.1561/2200000097</a>.
-</div>
-<div id="ref-SuttonBarto2018" class="csl-entry" role="listitem">
-<span class="smallcaps">Sutton, R.S. and Barto, A.G.</span> 2018. <em>Reinforcement learning: An introduction</em>. MIT Press.
+<div id="ref-Shuman2010" class="csl-entry" role="listitem">
+<span class="smallcaps">Shuman, D.I., Nayyar, A., Mahajan, A., et al.</span> 2010. Measurement scheduling for soil moisture sensing: From physical models to optimal control. <em>Proceedings of the IEEE</em> <em>98</em>, 11, 1918–1933. DOI: <a href="https://doi.org/10.1109/jproc.2010.2052532">10.1109/jproc.2010.2052532</a>.
 </div>
 </div>
 </section>
@@ -1539,13 +1544,13 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../stochastic-approximation/SA-rates.html" class="pagination-link" aria-label="Rate of convergence for stochastic approximation">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Rate of convergence for stochastic approximation</span></span>
+      <a href="../pomdps/sequential-hypothesis.html" class="pagination-link" aria-label="Sequential hypothesis testing">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Sequential hypothesis testing</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../rl/Q-learning.html" class="pagination-link" aria-label="Q-Learning">
-        <span class="nav-page-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Q-Learning</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../approx-mdps/approx-DP.html" class="pagination-link" aria-label="Approximate dynamic programming">
+        <span class="nav-page-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Approximate dynamic programming</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1554,5 +1559,5 @@ window.Quarto = {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/rl/intro.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/adityam/stochastic-control/edit/quarto/pomdps/when-to-observe-Markov-chain.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer><script src="../site_libs/quarto-html/zenscroll-min.js"></script>
 </body></html>
