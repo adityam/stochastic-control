@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Aditya Mahajan">
-<meta name="dcterms.date" content="2026-04-12">
+<meta name="dcterms.date" content="2026-04-13">
 <meta name="description" content="Course Notes for ECSE 506 (McGill University)">
 
 <title>26&nbsp; When to observe a Markov chain – Stochastic Control and Decision Theory</title>
@@ -978,7 +978,7 @@ window.Quarto = {
   <li><a href="#history-based-dynamic-programming" id="toc-history-based-dynamic-programming" class="nav-link active" data-scroll-target="#history-based-dynamic-programming"><span class="header-section-number">26.1</span> History based dynamic programming</a></li>
   <li><a href="#belief-based-dynamic-programming" id="toc-belief-based-dynamic-programming" class="nav-link" data-scroll-target="#belief-based-dynamic-programming"><span class="header-section-number">26.2</span> Belief based dynamic programming</a>
   <ul class="collapse">
-  <li><a href="#structure-of-optimal-observation-policy." id="toc-structure-of-optimal-observation-policy." class="nav-link" data-scroll-target="#structure-of-optimal-observation-policy."><span class="header-section-number">26.2.1</span> Structure of optimal observation policy.</a></li>
+  <li><a href="#structure-of-optimal-observation-policy" id="toc-structure-of-optimal-observation-policy" class="nav-link" data-scroll-target="#structure-of-optimal-observation-policy"><span class="header-section-number">26.2.1</span> Structure of optimal observation policy</a></li>
   </ul></li>
   <li><a href="#countable-information-state-based-dynamic-program" id="toc-countable-information-state-based-dynamic-program" class="nav-link" data-scroll-target="#countable-information-state-based-dynamic-program"><span class="header-section-number">26.3</span> Countable information state based dynamic program</a></li>
   <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
@@ -1017,7 +1017,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 12, 2026</p>
+      <p class="date">April 13, 2026</p>
     </div>
   </div>
   
@@ -1029,27 +1029,40 @@ window.Quarto = {
 </header>
 
 
-<p>Conisder a time-homogeneous finite-state Markov chain <span class="math inline">\(\{S_t\}_{t \ge 1}\)</span>, <span class="math inline">\(S_t \in \ALPHABET S\)</span>, with transition matrix <span class="math inline">\(P\)</span>. A remotely located estimator wants to track the Markov process but observations are costly. In particular, at each time, the estimator takes two decisions:</p>
+<p>Consider a time-homogeneous finite-state Markov chain <span class="math inline">\((S_t)_{t \ge 1}\)</span>, <span class="math inline">\(S_t \in \ALPHABET S\)</span>, with transition matrix <span class="math inline">\(P\)</span>. A remotely located estimator wants to track the Markov process but observations are costly. In particular, at each <span class="math inline">\(t\)</span>, the estimator takes two decisions:</p>
 <ul>
-<li><p>First, it decides whether or not to observe the current state. It it decides to take an observation (denoted by <span class="math inline">\(A_t = 1\)</span>), it incurs a cost <span class="math inline">\(λ\)</span> and observes the current state, i.e., its observation <span class="math inline">\(Y_t = S_t\)</span>; if it decides not to take an observation (denoted by <span class="math inline">\(A_t = 0\)</span>), it incurs no cost but its observation is blank, which is denoted by <span class="math inline">\(Y_t = \BLANK\)</span>.</p></li>
+<li><p>First, it decides whether or not to observe the current state. If it decides to take an observation (denoted by <span class="math inline">\(A_t = 1\)</span>), it incurs a cost <span class="math inline">\(λ\)</span> and observes the current state, i.e., its observation <span class="math inline">\(Y_t = S_t\)</span>; if it decides not to take an observation (denoted by <span class="math inline">\(A_t = 0\)</span>), it incurs no cost but its observation is blank, which is denoted by <span class="math inline">\(Y_t = \BLANK\)</span>.</p></li>
 <li><p>Then, it generates an estimate <span class="math inline">\(\hat S_t \in \ALPHABET S\)</span> of the current state and incurs an estimation error <span class="math inline">\(d(S_t, \hat S_t)\)</span>, where <span class="math inline">\(d \colon \ALPHABET S × \ALPHABET  S \to \reals\)</span> is a distortion function.</p></li>
 </ul>
 <p>Thus, the per-step cost is given by <span class="math display">\[
   c(s, a, \hat s) = λ a + d(s, \hat s).
 \]</span></p>
-<p>A timing diagram showing the sequence of system variables is shown below.</p>
-<!-- TODO: Add diagram -->
-<p>For the ease of notation, we divide time into two intervals and use <span class="math inline">\(t|t-1\)</span> to denote the instance at which the estimator chooses <span class="math inline">\(A_t\)</span> and <span class="math inline">\(t|t\)</span> denotes the instance at which the estimator chooses <span class="math inline">\(\hat S_t\)</span>. The history of data available to denote these decisions is denoted by <span class="math inline">\(H_{t|t-1}\)</span> and <span class="math inline">\(H_{t|t}\)</span>. Thus, <span class="math display">\[\begin{align*}
+<p>A timing diagram showing the sequence of system variables is shown in <a href="#fig-when-to-observe-timing" class="quarto-xref">Figure&nbsp;<span>26.1</span></a>.</p>
+<div id="fig-when-to-observe-timing" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-when-to-observe-timing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figures/svg/when-to-observe-timing1.svg" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-when-to-observe-timing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;26.1: Timing diagram for period <span class="math inline">\(t\)</span>: state <span class="math inline">\(S_t\)</span>, observation action <span class="math inline">\(A_t\)</span>, observation <span class="math inline">\(Y_t\)</span>, estimate <span class="math inline">\(\hat S_t\)</span>, Markov transition <span class="math inline">\(P\)</span> to <span class="math inline">\(S_{t+1}\)</span>, and decision stages <span class="math inline">\(t \mid t{-}1\)</span> and <span class="math inline">\(t \mid t\)</span>.
+</figcaption>
+</figure>
+</div>
+<p>At time <span class="math inline">\(t\)</span>, the underlying state is <span class="math inline">\(S_t\)</span>. The estimator first chooses the observation action <span class="math inline">\(A_t\)</span> (stage <span class="math inline">\(t|t-1\)</span>), then chooses the estimate <span class="math inline">\(\hat S_t\)</span> (stage <span class="math inline">\(t|t\)</span>); the observation <span class="math inline">\(Y_t\)</span> is generated according to the rule above. Neither decision affects the transition of the chain: after stage <span class="math inline">\(t|t\)</span>, the state evolves to <span class="math inline">\(S_{t+1}\)</span> according to <span class="math inline">\(P\)</span>, independently of <span class="math inline">\((A_t,\hat S_t)\)</span>.</p>
+<p>The history of data available when making these decisions is denoted by <span class="math inline">\(H_{t|t-1}\)</span> and <span class="math inline">\(H_{t|t}\)</span>. Thus, <span class="math display">\[\begin{align*}
   H_{t|t-1} &amp;= \{ Y_{1:t-1}, A_{1:t-1}, \hat S_{1:t-1} \} \\
   H_{t|t} &amp;= \{ Y_{1:t}, A_{1:t}, \hat S_{1:t-1} \}
 \end{align*}\]</span></p>
-<p>Let <span class="math inline">\(π_{t|t-1}\)</span> and <span class="math inline">\(π_{t|t}\)</span> denote the policies used to determine <span class="math inline">\(A_t\)</span> and <span class="math inline">\(\hat S_t\)</span>, i.e., <span class="math display">\[\begin{align*}
+<p>Let <span class="math inline">\(π_{t|t-1}\)</span> and <span class="math inline">\(π_{t|t}\)</span> denote the observation and estimation policies used to determine <span class="math inline">\(A_t\)</span> and <span class="math inline">\(\hat S_t\)</span>, i.e., <span class="math display">\[\begin{align*}
   A_t &amp;= π_{t|t-1}(H_{t|t-1}) \\
   \hat S_t &amp;= π_{t|t}(H_{t|t})
 \end{align*}\]</span></p>
+<p>The goal is to minimize the expected total cost <span class="math display">\[
+  \EXP\Bigl[ \sum_{t=1}^T c(S_t, A_t, \hat S_t) \Bigr]
+\]</span> over observation and estimation policies.</p>
 <section id="history-based-dynamic-programming" class="level2" data-number="26.1">
 <h2 data-number="26.1" class="anchored" data-anchor-id="history-based-dynamic-programming"><span class="header-section-number">26.1</span> History based dynamic programming</h2>
-<p>We start by presenting a history based dynamic program for the problem. Intialize <span class="math display">\[ V_{T+1|T}(h_{T+1|T}) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, recursively compute <span class="math display">\[\begin{align*}
+<p>We start by presenting a history based dynamic program for the problem. Initialize <span class="math display">\[ V_{T+1|T}(h_{T+1|T}) = 0 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, recursively compute <span class="math display">\[\begin{align*}
   V_{t|t}(h_{t|t}) &amp;=
   \min_{\hat s_t \in \ALPHABET S} \Bigl\{ d(S_t, \hat s_t)
   + V_{t+1|t}(h_{t|t} ⋅ \hat s_t) \Bigr\}
@@ -1061,10 +1074,11 @@ window.Quarto = {
   \min\Bigl\{ V_{t|t}(h_{t|t-1} ⋅ (0, \BLANK)),
           \EXP\bigl[ V_{t|t}(h_{t|t-1} ⋅ (1, S_t)) \mid h_{t|t-1}, a_t = 1 \bigr] \Bigr\}
 \end{align*}\]</span></p>
+<p>The history-based value functions are defined on domains that grow with <span class="math inline">\(t\)</span>, so the recursion is not practical to compute as written. We now present a dynamic program which uses beliefs as information state.</p>
 </section>
 <section id="belief-based-dynamic-programming" class="level2" data-number="26.2">
 <h2 data-number="26.2" class="anchored" data-anchor-id="belief-based-dynamic-programming"><span class="header-section-number">26.2</span> Belief based dynamic programming</h2>
-<p>We now present a belief based dynamic programming decomposition. For that matter, define <span class="math display">\[\begin{align*}
+<p>We now present a belief based dynamic programming decomposition. To this end, define <span class="math display">\[\begin{align*}
   b_{t|t-1}(s) &amp;= \PR(S_t = s \mid h_{t|t-1}) \\
   b_{t|t}(s)   &amp;= \PR(S_t = s \mid h_{t|t})
 \end{align*}\]</span></p>
@@ -1082,7 +1096,7 @@ window.Quarto = {
   V_{T+1|T}(b_{T+1|T}) = 0
 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, recursively compute <span class="math display">\[\begin{align*}
   V_{t|t}(b_{t|t}) &amp;= \underbrace{
-  \min_{\hat s \in \ALPHABET S} \sum_{s_t \in \ALPHABET S} b_{t|t}(s) d(s, \hat s)
+  \min_{\hat s \in \ALPHABET S} \sum_{s_t \in \ALPHABET S} b_{t|t}(s_t) d(s_t, \hat s)
   }_{\eqqcolon D(b_{t|t})}
   + V_{t+1|t}(b_{t|t} P) \\
   V_{t|t-1}(b_{t|t-1}) &amp;= \min \Bigl\{
@@ -1090,20 +1104,20 @@ window.Quarto = {
     λ + \sum_{s \in \ALPHABET S} b_{t|t-1}(s) V_{t|t}(δ_{s})
   \Bigr\}
 \end{align*}\]</span></p>
-<p>Note that the optimal estimation policy is an open loop policy obtained by solving the optimization problem corresponding to <span class="math inline">\(D(b_{t|t})\)</span>. We now characterize the sturcture of the optimal observation policy.</p>
-<section id="structure-of-optimal-observation-policy." class="level3" data-number="26.2.1">
-<h3 data-number="26.2.1" class="anchored" data-anchor-id="structure-of-optimal-observation-policy."><span class="header-section-number">26.2.1</span> Structure of optimal observation policy.</h3>
+<p>Note that the optimal estimation policy is an open loop policy obtained by solving the optimization problem corresponding to <span class="math inline">\(D(b_{t|t})\)</span>. We now characterize the structure of the optimal observation policy.</p>
+<section id="structure-of-optimal-observation-policy" class="level3" data-number="26.2.1">
+<h3 data-number="26.2.1" class="anchored" data-anchor-id="structure-of-optimal-observation-policy"><span class="header-section-number">26.2.1</span> Structure of optimal observation policy</h3>
 <p>Similar to <a href="intro.html#thm-belief-PWLC" class="quarto-xref">Theorem&nbsp;<span>24.4</span></a>, we can show that the value function <span class="math inline">\(V_{t|t}\)</span> and <span class="math inline">\(V_{t|t-1}\)</span> are piecewise linear and concave. Thus, <span class="math display">\[
   Q_{t|t-1}(b_{t|t-1}, 0) = V_{t|t}(b_{t|t-1})
-\]</span> is a concave function of <span class="math inline">\(b_{t|t}\)</span> while <span class="math display">\[
+\]</span> is a concave function of <span class="math inline">\(b_{t|t-1}\)</span> while <span class="math display">\[
   Q_{t|t-1}(b_{t|t-1},1) =
     λ + \sum_{s \in \ALPHABET S} b_{t|t-1}(s) V_{t|t}(δ_{s})
-\]</span> is an affine function of <span class="math inline">\(b_{t|t-1}\)</span>. Thus, by an argument similar to one used in <a href="sequential-hypothesis.html#thm-hypothesis-convex" class="quarto-xref">Theorem&nbsp;<span>25.1</span></a>, we get that the set <span class="math inline">\(\{ s \in \ALPHABET S : π_{t|t-1}(s) = 1 \}\)</span> is a convex set.</p>
+\]</span> is an affine function of <span class="math inline">\(b_{t|t-1}\)</span>. Thus, by an argument similar to one used in <a href="sequential-hypothesis.html#thm-hypothesis-convex" class="quarto-xref">Theorem&nbsp;<span>25.1</span></a>, we get that the set of beliefs under which it is optimal to observe, <span class="math inline">\(\{ b : π_{t|t-1}(b) = 1 \}\)</span>, is convex.</p>
 </section>
 </section>
 <section id="countable-information-state-based-dynamic-program" class="level2" data-number="26.3">
 <h2 data-number="26.3" class="anchored" data-anchor-id="countable-information-state-based-dynamic-program"><span class="header-section-number">26.3</span> Countable information state based dynamic program</h2>
-<p>Suppose that when the system starts, the remote estimator knows the state of the Markov chain, i.e., <span class="math inline">\(π_{1|0} = δ_{s_1}\)</span>. Then, any belief <span class="math inline">\(b_{t|t-1}\)</span> can be written as <span class="math inline">\(δ_{z_t} P^{τ_t}\)</span> where <span class="math inline">\(τ_t\)</span> is the time since the last observation and <span class="math inline">\(z_t\)</span> is the state observed at the last observation. Hence, the reachable set of the belief states <span class="math inline">\(b_{t|t-1}\)</span> and <span class="math inline">\(b_{t|t}\)</span> is given by <span class="math display">\[
+<p>Suppose that when the system starts, the remote estimator knows the state of the Markov chain, i.e., <span class="math inline">\(b_{1|0} = δ_{s_1}\)</span>. Then, any belief <span class="math inline">\(b_{t|t-1}\)</span> can be written as <span class="math inline">\(δ_{z_t} P^{τ_t}\)</span> where <span class="math inline">\(τ_t\)</span> is the time since the last observation and <span class="math inline">\(z_t\)</span> is the state observed at the last observation. Hence, the reachable set of the belief states <span class="math inline">\(b_{t|t-1}\)</span> and <span class="math inline">\(b_{t|t}\)</span> is given by <span class="math display">\[
   \ALPHABET R = \{ δ_z P^τ : z \in \ALPHABET S, τ \in \naturalnumbers \}.
 \]</span> which is isomorphic to <span class="math inline">\(\ALPHABET S \times \naturalnumbers\)</span>. Hence, <span class="math inline">\((z_t, τ_t)\)</span> may be viewed as an information state for the problem.</p>
 <p>The information state based dynamic program can be written as follow. Initialize <span class="math display">\[
@@ -1111,10 +1125,10 @@ window.Quarto = {
 \]</span> and for <span class="math inline">\(t \in \{T, \dots, 1\}\)</span>, recursively compute <span class="math display">\[\begin{align*}
   V_{t|t}(z, τ) &amp;= D(δ_{z} P^τ) + V_{t+1|t}(z, τ+1) \\
   V_{t|t-1}(z, τ) &amp;= \min\Bigl\{ V_{t|t}(z, τ),
-    λ + \sum_{s \in \ALPHABET S} [P^t]_{zs} V_{t|t}(s,0)
+    λ + \sum_{s \in \ALPHABET S} [P^τ]_{zs} V_{t|t}(s,0)
   \Bigr\}
 \end{align*}\]</span></p>
-<p>In contrast to the belief state based dynamic program, the above dynamic program has a countable state space. Thus, it can be solved effiiently using state truncation.</p>
+<p>In contrast to the belief state based dynamic program, the above dynamic program has a countable state space. Thus, it can be solved efficiently using state truncation.</p>
 </section>
 <section id="notes" class="level2 unnumbered">
 <h2 class="unnumbered anchored" data-anchor-id="notes">Notes</h2>
