@@ -3,126 +3,347 @@ title: "Risk Sensitive MDPs"
 keywords:
   - risk sensitive
   - dynamic programming
+engine: julia
+execute:
+  echo: false
+  freeze: true
+  cache: true
 ---
 
 ## Finite horizon setup
 
-Consider an MDP with state space $\ALPHABET
-X$, action space $\ALPHABET U$, per-step cost $c \colon \ALPHABET X ×
-\ALPHABET U \to \reals$, and controlled transition matrix $P$. However,
-instead of the risk neutral optimization criteria that we consider
-[previously][MDP], we consider a [risk-sensitive objective][risk-sensitive].
-In particular, the performance of any (possibly non-Markovian) strategy $g =
-(g_1, \dots, g_T)$ is given by 
+Consider an MDP with state space $\ALPHABET S$, action space $\ALPHABET A$, per-step cost $c \colon \ALPHABET S × \ALPHABET A \to \reals$, and controlled transition matrix $P$. However, instead of the risk neutral optimization criteria that we consider [previously][MDP], we consider a [risk-sensitive objective][risk-sensitive] with an **entropic risk measure**. For the ease of notation, we define the (risk-aware) certainty equivalent cost of a random return $X$ as
 $$
-  \bar J_θ(g) = \frac{1}{θ} \log \EXP\Bigl[ \exp\Bigl(
-    θ \sum_{t=1}^T c(X_t, U_t) 
+  \mathcal{R}[X] = \frac{1}{θ} \log \EXP [ \exp(θX) ]
+$$
+which corresponds to a risk-averse objective when $θ > 0$ and a risk-seeking objective when $θ < 0$. 
+
+Thus, the performance of any (possibly non-Markovian) strategy $π = (π_1, \dots, π_T)$ is given by 
+$$
+  J_θ(π) 
+  = \mathcal{R}\biggl[ \sum_{t=1}^T c(S_t, A_t)  \biggr] 
+  = \frac{1}{θ} \log \EXP\Bigl[ \exp\Bigl(
+    θ \sum_{t=1}^T c(S_t, A_t) 
   \Bigr) \Bigr].
 $$
 
-Recall that this is the effective cost for [an exponential disutility
-function][risk-sensitive]. Note that $J_θ(g) = \exp(θ \bar J(g))$ may be viewed as a
-multiplicative cost. Based on the argument for [multiplicative cost], we can
-write the dynamic program for $J_θ(g)$ as follows. 
+Recall that this is the effective cost for [an exponential disutility function][risk-sensitive]. Note that $\bar J_θ(π) = \exp(θ J_θ(π))$ may be viewed as a multiplicative cost. Based on the argument for [multiplicative cost], we can write the dynamic program for $\bar J_θ(π)$. as follows. 
 
 [MDP]: ../mdps/intro.qmd
 [risk-sensitive]: risk-sensitive-utility.qmd
 [multiplicative cost]: ../mdps/intro.qmd#multiplicative-cost
 
 :::{.callout-tip}
-## Dynamic program
+## (Scaled) Dynamic Program
 
-Initialize $V_{T+1}(x) = 1$ and recursively compute
+Initialize $\bar V_{T+1}(s) = 1$ and recursively compute
 
-$$ \begin{align}
-    Q_t(x,u) &= \exp(θ c(x,u)) \sum_{y \in \ALPHABET X} P_{xy}(u) V_{t+1}(y),
+\begin{align}
+    \bar Q_t(s,a) &= \exp(θ c(s,a)) \sum_{s' \in \ALPHABET S} P_{ss'}(a) \bar V_{t+1}(s'),
     \label{eq:DP-1}\\
-    V_t(x) &= \min_{u \in \ALPHABET X} Q_t(x,u).
+    \bar V_t(s) &= \begin{cases}
+        \min_{a \in \ALPHABET{A}} \bar Q_t(s,a), & θ > 0 \\
+        \max_{a \in \ALPHABET{A}} \bar Q_t(s,a), & θ < 0 
+    \end{cases}
     \label{eq:DP-2}
-    \end{align} $$
-
-Or, equivalently, working with the effective cost value function:
-
-$$ \begin{align}
-    Q_t(x,u) &= \exp(θ c(x,u)) \sum_{y \in \ALPHABET X} P_{xy}(u) 
-    \exp(θ \bar V_{t+1}(y)),
-    \\
-    \bar V_t(x) &= \frac{1}{θ} \log \bigl( \min_{u \in \ALPHABET X} Q_t(x,u) \bigr).
-    \end{align} $$
+\end{align}
 :::
 
-The dynamic program of \\eqref{eq:DP-1}--\\eqref{eq:DP-2} can be made to
-resemble the standard dynamic program by defining the _disutility matrix_
+The dynamic program of \\eqref{eq:DP-1}--\\eqref{eq:DP-2} can be written in **certainty-equivalent** form with
 $$
-    D_{xy}(u) = \exp(θ c(x,u)) P_{xy}(u).
+  V_t(s) = \frac{1}{θ} \log \bar V_t(s)
 $$
-Note that the elements of $D$ are non-negative. The expression
-\\eqref{eq:DP-1} can then be written in "standard" form:
-$$
-  Q_{t+1}(x) = \sum_{y \in \ALPHABET X} D_{xy}(u) V_{t+1}(y).
-$$
+Then the above dynamic program simplies as follows:
+
+
+:::{.callout-tip}
+## (Normalized) Dynamic Program
+
+Initialize $V_{T+1}(s) = 0$ and recursively compute
+
+\begin{align}
+    Q_t(s,a) &= c(s,a) + \frac{1}{θ} \log \sum_{s' \in \ALPHABET S} P(s'|s,a) \exp(θ V_{t+1}(s')), \label{eq:DP-3}
+    \\
+    V_t(s) &= \min_{a \in \ALPHABET A} Q_t(s,a).
+    \label{eq:DP-4}
+\end{align}
+:::
+
+Observe that the two different cases in \eqref{eq:DP-2} simplies to a single expression in \eqref{eq:DP4}, irrespective of the sign of $θ$. This is because when $θ < 0$, in the scaled recursion, we take the maximum of $\bar Q_t(s,a)$, but $\frac{1}{θ}\log(⋅)$ is a decreasing function, because $\frac{1}{θ} < 0$, so we take the minimum of $Q_t(s,a)$.
+
+## Example: inventory management with entropic risk
+
+Let's revisit the [inventory management model][inv] with entropic risk. The solution for different values of risk-sensitivity parameter $θ$ are shown in @fig-inventory-entropic. Recall that $θ = 0$ corresponds to the risk neutral setting. As before, we assume that the deman is Binomial $(50, 0.4)$ with parameters $c_h = 2$, $c_s = 5$, $p = 1$.
+
+[inv]: ../mdps/inventory-management.qmd
+
+```{julia}
+#| output: false
+using Distributions: Binomial, pdf
+using OffsetArrays
+using JSON3, DataFrames
+
+function logsumexp(p, z)
+    m = maximum(z)
+    m + log(sum(i -> p[i] * exp(z[i] - m), eachindex(z)))
+end
+
+function inventory_entropic_dp(θ, n, q, ch, cs, p, L, T)
+    Pw = Binomial(n, q)
+    h(z) = z >= 0 ? ch * z : -cs * z
+    S = -L:L
+    A = 0:(2L + 1)
+    W = 0:n
+
+    v_next = OffsetArray(zeros(Float64, length(S)), S)
+    π_next = OffsetArray(zeros(Int, length(S)), S)
+
+    function bellman!(v_next, π_next, v)
+        probs = OffsetArray(zeros(Float64, length(W)), W)
+        terms = OffsetArray(fill(-Inf, length(W)), W)
+        for s in S
+            opt = 0
+            val = Inf
+            for a in A
+                for w in W
+                    pw = pdf(Pw, w)
+                    if pw == 0
+                        probs[w] = 0.0
+                        terms[w] = 0.0 # To avoid 0 * Inf
+                    else
+                        probs[w] = pw
+                        next_s = clamp(s + a - w, -L, L)
+                        terms[w] = θ * (p * a + h(s + a - w) + v[next_s])
+                    end
+                end
+                newVal = (1 / θ) * logsumexp(probs, terms)
+                if newVal <= val
+                    opt = a
+                    val = newVal
+                end
+            end
+            v_next[s] = val
+            π_next[s] = opt
+        end
+    end
+
+    V = Vector{typeof(v_next)}(undef, T + 1)
+    π = Vector{typeof(π_next)}(undef, T)
+    V[T + 1] = OffsetArray(zeros(Float64, length(S)), S)
+    for t in T:-1:1
+        bellman!(v_next, π_next, V[t + 1])
+        V[t] = copy(v_next)
+        π[t] = copy(π_next)
+    end
+    return V, π
+end
+
+function inventory_neutral_dp(n, q, ch, cs, p, L, T)
+    Pw = Binomial(n, q)
+    h(z) = z >= 0 ? ch * z : -cs * z
+    S = -L:L
+    A = 0:(2L + 1)
+    W = 0:n
+    v_next = OffsetArray(zeros(Float64, length(S)), S)
+    π_next = OffsetArray(zeros(Int, length(S)), S)
+
+    function bellman!(v_next, π_next, v)
+        H = OffsetArray(zeros(Float64, 3L+1), -L:2L)
+        for z in -L:2L, w in W
+            next_s = clamp(z - w, -L, L)
+            H[z] += (h(z - w) + v[next_s]) * pdf(Pw, w)
+        end
+        for s in S
+            opt = 0
+            val = H[s]
+            for a in A
+                next_z = clamp(s + a, -L, 2L)
+                newVal = p * a + H[next_z] 
+                if newVal <= val
+                    opt = a
+                    val = newVal
+                end
+            end
+            v_next[s] = val
+            π_next[s] = opt
+        end
+    end
+    V = Vector{typeof(v_next)}(undef, T + 1)
+    π = Vector{typeof(π_next)}(undef, T)
+    V[T+1] = OffsetArray(zeros(Float64, length(S)), S)
+    for t in T:-1:1
+        bellman!(v_next, π_next, V[t + 1])
+        V[t] = copy(v_next)
+        π[t] = copy(π_next)
+    end
+    return V, π
+end
+```
+
+```{julia}
+n, q = 50, 0.4
+ch, cs, p = 2, 5, 1
+L, T = 75, 10
+xmin, xmax = -75, 75
+
+theta_min = -1.0
+theta_max = 1.0
+theta_step = 0.1
+θs = theta_min:theta_step:theta_max
+df = DataFrame(theta = Float16[], state = Int[], value = Float16[], policy = Int[])
+
+
+for θ in θs
+    if iszero(θ)
+        V, π = inventory_neutral_dp(n, q, ch, cs, p, L, T)
+        for s in xmin:xmax
+            push!(df, (Float16(θ), s, Float16(V[1][s]), π[1][s]))
+        end
+    else
+        V, π = inventory_entropic_dp(θ, n, q, ch, cs, p, L, T)
+        for s in xmin:xmax
+            push!(df, (Float16(θ), s, Float16(V[1][s]), π[1][s]))
+        end
+    end
+end
+
+row = (df.state .>= xmin) .& (df.state .<= xmax)
+vmin, vmax = extrema(Float64.(df.value[row]))
+padv = max((vmax - vmin) * 0.05, 1.0)
+RS_y_value = Float16[vmin - padv, vmax + padv]
+_, pmax = extrema(df.policy[row])
+RS_y_policy = Float16[0, pmax + 1]
+
+RS_theta_min = Float16(theta_min)
+RS_theta_max = Float16(theta_max)
+RS_theta_step = Float16(theta_step)
+
+ojs_define(
+    RS_df = df,
+    RS_xmin = xmin,
+    RS_xmax = xmax,
+    RS_theta_min = RS_theta_min,
+    RS_theta_max = RS_theta_max,
+    RS_theta_step = RS_theta_step,
+    RS_y_value = RS_y_value,
+    RS_y_policy = RS_y_policy,
+)
+```
+
+```{ojs}
+viewof RS_theta_slide = Object.assign(
+  Inputs.range([RS_theta_min, RS_theta_max], { label: "θ", step: RS_theta_step, value: 0 }),
+  { style: "--label-width:20px" }
+)
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| fig-label: fig-inventory-entropic
+//| fig-cap: Risk-sensitive inventory DP for the Binomial-demand example in the [inventory management][inv] chapter.
+//| fig-subcap:
+//|   - "Certainty-equivalent value $V_1(s)$ at $t=1$."
+//|   - "Optimal order quantity $π_1(s)$ at $t=1$."
+RS_val_plot = Plot.plot({
+  grid: true,
+  x: { domain: [RS_xmin, RS_xmax], label: "s" },
+  y: {
+    domain: RS_y_value,
+    label: `certainty equivalent (θ = ${RS_theta_slide})`,
+  },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(RS_df.filter((d) => Math.abs(d.theta - RS_theta_slide) < 1e-3), {
+      x: "state",
+      y: "value",
+      curve: "step-after",
+      strokeWidth: 2,
+    }),
+  ],
+})
+RS_pol_plot = Plot.plot({
+  grid: true,
+  x: { domain: [RS_xmin, RS_xmax], label: "s" },
+  y: {
+    domain: RS_y_policy,
+    label: `order (θ = ${RS_theta_slide})`,
+  },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(RS_df.filter((d) => Math.abs(d.theta - RS_theta_slide) < 1e-3), {
+      x: "state",
+      y: "policy",
+      curve: "step-after",
+      strokeWidth: 2,
+    }),
+  ],
+})
+```
+Observe that risk averse agents ($θ > 0$) act as if high shortage scenarios matter more and therefore *order more* (higher base-stock level) than the risk-neutral case ($θ = 0$). On the other hand, risk seeking agents ($θ < 0$) act as if shortage scenarios matter less and therefore *order less* (lower base-stock level) than risk-neutral case.
 
 ## Infinite horizon average cost setup
 
 The objective for infinite-horizon average cost setup is to minimize:
 $$
-  J^* = \inf_{g} \limsup_{T \to ∞}
+  J^* = \inf_{π} \limsup_{T \to ∞}
   \frac{1}{θT} \EXP \Bigl[ \exp\Bigl( 
-  θ \sum_{t=1}^T c(X_t, U_t) 
+  θ \sum_{t=1}^T c(S_t, A_t) 
   \Bigr) \Bigr].
 $$
 
-When the matrix $P(u)$ is irreducible and aperiodic for each $u$, the dynamic
+When the matrix $P(a)$ is irreducible and aperiodic for each $a$, the dynamic
 program for average cost MDP can be written as follows:
 
 :::{#thm-risk-sensitive-avg}
 
 Suppose there exist constant $J$ and a bounded function $v \colon \ALPHABET
-X \to \reals$ such that
+S \to \reals$ such that
 $$ \begin{equation} \label{eq:avg}
-  \exp(θ (J + v(x))) = 
-  \min_{u \in \ALPHABET U}
-   \sum_{y \in \ALPHABET X} P_{xy}(u) \exp( θ( c(x, u) + v(y)))
+  \exp(θ (J + v(s))) = 
+  \min_{a \in \ALPHABET A}
+   \sum_{s' \in \ALPHABET S} P_{ss'}(a) \exp( θ( c(s, a) + v(s')))
 \end{equation} $$
-Furthermore, let $g^* \colon \ALPHABET X \to \ALPHABET U$ denote the policy
+Furthermore, let $π^* \colon \ALPHABET S \to \ALPHABET A$ denote the policy
 that achieves the arg min in the right hand side. Then, $J$ is the optimal
-performance and the time-homogeneous policy $g^*$ achieves that performance.
+performance and the time-homogeneous policy $π^*$ achieves that performance.
 :::
 
 The dynamic program of \\eqref{eq:avg} can be written in an alternative form
 using a Legendre-type transformation and the duality relationship between
 relative entropy function and the logarithmic moment generating function. 
 
-Let $Δ(\ALPHABET X)$ denote the set of probability vectors on $\ALPHABET X$.
-Then, for any $ν \in Δ(\ALPHABET X)$, the relative entropy $I(\cdot \| ν)
-\colon Δ(\ALPHABET X) \to \reals \cup \{+∞\}$ is by given by
+Let $Δ(\ALPHABET S)$ denote the set of probability vectors on $\ALPHABET S$.
+Then, for any $ν \in Δ(\ALPHABET S)$, the relative entropy $I(\cdot \| ν)
+\colon Δ(\ALPHABET S) \to \reals \cup \{+∞\}$ is given by
 $$
   I(μ \| ν) = \begin{cases}
-    \sum_{x \in \ALPHABET X} \log(λ(x)) μ(x), 
+    \sum_{s \in \ALPHABET S} \log(λ(s)) μ(s), 
     & \text{if } μ \ll ν, \\
     +∞, & \text{otherwise}.
   \end{cases} $$
 where
-$$ λ(x) = \begin{cases} 
-  \frac{μ(x)}{ν(x)}, & \text{if } ν(x) \neq 0, \\
+$$ λ(s) = \begin{cases} 
+  \frac{μ(s)}{ν(s)}, & \text{if } ν(s) \neq 0, \\
   1, & \text{otherwise}. 
 \end{cases}$$
 
 :::{#lem-legendre-mutual-info}
 
-Let $w \colon \ALPHABET X \to \reals$ be a bounded function and $ν \in
-Δ(\ALPHABET X)$.  Then,
+Let $w \colon \ALPHABET S \to \reals$ be a bounded function and $ν \in
+Δ(\ALPHABET S)$.  Then,
 $$
-  \log \sum_{x \in \ALPHABET X} ν(x) \exp( θw(x)) = 
-  \inf_{μ \in Δ(\ALPHABET X)} \Bigl\{
-     \sum_{x \in \ALPHABET X}  μ(x) w(x) + 
+  \log \sum_{s \in \ALPHABET S} ν(s) \exp( θw(s)) = 
+  \inf_{μ \in Δ(\ALPHABET S)} \Bigl\{
+     \sum_{s \in \ALPHABET S}  μ(s) w(s) + 
     \frac{1}{θ} I(μ \| ν)
   \Bigr\},
 $$
 where the infimum is attained at the unique probability measure $μ^*$
 given by
 $$
-  μ^*(x) = \frac{e^{θw(x)}}{\sum_{x \in \ALPHABET X} e^{θw(x)}ν(x)} ν(x).
+  μ^*(s) = \frac{e^{θw(s)}}{\sum_{s \in \ALPHABET S} e^{θw(s)}ν(s)} ν(s).
 $$
 :::
 
@@ -138,10 +359,10 @@ See, for example, @Follmer2010.
 Using @lem-legendre-mutual-info, the dynamic program of \\eqref{eq:avg} can be
 written as
 $$ \begin{equation}
-  J + v(x) = \min_{u \in \ALPHABET U} \inf_{μ \in Δ(\ALPHABET X)}
+  J + v(s) = \min_{a \in \ALPHABET A} \inf_{μ \in Δ(\ALPHABET S)}
   \Bigl\{
-    c(x,u) + \sum_{y \in \ALPHABET X} μ(y) v(y) + \frac{1}{θ}
-    I(μ \| P(\cdot | x, u) ) 
+    c(s,a) + \sum_{s' \in \ALPHABET S} μ(s') v(s') + \frac{1}{θ}
+    I(μ \| P(\cdot | s, a) ) 
   \Bigr\}.
 \end{equation} $$
 This equation corresponds to the Issacs equation associated with a stochastic
