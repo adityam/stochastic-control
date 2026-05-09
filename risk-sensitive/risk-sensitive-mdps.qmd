@@ -239,7 +239,7 @@ viewof RS_theta_slide = Object.assign(
 
 ```{ojs}
 //| layout-ncol: 2
-//| fig-label: fig-inventory-entropic
+//| label: fig-inventory-entropic
 //| fig-cap: Risk-sensitive inventory DP for the Binomial-demand example in the [inventory management][inv] chapter.
 //| fig-subcap:
 //|   - "Certainty-equivalent value $V_1(s)$ at $t=1$."
@@ -298,32 +298,24 @@ program for average cost MDP can be written as follows:
 
 :::{#thm-risk-sensitive-avg}
 
-Suppose there exist constant $J$ and a bounded function $v \colon \ALPHABET
-S \to \reals$ such that
-$$ \begin{equation} \label{eq:avg}
-  \exp(θ (J + v(s))) = 
-  \min_{a \in \ALPHABET A}
-   \sum_{s' \in \ALPHABET S} P_{ss'}(a) \exp( θ( c(s, a) + v(s')))
-\end{equation} $$
-Furthermore, let $π^* \colon \ALPHABET S \to \ALPHABET A$ denote the policy
-that achieves the arg min in the right hand side. Then, $J$ is the optimal
-performance and the time-homogeneous policy $π^*$ achieves that performance.
+Suppose there exist constant $J$ and a bounded function $v \colon \ALPHABET S \to \reals$ that satisfy the following fixed point equation
+\begin{equation} \label{eq:avg}
+    J + v(s) = \min_{a \in \ALPHABET A}
+    \biggl\{ c(s,a) + \frac{1}{θ} \log \sum_{s' \in \ALPHABET S} P_{ss'}(a) \exp\bigl( θ\, v(s') \bigr) \biggr\}.
+\end{equation}
+Furthermore, let $π^* \colon \ALPHABET S \to \ALPHABET A$ denote the policy that achieves the arg min in \eqref{eq:avg}. Then, $J$ is the optimal risk-sensitive performance and the time-homogeneous policy $π^*$ achieves that performance.
 :::
 
-The dynamic program of \\eqref{eq:avg} can be written in an alternative form
-using a Legendre-type transformation and the duality relationship between
-relative entropy function and the logarithmic moment generating function. 
+The dynamic program of \eqref{eq:avg} can be written in an alternative form using a [Legendre-type transformation](../convexity/duality.qmd) and the duality relationship between relative entropy function and the log-sum-exp. 
 
-Let $Δ(\ALPHABET S)$ denote the set of probability vectors on $\ALPHABET S$.
-Then, for any $ν \in Δ(\ALPHABET S)$, the relative entropy $I(\cdot \| ν)
-\colon Δ(\ALPHABET S) \to \reals \cup \{+∞\}$ is given by
+Let $Δ(\ALPHABET S)$ denote the set of probability vectors on $\ALPHABET S$. Then, for any $ν \in Δ(\ALPHABET S)$, the relative entropy $I(\cdot \| ν) \colon Δ(\ALPHABET S) \to \reals \cup \{+∞\}$ is given by
 $$
   I(μ \| ν) = \begin{cases}
     \sum_{s \in \ALPHABET S} \log(λ(s)) μ(s), 
     & \text{if } μ \ll ν, \\
     +∞, & \text{otherwise}.
   \end{cases} $$
-where
+where the likelihood ratio 
 $$ λ(s) = \begin{cases} 
   \frac{μ(s)}{ν(s)}, & \text{if } ν(s) \neq 0, \\
   1, & \text{otherwise}. 
@@ -350,28 +342,25 @@ $$
 :::{.callout-tip}
 ### Remark
 
-Such a dual-representation is a fundamental property of all coherent risk
-measures and not just the entropic risk measure that we are working with here.
-See, for example, @Follmer2010.
+Such a dual-representation is a fundamental property of all coherent risk measures and not just the entropic risk measure that we are working with here. See, for example, @Follmer2010.
 :::
 
 
-Using @lem-legendre-mutual-info, the dynamic program of \\eqref{eq:avg} can be
-written as
-$$ \begin{equation}
+Using @lem-legendre-mutual-info, the dynamic program of \\eqref{eq:avg} can be written as
+\begin{equation}
   J + v(s) = \min_{a \in \ALPHABET A} \inf_{μ \in Δ(\ALPHABET S)}
   \Bigl\{
     c(s,a) + \sum_{s' \in \ALPHABET S} μ(s') v(s') + \frac{1}{θ}
     I(μ \| P(\cdot | s, a) ) 
   \Bigr\}.
-\end{equation} $$
-This equation corresponds to the Issacs equation associated with a stochastic
-dynamic game with average cost-per unit time criterion.
+\end{equation}
+This equation corresponds to the Issacs equation associated with a stochastic dynamic game with average cost-per unit time criterion.
 
 ## Infinite horizon discounted cost setup
 
-@Whittle2002 has a discussion on why discounted cost setup for risk-sensitive
-MDP is tricky and the solution depends on the interpretation of discounting.
+@Whittle2002 has a discussion on why discounted cost setup for risk-sensitive MDP is tricky and the solution depends on the interpretation of discounting. For a dynamic programming decomposition for discounted entropic risk, see @LinHau2023. 
+
+Also see @Huang2024 for different interpretations of discounting for general risk measures.
 
 ## Notes {-}
 
@@ -380,5 +369,3 @@ See @Howard1972 for a policy iteration algorithm. It is also mentioned that a
 version of this result is presented in Bellman's book. 
 See @HernandezHernandez1996 and @HernandezHernandez1999 for a detailed treatment of the average cost case. 
 
-
----
