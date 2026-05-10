@@ -1,0 +1,433 @@
+---
+title: "DP for dynamic risk measures"
+keywords:
+  - risk sensitive
+  - optimized certainty equivalent
+  - cvar
+  - dynamic risk measures
+engine: julia
+execute:
+  echo: false
+  freeze: true
+  cache: true
+---
+
+## Beyond Entropic Risk
+
+In the previous section, we discussed a DP decomposition for entropic risk. Entropic risk has many nice properties, but it fails to satisfy an important property called **positive homogeneity**: for a constant $a$
+$$
+  \mathcal{R}[a X] \neq a \mathcal{R}[X].
+$$
+This means that preferences based on entropic risk depend on the unitis used to measure the cost or reward (e.g., cents vs dollars). This motivates the need to study more general risk measures. 
+
+### Coherent risk measures and CVaR
+
+A risk measure $\mathcal{R}$ is a function that maps a random variable $X \in \ALPHABET X$ to $\reals$. A risk measure is said to be **coherent** if is satisfies the following properties:
+
+1. **Monotonicity:** if $X \le Y$, a.s., then $\mathcal{R}[X] \le \mathcal{R}[Y]$, higher losses mean higher risk.
+2. **Translation equivariance:** for all $a \in \reals$, $\mathcal{R}[a + X] \le a + \mathcal{R}[X]$, 
+3. **Sub-additivity:** $\mathcal{R}[X + Y] \le \mathcal{R}[X] + \mathcal{R}[Y]$.
+4. **Positive homogeneity:** $\mathcal{R}[aX] = a \mathcal{R}[X]$ for all $a \in \reals_{\ge 0}$.
+
+These properties can be interpreted as follows:
+
+- Monotonicity means that higher losses lead to higher risk.
+- Translation equivariance means that increasing the loss by a constant amount increases the risk by the same amount.
+- Sub-attivity means that diversification reduces risk.
+- Positive homogeneity means that the risk does not depend on the unit of measurement.
+
+A commonly used coherent risk measure is conditional value at risk (CVaR), which is also sometimes referred to as expected shortfall. In order to define CVaR, we first define value at risk (VaR). 
+
+Given a parameter $α \in (0,1)$, the $α$-VaR of $X$ is the $(1-α)$-quantile of the distribution of $X$, i.e., 
+$$
+  \text{VaR}_{α}[X] = \min\{ x : \PR(X \le x) \ge 1 - α \}.
+$$
+
+Given a parameter $α \in (0,1)$, the $α$-CVaR of $X$ is defined as
+$$
+  \text{CVar}_{α}[X] = \EXP[ X \mid X \ge \text{VaR}_{α}[X] ].
+$$
+
+The following result is known as **Acerbi's integral formula**
+$$
+  \text{CVaR}_{α}[X] = \frac{1}{1 - α} \int_{α}^{1} \text{VaR}_{β} d β.
+$$
+Thus, $\text{CVaR}_{α}$ is the average of $\text{VaR}_{β}$, $β \in [α, 1]$. 
+
+### Optimized Certainty Equivalents (OCE)
+
+For our purposes, a useful property of CVaR is that it be represented as
+$$
+  \text{CVaR}_{α}[X] = \inf_{m \in \reals}
+  \biggl\{ m - \frac{1}{1 - α} \EXP \bigl[ [X - m]^{+} \bigr] \biggr\}.
+$$
+Furthermore, the minimizer of the above problem is $\text{VaR}_{α}[X]$. 
+
+
+CVaR is special case of **optimized certainty equivalents (OCE)** which is defined as follows. Given a convex, nondecreasing loss function $ℓ \colon \reals \to \reals$, the OCE risk of a random variable $X$ is defined as
+$$
+  \mathcal{R}[X] = \inf_{m \in \reals} \{ m + \EXP[ℓ(X - m)] \}.
+$$
+
+Some examples of OCE include:
+
+- Mean, where $\ell(x) = x$
+- Entropic risk, where $\ell(x) = \frac{1}{θ}[ e^{θx} - 1]$
+- CVaR, where $\ell(x) = \frac{1}{1-α} [x]^{+}$
+
+## Static vs dynamic risk
+
+Consider a finite horizon MDP. Fix a policy $π$ and let $C_t$ denote $c(S_t, π_t(S_t))$. There are two ways to evaluate the risk of the sequence of random variables $C_1, C_2, \dots, C_T$:
+
+1. Static risk: $\mathcal{R}[C_1 + C_2 + \cdots + C_T]$.
+2. Dynamic risk: $\mathcal{R}\bigl[ 
+    C_1 + \mathcal{R}[ C_2 + \mathcal{R}[ C_3 + \cdots \mathcal{R}[C_T] \cdots ] \mid S_2] \mid S_1 \bigr]$.
+
+When these two risks are equal (e.g., in the risk neutral case), the risk measure is called **time consistent**. It was shown in @Kupper2009 that entropic risk is the only law invariant risk measure with this property (Recall that expectation and worst-case are both special case of entropic risk measure). 
+
+Thus, there are two ways to formulate risk-aware MDPs with general risk measures: minimize the static risk or minimize the dynamic risk. Dynamic risk can be directly optimized using dynamic programming, while obtaining a dynamic program for optimizing static risk requires state augmentation, with $C_1 + \cdots + C_{t-1}$ as the auxiliary part of the state. 
+
+In this section, we focus on dynamic risk measures.
+
+## Dynamic programming for dynamic risk measures
+
+Consider a finite-horizon MDP with state space $\ALPHABET S$, action space $\ALPHABET A$, per-step cost $c \colon \ALPHABET S \times \ALPHABET A \to \reals$, and transition kernel $P(\cdot \mid s,a)$.
+
+Let $π = (π_1, \dots, π_T)$ be a deterministic policy. Then, the value function of policy $π$ is defined as follows. Initialize $V^π_{T+1}(s) = 0$ and for $t \in \{T, \dots, 1\}$, recursively define
+\begin{align*}
+  Q^π_t(s,a) &= c(s,a) + \mathcal{R}\bigl[ V^π_{t+1}(S_{t+1}) \mid S_t = s, A_t = a  \bigr] \\
+  V^π_t(s) &= Q^π_t(s, π_t(s)).
+\end{align*}
+
+A policy $π^\star = (π^\star_1, \dots, π^\star_T)$ is optimal if 
+$$
+  V^{π^\star}_1(s) \le V^{π}_1(s), 
+  \quad \forall s \in \ALPHABET S, \forall π \in Π.
+$$
+
+By following the standard DP approach, we have the following. Define the optimal value functions as follows. Initialize $V^\star_{T+1}(s) = 0$ and for $t \in \{T, \dots, 1 \}$, recursively define
+\begin{align}
+  Q^\star_t(s,a) &= c(s,a) + \mathcal{R}\bigl[ V^\star_{t+1}(S_{t+1}) \mid S_t = s, A_t = a  \bigr] \label{eq:RS-DP1}\\
+  V^\star_t(s) &= \min_{a \in \ALPHABET A} Q^\star_t(s, a).
+  \label{eq:RS-DP2}
+\end{align}
+Then, a policy $π^\star$ is optimal if and only if $π^\star_t$ achieves the arg min of $Q^\star_t(s,a)$. 
+
+### DP for OCE risk measures
+
+For OCE risk measures, we can simplify \eqref{eq:RS-DP1}--\eqref{eq:RS-DP2} as follows: Define
+$$
+  H^\star_t(s,a,m) = c(s,a) + m + 
+  \sum_{s' \in \ALPHABET S} P(s'|s,a) \ell( V^\star_{t+1}(s') - m ).
+$$
+Then,
+$$
+  V^\star_t(s) = \min_{a \in \ALPHABET A} \inf_{m \in \ALPHABET R} H^\star_t(s,a,m).
+$$
+
+## Example: inventory management with CVaR risk
+
+Let's revisit the [inventory management model][inv] with entropic risk. The solution for different values of risk-sensitivity parameter $α$ are shown in @fig-inventory-cvar. As before, we assume that the deman is Binomial $(50, 0.4)$ with parameters $c_h = 2$, $c_s = 5$, $p = 1$.
+
+[inv]: ../mdps/inventory-management.qmd
+
+
+```{julia}
+#| output: false
+using Distributions: Binomial, NegativeBinomial, pdf
+using OffsetArrays
+using JSON3, DataFrames
+
+function cvar_oce(values, probs, α)
+    # For discrete support, a minimizer is attained at a support point.
+    candidates = sort(unique(values))
+    best = Inf
+    inv_tail = 1 / (1 - α)
+    for m in candidates
+        tail = 0.0
+        for i in eachindex(values)
+            tail += probs[i] * max(values[i] - m, 0.0)
+        end
+        val = m + inv_tail * tail
+        if val < best
+            best = val
+        end
+    end
+    return best
+end
+
+function inventory_oce_cvar_dp(α, dist, wmax, ch, cs, p, L, T)
+    h(z) = z >= 0 ? ch * z : -cs * z
+    S = -L:L
+    A = 0:(2L + 1)
+    W = 0:wmax
+
+    v_next = OffsetArray(zeros(Float64, length(S)), S)
+    π_next = OffsetArray(zeros(Int, length(S)), S)
+
+    probs = OffsetArray(zeros(Float64, length(W)), W)
+    stage_values = OffsetArray(zeros(Float64, length(W)), W)
+
+    for w in W
+        probs[w] = pdf(dist, w)
+    end
+
+    function bellman!(v_next, π_next, v)
+        for s in S
+            best_a = 0
+            best_v = Inf
+            for a in A
+                for w in W
+                    next_s = clamp(s + a - w, -L, L)
+                    stage_values[w] = p * a + h(s + a - w) + v[next_s]
+                end
+                new_val = cvar_oce(stage_values, probs, α)
+                if new_val <= best_v
+                    best_v = new_val
+                    best_a = a
+                end
+            end
+            v_next[s] = best_v
+            π_next[s] = best_a
+        end
+    end
+
+    V = Vector{typeof(v_next)}(undef, T + 1)
+    π = Vector{typeof(π_next)}(undef, T)
+    V[T + 1] = OffsetArray(zeros(Float64, length(S)), S)
+    for t in T:-1:1
+        bellman!(v_next, π_next, V[t + 1])
+        V[t] = copy(v_next)
+        π[t] = copy(π_next)
+    end
+    return V, π
+end
+```
+
+```{julia}
+n, q = 50, 0.4
+ch, cs, p = 2, 5, 1
+L, T = 75, 10
+xmin, xmax = -75, 75
+
+alpha_min = 0.0
+alpha_max = 0.9
+alpha_step = 0.1
+αs = alpha_min:alpha_step:alpha_max
+
+oce_df = DataFrame(alpha = Float64[], state = Int[], value = Float16[], policy = Int[])
+
+for α in αs
+    V, π = inventory_oce_cvar_dp(α, Binomial(n, q), n, ch, cs, p, L, T)
+    for s in xmin:xmax
+        push!(oce_df, (α, s, Float16(V[1][s]), π[1][s]))
+    end
+end
+
+row = (oce_df.state .>= xmin) .& (oce_df.state .<= xmax)
+vmin, vmax = extrema(Float64.(oce_df.value[row]))
+padv = max((vmax - vmin) * 0.05, 1.0)
+OCE_y_value = Float16[vmin - padv, vmax + padv]
+_, pmax = extrema(oce_df.policy[row])
+OCE_y_policy = Float16[0, pmax + 1]
+
+ojs_define(
+    OCE_df = oce_df,
+    OCE_xmin = xmin,
+    OCE_xmax = xmax,
+    OCE_alpha_min = alpha_min,
+    OCE_alpha_max = alpha_max,
+    OCE_alpha_step = alpha_step,
+    OCE_y_value = OCE_y_value,
+    OCE_y_policy = OCE_y_policy,
+)
+```
+
+```{ojs}
+viewof OCE_alpha_slide = Object.assign(
+  Inputs.range([OCE_alpha_min, OCE_alpha_max], {
+    label: "α",
+    step: OCE_alpha_step,
+    value: 0.8
+  }),
+  { style: "--label-width:40px" }
+)
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| label: fig-inventory-cvar
+//| fig-cap: Inventory DP under CVaR risk for Binomial demand. 
+//| fig-subcap:
+//|   - "CVaR value $V_1(s)$ at $t=1$."
+//|   - "Optimal order quantity $π_1(s)$ at $t=1$."
+OCE_val_plot = Plot.plot({
+  grid: true,
+  x: { domain: [OCE_xmin, OCE_xmax], label: "s" },
+  y: {
+    domain: OCE_y_value,
+    label: `CVaR value (alpha = ${OCE_alpha_slide})`,
+  },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(
+      OCE_df.filter((d) => Math.abs(d.alpha - OCE_alpha_slide) < 1e-6),
+      {
+        x: "state",
+        y: "value",
+        curve: "step-after",
+        strokeWidth: 2,
+      }
+    ),
+  ],
+})
+
+OCE_pol_plot = Plot.plot({
+  grid: true,
+  x: { domain: [OCE_xmin, OCE_xmax], label: "s" },
+  y: {
+    domain: OCE_y_policy,
+    label: `order (alpha = ${OCE_alpha_slide})`,
+  },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(
+      OCE_df.filter((d) => Math.abs(d.alpha - OCE_alpha_slide) < 1e-6),
+      {
+        x: "state",
+        y: "policy",
+        curve: "step-after",
+        strokeWidth: 2,
+      }
+    ),
+  ],
+})
+```
+
+As $α$ increases, the criterion focuses more on high-cost tail outcomes. Thus, shortage scenarios matter more, and therefore the threshold of the optimal policy increases, but the effect is minimal.
+
+Let's change the arrival distribution to a heavy tail distribution, say Negative Binomial$(5, 0.2)$, which has the same mean as Binomial$(50, 0.4)$ but higher deviation ($\approx 10$ vs $\approx 3.5$). The solution for different values of $α$ are shown in @fig-inventory-ht-cvar.
+
+```{julia}
+r_nb, p_nb = 5, 0.2   # mean = 20, std ≈ 10
+wmax = 100
+
+ht_df = DataFrame(alpha = Float64[], state = Int[], value = Float16[], policy = Int[])
+
+for α in αs
+    V, π = inventory_oce_cvar_dp(α, NegativeBinomial(r_nb, p_nb), wmax, ch, cs, p, L, T)
+    for s in xmin:xmax
+        push!(ht_df, (α, s, Float16(V[1][s]), π[1][s]))
+    end
+end
+
+row = (ht_df.state .>= xmin) .& (ht_df.state .<= xmax)
+vmin, vmax = extrema(Float64.(ht_df.value[row]))
+padv = max((vmax - vmin) * 0.05, 1.0)
+HT_y_value = Float16[vmin - padv, vmax + padv]
+_, pmax = extrema(ht_df.policy[row])
+HT_y_policy = Float16[0, pmax + 1]
+
+ojs_define(
+    HT_df = ht_df,
+    HT_xmin = xmin,
+    HT_xmax = xmax,
+    HT_alpha_min = alpha_min,
+    HT_alpha_max = alpha_max,
+    HT_alpha_step = alpha_step,
+    HT_y_value = HT_y_value,
+    HT_y_policy = HT_y_policy,
+)
+```
+
+```{ojs}
+viewof HT_alpha_slide = Object.assign(
+  Inputs.range([HT_alpha_min, HT_alpha_max], {
+    label: "α",
+    step: HT_alpha_step,
+    value: 0.0
+  }),
+  { style: "--label-width:40px" }
+)
+```
+
+```{ojs}
+//| layout-ncol: 2
+//| label: fig-inventory-ht-cvar
+//| fig-cap: Inventory DP under CVaR risk for the Negative Binomial demand.
+//| fig-subcap:
+//|   - "CVaR value $V_1(s)$ at $t=1$."
+//|   - "Optimal order quantity $π_1(s)$ at $t=1$."
+HT_val_plot = Plot.plot({
+  grid: true,
+  x: { domain: [HT_xmin, HT_xmax], label: "s" },
+  y: {
+    domain: HT_y_value,
+    label: `CVaR value (alpha = ${HT_alpha_slide})`,
+  },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(
+      HT_df.filter((d) => Math.abs(d.alpha - HT_alpha_slide) < 1e-6),
+      {
+        x: "state",
+        y: "value",
+        curve: "step-after",
+        strokeWidth: 2,
+      }
+    ),
+  ],
+})
+
+HT_pol_plot = Plot.plot({
+  grid: true,
+  x: { domain: [HT_xmin, HT_xmax], label: "s" },
+  y: {
+    domain: HT_y_policy,
+    label: `order (alpha = ${HT_alpha_slide})`,
+  },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(
+      HT_df.filter((d) => Math.abs(d.alpha - HT_alpha_slide) < 1e-6),
+      {
+        x: "state",
+        y: "policy",
+        curve: "step-after",
+        strokeWidth: 2,
+      }
+    ),
+  ],
+})
+```
+
+## Exercises {-}
+
+:::{#exr-var-cvar-discrete}
+Let $X$ be a discrete random variable that takes $n$ values $\{x_1, \dots, x_n\}$ with probabilities $\{p_1, \dots, p_n\}$ (with $p_i = \PR(X = x_i)$) where
+$$
+  x_1 < x_2 < \cdots < x_n.
+$$
+
+Let $k$ be the smallest index such that
+$$
+\sum_{i=1}^k p_i \ge α.
+$$
+Define $q_k = F(x_k) - \alpha$, where $F$ is the cumulative distribution function of $X$.
+
+
+Then:
+
+a) $\text{VaR}_{α}[X] = x_k$.
+
+b) $\text{CVaR}_{α}[X] = \dfrac{1}{1-α} \bigl[q_k x_k + \sum_{i=k+1}^n p_i x_i\bigr]$.
+:::
+
+
+## Notes {-}
+
+The notion of coherent risk measure is due to @Artzner1999. The notiono of dynamic risk measures is due to @Ruszczynski2010.
