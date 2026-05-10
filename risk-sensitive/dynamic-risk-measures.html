@@ -1026,6 +1026,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#coherent-risk-measures-and-cvar" id="toc-coherent-risk-measures-and-cvar" class="nav-link" data-scroll-target="#coherent-risk-measures-and-cvar"><span class="header-section-number">32.1.1</span> Coherent risk measures and CVaR</a></li>
   <li><a href="#optimized-certainty-equivalents-oce" id="toc-optimized-certainty-equivalents-oce" class="nav-link" data-scroll-target="#optimized-certainty-equivalents-oce"><span class="header-section-number">32.1.2</span> Optimized Certainty Equivalents (OCE)</a></li>
+  <li><a href="#cost-vs-rewards" id="toc-cost-vs-rewards" class="nav-link" data-scroll-target="#cost-vs-rewards"><span class="header-section-number">32.1.3</span> Cost vs rewards</a></li>
   </ul></li>
   <li><a href="#static-vs-dynamic-risk" id="toc-static-vs-dynamic-risk" class="nav-link" data-scroll-target="#static-vs-dynamic-risk"><span class="header-section-number">32.2</span> Static vs dynamic risk</a></li>
   <li><a href="#dynamic-programming-for-dynamic-risk-measures" id="toc-dynamic-programming-for-dynamic-risk-measures" class="nav-link" data-scroll-target="#dynamic-programming-for-dynamic-risk-measures"><span class="header-section-number">32.3</span> Dynamic programming for dynamic risk measures</a>
@@ -1124,7 +1125,7 @@ window.Quarto = {
 <h3 data-number="32.1.2" class="anchored" data-anchor-id="optimized-certainty-equivalents-oce"><span class="header-section-number">32.1.2</span> Optimized Certainty Equivalents (OCE)</h3>
 <p>For our purposes, a useful property of CVaR is that it be represented as <span class="math display">\[
   \text{CVaR}_{α}[X] = \inf_{m \in \reals}
-  \biggl\{ m - \frac{1}{1 - α} \EXP \bigl[ [X - m]^{+} \bigr] \biggr\}.
+  \biggl\{ m + \frac{1}{1 - α} \EXP \bigl[ [X - m]^{+} \bigr] \biggr\}.
 \]</span> Furthermore, the minimizer of the above problem is <span class="math inline">\(\text{VaR}_{α}[X]\)</span>.</p>
 <p>CVaR is special case of <strong>optimized certainty equivalents (OCE)</strong> which is defined as follows. Given a convex, nondecreasing loss function <span class="math inline">\(ℓ \colon \reals \to \reals\)</span>, the OCE risk of a random variable <span class="math inline">\(X\)</span> is defined as <span class="math display">\[
   \mathcal{R}[X] = \inf_{m \in \reals} \{ m + \EXP[ℓ(X - m)] \}.
@@ -1135,6 +1136,20 @@ window.Quarto = {
 <li>Entropic risk, where <span class="math inline">\(\ell(x) = \frac{1}{θ}[ e^{θx} - 1]\)</span></li>
 <li>CVaR, where <span class="math inline">\(\ell(x) = \frac{1}{1-α} [x]^{+}\)</span></li>
 </ul>
+</section>
+<section id="cost-vs-rewards" class="level3" data-number="32.1.3">
+<h3 data-number="32.1.3" class="anchored" data-anchor-id="cost-vs-rewards"><span class="header-section-number">32.1.3</span> Cost vs rewards</h3>
+<p>The above definitions measure risk for a <strong>loss</strong> random variable <span class="math inline">\(X\)</span>, where large values are bad. In a <strong>reward maximization</strong> setting <span class="math inline">\(X\)</span> represents a reward, so the lower tail is the dangerous one (i.e., the VaR and CVaR of reward <span class="math inline">\(X\)</span> are the VaR and CVaR of cost <span class="math inline">\(-X\)</span>).</p>
+<p>In particular, in reward maximization, VaR is defined as the <span class="math inline">\(α\)</span>-quantile of <span class="math inline">\(X\)</span>, i.e., <span class="math display">\[\text{VaR}_{α}[X] = \max\{ x : \PR(X \ge x) \ge 1 - α \}.\]</span> Then, CVaR focuses on the worst <span class="math inline">\((1-α)\)</span> fraction of reward outcomes, i.e., <span class="math display">\[
+  \text{CVaR}_{α}[X] = \EXP[ X \mid X \le \text{VaR}_{α}[X] ],
+\]</span></p>
+<p>Moreover, in the reward maximization setting, the dual representation of CVaR is given by <span class="math display">\[
+  \text{CVaR}_{α}[X] = \sup_{m \in \reals}
+  \biggl\{ m - \frac{1}{1 - α} \EXP \bigl[ [m - X]^{+} \bigr] \biggr\}.
+\]</span> The maximizer is again <span class="math inline">\(\text{VaR}_{α}[X]\)</span>.</p>
+<p>The general form of OCE is as follows: given a convex, nondecreasing loss function <span class="math inline">\(\ell \colon \reals \to \reals\)</span>, The OCE risk of a (reward) <span class="math inline">\(X\)</span> is defined as <span class="math display">\[
+  \mathcal{R}[X] = \sup_{m \in \reals} \{ m - \EXP[\ell(m - X)] \}.
+\]</span></p>
 </section>
 </section>
 <section id="static-vs-dynamic-risk" class="level2" data-number="32.2">
@@ -1184,63 +1199,63 @@ C_1 + \mathcal{R}[ C_2 + \mathcal{R}[ C_3 + \cdots \mathcal{R}[C_T] \cdots ] \mi
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="246" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 245;"><span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a>viewof OCE_alpha_slide <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>(</span>
-<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a>  Inputs<span class="op">.</span><span class="fu">range</span>([OCE_alpha_min<span class="op">,</span> OCE_alpha_max]<span class="op">,</span> {</span>
-<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"α"</span><span class="op">,</span></span>
-<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a>    <span class="dt">step</span><span class="op">:</span> OCE_alpha_step<span class="op">,</span></span>
-<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="fl">0.8</span></span>
-<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a>  })<span class="op">,</span></span>
-<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">style</span><span class="op">:</span> <span class="st">"--label-width:40px"</span> }</span>
-<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb1" data-startfrom="269" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 268;"><span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a>viewof OCE_alpha_slide <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>(</span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a>  Inputs<span class="op">.</span><span class="fu">range</span>([OCE_alpha_min<span class="op">,</span> OCE_alpha_max]<span class="op">,</span> {</span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"α"</span><span class="op">,</span></span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a>    <span class="dt">step</span><span class="op">:</span> OCE_alpha_step<span class="op">,</span></span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="fl">0.8</span></span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a>  })<span class="op">,</span></span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">style</span><span class="op">:</span> <span class="st">"--label-width:40px"</span> }</span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-1" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="264" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 263;"><span id="cb2-264"><a href="#cb2-264" aria-hidden="true" tabindex="-1"></a>OCE_val_plot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb2-265"><a href="#cb2-265" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb2-266"><a href="#cb2-266" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [OCE_xmin<span class="op">,</span> OCE_xmax]<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"s"</span> }<span class="op">,</span></span>
-<span id="cb2-267"><a href="#cb2-267" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
-<span id="cb2-268"><a href="#cb2-268" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> OCE_y_value<span class="op">,</span></span>
-<span id="cb2-269"><a href="#cb2-269" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="vs">`CVaR value (alpha = </span><span class="sc">${</span>OCE_alpha_slide<span class="sc">}</span><span class="vs">)`</span><span class="op">,</span></span>
-<span id="cb2-270"><a href="#cb2-270" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb2-271"><a href="#cb2-271" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb2-272"><a href="#cb2-272" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb2-273"><a href="#cb2-273" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb2-274"><a href="#cb2-274" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
-<span id="cb2-275"><a href="#cb2-275" aria-hidden="true" tabindex="-1"></a>      OCE_df<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">alpha</span> <span class="op">-</span> OCE_alpha_slide) <span class="op">&lt;</span> <span class="fl">1e-6</span>)<span class="op">,</span></span>
-<span id="cb2-276"><a href="#cb2-276" aria-hidden="true" tabindex="-1"></a>      {</span>
-<span id="cb2-277"><a href="#cb2-277" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
-<span id="cb2-278"><a href="#cb2-278" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
-<span id="cb2-279"><a href="#cb2-279" aria-hidden="true" tabindex="-1"></a>        <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span></span>
-<span id="cb2-280"><a href="#cb2-280" aria-hidden="true" tabindex="-1"></a>        <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
-<span id="cb2-281"><a href="#cb2-281" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb2-282"><a href="#cb2-282" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
-<span id="cb2-283"><a href="#cb2-283" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb2-284"><a href="#cb2-284" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb2-285"><a href="#cb2-285" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-286"><a href="#cb2-286" aria-hidden="true" tabindex="-1"></a>OCE_pol_plot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb2-287"><a href="#cb2-287" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb2-288"><a href="#cb2-288" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [OCE_xmin<span class="op">,</span> OCE_xmax]<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"s"</span> }<span class="op">,</span></span>
-<span id="cb2-289"><a href="#cb2-289" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
-<span id="cb2-290"><a href="#cb2-290" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> OCE_y_policy<span class="op">,</span></span>
-<span id="cb2-291"><a href="#cb2-291" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="vs">`order (alpha = </span><span class="sc">${</span>OCE_alpha_slide<span class="sc">}</span><span class="vs">)`</span><span class="op">,</span></span>
-<span id="cb2-292"><a href="#cb2-292" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb2-293"><a href="#cb2-293" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb2-294"><a href="#cb2-294" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb2-295"><a href="#cb2-295" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb2-296"><a href="#cb2-296" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
-<span id="cb2-297"><a href="#cb2-297" aria-hidden="true" tabindex="-1"></a>      OCE_df<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">alpha</span> <span class="op">-</span> OCE_alpha_slide) <span class="op">&lt;</span> <span class="fl">1e-6</span>)<span class="op">,</span></span>
-<span id="cb2-298"><a href="#cb2-298" aria-hidden="true" tabindex="-1"></a>      {</span>
-<span id="cb2-299"><a href="#cb2-299" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
-<span id="cb2-300"><a href="#cb2-300" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> <span class="st">"policy"</span><span class="op">,</span></span>
-<span id="cb2-301"><a href="#cb2-301" aria-hidden="true" tabindex="-1"></a>        <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span></span>
-<span id="cb2-302"><a href="#cb2-302" aria-hidden="true" tabindex="-1"></a>        <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
-<span id="cb2-303"><a href="#cb2-303" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb2-304"><a href="#cb2-304" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
-<span id="cb2-305"><a href="#cb2-305" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb2-306"><a href="#cb2-306" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb2" data-startfrom="287" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 286;"><span id="cb2-287"><a href="#cb2-287" aria-hidden="true" tabindex="-1"></a>OCE_val_plot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb2-288"><a href="#cb2-288" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb2-289"><a href="#cb2-289" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [OCE_xmin<span class="op">,</span> OCE_xmax]<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"s"</span> }<span class="op">,</span></span>
+<span id="cb2-290"><a href="#cb2-290" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
+<span id="cb2-291"><a href="#cb2-291" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> OCE_y_value<span class="op">,</span></span>
+<span id="cb2-292"><a href="#cb2-292" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="vs">`CVaR value (alpha = </span><span class="sc">${</span>OCE_alpha_slide<span class="sc">}</span><span class="vs">)`</span><span class="op">,</span></span>
+<span id="cb2-293"><a href="#cb2-293" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb2-294"><a href="#cb2-294" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb2-295"><a href="#cb2-295" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb2-296"><a href="#cb2-296" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb2-297"><a href="#cb2-297" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb2-298"><a href="#cb2-298" aria-hidden="true" tabindex="-1"></a>      OCE_df<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">alpha</span> <span class="op">-</span> OCE_alpha_slide) <span class="op">&lt;</span> <span class="fl">1e-6</span>)<span class="op">,</span></span>
+<span id="cb2-299"><a href="#cb2-299" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb2-300"><a href="#cb2-300" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
+<span id="cb2-301"><a href="#cb2-301" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
+<span id="cb2-302"><a href="#cb2-302" aria-hidden="true" tabindex="-1"></a>        <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span></span>
+<span id="cb2-303"><a href="#cb2-303" aria-hidden="true" tabindex="-1"></a>        <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb2-304"><a href="#cb2-304" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-305"><a href="#cb2-305" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
+<span id="cb2-306"><a href="#cb2-306" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb2-307"><a href="#cb2-307" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-308"><a href="#cb2-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-309"><a href="#cb2-309" aria-hidden="true" tabindex="-1"></a>OCE_pol_plot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb2-310"><a href="#cb2-310" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb2-311"><a href="#cb2-311" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [OCE_xmin<span class="op">,</span> OCE_xmax]<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"s"</span> }<span class="op">,</span></span>
+<span id="cb2-312"><a href="#cb2-312" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
+<span id="cb2-313"><a href="#cb2-313" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> OCE_y_policy<span class="op">,</span></span>
+<span id="cb2-314"><a href="#cb2-314" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="vs">`order (alpha = </span><span class="sc">${</span>OCE_alpha_slide<span class="sc">}</span><span class="vs">)`</span><span class="op">,</span></span>
+<span id="cb2-315"><a href="#cb2-315" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb2-316"><a href="#cb2-316" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb2-317"><a href="#cb2-317" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb2-318"><a href="#cb2-318" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb2-319"><a href="#cb2-319" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb2-320"><a href="#cb2-320" aria-hidden="true" tabindex="-1"></a>      OCE_df<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">alpha</span> <span class="op">-</span> OCE_alpha_slide) <span class="op">&lt;</span> <span class="fl">1e-6</span>)<span class="op">,</span></span>
+<span id="cb2-321"><a href="#cb2-321" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb2-322"><a href="#cb2-322" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
+<span id="cb2-323"><a href="#cb2-323" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> <span class="st">"policy"</span><span class="op">,</span></span>
+<span id="cb2-324"><a href="#cb2-324" aria-hidden="true" tabindex="-1"></a>        <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span></span>
+<span id="cb2-325"><a href="#cb2-325" aria-hidden="true" tabindex="-1"></a>        <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb2-326"><a href="#cb2-326" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-327"><a href="#cb2-327" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
+<span id="cb2-328"><a href="#cb2-328" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb2-329"><a href="#cb2-329" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="fig-inventory-cvar" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-inventory-cvar-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -1288,63 +1303,63 @@ Figure&nbsp;32.1: Inventory DP under CVaR risk for Binomial demand.
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="345" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 344;"><span id="cb3-345"><a href="#cb3-345" aria-hidden="true" tabindex="-1"></a>viewof HT_alpha_slide <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>(</span>
-<span id="cb3-346"><a href="#cb3-346" aria-hidden="true" tabindex="-1"></a>  Inputs<span class="op">.</span><span class="fu">range</span>([HT_alpha_min<span class="op">,</span> HT_alpha_max]<span class="op">,</span> {</span>
-<span id="cb3-347"><a href="#cb3-347" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"α"</span><span class="op">,</span></span>
-<span id="cb3-348"><a href="#cb3-348" aria-hidden="true" tabindex="-1"></a>    <span class="dt">step</span><span class="op">:</span> HT_alpha_step<span class="op">,</span></span>
-<span id="cb3-349"><a href="#cb3-349" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="fl">0.0</span></span>
-<span id="cb3-350"><a href="#cb3-350" aria-hidden="true" tabindex="-1"></a>  })<span class="op">,</span></span>
-<span id="cb3-351"><a href="#cb3-351" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">style</span><span class="op">:</span> <span class="st">"--label-width:40px"</span> }</span>
-<span id="cb3-352"><a href="#cb3-352" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb3" data-startfrom="368" data-source-offset="0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 367;"><span id="cb3-368"><a href="#cb3-368" aria-hidden="true" tabindex="-1"></a>viewof HT_alpha_slide <span class="op">=</span> <span class="bu">Object</span><span class="op">.</span><span class="fu">assign</span>(</span>
+<span id="cb3-369"><a href="#cb3-369" aria-hidden="true" tabindex="-1"></a>  Inputs<span class="op">.</span><span class="fu">range</span>([HT_alpha_min<span class="op">,</span> HT_alpha_max]<span class="op">,</span> {</span>
+<span id="cb3-370"><a href="#cb3-370" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"α"</span><span class="op">,</span></span>
+<span id="cb3-371"><a href="#cb3-371" aria-hidden="true" tabindex="-1"></a>    <span class="dt">step</span><span class="op">:</span> HT_alpha_step<span class="op">,</span></span>
+<span id="cb3-372"><a href="#cb3-372" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="fl">0.0</span></span>
+<span id="cb3-373"><a href="#cb3-373" aria-hidden="true" tabindex="-1"></a>  })<span class="op">,</span></span>
+<span id="cb3-374"><a href="#cb3-374" aria-hidden="true" tabindex="-1"></a>  { <span class="dt">style</span><span class="op">:</span> <span class="st">"--label-width:40px"</span> }</span>
+<span id="cb3-375"><a href="#cb3-375" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div id="ojs-cell-3" data-nodetype="declaration">
 
 </div>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="363" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 362;"><span id="cb4-363"><a href="#cb4-363" aria-hidden="true" tabindex="-1"></a>HT_val_plot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb4-364"><a href="#cb4-364" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb4-365"><a href="#cb4-365" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [HT_xmin<span class="op">,</span> HT_xmax]<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"s"</span> }<span class="op">,</span></span>
-<span id="cb4-366"><a href="#cb4-366" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
-<span id="cb4-367"><a href="#cb4-367" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> HT_y_value<span class="op">,</span></span>
-<span id="cb4-368"><a href="#cb4-368" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="vs">`CVaR value (alpha = </span><span class="sc">${</span>HT_alpha_slide<span class="sc">}</span><span class="vs">)`</span><span class="op">,</span></span>
-<span id="cb4-369"><a href="#cb4-369" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb4-370"><a href="#cb4-370" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb4-371"><a href="#cb4-371" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb4-372"><a href="#cb4-372" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb4-373"><a href="#cb4-373" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
-<span id="cb4-374"><a href="#cb4-374" aria-hidden="true" tabindex="-1"></a>      HT_df<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">alpha</span> <span class="op">-</span> HT_alpha_slide) <span class="op">&lt;</span> <span class="fl">1e-6</span>)<span class="op">,</span></span>
-<span id="cb4-375"><a href="#cb4-375" aria-hidden="true" tabindex="-1"></a>      {</span>
-<span id="cb4-376"><a href="#cb4-376" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
-<span id="cb4-377"><a href="#cb4-377" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
-<span id="cb4-378"><a href="#cb4-378" aria-hidden="true" tabindex="-1"></a>        <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span></span>
-<span id="cb4-379"><a href="#cb4-379" aria-hidden="true" tabindex="-1"></a>        <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
-<span id="cb4-380"><a href="#cb4-380" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb4-381"><a href="#cb4-381" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
-<span id="cb4-382"><a href="#cb4-382" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb4-383"><a href="#cb4-383" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb4-384"><a href="#cb4-384" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-385"><a href="#cb4-385" aria-hidden="true" tabindex="-1"></a>HT_pol_plot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
-<span id="cb4-386"><a href="#cb4-386" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
-<span id="cb4-387"><a href="#cb4-387" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [HT_xmin<span class="op">,</span> HT_xmax]<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"s"</span> }<span class="op">,</span></span>
-<span id="cb4-388"><a href="#cb4-388" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
-<span id="cb4-389"><a href="#cb4-389" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> HT_y_policy<span class="op">,</span></span>
-<span id="cb4-390"><a href="#cb4-390" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="vs">`order (alpha = </span><span class="sc">${</span>HT_alpha_slide<span class="sc">}</span><span class="vs">)`</span><span class="op">,</span></span>
-<span id="cb4-391"><a href="#cb4-391" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
-<span id="cb4-392"><a href="#cb4-392" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
-<span id="cb4-393"><a href="#cb4-393" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb4-394"><a href="#cb4-394" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
-<span id="cb4-395"><a href="#cb4-395" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
-<span id="cb4-396"><a href="#cb4-396" aria-hidden="true" tabindex="-1"></a>      HT_df<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">alpha</span> <span class="op">-</span> HT_alpha_slide) <span class="op">&lt;</span> <span class="fl">1e-6</span>)<span class="op">,</span></span>
-<span id="cb4-397"><a href="#cb4-397" aria-hidden="true" tabindex="-1"></a>      {</span>
-<span id="cb4-398"><a href="#cb4-398" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
-<span id="cb4-399"><a href="#cb4-399" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> <span class="st">"policy"</span><span class="op">,</span></span>
-<span id="cb4-400"><a href="#cb4-400" aria-hidden="true" tabindex="-1"></a>        <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span></span>
-<span id="cb4-401"><a href="#cb4-401" aria-hidden="true" tabindex="-1"></a>        <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
-<span id="cb4-402"><a href="#cb4-402" aria-hidden="true" tabindex="-1"></a>      }</span>
-<span id="cb4-403"><a href="#cb4-403" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
-<span id="cb4-404"><a href="#cb4-404" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb4-405"><a href="#cb4-405" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code hidden" id="cb4" data-startfrom="386" data-source-offset="-0"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 385;"><span id="cb4-386"><a href="#cb4-386" aria-hidden="true" tabindex="-1"></a>HT_val_plot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb4-387"><a href="#cb4-387" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb4-388"><a href="#cb4-388" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [HT_xmin<span class="op">,</span> HT_xmax]<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"s"</span> }<span class="op">,</span></span>
+<span id="cb4-389"><a href="#cb4-389" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
+<span id="cb4-390"><a href="#cb4-390" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> HT_y_value<span class="op">,</span></span>
+<span id="cb4-391"><a href="#cb4-391" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="vs">`CVaR value (alpha = </span><span class="sc">${</span>HT_alpha_slide<span class="sc">}</span><span class="vs">)`</span><span class="op">,</span></span>
+<span id="cb4-392"><a href="#cb4-392" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb4-393"><a href="#cb4-393" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb4-394"><a href="#cb4-394" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb4-395"><a href="#cb4-395" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb4-396"><a href="#cb4-396" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb4-397"><a href="#cb4-397" aria-hidden="true" tabindex="-1"></a>      HT_df<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">alpha</span> <span class="op">-</span> HT_alpha_slide) <span class="op">&lt;</span> <span class="fl">1e-6</span>)<span class="op">,</span></span>
+<span id="cb4-398"><a href="#cb4-398" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb4-399"><a href="#cb4-399" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
+<span id="cb4-400"><a href="#cb4-400" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> <span class="st">"value"</span><span class="op">,</span></span>
+<span id="cb4-401"><a href="#cb4-401" aria-hidden="true" tabindex="-1"></a>        <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span></span>
+<span id="cb4-402"><a href="#cb4-402" aria-hidden="true" tabindex="-1"></a>        <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb4-403"><a href="#cb4-403" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb4-404"><a href="#cb4-404" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
+<span id="cb4-405"><a href="#cb4-405" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb4-406"><a href="#cb4-406" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb4-407"><a href="#cb4-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-408"><a href="#cb4-408" aria-hidden="true" tabindex="-1"></a>HT_pol_plot <span class="op">=</span> Plot<span class="op">.</span><span class="fu">plot</span>({</span>
+<span id="cb4-409"><a href="#cb4-409" aria-hidden="true" tabindex="-1"></a>  <span class="dt">grid</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span></span>
+<span id="cb4-410"><a href="#cb4-410" aria-hidden="true" tabindex="-1"></a>  <span class="dt">x</span><span class="op">:</span> { <span class="dt">domain</span><span class="op">:</span> [HT_xmin<span class="op">,</span> HT_xmax]<span class="op">,</span> <span class="dt">label</span><span class="op">:</span> <span class="st">"s"</span> }<span class="op">,</span></span>
+<span id="cb4-411"><a href="#cb4-411" aria-hidden="true" tabindex="-1"></a>  <span class="dt">y</span><span class="op">:</span> {</span>
+<span id="cb4-412"><a href="#cb4-412" aria-hidden="true" tabindex="-1"></a>    <span class="dt">domain</span><span class="op">:</span> HT_y_policy<span class="op">,</span></span>
+<span id="cb4-413"><a href="#cb4-413" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="vs">`order (alpha = </span><span class="sc">${</span>HT_alpha_slide<span class="sc">}</span><span class="vs">)`</span><span class="op">,</span></span>
+<span id="cb4-414"><a href="#cb4-414" aria-hidden="true" tabindex="-1"></a>  }<span class="op">,</span></span>
+<span id="cb4-415"><a href="#cb4-415" aria-hidden="true" tabindex="-1"></a>  <span class="dt">marks</span><span class="op">:</span> [</span>
+<span id="cb4-416"><a href="#cb4-416" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleX</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb4-417"><a href="#cb4-417" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">ruleY</span>([<span class="dv">0</span>])<span class="op">,</span></span>
+<span id="cb4-418"><a href="#cb4-418" aria-hidden="true" tabindex="-1"></a>    Plot<span class="op">.</span><span class="fu">line</span>(</span>
+<span id="cb4-419"><a href="#cb4-419" aria-hidden="true" tabindex="-1"></a>      HT_df<span class="op">.</span><span class="fu">filter</span>((d) <span class="kw">=&gt;</span> <span class="bu">Math</span><span class="op">.</span><span class="fu">abs</span>(d<span class="op">.</span><span class="at">alpha</span> <span class="op">-</span> HT_alpha_slide) <span class="op">&lt;</span> <span class="fl">1e-6</span>)<span class="op">,</span></span>
+<span id="cb4-420"><a href="#cb4-420" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb4-421"><a href="#cb4-421" aria-hidden="true" tabindex="-1"></a>        <span class="dt">x</span><span class="op">:</span> <span class="st">"state"</span><span class="op">,</span></span>
+<span id="cb4-422"><a href="#cb4-422" aria-hidden="true" tabindex="-1"></a>        <span class="dt">y</span><span class="op">:</span> <span class="st">"policy"</span><span class="op">,</span></span>
+<span id="cb4-423"><a href="#cb4-423" aria-hidden="true" tabindex="-1"></a>        <span class="dt">curve</span><span class="op">:</span> <span class="st">"step-after"</span><span class="op">,</span></span>
+<span id="cb4-424"><a href="#cb4-424" aria-hidden="true" tabindex="-1"></a>        <span class="dt">strokeWidth</span><span class="op">:</span> <span class="dv">2</span><span class="op">,</span></span>
+<span id="cb4-425"><a href="#cb4-425" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb4-426"><a href="#cb4-426" aria-hidden="true" tabindex="-1"></a>    )<span class="op">,</span></span>
+<span id="cb4-427"><a href="#cb4-427" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb4-428"><a href="#cb4-428" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div id="fig-inventory-ht-cvar" class="quarto-layout-panel">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-inventory-ht-cvar-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
