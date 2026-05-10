@@ -52,14 +52,14 @@ The following result is known as **Acerbi's integral formula**
 $$
   \text{CVaR}_{α}[X] = \frac{1}{1 - α} \int_{α}^{1} \text{VaR}_{β} d β.
 $$
-Thus, $\text{CVaR}_{α}$ is the average of $\text{VaR}_{β}$, $β \in [α, 1]$. 
+Thus, $\text{CVaR}_{α}$ is the average of $\text{VaR}_{β}$, $β \in [α, 1]$.
 
 ### Optimized Certainty Equivalents (OCE)
 
 For our purposes, a useful property of CVaR is that it be represented as
 $$
   \text{CVaR}_{α}[X] = \inf_{m \in \reals}
-  \biggl\{ m - \frac{1}{1 - α} \EXP \bigl[ [X - m]^{+} \bigr] \biggr\}.
+  \biggl\{ m + \frac{1}{1 - α} \EXP \bigl[ [X - m]^{+} \bigr] \biggr\}.
 $$
 Furthermore, the minimizer of the above problem is $\text{VaR}_{α}[X]$. 
 
@@ -74,6 +74,29 @@ Some examples of OCE include:
 - Mean, where $\ell(x) = x$
 - Entropic risk, where $\ell(x) = \frac{1}{θ}[ e^{θx} - 1]$
 - CVaR, where $\ell(x) = \frac{1}{1-α} [x]^{+}$
+
+### Cost vs rewards
+
+The above definitions measure risk for a **loss** random variable $X$, where large values are bad. In a **reward maximization** setting $X$ represents a reward, so the lower tail is the dangerous one (i.e., the VaR and CVaR of reward $X$ are the VaR and CVaR of cost $-X$).
+
+In particular, in reward maximization, VaR is defined as the $α$-quantile of $X$, i.e., 
+$$\text{VaR}_{α}[X] = \max\{ x : \PR(X \ge x) \ge 1 - α \}.$$
+Then, CVaR focuses on the worst $(1-α)$ fraction of reward outcomes, i.e., 
+$$
+  \text{CVaR}_{α}[X] = \EXP[ X \mid X \le \text{VaR}_{α}[X] ],
+$$
+
+Moreover, in the reward maximization setting, the dual representation of CVaR is given by
+$$
+  \text{CVaR}_{α}[X] = \sup_{m \in \reals}
+  \biggl\{ m - \frac{1}{1 - α} \EXP \bigl[ [m - X]^{+} \bigr] \biggr\}.
+$$
+The maximizer is again $\text{VaR}_{α}[X]$.
+
+The general form of OCE is as follows: given a convex, nondecreasing loss function $\ell \colon \reals \to \reals$, The OCE risk of a (reward) $X$ is defined as
+$$
+  \mathcal{R}[X] = \sup_{m \in \reals} \{ m - \EXP[\ell(m - X)] \}.
+$$
 
 ## Static vs dynamic risk
 
