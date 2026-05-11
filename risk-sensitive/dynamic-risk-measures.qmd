@@ -18,11 +18,11 @@ In the previous section, we discussed a DP decomposition for entropic risk. Entr
 $$
   \mathcal{R}[a X] \neq a \mathcal{R}[X].
 $$
-This means that preferences based on entropic risk depend on the unitis used to measure the cost or reward (e.g., cents vs dollars). This motivates the need to study more general risk measures. 
+This means that preferences based on entropic risk depend on the units used to measure the cost or reward (e.g., cents vs dollars). This motivates the need to study more general risk measures. 
 
 ### Coherent risk measures and CVaR
 
-A risk measure $\mathcal{R}$ is a function that maps a random variable $X \in \ALPHABET X$ to $\reals$. A risk measure is said to be **coherent** if is satisfies the following properties:
+A risk measure $\mathcal{R}$ is a function that maps a random variable $X \in \ALPHABET X$ to $\reals$. A risk measure is said to be **coherent** if it satisfies the following properties:
 
 1. **Monotonicity:** if $X \le Y$, a.s., then $\mathcal{R}[X] \le \mathcal{R}[Y]$, higher losses mean higher risk.
 2. **Translation equivariance:** for all $a \in \reals$, $\mathcal{R}[a + X] \le a + \mathcal{R}[X]$, 
@@ -33,7 +33,7 @@ These properties can be interpreted as follows:
 
 - Monotonicity means that higher losses lead to higher risk.
 - Translation equivariance means that increasing the loss by a constant amount increases the risk by the same amount.
-- Sub-attivity means that diversification reduces risk.
+- Sub-additivity means that diversification reduces risk.
 - Positive homogeneity means that the risk does not depend on the unit of measurement.
 
 A commonly used coherent risk measure is conditional value at risk (CVaR), which is also sometimes referred to as expected shortfall. In order to define CVaR, we first define value at risk (VaR). 
@@ -45,7 +45,7 @@ $$
 
 Given a parameter $α \in (0,1)$, the $α$-CVaR of $X$ is defined as
 $$
-  \text{CVar}_{α}[X] = \EXP[ X \mid X \ge \text{VaR}_{α}[X] ].
+  \text{CVaR}_{α}[X] = \EXP[ X \mid X \ge \text{VaR}_{α}[X] ].
 $$
 
 The following result is known as **Acerbi's integral formula**
@@ -64,7 +64,7 @@ $$
 Furthermore, the minimizer of the above problem is $\text{VaR}_{α}[X]$. 
 
 
-CVaR is special case of **optimized certainty equivalents (OCE)** which is defined as follows. Given a convex, nondecreasing loss function $ℓ \colon \reals \to \reals$, the OCE risk of a random variable $X$ is defined as
+CVaR is a special case of **optimized certainty equivalents (OCE)** which is defined as follows. Given a convex, nondecreasing loss function $ℓ \colon \reals \to \reals$, the OCE risk of a random variable $X$ is defined as
 $$
   \mathcal{R}[X] = \inf_{m \in \reals} \{ m + \EXP[ℓ(X - m)] \}.
 $$
@@ -93,7 +93,7 @@ $$
 $$
 The maximizer is again $\text{VaR}_{α}[X]$.
 
-The general form of OCE is as follows: given a convex, nondecreasing loss function $\ell \colon \reals \to \reals$, The OCE risk of a (reward) $X$ is defined as
+The general form of OCE is as follows: given a convex, nondecreasing loss function $\ell \colon \reals \to \reals$, the OCE risk of a reward random variable $X$ is defined as
 $$
   \mathcal{R}[X] = \sup_{m \in \reals} \{ m - \EXP[\ell(m - X)] \}.
 $$
@@ -106,7 +106,7 @@ Consider a finite horizon MDP. Fix a policy $π$ and let $C_t$ denote $c(S_t, π
 2. Dynamic risk: $\mathcal{R}\bigl[ 
     C_1 + \mathcal{R}[ C_2 + \mathcal{R}[ C_3 + \cdots \mathcal{R}[C_T] \cdots ] \mid S_2] \mid S_1 \bigr]$.
 
-When these two risks are equal (e.g., in the risk neutral case), the risk measure is called **time consistent**. It was shown in @Kupper2009 that entropic risk is the only law invariant risk measure with this property (Recall that expectation and worst-case are both special case of entropic risk measure). 
+When these two risks are equal (e.g., in the risk neutral case), the risk measure is called **time consistent**. It was shown in @Kupper2009 that entropic risk is the only law invariant risk measure with this property (Recall that expectation and worst-case are both special cases of the entropic risk measure). 
 
 Thus, there are two ways to formulate risk-aware MDPs with general risk measures: minimize the static risk or minimize the dynamic risk. Dynamic risk can be directly optimized using dynamic programming, while obtaining a dynamic program for optimizing static risk requires state augmentation, with $C_1 + \cdots + C_{t-1}$ as the auxiliary part of the state. 
 
@@ -150,7 +150,7 @@ $$
 
 ## Example: inventory management with CVaR risk
 
-Let's revisit the [inventory management model][inv] with entropic risk. The solution for different values of risk-sensitivity parameter $α$ are shown in @fig-inventory-cvar. As before, we assume that the deman is Binomial $(50, 0.4)$ with parameters $c_h = 2$, $c_s = 5$, $p = 1$.
+Let's revisit the [inventory management model][inv] with CVaR risk. The solution for different values of risk-sensitivity parameter $α$ are shown in @fig-inventory-cvar. As before, we assume that the demand is Binomial$(50, 0.4)$ with parameters $c_h = 2$, $c_s = 5$, $p = 1$.
 
 [inv]: ../mdps/inventory-management.qmd
 
@@ -331,7 +331,7 @@ OCE_pol_plot = Plot.plot({
 
 As $α$ increases, the criterion focuses more on high-cost tail outcomes. Thus, shortage scenarios matter more, and therefore the threshold of the optimal policy increases, but the effect is minimal.
 
-Let's change the arrival distribution to a heavy tail distribution, say Negative Binomial$(5, 0.2)$, which has the same mean as Binomial$(50, 0.4)$ but higher deviation ($\approx 10$ vs $\approx 3.5$). The solution for different values of $α$ are shown in @fig-inventory-ht-cvar.
+Let's change the demand distribution to a heavy-tailed distribution, say Negative Binomial$(5, 0.2)$, which has the same mean as Binomial$(50, 0.4)$ but a much higher standard deviation ($\approx 10$ vs $\approx 3.5$). The solution for different values of $α$ are shown in @fig-inventory-ht-cvar.
 
 ```{julia}
 r_nb, p_nb = 5, 0.2   # mean = 20, std ≈ 10
@@ -453,4 +453,4 @@ b) $\text{CVaR}_{α}[X] = \dfrac{1}{1-α} \bigl[q_k x_k + \sum_{i=k+1}^n p_i x_i
 
 ## Notes {-}
 
-The notion of coherent risk measure is due to @Artzner1999. The notiono of dynamic risk measures is due to @Ruszczynski2010.
+The notion of coherent risk measure is due to @Artzner1999. The notion of dynamic risk measures is due to @Ruszczynski2010.
