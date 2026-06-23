@@ -12,10 +12,10 @@ Throughout this section, we assume that $\ALPHABET S$ and $\ALPHABET A$ are fini
 We know that if $V \le \mathcal B V$ then $V \le V^* = \mathcal B V^*$. Thus,
 $V^*$ is the "largest" $V$ that satisfies the constraint $V \le \mathcal B V$.
 This constraint can be written as a finite system of linear equations:
-$$\begin{equation} \label{eq:constaints}
+\begin{equation} \label{eq:constaints}
 V(s) \le c(s,a) + γ\sum_{z \in \ALPHABET S} P(z|s,a) V(z), 
 \qquad s \in \ALPHABET S, a \in \ALPHABET A.
-\end{equation}$$
+\end{equation}
 This observation provides the basis for a linear programming formulation of
 the discounted MDP. 
 
@@ -25,20 +25,20 @@ Choose a weight function $p \colon \ALPHABET S \to \reals_{\ge 0}$ such that
 $\sum_{s \in \ALPHABET S} p(s) = 1$. This can be thought of as the
 distribution of the initial state. Then the primal LP corresponding to
 \\eqref{eq:constaints} is
-$$\begin{gather}
+\begin{gather}
   \max \sum_{s \in \ALPHABET S} p(s) V(s) \notag \\
   \text{subject to}\quad
   V(s) - γ \sum_{z \in \ALPHABET S} P(z|s,a)V(z) \le c(s,a), 
   \quad \forall s \in \ALPHABET S, a \in \ALPHABET A.
   \label{eq:primal}
-\end{gather}$$
+\end{gather}
 
 ### Dual Linear Program {-}
 
 Now consider the dual version of the primal LP \\eqref{eq:primal}. We
 associate a positive dual variable $ζ(s,a)$ for each constraint consider the
 following linear program:[^1]
-$$\begin{gather}
+\begin{gather}
   \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} ζ(s,a) c(s,a)
   \notag \\
   \text{subject to}\quad
@@ -46,7 +46,7 @@ $$\begin{gather}
   P(s | z, a) ζ(z,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
   ζ(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A. 
   \label{eq:dual}
-\end{gather}$$
+\end{gather}
 
 [^1]: [Wikipedia] has a decent description of how to construct a dual LP from
   a primal LP. I find the explanation in [Sebastien Lahaie's notes][LP] to be
@@ -80,9 +80,9 @@ details.
 2. Suppose $ζ(s,a)$ is a feasible solution to the dual LP. Then for each $s
    \in \ALPHABET S$ such that $\sum_{a \in \ALPHABET A} ζ(s,a) > 0$, define
    a stationary randomized policy $π$ by
-   $$\begin{equation} \label{eq:policy}
+   \begin{equation} \label{eq:policy}
     π(a|s) = π_ζ(a|s) = \frac{ ζ(s,a) } { \displaystyle \sum_{a \in \ALPHABET A} ζ(s,a) }. 
-   \end{equation} $$
+   \end{equation}
    Then, $ζ_{π}(s,a) = ζ(s,a)$ for all $s \in \ALPHABET S$ and $a \in \ALPHABET A$. [This was derived in the proof of @prp-optimal-Markov-randomized].
 
 3. A feasible solution of an LP is called a _basic feasible solution_ if it cannot be expression as a nontrivial convex combination of other feasible solutions. A key property of a basic feasible solution is that when the LP has $k$ constraints, then all basic feasible solutions have at most $k$ positive components. Using this, one can show that if $ζ$ is a basic feasible solution, then the policy $π_{ζ}$ given by \\eqref{eq:policy} is a deterministic policy.
@@ -114,14 +114,14 @@ Suppose, in addition to the per-step cost function $c \colon \ALPHABET S
 \colon \ALPHABET S \times \ALPHABET A \to \reals$ and we are interested in the
 following constrained optimization problem:
 
-$$\begin{gather*}
+\begin{gather*}
 \min \EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} c(S_t, A_t) \Bigr] \\
 \text{subject to}\quad
 \EXP\Bigl[ \sum_{t=1}^\infty γ^{t-1} d(S_t, A_t) \Bigr] \le D. 
-\end{gather*}$$
+\end{gather*}
 
 The dual LP in this case is given by 
-$$\begin{gather}
+\begin{gather}
   \min \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} ζ(s,a) c(s,a)
   \notag \\
   \text{subject to}\quad
@@ -129,7 +129,7 @@ $$\begin{gather}
   P(s | z, a) ζ(s,a) = p(s), \quad \forall s \in \ALPHABET S, \notag \\
   \sum_{s \in \ALPHABET S} \sum_{a \in \ALPHABET A} ζ(s,a) d(s,a) \le D \notag \\
   ζ(s,a) \ge 0, \quad \forall s \in \ALPHABET S, a \in \ALPHABET A. 
-\end{gather}$$
+\end{gather}
 
 If we interpret $ζ(s,a)$ as the occupation measure of any policy, then this
 formulation follows immediately. 
