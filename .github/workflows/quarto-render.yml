@@ -5,29 +5,52 @@ on:
 name: Render and Publish
 
 jobs:
-  build-deploy:
+  publish-stochastic-control:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-        
+
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
-          # with:
-          # To install LaTeX to build PDF book 
-          # tinytex: true 
-          # uncomment below and fill to pin a version
-          # version: SPECIFIC-QUARTO-VERSION-HERE
-      
+
       - name: Fix timestamps
-        run:  bash .github/scripts/fix-timestamps
+        run: bash .github/scripts/fix-timestamps
 
       - name: Render and publish website
         uses: quarto-dev/quarto-actions/publish@v2
         with:
           target: gh-pages
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  publish-ais-course:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Fix timestamps
+        run: bash .github/scripts/fix-timestamps
+
+      - name: Render AIS-course lectures
+        working-directory: AIS-course
+        env:
+          QUARTO_PROFILE: lectures
+        run: quarto render
+
+      - name: Publish to adityam/AIS-course
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.AIS_COURSE_DEPLOY_TOKEN }}
+          external_repository: adityam/AIS-course
+          publish_dir: AIS-course/_book
+          publish_branch: gh-pages
+          force_orphan: true

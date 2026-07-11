@@ -1,0 +1,193 @@
+% Trees for Lecture 1 of the "Approximations in MDPs" course.
+%
+% Produces six pages:
+%   Page 1 --- Tree for the basic newsvendor (no observation).
+%   Page 2 --- Simplified basic tree (chance nodes replaced by Q(a)).
+%   Page 3 --- Tree for the weather-aware newsvendor (S = sunny/rainy).
+%   Page 4 --- Simplified weather-aware tree (W-chance nodes replaced by Q(s,a)).
+%   Page 5 --- Fully reduced weather-aware tree (decision nodes replaced by V*).
+%   Page 6 --- Tree for the Blackwell variant (extra observation Y with
+%              Y perp (S,W)).
+%
+% Numerical setup matches the basic discrete instance, @exm-newsvendor-info,
+% and @exm-newsvendor-blackwell.
+%   a in {10, 20}, w in {5, 20}, p = 1, q = 2
+%   Basic: P(W=5)=1/4, P(W=20)=3/4
+%   P(W=5 | S=sunny)  = 1/4, P(W=20 | S=sunny)  = 3/4
+%   P(W=5 | S=rainy)  = 3/4, P(W=20 | S=rainy)  = 1/4
+%   Rewards: r(10,5)=0, r(10,20)=10, r(20,5)=-10, r(20,20)=20.
+
+\documentclass[tikz,margin=2mm]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{matrix,positioning,calc,backgrounds,fit,shapes.geometric}
+\usepackage{istgame}
+\tikzset{action/.style={preaction={draw,yellow!50,-,double=yellow!50,
+                                   double distance=20\pgflinewidth}}}
+
+\standaloneenv{istgame}
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Page 1: basic newsvendor (no observation)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{istgame}
+  \xtdistance{18mm}{40mm}
+  \istroot(O){d}
+    \istb{a=10}[left]
+    \istb[action]{a=20}[right]
+  \endist
+  \xtdistance{15mm}{14mm}
+  \istroot(a10)(O-1)<90>{c}
+    \istb*{w=5,\ \tfrac14}[left]{0}
+    \istb*{w=20,\ \tfrac34}[right]{10}
+  \endist
+  \istroot(a20)(O-2)<90>{c}
+    \istb*{w=5,\ \tfrac14}[left]{-10}
+    \istb*{w=20,\ \tfrac34}[right]{20}
+  \endist
+\end{istgame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Page 2: simplified basic tree (after averaging chance nodes)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{istgame}
+  \xtdistance{18mm}{40mm}
+  \istroot(O){d}
+    \istb{a=10}[left]{7.5}
+    \istb[action]{a=20}[right]{12.5}
+  \endist
+\end{istgame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Page 3: weather-aware newsvendor
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{istgame}
+  \setxtinfosetstyle{rectangle,rounded corners,fill=black!5,draw,thick,dashed}
+  \xtdistance{18mm}{50mm}
+  \istroot(O){c}
+    \istb{S=\text{sun},\ \tfrac12}[above left]
+    \istb{S=\text{rain},\ \tfrac12}[above right]
+  \endist
+  \xtdistance{15mm}{30mm}
+  \istroot(sSun)(O-1)<90>{d}
+    \istb{a=10}[left]
+    \istb[action]{a=20}[right]
+  \endist
+  \istroot(sRain)(O-2)<90>{d}
+    \istb[action]{a=10}[left]
+    \istb{a=20}[right]
+  \endist
+  \xtdistance{15mm}{12mm}
+  % Sunny, a=10
+  \istroot(sSun-a10)(sSun-1)<90>{c}
+    \istb*{w=5}[left]{0}
+    \istb*{w=20}[right]{10}
+  \endist
+  % Sunny, a=20
+  \istroot(sSun-a20)(sSun-2)<90>{c}
+    \istb*{w=5}[left]{-10}
+    \istb*{w=20}[right]{20}
+  \endist
+  % Rainy, a=10
+  \istroot(sRain-a10)(sRain-1)<90>{c}
+    \istb*{w=5}[left]{0}
+    \istb*{w=20}[right]{10}
+  \endist
+  % Rainy, a=20
+  \istroot(sRain-a20)(sRain-2)<90>{c}
+    \istb*{w=5}[left]{-10}
+    \istb*{w=20}[right]{20}
+  \endist
+\end{istgame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Page 4: simplified weather-aware tree (after averaging W-chance nodes)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{istgame}
+  \xtdistance{18mm}{50mm}
+  \istroot(O){c}
+    \istb{S=\text{sun},\ \tfrac12}[above left]
+    \istb{S=\text{rain},\ \tfrac12}[above right]
+  \endist
+  \xtdistance{15mm}{24mm}
+  \istroot(sSun)(O-1)<90>{d}
+    \istb{a=10}[left]{7.5}
+    \istb[action]{a=20}[right]{12.5}
+  \endist
+  \istroot(sRain)(O-2)<90>{d}
+    \istb[action]{a=10}[left]{2.5}
+    \istb{a=20}[right]{-2.5}
+  \endist
+\end{istgame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Page 5: fully reduced weather-aware tree (decision nodes replaced by V*)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{istgame}
+  \xtdistance{18mm}{40mm}
+  \istroot(O){c}
+    \istb{S=\text{sun},\ \tfrac12}[above left]{12.5}
+    \istb{S=\text{rain},\ \tfrac12}[above right]{2.5}
+  \endist
+\end{istgame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Page 6: Blackwell variant: (S,Y) with Y perp (S,W).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{istgame}
+  \setxtinfosetstyle{rectangle,rounded corners,draw,thick,dashed,red!70!black}
+  \xtdistance{22mm}{22mm}
+  \istroot(O){c}
+    \istb{\text{sun},\text{left},\tfrac14}[above left,near end]
+    \istb{\text{sun},\text{right},\tfrac14}[above left,near end]
+    \istb{\text{rain},\text{left},\tfrac14}[above right,near end]
+    \istb{\text{rain},\text{right},\tfrac14}[above right,near end]
+  \endist
+  \xtdistance{15mm}{18mm}
+  \istroot(sSunH)(O-1)<90>{d}
+    \istb{10}[left]  \istb[action]{20}[right]
+  \endist
+  \istroot(sSunL)(O-2)<90>{d}
+    \istb{10}[left]  \istb[action]{20}[right]
+  \endist
+  \istroot(sRainH)(O-3)<90>{d}
+    \istb[action]{10}[left]  \istb{20}[right]
+  \endist
+  \istroot(sRainL)(O-4)<90>{d}
+    \istb[action]{10}[left]  \istb{20}[right]
+  \endist
+  \xtdistance{15mm}{8mm}
+  % Sunny/left
+  \istroot(1a)(sSunH-1)<90>{c}
+    \istb*{}[left]{0}  \istb*{}[right]{10}
+  \endist
+  \istroot(1b)(sSunH-2)<90>{c}
+    \istb*{}[left]{-10}  \istb*{}[right]{20}
+  \endist
+  % Sunny/right
+  \istroot(2a)(sSunL-1)<90>{c}
+    \istb*{}[left]{0}  \istb*{}[right]{10}
+  \endist
+  \istroot(2b)(sSunL-2)<90>{c}
+    \istb*{}[left]{-10}  \istb*{}[right]{20}
+  \endist
+  % Rainy/left
+  \istroot(3a)(sRainH-1)<90>{c}
+    \istb*{}[left]{0}  \istb*{}[right]{10}
+  \endist
+  \istroot(3b)(sRainH-2)<90>{c}
+    \istb*{}[left]{-10}  \istb*{}[right]{20}
+  \endist
+  % Rainy/right
+  \istroot(4a)(sRainL-1)<90>{c}
+    \istb*{}[left]{0}  \istb*{}[right]{10}
+  \endist
+  \istroot(4b)(sRainL-2)<90>{c}
+    \istb*{}[left]{-10}  \istb*{}[right]{20}
+  \endist
+  % Information states: group sunny together and rainy together.
+  \xtInfosetO(sSunH)(sSunL){$S=\text{sunny}$}
+  \xtInfosetO(sRainH)(sRainL){$S=\text{rainy}$}
+\end{istgame}
+
+\end{document}
