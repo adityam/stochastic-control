@@ -1,0 +1,525 @@
+---
+title: "State abstraction"
+---
+
+## Motivation
+
+In the previous lecture, we showed how to obtain model approximation bounds when the true model and the approximate model have the same state space. In this lecture, we consider the setting where the state spaces are not equal.
+
+In particular, consider a model $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$ and an approximate model $\widehat {\ALPHABET M} = \langle \hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c, T \rangle$. We assume that we are given a surjective state abstraction function $φ \colon \ALPHABET S \to \hat {\ALPHABET S}$.
+
+We can use $φ$ to **lift**[^project] any function $\hat f$ defined on $\hat {\ALPHABET S}$ to a function defined on $\ALPHABET S$ given by $f = \hat f \circ φ$, i.e.,
+$$f(s) = \hat f(φ(s)), \quad \forall s \in \ALPHABET  S.$$ 
+An immediate consequence of the definition of the sup-norm is that the lifting operation is non-expansive. 
+
+:::{#lem-lift}
+ For any functions $\hat f_1, \hat f_2 \colon \hat {\ALPHABET S} \to \reals$,
+   $$ \NORM{ \hat f_1 \circ φ - \hat f_2 \circ φ }_{∞} \le 
+    \NORM{ \hat f_1 - \hat f_2 }_{∞}. $$
+:::
+
+[^project]: There is an analogous operation of **projecting** any function on $\ALPHABET S$ to a function of $\hat {\ALPHABET S}$, but we won't discuss that line of approximation here.
+
+
+As before, let $\{V^\star_t\}_{t=1}^T$ and $\{\hat V^\star_t\}_{t =1}^T$ denote the optimal value functions of the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. Moreover, let $π^\star = (π^\star_1, \dots, π^\star_T)$ and $\hat π^\star = (\hat π^\star_1, \dots, \hat π^\star_T)$ be optimal policies for the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. 
+
+
+Any policy $\hat π = (\hat π_1, \dots, \hat π_T)$ on $\widehat {\ALPHABET M}$ can be lifted to a policy on $\ALPHABET M$ by setting $π_t = \hat π_t \circ φ$ for all $t$. We write this lifted policy as $\hat π \circ φ$.
+
+We are interested in the following questions:
+
+1. **Policy error bounds:** Given a policy $\hat π = (\hat π_1, \dots, \hat π_T)$ for $\widehat {\ALPHABET M}$, what is the error if $\hat V^{\hat π}_t \circ φ$ is used as an approximation for $V^{\hat π \circ φ}_t$?
+
+2. **Value error bounds:** What is the error if $\hat V^\star_t \circ φ$ is used as an approximation for $V^\star_t$?
+
+3. **Model approximation error:** What is the error if the policy $\hat π^\star \circ φ$ is used instead of the optimal policy $π^\star$?
+
+## Model approximation (Take 2)
+
+Let $\ALPHABET V$ and $\ALPHABET Q$ denote the space of value and action-value functions in model $\ALPHABET M$, respectively. Similarly, let $\hat {\ALPHABET V}$ and $\hat {\ALPHABET Q}$ denote the space of value and action-value functions in model $\widehat {\ALPHABET M}$. We will use $\DYNAMICS_t \colon \ALPHABET V \to \ALPHABET Q$ and $\hat \DYNAMICS_t \colon \hat {\ALPHABET V} \to \hat {\ALPHABET Q}$ to denote the dynamics operators in model $\ALPHABET M$ and $\widehat {\ALPHABET M}$.
+
+### Mismatch operator
+
+Since $\ALPHABET M$ and $\widehat {\ALPHABET M}$ are defined on different state spaces, we need to modify the definition of the mismatch operator. Define the **mismatch operator** $\hat \MISMATCH_t \colon \hat {\ALPHABET V} \to \ALPHABET Q$ as follows: for any $\hat v \in \hat {\ALPHABET V}$,
+$$
+  \hat \MISMATCH_t \hat v = \DYNAMICS_t (\hat v \circ φ) - (\hat \DYNAMICS_t \hat v) \circ φ,
+$$
+where $(\hat q \circ φ)(s,a) \coloneqq \hat q(φ(s),a)$ for any $\hat q \in \hat {\ALPHABET Q}$.
+
+Then, we have the following one-step estimate.
+
+:::{#lem-one-step-abstract}
+#### One step error propagation
+
+Given $v_{t+1} \in \ALPHABET V$ and $\hat v_{t+1} \in \hat {\ALPHABET V}$, define $q_t = \DYNAMICS_t v_{t+1}$ and $\hat q_t = \hat \DYNAMICS_t \hat v_{t+1}$. Then,
+$$
+  \NORM{q_{t} - \hat q_t \circ φ} \le \NORM{\hat \MISMATCH_t \hat v_{t+1}}
+    + \NORM{v_{t+1} - \hat v_{t+1} \circ φ}
+$$
+where $(\hat q_t \circ φ)(s,a) \coloneqq \hat q_t(φ(s),a)$. 
+
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+Consider
+\begin{align*}
+  \NORM{q_{t} - \hat q_t \circ φ} &= \NORM{\DYNAMICS_t v_{t+1}  - (\hat \DYNAMICS_t \hat v_{t+1}) \circ φ } \\
+  &\stackrel{(a)}\le \NORM{\DYNAMICS_t (\hat v_{t+1} \circ φ) - (\hat \DYNAMICS_t \hat v_{t+1}) \circ φ} 
+  + \NORM{\DYNAMICS_t v_{t+1} - \DYNAMICS_t (\hat v_{t+1} \circ φ) }  \\
+  &\stackrel{(b)}\le \NORM{\hat \MISMATCH_t \hat v_{t+1}} + \NORM{v_{t+1} - \hat v_{t+1} \circ φ},
+\end{align*}
+where $(a)$ follows from the triangle inequality and $(b)$ uses the definition of $\hat \MISMATCH_t$ and the non-expansion of $\DYNAMICS_t$ from @lem-non-expansion.
+:::
+
+The mismatch operator can be used to bound the difference between evaluating a lifted policy in the true model and evaluating the corresponding policy in the approximate model.
+
+### Policy error
+
+:::{#prp-policy-error-abstract}
+#### Policy error
+
+For any policy $\hat π = (\hat π_1, \dots, \hat π_T)$ on $\widehat {\ALPHABET M}$, define the time-dependent one-step model error
+$$
+  Δ^{\hat π}_t =
+  \NORM{\hat \MISMATCH_t \hat V^{\hat π}_{t+1}}.
+$$
+Then, for any $t \in \{1,\dots,T\}$,
+$$
+  \NORM{V^{\hat π \circ φ}_t - \hat V^{\hat π}_t \circ φ}
+  \le
+  \sum_{\tau=t}^T Δ^{\hat π}_\tau.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+We prove the claim by backward induction on $t$.
+
+**Base case ($t = T+1$).** The result holds trivially as $V^{\hat π \circ φ}_{T+1} = \hat V^{\hat π}_{T+1} = 0$.
+
+**Induction step.** Fix $t \in \{1,\dots,T\}$ and assume the claim holds at time $t+1$, i.e.
+$$
+  \NORM{V^{\hat π \circ φ}_{t+1} - \hat V^{\hat π}_{t+1} \circ φ} \le \sum_{\tau=t+1}^{T} Δ^{\hat π}_\tau.
+$$
+Recall that
+$$
+  Q^{\hat π \circ φ}_t = \DYNAMICS_t V^{\hat π \circ φ}_{t+1}, \quad
+  \hat Q^{\hat π}_t = \hat \DYNAMICS_t \hat V^{\hat π}_{t+1},
+$$
+and
+$$
+  V^{\hat π \circ φ}_t = \ALPHABET T^{\hat π_t \circ φ} Q^{\hat π \circ φ}_t,
+  \quad
+  \hat V^{\hat π}_t = \ALPHABET T^{\hat π_t} \hat Q^{\hat π}_t.
+$$
+Observe that
+$$
+  (\hat V^{\hat π}_t \circ φ)
+  =
+  \bigl(\ALPHABET T^{\hat π_t} \hat Q^{\hat π}_t\bigr) \circ φ
+  =
+  \ALPHABET T^{\hat π_t \circ φ} (\hat Q^{\hat π}_t \circ φ).
+$$
+The non-expansion of $\ALPHABET T^{\hat π_t \circ φ}$ and the one-step lemma therefore give
+$$
+  \NORM{V^{\hat π \circ φ}_t - \hat V^{\hat π}_t \circ φ}
+  \le \NORM{Q^{\hat π \circ φ}_t - \hat Q^{\hat π}_t \circ φ}
+  \le Δ^{\hat π}_t + \NORM{V^{\hat π \circ φ}_{t+1} - \hat V^{\hat π}_{t+1} \circ φ}
+  \le Δ^{\hat π}_t + \sum_{\tau=t+1}^{T} Δ^{\hat π}_\tau
+  = \sum_{\tau=t}^{T} Δ^{\hat π}_\tau,
+$$
+where the last inequality uses the induction hypothesis. This establishes the claim at time $t$.
+
+By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
+:::
+
+### Value error
+
+Similar to the above, we can also bound the difference between the optimal value function of the true model and the lift of the optimal value function of the approximate model.
+
+:::{#prp-value-error-abstract}
+#### Value error
+
+Define the time-dependent one-step model error
+$$
+  Δ^\star_t =
+  \NORM{\hat \MISMATCH_t \hat V^\star_{t+1}}.
+$$
+Then, for any $t \in \{1,\dots,T\}$,
+$$
+  \NORM{V^\star_t - \hat V^\star_t \circ φ}
+  \le
+  \sum_{\tau=t}^T Δ^\star_\tau.
+$$
+:::
+
+The proof is similar to the proof of @prp-policy-error-abstract.
+
+:::{.callout-note collapse="true"}
+#### Proof
+
+We prove the claim by backward induction on $t$.
+
+**Base case ($t = T+1$).** The result holds trivially as $V^\star_{T+1} = \hat V^\star_{T+1} = 0$.
+
+**Induction step.** Fix $t \in \{1,\dots,T\}$ and assume the claim holds at time $t+1$, i.e.
+$$
+  \NORM{V^\star_{t+1} - \hat V^\star_{t+1} \circ φ} \le \sum_{\tau=t+1}^{T} Δ^\star_\tau.
+$$
+Recall that
+$$
+  Q^\star_t = \DYNAMICS_t V^\star_{t+1}, \quad
+  \hat Q^\star_t = \hat \DYNAMICS_t \hat V^\star_{t+1},
+$$
+and
+$$
+  V^\star_t = \ALPHABET T^\star Q^\star_t,
+  \quad
+  \hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t.
+$$
+Observe that
+$$
+  (\hat V^\star_t \circ φ)
+  =
+  \bigl(\ALPHABET T^\star \hat Q^\star_t\bigr) \circ φ
+  =
+  \ALPHABET T^\star (\hat Q^\star_t \circ φ).
+$$
+The non-expansion of $\ALPHABET T^\star$ and the one-step lemma therefore give
+$$
+  \NORM{V^\star_t - \hat V^\star_t \circ φ}
+  \le \NORM{Q^\star_t - \hat Q^\star_t \circ φ}
+  \le Δ^\star_t + \NORM{V^\star_{t+1} - \hat V^\star_{t+1} \circ φ}
+  \le Δ^\star_t + \sum_{\tau=t+1}^{T} Δ^\star_\tau
+  = \sum_{\tau=t}^{T} Δ^\star_\tau,
+$$
+where the last inequality uses the induction hypothesis. This establishes the claim at time $t$.
+
+By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
+:::
+
+### Model approximation error
+
+To bound the model approximation error, observe that
+\begin{align} \label{eq:triangle-model-error-abstract}
+  \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t}
+  &\le
+  \NORM{V^\star_t - \hat V^{\hat π^\star}_t \circ φ}
+  +
+  \NORM{V^{\hat π^\star \circ φ}_t - \hat V^{\hat π^\star}_t \circ φ}
+  \\
+  &\stackrel{(a)}=
+  \NORM{V^\star_t - \hat V^\star_t \circ φ}
+  +
+  \NORM{V^{\hat π^\star \circ φ}_t - \hat V^{\hat π^\star}_t \circ φ},
+\end{align}
+where $(a)$ uses that $\hat π^\star$ is optimal for the approximate model, so $\hat V^{\hat π^\star} = \hat V^\star$.
+@prp-value-error-abstract and @prp-policy-error-abstract bound the two terms on the right-hand side. The key point is that because $\hat V^{\hat π^\star} = \hat V^\star$, the one-step model errors that appear in those bounds are the same.
+
+:::{#thm-model-error-hat-V-star-abstract}
+#### Model approximation error
+
+For any $t \in \{1,\dots,T\}$, the policy $\hat π^\star \circ φ$ is $α_t$-optimal for $\ALPHABET M$ at time $t$, where
+$$
+  α_t
+  :=
+  \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t}
+  \le
+  \sum_{\tau=t}^{T}
+  \bigl(
+    Δ^\star_\tau + Δ^{\hat π^\star}_\tau
+  \bigr)
+  =
+  2 \sum_{\tau=t}^{T} \NORM{\hat \MISMATCH_\tau \hat V^\star_{\tau+1}}.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+From \eqref{eq:triangle-model-error-abstract}, @prp-value-error-abstract, and @prp-policy-error-abstract applied to $\hat π^\star$,
+$$
+  \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t}
+  \le
+  \sum_{\tau=t}^{T} Δ^\star_\tau
+  +
+  \sum_{\tau=t}^{T} Δ^{\hat π^\star}_\tau.
+$$
+These two one-step errors coincide because $\hat V^{\hat π^\star}_{\tau+1} = \hat V^\star_{\tau+1}$, so
+$$
+  Δ^\star_\tau = Δ^{\hat π^\star}_\tau = \NORM{\hat \MISMATCH_\tau \hat V^\star_{\tau+1}}.
+$$
+Therefore
+$$
+  Δ^\star_\tau + Δ^{\hat π^\star}_\tau
+  =
+  2 \NORM{\hat \MISMATCH_\tau \hat V^\star_{\tau+1}},
+$$
+and summing over $\tau$ completes the proof.
+:::
+
+## IPM-based bounds on model approximation error
+
+The above bounds require computing $\hat V^\star_t$ and being able to evaluate $\hat \MISMATCH_t \hat V^\star_{t+1}$. As in the previous lecture, it is often more convenient to express the guarantees in terms of an explicit distance between the models $(P,c)$ and $(\hat P,\hat c)$.
+
+We use the same IPM setup as before. Let $\def\F{\mathfrak{F}}\F$ be a convex and balanced set of functions, and write $d_{\F}$ for the corresponding IPM and $ρ_{\F}$ for its Minkowski functional. In particular, for any function $f$,
+\begin{equation}\label{eq:IPM-ineq-abstract}
+  \left| \int f dν_1 - \int f dν_2 \right|
+  \le
+  ρ_{\F}(f) d_{\F}(ν_1, ν_2).
+\end{equation}
+
+Because the models live on different state spaces, the natural one-step comparison is between a transition on $\ALPHABET S$ pushed forward through $φ$ and a transition on $\hat {\ALPHABET S}$. Define the pushed-forward kernel
+$$
+  P_{φ,t}(\hat s' \mid s,a)
+  \coloneqq
+  P_t\bigl(φ^{-1}(\hat s') \mid s,a\bigr).
+$$
+
+::::{#def-model-distance-abstract}
+#### Model distance under state abstraction
+
+Given a function class $\F$, we say that $\widehat{\ALPHABET M}$ is an $(ε_φ,\hat δ_φ)$-approximation of $\ALPHABET M$ with respect to $φ$, where $ε_φ = (ε_{φ,1},\dots,ε_{φ,T})$ and $\hat δ_φ = (\hat δ_{φ,1},\dots,\hat δ_{φ,T})$, if for every time $t$ and all $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+
+1. $\ABS{c_t(s,a) - \hat c_t(φ(s),a)} \le ε_{φ,t}$;
+2. $d_{\F}\bigl(P_{φ,t}(\cdot \mid s,a), \hat P_t(\cdot \mid φ(s),a)\bigr) \le \hat δ_{φ,t}$.
+::::
+
+Equivalently, for any two models we may take
+$$
+  ε_{φ,t}
+  =
+  \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  \ABS{c_t(s,a) - \hat c_t(φ(s),a)}
+$$
+and
+$$
+  \hat δ_{φ,t}
+  =
+  \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  d_{\F}\bigl(P_{φ,t}(\cdot \mid s,a), \hat P_t(\cdot \mid φ(s),a)\bigr).
+$$
+
+An immediate implication is a one-step bound on the mismatch operator.
+
+::::{#lem-IPM-bound-on-mismatch-abstract}
+#### IPM bound on mismatch
+
+If $\widehat{\ALPHABET M}$ is an $(ε_φ,\hat δ_φ)$-approximation of $\ALPHABET M$ with respect to $φ$ and $\F$, then for any time $t$ and any $\hat v \colon \hat {\ALPHABET S} \to \reals$,
+$$
+  \NORM{\hat \MISMATCH_t \hat v} \le ε_{φ,t} + \hat δ_{φ,t} ρ_{\F}(\hat v).
+$$
+::::
+
+::::{.callout-note collapse="false"}
+#### Proof
+
+From the definition of the mismatch operator,
+\begin{align*}
+  \NORM{\hat \MISMATCH_t \hat v}
+  &=
+  \max_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  \biggl\lvert
+    c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s' \mid s,a)\hat v(φ(s'))
+    \\
+    &\hskip 4em
+    - \hat c_t(φ(s),a) - \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P_t(\hat s' \mid φ(s),a)\hat v(\hat s')
+  \biggr\rvert
+  \\
+  &\le
+  \max_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  \biggl\{
+    \ABS{c_t(s,a) - \hat c_t(φ(s),a)}
+    \\
+    &\hskip 4em
+    +
+    \biggl\lvert
+      \sum_{\hat s' \in \hat {\ALPHABET S}} P_{φ,t}(\hat s' \mid s,a)\hat v(\hat s')
+      -
+      \sum_{\hat s' \in \hat {\ALPHABET S}} \hat P_t(\hat s' \mid φ(s),a)\hat v(\hat s')
+    \biggr\rvert
+  \biggr\}
+  \\
+  &\le
+  \max_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  \Bigl\{
+    \ABS{c_t(s,a) - \hat c_t(φ(s),a)}
+    +
+    ρ_{\F}(\hat v)
+    d_{\F}\bigl(P_{φ,t}(\cdot \mid s,a), \hat P_t(\cdot \mid φ(s),a)\bigr)
+  \Bigr\}
+  \\
+  &\le ε_{φ,t} + \hat δ_{φ,t} ρ_{\F}(\hat v).
+\end{align*}
+The second inequality uses \eqref{eq:IPM-ineq-abstract}; the last inequality uses the $t$-th component of the $(ε_φ,\hat δ_φ)$-approximation.
+::::
+
+Combining @lem-IPM-bound-on-mismatch-abstract with @thm-model-error-hat-V-star-abstract gives an explicit model approximation bound in terms of the cost and transition errors.
+
+::::{#thm-model-error-IPM-abstract}
+#### Model approximation error via IPMs
+
+Suppose that $\widehat{\ALPHABET M}$ is an $(ε_φ,\hat δ_φ)$-approximation of $\ALPHABET M$ with respect to $φ$. Then, for any $t \in \{1,\dots,T\}$, the policy $\hat π^\star \circ φ$ is $α_t$-optimal for $\ALPHABET M$ at time $t$, where
+$$
+  α_t
+  :=
+  \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t}
+  \le
+  2 \sum_{\tau=t}^{T}
+  \bigl[
+    ε_{φ,\tau} + \hat δ_{φ,\tau} ρ_{\F}(\hat V^\star_{\tau+1})
+  \bigr].
+$$
+::::
+
+Note that the above bound requires knowledge of $\hat V^\star_t$. For specific choices of IPM, it is possible to obtain instance-independent upper bounds that do not require explicit knowledge of $\hat V^\star_t$.
+
+::::{#cor-model-error-instance-independent-abstract}
+#### Instance-independent model approximation bounds
+
+1. Suppose the approximation is with respect to total variation. Then
+   $$
+     α_t
+     \le
+     2 \sum_{\tau=t}^{T} ε_{φ,\tau}
+     +
+     \sum_{\tau=t}^{T} \hat δ_{φ,\tau}
+     \sum_{k=\tau+1}^{T} \SPAN(\hat c_k).
+   $$
+
+2. Suppose the approximation is with respect to Wasserstein distance. If the approximate model has Lipschitz constants $(\hat L^c_t, \hat L^P_t)$, define $\hat L^V_{T+1}=0$ and
+   $$
+     \hat L^V_t = \hat L^c_t + \hat L^P_t \hat L^V_{t+1}.
+   $$
+   Then
+   $$
+     α_t
+     \le
+     2 \sum_{\tau=t}^{T}
+     \bigl[
+       ε_{φ,\tau} + \hat δ_{φ,\tau} \hat L^V_{\tau+1}
+     \bigr].
+   $$
+::::
+
+## Example: State quantization {#exm-state-quantization}
+
+Consider a finite-horizon MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$ whose state space $\ALPHABET S$ is a compact metric space (for example, a compact subset of a Euclidean space). If $\ALPHABET S$ is continuous, the dynamic programming recursion cannot be implemented exactly. The simplest approximation is to quantize the state space.
+
+Let $\{\ALPHABET S_1,\dots,\ALPHABET S_n\}$ be a partition of $\ALPHABET S$, and for each cell pick a representative $\hat s_i \in \ALPHABET S_i$. Write $\hat {\ALPHABET S} = \{\hat s_1,\dots,\hat s_n\}$ and define the quantization map $φ \colon \ALPHABET S \to \hat {\ALPHABET S}$ by sending every point of $\ALPHABET S_i$ to $\hat s_i$. The associated **quantization radius** is
+$$
+  r \coloneqq \sup_{s \in \ALPHABET S} d_{\ALPHABET S}\bigl(s, φ(s)\bigr).
+$$
+
+Define a finite-state approximate model $\widehat{\ALPHABET M} = \langle \hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c, T \rangle$ by restricting the cost to the grid and by lumping transitions into cells: for every $\hat s_i,\hat s_j \in \hat {\ALPHABET S}$ and $a \in \ALPHABET A$,
+$$
+  \hat c_t(\hat s_i,a) = c_t(\hat s_i,a),
+  \quad
+  \hat P_t(\hat s_j \mid \hat s_i,a) = P_t(\ALPHABET S_j \mid \hat s_i,a).
+$$
+
+![State quantization. Adapted from @Abbeel2019. The state space is partitioned into 12 cells. From $\hat s_6$, four sample transitions fall into cells $\ALPHABET S_7$ and $\ALPHABET S_{10}$; the quantized kernel lumps these into $\hat P(\hat s_7 \mid \hat s_6,a)=q_1+q_2$ and $\hat P(\hat s_{10} \mid \hat s_6,a)=q_3+q_4$.](figures/state-quantization.svg){#fig-quantization}
+
+This is exactly the state-abstraction setup of the present lecture: the approximate model lives on $\hat {\ALPHABET S}$, and policies / value functions on $\widehat{\ALPHABET M}$ are lifted to $\ALPHABET M$ by composition with $φ$. In particular, the policy of interest is $\hat π^\star \circ φ$.
+
+### Cost and dynamics errors
+
+Assume that the true model is Lipschitz: there are constants $(L^c_t, L^P_t)$ such that for all $s,\tilde s \in \ALPHABET S$ and $a \in \ALPHABET A$,
+$$
+  \ABS{c_t(s,a)-c_t(\tilde s,a)} \le L^c_t d_{\ALPHABET S}(s,\tilde s)
+$$
+and
+$$
+  W_1\bigl(P_t(\cdot \mid s,a), P_t(\cdot \mid \tilde s,a)\bigr)
+  \le L^P_t d_{\ALPHABET S}(s,\tilde s).
+$$
+We metrize the grid $\hat {\ALPHABET S}$ with the same metric $d_{\ALPHABET S}$. Recall that the pushed-forward kernel is $P_{φ,t}(\hat s_j \mid s,a) = P_t(\ALPHABET S_j \mid s,a)$, and by construction $\hat P_t(\cdot \mid φ(s),a) = P_{φ,t}(\cdot \mid φ(s),a)$. Thus
+$$
+  \hat δ_{φ,t}
+  =
+  \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  W_1\bigl(
+    P_{φ,t}(\cdot \mid s,a),\,
+    P_{φ,t}(\cdot \mid φ(s),a)
+  \bigr).
+$$
+
+::::{#lem-quantization-cost-dynamics}
+#### Cost and dynamics errors under quantization
+
+For every $t$,
+$$
+  ε_{φ,t} \le L^c_t r
+  \quad\text{and}\quad
+  \hat δ_{φ,t} \le (L^P_t + 2)\, r.
+$$
+::::
+
+::::{.callout-note collapse="false"}
+#### Proof
+
+For the cost, for every $(s,a)$,
+$$
+  \ABS{c_t(s,a)-\hat c_t(φ(s),a)}
+  =
+  \ABS{c_t(s,a)-c_t(φ(s),a)}
+  \le L^c_t d_{\ALPHABET S}\bigl(s, φ(s)\bigr)
+  \le L^c_t r.
+$$
+
+For the dynamics, fix $(s,a)$ and write $μ = P_t(\cdot \mid s,a)$ and $ν = P_t(\cdot \mid φ(s),a)$. Then $P_{φ,t}(\cdot \mid s,a) = φ_\# μ$ and $P_{φ,t}(\cdot \mid φ(s),a) = φ_\# ν$. For any coupling $(X,Y)$ of $(μ,ν)$,
+\begin{align*}
+  \EXP\bigl[ d_{\ALPHABET S}\bigl(φ(X),φ(Y)\bigr) \bigr]
+  &\le
+  \EXP\bigl[ d_{\ALPHABET S}\bigl(φ(X),X\bigr) + d_{\ALPHABET S}(X,Y) + d_{\ALPHABET S}\bigl(Y,φ(Y)\bigr) \bigr]
+  \\
+  &\le
+  \EXP\bigl[ d_{\ALPHABET S}(X,Y) \bigr] + 2r.
+\end{align*}
+Taking the optimal coupling yields
+$$
+  W_1(φ_\# μ, φ_\# ν) \le W_1(μ,ν) + 2r \le (L^P_t + 2)\, r.
+$$
+Taking the supremum over $(s,a)$ completes the proof.
+::::
+
+### Approximation bound
+
+Combining @lem-quantization-cost-dynamics with the Wasserstein case of @cor-model-error-instance-independent-abstract, the lifted quantized policy $\hat π^\star \circ φ$ is $α_t$-optimal for $\ALPHABET M$ with
+$$
+  α_t
+  \le
+  2 \sum_{\tau=t}^{T}
+  \bigl[
+    ε_{φ,\tau} + \hat δ_{φ,\tau} \hat L^V_{\tau+1}
+  \bigr]
+  \le
+  2r \sum_{\tau=t}^{T}
+  \bigl[
+    L^c_\tau + (L^P_\tau + 2)\hat L^V_{\tau+1}
+  \bigr],
+$$
+where $\hat L^V_t$ are Lipschitz constants for $\hat V^\star_t$ on $(\hat {\ALPHABET S}, d_{\ALPHABET S})$.
+
+It remains only to control $\hat L^V_t$. On the grid, the restricted cost is $L^c_t$-Lipschitz. For the transitions, the same coupling argument gives, for any $\hat s,\hat s' \in \hat {\ALPHABET S}$,
+$$
+  W_1\bigl(\hat P_t(\cdot \mid \hat s,a), \hat P_t(\cdot \mid \hat s',a)\bigr)
+  \le
+  L^P_t d_{\ALPHABET S}(\hat s,\hat s') + 2r.
+$$
+Thus, if neighboring representatives are separated by at least $d_{\min}$, a sufficient choice is
+$$
+  \hat L^c_t = L^c_t,
+  \quad
+  \hat L^P_t = L^P_t + \frac{2r}{d_{\min}},
+$$
+and @prp-wasserstein-lipschitz-bound gives $\hat L^V_{T+1}=0$ with
+$$
+  \hat L^V_t = \hat L^c_t + \hat L^P_t \hat L^V_{t+1}.
+$$
+In the common case of a uniform grid with $d_{\min} \asymp r$, the correction $2r/d_{\min}$ is $\mathcal{O}(1)$, and the whole bound remains $\mathcal{O}(r)$.
+
+## References {-}
