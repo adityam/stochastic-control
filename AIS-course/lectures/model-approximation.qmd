@@ -1,0 +1,811 @@
+---
+title: "Model approximation"
+---
+
+## Operator theoretic notation
+
+We start with a notation to simplify how dynamic programs are written. Let $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T\rangle$ denote a finite horizon MDP with state space $\ALPHABET S$, action space $\ALPHABET A$, dynamics $P = (P_1, \dots, P_T)$, and per-step cost $c = (c_1, \dots, c_T)$. For simplicity, we take $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$ and assume that there is no terminal cost. 
+
+We also use $\ALPHABET V$ to denote the space of value function and $\ALPHABET Q$ to denote the space of action-value functions (for finite state space models, these are equivalent to $\reals^{\SIZE{S}}$ and $\reals^{\SIZE{S}\SIZE{A}}$).
+
+### Simple notation
+
+Now we define the following operators. For simplicity, we write them for the case when state and action spaces are finite but the definitions are similar for general spaces.
+
+- For any policy $π \in Π$, define the **policy Bellman operator** $\BELLMAN^π_t \colon \ALPHABET V \to \ALPHABET V$ as follows: for any $v \in \ALPHABET V$,
+  $$
+      [\BELLMAN^π_t v](s) = c_t(s, π(a)) + \sum_{s' \in \ALPHABET S} P_t(s'|s, π(s)) v(s').
+  $$
+
+- Define the **optimality Bellman operator** $\BELLMAN^\star_t \colon \ALPHABET V \to \ALPHABET V$ as follows: for any $v \in \ALPHABET V$,
+  $$
+      [\BELLMAN^\star_t v](s) = \min_{a \in \ALPHABET A} \biggl\{ 
+        c_t(s, a) + \sum_{s' \in \ALPHABET S} P_t(s'|s, a) v(s')
+      \biggr\}.
+  $$
+
+Then the dynamic programming decomposition can be written succinctly as:
+$$
+   V^\star_{T+1} = 0, \quad\text{and}\quad
+   V^\star_t = \BELLMAN^\star_t V^\star_{t+1},
+  \quad \forall t \in \{T,\dots,1\}.
+$$
+Or, pictorially:
+$$
+  0 ≡ V^\star_{T+1} \xrightarrow{\BELLMAN^\star} V^\star_T \xrightarrow{\BELLMAN^\star} V^\star_{T-1} \cdots \xrightarrow{\BELLMAN^\star} V^\star_1.
+$$
+Moreover, a policy $π^\star = (π^\star_1, \dots, π^\star_T) \in Π$ is optimal if and only if $\BELLMAN^\star_t V^\star_{t+1} = \BELLMAN^{π^\star}_t V^\star_{t+1}$ for all $t$.
+
+Similarly, for a policy $π ∈ Π$, the policy evaluation dynamic program can be written as:
+$$
+  0 ≡ V^π_{T+1} \xrightarrow{\BELLMAN^π} V^π_T \xrightarrow{\BELLMAN^π} V^π_{T-1} \cdots \xrightarrow{\BELLMAN^π} V^π_1.
+$$
+
+### More elaborate Notation
+
+Sometimes we need to explicitly keep track of the action-value functions. So, we use a more elaborate notation ([this is **not** a commonly used notation in the literature]{.mark}).
+
+- Define the operator $\DYNAMICS_t \colon \ALPHABET V \to \ALPHABET Q$ as the **expectation over the environment**: for any $v \in \ALPHABET V$
+  $$
+      [\DYNAMICS_t v](s,a) = c_t(s,a) + \sum_{s' \in \ALPHABET S} P(s'|s,a) v(s').
+  $$
+
+- For any $π \in Π$, define the **Bellman target operator** $\ALPHABET T^π$ as follows: for any $q \in \ALPHABET Q$, 
+  $$
+      [\ALPHABET T^π q](s) = q(s, π(s))
+      \quad\text{or for stochastic $π$ }
+      [\ALPHABET T^π q](s) = \sum_{a \in \ALPHABET A} π(a | s)q(s, a).
+  $$
+
+- Define the **optimality Bellman target operator** $\ALPHABET T^\star$ as follows: for any $q \in \ALPHABET Q$, 
+  $$
+      [\ALPHABET T^\star q](s) = \min_{a \in \ALPHABET A} q(s, a).
+  $$
+
+- Define $\GREEDY \colon \ALPHABET Q \rightrightarrows Π$ to the **greedy policy**: given a $q \in \ALPHABET Q$, $π \in \ALPHABET G q$ means that $π(s) \in \arg\min_{a \in \ALPHABET A} q(s,a)$.
+
+Observe that
+$$
+   \BELLMAN^π_t = \ALPHABET T^π \circ \DYNAMICS_t,
+    \quad \text{and}\quad
+   \BELLMAN^\star_t = \ALPHABET T^\star \circ \DYNAMICS_t.
+$$
+
+Then, we can write the more elaborate dynamic programming decomposition as:
+$$
+  V^\star_{T+1} = 0, \quad\text{and}\quad
+  Q^\star_t = \DYNAMICS_t V^\star_{t+1}, 
+  \quad
+  V^\star_t = \ALPHABET T^\star Q^\star_t,
+  \quad \forall t \in \{T,\dots,1\}.
+$$
+Or, pictorially:
+$$
+  0 ≡ V^\star_{T+1} \xrightarrow{\DYNAMICS_T} Q^\star_T \xrightarrow{\ALPHABET T^\star} V^\star_T \xrightarrow{\DYNAMICS_{T-1}} Q^\star_{T-1} \cdots \xrightarrow{\ALPHABET T^\star} V^\star_1.
+$$
+Moreover, a policy $π^\star = (π^\star_1, \dots, π^\star_T) \in Π$ is optimal if and only if $π^\star_t \in \GREEDY Q^\star_{t+1}$. An implication of this is that $\ALPHABET T^\star_t Q^\star_{t} = \ALPHABET T^{π^\star}_t Q^\star_t$. 
+
+Similarly, for a policy $π ∈ Π$, the policy evaluation dynamic program can be written as:
+$$
+  0 ≡ V^π_{T+1} \xrightarrow{\DYNAMICS_T} Q^π_T \xrightarrow{\ALPHABET T^π} V^π_T \xrightarrow{\DYNAMICS_{T-1}} Q^π_{T-1} \cdots \xrightarrow{\ALPHABET T^π} V^π_1.
+$$
+
+The advantage of this notation is that the expectation operator $\DYNAMICS_t$ depends on the model; the target operators $\ALPHABET T^π$ and $\ALPHABET T^\star$ do not depend on the model. This makes it easy for us to describe model approximation.
+
+:::{#lem-non-expansion}
+#### Non-expansion properties
+
+The operators $\DYNAMICS_t$, $\hat \DYNAMICS_t$, $\ALPHABET T^π$, and $\ALPHABET T^\star$ are non-expansions in the sup-norm. In particular:
+
+1. For any $v, \hat v \in \ALPHABET V$,
+   $$
+     \NORM{\DYNAMICS_t v - \DYNAMICS_t \hat v} \le \NORM{v - \hat v}.
+   $$
+   The same bound holds with $\DYNAMICS_t$ replaced by $\hat \DYNAMICS_t$.
+
+2. For any $q, \hat q \in \ALPHABET Q$ and any (possibly randomized) policy $π$,
+   $$
+     \NORM{\ALPHABET T^π q - \ALPHABET T^π \hat q} \le \NORM{q - \hat q}.
+   $$
+
+3. For any $q, \hat q \in \ALPHABET Q$,
+   $$
+     \NORM{\ALPHABET T^\star q - \ALPHABET T^\star \hat q} \le \NORM{q - \hat q}.
+   $$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+1. For any $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+   $$
+     \ABS{[\DYNAMICS_t v](s,a) - [\DYNAMICS_t \hat v](s,a)}
+     =
+     \ABS{\sum_{s' \in \ALPHABET S} P_t(s'|s,a)[v(s') - \hat v(s')]}
+     \le
+     \NORM{v-\hat v}.
+   $$
+   Taking the supremum over $(s,a)$ gives the result.
+
+2. For any $s \in \ALPHABET S$,
+   $$
+     \ABS{[\ALPHABET T^π q](s) - [\ALPHABET T^π \hat q](s)}
+     =
+     \ABS{\sum_{a \in \ALPHABET A} π(a|s)[q(s,a)-\hat q(s,a)]}
+     \le
+     \NORM{q-\hat q}.
+   $$
+   Taking the supremum over $s$ gives the result.
+
+3. Fix any $s \in \ALPHABET S$. Let $a^\star \in \arg\min_{a \in \ALPHABET A} q(s,a)$ and $\hat a^\star \in \arg\min_{a \in \ALPHABET A} \hat q(s,a)$. Then,
+   \begin{align*}
+     [\ALPHABET T^\star q](s) - [\ALPHABET T^\star \hat q](s)
+     &=
+     q(s,a^\star) - \hat q(s,\hat a^\star)
+     \\
+     &\stackrel{(a)}\le
+     q(s,\hat a^\star) - \hat q(s,\hat a^\star)
+     \le
+     \NORM{q-\hat q},
+   \end{align*}
+   where $(a)$ uses that $a^\star$ minimizes $q(s,⋅)$. Reversing the roles of $q$ and $\hat q$ yields $[\ALPHABET T^\star \hat q](s) - [\ALPHABET T^\star q](s) \le \NORM{q-\hat q}$. Taking the supremum over $s$ completes the proof.
+:::
+
+## Model approximation (Take 1)
+
+We now start with the simpler model approximation setting. We will revisit this model a few times, making the model and approximation bounds more sophisticated.
+
+Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$. Suppose the components $\langle \ALPHABET S, \ALPHABET A, γ \rangle$ are known exactly but the components $(P,c)$ are known approximately. Consider the approximate MDP $\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, T \rangle$. We will call $\ALPHABET M$ to be the **true model** and $\widehat {\ALPHABET M}$ to be the **approximate model**.
+
+Let $\{V^\star\}_{t=1}^T$ and $\{\hat V^\star\}_{t =1}^T$ denote the optimal value functions of the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. Moreover, let $π^\star = (π^\star_1, \dots, π^\star_T)$ and $\hat π^\star = (\hat π^\star_1, \dots, π^\star_T)$$ be optimal policies for the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. We will use $\DYNAMICS_t$ and $\DYNAMICS_t$ to denote the dynamics operators in model $\ALPHABET M$ and $\widehat {\ALPHABET M}$. 
+
+We are interested in the following questions:
+
+1. **Policy error bounds:** Given a policy $π = (π_1, \dots, π_T)$, what is the error if $\hat V^π_t$ is used as an approximation for $V^π_t$?
+
+2. **Value error bounds:** What is the error if $\hat V^\star_t$ is used as an approximation for $V^\star_t$?
+
+3. **Model approximation error:** What is the error if the policy $\hat π^\star$ is used instead of the optimal policy $π^\star$
+
+We will start by characterizing the bounds in terms of the sup-norm: for any function $v \in \ALPHABET V$, $\NORM{v}_{∞} = \sup_{s \in \ALPHABET S} \ABS{v(s)}$. [In the sequel, we use $\NORM{⋅}$ to denote $\NORM{⋅}_{∞}$]{.mark}
+
+### Mismatch operator
+
+- Define the **mismatch operator** $\MISMATCH_t \colon \ALPHABET V \to \ALPHABET Q$ as follows: for any $v \in \ALPHABET V$,
+  $$
+      \MISMATCH_t v = \DYNAMICS_t v - \hat \DYNAMICS_t v
+  $$
+
+Then, we have the following one-step estimate.
+
+:::{#lem-one-step}
+#### One step error propogation
+
+Given $v_{t+1}, \hat v_{t+1} \in \ALPHABET V$, define $q_t = \DYNAMICS_t v_{t+1}$ and $\hat q_t = \hat \DYNAMICS_t \hat v_{t+1}$. Then,
+$$
+  \NORM{q_{t} - \hat q_t} \le \min\bigl\{
+    \NORM{\MISMATCH_t v_{t+1}}, \NORM{\MISMATCH_t \hat v_{t+1}}
+  \bigr\}
+    + \NORM{v_{t+1} - \hat v_{t+1}}.
+$$
+
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+Consider
+\begin{align*}
+  \NORM{q_{t} - \hat q_t} &= \NORM{\DYNAMICS_t v_{t+1} - \hat \DYNAMICS_t \hat v_{t+1} } \\
+  &\stackrel{(a)}\le \NORM{\DYNAMICS_t v_{t+1} - \hat \DYNAMICS_t v_{t+1} } 
+  + \NORM{\hat \DYNAMICS_t v_{t+1} - \hat \DYNAMICS_t \hat v_{t+1} }  \\
+  &\stackrel{(b)}\le \NORM{\MISMATCH_t v_{t+1}} + \NORM{v_{t+1} - \hat v_{t+1}},
+\end{align*}
+where $(a)$ follows from the triangle inequality and $(b)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\hat \DYNAMICS_t$ from @lem-non-expansion.
+
+The second inequality follows by reversing the roles of $v_{t+1}$ and $\hat v_{t+1}$:
+\begin{align*}
+  \NORM{q_{t} - \hat q_t} &= \NORM{\DYNAMICS_t v_{t+1} - \hat \DYNAMICS_t \hat v_{t+1} } \\
+  &\stackrel{(c)}\le \NORM{\DYNAMICS_t \hat v_{t+1} - \hat \DYNAMICS_t \hat v_{t+1} } 
+  + \NORM{\DYNAMICS_t v_{t+1} - \DYNAMICS_t \hat v_{t+1} }  \\
+  &\stackrel{(d)}\le \NORM{\MISMATCH_t \hat v_{t+1}} + \NORM{v_{t+1} - \hat v_{t+1}},
+\end{align*}
+where $(c)$ follows from the triangle inequality and $(d)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\DYNAMICS_t$ from @lem-non-expansion.
+:::
+
+The mismatch operator can be used to bound the difference between evaluating a fixed policy in the true and approximate models.
+
+### Policy Error
+
+:::{#prp-policy-error}
+#### Policy error
+
+For any policy $π = (π_1, \dots, π_T)$, define the time-dependent one-step model error
+$$
+  Δ^π_t =
+  \min\bigl\{
+    \NORM{\MISMATCH_t V^π_{t+1}},
+    \NORM{\MISMATCH_t \hat V^π_{t+1}}
+  \bigr\}.
+$$
+Then, for any $t \in \{1,\dots,T\}$,
+$$
+  \NORM{V^π_t - \hat V^π_t}
+  \le
+  \sum_{\tau=t}^T Δ^π_\tau.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+We prove the claim by backward induction on $t$.
+
+**Base case ($t = T+1$).** The result holds trivially as $V^π_{T+1} = \hat V^π_{T+1} = 0$. 
+
+**Induction step.** Fix $t \in \{1,\dots,T\}$ and assume the claim holds at time $t+1$, i.e.
+$$
+  \NORM{V^π_{t+1} - \hat V^π_{t+1}} \le \sum_{\tau=t+1}^{T} Δ^π_\tau.
+$$
+Recall that
+$$
+  Q^π_t = \DYNAMICS_t V^π_{t+1}, \quad
+  \hat Q^π_t = \hat \DYNAMICS_t \hat V^π_{t+1},
+$$
+and $V^π_t = \ALPHABET T^{π_t} Q^π_t$, $\hat V^π_t = \ALPHABET T^{π_t} \hat Q^π_t$. The non-expansion of $\ALPHABET T^{π_t}$ and the one-step lemma therefore give
+$$
+  \NORM{V^π_t - \hat V^π_t}
+  \le \NORM{Q^π_t - \hat Q^π_t}
+  \le Δ^π_t + \NORM{V^π_{t+1} - \hat V^π_{t+1}}
+  \le Δ^π_t + \sum_{\tau=t+1}^{T} Δ^π_\tau
+  = \sum_{\tau=t}^{T} Δ^π_\tau,
+$$
+where the last inequality uses the induction hypothesis. This establishes the claim at time $t$.
+
+By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
+:::
+
+### Value error
+
+Similar to the above, we can also bound the difference between the optimal value functions of the true and approximate models.
+
+:::{#prp-value-error}
+#### Value error
+
+Define the time-dependent one-step model error
+$$
+  Δ^\star_t =
+  \min\bigl\{
+    \NORM{\MISMATCH_t V^\star_{t+1}},
+    \NORM{\MISMATCH_t \hat V^\star_{t+1}}
+  \bigr\}.
+$$
+Then, for any $t \in \{1,\dots,T\}$,
+$$
+  \NORM{V^\star_t - \hat V^\star_t}
+  \le
+  \sum_{\tau=t}^T Δ^\star_\tau.
+$$
+:::
+
+The proof is similar to the proof of @prp-policy-error. 
+
+:::{.callout-note collapse="true"}
+#### Proof
+
+We prove the claim by backward induction on $t$.
+
+**Base case ($t = T+1$).** The result holds trivially as $V^\star_{T+1} = \hat V^\star_{T+1} = 0$.
+
+**Induction step.** Fix $t \in \{1,\dots,T\}$ and assume the claim holds at time $t+1$, i.e.
+$$
+  \NORM{V^\star_{t+1} - \hat V^\star_{t+1}} \le \sum_{\tau=t+1}^{T} Δ^\star_\tau.
+$$
+Recall that
+$$
+  Q^\star_t = \DYNAMICS_t V^\star_{t+1}, \quad
+  \hat Q^\star_t = \hat \DYNAMICS_t \hat V^\star_{t+1},
+$$
+and $V^\star_t = \ALPHABET T^\star Q^\star_t$, $\hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t$. The non-expansion of $\ALPHABET T^\star$ and the one-step lemma therefore give
+$$
+  \NORM{V^\star_t - \hat V^\star_t}
+  \le \NORM{Q^\star_t - \hat Q^\star_t}
+  \le Δ^\star_t + \NORM{V^\star_{t+1} - \hat V^\star_{t+1}}
+  \le Δ^\star_t + \sum_{\tau=t+1}^{T} Δ^\star_\tau
+  = \sum_{\tau=t}^{T} Δ^\star_\tau,
+$$
+where the last inequality uses the induction hypothesis. This establishes the claim at time $t$.
+
+By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
+:::
+
+### Model approximation error
+
+To bound the model approximation error, observe that
+\begin{align} \label{eq:triangle-model-error}
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  &\le
+  \NORM{V^\star_t - \hat V^{\hat π^\star}_t}
+  +
+  \NORM{V^{\hat π^\star}_t - \hat V^{\hat π^\star}_t}
+  \\
+  &\stackrel{(a)}=
+  \NORM{V^\star_t - \hat V^\star_t}
+  +
+  \NORM{V^{\hat π^\star}_t - \hat V^{\hat π^\star}_t},
+\end{align}
+where $(a)$ uses that $\hat π^\star$ is optimal for the approximate model, so $\hat V^{\hat π^\star} = \hat V^\star$.
+@prp-value-error and @prp-policy-error bound the two terms on the right-hand side. The key point is that because $\hat V^{\hat π^\star} = \hat V^\star$, the $\hat V$-sided one-step model errors that appear in those bounds are the same.
+
+:::{#thm-model-error-hat-V-star}
+#### Model approximation error
+
+For any $t \in \{1,\dots,T\}$, the policy $\hat π^\star$ is $α_t$-optimal for $\ALPHABET M$ at time $t$, where
+$$
+  α_t
+  :=
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le
+  \sum_{\tau=t}^{T}
+  \bigl(
+    Δ^\star_\tau + Δ^{\hat π^\star}_\tau
+  \bigr)
+  \le
+  2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}}.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+From \eqref{eq:triangle-model-error}, @prp-value-error, and @prp-policy-error applied to $\hat π^\star$,
+$$
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le
+  \sum_{\tau=t}^{T} Δ^\star_\tau
+  +
+  \sum_{\tau=t}^{T} Δ^{\hat π^\star}_\tau.
+$$
+For the second inequality, take the $\hat V$-sided term in each $\min$:
+$$
+  Δ^\star_\tau
+  \le
+  \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}},
+  \qquad
+  Δ^{\hat π^\star}_\tau
+  \le
+  \NORM{\MISMATCH_\tau \hat V^{\hat π^\star}_{\tau+1}}.
+$$
+These upper bounds coincide because $\hat V^{\hat π^\star}_{\tau+1} = \hat V^\star_{\tau+1}$. Therefore
+$$
+  Δ^\star_\tau + Δ^{\hat π^\star}_\tau
+  \le
+  2 \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}},
+$$
+and summing over $\tau$ completes the proof.
+:::
+
+In some applications, it is useful to have a bound on model approximation error that depends on $V^\star$ rather than $\hat V^\star$. The next result is the finite-horizon analogue of the discounted $V^\star$-based bound.
+
+:::{#thm-model-error-V-star}
+#### Model approximation error
+
+For any $t \in \{1,\dots,T\}$, the policy $\hat π^\star$ is $α_t$-optimal for $\ALPHABET M$ at time $t$, where
+$$
+  α_t
+  :=
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le
+  2 \sum_{\tau=t}^{T} (\tau - t + 1) \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+We claim that for any $t \in \{1,\dots,T\}$,
+$$
+  α_t
+  \le
+  α_{t+1}
+  +
+  2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
+$$
+
+The result them follows by _unrolling_ the claim.
+
+We now prove the claim by backward induction.
+
+**Base case ($t = T+1$).** The result holds trivially as $α_{T+1} = 0$.
+
+**Induction step.** Fix $t \in \{1,\dots,T\}$ and assume the claim of the theorem holds at time $t+1$, i.e.
+$$
+  α_{t+1}
+  \le
+  2 \sum_{\tau=t+1}^{T} (\tau - t) \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
+$$
+Combined with the recursive claim above,
+$$
+  α_t
+  \le
+  2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}}
+  +
+  2 \sum_{\tau=t+1}^{T} (\tau - t) \NORM{\MISMATCH_\tau V^\star_{\tau+1}}
+  =
+  2 \sum_{\tau=t}^{T} (\tau - t + 1) \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
+$$
+This establishes the bound at time $t$.
+
+By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
+
+It remains to prove the claim. From @prp-value-error, taking the $V^\star$-sided term in the definition of $Δ^\star_\tau$ gives
+$$
+  \NORM{V^\star_t - \hat V^\star_t}
+  \le
+  \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
+$$
+Moreover, since $\hat V^\star = \hat V^{\hat π^\star}$,
+\begin{align*}
+  \NORM{V^{\hat π^\star}_t - \hat V^\star_t}
+  &=
+  \NORM{\ALPHABET T^{\hat π^\star_t} \DYNAMICS_t V^{\hat π^\star}_{t+1}
+    - \ALPHABET T^{\hat π^\star_t} \hat \DYNAMICS_t \hat V^\star_{t+1}}
+  \\
+  &\le
+  \NORM{\DYNAMICS_t V^{\hat π^\star}_{t+1}
+    - \hat \DYNAMICS_t \hat V^\star_{t+1}}
+  \\
+  &\le
+  \NORM{\DYNAMICS_t V^{\hat π^\star}_{t+1} - \DYNAMICS_t V^\star_{t+1}}
+  + \NORM{\DYNAMICS_t V^\star_{t+1} - \hat \DYNAMICS_t V^\star_{t+1}}
+  + \NORM{\hat \DYNAMICS_t V^\star_{t+1} - \hat \DYNAMICS_t \hat V^\star_{t+1}}
+  \\
+  &\le
+  α_{t+1}
+  + \NORM{\MISMATCH_t V^\star_{t+1}}
+  + \NORM{V^\star_{t+1} - \hat V^\star_{t+1}}
+  \\
+  &\le
+  α_{t+1}
+  + \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
+\end{align*}
+Therefore, using \eqref{eq:triangle-model-error},
+$$
+  α_t
+  \le
+  \NORM{V^\star_t - \hat V^\star_t}
+  + \NORM{V^{\hat π^\star}_t - \hat V^\star_t}
+  \le
+  α_{t+1}
+  + 2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}},
+$$
+which proves the claim.
+:::
+
+## IPM-based bounds on model approximation error
+
+Sometimes it is easier to specify model error directly in terms of the primitive components of the two models. For example, we may bound the difference between $\ALPHABET M$ and $\widehat{\ALPHABET M}$ by comparing their costs and their transition kernels. To compare transition kernels, we need a metric on probability laws. [Integral probability metrics (IPMs)][IPM] are well suited for this purpose.
+
+[IPM]: https://adityam.github.io/stochastic-control/probability/IPM.html
+
+Let $\def\F{\mathfrak{F}}\F$ be a convex and balanced set of functions from $\ALPHABET S$ to $\reals$. The IPM distance with respect to $\F$ between two probability laws $ν_1$ and $ν_2$ is
+$$
+  d_{\F}(ν_1, ν_2) = \sup_{f \in \F} \left| \int f dν_1 - \int f dν_2 \right|.
+$$
+For this discussion, assume that $\F$ is a maximal generator. See the [IPM notes][generators] for details, especially the [Minkowski functional $ρ_{\F}$][Minkowski] and the inequality
+\begin{equation}\label{eq:IPM-ineq}
+  \left| \int f dν_1 - \int f dν_2 \right|
+  \le
+  ρ_{\F}(f) d_{\F}(ν_1, ν_2).
+\end{equation}
+
+[generators]: https://adityam.github.io/stochastic-control/probability/IPM.html#maximal-generators
+[Minkowski]: https://adityam.github.io/stochastic-control/probability/IPM.html#Minkowski
+
+Now we define a corresponding distance between finite-horizon models.
+
+::::{#def-model-distance}
+#### Model distance
+
+Given a function class $\F$, we say that $\widehat{\ALPHABET M}$ is an $(ε,δ)$-approximation of $\ALPHABET M$, where $ε = (ε_1,\dots,ε_T)$ and $δ = (δ_1,\dots,δ_T)$, if for every time $t$ and all $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+
+1. $\ABS{c_t(s,a) - \hat c_t(s,a)} \le ε_t$;
+2. $d_{\F}\bigl(P_t(\cdot \mid s,a), \hat P_t(\cdot \mid s,a)\bigr) \le δ_t$.
+::::
+
+Equivalently, for any two models we may take the vectors $ε$ and $δ$ with components
+$$
+  ε_t = \NORM{c_t - \hat c_t}_{∞}
+  \quad\text{and}\quad
+  δ_t = \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A} d_{\F}\bigl(P_t(\cdot \mid s,a), \hat P_t(\cdot \mid s,a)\bigr).
+$$
+
+An immediate implication is a one-step bound on the mismatch operator.
+
+::::{#lem-IPM-bound-on-mismatch}
+#### IPM bound on mismatch
+
+If $\widehat{\ALPHABET M}$ is an $(ε,δ)$-approximation of $\ALPHABET M$ with respect to $\F$, where $ε=(ε_1,\dots,ε_T)$ and $δ=(δ_1,\dots,δ_T)$, then for any time $t$ and any $v \colon \ALPHABET S \to \reals$,
+$$
+  \NORM{\MISMATCH_t v} \le ε_t + δ_t ρ_{\F}(v).
+$$
+::::
+
+::::{.callout-note collapse="false"}
+#### Proof
+
+From the definition of the mismatch operator,
+\begin{align*}
+  \NORM{\MISMATCH_t v}
+  &=
+  \max_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  \biggl\lvert
+    c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s' \mid s,a)v(s')
+    - \hat c_t(s,a) - \sum_{s' \in \ALPHABET S} \hat P_t(s' \mid s,a)v(s')
+  \biggr\rvert
+  \\
+  &\le
+  \max_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  \biggl\{
+    \ABS{c_t(s,a) - \hat c_t(s,a)}
+    +
+    \biggl\lvert
+      \sum_{s' \in \ALPHABET S} P_t(s' \mid s,a)v(s')
+      -
+      \sum_{s' \in \ALPHABET S} \hat P_t(s' \mid s,a)v(s')
+    \biggr\rvert
+  \biggr\}
+  \\
+  &\le
+  \max_{(s,a) \in \ALPHABET S \times \ALPHABET A}
+  \Bigl\{
+    \ABS{c_t(s,a) - \hat c_t(s,a)}
+    +
+    ρ_{\F}(v)
+    d_{\F}\bigl(P_t(\cdot \mid s,a), \hat P_t(\cdot \mid s,a)\bigr)
+  \Bigr\}
+  \\
+  &\le ε_t + δ_t ρ_{\F}(v).
+\end{align*}
+The second inequality uses \eqref{eq:IPM-ineq}; the last inequality uses the $t$-th component of the $(ε,δ)$-approximation.
+::::
+
+Combining @lem-IPM-bound-on-mismatch with @thm-model-error-hat-V-star and @thm-model-error-V-star gives explicit model approximation bounds in terms of the cost and transition errors.
+
+::::{#thm-model-error-IPM}
+#### Model approximation error via IPMs
+
+Suppose that $\widehat{\ALPHABET M}$ is an $(ε,δ)$-approximation of $\ALPHABET M$. Then, for any $t \in \{1,\dots,T\}$, the policy $\hat π^\star$ is $α_t$-optimal for $\ALPHABET M$ at time $t$, where
+$$
+  α_t
+  :=
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le
+  2 \sum_{\tau=t}^{T}
+  \bigl[
+    ε_\tau + δ_\tau ρ_{\F}(\hat V^\star_{\tau+1})
+  \bigr].
+$$
+Another upper bound is
+$$
+  α_t
+  \le
+  2 \sum_{\tau=t}^{T}
+  (\tau - t + 1)
+  \bigl[
+    ε_\tau + δ_\tau ρ_{\F}(V^\star_{\tau+1})
+  \bigr].
+$$
+::::
+
+Note that the above bounds require the knowledge of $\hat V^*_t$. For specific choices of IPM, it is possible to obtain bounds which do not require the knowledge of $\hat V^*_t$. We can get looser upper bounds which do not require explicit knowledge of $\hat V^*_t$. 
+
+
+::::{#cor-model-error-instance-independent}
+#### Instance-independent model approximation bounds
+
+1. Suppose the approximation is with respect to total variation. Then
+   $$
+     α_t
+     \le
+     2 \sum_{\tau=t}^{T} ε_\tau
+     +
+     \sum_{\tau=t}^{T} δ_\tau
+     \sum_{k=\tau+1}^{T} \SPAN(\hat c_k).
+   $$
+   Alternatively,
+   $$
+     α_t
+     \le
+     2 \sum_{\tau=t}^{T} (\tau-t+1) ε_\tau
+     +
+     \sum_{\tau=t}^{T} (\tau-t+1)δ_\tau
+     \sum_{k=\tau+1}^{T} \SPAN(c_k).
+   $$
+
+2. Suppose the approximation is with respect to Wasserstein distance. If the approximate model has Lipschitz constants $(\hat L^c_t, \hat L^P_t)$, define $\hat L^V_{T+1}=0$ and
+   $$
+     \hat L^V_t = \hat L^c_t + \hat L^P_t \hat L^V_{t+1}.
+   $$
+   Then
+   $$
+     α_t
+     \le
+     2 \sum_{\tau=t}^{T}
+     \bigl[
+       ε_\tau + δ_\tau \hat L^V_{\tau+1}
+     \bigr].
+   $$
+   Alternatively, using the Lipschitz constants $(L^c_t, L^P_t)$ of the true model, define $L^V_{T+1}=0$ and
+   $$
+     L^V_t = L^c_t + L^P_t L^V_{t+1}.
+   $$
+   Then
+   $$
+     α_t
+     \le
+     2 \sum_{\tau=t}^{T}
+     (\tau-t+1)
+     \bigl[
+       ε_\tau + δ_\tau L^V_{\tau+1}
+     \bigr].
+   $$
+::::
+
+## Example: Inventory management with incorrect demand distribution {#exm-inventory-incorrect-demand}
+
+Consider the finite-horizon inventory management problem with dynamics
+$$
+  S_{t+1} = S_t + A_t - W_t
+$$
+and per-step cost
+$$
+  c_t(s,a,w) = p a + h(s+a-w),
+  \quad
+  h(x) =
+  \begin{cases}
+    c_h x, & x \ge 0, \\
+    -c_s x, & x < 0.
+  \end{cases}
+$$
+Suppose the true demand at time $t$ has law $ν_t$, but the approximate model uses $\hat ν_t$. Let
+$$
+  δ_t = W_1(ν_t,\hat ν_t),
+  \quad
+  \ell = \max\{c_h,c_s\}.
+$$
+
+The transition kernels are shifted copies of the demand laws. For example, if the true and approximate demands have densities $f_{W_t}$ and $f_{\hat W_t}$, then the densities of the next-stock laws are
+$$
+  p_t(x \mid s,a) = f_{W_t}(s+a-x),
+  \quad
+  \hat p_t(x \mid s,a) = f_{\hat W_t}(s+a-x).
+$$
+Thus both distributions are shifted in the same way, and shifting two distributions does not change their Wasserstein distance.[^inventory-shift] Hence
+$$
+  W_1\bigl(P_t(\cdot \mid s,a),\hat P_t(\cdot \mid s,a)\bigr)
+  =
+  W_1(ν_t,\hat ν_t)
+  =
+  δ_t.
+$$
+
+[^inventory-shift]: In one dimension, this follows immediately from the CDF formula $W_1(X,Y)=\int_{-∞}^{∞} \ABS{F_X(x)-F_Y(x)}\,dx$.
+
+The primitive cost function is known, but the expected one-step cost changes because the demand law changes. Since $h$ is $\ell$-Lipschitz,
+$$
+  \ABS{
+    \EXP[h(s+a-W_t)] - \EXP[h(s+a-\hat W_t)]
+  }
+  \le
+  \ell δ_t.
+$$
+Thus, in the notation of @def-model-distance, we may take $ε_t = \ell δ_t$.
+
+By @prp-inventory-lipschitz, the approximate value functions satisfy
+$$
+  \hat L^V_{\tau+1} = (T-\tau)\ell.
+$$
+Using the Wasserstein part of @cor-model-error-instance-independent, the policy $\hat π^\star$ computed from the approximate demand model is $α_t$-optimal for the true inventory model with
+$$
+  α_t
+  \le
+  2 \sum_{\tau=t}^{T}
+  \bigl[
+    \ell δ_\tau + δ_\tau (T-\tau)\ell
+  \bigr]
+  =
+  2\ell \sum_{\tau=t}^{T} (T-\tau+1)δ_\tau.
+$$
+If the demand approximation error is time-homogeneous, $δ_\tau \le δ$ for all $\tau$, then
+$$
+  α_t \le \ell δ (T-t+1)(T-t+2).
+$$
+
+## Example: Performance loss from certainty equivalent control {#exm-certainty-equivalence}
+
+[Certainty equivalence][CE] is the following design method: replace the random variables in a stochastic control problem by their conditional means, solve the resulting deterministic control problem, and use the resulting feedback policy in the original stochastic system. This is optimal for some special models, such as [linear quadratic regulation][LQR], but not in general.
+
+[CE]: https://adityam.github.io/stochastic-control/stochastic-optimization/certainty-equivalence.html
+[LQR]: https://adityam.github.io/stochastic-control/linear-systems/lqr.html
+
+Consider a finite-horizon system with state space $\reals^n$, action space $\reals^m$, and dynamics
+\begin{equation}\label{eq:stochastic-CE}
+  S_{t+1} = f_t(S_t,A_t) + N_t,
+\end{equation}
+where $\EXP[N_t]=0$. Suppose the per-step cost is $c_t(S_t,A_t)$ and does not depend directly on the noise. The certainty equivalent model replaces \eqref{eq:stochastic-CE} by
+\begin{equation}\label{eq:deterministic-CE}
+  S_{t+1} = f_t(S_t,A_t).
+\end{equation}
+Let $\ALPHABET M$ denote the stochastic model and $\widehat{\ALPHABET M}$ the deterministic model. The certainty equivalent policy is the optimal policy $\hat π^\star$ of $\widehat{\ALPHABET M}$, applied to the original stochastic model $\ALPHABET M$.
+
+We use the Wasserstein bound in @cor-model-error-instance-independent. The cost functions are the same in the two models, so $ε_t = 0$. To characterize $δ_t$, fix $(s,a)$ and let
+$$
+  X = f_t(s,a) + N_t,
+  \quad
+  Y = f_t(s,a).
+$$
+The Wasserstein distance between $P_t(\cdot \mid s,a)$ and $\hat P_t(\cdot \mid s,a)$ is $W_1(X,Y)$. From the coupling definition of Wasserstein distance,
+$$
+  W_1(X,Y)
+  \le
+  \EXP\bigl[\NORM{N_t}\bigr],
+$$
+and this bound does not depend on $(s,a)$. Thus we may take
+$$
+  δ_t = \EXP\bigl[\NORM{N_t}\bigr].
+$$
+
+If $\hat L^V_t$ denotes the Lipschitz bound for the value function of the deterministic model, then @cor-model-error-instance-independent gives
+\begin{equation}\label{eq:CE-bound}
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le
+  2 \sum_{\tau=t}^{T}
+  \EXP\bigl[\NORM{N_\tau}\bigr] \hat L^V_{\tau+1}.
+\end{equation}
+This bound quantifies the engineering intuition that certainty equivalent policies are good when the noise is small and the deterministic model has modest value-function Lipschitz constants.
+
+<!--
+:::{.callout-warning}
+#### Remark
+
+Note that the bound of @thm-model-error-hat-V-star does not accumulate a horizon-weight factor, but it is expressed in terms of $\hat V^\star$. In some settings, a bound in terms of $V^\star$ is more desirable. Using @thm-model-error-V-star in such settings introduces the multiplicative weights $(\tau - t + 1)$.
+:::
+
+::: {.callout-important #bound-comparison}
+#### Comparison with policy loss
+
+It is interesting to compare @thm-model-error-V-star with a standard policy-loss bound for acting greedily in the **true** model. Instead of using $\hat π^\star$, suppose we use a policy $μ = (μ_1, \dots, μ_T)$ with
+$$
+  μ_t \in \GREEDY \DYNAMICS_t \hat V^\star_{t+1},
+  \quad t \in \{1,\dots,T\},
+$$
+i.e., the greedy policy in $\ALPHABET M$ with respect to $\hat V^\star$. A standard policy-loss argument gives
+$$
+  \NORM{V^\star_t - V^{μ}_t}
+  \le
+  2 \sum_{\tau=t+1}^{T} \NORM{V^\star_\tau - \hat V^\star_\tau}.
+$$
+Combining this with @prp-value-error (and taking the $\hat V^\star$-sided terms) yields
+$$
+  \NORM{V^\star_t - V^{μ}_t}
+  \le
+  2 \sum_{\tau=t+1}^{T} \sum_{k=\tau}^{T} \NORM{\MISMATCH_k \hat V^\star_{k+1}}
+  =
+  2 \sum_{k=t+1}^{T} (k-t)\, \NORM{\MISMATCH_k \hat V^\star_{k+1}}.
+$$
+In contrast, @thm-model-error-hat-V-star bounds the loss of $\hat π^\star$ by
+$$
+  2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}},
+$$
+which is tighter by a remaining-horizon factor. In principle, the true-model greedy policy $μ$ should be no worse than $\hat π^\star$; the comparison suggests that the crude policy-loss estimate above may itself be improvable.
+
+Note that when the same comparison is made with $V^\star$-sided mismatch terms, the weights match more closely. In particular,
+$$
+  \NORM{V^\star_t - V^{μ}_t}
+  \le
+  2 \sum_{k=t+1}^{T} (k-t)\, \NORM{\MISMATCH_k V^\star_{k+1}},
+$$
+which is slightly tighter than the bound of @thm-model-error-V-star on $\NORM{V^\star_t - V^{\hat π^\star}_t}$.
+:::
+-->
