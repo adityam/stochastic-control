@@ -1,0 +1,182 @@
+---
+title: "MDP properties"
+---
+
+## Overview {.unnumbered}
+
+This lecture collects structural properties of finite-horizon MDPs that will be used in the model approximation bounds. In particular, we will derive two standard estimates for value functions:
+
+1. span bounds, used with total variation distance;
+2. Lipschitz bounds, used with Wasserstein distance.
+
+## Span bounds
+
+For a bounded function $v \colon \ALPHABET S \to \reals$, define its span seminorm by
+$$
+  \SPAN(v) = \sup_{s \in \ALPHABET S} v(s) - \inf_{s \in \ALPHABET S} v(s).
+$$
+
+::::{#prp-TV-span-bound}
+#### Total variation and span
+
+For total variation distance,
+$$
+  \left| \int v dν_1 - \int v dν_2 \right|
+  \le
+  \frac{1}{2}\SPAN(v)\, d_{\mathrm{TV}}(ν_1,ν_2).
+$$
+Equivalently, in the IPM notation of the lecture on model approximation, $ρ_{\mathrm{TV}}(v) \le \frac{1}{2}\SPAN(v)$.
+::::
+
+::::{.callout-note}
+#### To derive in lecture
+
+Derive @prp-TV-span-bound by subtracting a constant from $v$ so that $\NORM{v}_{∞} = \frac{1}{2}\SPAN(v)$, and then applying the definition of total variation.
+::::
+
+For a cost function $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$, write
+$$
+  \SPAN(c_t)
+  =
+  \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A} c_t(s,a)
+  -
+  \inf_{(s,a) \in \ALPHABET S \times \ALPHABET A} c_t(s,a).
+$$
+
+::::{#prp-value-span-bound}
+#### Span of the optimal value
+
+The optimality Bellman operator contracts the span in the sense that
+$$
+  \SPAN(V^\star_t) \le \SPAN(c_t) + \SPAN(V^\star_{t+1}).
+$$
+Consequently,
+$$
+  \SPAN(V^\star_t) \le \sum_{\tau=t}^{T} \SPAN(c_\tau),
+$$
+and likewise $\SPAN(\hat V^\star_t) \le \sum_{\tau=t}^{T} \SPAN(\hat c_\tau)$. In the time-homogeneous case this gives $\SPAN(V^\star_t) \le (T-t+1)\SPAN(c)$ and $\SPAN(\hat V^\star_t) \le (T-t+1)\SPAN(\hat c)$.
+::::
+
+::::{.callout-note}
+#### To derive in lecture
+
+Prove $\SPAN(\BELLMAN^\star_t v) \le \SPAN(c_t) + \SPAN(v)$ by comparing the maximizing and minimizing states, and then unroll the recursion from $V^\star_{T+1} = 0$.
+::::
+
+## Lipschitz bounds
+
+Suppose $\ALPHABET S$ is a metric space with metric $d_\ALPHABET S$. For a function $v \colon \ALPHABET S \to \reals$, write
+$$
+  \operatorname{Lip}(v) = \sup_{s \ne \tilde s} \frac{\ABS{v(s)-v(\tilde s)}}{d_\ALPHABET S(s,\tilde s)}.
+$$
+
+::::{#prp-wasserstein-lipschitz-bound}
+#### Wasserstein and Lipschitz value bounds
+
+For Wasserstein distance,
+$$
+  \left| \int v dν_1 - \int v dν_2 \right|
+  \le
+  \operatorname{Lip}(v) W_1(ν_1,ν_2).
+$$
+Equivalently, in the IPM notation of the lecture on model approximation, $ρ_{W_1}(v) \le \operatorname{Lip}(v)$.
+
+Moreover, suppose the one-step cost and transition kernel are Lipschitz in the state uniformly over actions:
+$$
+  \ABS{c_t(s,a)-c_t(\tilde s,a)}
+  \le L^c_t d_\ALPHABET S(s,\tilde s),
+  \quad
+  W_1\bigl(P_t(\cdot \mid s,a),P_t(\cdot \mid \tilde s,a)\bigr)
+  \le L^P_t d_\ALPHABET S(s,\tilde s).
+$$
+Then the optimal value functions satisfy
+$$
+  \operatorname{Lip}(V^\star_{T+1}) = 0,
+  \quad
+  \operatorname{Lip}(V^\star_t) \le L^c_t + L^P_t\operatorname{Lip}(V^\star_{t+1}).
+$$
+Writing $L^V_t \ge \operatorname{Lip}(V^\star_t)$ for any upper bound obtained from this recursion, we have $L^V_{T+1} = 0$ and
+$$
+  L^V_t = L^c_t + L^P_t L^V_{t+1}.
+$$
+The same statement holds for $\hat V^\star_t$ with constants $\hat L^c_t$, $\hat L^P_t$, and $\hat L^V_t$.
+::::
+
+::::{.callout-note}
+#### To derive in lecture
+
+Derive the first part from Kantorovich--Rubinstein duality. Then prove the value recursion by showing that $Q^\star_t(\cdot,a)$ is Lipschitz uniformly over $a$ and using that the pointwise minimum of uniformly Lipschitz functions is Lipschitz with the same constant.
+::::
+
+### Inventory management
+
+Consider the finite-horizon inventory model
+$$
+  S_{t+1} = S_t + A_t - W_t,
+  \quad
+  c_t(s,a,w) = p a + h(s+a-w),
+$$
+where
+$$
+  h(x) =
+  \begin{cases}
+    c_h x, & x \ge 0, \\
+    -c_s x, & x < 0.
+  \end{cases}
+$$
+Let $\ell = \max\{c_h,c_s\}$.
+
+::::{#prp-inventory-lipschitz}
+#### Lipschitz constants for inventory
+
+For the finite-horizon inventory model, with the usual distance on $\reals$, the state transition kernel is $1$-Lipschitz in the stock level and the expected one-step cost is $\ell$-Lipschitz in the stock level. Thus we may take
+$$
+  L^P_t = 1,
+  \quad
+  L^c_t = \ell,
+  \quad t = 1,\dots,T.
+$$
+Consequently,
+$$
+  L^V_{T+1} = 0,
+  \quad
+  L^V_t = \ell + L^V_{t+1},
+$$
+and hence
+$$
+  L^V_t = (T-t+1)\ell.
+$$
+The same formula holds for the approximate inventory model whenever only the demand distribution is changed.
+::::
+
+::::{.callout-note}
+#### Derivation
+
+For the transition kernel, changing $s$ to $\tilde s$ shifts the next-stock distribution by $s-\tilde s$. Therefore
+$$
+  W_1\bigl(P_t(\cdot \mid s,a),P_t(\cdot \mid \tilde s,a)\bigr)
+  =
+  \ABS{s-\tilde s}.
+$$
+For the expected one-step cost, the procurement term $pa$ cancels when the action is fixed, and $h$ is $\ell$-Lipschitz:
+\begin{align*}
+  \ABS{c_t(s,a)-c_t(\tilde s,a)}
+  &=
+  \ABS{\EXP\bigl[h(s+a-W_t)-h(\tilde s+a-W_t)\bigr]}
+  \\
+  &\le
+  \ell \ABS{s-\tilde s}.
+\end{align*}
+Substituting $L^P_t=1$ and $L^c_t=\ell$ in @prp-wasserstein-lipschitz-bound gives the recursion for $L^V_t$.
+::::
+
+## For use in model approximation
+
+::::{.callout-note}
+#### Bounding $ρ_{\F}(V_t^\star)$
+
+In the lecture on model approximation, model approximation error bounds involve terms of the form $ρ_{\F}(V^\star_{t})$ or $ρ_{\F}(\hat V^\star_{t})$. The results of this lecture supply the needed estimates:
+
+- For total variation, @prp-TV-span-bound gives $ρ_{\mathrm{TV}}(v) \le \frac{1}{2}\SPAN(v)$. Combined with the remaining-horizon span bound above, this yields an instance-independent estimate of the Minkowski functional.
+- For Wasserstein distance, @prp-wasserstein-lipschitz-bound gives $ρ_{W_1}(v) \le \operatorname{Lip}(v)$, and the Lipschitz constants of $V^\star$ or $\hat V^\star$ are then controlled by the recursion above.
+::::
