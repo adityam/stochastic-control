@@ -80,18 +80,28 @@ The mismatch operator can be used to bound the difference between evaluating a l
 :::{#prp-policy-error-abstract}
 #### Policy error
 
-For any policy $\hat π = (\hat π_1, \dots, \hat π_T)$ on $\widehat {\ALPHABET M}$, define the time-dependent one-step model error
+For any policy $\hat π = (\hat π_1, \dots, \hat π_T)$ on $\widehat {\ALPHABET M}$, define the policy errors
 $$
-  Δ^{\hat π}_t =
-  \NORM{\hat \MISMATCH_t \hat V^{\hat π}_{t+1}}.
+  α^{\hat π}_t
+  \coloneqq
+  \NORM{V^{\hat π \circ φ}_t - \hat V^{\hat π}_t \circ φ},
+  \qquad
+  β^{\hat π}_t
+  \coloneqq
+  \NORM{Q^{\hat π \circ φ}_t - \hat Q^{\hat π}_t \circ φ}.
 $$
 Then, for any $t \in \{1,\dots,T\}$,
 $$
-  \NORM{V^{\hat π \circ φ}_t - \hat V^{\hat π}_t \circ φ}
+  α^{\hat π}_t
   \le
-  \NORM{Q^{\hat π \circ φ}_t - \hat Q^{\hat π}_t \circ φ}
+  β^{\hat π}_t
   \le
-  \sum_{\tau=t}^T Δ^{\hat π}_\tau.
+  \sum_{\tau=t}^T Δ^{\hat π}_\tau,
+$$
+where
+$$
+  Δ^{\hat π}_t =
+  \NORM{\hat \MISMATCH_t \hat V^{\hat π}_{t+1}}.
 $$
 :::
 
@@ -100,11 +110,11 @@ $$
 
 We prove the claim by backward induction on $t$.
 
-**Base case ($t = T+1$).** The result holds trivially as $V^{\hat π \circ φ}_{T+1} = \hat V^{\hat π}_{T+1} = 0$.
+**Base case ($t = T+1$).** The result holds trivially as $V^{\hat π \circ φ}_{T+1} = \hat V^{\hat π}_{T+1} = 0$, so $α^{\hat π}_{T+1} = 0$.
 
 **Induction step.** Fix $t \in \{1,\dots,T\}$ and assume the claim holds at time $t+1$, i.e.
 $$
-  \NORM{V^{\hat π \circ φ}_{t+1} - \hat V^{\hat π}_{t+1} \circ φ} \le \sum_{\tau=t+1}^{T} Δ^{\hat π}_\tau.
+  α^{\hat π}_{t+1} \le \sum_{\tau=t+1}^{T} Δ^{\hat π}_\tau.
 $$
 Recall that
 $$
@@ -127,14 +137,18 @@ $$
 $$
 From the one-step lemma we get:
 $$
+  β^{\hat π}_t
+  =
   \NORM{Q^{\hat π \circ φ}_t - \hat Q^{\hat π}_t \circ φ}
-  \le Δ^{\hat π}_t + \NORM{V^{\hat π \circ φ}_{t+1} - \hat V^{\hat π}_{t+1} \circ φ}
+  \le Δ^{\hat π}_t + α^{\hat π}_{t+1}
   \le \sum_{\tau=t}^{T} Δ^{\hat π}_\tau.
 $$
 Now, using the non-expansion of $\ALPHABET T^{\hat π_t \circ φ}$ we get:
 $$
+  α^{\hat π}_t
+  =
   \NORM{V^{\hat π \circ φ}_t - \hat V^{\hat π}_t \circ φ}
-  \le \NORM{Q^{\hat π \circ φ}_t - \hat Q^{\hat π}_t \circ φ}
+  \le β^{\hat π}_t
   \le \sum_{\tau=t}^{T} Δ^{\hat π}_\tau,
 $$
 where the last step uses the induction hypothesis. This establishes the claim at time $t$.
@@ -149,18 +163,28 @@ Similar to the above, we can also bound the difference between the optimal value
 :::{#prp-value-error-abstract}
 #### Value error
 
-Define the time-dependent one-step model error
+Define the value errors
 $$
-  Δ^\star_t =
-  \NORM{\hat \MISMATCH_t \hat V^\star_{t+1}}.
+  α^\star_t
+  \coloneqq
+  \NORM{V^\star_t - \hat V^\star_t \circ φ},
+  \qquad
+  β^\star_t
+  \coloneqq
+  \NORM{Q^\star_t - \hat Q^\star_t \circ φ}.
 $$
 Then, for any $t \in \{1,\dots,T\}$,
 $$
-  \NORM{V^\star_t - \hat V^\star_t \circ φ}
+  α^\star_t
   \le
-  \NORM{Q^\star_t - \hat Q^\star_t \circ φ}
+  β^\star_t
   \le
-  \sum_{\tau=t}^T Δ^\star_\tau.
+  \sum_{\tau=t}^T Δ^\star_\tau,
+$$
+where
+$$
+  Δ^\star_t =
+  \NORM{\hat \MISMATCH_t \hat V^\star_{t+1}}.
 $$
 :::
 
@@ -171,11 +195,11 @@ The proof is similar to the proof of @prp-policy-error-abstract.
 
 We prove the claim by backward induction on $t$.
 
-**Base case ($t = T+1$).** The result holds trivially as $V^\star_{T+1} = \hat V^\star_{T+1} = 0$.
+**Base case ($t = T+1$).** The result holds trivially as $V^\star_{T+1} = \hat V^\star_{T+1} = 0$, so $α^\star_{T+1} = 0$.
 
 **Induction step.** Fix $t \in \{1,\dots,T\}$ and assume the claim holds at time $t+1$, i.e.
 $$
-  \NORM{V^\star_{t+1} - \hat V^\star_{t+1} \circ φ} \le \sum_{\tau=t+1}^{T} Δ^\star_\tau.
+  α^\star_{t+1} \le \sum_{\tau=t+1}^{T} Δ^\star_\tau.
 $$
 Recall that
 $$
@@ -196,19 +220,23 @@ $$
   =
   \ALPHABET T^\star (\hat Q^\star_t \circ φ).
 $$
-The one-step lemma and the non-expansion of $\ALPHABET T^\star$ therefore give
+From the one-step lemma we get:
 $$
+  β^\star_t
+  =
   \NORM{Q^\star_t - \hat Q^\star_t \circ φ}
-  \le Δ^\star_t + \NORM{V^\star_{t+1} - \hat V^\star_{t+1} \circ φ}
-  \le \sum_{\tau=t}^{T} Δ^\star_\tau
+  \le Δ^\star_t + α^\star_{t+1}
+  \le \sum_{\tau=t}^{T} Δ^\star_\tau.
 $$
-and
+Now, using the non-expansion of $\ALPHABET T^\star$ we get:
 $$
+  α^\star_t
+  =
   \NORM{V^\star_t - \hat V^\star_t \circ φ}
-  \le \NORM{Q^\star_t - \hat Q^\star_t \circ φ}
+  \le β^\star_t
   \le \sum_{\tau=t}^{T} Δ^\star_\tau,
 $$
-where the last step of the first display uses the induction hypothesis. This establishes the claim at time $t$.
+where the last step uses the induction hypothesis. This establishes the claim at time $t$.
 
 By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
 :::
@@ -217,71 +245,74 @@ By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
 
 To bound the model approximation error, observe that
 \begin{align} \label{eq:triangle-model-error-abstract}
+  α_t
+  &\coloneqq
   \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t}
-  &\le
+  \le
   \NORM{V^\star_t - \hat V^{\hat π^\star}_t \circ φ}
   +
   \NORM{V^{\hat π^\star \circ φ}_t - \hat V^{\hat π^\star}_t \circ φ}
   \\
   &\stackrel{(a)}=
-  \NORM{V^\star_t - \hat V^\star_t \circ φ}
+  α^\star_t
   +
-  \NORM{V^{\hat π^\star \circ φ}_t - \hat V^{\hat π^\star}_t \circ φ},
+  α^{\hat π^\star}_t,
 \end{align}
-where $(a)$ uses that $\hat π^\star$ is optimal for the approximate model, so $\hat V^{\hat π^\star} = \hat V^\star$.
-@prp-value-error-abstract and @prp-policy-error-abstract bound the two terms on the right-hand side. The key point is that because $\hat V^{\hat π^\star} = \hat V^\star$, the one-step model errors that appear in those bounds are the same.
+where $(a)$ uses that $\hat π^\star$ is optimal for the approximate model, so $\hat V^{\hat π^\star} = \hat V^\star$, and $α^\star_t$, $α^{\hat π^\star}_t$ are as in @prp-value-error-abstract and @prp-policy-error-abstract. The same triangle holds for the action-value gaps $β_t$, $β^\star_t$, and $β^{\hat π^\star}_t$. The key point is that because $\hat V^{\hat π^\star} = \hat V^\star$, the one-step model errors that appear in those bounds are the same.
 
 :::{#thm-model-error-hat-V-star-abstract}
 #### Model approximation error
 
-For any $t \in \{1,\dots,T\}$,
+Define the model approximation errors
 $$
-  \NORM{Q^\star_t - Q^{\hat π^\star \circ φ}_t}
-  \le
   α_t
   \coloneqq
+  \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t},
+  \qquad
+  β_t
+  \coloneqq
+  \NORM{Q^\star_t - Q^{\hat π^\star \circ φ}_t}.
+$$
+Then, for any $t \in \{1,\dots,T\}$,
+$$
+  α_t
+  \le
+  β_t
+  \le
+  β^\star_t + β^{\hat π^\star}_t
+  \le
   \sum_{\tau=t}^{T}
   \bigl(
     Δ^\star_\tau + Δ^{\hat π^\star}_\tau
   \bigr)
   =
-  2 \sum_{\tau=t}^{T} \NORM{\hat \MISMATCH_\tau \hat V^\star_{\tau+1}}.
+  2 \sum_{\tau=t}^{T} \NORM{\hat \MISMATCH_\tau \hat V^\star_{\tau+1}},
 $$
-The same bound holds for the value gap:
-$$
-  \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t}
-  \le
-  α_t.
-$$
-In particular, $\hat π^\star \circ φ$ is $α_t$-optimal for $\ALPHABET M$ at time $t$.
+where $β^\star_t$, $β^{\hat π^\star}_t$, $Δ^\star_t$, and $Δ^{\hat π^\star}_t$ are as in @prp-value-error-abstract and @prp-policy-error-abstract. In particular, $\hat π^\star \circ φ$ is $α_t$-optimal for $\ALPHABET M$ at time $t$.
 :::
 
 :::{.callout-note collapse="false"}
 #### Proof
 
-Using $\hat Q^{\hat π^\star}_t = \hat Q^\star_t$, @prp-value-error-abstract and @prp-policy-error-abstract give
+The inequality $α_t \le β_t$ follows as in @thm-model-error-hat-V-star. Using $\hat Q^{\hat π^\star}_t = \hat Q^\star_t$,
 $$
+  β_t
+  =
   \NORM{Q^\star_t - Q^{\hat π^\star \circ φ}_t}
   \le
   \NORM{Q^\star_t - \hat Q^\star_t \circ φ}
   +
   \NORM{Q^{\hat π^\star \circ φ}_t - \hat Q^{\hat π^\star}_t \circ φ}
+  =
+  β^\star_t + β^{\hat π^\star}_t.
+$$
+@prp-value-error-abstract and @prp-policy-error-abstract then give
+$$
+  β^\star_t + β^{\hat π^\star}_t
   \le
   \sum_{\tau=t}^{T} Δ^\star_\tau
   +
-  \sum_{\tau=t}^{T} Δ^{\hat π^\star}_\tau
-  =
-  α_t.
-$$
-The value gap follows from \eqref{eq:triangle-model-error-abstract} together with the same propositions:
-$$
-  \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t}
-  \le
-  \sum_{\tau=t}^{T} Δ^\star_\tau
-  +
-  \sum_{\tau=t}^{T} Δ^{\hat π^\star}_\tau
-  =
-  α_t.
+  \sum_{\tau=t}^{T} Δ^{\hat π^\star}_\tau.
 $$
 Since $\hat V^{\hat π^\star}_{\tau+1} = \hat V^\star_{\tau+1}$, we have $Δ^\star_\tau = Δ^{\hat π^\star}_\tau = \NORM{\hat \MISMATCH_\tau \hat V^\star_{\tau+1}}$, and the claimed bound follows.
 :::
@@ -387,24 +418,16 @@ Combining @lem-IPM-bound-on-mismatch-abstract with @thm-model-error-hat-V-star-a
 ::::{#thm-model-error-IPM-abstract}
 #### Model approximation error via IPMs
 
-Suppose that $\widehat{\ALPHABET M}$ is an $(ε_φ,\hat δ_φ)$-approximation of $\ALPHABET M$ with respect to $φ$. Then, for any $t \in \{1,\dots,T\}$,
+Suppose that $\widehat{\ALPHABET M}$ is an $(ε_φ,\hat δ_φ)$-approximation of $\ALPHABET M$ with respect to $φ$. Let $α_t$ and $β_t$ be as in @thm-model-error-hat-V-star-abstract. Then, for any $t \in \{1,\dots,T\}$,
 $$
-  \NORM{Q^\star_t - Q^{\hat π^\star \circ φ}_t}
+  β_t
   \le
-  α_t
-  \coloneqq
   2 \sum_{\tau=t}^{T}
   \bigl[
     ε_{φ,\tau} + \hat δ_{φ,\tau} ρ_{\F}(\hat V^\star_{\tau+1})
-  \bigr].
+  \bigr],
 $$
-The same bound holds for the value gap:
-$$
-  \NORM{V^\star_t - V^{\hat π^\star \circ φ}_t}
-  \le
-  α_t.
-$$
-In particular, $\hat π^\star \circ φ$ is $α_t$-optimal for $\ALPHABET M$ at time $t$.
+and $α_t \le β_t$. In particular, $\hat π^\star \circ φ$ is $α_t$-optimal for $\ALPHABET M$ at time $t$.
 ::::
 
 Note that the above bound requires knowledge of $\hat V^\star_t$. For specific choices of IPM, it is possible to obtain instance-independent upper bounds that do not require explicit knowledge of $\hat V^\star_t$.
