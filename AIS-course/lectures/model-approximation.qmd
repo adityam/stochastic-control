@@ -10,11 +10,11 @@ Let $\{V^\star_t\}_{t=1}^T$ and $\{\hat V^\star_t\}_{t =1}^T$ denote the optimal
 
 We are interested in the following questions:
 
-1. **Policy error bounds:** Given a policy $π = (π_1, \dots, π_T)$, what is the error if $\hat V^π_t$ is used as an approximation for $V^π_t$?
+1. **Policy error bounds:** Given a policy $π = (π_1, \dots, π_T)$, what is the error if $\hat V^π_t$ is used as an approximation for $V^π_t$ (or equivalently, if $\hat Q^π_t$ is used as an approximation for $Q^π_t$)?
 
-2. **Value error bounds:** What is the error if $\hat V^\star_t$ is used as an approximation for $V^\star_t$?
+2. **Value error bounds:** What is the error if $\hat V^\star_t$ is used as an approximation for $V^\star_t$ (or equivalently, if $\hat Q^\star_t$ is used as an approximation for $Q^\star_t$)?
 
-3. **Model approximation error:** What is the error if the policy $\hat π^\star$ is used instead of the optimal policy $π^\star$?
+3. **Model approximation error:** What is the error if the policy $\hat π^\star$ is used instead of the optimal policy $π^\star$? Equivalently, how large is the gap between $(V^\star_t, Q^\star_t)$ and $(V^{\hat π^\star}_t, Q^{\hat π^\star}_t)$?
 
 In this lecture, we will characterize these bounds in terms of the sup-norm: for any function $v \in \ALPHABET V$, $\NORM{v}_{∞} = \sup_{s \in \ALPHABET S} \ABS{v(s)}$. [In the sequel, we use $\NORM{⋅}$ to denote $\NORM{⋅}_{∞}$]{.mark} Later, we will revisit this problem to get more nuanced bounds.
 
@@ -236,6 +236,8 @@ Then, for any $t \in \{1,\dots,T\}$,
 $$
   \NORM{V^π_t - \hat V^π_t}
   \le
+  \NORM{Q^π_t - \hat Q^π_t}
+  \le
   \sum_{\tau=t}^T Δ^π_\tau.
 $$
 :::
@@ -256,15 +258,19 @@ $$
   Q^π_t = \DYNAMICS_t V^π_{t+1}, \quad
   \hat Q^π_t = \hat \DYNAMICS_t \hat V^π_{t+1},
 $$
-and $V^π_t = \ALPHABET T^{π_t} Q^π_t$, $\hat V^π_t = \ALPHABET T^{π_t} \hat Q^π_t$. The non-expansion of $\ALPHABET T^{π_t}$ and the one-step lemma therefore give
+and $V^π_t = \ALPHABET T^{π_t} Q^π_t$, $\hat V^π_t = \ALPHABET T^{π_t} \hat Q^π_t$. From the one-step lemma we get:
+$$
+  \NORM{Q^π_t - \hat Q^π_t}
+  \le Δ^π_t + \NORM{V^π_{t+1} - \hat V^π_{t+1}}
+  \le \sum_{\tau=t}^{T} Δ^π_\tau.
+$$
+Now, using the non-expansion of $\ALPHABET T^{π_t}$ we get:
 $$
   \NORM{V^π_t - \hat V^π_t}
   \le \NORM{Q^π_t - \hat Q^π_t}
-  \le Δ^π_t + \NORM{V^π_{t+1} - \hat V^π_{t+1}}
-  \le Δ^π_t + \sum_{\tau=t+1}^{T} Δ^π_\tau
-  = \sum_{\tau=t}^{T} Δ^π_\tau,
+  \le \sum_{\tau=t}^{T} Δ^π_\tau,
 $$
-where the last inequality uses the induction hypothesis. This establishes the claim at time $t$.
+where the last step of the uses the induction hypothesis. This establishes the claim at time $t$.
 
 By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
 :::
@@ -288,6 +294,8 @@ Then, for any $t \in \{1,\dots,T\}$,
 $$
   \NORM{V^\star_t - \hat V^\star_t}
   \le
+  \NORM{Q^\star_t - \hat Q^\star_t}
+  \le
   \sum_{\tau=t}^T Δ^\star_\tau.
 $$
 :::
@@ -310,15 +318,19 @@ $$
   Q^\star_t = \DYNAMICS_t V^\star_{t+1}, \quad
   \hat Q^\star_t = \hat \DYNAMICS_t \hat V^\star_{t+1},
 $$
-and $V^\star_t = \ALPHABET T^\star Q^\star_t$, $\hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t$. The non-expansion of $\ALPHABET T^\star$ and the one-step lemma therefore give
+and $V^\star_t = \ALPHABET T^\star Q^\star_t$, $\hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t$. The one-step lemma and the non-expansion of $\ALPHABET T^\star$ therefore give
+$$
+  \NORM{Q^\star_t - \hat Q^\star_t}
+  \le Δ^\star_t + \NORM{V^\star_{t+1} - \hat V^\star_{t+1}}
+  \le \sum_{\tau=t}^{T} Δ^\star_\tau
+$$
+and
 $$
   \NORM{V^\star_t - \hat V^\star_t}
   \le \NORM{Q^\star_t - \hat Q^\star_t}
-  \le Δ^\star_t + \NORM{V^\star_{t+1} - \hat V^\star_{t+1}}
-  \le Δ^\star_t + \sum_{\tau=t+1}^{T} Δ^\star_\tau
-  = \sum_{\tau=t}^{T} Δ^\star_\tau,
+  \le \sum_{\tau=t}^{T} Δ^\star_\tau,
 $$
-where the last inequality uses the induction hypothesis. This establishes the claim at time $t$.
+where the last step of the uses the induction hypothesis. This establishes the claim at time $t$.
 
 By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
 :::
@@ -344,12 +356,12 @@ where $(a)$ uses that $\hat π^\star$ is optimal for the approximate model, so $
 :::{#thm-model-error-hat-V-star}
 #### Model approximation error
 
-For any $t \in \{1,\dots,T\}$, the policy $\hat π^\star$ is $α_t$-optimal for $\ALPHABET M$ at time $t$, where
+For any $t \in \{1,\dots,T\}$,
 $$
-  α_t
-  :=
-  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \NORM{Q^\star_t - Q^{\hat π^\star}_t}
   \le
+  α_t
+  \coloneqq
   \sum_{\tau=t}^{T}
   \bigl(
     Δ^\star_\tau + Δ^{\hat π^\star}_\tau
@@ -357,20 +369,43 @@ $$
   \le
   2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}}.
 $$
+The same bound holds for the value gap:
+$$
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le
+  α_t.
+$$
+In particular, $\hat π^\star$ is $α_t$-optimal for $\ALPHABET M$ at time $t$.
 :::
 
 :::{.callout-note collapse="false"}
 #### Proof
 
-From \eqref{eq:triangle-model-error}, @prp-value-error, and @prp-policy-error applied to $\hat π^\star$,
+Using $\hat Q^{\hat π^\star}_t = \hat Q^\star_t$, @prp-value-error and @prp-policy-error give
+$$
+  \NORM{Q^\star_t - Q^{\hat π^\star}_t}
+  \le
+  \NORM{Q^\star_t - \hat Q^\star_t}
+  +
+  \NORM{Q^{\hat π^\star}_t - \hat Q^{\hat π^\star}_t}
+  \le
+  \sum_{\tau=t}^{T} Δ^\star_\tau
+  +
+  \sum_{\tau=t}^{T} Δ^{\hat π^\star}_\tau
+  =
+  α_t.
+$$
+The value gap follows from \eqref{eq:triangle-model-error} together with the same propositions:
 $$
   \NORM{V^\star_t - V^{\hat π^\star}_t}
   \le
   \sum_{\tau=t}^{T} Δ^\star_\tau
   +
-  \sum_{\tau=t}^{T} Δ^{\hat π^\star}_\tau.
+  \sum_{\tau=t}^{T} Δ^{\hat π^\star}_\tau
+  =
+  α_t.
 $$
-For the second inequality, take the $\hat V$-sided term in each $\min$:
+For the last inequality in the definition of $α_t$, take the $\hat V$-sided term in each $\min$:
 $$
   Δ^\star_\tau
   \le
@@ -394,53 +429,59 @@ In some applications, it is useful to have a bound on model approximation error 
 :::{#thm-model-error-V-star}
 #### Model approximation error
 
-For any $t \in \{1,\dots,T\}$, the policy $\hat π^\star$ is $α_t$-optimal for $\ALPHABET M$ at time $t$, where
+For any $t \in \{1,\dots,T\}$,
 $$
-  α_t
-  :=
-  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \NORM{Q^\star_t - Q^{\hat π^\star}_t}
   \le
+  \bar α_t
+  \coloneqq
   2 \sum_{\tau=t}^{T} (\tau - t + 1) \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
 $$
+The same bound holds for the value gap:
+$$
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le
+  \bar α_t.
+$$
+In particular, $\hat π^\star$ is $\bar α_t$-optimal for $\ALPHABET M$ at time $t$.
 :::
 
 :::{.callout-note collapse="false"}
 #### Proof
 
-We claim that for any $t \in \{1,\dots,T\}$,
+Write $β_t \coloneqq \NORM{V^\star_t - V^{\hat π^\star}_t}$. We claim that for any $t \in \{1,\dots,T\}$,
 $$
-  α_t
+  β_t
   \le
-  α_{t+1}
+  β_{t+1}
   +
-  2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
+  2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}},
 $$
-
-The result then follows by _unrolling_ the claim.
+with the convention $β_{T+1} = 0$. Unrolling the claim yields $β_t \le \bar α_t$.
 
 We now prove the claim by backward induction.
 
-**Base case ($t = T+1$).** The result holds trivially as $α_{T+1} = 0$.
+**Base case ($t = T+1$).** The result holds trivially as $β_{T+1} = 0$.
 
 **Induction step.** Fix $t \in \{1,\dots,T\}$ and assume the claim of the theorem holds at time $t+1$, i.e.
 $$
-  α_{t+1}
+  β_{t+1}
   \le
   2 \sum_{\tau=t+1}^{T} (\tau - t) \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
 $$
 Combined with the recursive claim above,
 $$
-  α_t
+  β_t
   \le
   2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}}
   +
   2 \sum_{\tau=t+1}^{T} (\tau - t) \NORM{\MISMATCH_\tau V^\star_{\tau+1}}
   =
-  2 \sum_{\tau=t}^{T} (\tau - t + 1) \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
+  \bar α_t.
 $$
-This establishes the bound at time $t$.
+This establishes the value-gap bound at time $t$.
 
-By backward induction, the bound holds for all $t \in \{1,\dots,T\}$.
+By backward induction, $\NORM{V^\star_t - V^{\hat π^\star}_t} \le \bar α_t$ for all $t \in \{1,\dots,T\}$. The same recursive argument with action-value functions yields $\NORM{Q^\star_t - Q^{\hat π^\star}_t} \le \bar α_t$.
 
 It remains to prove the claim. From @prp-value-error, taking the $V^\star$-sided term in the definition of $Δ^\star_\tau$ gives
 $$
@@ -465,22 +506,22 @@ Moreover, since $\hat V^\star = \hat V^{\hat π^\star}$,
   + \NORM{\hat \DYNAMICS_t V^\star_{t+1} - \hat \DYNAMICS_t \hat V^\star_{t+1}}
   \\
   &\le
-  α_{t+1}
+  β_{t+1}
   + \NORM{\MISMATCH_t V^\star_{t+1}}
   + \NORM{V^\star_{t+1} - \hat V^\star_{t+1}}
   \\
   &\le
-  α_{t+1}
+  β_{t+1}
   + \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}}.
 \end{align*}
 Therefore, using \eqref{eq:triangle-model-error},
 $$
-  α_t
+  β_t
   \le
   \NORM{V^\star_t - \hat V^\star_t}
   + \NORM{V^{\hat π^\star}_t - \hat V^\star_t}
   \le
-  α_{t+1}
+  β_{t+1}
   + 2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau V^\star_{\tau+1}},
 $$
 which proves the claim.
@@ -585,27 +626,34 @@ Combining @lem-IPM-bound-on-mismatch with @thm-model-error-hat-V-star and @thm-m
 ::::{#thm-model-error-IPM}
 #### Model approximation error via IPMs
 
-Suppose that $\widehat{\ALPHABET M}$ is an $(ε,δ)$-approximation of $\ALPHABET M$. Then, for any $t \in \{1,\dots,T\}$, the policy $\hat π^\star$ is $α_t$-optimal for $\ALPHABET M$ at time $t$, where
+Suppose that $\widehat{\ALPHABET M}$ is an $(ε,δ)$-approximation of $\ALPHABET M$. Then, for any $t \in \{1,\dots,T\}$,
 $$
-  α_t
-  :=
-  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \NORM{Q^\star_t - Q^{\hat π^\star}_t}
   \le
+  α_t
+  \coloneqq
   2 \sum_{\tau=t}^{T}
   \bigl[
     ε_\tau + δ_\tau ρ_{\F}(\hat V^\star_{\tau+1})
   \bigr].
 $$
+The same bound holds for the value gap:
+$$
+  \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le
+  α_t.
+$$
 Another upper bound is
 $$
-  α_t
+  \NORM{Q^\star_t - Q^{\hat π^\star}_t}
   \le
   2 \sum_{\tau=t}^{T}
   (\tau - t + 1)
   \bigl[
     ε_\tau + δ_\tau ρ_{\F}(V^\star_{\tau+1})
-  \bigr].
+  \bigr],
 $$
+and the same bound holds for $\NORM{V^\star_t - V^{\hat π^\star}_t}$. In particular, $\hat π^\star$ is $α_t$-optimal for $\ALPHABET M$ at time $t$.
 ::::
 
 Note that the above bounds require knowledge of $\hat V^\star_t$. For specific choices of IPM, it is possible to obtain instance-independent upper bounds that do not require explicit knowledge of $\hat V^\star_t$. 
