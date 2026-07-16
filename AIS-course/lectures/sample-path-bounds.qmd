@@ -629,4 +629,35 @@ recovers the factor-of-two model-approximation bound of the state-abstraction le
 
 ### Computing the bounds
 
-The recursions again propagate with the true kernel $P_t$, and can be relaxed onto the approximate model exactly as in the MDP case: with $δ_t(s,a) = d_{\F}\bigl(P_t(\cdot \mid s,a), \hat P_t(\cdot \mid s,a)\bigr)$ and the Minkowski functional $ρ_{\F}$ acting on functions over $\ALPHABET S$, replace each true-kernel average $\sum_{s'} α(s') P_t(s' \mid s,a)$ by $\sum_{s'} α(s') \hat P_t(s' \mid s,a) \pm δ_t(s,a)\, ρ_{\F}(α)$ in the upper and lower recursions.
+As before, the recursions propagate with the true kernel $P_t$. To replace them by quantities that live on the approximate state space, we use the pushed-forward kernel from the state-abstraction lecture,
+$$
+  P_{φ,t}(\hat s' \mid s,a)
+  \coloneqq P_t\bigl(φ^{-1}(\hat s') \mid s,a\bigr),
+$$
+and the pointwise IPM discrepancy
+$$
+  δ_t(s,a)
+  \coloneqq d_{\F}\bigl(P_{φ,t}(\cdot \mid s,a), \hat P_t(\cdot \mid φ(s),a)\bigr).
+$$
+
+Moreover, we may restrict attention to upper bounds that are **$\hat {\ALPHABET S}$-measurable**, i.e.\ $α^+_t = \hat α^+_t \circ φ$ for some $\hat α^+_t \colon \hat {\ALPHABET S} \to \reals$. (The concrete upper construction along $\hat π^\star \circ φ$ can be taken of this form by working with a bound defined on $\hat {\ALPHABET S}$ and lifting.) For any such $α^+_t$,
+$$
+  \sum_{s'} α^+_t(s') P_t(s' \mid s,a)
+  = \sum_{\hat s'} \hat α^+_t(\hat s') P_{φ,t}(\hat s' \mid s,a),
+$$
+and the IPM inequality gives
+$$
+  \ABS{
+    \sum_{\hat s'} \hat α^+_t(\hat s') P_{φ,t}(\hat s' \mid s,a)
+    - \sum_{\hat s'} \hat α^+_t(\hat s') \hat P_t(\hat s' \mid φ(s),a)
+  }
+  \le δ_t(s,a)\, ρ_{\F}(\hat α^+_t).
+$$
+Thus the upper recursion of @thm-signed-sample-path-abstract is implied by
+$$
+  β^+_t(s,a)
+  \ge Δ^\star_t(s,a)
+  + \sum_{\hat s'} \hat α^+_t(\hat s') \hat P_t(\hat s' \mid φ(s),a)
+  + δ_t(s,a)\, ρ_{\F}(\hat α^+_t).
+$$
+The same argument applies to a $\hat {\ALPHABET S}$-measurable lower bound $α^-_t = \hat α^-_t \circ φ$, with the IPM correction subtracted rather than added. The resulting bounds use only $\hat P_t$, the lifted mismatch $Δ^\star_t$, and the pushforward discrepancies $δ_t$.
