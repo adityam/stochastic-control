@@ -6,7 +6,7 @@ title: "Model approximation"
 
 Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$. Suppose the components $\langle \ALPHABET S, \ALPHABET A, T \rangle$ are known exactly but the components $(P,c)$ are known approximately. Both $P = (P_1, \dots, P_T)$ and $c = (c_1, \dots, c_T)$ are assumed to be time varying. Consider the approximate MDP $\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, T \rangle$. We will call $\ALPHABET M$ to be the **true model** and $\widehat {\ALPHABET M}$ to be the **approximate model**.
 
-Let $\{V^\star_t\}_{t=1}^T$ and $\{\hat V^\star_t\}_{t =1}^T$ denote the optimal value functions of the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. Moreover, let $π^\star = (π^\star_1, \dots, π^\star_T)$ and $\hat π^\star = (\hat π^\star_1, \dots, \hat π^\star_T)$ be optimal policies for the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. We will use $\DYNAMICS_t$ and $\hat \DYNAMICS_t$ to denote the dynamics operators in model $\ALPHABET M$ and $\widehat {\ALPHABET M}$. 
+Let $\{V^\star_t\}_{t=1}^T$ and $\{\hat V^\star_t\}_{t =1}^T$ denote the optimal value functions of the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. Moreover, let $π^\star = (π^\star_1, \dots, π^\star_T)$ and $\hat π^\star = (\hat π^\star_1, \dots, \hat π^\star_T)$ be optimal policies for the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. We will use $\MODEL_t$ and $\hat \MODEL_t$ to denote the model operators in model $\ALPHABET M$ and $\widehat {\ALPHABET M}$. 
 
 We are interested in the following questions:
 
@@ -61,9 +61,9 @@ $$
 
 Sometimes we need to explicitly keep track of the action-value functions. So, we use a more elaborate notation ([this is **not** a commonly used notation in the literature]{.mark}).
 
-- Define the operator $\DYNAMICS_t \colon \ALPHABET V \to \ALPHABET Q$ as the **expectation over the environment**: for any $v \in \ALPHABET V$
+- Define the operator $\MODEL_t \colon \ALPHABET V \to \ALPHABET Q$ as the **model operator**: for any $v \in \ALPHABET V$
   $$
-      [\DYNAMICS_t v](s,a) = c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s'|s,a) v(s').
+      [\MODEL_t v](s,a) = c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s'|s,a) v(s').
   $$
 
 - For any $π \in Π$, define the **Bellman target operator** $\ALPHABET T^π$ as follows: for any $q \in \ALPHABET Q$, 
@@ -82,44 +82,44 @@ Sometimes we need to explicitly keep track of the action-value functions. So, we
 
 Observe that
 $$
-   \BELLMAN^π_t = \ALPHABET T^π \circ \DYNAMICS_t,
+   \BELLMAN^π_t = \ALPHABET T^π \circ \MODEL_t,
     \quad \text{and}\quad
-   \BELLMAN^\star_t = \ALPHABET T^\star \circ \DYNAMICS_t.
+   \BELLMAN^\star_t = \ALPHABET T^\star \circ \MODEL_t.
 $$
 
 Then, we can write the more elaborate dynamic programming decomposition as:
 $$
   V^\star_{T+1} = 0, \quad\text{and}\quad
-  Q^\star_t = \DYNAMICS_t V^\star_{t+1}, 
+  Q^\star_t = \MODEL_t V^\star_{t+1}, 
   \quad
   V^\star_t = \ALPHABET T^\star Q^\star_t,
   \quad \forall t \in \{T,\dots,1\}.
 $$
 Or, pictorially:
 $$
-  0 ≡ V^\star_{T+1} \xrightarrow{\DYNAMICS_T} Q^\star_T \xrightarrow{\ALPHABET T^\star} V^\star_T \xrightarrow{\DYNAMICS_{T-1}} Q^\star_{T-1} \cdots \xrightarrow{\ALPHABET T^\star} V^\star_1.
+  0 ≡ V^\star_{T+1} \xrightarrow{\MODEL_T} Q^\star_T \xrightarrow{\ALPHABET T^\star} V^\star_T \xrightarrow{\MODEL_{T-1}} Q^\star_{T-1} \cdots \xrightarrow{\ALPHABET T^\star} V^\star_1.
 $$
 Moreover, a policy $π^\star = (π^\star_1, \dots, π^\star_T) \in Π$ is optimal if and only if $π^\star_t \in \GREEDY Q^\star_t$. An implication of this is that $\ALPHABET T^\star Q^\star_{t} = \ALPHABET T^{π^\star} Q^\star_t$. 
 
 Similarly, for a policy $π ∈ Π$, the policy evaluation dynamic program can be written as:
 $$
-  0 ≡ V^π_{T+1} \xrightarrow{\DYNAMICS_T} Q^π_T \xrightarrow{\ALPHABET T^π} V^π_T \xrightarrow{\DYNAMICS_{T-1}} Q^π_{T-1} \cdots \xrightarrow{\ALPHABET T^π} V^π_1.
+  0 ≡ V^π_{T+1} \xrightarrow{\MODEL_T} Q^π_T \xrightarrow{\ALPHABET T^π} V^π_T \xrightarrow{\MODEL_{T-1}} Q^π_{T-1} \cdots \xrightarrow{\ALPHABET T^π} V^π_1.
 $$
 
-The advantage of this notation is that the expectation operator $\DYNAMICS_t$ depends on the model; the target operators $\ALPHABET T^π$ and $\ALPHABET T^\star$ do not depend on the model. This makes it easy for us to describe model approximation.
+The advantage of this notation is that the model operator $\MODEL_t$ depends on the model; the target operators $\ALPHABET T^π$ and $\ALPHABET T^\star$ do not depend on the model. This makes it easy for us to describe model approximation.
 
 ### Key property of the operators
 
 :::{#lem-non-expansion}
 #### Non-expansion properties
 
-The operators $\DYNAMICS_t$, $\hat \DYNAMICS_t$, $\ALPHABET T^π$, and $\ALPHABET T^\star$ are non-expansions in the sup-norm. In particular:
+The operators $\MODEL_t$, $\hat \MODEL_t$, $\ALPHABET T^π$, and $\ALPHABET T^\star$ are non-expansions in the sup-norm. In particular:
 
 1. For any $v, \hat v \in \ALPHABET V$,
    $$
-     \NORM{\DYNAMICS_t v - \DYNAMICS_t \hat v} \le \NORM{v - \hat v}.
+     \NORM{\MODEL_t v - \MODEL_t \hat v} \le \NORM{v - \hat v}.
    $$
-   The same bound holds with $\DYNAMICS_t$ replaced by $\hat \DYNAMICS_t$.
+   The same bound holds with $\MODEL_t$ replaced by $\hat \MODEL_t$.
 
 2. For any $q, \hat q \in \ALPHABET Q$ and any (possibly randomized) policy $π$,
    $$
@@ -137,7 +137,7 @@ The operators $\DYNAMICS_t$, $\hat \DYNAMICS_t$, $\ALPHABET T^π$, and $\ALPHABE
 
 1. For any $(s,a) \in \ALPHABET S \times \ALPHABET A$,
    $$
-     \ABS{[\DYNAMICS_t v](s,a) - [\DYNAMICS_t \hat v](s,a)}
+     \ABS{[\MODEL_t v](s,a) - [\MODEL_t \hat v](s,a)}
      =
      \ABS{\sum_{s' \in \ALPHABET S} P_t(s'|s,a)[v(s') - \hat v(s')]}
      \le
@@ -177,7 +177,7 @@ The previous notation separates the model-dependent part of dynamic programming 
 
 - Define the **mismatch operator** $\MISMATCH_t \colon \ALPHABET V \to \ALPHABET Q$ as follows: for any $v \in \ALPHABET V$,
   $$
-      \MISMATCH_t v = \DYNAMICS_t v - \hat \DYNAMICS_t v
+      \MISMATCH_t v = \MODEL_t v - \hat \MODEL_t v
   $$
 
 Then, we have the following one-step estimate.
@@ -185,7 +185,7 @@ Then, we have the following one-step estimate.
 :::{#lem-one-step}
 #### One step error propagation
 
-Given $v_{t+1}, \hat v_{t+1} \in \ALPHABET V$, define $q_t = \DYNAMICS_t v_{t+1}$ and $\hat q_t = \hat \DYNAMICS_t \hat v_{t+1}$. Then,
+Given $v_{t+1}, \hat v_{t+1} \in \ALPHABET V$, define $q_t = \MODEL_t v_{t+1}$ and $\hat q_t = \hat \MODEL_t \hat v_{t+1}$. Then,
 $$
   \NORM{q_{t} - \hat q_t} \le \min\bigl\{
     \NORM{\MISMATCH_t v_{t+1}}, \NORM{\MISMATCH_t \hat v_{t+1}}
@@ -200,21 +200,21 @@ $$
 
 Consider
 \begin{align*}
-  \NORM{q_{t} - \hat q_t} &= \NORM{\DYNAMICS_t v_{t+1} - \hat \DYNAMICS_t \hat v_{t+1} } \\
-  &\stackrel{(a)}\le \NORM{\DYNAMICS_t v_{t+1} - \hat \DYNAMICS_t v_{t+1} } 
-  + \NORM{\hat \DYNAMICS_t v_{t+1} - \hat \DYNAMICS_t \hat v_{t+1} }  \\
+  \NORM{q_{t} - \hat q_t} &= \NORM{\MODEL_t v_{t+1} - \hat \MODEL_t \hat v_{t+1} } \\
+  &\stackrel{(a)}\le \NORM{\MODEL_t v_{t+1} - \hat \MODEL_t v_{t+1} } 
+  + \NORM{\hat \MODEL_t v_{t+1} - \hat \MODEL_t \hat v_{t+1} }  \\
   &\stackrel{(b)}\le \NORM{\MISMATCH_t v_{t+1}} + \NORM{v_{t+1} - \hat v_{t+1}},
 \end{align*}
-where $(a)$ follows from the triangle inequality and $(b)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\hat \DYNAMICS_t$ from @lem-non-expansion.
+where $(a)$ follows from the triangle inequality and $(b)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\hat \MODEL_t$ from @lem-non-expansion.
 
 The second inequality follows by reversing the roles of $v_{t+1}$ and $\hat v_{t+1}$:
 \begin{align*}
-  \NORM{q_{t} - \hat q_t} &= \NORM{\DYNAMICS_t v_{t+1} - \hat \DYNAMICS_t \hat v_{t+1} } \\
-  &\stackrel{(c)}\le \NORM{\DYNAMICS_t \hat v_{t+1} - \hat \DYNAMICS_t \hat v_{t+1} } 
-  + \NORM{\DYNAMICS_t v_{t+1} - \DYNAMICS_t \hat v_{t+1} }  \\
+  \NORM{q_{t} - \hat q_t} &= \NORM{\MODEL_t v_{t+1} - \hat \MODEL_t \hat v_{t+1} } \\
+  &\stackrel{(c)}\le \NORM{\MODEL_t \hat v_{t+1} - \hat \MODEL_t \hat v_{t+1} } 
+  + \NORM{\MODEL_t v_{t+1} - \MODEL_t \hat v_{t+1} }  \\
   &\stackrel{(d)}\le \NORM{\MISMATCH_t \hat v_{t+1}} + \NORM{v_{t+1} - \hat v_{t+1}},
 \end{align*}
-where $(c)$ follows from the triangle inequality and $(d)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\DYNAMICS_t$ from @lem-non-expansion.
+where $(c)$ follows from the triangle inequality and $(d)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\MODEL_t$ from @lem-non-expansion.
 :::
 
 The mismatch operator can be used to bound the difference between evaluating a fixed policy in the true and approximate models.
@@ -265,8 +265,8 @@ $$
 $$
 Recall that
 $$
-  Q^π_t = \DYNAMICS_t V^π_{t+1}, \quad
-  \hat Q^π_t = \hat \DYNAMICS_t \hat V^π_{t+1},
+  Q^π_t = \MODEL_t V^π_{t+1}, \quad
+  \hat Q^π_t = \hat \MODEL_t \hat V^π_{t+1},
 $$
 and $V^π_t = \ALPHABET T^{π_t} Q^π_t$, $\hat V^π_t = \ALPHABET T^{π_t} \hat Q^π_t$. From the one-step lemma we get:
 $$
@@ -339,8 +339,8 @@ $$
 $$
 Recall that
 $$
-  Q^\star_t = \DYNAMICS_t V^\star_{t+1}, \quad
-  \hat Q^\star_t = \hat \DYNAMICS_t \hat V^\star_{t+1},
+  Q^\star_t = \MODEL_t V^\star_{t+1}, \quad
+  \hat Q^\star_t = \hat \MODEL_t \hat V^\star_{t+1},
 $$
 and $V^\star_t = \ALPHABET T^\star Q^\star_t$, $\hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t$. From the one-step lemma we get:
 $$
@@ -546,17 +546,17 @@ Moreover, since $\hat V^\star = \hat V^{\hat π^\star}$,
 \begin{align*}
   \NORM{V^{\hat π^\star}_t - \hat V^\star_t}
   &=
-  \NORM{\ALPHABET T^{\hat π^\star} \DYNAMICS_t V^{\hat π^\star}_{t+1}
-    - \ALPHABET T^{\hat π^\star} \hat \DYNAMICS_t \hat V^\star_{t+1}}
+  \NORM{\ALPHABET T^{\hat π^\star} \MODEL_t V^{\hat π^\star}_{t+1}
+    - \ALPHABET T^{\hat π^\star} \hat \MODEL_t \hat V^\star_{t+1}}
   \\
   &\le
-  \NORM{\DYNAMICS_t V^{\hat π^\star}_{t+1}
-    - \hat \DYNAMICS_t \hat V^\star_{t+1}}
+  \NORM{\MODEL_t V^{\hat π^\star}_{t+1}
+    - \hat \MODEL_t \hat V^\star_{t+1}}
   \\
   &\le
-  \NORM{\DYNAMICS_t V^{\hat π^\star}_{t+1} - \DYNAMICS_t V^\star_{t+1}}
-  + \NORM{\DYNAMICS_t V^\star_{t+1} - \hat \DYNAMICS_t V^\star_{t+1}}
-  + \NORM{\hat \DYNAMICS_t V^\star_{t+1} - \hat \DYNAMICS_t \hat V^\star_{t+1}}
+  \NORM{\MODEL_t V^{\hat π^\star}_{t+1} - \MODEL_t V^\star_{t+1}}
+  + \NORM{\MODEL_t V^\star_{t+1} - \hat \MODEL_t V^\star_{t+1}}
+  + \NORM{\hat \MODEL_t V^\star_{t+1} - \hat \MODEL_t \hat V^\star_{t+1}}
   \\
   &\le
   α_{t+1}
@@ -916,7 +916,7 @@ Note that the bound of @thm-model-error-hat-V-star does not accumulate a horizon
 
 It is interesting to compare @thm-model-error-V-star with a standard policy-loss bound for acting greedily in the **true** model. Instead of using $\hat π^\star$, suppose we use a policy $μ = (μ_1, \dots, μ_T)$ with
 $$
-  μ_t \in \GREEDY \DYNAMICS_t \hat V^\star_{t+1},
+  μ_t \in \GREEDY \MODEL_t \hat V^\star_{t+1},
   \quad t \in \{1,\dots,T\},
 $$
 i.e., the greedy policy in $\ALPHABET M$ with respect to $\hat V^\star$. A standard policy-loss argument gives
