@@ -6,7 +6,9 @@ title: "Sample-path bounds"
 
 In the previous lectures, we have obtained bounds on policy error, value error, and model approximation error in terms of the sup-norm. In this lecture, we will develop sample path based bounds which are tighter. For simplicity, we reuse some of the symbols from the previous lectures, but their meanings are different.
 
-## One step error propagation
+## Model approximation (Take 3)
+
+### One step error propagation
 
 Recall that the **model operator** $\MODEL_t \colon \ALPHABET V \to \ALPHABET Q$ includes both the cost and the transition:
 $$
@@ -132,22 +134,15 @@ $$
 and $V^π_t = \ALPHABET T^{π_t} Q^π_t$, $\hat V^π_t = \ALPHABET T^{π_t} \hat Q^π_t$. From @lem-one-step-signed with $v_{t+1} = V^π_{t+1}$ and $\hat v_{t+1} = \hat V^π_{t+1}$,
 $$
   β^π_t
-  =
-  Q^π_t - \hat Q^π_t
-  =
-  Δ^π_t
-  +
-  \DYNAMICS_t α^π_{t+1}.
+  = Q^π_t - \hat Q^π_t
+  = Δ^π_t + \DYNAMICS_t α^π_{t+1}.
 $$
 Evaluating at $a = π_t(s)$ and using that $π_t$ is deterministic,
 $$
   α^π_t(s)
-  =
-  V^π_t(s) - \hat V^π_t(s)
-  =
-  Q^π_t\bigl(s, π_t(s)\bigr) - \hat Q^π_t\bigl(s, π_t(s)\bigr)
-  =
-  β^π_t\bigl(s, π_t(s)\bigr).
+  = V^π_t(s) - \hat V^π_t(s)
+  = Q^π_t\bigl(s, π_t(s)\bigr) - \hat Q^π_t\bigl(s, π_t(s)\bigr)
+  = β^π_t\bigl(s, π_t(s)\bigr).
 $$
 :::
 
@@ -202,46 +197,41 @@ $$
 and $V^\star_t = \ALPHABET T^\star Q^\star_t$, $\hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t$. From @lem-one-step-signed with $v_{t+1} = V^\star_{t+1}$ and $\hat v_{t+1} = \hat V^\star_{t+1}$,
 $$
   β^\star_t
-  =
-  Q^\star_t - \hat Q^\star_t
-  =
-  Δ^\star_t
-  +
-  \DYNAMICS_t α^\star_{t+1}.
+  = Q^\star_t - \hat Q^\star_t
+  = Δ^\star_t + \DYNAMICS_t α^\star_{t+1}.
 $$
 
 The sandwich for $α^\star_t$ uses the two optimality properties, one at a time.
 
 *Upper bound.* By optimality of $\hat π^\star_t$ on the approximate side, $\hat V^\star_t(s) = \hat Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)$, while on the true side $V^\star_t(s) = \inf_{a} Q^\star_t(s,a) \le Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)$. Therefore
 $$
-  α^\star_t(s)
-  =
-  V^\star_t(s) - \hat V^\star_t(s)
-  \le
-  Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)
-  -
-  \hat Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)
-  =
-  β^\star_t\bigl(s, \hat π^\star_t(s)\bigr).
+  α^\star_t(s) = V^\star_t(s) - \hat V^\star_t(s)
+  \le Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)
+  - \hat Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)
+  = β^\star_t\bigl(s, \hat π^\star_t(s)\bigr).
 $$
 
 *Lower bound.* By optimality of $π^\star_t$ on the true side, $V^\star_t(s) = Q^\star_t\bigl(s, π^\star_t(s)\bigr)$, while on the approximate side $\hat V^\star_t(s) = \inf_{a} \hat Q^\star_t(s,a) \le \hat Q^\star_t\bigl(s, π^\star_t(s)\bigr)$. Therefore
 $$
   α^\star_t(s)
-  =
-  V^\star_t(s) - \hat V^\star_t(s)
-  \ge
-  Q^\star_t\bigl(s, π^\star_t(s)\bigr)
-  -
-  \hat Q^\star_t\bigl(s, π^\star_t(s)\bigr)
-  =
-  β^\star_t\bigl(s, π^\star_t(s)\bigr).
+  = V^\star_t(s) - \hat V^\star_t(s)
+  \ge Q^\star_t\bigl(s, π^\star_t(s)\bigr)
+  - \hat Q^\star_t\bigl(s, π^\star_t(s)\bigr)
+  = β^\star_t\bigl(s, π^\star_t(s)\bigr).
 $$
 :::
 
-## Signed sample-path bound
+Unfortunately, the result of @thm-value-error-signed is uncomputable because we do not know the exact value of $\alpha^\star_t$. However, as we explain below, it can be used to obtain model approximation error bounds by upper and lower bounding $\alpha^\star_t$.
 
-Keeping the sign of $Δ^\star_t$ gives a one-sided certificate. The idea is to dominate the exact $α^{\hat π^\star}$ and $α^\star$ by (possibly loose) upper and lower certificates $(α^+, β^+)$ and $(α^-, β^-)$ that obey the same recursions with inequalities.
+### Model approximation bounds
+
+As in the sup-norm case, the key idea is that
+$$
+  0 \le V^{\hat \pi^\star}_t - V^\star_t
+  \le \bigl[\hat V^{\hat \pi^\star}_t - V^{\hat \pi^\star}_t \bigr]
+    - \bigl[ V^\star_t - \hat V^\star_t \bigr].
+$$
+So, we can take an upper bound on the first term and a lower bound on the second term to get a bound on the model error. We can get these (possibly loose) upper and lower bounds on $α^{\hat π^\star}$ and $α^\star$ by finding $(α^+, β^+)$ and $(α^-, β^-)$ that obey the same recursions but with inequalities instead of equalities.
 
 :::{#thm-signed-sample-path}
 #### Signed sample-path bound
@@ -285,17 +275,15 @@ $$
 :::{.callout-note collapse="false"}
 #### Proof
 
-The certificate recursions are similar to the recursions for exact policy and value errors in @prp-policy-error-signed (specialized to $\hat π^\star$) and @prp-value-error-signed, with equalities replaced by inequalities. Therefore, a backward induction argument shows that $α^+_t$ is an upper bound on $α^{\hat π^\star}_t = V^{\hat π^\star}_t - \hat V^\star_t$ and $α^-_t$ is a lower bound on $α^\star_t = V^\star_t - \hat V^\star_t$. Combining the two inequalities then gives
+The recursions for the upper bound and the lower bound are similar to the recursions for exact policy and value errors in @prp-policy-error-signed (specialized to $\hat π^\star$) and @prp-value-error-signed, with equalities replaced by inequalities. Therefore, a backward induction argument shows that $α^+_t$ is an upper bound on $α^{\hat π^\star}_t = V^{\hat π^\star}_t - \hat V^\star_t$ and $α^-_t$ is a lower bound on $α^\star_t = V^\star_t - \hat V^\star_t$. Combining the two inequalities then gives
 $$
   V^{\hat π^\star}_t(s) - V^\star_t(s)
-  =
-  α^{\hat π^\star}_t(s) - α^\star_t(s)
-  \le
-  α^+_t(s) - α^-_t(s).
+  = α^{\hat π^\star}_t(s) - α^\star_t(s)
+  \le α^+_t(s) - α^-_t(s).
 $$
 :::
 
-A concrete construction that saturates the upper certificate and only relaxes the lower certificate is
+A concrete construction that uses the best upper bound and relaxes the lower bound (so that we don't need the knowledge of $π^\star$) is
 \begin{align*}
   α^+_t(s)
   &=
@@ -313,92 +301,84 @@ A concrete construction that saturates the upper certificate and only relaxes th
     \sum_{s'} α^-_{t+1}(s') P_t(s' \mid s,a)
   \Bigr],
 \end{align*}
-where $\ALPHABET C_t(s) \subseteq \ALPHABET A$ is any set guaranteed to contain $π^\star_t(s)$ (for example $\ALPHABET C_t(s) = \{π^\star_t(s)\}$, or a structural candidate set that does not require computing $π^\star$ explicitly). The corresponding $β$-functions are the obvious one-step maps; @thm-signed-sample-path then certifies
+where $\ALPHABET C_t(s) \subseteq \ALPHABET A$ is any set guaranteed to contain $π^\star_t(s)$ (for example $\ALPHABET C_t(s) = \ALPHABET A$, or a structural candidate set that does not require computing $π^\star$ explicitly). @thm-signed-sample-path then guarantees
 $$
   V^{\hat π^\star}_t(s) - V^\star_t(s)
   \le
   α^+_t(s) - α^-_t(s).
 $$
 
-## Absolute-value sample-path bound
+### Coarser upper bounds
 
-Replacing the signed mismatch by its absolute value and propagating a non-negative majorant along $P_t$ yields a coarser two-sided certificate. The resulting bound is state-dependent, but still absolute-valued.
+The above bound requires separately keeping track of an upper and lower bound. We can get a uniform bound by taking absolute values.
 
 :::{#thm-abs-sample-path}
 #### Absolute-value sample-path bound
 
-Suppose that for each $t \in \{1,\dots,T\}$ there exist functions $α_t \colon \ALPHABET S \to \reals_{\ge 0}$ and $β_t \colon \ALPHABET S \times \ALPHABET A \to \reals_{\ge 0}$ such that
+Suppose that for each $t \in \{1,\dots,T\}$ there exist functions $α^{\mathrm{abs}}_t \colon \ALPHABET S \to \reals_{\ge 0}$ and $β^{\mathrm{abs}}_t \colon \ALPHABET S \times \ALPHABET A \to \reals_{\ge 0}$ such that
 $$
-  β_T(s,a) \ge \ABS{Δ^\star_T(s,a)},
+  β^{\mathrm{abs}}_T(s,a) \ge \ABS{Δ^\star_T(s,a)},
 $$
 and for $t < T$,
 $$
-  β_t(s,a)
+  β^{\mathrm{abs}}_t(s,a)
   \ge
   \ABS{Δ^\star_t(s,a)}
   +
   \sum_{s' \in \ALPHABET S}
-  α_{t+1}(s')
+  α^{\mathrm{abs}}_{t+1}(s')
   P_t(s' \mid s,a),
 $$
 and for all $t$,
 $$
-  α_t(s)
+  α^{\mathrm{abs}}_t(s)
   \ge
   \max\Bigl\{
-    β_t\bigl(s, π^\star_t(s)\bigr),\;
-    β_t\bigl(s, \hat π^\star_t(s)\bigr)
+    β^{\mathrm{abs}}_t\bigl(s, π^\star_t(s)\bigr),\;
+    β^{\mathrm{abs}}_t\bigl(s, \hat π^\star_t(s)\bigr)
   \Bigr\},
 $$
 where $Δ^\star_t$ is as in @prp-value-error-signed. Then the policy $\hat π^\star$ satisfies, for all $t$ and $s$,
 $$
   \ABS{V^{\hat π^\star}_t(s) - V^\star_t(s)}
   \le
-  2 α_t(s).
+  2 α^{\mathrm{abs}}_t(s).
 $$
 :::
 
 :::{.callout-note collapse="false"}
 #### Proof
 
-Choose the signed certificates
+Choose the upper and lower bounds
 $$
-  α^+_t = α_t,
+  α^+_t = α^{\mathrm{abs}}_t,
   \quad
-  α^-_t = -α_t,
+  α^-_t = -α^{\mathrm{abs}}_t,
   \quad
-  β^+_t = β_t,
+  β^+_t = β^{\mathrm{abs}}_t,
   \quad
-  β^-_t = -β_t.
+  β^-_t = -β^{\mathrm{abs}}_t.
 $$
 These satisfy the hypotheses of @thm-signed-sample-path, so
 $$
   V^{\hat π^\star}_t(s) - V^\star_t(s)
-  \le
-  α^+_t(s) - α^-_t(s)
-  =
-  2 α_t(s).
+  \le α^+_t(s) - α^-_t(s)
+  = 2 α^{\mathrm{abs}}_t(s).
 $$
-For the matching lower side, optimality of $V^\star$ yields $V^{\hat π^\star}_t(s) - V^\star_t(s) \ge 0 \ge -2 α_t(s)$ because $α_t \ge 0$. Combining the two inequalities gives the claim.
+For the matching lower side, optimality of $V^\star$ yields $V^{\hat π^\star}_t(s) - V^\star_t(s) \ge 0 \ge -2 α^{\mathrm{abs}}_t(s)$ because $α^{\mathrm{abs}}_t \ge 0$. Combining the two inequalities gives the claim.
 :::
 
 A feasible (but state-independent) choice is
 $$
-  α_t(s)
-  \equiv
-  \sum_{\tau=t}^{T}
-  \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}},
+  α^{\mathrm{abs}}_t(s)
+  \equiv \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}},
   \qquad
-  β_t(s,a)
-  \equiv
-  \NORM{\MISMATCH_t \hat V^\star_{t+1}}
-  +
-  \sum_{s'} α_{t+1}(s') P_t(s' \mid s,a).
+  β^{\mathrm{abs}}_t(s,a)
+  \equiv \NORM{\MISMATCH_t \hat V^\star_{t+1}}
+  + \sum_{s'} α^{\mathrm{abs}}_{t+1}(s') P_t(s' \mid s,a).
 $$
 For this choice, @thm-abs-sample-path recovers the factor-of-two model-approximation bound from the model-approximation lecture:
 $$
   \NORM{V^{\hat π^\star}_t - V^\star_t}
-  \le
-  2 \sum_{\tau=t}^{T}
-  \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}}.
+  \le 2 \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}}.
 $$
