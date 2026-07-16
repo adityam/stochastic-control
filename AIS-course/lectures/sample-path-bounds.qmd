@@ -352,47 +352,57 @@ $$
 
 ## Computing the bounds
 
-One difficulty in applying @thm-signed-sample-path is that the upper and lower bound recursions propagate with the true kernel $P_t$. In applications where $P_t$ is unknown or inconvenient to evaluate, we can obtain coarser bounds that use only the approximate kernel $\hat P_t$, at the price of an additional IPM penalty.
+One difficulty in applying @thm-signed-sample-path is that the upper and lower bound recursions propagate with the true kernel $P_t$. Moreover, computing the mismatch $Δ^\star_t = \MISMATCH_t \hat V^\star_{t+1}$ requires the true model.
 
-Let $\def\F{\mathfrak{F}}\F$ be a (maximal) generator as in the model-approximation lecture, with IPM $d_{\F}$ and Minkowski functional $ρ_{\F}$. Define the pointwise transition discrepancy
+In applications where $P_t$ is unknown or inconvenient to evaluate, we can obtain coarser bounds that use only the approximate model, at the price of an additional IPM penalty.
+
+Let $\def\F{\mathfrak{F}}\F$ be a (maximal) generator as in the model-approximation lecture, with IPM $d_{\F}$ and Minkowski functional $ρ_{\F}$. Suppose we have bounds on the per-step cost difference
+$$
+  ε^{-}_t(s,a) \le c_t(s,a) - \hat c_t(s,a) \le ε^{+}_t(s,a).
+$$
+Define
 $$
   δ_t(s,a)
   \coloneqq d_{\F}\bigl(P_t(\cdot \mid s,a), \hat P_t(\cdot \mid s,a)\bigr).
 $$
-The defining IPM inequality then yields, for any $α \colon \ALPHABET S \to \reals$,
+The defining IPM inequality then yields, for any $v \colon \ALPHABET S \to \reals$,
 $$
   \ABS{
-    \sum_{s'} α(s') P_t(s' \mid s,a)
-    - \sum_{s'} α(s') \hat P_t(s' \mid s,a)
+    \sum_{s'} v(s') P_t(s' \mid s,a)
+    - \sum_{s'} v(s') \hat P_t(s' \mid s,a)
   }
-  \le δ_t(s,a)\, ρ_{\F}(α).
+  \le δ_t(s,a)\, ρ_{\F}(v).
 $$
 Equivalently,
-\begin{align*}
-  \sum_{s'} α(s') P_t(s' \mid s,a)
-  &\le \sum_{s'} α(s') \hat P_t(s' \mid s,a)
-  + δ_t(s,a)\, ρ_{\F}(α),
-  \\
-  \sum_{s'} α(s') P_t(s' \mid s,a)
-  &\ge \sum_{s'} α(s') \hat P_t(s' \mid s,a)
-  - δ_t(s,a)\, ρ_{\F}(α).
-\end{align*}
+$$
+  \sum_{s'} v(s') \hat P_t(s' \mid s,a) - δ_t(s,a)\, ρ_{\F}(v)
+  \le
+  \sum_{s'} v(s') P_t(s' \mid s,a)
+  \le \sum_{s'} v(s') \hat P_t(s' \mid s,a)
+  + δ_t(s,a)\, ρ_{\F}(v).
+$$
+Applying this to $v = \hat V^\star_{t+1}$ and using the definition of $\MISMATCH_t$ also bounds the one-step mismatch:
+$$
+  ε^{-}_t(s,a) - δ_t(s,a)\, ρ_{\F}(\hat V^\star_{t+1})
+  \le Δ^\star_t(s,a)
+  \le ε^{+}_t(s,a) + δ_t(s,a)\, ρ_{\F}(\hat V^\star_{t+1}).
+$$
 
-Thus any average of an upper or lower bound with respect to the true dynamics can be replaced by the corresponding average with respect to the approximate dynamics plus or minus an IPM correction. In particular, the upper recursion of @thm-signed-sample-path is implied by
-$$
-  β^+_t(s,a)
-  \ge Δ^\star_t(s,a)
-  + \sum_{s'} α^+_{t+1}(s') \hat P_t(s' \mid s,a)
-  + δ_t(s,a)\, ρ_{\F}(α^+_{t+1}),
-$$
-and the lower recursion is implied by
+Thus both the mismatch and any average with respect to the true dynamics can be replaced by approximate-model quantities plus or minus an IPM correction. In particular, the lower recursion of @thm-signed-sample-path is implied by
 $$
   β^-_t(s,a)
-  \le Δ^\star_t(s,a)
+  \le ε^{-}_t(s,a) - δ_t(s,a)\, ρ_{\F}(\hat V^\star_{t+1})
   + \sum_{s'} α^-_{t+1}(s') \hat P_t(s' \mid s,a)
-  - δ_t(s,a)\, ρ_{\F}(α^-_{t+1}).
+  - δ_t(s,a)\, ρ_{\F}(α^-_{t+1}),
 $$
-The resulting bounds are typically looser than those built from $P_t$, but they are computable from the approximate model together with the IPM discrepancies $δ_t$.
+and the upper recursion is implied by
+$$
+  β^+_t(s,a)
+  \ge ε^{+}_t(s,a) + δ_t(s,a)\, ρ_{\F}(\hat V^\star_{t+1})
+  + \sum_{s'} α^+_{t+1}(s') \hat P_t(s' \mid s,a)
+  + δ_t(s,a)\, ρ_{\F}(α^+_{t+1}).
+$$
+The resulting bounds are typically looser than those built from $P_t$, but they are computable from the approximate model together with model error $(ε_t,δ_t)$.
 
 ## Model approximation with state abstraction (Take 4)
 
@@ -629,35 +639,65 @@ recovers the factor-of-two model-approximation bound of the state-abstraction le
 
 ### Computing the bounds
 
-As before, the recursions propagate with the true kernel $P_t$. To replace them by quantities that live on the approximate state space, we use the pushed-forward kernel from the state-abstraction lecture,
+As before, the bound of @thm-signed-sample-path-abstract is not directly computable: the recursions use the true kernel $P_t$, and the mismatch $Δ^\star_t = \hat \MISMATCH_t \hat V^\star_{t+1}$ depends on the true model. We obtain coarser bounds that live entirely on $\hat {\ALPHABET S}$.
+
+Let $\F$ be as above, and write $P_{φ,t}$ for the pushed-forward kernel
 $$
   P_{φ,t}(\hat s' \mid s,a)
-  \coloneqq P_t\bigl(φ^{-1}(\hat s') \mid s,a\bigr),
-$$
-and the pointwise IPM discrepancy
-$$
-  δ_t(s,a)
-  \coloneqq d_{\F}\bigl(P_{φ,t}(\cdot \mid s,a), \hat P_t(\cdot \mid φ(s),a)\bigr).
+  \coloneqq P_t\bigl(φ^{-1}(\hat s') \mid s,a\bigr).
 $$
 
-Moreover, we may restrict attention to upper bounds that are **$\hat {\ALPHABET S}$-measurable**, i.e.\ $α^+_t = \hat α^+_t \circ φ$ for some $\hat α^+_t \colon \hat {\ALPHABET S} \to \reals$. (The concrete upper construction along $\hat π^\star \circ φ$ can be taken of this form by working with a bound defined on $\hat {\ALPHABET S}$ and lifting.) For any such $α^+_t$,
+Suppose we are given $\hat {\ALPHABET S}$-measurable cost bounds $\hat ε^{+}_t, \hat ε^{-}_t \in \hat {\ALPHABET Q}$ such that for all $(s,a)$,
 $$
-  \sum_{s'} α^+_t(s') P_t(s' \mid s,a)
-  = \sum_{\hat s'} \hat α^+_t(\hat s') P_{φ,t}(\hat s' \mid s,a),
+  \hat ε^{-}_t\bigl(φ(s),a\bigr)
+  \le c_t(s,a) - \hat c_t\bigl(φ(s),a\bigr)
+  \le \hat ε^{+}_t\bigl(φ(s),a\bigr).
+$$
+Similarly, suppose we have a $\hat {\ALPHABET S}$-measurable transition discrepancy $\hat δ_t \in \hat {\ALPHABET Q}$ such that for all $(s,a)$,
+$$
+  d_{\F}\bigl(P_{φ,t}(\cdot \mid s,a), \hat P_t(\cdot \mid φ(s),a)\bigr)
+  \le \hat δ_t\bigl(φ(s),a\bigr).
+$$
+(For example, one may take $\hat δ_t(\hat s,a)$ to be the supremum of the IPM distance over the fiber $φ^{-1}(\hat s)$.)
+
+We also restrict the value bounds to be $\hat {\ALPHABET S}$-measurable: $α^\pm_t = \hat α^\pm_t \circ φ$ and $β^\pm_t(s,a) = \hat β^\pm_t(φ(s),a)$ for some $\hat α^\pm_t \colon \hat {\ALPHABET S} \to \reals$ and $\hat β^\pm_t \in \hat {\ALPHABET Q}$. Then, for any such $\hat α$,
+$$
+  \sum_{s'} (\hat α \circ φ)(s') P_t(s' \mid s,a)
+  = \sum_{\hat s'} \hat α(\hat s') P_{φ,t}(\hat s' \mid s,a),
 $$
 and the IPM inequality gives
 $$
-  \ABS{
-    \sum_{\hat s'} \hat α^+_t(\hat s') P_{φ,t}(\hat s' \mid s,a)
-    - \sum_{\hat s'} \hat α^+_t(\hat s') \hat P_t(\hat s' \mid φ(s),a)
-  }
-  \le δ_t(s,a)\, ρ_{\F}(\hat α^+_t).
+  \sum_{\hat s'} \hat α(\hat s') \hat P_t(\hat s' \mid φ(s),a) - \hat δ_t\bigl(φ(s),a\bigr)\, ρ_{\F}(\hat α)
+  \le
+  \sum_{s'} (\hat α \circ φ)(s') P_t(s' \mid s,a)
+  \le
+  \sum_{\hat s'} \hat α(\hat s') \hat P_t(\hat s' \mid φ(s),a) + \hat δ_t\bigl(φ(s),a\bigr)\, ρ_{\F}(\hat α).
 $$
-Thus the upper recursion of @thm-signed-sample-path-abstract is implied by
+Applying this to $\hat α = \hat V^\star_{t+1}$ and using the definition of $\hat \MISMATCH_t$ bounds the mismatch by quantities on $\hat {\ALPHABET S}$:
 $$
-  β^+_t(s,a)
-  \ge Δ^\star_t(s,a)
-  + \sum_{\hat s'} \hat α^+_t(\hat s') \hat P_t(\hat s' \mid φ(s),a)
-  + δ_t(s,a)\, ρ_{\F}(\hat α^+_t).
+  \hat ε^{-}_t\bigl(φ(s),a\bigr) - \hat δ_t\bigl(φ(s),a\bigr)\, ρ_{\F}(\hat V^\star_{t+1})
+  \le Δ^\star_t(s,a)
+  \le \hat ε^{+}_t\bigl(φ(s),a\bigr) + \hat δ_t\bigl(φ(s),a\bigr)\, ρ_{\F}(\hat V^\star_{t+1}).
 $$
-The same argument applies to a $\hat {\ALPHABET S}$-measurable lower bound $α^-_t = \hat α^-_t \circ φ$, with the IPM correction subtracted rather than added. The resulting bounds use only $\hat P_t$, the lifted mismatch $Δ^\star_t$, and the pushforward discrepancies $δ_t$.
+
+Combining these estimates, the lower recursion of @thm-signed-sample-path-abstract is implied by the $\hat {\ALPHABET S}$-side inequality
+$$
+  \hat β^-_t(\hat s,a)
+  \le \hat ε^{-}_t(\hat s,a) - \hat δ_t(\hat s,a)\, ρ_{\F}(\hat V^\star_{t+1})
+  + \sum_{\hat s'} \hat α^-_{t+1}(\hat s') \hat P_t(\hat s' \mid \hat s,a)
+  - \hat δ_t(\hat s,a)\, ρ_{\F}(\hat α^-_{t+1}),
+$$
+and the upper recursion is implied by
+$$
+  \hat β^+_t(\hat s,a)
+  \ge \hat ε^{+}_t(\hat s,a) + \hat δ_t(\hat s,a)\, ρ_{\F}(\hat V^\star_{t+1})
+  + \sum_{\hat s'} \hat α^+_{t+1}(\hat s') \hat P_t(\hat s' \mid \hat s,a)
+  + \hat δ_t(\hat s,a)\, ρ_{\F}(\hat α^+_{t+1}).
+$$
+The corresponding anchors are $\hat α^-_t(\hat s) \le \hat β^-_t\bigl(\hat s, π^\star_t(s)\bigr)$ for some $s \in φ^{-1}(\hat s)$ (or a minimum over a candidate set), and $\hat α^+_t(\hat s) \ge \hat β^+_t\bigl(\hat s, \hat π^\star_t(\hat s)\bigr)$. Lifting back via $α^\pm_t = \hat α^\pm_t \circ φ$ and $β^\pm_t(s,a) = \hat β^\pm_t(φ(s),a)$ yields valid bounds for @thm-signed-sample-path-abstract. The entire recursion is thus computable from the approximate model together with the $\hat {\ALPHABET S}$-measurable discrepancies $(\hat ε^\pm_t, \hat δ_t)$.
+
+## Notes {-}
+
+The material for this lecture is adapted from @Bozkurt2026.
+
+## References {-}
