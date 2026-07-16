@@ -207,7 +207,7 @@ $$
 $$
 :::
 
-Unfortunately, the result of @thm-value-error-signed is uncomputable because we do not know the exact value of $\alpha^\star_t$. However, as we explain below, it can be used to obtain model approximation error bounds by upper and lower bounding $\alpha^\star_t$.
+Unfortunately, the result of @prp-value-error-signed is uncomputable because we do not know the exact value of $α^\star_t$. However, as we explain below, it can be used to obtain model approximation error bounds by upper and lower bounding $\alpha^\star_t$.
 
 ### Model approximation bounds
 
@@ -266,8 +266,7 @@ A concrete construction that uses the best upper bound and relaxes the lower bou
 \begin{align*}
   α^+_t(s)
   &= Δ^\star_t\bigl(s, \hat π^\star_t(s)\bigr)
-  + \sum_{s'} α^+_{t+1}(s')
-  P_t\bigl(s' \mid s, \hat π^\star_t(s)\bigr),
+  + \sum_{s'} α^+_{t+1}(s') P_t\bigl(s' \mid s, \hat π^\star_t(s)\bigr),
   \\
   α^-_t(s)
   &= \min_{a \in \ALPHABET C_t(s)}
@@ -297,9 +296,7 @@ and for $t < T$,
 $$
   β^{\mathrm{abs}}_t(s,a)
   \ge \ABS{Δ^\star_t(s,a)}
-  + \sum_{s' \in \ALPHABET S}
-  α^{\mathrm{abs}}_{t+1}(s')
-  P_t(s' \mid s,a),
+  + \sum_{s' \in \ALPHABET S} α^{\mathrm{abs}}_{t+1}(s') P_t(s' \mid s,a),
 $$
 and for all $t$,
 $$
@@ -357,7 +354,7 @@ $$
 
 One difficulty in applying @thm-signed-sample-path is that the upper and lower bound recursions propagate with the true kernel $P_t$. In applications where $P_t$ is unknown or inconvenient to evaluate, we can obtain coarser bounds that use only the approximate kernel $\hat P_t$, at the price of an additional IPM penalty.
 
-Let $\def\F{\mathcal{F}}\F$ be a (maximal) generator as in the model-approximation lecture, with IPM $d_{\F}$ and Minkowski functional $ρ_{\F}$. Define the pointwise transition discrepancy
+Let $\def\F{\mathfrak{F}}\F$ be a (maximal) generator as in the model-approximation lecture, with IPM $d_{\F}$ and Minkowski functional $ρ_{\F}$. Define the pointwise transition discrepancy
 $$
   δ_t(s,a)
   \coloneqq d_{\F}\bigl(P_t(\cdot \mid s,a), \hat P_t(\cdot \mid s,a)\bigr).
@@ -396,3 +393,240 @@ $$
   - δ_t(s,a)\, ρ_{\F}(α^-_{t+1}).
 $$
 The resulting bounds are typically looser than those built from $P_t$, but they are computable from the approximate model together with the IPM discrepancies $δ_t$.
+
+## Model approximation with state abstraction (Take 4)
+
+We now redo the sample-path bounds when the true model $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$ and the approximate model $\widehat {\ALPHABET M} = \langle \hat {\ALPHABET S}, \ALPHABET A, \hat P, \hat c, T \rangle$ live on different state spaces, related by a surjective abstraction $φ \colon \ALPHABET S \to \hat {\ALPHABET S}$. As in the state-abstraction lecture, we **lift** any $\hat f$ on $\hat {\ALPHABET S}$ to $\hat f \circ φ$ on $\ALPHABET S$, write $\hat π \circ φ$ for the lift of a policy $\hat π$ on $\widehat {\ALPHABET M}$, and use $(\hat q \circ φ)(s,a) \coloneqq \hat q(φ(s),a)$ for $\hat q \in \hat {\ALPHABET Q}$. 
+
+The pointwise arguments carry over verbatim; the only change is that every comparison is between a function on $\ALPHABET S$ and the lift of a function on $\hat {\ALPHABET S}$. The details below are just for the sake of completeness.
+
+### One step error propagation
+
+Since the two models have different state spaces, we use the **mismatch operator** $\hat \MISMATCH_t \colon \hat {\ALPHABET V} \to \ALPHABET Q$ from the state-abstraction lecture: for $\hat v \in \hat {\ALPHABET V}$,
+$$
+  \hat \MISMATCH_t \hat v
+  = \MODEL_t (\hat v \circ φ) - (\hat \MODEL_t \hat v) \circ φ.
+$$
+The dynamics operator $\DYNAMICS_t \colon \ALPHABET V \to \ALPHABET Q$ is that of the true model, exactly as before.
+
+:::{#lem-one-step-signed-abstract}
+#### One step error propagation
+
+Given $v_{t+1} \in \ALPHABET V$ and $\hat v_{t+1} \in \hat {\ALPHABET V}$, define $q_t = \MODEL_t v_{t+1}$ and $\hat q_t = \hat \MODEL_t \hat v_{t+1}$. Then
+$$
+  q_t - \hat q_t \circ φ
+  = \hat \MISMATCH_t \hat v_{t+1}
+  + \DYNAMICS_t \bigl[ v_{t+1} - \hat v_{t+1} \circ φ \bigr].
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+Add and subtract $\MODEL_t(\hat v_{t+1} \circ φ)$:
+\begin{align*}
+  q_t - \hat q_t \circ φ
+  &= \bigl[
+    \MODEL_t(\hat v_{t+1} \circ φ) - (\hat \MODEL_t \hat v_{t+1}) \circ φ
+  \bigr]
+  + \bigl[
+    \MODEL_t v_{t+1} - \MODEL_t(\hat v_{t+1} \circ φ)
+  \bigr]
+  \\
+  &= \hat \MISMATCH_t \hat v_{t+1}
+  + \DYNAMICS_t \bigl[ v_{t+1} - \hat v_{t+1} \circ φ \bigr],
+\end{align*}
+where the last step uses the definition of $\hat \MISMATCH_t$ and @lem-model-diff.
+:::
+
+### Policy error
+
+:::{#prp-policy-error-signed-abstract}
+#### Policy error
+
+For any policy $\hat π = (\hat π_1, \dots, \hat π_T)$ on $\widehat {\ALPHABET M}$, define the policy errors
+$$
+  α^{\hat π}_t(s)
+  \coloneqq V^{\hat π \circ φ}_t(s) - \hat V^{\hat π}_t(φ(s)),
+  \qquad
+  β^{\hat π}_t(s,a)
+  \coloneqq Q^{\hat π \circ φ}_t(s,a) - \hat Q^{\hat π}_t(φ(s),a),
+$$
+with the convention $α^{\hat π}_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$ and all $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+\begin{align*}
+  β^{\hat π}_t
+  &= Δ^{\hat π}_t
+  + \DYNAMICS_t α^{\hat π}_{t+1},
+  \\
+  α^{\hat π}_t(s)
+  &= β^{\hat π}_t\bigl(s, \hat π_t(φ(s))\bigr),
+\end{align*}
+where
+$$
+  Δ^{\hat π}_t
+  \coloneqq \hat \MISMATCH_t \hat V^{\hat π}_{t+1}.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+Recall that $Q^{\hat π \circ φ}_t = \MODEL_t V^{\hat π \circ φ}_{t+1}$ and $\hat Q^{\hat π}_t = \hat \MODEL_t \hat V^{\hat π}_{t+1}$. Applying @lem-one-step-signed-abstract with $v_{t+1} = V^{\hat π \circ φ}_{t+1}$ and $\hat v_{t+1} = \hat V^{\hat π}_{t+1}$,
+$$
+  β^{\hat π}_t
+  = Q^{\hat π \circ φ}_t - \hat Q^{\hat π}_t \circ φ
+  = Δ^{\hat π}_t + \DYNAMICS_t α^{\hat π}_{t+1}.
+$$
+Since the lifted policy takes action $\hat π_t(φ(s))$ at state $s$, evaluating at $a = \hat π_t(φ(s))$ gives $V^{\hat π \circ φ}_t(s) = Q^{\hat π \circ φ}_t\bigl(s, \hat π_t(φ(s))\bigr)$ and $\hat V^{\hat π}_t(φ(s)) = \hat Q^{\hat π}_t\bigl(φ(s), \hat π_t(φ(s))\bigr)$, so $α^{\hat π}_t(s) = β^{\hat π}_t\bigl(s, \hat π_t(φ(s))\bigr)$.
+:::
+
+### Value error
+
+:::{#prp-value-error-signed-abstract}
+#### Value error
+
+Define the value errors
+$$
+  α^\star_t(s)
+  \coloneqq V^\star_t(s) - \hat V^\star_t(φ(s)),
+  \qquad
+  β^\star_t(s,a)
+  \coloneqq Q^\star_t(s,a) - \hat Q^\star_t(φ(s),a),
+$$
+with the convention $α^\star_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$ and all $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+\begin{align*}
+  β^\star_t
+  &= Δ^\star_t
+  + \DYNAMICS_t α^\star_{t+1},
+  \\
+  β^\star_t\bigl(s, π^\star_t(s)\bigr)
+  &\le α^\star_t(s)
+  \le β^\star_t\bigl(s, \hat π^\star_t(φ(s))\bigr),
+\end{align*}
+where
+$$
+  Δ^\star_t
+  \coloneqq \hat \MISMATCH_t \hat V^\star_{t+1}.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+Applying @lem-one-step-signed-abstract with $v_{t+1} = V^\star_{t+1}$ and $\hat v_{t+1} = \hat V^\star_{t+1}$ gives $β^\star_t = Δ^\star_t + \DYNAMICS_t α^\star_{t+1}$. For the sandwich we use the two optimality properties, one at a time.
+
+*Upper bound.* By optimality of $\hat π^\star_t$ on the approximate side, $\hat V^\star_t(φ(s)) = \hat Q^\star_t\bigl(φ(s), \hat π^\star_t(φ(s))\bigr)$, while on the true side $V^\star_t(s) = \inf_a Q^\star_t(s,a) \le Q^\star_t\bigl(s, \hat π^\star_t(φ(s))\bigr)$. Therefore $α^\star_t(s) \le β^\star_t\bigl(s, \hat π^\star_t(φ(s))\bigr)$.
+
+*Lower bound.* By optimality of $π^\star_t$ on the true side, $V^\star_t(s) = Q^\star_t\bigl(s, π^\star_t(s)\bigr)$, while on the approximate side $\hat V^\star_t(φ(s)) = \inf_a \hat Q^\star_t(φ(s),a) \le \hat Q^\star_t\bigl(φ(s), π^\star_t(s)\bigr)$. Therefore $α^\star_t(s) \ge β^\star_t\bigl(s, π^\star_t(s)\bigr)$.
+:::
+
+### Model approximation bounds
+
+As in the MDP case, optimality of $V^\star$ gives $V^{\hat π^\star \circ φ}_t \ge V^\star_t$, and since $\hat V^{\hat π^\star} = \hat V^\star$ (so $\hat V^{\hat π^\star}_t \circ φ = \hat V^\star_t \circ φ$),
+$$
+  0
+  \le V^{\hat π^\star \circ φ}_t(s) - V^\star_t(s)
+  = α^{\hat π^\star}_t(s) - α^\star_t(s).
+$$
+As before, we bound the right-hand side by finding $(α^+, β^+)$ and $(α^-, β^-)$ that obey the same recursions with inequalities instead of equalities.
+
+:::{#thm-signed-sample-path-abstract}
+#### Signed sample-path bound
+
+Suppose that for each $t \in \{1,\dots,T\}$ there exist functions $α^+_t, α^-_t \colon \ALPHABET S \to \reals$ and $β^+_t, β^-_t \colon \ALPHABET S \times \ALPHABET A \to \reals$ such that
+$$
+  β^-_T(s,a) \le Δ^\star_T(s,a) \le β^+_T(s,a),
+$$
+and for $t < T$,
+\begin{align*}
+  β^-_t(s,a)
+  &\le Δ^\star_t(s,a)
+  + \sum_{s'} α^-_{t+1}(s') P_t(s' \mid s,a),
+  \\
+  α^-_t(s)
+  &\le β^-_t\bigl(s, π^\star_t(s)\bigr),
+\end{align*}
+and
+\begin{align*}
+  β^+_t(s,a)
+  &\ge Δ^\star_t(s,a)
+  + \sum_{s'} α^+_{t+1}(s') P_t(s' \mid s,a),
+  \\
+  α^+_t(s)
+  &\ge β^+_t\bigl(s, \hat π^\star_t(φ(s))\bigr),
+\end{align*}
+where $Δ^\star_t$ is as in @prp-value-error-signed-abstract. Then, for all $t$ and $s$,
+$$
+  V^{\hat π^\star \circ φ}_t(s) - V^\star_t(s)
+  \le α^+_t(s) - α^-_t(s).
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+As in @thm-signed-sample-path, a backward induction with @prp-policy-error-signed-abstract (for $\hat π^\star$) and @prp-value-error-signed-abstract shows that $α^+_t$ upper-bounds $α^{\hat π^\star}_t$ and $α^-_t$ lower-bounds $α^\star_t$. Combining the two,
+$$
+  V^{\hat π^\star \circ φ}_t(s) - V^\star_t(s)
+  = α^{\hat π^\star}_t(s) - α^\star_t(s)
+  \le α^+_t(s) - α^-_t(s).
+$$
+:::
+
+A concrete construction that uses the best upper bound and relaxes the lower bound (so that we don't need the knowledge of $π^\star$) is
+\begin{align*}
+  α^+_t(s)
+  &= Δ^\star_t\bigl(s, \hat π^\star_t(φ(s))\bigr)
+  + \sum_{s'} α^+_{t+1}(s') P_t\bigl(s' \mid s, \hat π^\star_t(φ(s))\bigr),
+  \\
+  α^-_t(s)
+  &= \min_{a \in \ALPHABET C_t(s)}
+  \Bigl[
+    Δ^\star_t(s,a)
+    + \sum_{s'} α^-_{t+1}(s') P_t(s' \mid s,a)
+  \Bigr],
+\end{align*}
+where $\ALPHABET C_t(s) \subseteq \ALPHABET A$ is any set guaranteed to contain $π^\star_t(s)$.
+
+### Symmetric bounds
+
+Taking absolute values gives a symmetric bound, exactly as in @thm-abs-sample-path.
+
+:::{#thm-abs-sample-path-abstract}
+#### Absolute-value sample-path bound
+
+Suppose that for each $t \in \{1,\dots,T\}$ there exist functions $α^{\mathrm{abs}}_t \colon \ALPHABET S \to \reals_{\ge 0}$ and $β^{\mathrm{abs}}_t \colon \ALPHABET S \times \ALPHABET A \to \reals_{\ge 0}$ such that
+$$
+  β^{\mathrm{abs}}_T(s,a) \ge \ABS{Δ^\star_T(s,a)},
+$$
+and for $t < T$,
+$$
+  β^{\mathrm{abs}}_t(s,a)
+  \ge \ABS{Δ^\star_t(s,a)}
+  + \sum_{s' \in \ALPHABET S} α^{\mathrm{abs}}_{t+1}(s') P_t(s' \mid s,a),
+$$
+and for all $t$,
+$$
+  α^{\mathrm{abs}}_t(s)
+  \ge \max\Bigl\{
+    β^{\mathrm{abs}}_t\bigl(s, π^\star_t(s)\bigr),\;
+    β^{\mathrm{abs}}_t\bigl(s, \hat π^\star_t(φ(s))\bigr)
+  \Bigr\},
+$$
+where $Δ^\star_t$ is as in @prp-value-error-signed-abstract. Then the lifted policy $\hat π^\star \circ φ$ satisfies, for all $t$ and $s$,
+$$
+  \ABS{V^{\hat π^\star \circ φ}_t(s) - V^\star_t(s)}
+  \le 2 α^{\mathrm{abs}}_t(s).
+$$
+:::
+
+The proof is identical to that of @thm-abs-sample-path, with $\hat π^\star_t$ replaced by $\hat π^\star_t \circ φ$. As before, the state-independent choice
+$$
+  α^{\mathrm{abs}}_t(s)
+  \equiv \sum_{\tau=t}^{T} \NORM{\hat \MISMATCH_\tau \hat V^\star_{\tau+1}}
+$$
+recovers the factor-of-two model-approximation bound of the state-abstraction lecture.
+
+### Computing the bounds
+
+The recursions again propagate with the true kernel $P_t$, and can be relaxed onto the approximate model exactly as in the MDP case: with $δ_t(s,a) = d_{\F}\bigl(P_t(\cdot \mid s,a), \hat P_t(\cdot \mid s,a)\bigr)$ and the Minkowski functional $ρ_{\F}$ acting on functions over $\ALPHABET S$, replace each true-kernel average $\sum_{s'} α(s') P_t(s' \mid s,a)$ by $\sum_{s'} α(s') \hat P_t(s' \mid s,a) \pm δ_t(s,a)\, ρ_{\F}(α)$ in the upper and lower recursions.
