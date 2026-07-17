@@ -180,12 +180,38 @@ def dec2_node(path, show_v2=False, highlight=False, show_s=True):
     node = f'<rect class="{cls}" x="{x-sq/2}" y="{y-sq/2}" width="{sq}" height="{sq}"/>'
     return node, "".join(parts)
 
+def period1_additive(edges, nodes, labels):
+    """Period-1 tree with per-step cost c1 on each W1 branch."""
+    mid_y = (base_ys[0] + base_ys[3]) / 2
+    nodes.append(
+        f'<rect class="dec" x="{x_dec1-sq/2}" y="{mid_y-sq/2}" width="{sq}" height="{sq}"/>'
+    )
+    for ai, a1 in enumerate(actions):
+        p1 = [p for p in paths if p["a1"] == a1]
+        y0 = (p1[0]["y"] + p1[1]["y"]) / 2
+        edges.append(
+            f'<line class="edge" x1="{x_dec1}" y1="{mid_y}" x2="{x_chance1}" y2="{y0}"/>'
+        )
+        labels.append(
+            edge_label((x_dec1 + x_chance1) / 2, (mid_y + y0) / 2 - 2 * S, f"a={a1}")
+        )
+        nodes.append(f'<circle class="ch" cx="{x_chance1}" cy="{y0}" r="{cr}"/>')
+        for path in p1:
+            edges.append(
+                f'<line class="thin" x1="{x_chance1}" y1="{y0}" x2="{x_dec2}" y2="{path["y"]}" />'
+            )
+            mx = (x_chance1 + x_dec2) / 2
+            my = (y0 + path["y"]) / 2
+            labels.append(edge_label(mx, my, f"w={path['w1']}, c={path['c1']:g}"))
+
+
 def period2(path, edges, nodes, labels, mode="full"):
     y_from = path["y"]
     s2 = path["s2"]
     q2 = path["q2"]
     a2opt = path["a2opt"]
     path_idx = path["ai"] * 2 + path["wi"]
+    additive = mode in ("additive", "statespace")
     for a2i, a2 in enumerate(actions):
         i0 = 4 * path_idx + 2 * a2i
         yt0, yt1 = leaf_ys[i0], leaf_ys[i0 + 1]
@@ -213,16 +239,21 @@ def period2(path, edges, nodes, labels, mode="full"):
             edges.append(f'<line class="thin" x1="{x_chance2}" y1="{y0}" x2="{x_term}" y2="{yt}"/>')
             lx = x_chance2 + 0.32 * (x_term - x_chance2)
             ly = y0 + 0.32 * (yt - y0)
-            labels.append(edge_label(lx, ly, f"w={w2}"))
-            nodes.append(f'<circle class="term" cx="{x_term}" cy="{yt}" r="{tr}"/>')
-            c_total = path["c1"] + step_cost(s2, a2, w2)
-            labels.append(
-                f'<text x="{x_term+10*S}" y="{yt+3.5*S}" font-size="{fs_node}" fill="#212529">C={c_total}</text>'
-            )
+            c2 = step_cost(s2, a2, w2)
+            if additive:
+                labels.append(edge_label(lx, ly, f"w={w2}, c={c2:g}"))
+                nodes.append(f'<circle class="term" cx="{x_term}" cy="{yt}" r="{tr}"/>')
+            else:
+                labels.append(edge_label(lx, ly, f"w={w2}"))
+                nodes.append(f'<circle class="term" cx="{x_term}" cy="{yt}" r="{tr}"/>')
+                c_total = path["c1"] + c2
+                labels.append(
+                    f'<text x="{x_term+10*S}" y="{yt+3.5*S}" font-size="{fs_node}" fill="#212529">C={c_total}</text>'
+                )
 
 # Lecture DP figures (no S_t); statespace keeps S_t.
 MODES_WITHOUT_S = {
-    "full", "full_q2", "full_v2", "full_q1", "full_v1", "policy",
+    "full", "full_q2", "full_v2", "full_q1", "full_v1", "policy", "additive",
 }
 
 def build(mode):
@@ -284,14 +315,17 @@ def build(mode):
             + "\n</svg>"
         )
 
-    period1(
-        edges, nodes, labels,
-        highlight_a1=opt_a1 if mode == "policy" else None,
-        show_s=show_s,
-        fold_w1=False,
-    )
+    if mode in ("additive", "statespace"):
+        period1_additive(edges, nodes, labels)
+    else:
+        period1(
+            edges, nodes, labels,
+            highlight_a1=opt_a1 if mode == "policy" else None,
+            show_s=show_s,
+            fold_w1=False,
+        )
 
-    show_p2 = mode in ("full", "full_q2", "policy", "statespace")
+    show_p2 = mode in ("full", "full_q2", "policy", "statespace", "additive")
     collapsed_p2 = mode == "full_v2"
     for path in paths:
         node, lbl = dec2_node(
@@ -303,10 +337,8 @@ def build(mode):
         nodes.append(node)
         labels.append(lbl)
         if show_p2 and not collapsed_p2:
-            period2(
-                path, edges, nodes, labels,
-                mode=mode if mode in ("policy", "full_q2") else "full",
-            )
+            p2_mode = mode if mode in ("policy", "full_q2", "additive", "statespace") else "full"
+            period2(path, edges, nodes, labels, mode=p2_mode)
 
     parts = edges + labels + nodes
     return header() + "\n" + "\n".join(parts) + "\n</svg>"
@@ -319,6 +351,7 @@ for name, mode in [
     ("inventory-tree-full-V1", "full_v1"),
     ("inventory-tree-policy", "policy"),
     ("inventory-tree-statespace", "statespace"),
+    ("inventory-tree-additive", "additive"),
 ]:
     (OUT / f"{name}.svg").write_text(build(mode))
     print("wrote", name)
