@@ -1,5 +1,11 @@
 ---
-title: "MDP properties"
+title: "Properties of value function"
+engine: julia
+julia:
+  exeflags: ["--project=../../mdps"]
+execute:
+  echo: false
+  cache: true
 ---
 
 ## Operator theoretic  notation {.unnumbered}
@@ -41,19 +47,466 @@ $$
 $$
 
 
-## Objective {.unnumbered}
+## Motivation for model approximation
 
-This lecture collects structural properties of finite-horizon MDPs that will be used in the model approximation bounds. In particular, we will derive two standard estimates for value functions:
+Let's start with an example to understand the need for model approximation. 
 
-1. span bounds, used with total variation distance;
-2. Lipschitz bounds, used with Wasserstein distance.
+:::{#exm-internet-of-things-cts}
+#### Internet of things
 
-## Span bounds
-
-For a bounded function $v \colon \ALPHABET S \to \reals$, define its span seminorm by
+Assume that $\ALPHABET S = [-B, B]$, $\ALPHABET A = \{0, 1\}$ and the dynamics are given by
 $$
-  \SPAN(v) = \sup_{s \in \ALPHABET S} v(s) - \inf_{s \in \ALPHABET S} v(s).
+  S_{t+1} = \begin{cases}
+      [S_t + W_t]_{-B}^B, & \text{if }A_t = 0 \\
+      [W_t]_{-B}^B, & \text{if }A_t = 1
+  \end{cases}
 $$
+where $[x]_{-B}^B = \text{clip}(x,-B,B)$. We assume that $\{W_t\}_{t \ge 1}$ is an i.i.d. process with known distribution $F_W$. 
+The per-step cost is given by
+$$ c(s,a) = \lambda a + (1-a)s^2. $$
+Find the policy that minimizes the expected total cost over a finite horizon.
+:::
+
+As usual, the dynamic program for @exm-internet-of-things-cts is given by $V_{T+1}(s) = 0$ for all $s \in \ALPHABET S$ and for $T \in \{T, \dots, 1\}$, 
+$$
+  V_{t}(s) = \min\biggl\{ s^2 + \int V_{t+1}([s + W]_{-B}^B) F_W(dW),
+             λ + V_{t+1}([W]_{-B}^B) F_W(dW) \biggr\},
+  \quad \forall s \in \ALPHABET S
+$$
+
+Since the DP is continuous, it cannot be solved exactly apart from some special cases. For numerical solution, we need some form of approximation that needs to tackle two conceptual difficulties: 
+
+1. Solve the DP recursion for all $s \in \ALPHABET S$
+2. Compute the expectation with respect to a continuous random variable. 
+
+For now, we focus on the first difficulty.  In low dimensions, the simplest approximation scheme is state discretization or quantization: partition the state space $\ALPHABET S$ into a partition $\{\ALPHABET C_1, \dots, \ALPHABET C_n\}$ with $n$ "cells", where each cell $\ALPHABET C_i$ is represented by a single element $\hat s_i$. This gives a finite state space $\hat {\ALPHABET S} \coloneqq \{ \hat s_1, \dots, \hat s_n \}$. 
+
+For example, in @exm-internet-of-things-cts we can define a partition using boundary points
+$$
+   -B = b_1 < b_1 < \cdots < b_{n+1} = B
+$$
+and set the representative points as $\hat s_i = (b_i + b_{i+1})/2$, $i \in \{1, \dots, n\}$. 
+
+The next step is to define a quantized model with dynamics $\hat P$ and per-step cost $\hat c$ on $\hat {\ALPHABET S} × \ALPHABET A$. The simplest way to define such a quantized model is:
+\begin{align*}
+  \hat c(\hat s, a) &= c(s,a) \\
+  \hat P(\hat s_j | \hat s_i, a) &= 
+  P(\ALPHABET C_j | \hat s_i, a) = \int_{\ALPHABET C_j} P(ds'|\hat s_i, a).
+\end{align*}
+
+Let $\{ (\hat V_t, \hat π_t) \}_{t=1}^T$ denote the solution of the DP for the model $(\hat P, \hat c)$. Note that $\hat π_t$ is a policy on the state space $\hat {\ALPHABET S}$. To obtain a policy defined on $\ALPHABET S$, define the quantization function $φ \colon \ALPHABET S \to \hat {\ALPHABET S}$ to be a function which maps any state $s$ to the representative of the cell containing it. 
+Define $\bar V_t = \hat V_t \circ φ$ and $\bar π_t = \hat π \circ φ$, i.e., 
+$$
+   \bar V_t(s) = \hat V_t(φ(s))
+   \quad\text{and}\quad
+   \bar π_t(s) = \hat π(φ(s)).
+$$
+$\{(\bar V_t, \bar π_t) \}_{t=1}^T$ may be viewed as  an approximate value function and approximate policy for the model $(P,c)$. 
+
+As an illustration, we solve @exm-internet-of-things-cts using such a quantization scheme.
+
+```{julia}
+#| output: false
+#| echo: true
+
+module IOT_quantization
+  using Distributions, OffsetArrays, LinearAlgebra
+
+  function solve(; λ=100.0, B=10.0, σ=0.5, T=20, n=51)
+    dist_W = Normal(0, σ)
+    A = 0:1
+
+    boundaries = range(-B, B, length=n+1)
+    S_hat = [(boundaries[i] + boundaries[i+1])/2 for i in 1:n]
+
+    c(s, a) = λ * a + (1 - a) * s^2
+    P_hat = OffsetArray(zeros(n, n, length(A)), 1:n, 1:n, A)
+    c_hat = OffsetArray(zeros(n, length(A)), 1:n, A)
+
+    for a in A
+      for i in 1:n
+        si = S_hat[i]
+        c_hat[i, a] = c(si, a)
+
+        s_post = (a == 0) ? si : 0.0
+
+        for j in 1:n
+            P_hat[i, j, a] = cdf(dist_W, boundaries[j+1] - s_post) - cdf(dist_W, boundaries[j] - s_post)
+        end
+
+        P_hat[i, 1, a] += cdf(dist_W, boundaries[1] - s_post)
+        P_hat[i, n, a] += 1.0 - cdf(dist_W, boundaries[end] - s_post)
+      end
+    end
+
+    V = [zeros(n) for t in 1:T+1]
+    π = [zeros(Int, n) for t in 1:T]
+
+    for t in T:-1:1
+      for i in 1:n
+        Q0 = c_hat[i, 0] + dot(P_hat[i, :, 0], V[t+1])
+        Q1 = c_hat[i, 1] + dot(P_hat[i, :, 1], V[t+1])
+
+        (V[t][i], π[t][i]) = (Q0 <= Q1) ? (Q0,0) : (Q1,1)
+      end
+    end
+
+    return V, π, S_hat
+  end
+end
+```
+
+We solve this model with $n = 2^k + 1$, for different values of $k$. This sequence is chosen so that the number of quantization in $(0,B]$ doubles every iteration. The plots 
+
+Observe that the distance between the points is $Δ = 2B/2^{k}$, so for $k = 10$, we have $Δ \approx 0.0195$, and the approximation looks almost continuous. Thus, we expect the corresponding approximate value function and policy to be close to the optimal value function and policy.
+
+```{julia}
+using DataFrames, JSON3
+
+k_values = 5:10
+iot_df = DataFrame(n=Int[], s=Float16[], value=Float16[], policy=Int[])
+
+for k in k_values
+    n = 2^k + 1
+    V, π, S_hat = IOT_quantization.solve(n=n)
+    for i in 1:length(S_hat)
+        push!(iot_df, (n, Float16(S_hat[i]), Float16(V[1][i]), π[1][i]))
+    end
+end
+
+ojs_define(iot_df = iot_df)
+```
+
+```{ojs}
+viewof iot_k = Object.assign(Inputs.range([5,10], {label: "k", step: 1, value: 6}), {style: '--label-width:20px'})
+iot_n = 2**iot_k + 1
+```
+
+```{ojs}
+//| label: fig-iot-quantization
+//| fig-cap: "Value function $V_1(s)$ and optimal policy $π_1(s)$ at $t=1$ (number of cells $n$)"
+//| fig-subcap:
+//|     - Approx value function
+//|     - Approx policy
+//| layout-ncol: 2
+
+Plot.plot({
+  grid: true,
+  x: { label: "State s" },
+  y: { label: "Value", domain: [0, 175] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(iot_df.filter(d => d.n === iot_n), {x: "s", y: "value", curve: "step"})
+  ]
+})
+
+Plot.plot({
+  grid: true,
+  x: { label: "State s" },
+  y: { label: "Action", ticks: [0, 1] },
+  marks: [
+    Plot.ruleX([0]),
+    Plot.ruleY([0]),
+    Plot.line(iot_df.filter(d => d.n === iot_n), {x: "s", y: "policy", curve: "step"})
+  ]
+})
+```
+
+We are interested in understanding if we can quantify the quality of the approximation _without knowing the exact solution_. Such quantification depends on properties of the value functions. So in this lecture, we will derive some properties of the value functions that will help us quantify the quality of the approximation:
+
+1. **Span of the value functions**: this shows what is the maximum change in the value function between any two states.
+
+2. **Lipschitz constant of the value functions**: this shows how fast the value function can change from one state to another.
+
+## Span semi-norm
+
+Let $\SPAN(v) = \max(v) - \min(v)$ denote the span semi-norm. We start by stating some basic properties.
+
+1. $\SPAN(v) \ge 0$ for all $v \in \reals^n$.
+2. $\SPAN(v + w) \le \SPAN(v) + \SPAN(w)$ for all $v, w \in \reals^n$.
+3. $\SPAN(m v) = |m| \SPAN(v)$ for all $v \in \reals^n$ and $m \in \reals$.
+4. $\SPAN(v + m \mathbf{1}) = \SPAN(v)$ for all $m \in \reals$.
+5. $\SPAN(v) = \SPAN(-v)$.
+6. $\SPAN(v) \le 2\NORM{v}_{∞}$.
+
+Properties 1--3 imply that $\SPAN$ is a semi-norm. It is not a norm because of property 4: $\SPAN(v) = 0$ does not imply $v = 0$. If $\SPAN(v) = 0$, then $v = m \mathbf{1}$ for some scalar $m$.
+
+A basic result for our analysis is the following. (Here $P$ is a row-stochastic matrix, as arises from a controlled transition kernel.)
+
+:::{#prp-span-matrix}
+#### Span contraction for stochastic matrices
+Let $v \in \reals^n$ and let $P$ be a row-stochastic matrix of compatible dimensions. Then
+$$ \SPAN(P v) \le λ(P) \SPAN(v), $$
+where
+\begin{equation} \label{eq:span-matrix}
+  λ(P) = 1 - \min_{s, s' \in \ALPHABET S}
+  \sum_{z \in \ALPHABET S} \min\{ P_{sz}, P_{s'z} \}.
+\end{equation}
+Furthermore, $λ(P) \in [0, 1]$ and there exists a $v \in \reals^n$ such that $\SPAN(Pv) = λ(P) \SPAN(v)$.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+Note that for any $v \in \reals^n$,
+\begin{align*}
+\SPAN(Pv) &= \max_{s \in \ALPHABET S} \sum_{z \in \ALPHABET S} P_{sz} v_z
+- \min_{s' \in \ALPHABET S} \sum_{z \in \ALPHABET S} P_{s'z} v_z \\
+&= \max_{s, s' \in \ALPHABET S}
+  \Biggl( \sum_{z \in \ALPHABET S} P_{sz} v_z - \sum_{z \in \ALPHABET S} P_{s'z} v_z \Biggr).
+\end{align*}
+Let $B(z; s,s') = \min\{ P_{sz}, P_{s'z} \}$. Then
+\begin{align*}
+  \sum_{z \in \ALPHABET S} P_{sz} v_z - \sum_{z \in \ALPHABET S} P_{s'z} v_z
+  &=
+  \sum_{z \in \ALPHABET S} [ P_{sz} - B(z; s,s') ] v_z
+  - \sum_{z \in \ALPHABET S} [ P_{s'z} - B(z; s,s') ] v_z \\
+  &\le
+  \sum_{z \in \ALPHABET S} [ P_{sz} - B(z; s,s') ] \max(v)
+  - \sum_{z \in \ALPHABET S} [ P_{s'z} - B(z; s,s') ] \min(v)
+  \\
+  &= \biggl[ 1 - \sum_{z \in \ALPHABET S} B(z; s, s') \biggr] \SPAN(v).
+\end{align*}
+Hence
+$$
+\SPAN(Pv)
+\le
+\max_{s, s' \in \ALPHABET S} \biggl[
+  1 - \sum_{z \in \ALPHABET S} B(z; s, s')
+\biggr] \SPAN(v)
+= λ(P) \SPAN(v).
+$$
+
+It remains to show that the constant is sharp. If $λ(P) = 0$, then $P$ has identical rows, so $\SPAN(Pv) = 0 = λ(P) \SPAN(v)$ for all $v$. Suppose $λ(P) > 0$. Using the identity $[a - b]^{+} = a - \min(a,b)$, we can rewrite
+$$
+λ(P) = \max_{s,s' \in \ALPHABET S}
+\sum_{z \in \ALPHABET S} \bigl[ P_{sz} - P_{s'z} \bigr]^{+}.
+$$
+Let $s^*$ and $s'^*$ attain the maximum, and define $v$ by
+$$
+  v_z = \IND\{ P_{s^*z} > P_{s'^*z} \}.
+$$
+Then $\SPAN(v) = 1$ and
+\begin{align*}
+  \SPAN(Pv)
+  &\ge
+  \sum_{z \in \ALPHABET S} P_{s^* z} v_z
+  - \sum_{z \in \ALPHABET S} P_{s'^* z} v_z
+  \\
+  &=
+  \sum_{z \in \ALPHABET S} \bigl[ P_{s^*z} - P_{s'^*z} \bigr]^{+}
+  \\
+  &= λ(P) \SPAN(v).
+\end{align*}
+Combined with the upper bound, $\SPAN(Pv) = λ(P) \SPAN(v)$.
+:::
+
+@prp-span-matrix illustrates the "averaging" property of a transition matrix. By
+multiplying a vector by a transition matrix, the resulting vector has
+components which are more nearly equal. When $P$ is a square matrix, the
+quantity $λ(P)$ is called the **ergodicity coefficient**, which is often written in
+an alternative form by using the relation $|a - b| = (a + b) - 2 \min(a,b)$:
+$$
+  λ(P) = \frac12
+  \max_{s,s' \in \ALPHABET S} \sum_{z \in \ALPHABET S}
+  \bigl| P_{sz} - P_{s'z} \bigr|. $$
+The ergodicity coefficient is an upper bound on the second largest eigenvalue
+of $P$. $λ(P)$ equals $0$ if all rows of $P$ are equal and equals $1$ if at
+least two rows of $P$ are orthogonal. From a different perspective, $λ(P) <
+1$ if for each pair of states there exists at least one state which they both
+can reach with positive probability in one step. 
+
+:::{.callout-tip}
+### Remark
+
+Note that
+\begin{equation}\label{eq:ergodicity-bound}
+λ(P) \le 1 - \sum_{z \in \ALPHABET S} \min_{s \in \ALPHABET S} P_{sz} 
+=: λ'(P)
+\end{equation}
+which is easier to compute. 
+:::
+
+## Span norm of the value functions
+
+For an MDP $\ALPHABET M$, define the contraction factor at time $t$ as
+\begin{equation}\label{eq:contraction}
+  λ_t = \max_{\substack{ s,s' \in \ALPHABET S \\ a \in \ALPHABET A(s),\ a' \in \ALPHABET A(s')}}
+  \biggl[ 1 - \sum_{z \in \ALPHABET S}
+    \min\{ P_t(z \mid s,a), P_t(z \mid s', a') \} \biggr].
+\end{equation}
+Note that $λ_t \in [0, 1]$. Equivalently, $λ_t$ is the largest matrix contraction factor $λ(\bar P)$ over all two-row stochastic matrices $\bar P$ formed by a pair of controlled transitions at time $t$.
+
+:::{#lem-lambda-policy}
+For every policy $π_t$,
+$$
+  λ_t \ge λ(P^{π_t}_t).
+$$
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+Every pair of rows of $P^{π_t}_t$ is of the form $\bigl(P_t(\cdot \mid s, π_t(s)),\, P_t(\cdot \mid s', π_t(s'))\bigr)$ for some $s,s'$, hence is one of the controlled pairs appearing in \eqref{eq:contraction}. Therefore the maximum that defines $λ(P^{π_t}_t)$ cannot exceed $λ_t$.
+:::
+
+:::{#thm-span-contraction}
+For any $v_1, v_2 \in \reals^n$ and any policy $π$,
+\begin{align*}
+  \SPAN(\BELLMAN^π_t v_1 - \BELLMAN^π_t v_2)
+  &\le λ(P^π_t)\, \SPAN(v_1 - v_2),
+  \\
+  \SPAN(\BELLMAN^\star_t v_1 - \BELLMAN^\star_t v_2)
+  &\le λ_t\, \SPAN(v_1 - v_2).
+\end{align*}
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+
+For the policy operator, $\BELLMAN^π_t v_1 - \BELLMAN^π_t v_2 = P^π_t (v_1 - v_2)$, so
+$$
+  \SPAN(\BELLMAN^π_t v_1 - \BELLMAN^π_t v_2)
+  = \SPAN\bigl(P^π_t (v_1 - v_2)\bigr)
+  \le λ(P^π_t)\, \SPAN(v_1 - v_2)
+$$
+by @prp-span-matrix.
+
+For the optimality operator, let $π_i$ be such that $\BELLMAN^\star_t v_i = \BELLMAN^{π_i}_t v_i$.
+Let
+\begin{align*}
+  s^* &= \arg \max_{s \in \ALPHABET S}(\BELLMAN^\star_t v_1(s) - \BELLMAN^\star_t v_2(s)),
+  \\
+  s_* &= \arg \min_{s \in \ALPHABET S}(\BELLMAN^\star_t v_1(s) - \BELLMAN^\star_t v_2(s)).
+\end{align*}
+Then
+$$
+  \BELLMAN^\star_t v_1(s^*) - \BELLMAN^\star_t v_2(s^*) \le
+  \BELLMAN^{π_2}_t v_1(s^*) - \BELLMAN^{π_2}_t v_2(s^*)
+  = P^{π_2}_t(v_1 - v_2)(s^*)
+$$
+and
+$$
+  \BELLMAN^\star_t v_1(s_*) - \BELLMAN^\star_t v_2(s_*) \ge
+  \BELLMAN^{π_1}_t v_1(s_*) - \BELLMAN^{π_1}_t v_2(s_*)
+  = P^{π_1}_t(v_1 - v_2)(s_*).
+$$
+Therefore
+\begin{align*}
+  \SPAN(\BELLMAN^\star_t v_1 - \BELLMAN^\star_t v_2)
+  &\le
+  P^{π_2}_t(v_1 - v_2)(s^*) - P^{π_1}_t(v_1 - v_2)(s_*)
+  \\
+  &\le
+  \max_{s \in \ALPHABET S} P^{π_2}_t (v_1 - v_2)(s)
+  -
+  \min_{s \in \ALPHABET S} P^{π_1}_t(v_1 - v_2)(s)
+  \\
+  &\le
+  \SPAN\bigl(\ROWS(P^{π_2}_t, P^{π_1}_t)(v_1 - v_2)\bigr).
+\end{align*}
+By @prp-span-matrix,
+$$
+  \SPAN(\BELLMAN^\star_t v_1 - \BELLMAN^\star_t v_2)
+  \le λ(\bar P)\, \SPAN(v_1 - v_2),
+$$
+where $λ(\bar P)$ is given by \eqref{eq:span-matrix} with $\bar P = \ROWS(P^{π_2}_t, P^{π_1}_t)$. The claim follows since $λ(\bar P) \le λ_t$.
+:::
+
+For a cost function $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$, write
+$$
+  \SPAN(c_t)
+  =
+  \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A} c_t(s,a)
+  -
+  \inf_{(s,a) \in \ALPHABET S \times \ALPHABET A} c_t(s,a).
+$$
+
+:::{#lem-bellman-span}
+#### One-step span bound
+
+For any $v_{t+1} \colon \ALPHABET S \to \reals$ and any decision rule $π_t$,
+\begin{align*}
+  \SPAN(\BELLMAN^{π_t}_t v_{t+1})
+  &\le \SPAN(c_t) + λ(P^{π_t}_t)\, \SPAN(v_{t+1}),
+  \\
+  \SPAN(\BELLMAN^\star_t v_{t+1})
+  &\le \SPAN(c_t) + λ_t\, \SPAN(v_{t+1}).
+\end{align*}
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+Write $c^{π_t}_t(s) = c_t(s, π_t(s))$. Then $\BELLMAN^{π_t}_t v_{t+1} = c^{π_t}_t + P^{π_t}_t v_{t+1}$, so
+$$
+  \SPAN(\BELLMAN^{π_t}_t v_{t+1})
+  \le \SPAN(c^{π_t}_t) + \SPAN(P^{π_t}_t v_{t+1})
+  \le \SPAN(c_t) + λ(P^{π_t}_t)\, \SPAN(v_{t+1}),
+$$
+where the last step uses @prp-span-matrix and $\SPAN(c^{π_t}_t) \le \SPAN(c_t)$.
+
+For the optimality operator, let $s^*$ and $s_*$ attain the maximum and minimum of $\BELLMAN^\star_t v_{t+1}$, and let $a^*$ and $a_*$ be corresponding minimizing actions. Then
+\begin{align*}
+  \SPAN(\BELLMAN^\star_t v_{t+1})
+  &=
+  \bigl[ c_t(s^*, a^*) + P_t(\cdot \mid s^*, a^*)\, v_{t+1} \bigr]
+  -
+  \bigl[ c_t(s_*, a_*) + P_t(\cdot \mid s_*, a_*)\, v_{t+1} \bigr]
+  \\
+  &\le
+  \SPAN(c_t)
+  +
+  \SPAN\bigl(\ROWS\bigl(P_t(\cdot \mid s^*, a^*),\, P_t(\cdot \mid s_*, a_*)\bigr) v_{t+1}\bigr)
+  \\
+  &\le
+  \SPAN(c_t) + λ_t\, \SPAN(v_{t+1}),
+\end{align*}
+where the last step uses @prp-span-matrix and the definition \eqref{eq:contraction} of $λ_t$.
+:::
+
+:::{#thm-value-span-bound}
+#### Span of the value functions
+
+Assume $V^π_{T+1} = V^\star_{T+1} = 0$. Then for every $t \in \{1,\ldots,T\}$ and every policy $π = (π_t,\ldots,π_T)$,
+\begin{align*}
+  \SPAN(V^π_t)
+  &\le
+  \sum_{τ=t}^{T}
+  \Biggl( \prod_{k=t}^{τ-1} λ(P^{π_k}_k) \Biggr) \SPAN(c_τ),
+  \\
+  \SPAN(V^\star_t)
+  &\le
+  \sum_{τ=t}^{T}
+  \Biggl( \prod_{k=t}^{τ-1} λ_k \Biggr) \SPAN(c_τ),
+\end{align*}
+where an empty product equals $1$. In particular, if $\bar λ \ge λ_t$ for all $t$, then
+$$
+  \SPAN(V^\star_t)
+  \le
+  \sum_{τ=t}^{T} \bar λ^{τ-t}\, \SPAN(c_τ).
+$$
+A similar bound holds for $V^π$: if $\bar λ \ge λ(P^{π_k}_k)$ for all $k$ (e.g., any $\bar λ$ that dominates all $λ_t$), then
+$$
+  \SPAN(V^π_t)
+  \le
+  \sum_{τ=t}^{T} \bar λ^{τ-t}\, \SPAN(c_τ).
+$$
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof {-}
+At time $T+1$ the claims are immediate: $\SPAN(V^π_{T+1}) = \SPAN(V^\star_{T+1}) = 0$.
+
+Fix $t \le T$ and assume the bound holds at time $t+1$. Since $V^π_t = \BELLMAN^{π_t}_t V^π_{t+1}$, @lem-bellman-span yields
+$$
+  \SPAN(V^π_t)
+  \le \SPAN(c_t) + λ(P^{π_t}_t)\, \SPAN(V^π_{t+1}).
+$$
+Substituting the induction hypothesis for $\SPAN(V^π_{t+1})$ and collecting coefficients of each $\SPAN(c_τ)$ gives the claimed formula at time $t$. The same argument with $\BELLMAN^\star_t$, $λ_t$, and $V^\star_{t+1}$ proves the bound for $V^\star_t$.
+:::
+
+
+
+### Connection with total variation
 
 ::::{#prp-TV-span-bound}
 #### Total variation and span
@@ -71,35 +524,6 @@ Equivalently, in the IPM notation of the lecture on model approximation, $ρ_{\m
 #### To derive in lecture
 
 Derive @prp-TV-span-bound by subtracting a constant from $v$ so that $\NORM{v}_{∞} = \frac{1}{2}\SPAN(v)$, and then applying the definition of total variation.
-::::
-
-For a cost function $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$, write
-$$
-  \SPAN(c_t)
-  =
-  \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A} c_t(s,a)
-  -
-  \inf_{(s,a) \in \ALPHABET S \times \ALPHABET A} c_t(s,a).
-$$
-
-::::{#prp-value-span-bound}
-#### Span of the optimal value
-
-The optimality Bellman operator contracts the span in the sense that
-$$
-  \SPAN(V^\star_t) \le \SPAN(c_t) + \SPAN(V^\star_{t+1}).
-$$
-Consequently,
-$$
-  \SPAN(V^\star_t) \le \sum_{\tau=t}^{T} \SPAN(c_\tau),
-$$
-and likewise $\SPAN(\hat V^\star_t) \le \sum_{\tau=t}^{T} \SPAN(\hat c_\tau)$. In the time-homogeneous case this gives $\SPAN(V^\star_t) \le (T-t+1)\SPAN(c)$ and $\SPAN(\hat V^\star_t) \le (T-t+1)\SPAN(\hat c)$.
-::::
-
-::::{.callout-note}
-#### To derive in lecture
-
-Prove $\SPAN(\BELLMAN^\star_t v) \le \SPAN(c_t) + \SPAN(v)$ by comparing the maximizing and minimizing states, and then unroll the recursion from $V^\star_{T+1} = 0$.
 ::::
 
 ## Lipschitz bounds
@@ -216,6 +640,8 @@ Substituting $L^P_t=1$ and $L^c_t=\ell$ in @prp-wasserstein-lipschitz-bound give
 
 In the lecture on model approximation, model approximation error bounds involve terms of the form $ρ_{\F}(V^\star_{t})$ or $ρ_{\F}(\hat V^\star_{t})$. The results of this lecture supply the needed estimates:
 
-- For total variation, @prp-TV-span-bound gives $ρ_{\mathrm{TV}}(v) \le \frac{1}{2}\SPAN(v)$. Combined with the remaining-horizon span bound above, this yields an instance-independent estimate of the Minkowski functional.
+- For total variation, @prp-TV-span-bound gives $ρ_{\mathrm{TV}}(v) \le \frac{1}{2}\SPAN(v)$. Combined with @thm-value-span-bound, this yields an instance-independent estimate of the Minkowski functional.
 - For Wasserstein distance, @prp-wasserstein-lipschitz-bound gives $ρ_{W_1}(v) \le \operatorname{Lip}(v)$, and the Lipschitz constants of $V^\star$ or $\hat V^\star$ are then controlled by the recursion above.
 ::::
+
+
