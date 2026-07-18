@@ -2,7 +2,46 @@
 title: "MDP properties"
 ---
 
-## Overview {.unnumbered}
+## Operator theoretic  notation {.unnumbered}
+
+We start with a notation to simplify how dynamic programs are written. 
+Let $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$ denote an MDP, with state space $\ALPHABET S$, action space $\ALPHABET A$, dynamics $P = (P_1, \dots, P_T)$, per-step cost $c = (c_1, \dots, c_T)$, and horizon $T$. For simplicity, we take $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$. 
+
+We use $\ALPHABET V$ to denote the space of value functions and $\ALPHABET Q$ to denote the space of action-value functions (for finite state space models, these are equivalent to $\reals^{\SIZE{S}}$ and $\reals^{\SIZE{S}\SIZE{A}}$).
+
+Now we define the following operators. For simplicity, we write them for the case when state and action spaces are finite but the definitions are similar for general spaces.
+
+- For any policy $π \in Π$, define the **policy Bellman operator** $\BELLMAN^π_t \colon \ALPHABET V \to \ALPHABET V$ as follows: for any $v \in \ALPHABET V$,
+  $$
+      [\BELLMAN^π_t v](s) = c_t(s, π(s)) + \sum_{s' \in \ALPHABET S} P_t(s'|s, π(s)) v(s').
+  $$
+
+- Define the **optimality Bellman operator** $\BELLMAN^\star_t \colon \ALPHABET V \to \ALPHABET V$ as follows: for any $v \in \ALPHABET V$,
+  $$
+      [\BELLMAN^\star_t v](s) = \min_{a \in \ALPHABET A} \biggl\{ 
+        c_t(s, a) + \sum_{s' \in \ALPHABET S} P_t(s'|s, a) v(s')
+      \biggr\}.
+  $$
+
+Then the dynamic programming decomposition can be written succinctly as:
+$$
+   V^\star_{T+1} = 0, \quad\text{and}\quad
+   V^\star_t = \BELLMAN^\star_t V^\star_{t+1},
+  \quad \forall t \in \{T,\dots,1\}.
+$$
+Or, pictorially:
+$$
+  0 ≡ V^\star_{T+1} \xrightarrow{\BELLMAN^\star} V^\star_T \xrightarrow{\BELLMAN^\star} V^\star_{T-1} \cdots \xrightarrow{\BELLMAN^\star} V^\star_1.
+$$
+Moreover, a policy $π^\star = (π^\star_1, \dots, π^\star_T) \in Π$ is optimal if and only if $\BELLMAN^\star_t V^\star_{t+1} = \BELLMAN^{π^\star}_t V^\star_{t+1}$ for all $t$.
+
+Similarly, for a policy $π ∈ Π$, the policy evaluation dynamic program can be written as:
+$$
+  0 ≡ V^π_{T+1} \xrightarrow{\BELLMAN^π} V^π_T \xrightarrow{\BELLMAN^π} V^π_{T-1} \cdots \xrightarrow{\BELLMAN^π} V^π_1.
+$$
+
+
+## Objective {.unnumbered}
 
 This lecture collects structural properties of finite-horizon MDPs that will be used in the model approximation bounds. In particular, we will derive two standard estimates for value functions:
 
