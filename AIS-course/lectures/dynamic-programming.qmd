@@ -380,6 +380,54 @@ with $V^π_{T+1} \equiv 0$. Equivalently,
   V^π_t(s) = \EXP\bigl[ c_t(s, π_t(s), W_t) + V^π_{t+1}\bigl(f_t(s, π_t(s), W_t)\bigr) \bigr].
 \end{equation}
 
+## Controlled Markov chains
+
+A common alternative for state space models, especially with finite state and action spaces, is to model them as controlled Markov chains. To fix ideas, we start with an example.
+
+:::{#exm-peak-control}
+#### Peak control
+Consider a _controlled_ Markov chain on $\ALPHABET S = \{-2, -1, 0, 1, 2\}$ with two actions, $\ALPHABET A = \{0, 1\}$. If action $A = 0$ is chosen, the chain evolves according to its "natural" dynamics:
+
+!["Natural" dynamics of the Markov chain](../../mdps/figures/peak-control1.svg){#fig-peak1}
+
+When action $A = 1$ is chosen, the chain evolves according to the "forced" dynamics:
+
+!["Forced" dynamics of the Markov chain](../../mdps/figures/peak-control2.svg){#fig-peak2}
+
+Under the natural dynamics, the chain settles to a uniform steady-state distribution; under the forced dynamics, it settles to a unimodal distribution peaked at state $0$.
+
+Suppose it is desirable to keep the chain close to state $0$. We capture this by charging a _running cost_ $s^2$ in state $s$. Choosing $A=0$ is free, but choosing $A=1$ incurs a _correction cost_ $p$.
+
+Thus the decision maker is in a conundrum. It may allow the system to follow its natural dynamics, which tends to reach states with larger absolute value and incur running cost $s^2$; or it may force the system toward state $0$, which reduces the running cost but incurs the correction cost $p$. How should it choose its actions?
+:::
+
+Such models are naturally cast as **controlled** Markov chains because $\{S_t\}_{t \ge 1}$ satisfies the controlled Markov property:
+$$
+  \PR(S_{t+1} = s_{t+1} \mid S_{1:t} = s_{1:t}, A_{1:t} = a_{1:t})
+  = \PR(S_{t+1} = s_{t+1} \mid S_t = s_t, A_t = a_t).
+$$
+For finite state and action spaces, the right-hand side may be viewed as an entry of a **controlled transition matrix** $P_t(a_t)$. For instance, in @exm-peak-control we have
+$$
+\def\1{\tfrac 12}
+P(0) = \MATRIX{ \1& \1&  0&  0&  0\\
+                \1& 0 & \1&  0&  0\\
+                0&  \1&  0&  \1& 0\\
+                0&  0&  \1&   0& \1 \\
+                0&  0&   0&  \1& \1}
+\quad\text{and}\quad
+\def\1{\tfrac 14}
+\def\2{\tfrac 34}
+\def\3{\tfrac 12}
+P(1) = \MATRIX{ \1& \2&  0&  0&  0\\
+                \1& 0 & \2&  0&  0\\
+                0&  \1& \3&  \1& 0\\
+                0&  0&  \2&   0& \1 \\
+                0&  0&   0&  \2& \1}
+$$
+Since the model is time-homogeneous, we write $P(a)$ rather than $P_t(a)$.
+
+This representation is compact and convenient for computational purposes, but I personally find it a bit opaque for proving the fundamental results of MDP theory. That is why we started with the **functional model**. However, we will use the controlled Markov chain representation when discussing structural properties of MDPs and approximation results.
+
 ## Notes {-}
 
 The inventory model is standard in operations research; see [the inventory management notes][mdps-inventory] for structural results (base-stock policies) and the post-decision state formulation.
