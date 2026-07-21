@@ -314,15 +314,128 @@ Plot.plot({
 })
 ```
 
-We are interested in understanding if we can quantify the quality of the approximation _without knowing the exact solution_. Such quantification depends on properties of the value functions. In the remainder of this lecture we derive properties of the value functions that help quantify the quality of such approximations:
+We are interested in understanding if we can quantify the quality of the approximation _without knowing the exact solution_. Model approximation changes transition laws (and possibly costs), so the first question is: **how much can an expectation change when the underlying measure changes?** That question leads to integral probability metrics (IPMs). Once the right metrics are in place, the remaining task is to control how irregular the value functions are (their span and Lipschitz constants), which is what the rest of this lecture develops.
 
-1. **Span of the value functions**: this shows what is the maximum change in the value function between any two states.
+## Changing measures and integral probability metrics
 
-2. **Lipschitz constant of the value functions**: this shows how fast the value function can change from one state to another.
+Fix a finite state space $\ALPHABET S$ and a function $v \colon \ALPHABET S \to \reals$. If $μ$ and $ν$ are two probability distributions on $\ALPHABET S$, we want to bound
+$$
+  \ABS{\sum_{s \in \ALPHABET S} μ(s) v(s) - \sum_{s \in \ALPHABET S} ν(s) v(s)}.
+$$
+In model approximation, $μ$ and $ν$ are typically one-step transition kernels $P_t(\cdot \mid s,a)$ and $\hat P_t(\cdot \mid s,a)$, and $v$ is a continuation value. The same pattern appears whenever one replaces a true expectation by an approximate one. (On continuous spaces the same bounds hold with integrals in place of sums; we keep the finite-sum notation in this lecture.)
+
+### A simple $\ell_1$ bound
+
+\begin{align*}
+  \ABS{\sum_{s \in \ALPHABET S} μ(s) v(s) - \sum_{s \in \ALPHABET S} ν(s) v(s)}
+  &=
+  \ABS{\sum_{s \in \ALPHABET S} \bigl(μ(s)-ν(s)\bigr) v(s)}
+  \\
+  &\le
+  \sum_{s \in \ALPHABET S} \ABS{μ(s)-ν(s)}\, \ABS{v(s)}
+  \\
+  &\le
+  \NORM{μ-ν}_{1}\, \NORM{v}_{∞},
+\end{align*}
+where $\NORM{μ-ν}_{1} = \sum_{s} \ABS{μ(s)-ν(s)}$ and $\NORM{v}_{∞} = \sup_{s} \ABS{v(s)}$.
+
+Thus the change in expectation is controlled by an $\ell_1$ distance between distributions times the size of $v$ in the sup-norm. The bound is loose in one respect: adding a constant to $v$ does not change $\sum_s μ(s)v(s) - \sum_s ν(s)v(s)$, but it can inflate $\NORM{v}_{∞}$.
+
+Define the **span** of $v$ by
+$$
+  \SPAN(v) \coloneqq \sup_{s} v(s) - \inf_{s} v(s).
+$$
+(We return to its algebraic properties below.) Subtracting a constant so that $\max(v) = -\min(v)$ gives $\NORM{v}_{∞} = \tfrac12 \SPAN(v)$, and therefore
+$$
+  \ABS{\sum_{s} μ(s) v(s) - \sum_{s} ν(s) v(s)}
+  \le
+  \NORM{μ-ν}_{1}\, \tfrac12 \SPAN(v).
+$$
+We write $d_{\mathrm{TV}}(μ,ν) \coloneqq \NORM{μ-ν}_{1}$ for this $\ell_1$ distance and call it **total variation**.[^tv-convention]
+
+[^tv-convention]: Some authors define total variation as $\tfrac12\NORM{μ-ν}_{1}$. With that convention the factor $\tfrac12$ moves from the span into the distance.
+
+### Why total variation is often too coarse
+
+Total variation treats every disagreement between $μ$ and $ν$ as equally severe. If two distributions put their mass on nearby states, the expectations of a slowly varying $v$ should change only a little, yet $d_{\mathrm{TV}}$ may still be large (even equal to $2$ when the supports are disjoint). In continuous or geometrically structured state spaces, that makes $d_{\mathrm{TV}}$ a pessimistic modelling distance: quantization, small location shifts, and other “nearby” perturbations look as bad as completely unrelated laws.
+
+### Wasserstein distance
+
+When the state space is a metric space with metric $d_{\ALPHABET S}$, a more geometric alternative is the **Wasserstein distance** $W_1$. Informally, $W_1(μ,ν)$ is the minimum cost of transporting the mass of $μ$ onto $ν$ when moving a unit of mass from $s$ to $\tilde s$ costs $d_{\ALPHABET S}(s,\tilde s)$. Discrepancies between nearby states are cheap; discrepancies between far-away states are expensive.
+
+For our purposes, the following dual characterization of $W_1$ is sufficient:
+$$
+  W_1(μ,ν)
+  =
+  \sup\biggl\{
+    \ABS{\sum_{s} μ(s) v(s) - \sum_{s} ν(s) v(s)}
+    :
+    \operatorname{Lip}(v) \le 1
+  \biggr\},
+$$
+where the Lipschitz constant of $v \colon \ALPHABET S \to \reals$ is
+$$
+  \operatorname{Lip}(v)
+  =
+  \sup_{s \ne \tilde s}
+  \frac{\ABS{v(s)-v(\tilde s)}}{d_{\ALPHABET S}(s,\tilde s)}
+  \in [0,∞].
+$$
+The function $v$ is called Lipschitz continuous if $\operatorname{Lip}(v) < ∞$.
+
+:::{#prp-kantorovich}
+#### Kantorovich--Rubinstein inequality
+For any Lipschitz $v \colon \ALPHABET S \to \reals$ and any probability distributions $μ,ν$ on $\ALPHABET S$,
+$$
+  \ABS{\sum_{s} μ(s) v(s) - \sum_{s} ν(s) v(s)}
+  \le
+  \operatorname{Lip}(v)\, W_1(μ,ν).
+$$
+:::
+
+This follows immediately from the dual definition of $W_1$. If $\operatorname{Lip}(v)=0$, then $v$ is constant and both sides vanish. If $L \coloneqq \operatorname{Lip}(v) \in (0,∞)$, then $v/L$ is $1$-Lipschitz, so
+$$
+  \ABS{\sum_{s} μ(s) \frac{v(s)}{L} - \sum_{s} ν(s) \frac{v(s)}{L}}
+  \le
+  W_1(μ,ν),
+$$
+and multiplying through by $L$ yields @prp-kantorovich.
+
+:::{.callout-note}
+#### Remark
+In the literature the same inequality is usually called **Kantorovich--Rubinstein duality** when one starts from the *primal* (optimal-transport / coupling) definition of $W_1$ and proves that it coincides with the Lip dual above. Here we take the dual characterization as the definition of $W_1$, so @prp-kantorovich is just scaling, not a duality theorem.
+:::
+
+This is the Wasserstein counterpart of the span bound above: the “size” of $v$ is now measured by $\operatorname{Lip}(v)$ rather than by $\SPAN(v)$, and the distance on distributions respects geometry.
+
+### Integral probability metrics
+
+Total variation and Wasserstein are instances of a single dual template. Let $\def\F{\mathfrak{F}}\F$ be a class of real-valued test functions on $\ALPHABET S$. The associated **integral probability metric** (IPM) is
+$$
+  d_{\F}(μ,ν)
+  =
+  \sup_{f \in \F}
+  \ABS{\sum_{s} μ(s) f(s) - \sum_{s} ν(s) f(s)}.
+$$
+For a general $v$, write $ρ_{\F}(v)$ for the Minkowski gauge of $\F$ (the smallest $r>0$ such that $v/r \in \F$, when $\F$ is a suitable unit ball). Then
+$$
+  \ABS{\sum_{s} μ(s) v(s) - \sum_{s} ν(s) v(s)}
+  \le
+  ρ_{\F}(v)\, d_{\F}(μ,ν).
+$$
+In particular:
+
+- If $\F = \{ f : \tfrac12 \SPAN(f) \le 1 \}$, then $d_{\F} = d_{\mathrm{TV}}$ and $ρ_{\F}(v) = \tfrac12 \SPAN(v)$.
+- If $\F = \{ f : \operatorname{Lip}(f) \le 1 \}$, then $d_{\F} = W_1$ and $ρ_{\F}(v) = \operatorname{Lip}(v)$, which is @prp-kantorovich.
+
+Other IPMs (maximum mean discrepancy, bounded-Lipschitz distance, etc.) arise from other choices of $\F$. In this course we focus on **total variation** and **Wasserstein distance**. More background is in the [IPM notes](https://adityam.github.io/stochastic-control/probability/IPM.html).
+
+In the remainder of this lecture we establish properties of the span and of the Lipschitz constants of value functions.
 
 ## Span semi-norm
 
-Let $\SPAN(v) = \max(v) - \min(v)$ denote the span semi-norm. We start by stating some basic properties.
+We have already used $\SPAN(v) = \sup v - \inf v$. We now record its basic properties systematically.
+
 
 1. $\SPAN(v) \ge 0$ for all $v \in \reals^n$.
 2. $\SPAN(v + w) \le \SPAN(v) + \SPAN(w)$ for all $v, w \in \reals^n$.
@@ -684,92 +797,16 @@ $$
 Substituting the induction hypothesis for $\SPAN(V^π_{t+1})$ and collecting coefficients of each $\SPAN(c_τ)$ gives the claimed formula at time $t$. The same argument with $\BELLMAN^\star_t$, $λ_t$, and $V^\star_{t+1}$ proves the bound for $V^\star_t$.
 :::
 
-### Why the span matters for model approximation
+As anticipated in the IPM discussion, a bound on $\SPAN(V^\star_t)$ (or $\SPAN(V^π_t)$) yields an instance-independent estimate of how much a total-variation perturbation of the model can change the corresponding value.
 
-In model approximation, transition kernels of the true and approximate models typically differ. The effect of that difference on an expectation is controlled by the span. Recall that the total variation distance between probability measures $μ$ and $μ'$ (on a finite or countable space) is
-$$
-  d_{\mathrm{TV}}(μ,μ')
-  =
-  \NORM{μ-μ'}_1
-  =
-  \sum_{s} \ABS{μ(s)-μ'(s)}.
-$$
-This matches the IPM generated by $\{ f : \NORM{f}_{∞} \le 1 \}$.
+## Lipschitz continuity
 
-::::{#prp-TV-span-bound}
-#### Total variation and span
-
-For any bounded $v$ and probability measures $μ,μ'$,
-$$
-  \ABS{\int v\,dμ - \int v\,dμ'}
-  \le
-  \frac12 \SPAN(v)\, d_{\mathrm{TV}}(μ,μ').
-$$
-::::
-
-:::{.callout-note collapse="true"}
-#### Proof
-Subtract a constant from $v$ so that $\max(v) = -\min(v)$. Then $\NORM{v}_{∞} = \tfrac12\SPAN(v)$, and for any probability measures $μ,μ'$,
-\begin{align*}
-  \ABS{\int v(s)\, μ(ds) - \int v(s)\, μ'(ds)}
-  &=
-  \ABS{\int v(s)\, \bigl(μ-μ'\bigr)(ds)}
-  \\
-  &\le
-  \int \ABS{v(s)}\, \ABS{μ-μ'}(ds)
-  \\
-  &\le
-  \NORM{v}_{∞}\, \NORM{μ-μ'}_1
-  \\
-  &=
-  \tfrac12 \SPAN(v)\, d_{\mathrm{TV}}(μ,μ').
-\end{align*}
-The IPM form $ρ_{\mathrm{TV}}(v) \le \tfrac12\SPAN(v)$ is exactly this bound rewritten in the notation of the model approximation lecture.
-:::
-
-Thus a bound on $\SPAN(V^\star_t)$ (or $\SPAN(V^π_t)$) yields an instance-independent estimate of how much a total-variation perturbation of the model can change the corresponding value.
-
-## Wasserstein distance and Lipschitz continuity
-
-@prp-TV-span-bound is tailored to total variation. When the state space is endowed with a metric, it is often more natural to measure the distance between transition kernels in the **Wasserstein distance** $W_1$. Roughly, $W_1(μ,μ')$ is the cost of transporting the mass of $μ$ to $μ'$ when moving a unit of mass by distance $d$ costs $d$. Unlike total variation, which treats every disagreement between measures as equally severe, Wasserstein respects geometry: discrepancies between nearby states are cheaper than discrepancies between far-away states. For that reason, Wasserstein is sometimes a better modelling distance than total variation on continuous or metric state spaces. We will not develop the optimal-transport theory here; the dual characterization below is enough for our purposes.
-
-For probability measures $μ,μ'$ on a metric space $(\ALPHABET S, d_{\ALPHABET S})$,
-$$
-  W_1(μ,μ')
-  =
-  \sup\biggl\{
-    \ABS{\int v\,dμ - \int v\,dμ'}
-    :
-    \operatorname{Lip}(v) \le 1
-  \biggr\},
-$$
-where the Lipschitz constant of a function $v \colon \ALPHABET S \to \reals$ is
-$$
-  \operatorname{Lip}(v)
-  =
-  \sup_{s \ne \tilde s}
-  \frac{\ABS{v(s)-v(\tilde s)}}{d_{\ALPHABET S}(s,\tilde s)}
-  \in [0,∞].
-$$
-The function $v$ is called Lipschitz continuous if $\operatorname{Lip}(v) < ∞$.
-
-The dual formula for $W_1$ immediately yields the Wasserstein counterpart of @prp-TV-span-bound:
-
-:::{#prp-kantorovich}
-#### Kantorovich--Rubinstein inequality
-For any Lipschitz $v \colon \ALPHABET S \to \reals$ and any probability measures $μ,μ'$ on $\ALPHABET S$,
-$$
-  \ABS{\int v\,dμ - \int v\,dμ'}
-  \le
-  \operatorname{Lip}(v)\, W_1(μ,μ').
-$$
-:::
-
-Just as a bound on $\SPAN(v)$ controls the impact of total-variation model error, a bound on $\operatorname{Lip}(v)$ controls the impact of Wasserstein model error. This motivates studying the Lipschitz constants of value functions.
+Just as a bound on $\SPAN(v)$ controls the impact of total-variation model error, a bound on $\operatorname{Lip}(v)$ controls the impact of Wasserstein model error. We first record basic properties of $\operatorname{Lip}$, then propagate Lipschitz constants through dynamic programming.
 
 ### Lipschitz continuous functions
 
-We record a few basic properties of $\operatorname{Lip}$.
+
+We state a few basic properties of $\operatorname{Lip}$.
 
 1. $\operatorname{Lip}(v) \ge 0$ for all $v$.
 2. $\operatorname{Lip}(v) = 0$ if and only if $v$ is constant.
@@ -818,7 +855,7 @@ Fix $a$. For any $s,\tilde s$,
   &\le
   \ABS{c_t(s,a)-c_t(\tilde s,a)}
   +
-  \ABS{\int v(s')\, P_t(ds' \mid s,a) - \int v(s')\, P_t(ds' \mid \tilde s,a)}
+  \ABS{\sum_{s' \in \ALPHABET S} P_t(s' \mid s,a)\, v(s') - \sum_{s' \in \ALPHABET S} P_t(s' \mid \tilde s,a)\, v(s')}
   \\
   &\le
   L^c_t\, d_{\ALPHABET S}(s,\tilde s)
@@ -947,10 +984,7 @@ with $\ell = \max\{c_h,c_s\}$. (On each half-line $h$ is linear with slope $c_h$
 
 **Transition kernel.** By the dual definition of $W_1$, for any $f$ with $\operatorname{Lip}(f) \le 1$,
 \begin{align*}
-  \ABS{\int f\,dP_t(\cdot \mid s,a) - \int f\,dP_t(\cdot \mid \tilde s,a)}
-  &=
-  \ABS{\EXP\bigl[f(S_+)-f(\tilde S_+)\bigr]}
-  \\
+  \ABS{\EXP\bigl[f(S_+)\bigr] - \EXP\bigl[f(\tilde S_+)\bigr]}
   &\le
   \EXP\bigl[\ABS{f(S_+)-f(\tilde S_+)}\bigr]
   \\
