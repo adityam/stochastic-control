@@ -454,44 +454,38 @@ Let $v \in \reals^n$ and let $P$ be a row-stochastic matrix of compatible dimens
 $$ \SPAN(P v) \le λ(P) \SPAN(v), $$
 where
 \begin{equation} \label{eq:span-matrix}
-  λ(P) = 1 - \min_{s, s' \in \ALPHABET S}
-  \sum_{z \in \ALPHABET S} \min\{ P_{sz}, P_{s'z} \}.
+  λ(P)
+  =
+  \frac12
+  \max_{s, s' \in \ALPHABET S}
+  \sum_{z \in \ALPHABET S}
+  \ABS{P_{sz} - P_{s'z}}
+  =
+  \frac12
+  \max_{s, s' \in \ALPHABET S}
+  d_{\mathrm{TV}}\bigl(P_{s\cdot},\, P_{s'\cdot}\bigr).
 \end{equation}
 Furthermore, $λ(P) \in [0, 1]$ and there exists a $v \in \reals^n$ such that $\SPAN(Pv) = λ(P) \SPAN(v)$.
 :::
 
 :::{.callout-note collapse="true"}
 #### Proof
-Note that for any $v \in \reals^n$,
+For any $v \in \reals^n$,
 \begin{align*}
-\SPAN(Pv) &= \max_{s \in \ALPHABET S} \sum_{z \in \ALPHABET S} P_{sz} v_z
-- \min_{s' \in \ALPHABET S} \sum_{z \in \ALPHABET S} P_{s'z} v_z \\
-&= \max_{s, s' \in \ALPHABET S}
+\SPAN(Pv)
+&=
+\max_{s, s' \in \ALPHABET S}
   \Biggl( \sum_{z \in \ALPHABET S} P_{sz} v_z - \sum_{z \in \ALPHABET S} P_{s'z} v_z \Biggr).
 \end{align*}
-Let $B(z; s,s') = \min\{ P_{sz}, P_{s'z} \}$. Then
-\begin{align*}
-  \sum_{z \in \ALPHABET S} P_{sz} v_z - \sum_{z \in \ALPHABET S} P_{s'z} v_z
-  &=
-  \sum_{z \in \ALPHABET S} [ P_{sz} - B(z; s,s') ] v_z
-  - \sum_{z \in \ALPHABET S} [ P_{s'z} - B(z; s,s') ] v_z \\
-  &\le
-  \sum_{z \in \ALPHABET S} [ P_{sz} - B(z; s,s') ] \max(v)
-  - \sum_{z \in \ALPHABET S} [ P_{s'z} - B(z; s,s') ] \min(v)
-  \\
-  &= \biggl[ 1 - \sum_{z \in \ALPHABET S} B(z; s, s') \biggr] \SPAN(v).
-\end{align*}
-Hence
+The total-variation / span bound from earlier gives, for each pair $(s,s')$,
 $$
-\SPAN(Pv)
-\le
-\max_{s, s' \in \ALPHABET S} \biggl[
-  1 - \sum_{z \in \ALPHABET S} B(z; s, s')
-\biggr] \SPAN(v)
-= λ(P) \SPAN(v).
+  \ABS{\sum_{z} P_{sz} v_z - \sum_{z} P_{s'z} v_z}
+  \le
+  \tfrac12 \SPAN(v)\, d_{\mathrm{TV}}(P_{s\cdot}, P_{s'\cdot}).
 $$
+Taking the maximum over pairs yields $\SPAN(Pv) \le λ(P) \SPAN(v)$.
 
-It remains to show that the constant is sharp. If $λ(P) = 0$, then $P$ has identical rows, so $\SPAN(Pv) = 0 = λ(P) \SPAN(v)$ for all $v$. Suppose $λ(P) > 0$. Using the identity $[a - b]^{+} = a - \min(a,b)$, we can rewrite
+It remains to show that the constant is sharp. If $λ(P) = 0$, then $P$ has identical rows, so $\SPAN(Pv) = 0 = λ(P) \SPAN(v)$ for all $v$. Suppose $λ(P) > 0$. Using $\sum_z \ABS{a_z-b_z} = 2\sum_z [a_z-b_z]^{+}$ for probability vectors $a,b$, we may rewrite
 $$
 λ(P) = \max_{s,s' \in \ALPHABET S}
 \sum_{z \in \ALPHABET S} \bigl[ P_{sz} - P_{s'z} \bigr]^{+}.
@@ -515,41 +509,49 @@ Then $\SPAN(v) = 1$ and
 Combined with the upper bound, $\SPAN(Pv) = λ(P) \SPAN(v)$.
 :::
 
-@prp-span-matrix illustrates the "averaging" property of a transition matrix. By
-multiplying a vector by a transition matrix, the resulting vector has
-components which are more nearly equal. When $P$ is a square matrix, the
-quantity $λ(P)$ is called the **ergodicity coefficient**, which is often written in
-an alternative form by using the relation $|a - b| = (a + b) - 2 \min(a,b)$:
+@prp-span-matrix illustrates the "averaging" property of a transition matrix: multiplying by $P$ cannot increase the span by more than the worst total-variation gap between any two rows. When $P$ is a square matrix, $λ(P)$ is called the **ergodicity coefficient**. An equivalent expression, obtained from $|a-b| = (a+b)-2\min(a,b)$, is
 $$
-  λ(P) = \frac12
-  \max_{s,s' \in \ALPHABET S} \sum_{z \in \ALPHABET S}
-  \bigl| P_{sz} - P_{s'z} \bigr|. $$
-The ergodicity coefficient is an upper bound on the second largest eigenvalue
-of $P$. $λ(P)$ equals $0$ if all rows of $P$ are equal and equals $1$ if at
-least two rows of $P$ are orthogonal. From a different perspective, $λ(P) <
-1$ if for each pair of states there exists at least one state which they both
-can reach with positive probability in one step. 
+  λ(P)
+  =
+  1 - \min_{s, s' \in \ALPHABET S}
+  \sum_{z \in \ALPHABET S} \min\{ P_{sz}, P_{s'z} \}.
+$$
+The ergodicity coefficient is an upper bound on the second largest eigenvalue of $P$. It equals $0$ if all rows of $P$ are equal and equals $1$ if at least two rows of $P$ are orthogonal. From a different perspective, $λ(P) < 1$ if for each pair of states there exists at least one state which they both can reach with positive probability in one step.
 
 :::{.callout-tip}
 ### Remark
 
 Note that
 \begin{equation}\label{eq:ergodicity-bound}
-λ(P) \le 1 - \sum_{z \in \ALPHABET S} \min_{s \in \ALPHABET S} P_{sz} 
+λ(P) \le 1 - \sum_{z \in \ALPHABET S} \min_{s \in \ALPHABET S} P_{sz}
 =: λ'(P)
 \end{equation}
-which is easier to compute. 
+which is easier to compute.
 :::
 
 ## Span of the value functions
 
-For an MDP $\ALPHABET M$, define the contraction factor at time $t$ as
+For an MDP $\ALPHABET M$, define the contraction factor at time $t$ by the same idea, now maximized over controlled transitions:
 \begin{equation}\label{eq:contraction}
-  λ_t = \max_{\substack{ s,s' \in \ALPHABET S \\ a \in \ALPHABET A(s),\ a' \in \ALPHABET A(s')}}
-  \biggl[ 1 - \sum_{z \in \ALPHABET S}
-    \min\{ P_t(z \mid s,a), P_t(z \mid s', a') \} \biggr].
+  λ_t
+  =
+  \frac12
+  \max_{\substack{ s,s' \in \ALPHABET S \\ a \in \ALPHABET A(s),\ a' \in \ALPHABET A(s')}}
+  d_{\mathrm{TV}}\bigl(
+    P_t(\cdot \mid s,a),\,
+    P_t(\cdot \mid s', a')
+  \bigr).
 \end{equation}
-Note that $λ_t \in [0, 1]$. Equivalently, $λ_t$ is the largest matrix contraction factor $λ(\bar P)$ over all two-row stochastic matrices $\bar P$ formed by a pair of controlled transitions at time $t$.
+Equivalently,
+$$
+  λ_t
+  =
+  \frac12
+  \max_{\substack{ s,s' \\ a,a'}}
+  \sum_{z \in \ALPHABET S}
+  \ABS{P_t(z \mid s,a) - P_t(z \mid s', a')},
+$$
+or $λ_t = \max λ(\bar P)$ over all two-row stochastic matrices $\bar P$ formed by a pair of controlled transitions at time $t$. In particular, $λ_t \in [0, 1]$.
 
 :::{#lem-lambda-policy}
 For every policy $π_t$,
@@ -588,7 +590,7 @@ For any $v, v_1, v_2 \in \ALPHABET V$,
 \end{align*}
 :::
 
-:::{.callout-note collapse="true"}
+:::{.callout-note collapse="false"}
 #### Proof
 Write $δ = v_1 - v_2$. Then
 $$
@@ -607,11 +609,12 @@ Hence
     \sum_{z} P_t(z \mid s',a')\, δ(z)
   \Biggr).
 \end{align*}
-For each fixed pair of controlled transitions, the same calculation as in @prp-span-matrix shows that the difference is at most
+For each fixed pair of controlled transitions, the total-variation / span bound gives
 $$
-  \biggl[
-    1 - \sum_{z} \min\bigl\{ P_t(z \mid s,a),\, P_t(z \mid s',a') \bigr\}
-  \biggr] \SPAN(δ).
+  \ABS{\sum_{z} P_t(z \mid s,a)\, δ(z) - \sum_{z} P_t(z \mid s',a')\, δ(z)}
+  \le
+  \tfrac12 \SPAN(δ)\,
+  d_{\mathrm{TV}}\bigl(P_t(\cdot \mid s,a),\, P_t(\cdot \mid s',a')\bigr).
 $$
 Taking the maximum over pairs and using \eqref{eq:contraction} yields the first claim.
 
@@ -847,7 +850,7 @@ $$
 $$
 :::
 
-:::{.callout-note collapse="true"}
+:::{.callout-note collapse="false"}
 #### Proof
 Fix $a$. For any $s,\tilde s$,
 \begin{align*}
