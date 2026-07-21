@@ -9,14 +9,64 @@ execute:
   freeze: true
 ---
 
-## Operator theoretic  notation {.unnumbered}
+## Review
 
-We start with a notation to simplify how dynamic programs are written. 
-Let $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$ denote an MDP, with state space $\ALPHABET S$, action space $\ALPHABET A$, dynamics $P = (P_1, \dots, P_T)$, per-step cost $c = (c_1, \dots, c_T)$, and horizon $T$. For simplicity, we take $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$. 
+In the previous lecture we derived dynamic programming for state space models and noted that, for computation and for the approximation results that follow, it is convenient to work with the **controlled Markov chain** representation. We briefly recall the resulting recursions.
 
-We use $\ALPHABET V$ to denote the space of value functions and $\ALPHABET Q$ to denote the space of action-value functions (for finite state space models, these are equivalent to $\reals^{\SIZE{S}}$ and $\reals^{\SIZE{S}\SIZE{A}}$).
+Let $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$ denote an MDP (equivalently, a controlled Markov chain), with state space $\ALPHABET S$, action space $\ALPHABET A$, controlled transition kernels $P = (P_1, \dots, P_T)$, per-step costs $c = (c_1, \dots, c_T)$, and horizon $T$. For simplicity we take $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$; if the primitive cost depends on the next state as well, the same formulas apply with $c_t(s,a)$ interpreted as the conditional expectation of that cost given $(S_t,A_t)=(s,a)$.
 
-Now we define the following operators. For simplicity, we write them for the case when state and action spaces are finite but the definitions are similar for general spaces.
+We write $\ALPHABET V$ for the space of value functions and $\ALPHABET Q$ for the space of action-value functions.
+
+### Policy optimization
+
+Dynamic programming is a recursive algorith which computes $V^\star_t \in \ALPHABET V$ and $Q^\star_t \in \ALPHABET Q$ as follows:
+
+Initialize $V^\star_{T+1}(s) \equiv 0$. For $t = T, T-1, \dots, 1$,
+\begin{align}
+  Q^\star_t(s,a)
+  &=
+  c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s' \mid s,a)\, V^\star_{t+1}(s'),
+  \\
+  V^\star_t(s)
+  &=
+  \min_{a \in \ALPHABET A} Q^\star_t(s,a),
+  \\
+  π^\star_t(s)
+  &\in
+  \arg\min_{a \in \ALPHABET A} Q^\star_t(s,a).
+\end{align}
+The policy $π^\star = (π^\star_1, \dots, π^\star_T)$ obtained from this recursion is optimal, and $V^\star_t(s)$ is the optimal cost-to-go from state $s$ at time $t$.
+
+### Policy evaluation
+
+Dynamic programming can also be used to evaluate the performance of a Markov policy $π = (π_1, \dots, π_T)$ by recursively computing $V^π \in \ALPHABET V$ and $Q^π \in \ALPHABET Q$ as follows:
+
+Initialize $V^π_{T+1}(s) \equiv 0$. For $t = T, T-1, \dots, 1$,
+\begin{align}
+  Q^π_t(s,a)
+  &=
+  c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s' \mid s,a)\, V^π_{t+1}(s'),
+  \\
+  V^π_t(s)
+  &=
+  Q^π_t\bigl(s, π_t(s)\bigr).
+\end{align}
+
+Then,
+$$
+  J(π) = \EXP\bigl[V^π_1(S_1)\bigr]
+$$
+and by a backward induction argument we can show that
+$$
+    J(π^\star) \le J(π), \quad \forall π \in Π.
+$$
+Therefore, the policy $π^\star$ obtained by dynamic programming is optimal.
+
+## Operator theoretic notation
+
+It is convenient to package the recursions above using a compact notation. The standard way to write these is using what are called Bellman operators. I find that the Bellman operators are a bit opaque and a slightly different (but unconventional) notation is much more transparent. We discuss both these notations below.
+
+### Bellman operators
 
 - For any policy $π \in Π$, define the **policy Bellman operator** $\BELLMAN^π_t \colon \ALPHABET V \to \ALPHABET V$ as follows: for any $v \in \ALPHABET V$,
   $$
@@ -25,7 +75,7 @@ Now we define the following operators. For simplicity, we write them for the cas
 
 - Define the **optimality Bellman operator** $\BELLMAN^\star_t \colon \ALPHABET V \to \ALPHABET V$ as follows: for any $v \in \ALPHABET V$,
   $$
-      [\BELLMAN^\star_t v](s) = \min_{a \in \ALPHABET A} \biggl\{ 
+      [\BELLMAN^\star_t v](s) = \min_{a \in \ALPHABET A} \biggl\{
         c_t(s, a) + \sum_{s' \in \ALPHABET S} P_t(s'|s, a) v(s')
       \biggr\}.
   $$
@@ -47,10 +97,60 @@ $$
   0 ≡ V^π_{T+1} \xrightarrow{\BELLMAN^π} V^π_T \xrightarrow{\BELLMAN^π} V^π_{T-1} \cdots \xrightarrow{\BELLMAN^π} V^π_1.
 $$
 
+### Factorization via environment and action selection operators
+
+It is useful to factor each Bellman operator into a model-dependent piece and a model-independent piece that only selects or optimizes over actions. ([This factorization is **not** a commonly used notation in the literature]{.mark}.)
+
+- Define the operator $\ENV_t \colon \ALPHABET V \to \ALPHABET Q$ as the **environment operator**: for any $v \in \ALPHABET V$,
+  $$
+      [\ENV_t v](s,a) = c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s'|s,a) v(s').
+  $$
+
+- For any $π \in Π$, define the **action selection operator** $\ALPHABET T^π$ as follows: for any $q \in \ALPHABET Q$,
+  $$
+      [\ALPHABET T^π q](s) = q(s, π(s))
+      \quad\text{or for stochastic $π$ }
+      [\ALPHABET T^π q](s) = \sum_{a \in \ALPHABET A} π(a | s)q(s, a).
+  $$
+
+- Define the **optimality action selection operator** $\ALPHABET T^\star$ as follows: for any $q \in \ALPHABET Q$,
+  $$
+      [\ALPHABET T^\star q](s) = \min_{a \in \ALPHABET A} q(s, a).
+  $$
+
+- Define $\GREEDY \colon \ALPHABET Q \rightrightarrows Π$ as the **greedy policy**: given a $q \in \ALPHABET Q$, $π \in \GREEDY q$ means that $π(s) \in \arg\min_{a \in \ALPHABET A} q(s,a)$.
+
+Observe that
+$$
+   \BELLMAN^π_t = \ALPHABET T^π \circ \ENV_t,
+    \quad \text{and}\quad
+   \BELLMAN^\star_t = \ALPHABET T^\star \circ \ENV_t.
+$$
+
+The dynamic programming recursion can therefore be written with action-value functions made explicit:
+$$
+  V^\star_{T+1} = 0, \quad\text{and}\quad
+  Q^\star_t = \ENV_t V^\star_{t+1},
+  \quad
+  V^\star_t = \ALPHABET T^\star Q^\star_t,
+  \quad \forall t \in \{T,\dots,1\}.
+$$
+Or, pictorially:
+$$
+  0 ≡ V^\star_{T+1} \xrightarrow{\ENV_T} Q^\star_T \xrightarrow{\ALPHABET T^\star} V^\star_T \xrightarrow{\ENV_{T-1}} Q^\star_{T-1} \cdots \xrightarrow{\ALPHABET T^\star} V^\star_1.
+$$
+Moreover, a policy $π^\star = (π^\star_1, \dots, π^\star_T) \in Π$ is optimal if and only if $π^\star_t \in \GREEDY Q^\star_t$. An implication is that $\ALPHABET T^\star Q^\star_{t} = \ALPHABET T^{π^\star} Q^\star_t$.
+
+Similarly, for a policy $π ∈ Π$,
+$$
+  0 ≡ V^π_{T+1} \xrightarrow{\ENV_T} Q^π_T \xrightarrow{\ALPHABET T^π} V^π_T \xrightarrow{\ENV_{T-1}} Q^π_{T-1} \cdots \xrightarrow{\ALPHABET T^π} V^π_1.
+$$
+
+The environment operator $\ENV_t$ depends on $(P_t,c_t)$; the action selection operators $\ALPHABET T^π$ and $\ALPHABET T^\star$ do not. 
 
 ## Motivation for model approximation
 
-Let's start with an example to understand the need for model approximation. 
+In the second part of this lecture we turn to approximation. The following example motivates why one needs quantitative properties of value functions in order to control approximation error. 
 
 :::{#exm-internet-of-things-cts}
 #### Internet of things
@@ -214,7 +314,7 @@ Plot.plot({
 })
 ```
 
-We are interested in understanding if we can quantify the quality of the approximation _without knowing the exact solution_. Such quantification depends on properties of the value functions. So in this lecture, we will derive some properties of the value functions that will help us quantify the quality of the approximation:
+We are interested in understanding if we can quantify the quality of the approximation _without knowing the exact solution_. Such quantification depends on properties of the value functions. In the remainder of this lecture we derive properties of the value functions that help quantify the quality of such approximations:
 
 1. **Span of the value functions**: this shows what is the maximum change in the value function between any two states.
 
@@ -328,7 +428,7 @@ Note that
 which is easier to compute. 
 :::
 
-## Span norm of the value functions
+## Span of the value functions
 
 For an MDP $\ALPHABET M$, define the contraction factor at time $t$ as
 \begin{equation}\label{eq:contraction}
@@ -350,8 +450,131 @@ $$
 Every pair of rows of $P^{π_t}_t$ is of the form $\bigl(P_t(\cdot \mid s, π_t(s)),\, P_t(\cdot \mid s', π_t(s'))\bigr)$ for some $s,s'$, hence is one of the controlled pairs appearing in \eqref{eq:contraction}. Therefore the maximum that defines $λ(P^{π_t}_t)$ cannot exceed $λ_t$.
 :::
 
+For a cost function $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$, and more generally for any $q \in \ALPHABET Q$, write
+$$
+  \SPAN(q)
+  =
+  \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A} q(s,a)
+  -
+  \inf_{(s,a) \in \ALPHABET S \times \ALPHABET A} q(s,a).
+$$
+In particular, $\SPAN(c_t)$ is the span of the one-step cost viewed as an element of $\ALPHABET Q$. For $v \in \ALPHABET V$ we continue to write $\SPAN(v) = \sup_s v(s) - \inf_s v(s)$.
+
+We now track span through the factorization $\BELLMAN = \ALPHABET T \circ \ENV$: first what $\ENV_t$ does, then what the action selection operators do, and finally the composition.
+
+:::{#lem-model-span}
+#### Span through the environment operator
+
+For any $v, v_1, v_2 \in \ALPHABET V$,
+\begin{align*}
+  \SPAN(\ENV_t v_1 - \ENV_t v_2)
+  &\le λ_t\, \SPAN(v_1 - v_2),
+  \\
+  \SPAN(\ENV_t v)
+  &\le \SPAN(c_t) + λ_t\, \SPAN(v).
+\end{align*}
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof
+Write $δ = v_1 - v_2$. Then
+$$
+  [\ENV_t v_1 - \ENV_t v_2](s,a)
+  =
+  \sum_{z \in \ALPHABET S} P_t(z \mid s,a)\, δ(z).
+$$
+Hence
+\begin{align*}
+  \SPAN(\ENV_t v_1 - \ENV_t v_2)
+  &=
+  \max_{(s,a),(s',a')}
+  \Biggl(
+    \sum_{z} P_t(z \mid s,a)\, δ(z)
+    -
+    \sum_{z} P_t(z \mid s',a')\, δ(z)
+  \Biggr).
+\end{align*}
+For each fixed pair of controlled transitions, the same calculation as in @prp-span-matrix shows that the difference is at most
+$$
+  \biggl[
+    1 - \sum_{z} \min\bigl\{ P_t(z \mid s,a),\, P_t(z \mid s',a') \bigr\}
+  \biggr] \SPAN(δ).
+$$
+Taking the maximum over pairs and using \eqref{eq:contraction} yields the first claim.
+
+For the second claim, write $[\DYNAMICS_t v](s,a) = \sum_z P_t(z \mid s,a)\, v(z)$, so that $\ENV_t v = c_t + \DYNAMICS_t v$. Note that $\ENV_t 0 = c_t$, hence $\ENV_t v - \ENV_t 0 = \DYNAMICS_t v$. The first claim with $(v_1,v_2)=(v,0)$ therefore yields $\SPAN(\DYNAMICS_t v) \le λ_t\, \SPAN(v)$, and subadditivity of $\SPAN$ gives
+$$
+  \SPAN(\ENV_t v)
+  \le \SPAN(c_t) + \SPAN(\DYNAMICS_t v)
+  \le \SPAN(c_t) + λ_t\, \SPAN(v).
+$$
+:::
+
+:::{#lem-action-span}
+#### Span through the action selection operators
+
+For any $q, q_1, q_2 \in \ALPHABET Q$ and any (possibly randomized) policy $π$,
+\begin{align*}
+  \SPAN(\ALPHABET T^π q_1 - \ALPHABET T^π q_2)
+  &\le \SPAN(q_1 - q_2),
+  \\
+  \SPAN(\ALPHABET T^\star q_1 - \ALPHABET T^\star q_2)
+  &\le \SPAN(q_1 - q_2),
+\end{align*}
+and likewise
+$$
+  \SPAN(\ALPHABET T^π q) \le \SPAN(q),
+  \qquad
+  \SPAN(\ALPHABET T^\star q) \le \SPAN(q).
+$$
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof
+Write $δ = q_1 - q_2$. For the policy action selection operator,
+$$
+  [\ALPHABET T^π q_1 - \ALPHABET T^π q_2](s)
+  =
+  \sum_{a \in \ALPHABET A} π(a \mid s)\, δ(s,a),
+$$
+which is a convex combination of values of $δ$. Therefore every value of $\ALPHABET T^π q_1 - \ALPHABET T^π q_2$ lies between $\inf δ$ and $\sup δ$, and the span bound follows. The same argument with $q_2 = 0$ gives $\SPAN(\ALPHABET T^π q) \le \SPAN(q)$.
+
+For the optimality action selection operator, let
+\begin{align*}
+  s^* &= \arg\max_{s} \bigl([\ALPHABET T^\star q_1](s) - [\ALPHABET T^\star q_2](s)\bigr),
+  \\
+  s_* &= \arg\min_{s} \bigl([\ALPHABET T^\star q_1](s) - [\ALPHABET T^\star q_2](s)\bigr),
+\end{align*}
+and let $a_2^\star \in \arg\min_a q_2(s^*,a)$ and $a_1^\star \in \arg\min_a q_1(s_*,a)$. Then
+$$
+  [\ALPHABET T^\star q_1](s^*) - [\ALPHABET T^\star q_2](s^*)
+  \le
+  q_1(s^*, a_2^\star) - q_2(s^*, a_2^\star)
+  = δ(s^*, a_2^\star)
+$$
+and
+$$
+  [\ALPHABET T^\star q_1](s_*) - [\ALPHABET T^\star q_2](s_*)
+  \ge
+  q_1(s_*, a_1^\star) - q_2(s_*, a_1^\star)
+  = δ(s_*, a_1^\star).
+$$
+Hence
+$$
+  \SPAN(\ALPHABET T^\star q_1 - \ALPHABET T^\star q_2)
+  \le
+  δ(s^*, a_2^\star) - δ(s_*, a_1^\star)
+  \le \SPAN(δ).
+$$
+The absolute bound $\SPAN(\ALPHABET T^\star q) \le \SPAN(q)$ is the special case $q_2 = 0$, or follows because the range of $s \mapsto \min_a q(s,a)$ is contained in the range of $q$.
+:::
+
+Composing the two lemmas recovers span contraction for the Bellman operators. For a fixed policy the model-side constant can be sharpened from $λ_t$ to $λ(P^π_t)$.
+
 :::{#thm-span-contraction}
-For any $v_1, v_2 \in \reals^n$ and any policy $π$,
+#### Span contraction of Bellman operators
+
+For any $v_1, v_2 \in \ALPHABET V$ and any policy $π$,
 \begin{align*}
   \SPAN(\BELLMAN^π_t v_1 - \BELLMAN^π_t v_2)
   &\le λ(P^π_t)\, \SPAN(v_1 - v_2),
@@ -363,6 +586,17 @@ For any $v_1, v_2 \in \reals^n$ and any policy $π$,
 
 :::{.callout-note collapse="true"}
 #### Proof
+For the optimality operator,
+$$
+  \SPAN(\BELLMAN^\star_t v_1 - \BELLMAN^\star_t v_2)
+  =
+  \SPAN\bigl(\ALPHABET T^\star \ENV_t v_1 - \ALPHABET T^\star \ENV_t v_2\bigr)
+  \le
+  \SPAN(\ENV_t v_1 - \ENV_t v_2)
+  \le
+  λ_t\, \SPAN(v_1 - v_2),
+$$
+by @lem-action-span and @lem-model-span.
 
 For the policy operator, $\BELLMAN^π_t v_1 - \BELLMAN^π_t v_2 = P^π_t (v_1 - v_2)$, so
 $$
@@ -370,57 +604,8 @@ $$
   = \SPAN\bigl(P^π_t (v_1 - v_2)\bigr)
   \le λ(P^π_t)\, \SPAN(v_1 - v_2)
 $$
-by @prp-span-matrix.
-
-For the optimality operator, let $π_i$ be such that $\BELLMAN^\star_t v_i = \BELLMAN^{π_i}_t v_i$.
-Let
-\begin{align*}
-  s^* &= \arg \max_{s \in \ALPHABET S}(\BELLMAN^\star_t v_1(s) - \BELLMAN^\star_t v_2(s)),
-  \\
-  s_* &= \arg \min_{s \in \ALPHABET S}(\BELLMAN^\star_t v_1(s) - \BELLMAN^\star_t v_2(s)).
-\end{align*}
-Then
-$$
-  \BELLMAN^\star_t v_1(s^*) - \BELLMAN^\star_t v_2(s^*) \le
-  \BELLMAN^{π_2}_t v_1(s^*) - \BELLMAN^{π_2}_t v_2(s^*)
-  = P^{π_2}_t(v_1 - v_2)(s^*)
-$$
-and
-$$
-  \BELLMAN^\star_t v_1(s_*) - \BELLMAN^\star_t v_2(s_*) \ge
-  \BELLMAN^{π_1}_t v_1(s_*) - \BELLMAN^{π_1}_t v_2(s_*)
-  = P^{π_1}_t(v_1 - v_2)(s_*).
-$$
-Therefore
-\begin{align*}
-  \SPAN(\BELLMAN^\star_t v_1 - \BELLMAN^\star_t v_2)
-  &\le
-  P^{π_2}_t(v_1 - v_2)(s^*) - P^{π_1}_t(v_1 - v_2)(s_*)
-  \\
-  &\le
-  \max_{s \in \ALPHABET S} P^{π_2}_t (v_1 - v_2)(s)
-  -
-  \min_{s \in \ALPHABET S} P^{π_1}_t(v_1 - v_2)(s)
-  \\
-  &\le
-  \SPAN\bigl(\ROWS(P^{π_2}_t, P^{π_1}_t)(v_1 - v_2)\bigr).
-\end{align*}
-By @prp-span-matrix,
-$$
-  \SPAN(\BELLMAN^\star_t v_1 - \BELLMAN^\star_t v_2)
-  \le λ(\bar P)\, \SPAN(v_1 - v_2),
-$$
-where $λ(\bar P)$ is given by \eqref{eq:span-matrix} with $\bar P = \ROWS(P^{π_2}_t, P^{π_1}_t)$. The claim follows since $λ(\bar P) \le λ_t$.
+by @prp-span-matrix. (Alternatively, $\BELLMAN^π_t = \ALPHABET T^π \circ \ENV_t$ and the same argument as above gives the weaker constant $λ_t$; the matrix form uses that only the rows selected by $π$ appear.)
 :::
-
-For a cost function $c_t \colon \ALPHABET S \times \ALPHABET A \to \reals$, write
-$$
-  \SPAN(c_t)
-  =
-  \sup_{(s,a) \in \ALPHABET S \times \ALPHABET A} c_t(s,a)
-  -
-  \inf_{(s,a) \in \ALPHABET S \times \ALPHABET A} c_t(s,a).
-$$
 
 :::{#lem-bellman-span}
 #### One-step span bound
@@ -437,31 +622,25 @@ For any $v_{t+1} \colon \ALPHABET S \to \reals$ and any decision rule $π_t$,
 
 :::{.callout-note collapse="true"}
 #### Proof
-Write $c^{π_t}_t(s) = c_t(s, π_t(s))$. Then $\BELLMAN^{π_t}_t v_{t+1} = c^{π_t}_t + P^{π_t}_t v_{t+1}$, so
+For the optimality operator,
+$$
+  \SPAN(\BELLMAN^\star_t v_{t+1})
+  =
+  \SPAN\bigl(\ALPHABET T^\star \ENV_t v_{t+1}\bigr)
+  \le
+  \SPAN(\ENV_t v_{t+1})
+  \le
+  \SPAN(c_t) + λ_t\, \SPAN(v_{t+1}),
+$$
+by @lem-action-span and @lem-model-span.
+
+For the policy operator, write $c^{π_t}_t(s) = c_t(s, π_t(s))$. Then $\BELLMAN^{π_t}_t v_{t+1} = c^{π_t}_t + P^{π_t}_t v_{t+1}$, so
 $$
   \SPAN(\BELLMAN^{π_t}_t v_{t+1})
   \le \SPAN(c^{π_t}_t) + \SPAN(P^{π_t}_t v_{t+1})
   \le \SPAN(c_t) + λ(P^{π_t}_t)\, \SPAN(v_{t+1}),
 $$
 where the last step uses @prp-span-matrix and $\SPAN(c^{π_t}_t) \le \SPAN(c_t)$.
-
-For the optimality operator, let $s^*$ and $s_*$ attain the maximum and minimum of $\BELLMAN^\star_t v_{t+1}$, and let $a^*$ and $a_*$ be corresponding minimizing actions. Then
-\begin{align*}
-  \SPAN(\BELLMAN^\star_t v_{t+1})
-  &=
-  \bigl[ c_t(s^*, a^*) + P_t(\cdot \mid s^*, a^*)\, v_{t+1} \bigr]
-  -
-  \bigl[ c_t(s_*, a_*) + P_t(\cdot \mid s_*, a_*)\, v_{t+1} \bigr]
-  \\
-  &\le
-  \SPAN(c_t)
-  +
-  \SPAN\bigl(\ROWS\bigl(P_t(\cdot \mid s^*, a^*),\, P_t(\cdot \mid s_*, a_*)\bigr) v_{t+1}\bigr)
-  \\
-  &\le
-  \SPAN(c_t) + λ_t\, \SPAN(v_{t+1}),
-\end{align*}
-where the last step uses @prp-span-matrix and the definition \eqref{eq:contraction} of $λ_t$.
 :::
 
 :::{#thm-value-span-bound}
@@ -618,51 +797,85 @@ Fix an MDP $\ALPHABET M$ whose state space is a metric space $(\ALPHABET S, d_{\
 \end{equation}
 Thus the one-step cost and the transition kernel are Lipschitz in the state, uniformly over actions.
 
-:::{#lem-bellman-lipschitz}
-#### One-step Lipschitz bound
+As with span, we track Lipschitz constants through $\ENV_t$ and then through the action selection operators.
 
-Suppose \eqref{eq:lipschitz-model} holds at time $t$, and let $v_{t+1} \colon \ALPHABET S \to \reals$ be Lipschitz. Define
+:::{#lem-model-lipschitz}
+#### Lipschitz constants through the environment operator
+
+Suppose \eqref{eq:lipschitz-model} holds at time $t$, and let $v \colon \ALPHABET S \to \reals$ be Lipschitz. Then for every action $a$, the map $s \mapsto [\ENV_t v](s,a)$ is Lipschitz with
 $$
-  q_t(s,a)
-  =
-  c_t(s,a) + \int v_{t+1}(s')\, P_t(ds' \mid s,a).
-$$
-Then for every action $a$, the map $q_t(\cdot, a)$ is Lipschitz with
-$$
-  \operatorname{Lip}\bigl(q_t(\cdot, a)\bigr)
+  \operatorname{Lip}\bigl([\ENV_t v](\cdot, a)\bigr)
   \le
-  L^c_t + L^P_t\, \operatorname{Lip}(v_{t+1}).
+  L^c_t + L^P_t\, \operatorname{Lip}(v).
 $$
-Consequently,
-$$
-  \operatorname{Lip}(\BELLMAN^\star_t v_{t+1})
-  \le
-  L^c_t + L^P_t\, \operatorname{Lip}(v_{t+1}).
-$$
-If in addition $π_t$ is a constant decision rule (the same action in every state), then the same bound holds for $\BELLMAN^{π_t}_t v_{t+1}$.
 :::
 
 :::{.callout-note collapse="true"}
 #### Proof
 Fix $a$. For any $s,\tilde s$,
 \begin{align*}
-  \ABS{q_t(s,a)-q_t(\tilde s,a)}
+  \ABS{[\ENV_t v](s,a)-[\ENV_t v](\tilde s,a)}
   &\le
   \ABS{c_t(s,a)-c_t(\tilde s,a)}
   +
-  \ABS{\int v_{t+1}(s')\, P_t(ds' \mid s,a) - \int v_{t+1}(s')\, P_t(ds' \mid \tilde s,a)}
+  \ABS{\int v(s')\, P_t(ds' \mid s,a) - \int v(s')\, P_t(ds' \mid \tilde s,a)}
   \\
   &\le
   L^c_t\, d_{\ALPHABET S}(s,\tilde s)
   +
-  \operatorname{Lip}(v_{t+1})\,
+  \operatorname{Lip}(v)\,
   W_1\bigl(P_t(\cdot \mid s,a),\, P_t(\cdot \mid \tilde s,a)\bigr)
   \\
   &\le
-  \bigl( L^c_t + L^P_t\, \operatorname{Lip}(v_{t+1}) \bigr)
+  \bigl( L^c_t + L^P_t\, \operatorname{Lip}(v) \bigr)
   d_{\ALPHABET S}(s,\tilde s),
 \end{align*}
-where the second step uses @prp-kantorovich. Thus $q_t(\cdot,a)$ is Lipschitz with constant $L^c_t + L^P_t\, \operatorname{Lip}(v_{t+1})$. Since $\BELLMAN^\star_t v_{t+1} = \min_a q_t(\cdot,a)$, property 5 of $\operatorname{Lip}$ yields the same constant for $\BELLMAN^\star_t v_{t+1}$. The constant-action claim is immediate.
+where the second step uses @prp-kantorovich.
+:::
+
+:::{#lem-action-lipschitz}
+#### Lipschitz constants through the action selection operators
+
+Let $q \in \ALPHABET Q$ be such that $q(\cdot, a)$ is Lipschitz for every $a$, and write
+$$
+  L^q \coloneqq \sup_{a \in \ALPHABET A} \operatorname{Lip}\bigl(q(\cdot, a)\bigr).
+$$
+Then
+$$
+  \operatorname{Lip}(\ALPHABET T^\star q) \le L^q.
+$$
+If in addition $π$ is a constant decision rule (the same action in every state), then
+$$
+  \operatorname{Lip}(\ALPHABET T^π q) \le L^q.
+$$
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof
+Since $\ALPHABET T^\star q = \min_a q(\cdot, a)$, property 5 of $\operatorname{Lip}$ yields $\operatorname{Lip}(\ALPHABET T^\star q) \le \sup_a \operatorname{Lip}(q(\cdot,a)) = L^q$. If $π(s) ≡ a_0$, then $\ALPHABET T^π q = q(\cdot, a_0)$, so the same bound holds.
+:::
+
+:::{#lem-bellman-lipschitz}
+#### One-step Lipschitz bound
+
+Suppose \eqref{eq:lipschitz-model} holds at time $t$, and let $v_{t+1} \colon \ALPHABET S \to \reals$ be Lipschitz. Then
+$$
+  \operatorname{Lip}(\BELLMAN^\star_t v_{t+1})
+  \le
+  L^c_t + L^P_t\, \operatorname{Lip}(v_{t+1}).
+$$
+If in addition $π_t$ is a constant decision rule, then the same bound holds for $\BELLMAN^{π_t}_t v_{t+1}$.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof
+By @lem-model-lipschitz,
+$$
+  \sup_a \operatorname{Lip}\bigl([\ENV_t v_{t+1}](\cdot, a)\bigr)
+  \le
+  L^c_t + L^P_t\, \operatorname{Lip}(v_{t+1}).
+$$
+Since $\BELLMAN^\star_t v_{t+1} = \ALPHABET T^\star \ENV_t v_{t+1}$, @lem-action-lipschitz gives the claim. The constant-action case is $\BELLMAN^{π_t}_t = \ALPHABET T^{π_t} \circ \ENV_t$.
 :::
 
 :::{#thm-value-lipschitz-bound}

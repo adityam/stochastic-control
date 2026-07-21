@@ -36,13 +36,13 @@ We are interested in the following questions:
 
 ## Model approximation (Take 2)
 
-Let $\ALPHABET V$ and $\ALPHABET Q$ denote the space of value and action-value functions in model $\ALPHABET M$, respectively. Similarly, let $\hat {\ALPHABET V}$ and $\hat {\ALPHABET Q}$ denote the space of value and action-value functions in model $\widehat {\ALPHABET M}$. We will use $\MODEL_t \colon \ALPHABET V \to \ALPHABET Q$ and $\hat \MODEL_t \colon \hat {\ALPHABET V} \to \hat {\ALPHABET Q}$ to denote the model operators in model $\ALPHABET M$ and $\widehat {\ALPHABET M}$.
+Let $\ALPHABET V$ and $\ALPHABET Q$ denote the space of value and action-value functions in model $\ALPHABET M$, respectively. Similarly, let $\hat {\ALPHABET V}$ and $\hat {\ALPHABET Q}$ denote the space of value and action-value functions in model $\widehat {\ALPHABET M}$. We will use $\ENV_t \colon \ALPHABET V \to \ALPHABET Q$ and $\hat \ENV_t \colon \hat {\ALPHABET V} \to \hat {\ALPHABET Q}$ to denote the environment operators in model $\ALPHABET M$ and $\widehat {\ALPHABET M}$.
 
 ### Mismatch operator
 
 Since $\ALPHABET M$ and $\widehat {\ALPHABET M}$ are defined on different state spaces, we need to modify the definition of the mismatch operator. Define the **mismatch operator** $\hat \MISMATCH_t \colon \hat {\ALPHABET V} \to \ALPHABET Q$ as follows: for any $\hat v \in \hat {\ALPHABET V}$,
 $$
-  \hat \MISMATCH_t \hat v = \MODEL_t (\hat v \circ φ) - (\hat \MODEL_t \hat v) \circ φ,
+  \hat \MISMATCH_t \hat v = \ENV_t (\hat v \circ φ) - (\hat \ENV_t \hat v) \circ φ,
 $$
 where $(\hat q \circ φ)(s,a) \coloneqq \hat q(φ(s),a)$ for any $\hat q \in \hat {\ALPHABET Q}$.
 
@@ -51,7 +51,7 @@ Then, we have the following one-step estimate.
 :::{#lem-one-step-abstract}
 #### One step error propagation
 
-Given $v_{t+1} \in \ALPHABET V$ and $\hat v_{t+1} \in \hat {\ALPHABET V}$, define $q_t = \MODEL_t v_{t+1}$ and $\hat q_t = \hat \MODEL_t \hat v_{t+1}$. Then,
+Given $v_{t+1} \in \ALPHABET V$ and $\hat v_{t+1} \in \hat {\ALPHABET V}$, define $q_t = \ENV_t v_{t+1}$ and $\hat q_t = \hat \ENV_t \hat v_{t+1}$. Then,
 $$
   \NORM{q_{t} - \hat q_t \circ φ} \le \NORM{\hat \MISMATCH_t \hat v_{t+1}}
     + \NORM{v_{t+1} - \hat v_{t+1} \circ φ}
@@ -65,12 +65,12 @@ where $(\hat q_t \circ φ)(s,a) \coloneqq \hat q_t(φ(s),a)$.
 
 Consider
 \begin{align*}
-  \NORM{q_{t} - \hat q_t \circ φ} &= \NORM{\MODEL_t v_{t+1}  - (\hat \MODEL_t \hat v_{t+1}) \circ φ } \\
-  &\stackrel{(a)}\le \NORM{\MODEL_t (\hat v_{t+1} \circ φ) - (\hat \MODEL_t \hat v_{t+1}) \circ φ} 
-  + \NORM{\MODEL_t v_{t+1} - \MODEL_t (\hat v_{t+1} \circ φ) }  \\
+  \NORM{q_{t} - \hat q_t \circ φ} &= \NORM{\ENV_t v_{t+1}  - (\hat \ENV_t \hat v_{t+1}) \circ φ } \\
+  &\stackrel{(a)}\le \NORM{\ENV_t (\hat v_{t+1} \circ φ) - (\hat \ENV_t \hat v_{t+1}) \circ φ} 
+  + \NORM{\ENV_t v_{t+1} - \ENV_t (\hat v_{t+1} \circ φ) }  \\
   &\stackrel{(b)}\le \NORM{\hat \MISMATCH_t \hat v_{t+1}} + \NORM{v_{t+1} - \hat v_{t+1} \circ φ},
 \end{align*}
-where $(a)$ follows from the triangle inequality and $(b)$ uses the definition of $\hat \MISMATCH_t$ and the non-expansion of $\MODEL_t$ from @lem-non-expansion.
+where $(a)$ follows from the triangle inequality and $(b)$ uses the definition of $\hat \MISMATCH_t$ and the non-expansion of $\ENV_t$ from @lem-non-expansion.
 :::
 
 The mismatch operator can be used to bound the difference between evaluating a lifted policy in the true model and evaluating the corresponding policy in the approximate model.
@@ -118,8 +118,8 @@ $$
 $$
 Recall that
 $$
-  Q^{\hat π \circ φ}_t = \MODEL_t V^{\hat π \circ φ}_{t+1}, \quad
-  \hat Q^{\hat π}_t = \hat \MODEL_t \hat V^{\hat π}_{t+1},
+  Q^{\hat π \circ φ}_t = \ENV_t V^{\hat π \circ φ}_{t+1}, \quad
+  \hat Q^{\hat π}_t = \hat \ENV_t \hat V^{\hat π}_{t+1},
 $$
 and
 $$
@@ -203,8 +203,8 @@ $$
 $$
 Recall that
 $$
-  Q^\star_t = \MODEL_t V^\star_{t+1}, \quad
-  \hat Q^\star_t = \hat \MODEL_t \hat V^\star_{t+1},
+  Q^\star_t = \ENV_t V^\star_{t+1}, \quad
+  \hat Q^\star_t = \hat \ENV_t \hat V^\star_{t+1},
 $$
 and
 $$

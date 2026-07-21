@@ -10,9 +10,9 @@ In the previous lectures, we have obtained bounds on policy error, value error, 
 
 ### One step error propagation
 
-Recall that the **model operator** $\MODEL_t \colon \ALPHABET V \to \ALPHABET Q$ includes both the cost and the transition:
+Recall that the **environment operator** $\ENV_t \colon \ALPHABET V \to \ALPHABET Q$ includes both the cost and the transition:
 $$
-  [\MODEL_t v](s,a)
+  [\ENV_t v](s,a)
   = c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s' \mid s,a) v(s').
 $$
 Define the **dynamics operator** $\DYNAMICS_t \colon \ALPHABET V \to \ALPHABET Q$ to be the transition part alone:
@@ -20,13 +20,13 @@ $$
   [\DYNAMICS_t v](s,a) 
   = \sum_{s' \in \ALPHABET S} P_t(s' \mid s,a) v(s').
 $$
-Thus $\MODEL_t v = c_t + \DYNAMICS_t v$. As before, the mismatch is $\MISMATCH_t v = \MODEL_t v - \hat \MODEL_t v$.
+Thus $\ENV_t v = c_t + \DYNAMICS_t v$. As before, the mismatch is $\MISMATCH_t v = \ENV_t v - \hat \ENV_t v$.
 
 :::{#lem-model-diff}
 
 For any $v, \hat v \in \ALPHABET V$,
 $$
-  \MODEL_t v - \MODEL_t \hat v
+  \ENV_t v - \ENV_t \hat v
   = \DYNAMICS_t \bigl[ v - \hat v \bigr].
 $$
 :::
@@ -36,7 +36,7 @@ $$
 
 The cost terms cancel:
 \begin{align*}
-  \MODEL_t v - \MODEL_t \hat v
+  \ENV_t v - \ENV_t \hat v
   &= \bigl(c_t + \DYNAMICS_t v\bigr)
   - \bigl(c_t + \DYNAMICS_t \hat v\bigr)
   = \DYNAMICS_t v - \DYNAMICS_t \hat v
@@ -48,12 +48,12 @@ where the last step uses linearity of $\DYNAMICS_t$.
 :::{#lem-one-step-signed}
 #### One step error propagation
 
-Given $v_{t+1}, \hat v_{t+1} \in \ALPHABET V$, define $q_t = \MODEL_t v_{t+1}$ and $\hat q_t = \hat \MODEL_t \hat v_{t+1}$. Then
+Given $v_{t+1}, \hat v_{t+1} \in \ALPHABET V$, define $q_t = \ENV_t v_{t+1}$ and $\hat q_t = \hat \ENV_t \hat v_{t+1}$. Then
 $$
   q_t - \hat q_t
   = \MISMATCH_t \hat v_{t+1}
   + \bigl[
-    \MODEL_t v_{t+1} - \MODEL_t \hat v_{t+1}
+    \ENV_t v_{t+1} - \ENV_t \hat v_{t+1}
   \bigr]
   = \MISMATCH_t \hat v_{t+1}
   + \DYNAMICS_t \bigl[ v_{t+1} - \hat v_{t+1} \bigr].
@@ -66,18 +66,18 @@ $$
 Consider
 \begin{align*}
   q_t - \hat q_t
-  &= \MODEL_t v_{t+1} - \hat \MODEL_t \hat v_{t+1}
+  &= \ENV_t v_{t+1} - \hat \ENV_t \hat v_{t+1}
   \\
   &= \bigl[
-    \MODEL_t \hat v_{t+1} - \hat \MODEL_t \hat v_{t+1}
+    \ENV_t \hat v_{t+1} - \hat \ENV_t \hat v_{t+1}
   \bigr]
   + \bigl[
-    \MODEL_t v_{t+1} - \MODEL_t \hat v_{t+1}
+    \ENV_t v_{t+1} - \ENV_t \hat v_{t+1}
   \bigr]
   \\
   &= \MISMATCH_t \hat v_{t+1}
   + \bigl[
-    \MODEL_t v_{t+1} - \MODEL_t \hat v_{t+1}
+    \ENV_t v_{t+1} - \ENV_t \hat v_{t+1}
   \bigr]
   \\
   &= \MISMATCH_t \hat v_{t+1}
@@ -120,9 +120,9 @@ $$
 
 Recall that
 $$
-  Q^π_t = \MODEL_t V^π_{t+1},
+  Q^π_t = \ENV_t V^π_{t+1},
   \quad
-  \hat Q^π_t = \hat \MODEL_t \hat V^π_{t+1},
+  \hat Q^π_t = \hat \ENV_t \hat V^π_{t+1},
 $$
 and $V^π_t = \ALPHABET T^{π_t} Q^π_t$, $\hat V^π_t = \ALPHABET T^{π_t} \hat Q^π_t$. From @lem-one-step-signed with $v_{t+1} = V^π_{t+1}$ and $\hat v_{t+1} = \hat V^π_{t+1}$,
 $$
@@ -176,9 +176,9 @@ $$
 
 Recall that
 $$
-  Q^\star_t = \MODEL_t V^\star_{t+1},
+  Q^\star_t = \ENV_t V^\star_{t+1},
   \quad
-  \hat Q^\star_t = \hat \MODEL_t \hat V^\star_{t+1},
+  \hat Q^\star_t = \hat \ENV_t \hat V^\star_{t+1},
 $$
 and $V^\star_t = \ALPHABET T^\star Q^\star_t$, $\hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t$. From @lem-one-step-signed with $v_{t+1} = V^\star_{t+1}$ and $\hat v_{t+1} = \hat V^\star_{t+1}$,
 $$
@@ -415,14 +415,14 @@ The pointwise arguments carry over verbatim; the only change is that every compa
 Since the two models have different state spaces, we use the **mismatch operator** $\hat \MISMATCH_t \colon \hat {\ALPHABET V} \to \ALPHABET Q$ from the state-abstraction lecture: for $\hat v \in \hat {\ALPHABET V}$,
 $$
   \hat \MISMATCH_t \hat v
-  = \MODEL_t (\hat v \circ φ) - (\hat \MODEL_t \hat v) \circ φ.
+  = \ENV_t (\hat v \circ φ) - (\hat \ENV_t \hat v) \circ φ.
 $$
 The dynamics operator $\DYNAMICS_t \colon \ALPHABET V \to \ALPHABET Q$ is that of the true model, exactly as before.
 
 :::{#lem-one-step-signed-abstract}
 #### One step error propagation
 
-Given $v_{t+1} \in \ALPHABET V$ and $\hat v_{t+1} \in \hat {\ALPHABET V}$, define $q_t = \MODEL_t v_{t+1}$ and $\hat q_t = \hat \MODEL_t \hat v_{t+1}$. Then
+Given $v_{t+1} \in \ALPHABET V$ and $\hat v_{t+1} \in \hat {\ALPHABET V}$, define $q_t = \ENV_t v_{t+1}$ and $\hat q_t = \hat \ENV_t \hat v_{t+1}$. Then
 $$
   q_t - \hat q_t \circ φ
   = \hat \MISMATCH_t \hat v_{t+1}
@@ -433,14 +433,14 @@ $$
 :::{.callout-note collapse="false"}
 #### Proof
 
-Add and subtract $\MODEL_t(\hat v_{t+1} \circ φ)$:
+Add and subtract $\ENV_t(\hat v_{t+1} \circ φ)$:
 \begin{align*}
   q_t - \hat q_t \circ φ
   &= \bigl[
-    \MODEL_t(\hat v_{t+1} \circ φ) - (\hat \MODEL_t \hat v_{t+1}) \circ φ
+    \ENV_t(\hat v_{t+1} \circ φ) - (\hat \ENV_t \hat v_{t+1}) \circ φ
   \bigr]
   + \bigl[
-    \MODEL_t v_{t+1} - \MODEL_t(\hat v_{t+1} \circ φ)
+    \ENV_t v_{t+1} - \ENV_t(\hat v_{t+1} \circ φ)
   \bigr]
   \\
   &= \hat \MISMATCH_t \hat v_{t+1}
@@ -481,7 +481,7 @@ $$
 :::{.callout-note collapse="false"}
 #### Proof
 
-Recall that $Q^{\hat π \circ φ}_t = \MODEL_t V^{\hat π \circ φ}_{t+1}$ and $\hat Q^{\hat π}_t = \hat \MODEL_t \hat V^{\hat π}_{t+1}$. Applying @lem-one-step-signed-abstract with $v_{t+1} = V^{\hat π \circ φ}_{t+1}$ and $\hat v_{t+1} = \hat V^{\hat π}_{t+1}$,
+Recall that $Q^{\hat π \circ φ}_t = \ENV_t V^{\hat π \circ φ}_{t+1}$ and $\hat Q^{\hat π}_t = \hat \ENV_t \hat V^{\hat π}_{t+1}$. Applying @lem-one-step-signed-abstract with $v_{t+1} = V^{\hat π \circ φ}_{t+1}$ and $\hat v_{t+1} = \hat V^{\hat π}_{t+1}$,
 $$
   β^{\hat π}_t
   = Q^{\hat π \circ φ}_t - \hat Q^{\hat π}_t \circ φ

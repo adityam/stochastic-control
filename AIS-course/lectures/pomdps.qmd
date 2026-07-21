@@ -4,12 +4,357 @@ aliases:
   - lecture-07.html
 ---
 
-*Skeleton — to be developed.*
+## From perfect to imperfect observations
 
-## POMDP model
+Recall the general multi-stage model from the dynamic programming lecture. The system is driven by controlled inputs $A_t$ and primitive random variables $W_t$, and produces observations
+$$
+  Y_t = f_t(A_{1:t-1}, W_{0:t-1}), \quad t \ge 1,
+$$
+realized in the order
+$$
+  W_0 \;\to\; Y_1 \;\to\; A_1 \;\to\; W_1 \;\to\; Y_2 \;\to\; A_2 \;\to\; \cdots \;\to\; Y_T \;\to\; A_T \;\to\; W_T.
+$$
+There we assumed **perfect observations**: when choosing $A_t$, the agent had access not only to past observations and actions, but also to the primitive random variables realized so far. In that case the decision maker's information was
+$$
+  H_t = (Y_{1:t}, A_{1:t-1}, W_{0:t-1}),
+$$
+and a policy was a map $A_t = π_t(H_t)$.
 
-## History based dynamic programming
+We now drop the perfect observation assumption and assume that the primitive random variables $\{W_t\}_{t=0}^T$ are **not** observed. The only data available to the agent at time $t$ are the observations and actions taken so far. We continue to use $H_t$ to denote the history of the information available to the decision maker (but the value of $H_t$ is different from the perfect information case):
+\begin{equation}\label{eq:pomdp-history}
+  H_t = (Y_{1:t}, A_{1:t-1}).
+\end{equation}
+Thus $H_t$ means “information available to the agent when choosing $A_t$”. In this case, the history updates is
+$$
+  H_{t+1} = (H_t, A_t, Y_{t+1}),
+  \quad
+  Y_{t+1} = f_{t+1}(A_{1:t}, W_{0:t}),
+$$
+which we again write schematically as $H_{t+1} = F_t(H_t, A_t, W_t)$ when convenient, with the understanding that the agent does not observe $W_t$.
+
+A policy is still a sequence $π = (π_1,\dots,π_T)$ with
+$$
+  A_t = π_t(H_t),
+$$
+but now $π_t$ is a function of the history given by~\eqref{eq:pomdp-history}. As before, we assume that there is a terminal cost 
+$$
+  C(O_T), \quad \text{where } O_T = (H_T, A_T, W_T).
+$$
+The performance of a policy is still
+$$
+   J(π) = \EXP^π[ C(O_T) ].
+$$
+
+### Information sets
+
+To see what imperfect observations do to the decision tree, it helps to distinguish two objects.
+
+- A **trajectory** records everything that happened, including the unobserved primitive random variables: $(Y_{1:t}, A_{1:t-1}, W_{0:t-1})$, or equivalently the full path of primitive random variables and decisions up to time $t$.
+- The **history** $H_t$ is a **function** of that trajectory. Many trajectories can induce the same $H_t$.
+
+Fix a history $h_t$. The corresponding **information set** is the collection of all trajectories that produce $H_t = h_t$. On the extensive-form tree, this is a set of decision nodes that the agent cannot tell apart: every node in the set displays the same past observations and actions, and therefore must be assigned the **same** action. Equivalently, a policy $π_t$ is well-defined on information sets, not on individual trajectories.
+
+Under perfect observations (lecture 2), each information set was a singleton: knowing $W_{0:t-1}$ separated the trajectories completely. Under imperfect observations, information sets are typically larger, and the agent must optimize without knowing which trajectory inside the set is the true one.
+
+### Example: inventory with a latent demand
+
+Consider the @exm-inventory model from lecture 2, but let's assume that the distribution of the demand depends on a latent random variable $W_0 \in \{L, H\}$ that is not observed. In particular, the distribution of the demand is given by:
+$$
+  P(W_t = 5 \mid W_0 = L) = \tfrac34,
+  \quad
+  P(W_t = 5 \mid W_0 = H) = \tfrac14.
+$$
+The dynamics and action sets are as before: $S_1 = 0$, $A_t \in \{5,10\}$, and $S_{t+1} = S_t + A_t - W_t$. The agent observes the stock, so $Y_t = S_t$ and
+$$
+  H_t = (S_{1:t}, A_{1:t-1}),
+$$
+but does **not** observe $W_0$. Cost is incurred only at the end: each leaf of the tree carries a terminal cost $C$ that depends on the full outcome $(S_{1:3}, A_{1:2}, W_{1:2})$, as in lecture 2.
+
+The corresponding extensive-form tree is shown in @fig-inventory-latent-infosets.
+
+![Decision tree for two-period inventory with latent demand.
+An initial chance node draws $W_0\in\{L,H\}$, after which the two copies of the inventory tree are identical in structure but have different demand distributions (conditioned on $W_0$).
+Dashed rounded rectangles are information sets: one coarse set at $t=1$ linking the two roots, and four finer sets at $t=2$ linking vertical pairs with the same history $(A_1,S_2)$.
+Leaves carry a terminal cost $C$.](figures/svg/inventory-tree-latent-infosets.svg){#fig-inventory-latent-infosets}
+
+Each dashed rounded rectangle in the figure is an information set: the agent must play the **same** action at every decision node inside it.
+
+**Perfect recall and refinement.** The agent never forgets past observations or actions, so $H_t$ is nested in $H_{t+1}$ and the partition into information sets becomes **finer** over time.
+
+- At $t=1$, the only observation is $S_1 = 0$. There is a single information set: the two root decision nodes (one on each copy). The orange box in @fig-inventory-latent-infosets is that set. Any policy must choose the same $A_1$ on both copies.
+- At $t=2$, the history $H_2 = (S_1, A_1, S_2)$ splits that coarse set into several smaller ones, one for each distinct history $(A_1, S_2)$. The blue boxes in the figure are those sets: each still links a vertical pair across the two copies ($W_0$ still unknown), but different trajectories are now separated.
+
+Thus the information structure has **perfect recall**: later information sets refine earlier ones. Because $L$ and $H$ share the same demand support, the two copies remain mixed after $t=1$, so refinement is about longer histories, not suddenly learning $W_0$ with certainty.
+
+## History-based dynamic programming
+
+The history DP of lecture 2 still applies with $H_t$ as in \eqref{eq:pomdp-history}. We state it first for a **terminal cost** $C(O_T)$, matching the leaves in @fig-inventory-latent-infosets, and only then record the additive-cost specialization.
+
+### Terminal cost
+
+At the last stage, average the terminal cost over the trajectories consistent with the current information set (equivalently, over the posterior on which copy, and on any residual primitive random variables, given $H_T = h_T$):
+\begin{align}
+  Q^\star_T(h_T, a_T)
+  &=
+  \EXP\bigl[ C(O_T) \bigm| H_T = h_T,\, A_T = a_T \bigr],
+  \label{eq:pomdp-QT-history} \\
+  V^\star_T(h_T)
+  &=
+  \min_{a_T \in \ALPHABET A} Q^\star_T(h_T, a_T),
+  \label{eq:pomdp-VT-history} \\
+  π^\star_T(h_T)
+  &\in
+  \arg\min_{a_T \in \ALPHABET A} Q^\star_T(h_T, a_T).
+  \label{eq:pomdp-piT-history}
+\end{align}
+On @fig-inventory-latent-infosets, the conditioning $H_T = h_T$ means: restrict attention to the (dashed) information set labeled by $h_T$, and average across the linked nodes on the two copies with the correct posterior weights.
+
+For $t = T-1,\dots,1$, the same idea nests: choose $a_t$, then take the conditional expectation of the already-computed continuation value on the next history,
+\begin{align}
+  Q^\star_t(h_t, a_t)
+  &=
+  \EXP\bigl[
+    V^\star_{t+1}(H_{t+1})
+    \bigm| H_t = h_t,\, A_t = a_t
+  \bigr],
+  \label{eq:pomdp-Qt-history} \\
+  V^\star_t(h_t)
+  &=
+  \min_{a_t \in \ALPHABET A} Q^\star_t(h_t, a_t),
+  \label{eq:pomdp-Vt-history} \\
+  π^\star_t(h_t)
+  &\in
+  \arg\min_{a_t \in \ALPHABET A} Q^\star_t(h_t, a_t).
+  \label{eq:pomdp-pit-history}
+\end{align}
+Again the conditional law mixes the trajectories inside the information set of $h_t$. Policy evaluation replaces each min by the prescribed action: $V^π_t(h_t) = Q^π_t\bigl(h_t, π_t(h_t)\bigr)$, and $J(π) = \EXP\bigl[V^π_1(H_1)\bigr]$.
+
+:::{#thm-pomdp-history-dp}
+#### History-based optimality
+The policy $π^\star$ obtained from \eqref{eq:pomdp-QT-history}--\eqref{eq:pomdp-pit-history} is optimal: for every $π \in Π$ and every $h_t$,
+$$
+  V^{π^\star}_t(h_t) = V^\star_t(h_t) \le V^π_t(h_t).
+$$
+:::
+
+The proof is the same backward induction as in lecture 2 (the comparison principle): at each information set $h_t$, choosing an action that minimizes $Q^\star_t(h_t,\cdot)$ and then following an optimal continuation cannot be improved by any other history-based choice.
+
+This reduces the original functional optimization over policies to a nested sequence of parametric optimizations on histories. The difficulty is that the domain of $V^\star_t$ grows with $t$, and each conditional expectation mixes an information set. The recursion is correct but typically intractable. The remedy is the same idea that took us from histories to states in MDPs: find a statistic of $H_t$ that is rich enough for these conditional expectations, yet lives in a fixed space.
+
+### Additive per-step costs
+
+As in lecture 2, many models charge cost along the way,
+$$
+  C(O_T) = \sum_{t=1}^T c_t,
+$$
+where the instantaneous cost $c_t$ may depend on variables that are not in $H_t$ (for example the latent $W_0$, an unobserved state, or $W_t$). Initialize $V^\star_{T+1} \equiv 0$. For $t = T,\dots,1$,
+\begin{align}
+  Q^\star_t(h_t, a_t)
+  &=
+  \EXP\bigl[
+    c_t + V^\star_{t+1}(H_{t+1})
+    \bigm| H_t = h_t,\, A_t = a_t
+  \bigr],
+  \label{eq:pomdp-Qt-additive} \\
+  V^\star_t(h_t)
+  &=
+  \min_{a_t \in \ALPHABET A} Q^\star_t(h_t, a_t),
+  \\
+  π^\star_t(h_t)
+  &\in
+  \arg\min_{a_t \in \ALPHABET A} Q^\star_t(h_t, a_t).
+\end{align}
+Relative to the terminal-cost recursion, the only change is that $c_t$ is charged inside the same conditional expectation as the continuation. The optimality statement of @thm-pomdp-history-dp is unchanged.
 
 ## Information state
 
+:::{.callout-tip}
+#### Information state
+A stochastic process $\{Z_t\}_{t=1}^T$ with $Z_t \in \ALPHABET Z$ is an **information state** if $Z_t = φ_t(H_t)$ for measurable maps $φ_t$, and the following hold.
+
+**P1. Sufficient for performance evaluation.** For every $h_t$ and $a_t$,
+$$
+  \EXP\bigl[ c_t \bigm| H_t = h_t,\, A_t = a_t \bigr]
+  =
+  \EXP\bigl[ c_t \bigm| Z_t = φ_t(h_t),\, A_t = a_t \bigr].
+$$
+
+**P2. Sufficient to predict itself.** For every Borel set $B \subseteq \ALPHABET Z$,
+$$
+  \PR\bigl(Z_{t+1} \in B \bigm| H_t = h_t,\, A_t = a_t \bigr)
+  =
+  \PR\bigl(Z_{t+1} \in B \bigm| Z_t = φ_t(h_t),\, A_t = a_t \bigr).
+$$
+:::
+
+Property (P1) says that, for predicting the current cost, the information set may be summarized by $Z_t$. Property (P2) says the same for the law of the next summary. Together they imply that the conditional expectations in the history DP depend on $h_t$ only through $φ_t(h_t)$.
+
+In many models it is easier to check the following pair of conditions in place of (P2).
+
+:::{.callout-tip}
+#### Equivalent conditions for (P2)
+**P2a. State-like update.** There exist maps $ψ_t$ such that
+$$
+  Z_{t+1} = ψ_t(Z_t, A_t, Y_{t+1}).
+$$
+
+**P2b. Sufficient for the next observation.** For every Borel set $B \subseteq \ALPHABET Y$,
+$$
+  \PR\bigl(Y_{t+1} \in B \bigm| H_t = h_t,\, A_t = a_t \bigr)
+  =
+  \PR\bigl(Y_{t+1} \in B \bigm| Z_t = φ_t(h_t),\, A_t = a_t \bigr).
+$$
+:::
+
+:::{#prp-info-state-P2}
+#### (P2a) and (P2b) imply (P2)
+If $Z_t = φ_t(H_t)$ satisfies (P2a) and (P2b), then it satisfies (P2).
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof of @prp-info-state-P2
+For any Borel set $B \subseteq \ALPHABET Z$,
+\begin{align*}
+  \PR(Z_{t+1} \in B \mid H_t = h_t,\, A_t = a_t)
+  &=
+  \sum_{y} \IND\{ψ_t(φ_t(h_t), a_t, y) \in B\}
+  \,
+  \PR(Y_{t+1} = y \mid H_t = h_t,\, A_t = a_t)
+  \\
+  &=
+  \sum_{y} \IND\{ψ_t(φ_t(h_t), a_t, y) \in B\}
+  \,
+  \PR(Y_{t+1} = y \mid Z_t = φ_t(h_t),\, A_t = a_t)
+  \\
+  &=
+  \PR(Z_{t+1} \in B \mid Z_t = φ_t(h_t),\, A_t = a_t),
+\end{align*}
+where the first step uses (P2a), the second uses (P2b), and the third rewrites the same sum as a conditional probability on $Z$.
+:::
+
+An information state yields a dynamic program on $\ALPHABET Z$ rather than on histories.
+
+:::{#thm-info-state-dp}
+#### Information-state dynamic program
+Let $\{Z_t\}_{t=1}^T$ be an information state, with $Z_t = φ_t(H_t)$. Define $\hat V^\star_{T+1} \equiv 0$ and, for $t = T,\dots,1$,
+\begin{align}
+  \hat Q^\star_t(z_t, a_t)
+  &=
+  \EXP\bigl[
+    c_t + \hat V^\star_{t+1}(Z_{t+1})
+    \bigm| Z_t = z_t,\, A_t = a_t
+  \bigr],
+  \label{eq:pomdp-Qt-info} \\
+  \hat V^\star_t(z_t)
+  &=
+  \min_{a_t \in \ALPHABET A} \hat Q^\star_t(z_t, a_t).
+  \label{eq:pomdp-Vt-info}
+\end{align}
+Then for every history $h_t$ and action $a_t$,
+$$
+  Q^\star_t(h_t, a_t) = \hat Q^\star_t\bigl(φ_t(h_t), a_t\bigr),
+  \quad
+  V^\star_t(h_t) = \hat V^\star_t\bigl(φ_t(h_t)\bigr).
+$$
+Consequently, any policy of the form $π_t = \hat π_t \circ φ_t$ with
+$$
+  \hat π_t(z_t) \in \arg\min_{a_t} \hat Q^\star_t(z_t, a_t)
+$$
+is optimal for the original problem.
+:::
+
+:::{.callout-note collapse="true"}
+#### Proof of @thm-info-state-dp
+Proceed by backward induction. The claim is vacuous at time $T+1$. Assume $V^\star_{t+1}(h) = \hat V^\star_{t+1}(φ_{t+1}(h))$ for all $h$. Then
+\begin{align*}
+  Q^\star_t(h_t, a_t)
+  &=
+  \EXP\bigl[
+    c_t + V^\star_{t+1}(H_{t+1})
+    \bigm| H_t = h_t,\, A_t = a_t
+  \bigr]
+  \\
+  &=
+  \EXP\bigl[
+    c_t + \hat V^\star_{t+1}(Z_{t+1})
+    \bigm| H_t = h_t,\, A_t = a_t
+  \bigr]
+  \\
+  &=
+  \EXP\bigl[
+    c_t + \hat V^\star_{t+1}(Z_{t+1})
+    \bigm| Z_t = φ_t(h_t),\, A_t = a_t
+  \bigr]
+  \\
+  &=
+  \hat Q^\star_t\bigl(φ_t(h_t), a_t\bigr),
+\end{align*}
+where the second step is the induction hypothesis (and $Z_{t+1} = φ_{t+1}(H_{t+1})$), and the third step uses (P1) and (P2). Minimizing over $a_t$ gives the claim for $V^\star_t$.
+:::
+
+Thus an information state plays the role that the Markov state played in lecture 2: once $Z_t$ is known, the past history is irrelevant for optimal decisions. The next section records the standard partially observed state-space model and its most common information state, the belief.
+
 ## Examples
+
+### The standard POMDP model
+
+Specialize the general input–output system to a **hidden state** $S_t \in \ALPHABET S$. The primitive random variables are independent, the state evolves as
+$$
+  S_{t+1} = f_t(S_t, A_t, W_t),
+$$
+and the observation is a noisy function of the current state,
+$$
+  Y_t = \ell_t(S_t, N_t),
+$$
+with observation noise $N_t$ (also a primitive random variable). The agent still only sees $H_t = (Y_{1:t}, A_{1:t-1})$. The per-step cost is $c_t(S_t, A_t)$.
+
+### Belief state
+
+Define the **belief** $b_t \in Δ(\ALPHABET S)$ by
+$$
+  b_t(s) = \PR(S_t = s \mid H_t).
+$$
+Write $b_t[h_t]$ when the dependence on the history should be explicit.
+
+:::{#lem-belief-policy-independent}
+#### Beliefs do not depend on the policy
+The conditional law $b_t[h_t]$ is the same for every policy $π$ that is consistent with the realized actions in $h_t$.
+:::
+
+The proof is Bayes’ rule along the trajectory: indicators of the form $\IND\{A_τ = π_τ(H_τ)\}$ appear in both the numerator and the denominator and cancel, leaving a functional of $(y_{1:t}, a_{1:t-1})$ alone. See also @Witsenhausen1975 for the broader significance of this cancellation.
+
+:::{#lem-belief-update}
+#### Belief update
+There is a (policy-independent) map $ψ_t$ such that
+$$
+  b_{t+1} = ψ_t(b_t, A_t, Y_{t+1}).
+$$
+Explicitly, for finite $\ALPHABET S$,
+$$
+  b_{t+1}(s')
+  =
+  \frac{
+    \sum_{s} \PR(Y_{t+1} \mid s') \, \PR(s' \mid s, A_t) \, b_t(s)
+  }{
+    \sum_{s,s''} \PR(Y_{t+1} \mid s'') \, \PR(s'' \mid s, A_t) \, b_t(s)
+  }.
+$$
+:::
+
+:::{#exm-belief-info-state}
+#### Belief is an information state
+In the standard POMDP model, $Z_t = b_t$ is an information state. Indeed (P1) holds because
+$$
+  \EXP\bigl[c_t(S_t,a_t) \bigm| H_t = h_t\bigr]
+  =
+  \sum_{s} c_t(s,a_t)\, b_t[h_t](s),
+$$
+(P2a) is @lem-belief-update, and (P2b) holds because the predictive law of $Y_{t+1}$ given $(H_t,A_t)$ is the mixture of $\PR(Y_{t+1}\mid S_{t+1})$ under the one-step predictor built from $b_t$ and $A_t$.
+:::
+
+Two sanity checks:
+
+- The history $H_t$ is always an information state (take $φ_t$ to be the identity). The information-state DP then reduces to the history DP.
+- If $Y_t = S_t$ (perfect state observation), then $Z_t = S_t$ is an information state, and @thm-info-state-dp recovers the Markov DP of lecture 2.
+
+The belief DP is the standard computational route for POMDPs: one solves \eqref{eq:pomdp-Qt-info}--\eqref{eq:pomdp-Vt-info} on $Δ(\ALPHABET S)$. The state space is continuous even when $\ALPHABET S$ is finite, which is why approximation (the next lectures) is unavoidable in all but the smallest examples.

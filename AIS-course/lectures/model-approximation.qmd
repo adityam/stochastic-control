@@ -6,7 +6,7 @@ title: "Model approximation"
 
 Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T \rangle$. Suppose the components $\langle \ALPHABET S, \ALPHABET A, T \rangle$ are known exactly but the components $(P,c)$ are known approximately. Both $P = (P_1, \dots, P_T)$ and $c = (c_1, \dots, c_T)$ are assumed to be time varying. Consider the approximate MDP $\widehat {\ALPHABET M} = \langle \ALPHABET S, \ALPHABET A, \hat P, \hat c, T \rangle$. We will call $\ALPHABET M$ to be the **true model** and $\widehat {\ALPHABET M}$ to be the **approximate model**.
 
-Let $\{V^\star_t\}_{t=1}^T$ and $\{\hat V^\star_t\}_{t =1}^T$ denote the optimal value functions of the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. Moreover, let $π^\star = (π^\star_1, \dots, π^\star_T)$ and $\hat π^\star = (\hat π^\star_1, \dots, \hat π^\star_T)$ be optimal policies for the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. We will use $\MODEL_t$ and $\hat \MODEL_t$ to denote the model operators in model $\ALPHABET M$ and $\widehat {\ALPHABET M}$. 
+Let $\{V^\star_t\}_{t=1}^T$ and $\{\hat V^\star_t\}_{t =1}^T$ denote the optimal value functions of the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. Moreover, let $π^\star = (π^\star_1, \dots, π^\star_T)$ and $\hat π^\star = (\hat π^\star_1, \dots, \hat π^\star_T)$ be optimal policies for the true model $\ALPHABET M$ and the approximate model $\widehat {\ALPHABET M}$, respectively. We will use $\ENV_t$ and $\hat \ENV_t$ to denote the environment operators in model $\ALPHABET M$ and $\widehat {\ALPHABET M}$. 
 
 We are interested in the following questions:
 
@@ -18,69 +18,48 @@ We are interested in the following questions:
 
 In this lecture, we will characterize these bounds in terms of the sup-norm: for any function $v \in \ALPHABET V$, $\NORM{v}_{∞} = \sup_{s \in \ALPHABET S} \ABS{v(s)}$. [In the sequel, we use $\NORM{⋅}$ to denote $\NORM{⋅}_{∞}$]{.mark} Later, we will revisit this problem to get more nuanced bounds.
 
-## Operator theoretic notation redux
+## Operator notation (recall)
 
-Consider an MDP $\ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, T\rangle$. In the previous lecture, we had defined an operator theoretic notation to write dynamic programs. For the purpose of approximation, it is benefitial to explicitly keep track of the action-value functions. So, we use a more elaborate notation ([this is **not** a commonly used notation in the literature]{.mark}).
-
-- Define the operator $\MODEL_t \colon \ALPHABET V \to \ALPHABET Q$ as the **model operator**: for any $v \in \ALPHABET V$
-  $$
-      [\MODEL_t v](s,a) = c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s'|s,a) v(s').
-  $$
-
-- For any $π \in Π$, define the **Bellman target operator** $\ALPHABET T^π$ as follows: for any $q \in \ALPHABET Q$, 
-  $$
-      [\ALPHABET T^π q](s) = q(s, π(s))
-      \quad\text{or for stochastic $π$ }
-      [\ALPHABET T^π q](s) = \sum_{a \in \ALPHABET A} π(a | s)q(s, a).
-  $$
-
-- Define the **optimality Bellman target operator** $\ALPHABET T^\star$ as follows: for any $q \in \ALPHABET Q$, 
-  $$
-      [\ALPHABET T^\star q](s) = \min_{a \in \ALPHABET A} q(s, a).
-  $$
-
-- Define $\GREEDY \colon \ALPHABET Q \rightrightarrows Π$ as the **greedy policy**: given a $q \in \ALPHABET Q$, $π \in \GREEDY q$ means that $π(s) \in \arg\min_{a \in \ALPHABET A} q(s,a)$.
-
-Observe that
+In the previous lecture we factored the Bellman operators as
 $$
-   \BELLMAN^π_t = \ALPHABET T^π \circ \MODEL_t,
+   \BELLMAN^π_t = \ALPHABET T^π \circ \ENV_t,
     \quad \text{and}\quad
-   \BELLMAN^\star_t = \ALPHABET T^\star \circ \MODEL_t.
+   \BELLMAN^\star_t = \ALPHABET T^\star \circ \ENV_t,
 $$
+where $\ENV_t \colon \ALPHABET V \to \ALPHABET Q$ is the **environment operator**
+$$
+  [\ENV_t v](s,a) = c_t(s,a) + \sum_{s' \in \ALPHABET S} P_t(s'|s,a) v(s'),
+$$
+and $\ALPHABET T^π$, $\ALPHABET T^\star$ are the (model-independent) **action selection operators**
+$$
+  [\ALPHABET T^π q](s) = q(s, π(s)),
+  \qquad
+  [\ALPHABET T^\star q](s) = \min_{a \in \ALPHABET A} q(s, a),
+$$
+with the usual extension of $\ALPHABET T^π$ to randomized policies. We also write $π \in \GREEDY q$ when $π(s) \in \arg\min_a q(s,a)$.
 
-Then, we can write the more elaborate dynamic programming decomposition as:
+The corresponding dynamic programs are
 $$
-  V^\star_{T+1} = 0, \quad\text{and}\quad
-  Q^\star_t = \MODEL_t V^\star_{t+1}, 
-  \quad
-  V^\star_t = \ALPHABET T^\star Q^\star_t,
-  \quad \forall t \in \{T,\dots,1\}.
+  0 ≡ V^\star_{T+1} \xrightarrow{\ENV_T} Q^\star_T \xrightarrow{\ALPHABET T^\star} V^\star_T \xrightarrow{\ENV_{T-1}} Q^\star_{T-1} \cdots \xrightarrow{\ALPHABET T^\star} V^\star_1
 $$
-Or, pictorially:
-$$
-  0 ≡ V^\star_{T+1} \xrightarrow{\MODEL_T} Q^\star_T \xrightarrow{\ALPHABET T^\star} V^\star_T \xrightarrow{\MODEL_{T-1}} Q^\star_{T-1} \cdots \xrightarrow{\ALPHABET T^\star} V^\star_1.
-$$
-Moreover, a policy $π^\star = (π^\star_1, \dots, π^\star_T) \in Π$ is optimal if and only if $π^\star_t \in \GREEDY Q^\star_t$. An implication of this is that $\ALPHABET T^\star Q^\star_{t} = \ALPHABET T^{π^\star} Q^\star_t$. 
+and likewise $V^π_{T+1} \xrightarrow{\ENV} Q^π \xrightarrow{\ALPHABET T^π} V^π \cdots$ for policy evaluation. A policy $π^\star$ is optimal if and only if $π^\star_t \in \GREEDY Q^\star_t$ for all $t$.
 
-Similarly, for a policy $π ∈ Π$, the policy evaluation dynamic program can be written as:
-$$
-  0 ≡ V^π_{T+1} \xrightarrow{\MODEL_T} Q^π_T \xrightarrow{\ALPHABET T^π} V^π_T \xrightarrow{\MODEL_{T-1}} Q^π_{T-1} \cdots \xrightarrow{\ALPHABET T^π} V^π_1.
-$$
+The point of the split for this lecture is that $\ENV_t$ depends on the model $(P_t,c_t)$, while $\ALPHABET T^π$ and $\ALPHABET T^\star$ do not. Model approximation perturbs only the environment operators: we write $\hat \ENV_t$ for the approximate model $\widehat{\ALPHABET M}$.
 
-The advantage of this notation is that the model operator $\MODEL_t$ depends on the model; the target operators $\ALPHABET T^π$ and $\ALPHABET T^\star$ do not depend on the model. This makes it easy for us to describe model approximation.
+### Non-expansion in the sup-norm
 
-### Key property of the operators
+In addition to the span and Lipschitz properties derived in the previous lecture, the same operators are non-expansions in the sup-norm. This is the basic contraction property we need for approximation error bounds.
 
 :::{#lem-non-expansion}
 #### Non-expansion properties
 
-The operators $\MODEL_t$, $\hat \MODEL_t$, $\ALPHABET T^π$, and $\ALPHABET T^\star$ are non-expansions in the sup-norm. In particular:
+The operators $\ENV_t$, $\hat \ENV_t$, $\ALPHABET T^π$, and $\ALPHABET T^\star$ are non-expansions in the sup-norm. In particular:
 
 1. For any $v, \hat v \in \ALPHABET V$,
    $$
-     \NORM{\MODEL_t v - \MODEL_t \hat v} \le \NORM{v - \hat v}.
+     \NORM{\ENV_t v - \ENV_t \hat v} \le \NORM{v - \hat v}.
    $$
-   The same bound holds with $\MODEL_t$ replaced by $\hat \MODEL_t$.
+   The same bound holds with $\ENV_t$ replaced by $\hat \ENV_t$.
 
 2. For any $q, \hat q \in \ALPHABET Q$ and any (possibly randomized) policy $π$,
    $$
@@ -98,7 +77,7 @@ The operators $\MODEL_t$, $\hat \MODEL_t$, $\ALPHABET T^π$, and $\ALPHABET T^\s
 
 1. For any $(s,a) \in \ALPHABET S \times \ALPHABET A$,
    $$
-     \ABS{[\MODEL_t v](s,a) - [\MODEL_t \hat v](s,a)}
+     \ABS{[\ENV_t v](s,a) - [\ENV_t \hat v](s,a)}
      =
      \ABS{\sum_{s' \in \ALPHABET S} P_t(s'|s,a)[v(s') - \hat v(s')]}
      \le
@@ -130,7 +109,7 @@ The operators $\MODEL_t$, $\hat \MODEL_t$, $\ALPHABET T^π$, and $\ALPHABET T^\s
    where $(a)$ uses that $a^\star$ minimizes $q(s,⋅)$. Reversing the roles of $q$ and $\hat q$ yields $[\ALPHABET T^\star \hat q](s) - [\ALPHABET T^\star q](s) \le \NORM{q-\hat q}$. Taking the supremum over $s$ completes the proof.
 :::
 
-The previous notation separates the model-dependent part of dynamic programming from the policy/optimization part. We now use this separation to study what happens when the model-dependent part is perturbed.
+We now use this separation to study what happens when the model-dependent part is perturbed.
 
 ## Model approximation (Take 1)
 
@@ -138,7 +117,7 @@ The previous notation separates the model-dependent part of dynamic programming 
 
 - Define the **mismatch operator** $\MISMATCH_t \colon \ALPHABET V \to \ALPHABET Q$ as follows: for any $v \in \ALPHABET V$,
   $$
-      \MISMATCH_t v = \MODEL_t v - \hat \MODEL_t v
+      \MISMATCH_t v = \ENV_t v - \hat \ENV_t v
   $$
 
 Then, we have the following one-step estimate.
@@ -146,7 +125,7 @@ Then, we have the following one-step estimate.
 :::{#lem-one-step}
 #### One step error propagation
 
-Given $v_{t+1}, \hat v_{t+1} \in \ALPHABET V$, define $q_t = \MODEL_t v_{t+1}$ and $\hat q_t = \hat \MODEL_t \hat v_{t+1}$. Then,
+Given $v_{t+1}, \hat v_{t+1} \in \ALPHABET V$, define $q_t = \ENV_t v_{t+1}$ and $\hat q_t = \hat \ENV_t \hat v_{t+1}$. Then,
 $$
   \NORM{q_{t} - \hat q_t} \le \min\bigl\{
     \NORM{\MISMATCH_t v_{t+1}}, \NORM{\MISMATCH_t \hat v_{t+1}}
@@ -161,21 +140,21 @@ $$
 
 Consider
 \begin{align*}
-  \NORM{q_{t} - \hat q_t} &= \NORM{\MODEL_t v_{t+1} - \hat \MODEL_t \hat v_{t+1} } \\
-  &\stackrel{(a)}\le \NORM{\MODEL_t v_{t+1} - \hat \MODEL_t v_{t+1} } 
-  + \NORM{\hat \MODEL_t v_{t+1} - \hat \MODEL_t \hat v_{t+1} }  \\
+  \NORM{q_{t} - \hat q_t} &= \NORM{\ENV_t v_{t+1} - \hat \ENV_t \hat v_{t+1} } \\
+  &\stackrel{(a)}\le \NORM{\ENV_t v_{t+1} - \hat \ENV_t v_{t+1} } 
+  + \NORM{\hat \ENV_t v_{t+1} - \hat \ENV_t \hat v_{t+1} }  \\
   &\stackrel{(b)}\le \NORM{\MISMATCH_t v_{t+1}} + \NORM{v_{t+1} - \hat v_{t+1}},
 \end{align*}
-where $(a)$ follows from the triangle inequality and $(b)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\hat \MODEL_t$ from @lem-non-expansion.
+where $(a)$ follows from the triangle inequality and $(b)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\hat \ENV_t$ from @lem-non-expansion.
 
 The second inequality follows by reversing the roles of $v_{t+1}$ and $\hat v_{t+1}$:
 \begin{align*}
-  \NORM{q_{t} - \hat q_t} &= \NORM{\MODEL_t v_{t+1} - \hat \MODEL_t \hat v_{t+1} } \\
-  &\stackrel{(c)}\le \NORM{\MODEL_t \hat v_{t+1} - \hat \MODEL_t \hat v_{t+1} } 
-  + \NORM{\MODEL_t v_{t+1} - \MODEL_t \hat v_{t+1} }  \\
+  \NORM{q_{t} - \hat q_t} &= \NORM{\ENV_t v_{t+1} - \hat \ENV_t \hat v_{t+1} } \\
+  &\stackrel{(c)}\le \NORM{\ENV_t \hat v_{t+1} - \hat \ENV_t \hat v_{t+1} } 
+  + \NORM{\ENV_t v_{t+1} - \ENV_t \hat v_{t+1} }  \\
   &\stackrel{(d)}\le \NORM{\MISMATCH_t \hat v_{t+1}} + \NORM{v_{t+1} - \hat v_{t+1}},
 \end{align*}
-where $(c)$ follows from the triangle inequality and $(d)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\MODEL_t$ from @lem-non-expansion.
+where $(c)$ follows from the triangle inequality and $(d)$ uses the definition of $\MISMATCH_t$ and the non-expansion of $\ENV_t$ from @lem-non-expansion.
 :::
 
 The mismatch operator can be used to bound the difference between evaluating a fixed policy in the true and approximate models.
@@ -226,8 +205,8 @@ $$
 $$
 Recall that
 $$
-  Q^π_t = \MODEL_t V^π_{t+1}, \quad
-  \hat Q^π_t = \hat \MODEL_t \hat V^π_{t+1},
+  Q^π_t = \ENV_t V^π_{t+1}, \quad
+  \hat Q^π_t = \hat \ENV_t \hat V^π_{t+1},
 $$
 and $V^π_t = \ALPHABET T^{π_t} Q^π_t$, $\hat V^π_t = \ALPHABET T^{π_t} \hat Q^π_t$. From the one-step lemma we get:
 $$
@@ -300,8 +279,8 @@ $$
 $$
 Recall that
 $$
-  Q^\star_t = \MODEL_t V^\star_{t+1}, \quad
-  \hat Q^\star_t = \hat \MODEL_t \hat V^\star_{t+1},
+  Q^\star_t = \ENV_t V^\star_{t+1}, \quad
+  \hat Q^\star_t = \hat \ENV_t \hat V^\star_{t+1},
 $$
 and $V^\star_t = \ALPHABET T^\star Q^\star_t$, $\hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t$. From the one-step lemma we get:
 $$
@@ -377,7 +356,7 @@ where $β^\star_t$, $β^{\hat π^\star}_t$, $Δ^\star_t$, and $Δ^{\hat π^\star
 :::{.callout-note collapse="false"}
 #### Proof
 
-The inequality $α_t \le β_t$ follows from non-expansion of the Bellman target operators: for every $s$,
+The inequality $α_t \le β_t$ follows from non-expansion of the action selection operators: for every $s$,
 \begin{align*}
   V^\star_t(s) - V^{\hat π^\star}_t(s)
   &=
@@ -507,17 +486,17 @@ Moreover, since $\hat V^\star = \hat V^{\hat π^\star}$,
 \begin{align*}
   \NORM{V^{\hat π^\star}_t - \hat V^\star_t}
   &=
-  \NORM{\ALPHABET T^{\hat π^\star} \MODEL_t V^{\hat π^\star}_{t+1}
-    - \ALPHABET T^{\hat π^\star} \hat \MODEL_t \hat V^\star_{t+1}}
+  \NORM{\ALPHABET T^{\hat π^\star} \ENV_t V^{\hat π^\star}_{t+1}
+    - \ALPHABET T^{\hat π^\star} \hat \ENV_t \hat V^\star_{t+1}}
   \\
   &\le
-  \NORM{\MODEL_t V^{\hat π^\star}_{t+1}
-    - \hat \MODEL_t \hat V^\star_{t+1}}
+  \NORM{\ENV_t V^{\hat π^\star}_{t+1}
+    - \hat \ENV_t \hat V^\star_{t+1}}
   \\
   &\le
-  \NORM{\MODEL_t V^{\hat π^\star}_{t+1} - \MODEL_t V^\star_{t+1}}
-  + \NORM{\MODEL_t V^\star_{t+1} - \hat \MODEL_t V^\star_{t+1}}
-  + \NORM{\hat \MODEL_t V^\star_{t+1} - \hat \MODEL_t \hat V^\star_{t+1}}
+  \NORM{\ENV_t V^{\hat π^\star}_{t+1} - \ENV_t V^\star_{t+1}}
+  + \NORM{\ENV_t V^\star_{t+1} - \hat \ENV_t V^\star_{t+1}}
+  + \NORM{\hat \ENV_t V^\star_{t+1} - \hat \ENV_t \hat V^\star_{t+1}}
   \\
   &\le
   α_{t+1}
@@ -867,7 +846,7 @@ Note that the bound of @thm-model-error-hat-V-star does not accumulate a horizon
 
 It is interesting to compare @thm-model-error-V-star with a standard policy-loss bound for acting greedily in the **true** model. Instead of using $\hat π^\star$, suppose we use a policy $μ = (μ_1, \dots, μ_T)$ with
 $$
-  μ_t \in \GREEDY \MODEL_t \hat V^\star_{t+1},
+  μ_t \in \GREEDY \ENV_t \hat V^\star_{t+1},
   \quad t \in \{1,\dots,T\},
 $$
 i.e., the greedy policy in $\ALPHABET M$ with respect to $\hat V^\star$. A standard policy-loss argument gives
