@@ -12,33 +12,35 @@ execute:
 
 Stochastic control is the study of sequential decision-making under uncertainty. Because these problems span various applications, their foundational theory has been developed across multiple disciplines, including systems and control, operations research, economics, and artificial intelligence. Consequently, the literature often uses different terminology and notation. While classical theory focuses on exploiting structural simplifications when the system model is perfectly known, a vast literature addresses the computational challenges of complex systems under the headings of approximate dynamic programming and reinforcement learning. In this course, we focus on model approximation, a specific subclass of these methods, with a core emphasis on deriving rigorous theoretical guarantees.
 
-We begin by peeling back the "sequential" layer to focus on the single-stage (or static) decision problem: how to choose an action to minimize an expected cost that depends on a random outcome. We will address three fundamental questions:
+We start with the single-stage (or static) decision problem: how to choose an action to minimize an expected cost that depends on a random outcome. We will address three questions:
 
 1. How should a decision maker act when the outcome is uncertain?
 2. How should a decision maker use partial observations before acting?
 3. Which observations can be safely ignored without loss of optimality?
 
-The answers we develop here, namely *certainty equivalence*, the *interim view*, and *Blackwell's principle of irrelevant information*, are the core building blocks that we will reuse throughout the course when we treat MDPs and POMDPs.
+The answers, namely *certainty equivalence*, the *interim view*, and *Blackwell's principle of irrelevant information*, will be reused later when we treat MDPs and POMDPs.
 
 ## Stochastic optimization
 
-Let us start with the simplest optimization problem. A decision maker has to choose an action $a \in \ALPHABET A$, and incurs a cost $c(a)$ that depends only on that action:
+Let's start with the simplest optimization problem. A decision maker has to choose an action $a \in \ALPHABET A$. Upon choosing the action $a$, the decision maker incurs a cost $c(a)$. What action should the decision maker pick to minimize the cost?
+
+Formally, the above optimization problem may be written as
 \begin{equation} \label{eq:det} \tag{P-Det}
   \min_{a \in \ALPHABET A} c(a).
 \end{equation}
-When $\ALPHABET A$ is finite, we can (in principle) enumerate the values $c(a)$ and pick the smallest.  When $\ALPHABET A$ is continuous, the problem is tractable only under regularity conditions (e.g., convexity of $c$).
+When $\ALPHABET A$ is finite, we can (in principle) enumerate the values $c(a)$ and pick the smallest. When $\ALPHABET A$ is continuous, the problem is tractable only under regularity conditions (e.g., convexity of $c$).
 
-Now suppose that the cost also depends on some **random variable** $W \in \ALPHABET W$, whose distribution is known to the decision maker.  The decision maker chooses $a$ *before* $W$ is observed, incurs a cost $c(a,W)$, and is assumed to be **risk-neutral** so that they minimize the expected cost:
+Now suppose that the cost also depends on some **random variable** $W \in \ALPHABET W$, whose distribution is known to the decision maker. The decision maker chooses $a$ *before* $W$ is observed, incurs a cost $c(a,W)$, and is assumed to be **risk-neutral** so that they minimize the expected cost:
 \begin{equation} \label{eq:soc} \tag{P-Stoc}
   \min_{a \in \ALPHABET A} \EXP\bigl[ c(a, W) \bigr].
 \end{equation}
 
-Define $Q(a) = \EXP[c(a,W)]$. Then problem \eqref{eq:soc} is *conceptually* the same as \eqref{eq:det}: it is still a minimization over $a$ of a deterministic function $Q$.  The computational difficulty is that evaluating $Q(a)$ now requires computing an expectation.
+Define $Q(a) = \EXP[c(a,W)]$. Then problem \eqref{eq:soc} is *conceptually* the same as \eqref{eq:det}: it is still a minimization over $a$ of a deterministic function $Q$. The computational difficulty is that evaluating $Q(a)$ now requires computing an expectation.
 
 :::{.callout-tip}
 #### Cost vs.\ reward
 
-In some settings it is more natural to maximize a reward $r(a,W)$ instead of minimizing a cost.  The two formulations are equivalent (put $c = -r$), so we pick whichever is more natural in the given context.
+In some settings it is more natural to maximize a reward $r(a,W)$ instead of minimizing a cost. The two formulations are equivalent (put $c = -r$), so we pick whichever is more natural in the given context.
 :::
 
 We begin with some examples to illustrate how to solve \eqref{eq:soc}, depending on how the cost function is structured.
@@ -245,11 +247,6 @@ This is the **parametric approach**: it assumes a distributional form for the de
 
 If the exponential assumption is correct, both approaches converge to the same limit, and for small samples the parametric approach is typically more efficient. If the assumption is wrong, the parametric approach can perform poorly, so the non-parametric approach is more robust.
 
-:::{.callout-important}
-#### A theme of the course
-
-Certainty equivalence is the simplest instance of **model approximation**: we assume that demand comes from some distribution that we do not know, so we build a parametric or non-parametric model and use that model as a proxy for reality. In later lectures we will study *how well* such approximations perform, both in single-stage problems and in fully sequential problems.
-:::
 
 ## Example: reliability of an MPSoC
 
