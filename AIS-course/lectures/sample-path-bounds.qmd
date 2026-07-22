@@ -99,20 +99,15 @@ $$
   β^π_t(s,a)
   \coloneqq Q^π_t(s,a) - \hat Q^π_t(s,a),
 $$
-with the convention $α^π_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$ and all $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+with the convention $α^π_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$,
 \begin{align*}
   β^π_t
-  &= Δ^π_t
+  &= \MISMATCH_t \hat V^π_{t+1}
   + \DYNAMICS_t α^π_{t+1},
   \\
-  α^π_t(s)
-  &= β^π_t\bigl(s, π_t(s)\bigr),
+  α^π_t
+  &= \ALPHABET T^{π_t} β^π_t.
 \end{align*}
-where
-$$
-  Δ^π_t
-  \coloneqq \MISMATCH_t \hat V^π_{t+1}.
-$$
 :::
 
 :::{.callout-note collapse="false"}
@@ -128,14 +123,14 @@ and $V^π_t = \ALPHABET T^{π_t} Q^π_t$, $\hat V^π_t = \ALPHABET T^{π_t} \hat
 $$
   β^π_t
   = Q^π_t - \hat Q^π_t
-  = Δ^π_t + \DYNAMICS_t α^π_{t+1}.
+  = \MISMATCH_t \hat V^π_{t+1} + \DYNAMICS_t α^π_{t+1}.
 $$
-Evaluating at $a = π_t(s)$ and using that $π_t$ is deterministic,
+Since $\ALPHABET T^{π_t}$ is linear,
 $$
-  α^π_t(s)
-  = V^π_t(s) - \hat V^π_t(s)
-  = Q^π_t\bigl(s, π_t(s)\bigr) - \hat Q^π_t\bigl(s, π_t(s)\bigr)
-  = β^π_t\bigl(s, π_t(s)\bigr).
+  α^π_t
+  = V^π_t - \hat V^π_t
+  = \ALPHABET T^{π_t} Q^π_t - \ALPHABET T^{π_t} \hat Q^π_t
+  = \ALPHABET T^{π_t} β^π_t.
 $$
 :::
 
@@ -154,21 +149,16 @@ $$
   β^\star_t(s,a)
   \coloneqq Q^\star_t(s,a) - \hat Q^\star_t(s,a),
 $$
-with the convention $α^\star_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$ and all $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+with the convention $α^\star_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$,
 \begin{align*}
   β^\star_t
-  &= Δ^\star_t
+  &= \MISMATCH_t \hat V^\star_{t+1}
   + \DYNAMICS_t α^\star_{t+1},
   \\
-  β^\star_t\bigl(s, π^\star_t(s)\bigr)
-  &\le α^\star_t(s)
-  \le β^\star_t\bigl(s, \hat π^\star_t(s)\bigr),
+  \ALPHABET T^{π^\star_t} β^\star_t
+  &\le α^\star_t
+  \le \ALPHABET T^{\hat π^\star_t} β^\star_t.
 \end{align*}
-where
-$$
-  Δ^\star_t
-  \coloneqq \MISMATCH_t \hat V^\star_{t+1}.
-$$
 :::
 
 :::{.callout-note collapse="false"}
@@ -184,26 +174,25 @@ and $V^\star_t = \ALPHABET T^\star Q^\star_t$, $\hat V^\star_t = \ALPHABET T^\st
 $$
   β^\star_t
   = Q^\star_t - \hat Q^\star_t
-  = Δ^\star_t + \DYNAMICS_t α^\star_{t+1}.
+  = \MISMATCH_t \hat V^\star_{t+1} + \DYNAMICS_t α^\star_{t+1}.
 $$
 
 The sandwich for $α^\star_t$ uses the two optimality properties, one at a time.
 
-*Upper bound.* By optimality of $\hat π^\star_t$ on the approximate side, $\hat V^\star_t(s) = \hat Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)$, while on the true side $V^\star_t(s) = \inf_{a} Q^\star_t(s,a) \le Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)$. Therefore
+*Upper bound.* By optimality of $\hat π^\star_t$ on the approximate side, $\hat V^\star_t = \ALPHABET T^{\hat π^\star_t} \hat Q^\star_t$, while on the true side $V^\star_t = \ALPHABET T^\star Q^\star_t \le \ALPHABET T^{\hat π^\star_t} Q^\star_t$. Therefore
 $$
-  α^\star_t(s) = V^\star_t(s) - \hat V^\star_t(s)
-  \le Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)
-  - \hat Q^\star_t\bigl(s, \hat π^\star_t(s)\bigr)
-  = β^\star_t\bigl(s, \hat π^\star_t(s)\bigr).
+  α^\star_t
+  = V^\star_t - \hat V^\star_t
+  \le \ALPHABET T^{\hat π^\star_t} Q^\star_t - \ALPHABET T^{\hat π^\star_t} \hat Q^\star_t
+  = \ALPHABET T^{\hat π^\star_t} β^\star_t.
 $$
 
-*Lower bound.* By optimality of $π^\star_t$ on the true side, $V^\star_t(s) = Q^\star_t\bigl(s, π^\star_t(s)\bigr)$, while on the approximate side $\hat V^\star_t(s) = \inf_{a} \hat Q^\star_t(s,a) \le \hat Q^\star_t\bigl(s, π^\star_t(s)\bigr)$. Therefore
+*Lower bound.* By optimality of $π^\star_t$ on the true side, $V^\star_t = \ALPHABET T^{π^\star_t} Q^\star_t$, while on the approximate side $\hat V^\star_t = \ALPHABET T^\star \hat Q^\star_t \le \ALPHABET T^{π^\star_t} \hat Q^\star_t$. Therefore
 $$
-  α^\star_t(s)
-  = V^\star_t(s) - \hat V^\star_t(s)
-  \ge Q^\star_t\bigl(s, π^\star_t(s)\bigr)
-  - \hat Q^\star_t\bigl(s, π^\star_t(s)\bigr)
-  = β^\star_t\bigl(s, π^\star_t(s)\bigr).
+  α^\star_t
+  = V^\star_t - \hat V^\star_t
+  \ge \ALPHABET T^{π^\star_t} Q^\star_t - \ALPHABET T^{π^\star_t} \hat Q^\star_t
+  = \ALPHABET T^{π^\star_t} β^\star_t.
 $$
 :::
 
@@ -224,30 +213,30 @@ So, we can take an upper bound on the first term and a lower bound on the second
 
 Suppose that for each $t \in \{1,\dots,T\}$ there exist functions $α^+_t, α^-_t \colon \ALPHABET S \to \reals$ and $β^+_t, β^-_t \colon \ALPHABET S \times \ALPHABET A \to \reals$ such that
 $$
-  β^-_T(s,a) \le Δ^\star_T(s,a) \le β^+_T(s,a),
+  β^-_T \le \MISMATCH_T \hat V^\star_{T+1} \le β^+_T,
 $$
 and for $t < T$,
 \begin{align*}
-  β^-_t(s,a)
-  &\le Δ^\star_t(s,a)
-  + \sum_{s'} α^-_{t+1}(s') P_t(s' \mid s,a),
+  β^-_t
+  &\le \MISMATCH_t \hat V^\star_{t+1}
+  + \DYNAMICS_t α^-_{t+1},
   \\
-  α^-_t(s)
-  &\le β^-_t\bigl(s, π^\star_t(s)\bigr),
+  α^-_t
+  &\le \ALPHABET T^{π^\star_t} β^-_t,
 \end{align*}
-and 
+and
 \begin{align*}
-  β^+_t(s,a)
-  &\ge Δ^\star_t(s,a)
-  + \sum_{s'} α^+_{t+1}(s') P_t(s' \mid s,a),
+  β^+_t
+  &\ge \MISMATCH_t \hat V^\star_{t+1}
+  + \DYNAMICS_t α^+_{t+1},
   \\
-  α^+_t(s)
-  &\ge β^+_t\bigl(s, \hat π^\star_t(s)\bigr),
+  α^+_t
+  &\ge \ALPHABET T^{\hat π^\star_t} β^+_t.
 \end{align*}
-where $Δ^\star_t$ is as in @prp-value-error-signed. Then, for all $t$ and $s$,
+Then, for all $t$,
 $$
-  V^{\hat π^\star}_t(s) - V^\star_t(s)
-  \le α^+_t(s) - α^-_t(s).
+  V^{\hat π^\star}_t - V^\star_t
+  \le α^+_t - α^-_t.
 $$
 :::
 
@@ -256,29 +245,31 @@ $$
 
 The recursions for the upper bound and the lower bound are similar to the recursions for exact policy and value errors in @prp-policy-error-signed (specialized to $\hat π^\star$) and @prp-value-error-signed, with equalities replaced by inequalities. Therefore, a backward induction argument shows that $α^+_t$ is an upper bound on $α^{\hat π^\star}_t = V^{\hat π^\star}_t - \hat V^\star_t$ and $α^-_t$ is a lower bound on $α^\star_t = V^\star_t - \hat V^\star_t$. Combining the two inequalities then gives
 $$
-  V^{\hat π^\star}_t(s) - V^\star_t(s)
-  = α^{\hat π^\star}_t(s) - α^\star_t(s)
-  \le α^+_t(s) - α^-_t(s).
+  V^{\hat π^\star}_t - V^\star_t
+  = α^{\hat π^\star}_t - α^\star_t
+  \le α^+_t - α^-_t.
 $$
 :::
 
 A concrete construction that uses the best upper bound and relaxes the lower bound (so that we don't need the knowledge of $π^\star$) is
 \begin{align*}
-  α^+_t(s)
-  &= Δ^\star_t\bigl(s, \hat π^\star_t(s)\bigr)
-  + \sum_{s'} α^+_{t+1}(s') P_t\bigl(s' \mid s, \hat π^\star_t(s)\bigr),
+  α^+_t
+  &= \ALPHABET T^{\hat π^\star_t}\bigl(
+    \MISMATCH_t \hat V^\star_{t+1}
+    + \DYNAMICS_t α^+_{t+1}
+  \bigr),
   \\
   α^-_t(s)
   &= \min_{a \in \ALPHABET C_t(s)}
   \Bigl[
-    Δ^\star_t(s,a)
-    + \sum_{s'} α^-_{t+1}(s') P_t(s' \mid s,a)
-  \Bigr],
+    \MISMATCH_t \hat V^\star_{t+1}
+    + \DYNAMICS_t α^-_{t+1}
+  \Bigr](s,a),
 \end{align*}
-where $\ALPHABET C_t(s) \subseteq \ALPHABET A$ is any set guaranteed to contain $π^\star_t(s)$ (for example $\ALPHABET C_t(s) = \ALPHABET A$, or a structural candidate set that does not require computing $π^\star$ explicitly). @thm-signed-sample-path then guarantees
+where $\ALPHABET C_t(s) \subseteq \ALPHABET A$ is any set guaranteed to contain $π^\star_t(s)$ (for example $\ALPHABET C_t(s) = \ALPHABET A$, in which case $α^-_t = \ALPHABET T^\star\bigl(\MISMATCH_t \hat V^\star_{t+1} + \DYNAMICS_t α^-_{t+1}\bigr)$, or a structural candidate set that does not require computing $π^\star$ explicitly). @thm-signed-sample-path then guarantees
 $$
-  V^{\hat π^\star}_t(s) - V^\star_t(s)
-  \le α^+_t(s) - α^-_t(s).
+  V^{\hat π^\star}_t - V^\star_t
+  \le α^+_t - α^-_t.
 $$
 
 ### Symmetric bounds
@@ -290,26 +281,26 @@ The above bound requires separately keeping track of an upper and lower bound. W
 
 Suppose that for each $t \in \{1,\dots,T\}$ there exist functions $α^{\mathrm{abs}}_t \colon \ALPHABET S \to \reals_{\ge 0}$ and $β^{\mathrm{abs}}_t \colon \ALPHABET S \times \ALPHABET A \to \reals_{\ge 0}$ such that
 $$
-  β^{\mathrm{abs}}_T(s,a) \ge \ABS{Δ^\star_T(s,a)},
+  β^{\mathrm{abs}}_T \ge \ABS{\MISMATCH_T \hat V^\star_{T+1}},
 $$
 and for $t < T$,
 $$
-  β^{\mathrm{abs}}_t(s,a)
-  \ge \ABS{Δ^\star_t(s,a)}
-  + \sum_{s' \in \ALPHABET S} α^{\mathrm{abs}}_{t+1}(s') P_t(s' \mid s,a),
+  β^{\mathrm{abs}}_t
+  \ge \ABS{\MISMATCH_t \hat V^\star_{t+1}}
+  + \DYNAMICS_t α^{\mathrm{abs}}_{t+1},
 $$
 and for all $t$,
 $$
-  α^{\mathrm{abs}}_t(s)
+  α^{\mathrm{abs}}_t
   \ge \max\Bigl\{
-    β^{\mathrm{abs}}_t\bigl(s, π^\star_t(s)\bigr),\;
-    β^{\mathrm{abs}}_t\bigl(s, \hat π^\star_t(s)\bigr)
+    \ALPHABET T^{π^\star_t} β^{\mathrm{abs}}_t,\;
+    \ALPHABET T^{\hat π^\star_t} β^{\mathrm{abs}}_t
   \Bigr\},
 $$
-where $Δ^\star_t$ is as in @prp-value-error-signed. Then the policy $\hat π^\star$ satisfies, for all $t$ and $s$,
+where absolute values of $Q$-functions are pointwise. Then the policy $\hat π^\star$ satisfies, for all $t$,
 $$
-  \ABS{V^{\hat π^\star}_t(s) - V^\star_t(s)}
-  \le 2 α^{\mathrm{abs}}_t(s).
+  \ABS{V^{\hat π^\star}_t - V^\star_t}
+  \le 2 α^{\mathrm{abs}}_t.
 $$
 :::
 
@@ -328,21 +319,21 @@ $$
 $$
 These satisfy the hypotheses of @thm-signed-sample-path, so
 $$
-  V^{\hat π^\star}_t(s) - V^\star_t(s)
-  \le α^+_t(s) - α^-_t(s)
-  = 2 α^{\mathrm{abs}}_t(s).
+  V^{\hat π^\star}_t - V^\star_t
+  \le α^+_t - α^-_t
+  = 2 α^{\mathrm{abs}}_t.
 $$
-For the matching lower side, optimality of $V^\star$ yields $V^{\hat π^\star}_t(s) - V^\star_t(s) \ge 0 \ge -2 α^{\mathrm{abs}}_t(s)$ because $α^{\mathrm{abs}}_t \ge 0$. Combining the two inequalities gives the claim.
+For the matching lower side, optimality of $V^\star$ yields $V^{\hat π^\star}_t - V^\star_t \ge 0 \ge -2 α^{\mathrm{abs}}_t$ because $α^{\mathrm{abs}}_t \ge 0$. Combining the two inequalities gives the claim.
 :::
 
 A feasible (but state-independent) choice is
 $$
-  α^{\mathrm{abs}}_t(s)
+  α^{\mathrm{abs}}_t
   \equiv \sum_{\tau=t}^{T} \NORM{\MISMATCH_\tau \hat V^\star_{\tau+1}},
   \qquad
-  β^{\mathrm{abs}}_t(s,a)
+  β^{\mathrm{abs}}_t
   \equiv \NORM{\MISMATCH_t \hat V^\star_{t+1}}
-  + \sum_{s'} α^{\mathrm{abs}}_{t+1}(s') P_t(s' \mid s,a).
+  + \DYNAMICS_t α^{\mathrm{abs}}_{t+1}.
 $$
 For this choice, @thm-abs-sample-path recovers the factor-of-two model-approximation bound from the model-approximation lecture:
 $$
@@ -352,57 +343,58 @@ $$
 
 ## Computing the bounds
 
-One difficulty in applying @thm-signed-sample-path is that the upper and lower bound recursions propagate with the true kernel $P_t$. Moreover, computing the mismatch $Δ^\star_t = \MISMATCH_t \hat V^\star_{t+1}$ requires the true model.
+One difficulty in applying @thm-signed-sample-path is that the upper and lower bound recursions propagate with the true dynamics $\DYNAMICS_t$. Moreover, computing the mismatch $\MISMATCH_t \hat V^\star_{t+1}$ requires the true model.
 
-In applications where $P_t$ is unknown or inconvenient to evaluate, we can obtain coarser bounds that use only the approximate model, at the price of an additional IPM penalty.
+In applications where $P_t$ is unknown or inconvenient to evaluate, we can obtain coarser bounds that use only the approximate model, at the price of an additional IPM penalty. Write $\hat \DYNAMICS_t$ for the dynamics operator of $\widehat{\ALPHABET M}$, so $[\hat \DYNAMICS_t v](s,a) = \sum_{s'} \hat P_t(s'\mid s,a)\, v(s')$.
 
-Let $\def\F{\mathfrak{F}}\F$ be a (maximal) generator as in the model-approximation lecture, with IPM $d_{\F}$ and Minkowski functional $ρ_{\F}$. Suppose we have bounds on the per-step cost difference
+Let $\def\F{\mathfrak{F}}\F$ be a (maximal) generator as in the model-approximation lecture, with IPM $d_{\F}$ and Minkowski functional $ρ_{\F}$. Suppose we are given $ε^{+}_t, ε^{-}_t \in \ALPHABET Q$ with
 $$
-  ε^{-}_t(s,a) \le c_t(s,a) - \hat c_t(s,a) \le ε^{+}_t(s,a).
+  ε^{-}_t \le c_t - \hat c_t \le ε^{+}_t,
 $$
-Define
+and define $δ_t \in \ALPHABET Q$ by
 $$
   δ_t(s,a)
   \coloneqq d_{\F}\bigl(P_t(\cdot \mid s,a), \hat P_t(\cdot \mid s,a)\bigr).
 $$
-The defining IPM inequality then yields, for any $v \colon \ALPHABET S \to \reals$,
+(Here and below, products such as $δ_t\, ρ_{\F}(v)$ are pointwise.) The defining IPM inequality then yields, for any $v \colon \ALPHABET S \to \reals$,
 $$
-  \ABS{
-    \sum_{s'} v(s') P_t(s' \mid s,a)
-    - \sum_{s'} v(s') \hat P_t(s' \mid s,a)
-  }
-  \le δ_t(s,a)\, ρ_{\F}(v).
+  \ABS{\DYNAMICS_t v - \hat \DYNAMICS_t v}
+  \le δ_t\, ρ_{\F}(v),
 $$
-Equivalently,
+or equivalently
 $$
-  \sum_{s'} v(s') \hat P_t(s' \mid s,a) - δ_t(s,a)\, ρ_{\F}(v)
-  \le
-  \sum_{s'} v(s') P_t(s' \mid s,a)
-  \le \sum_{s'} v(s') \hat P_t(s' \mid s,a)
-  + δ_t(s,a)\, ρ_{\F}(v).
+  \hat \DYNAMICS_t v - δ_t\, ρ_{\F}(v)
+  \le \DYNAMICS_t v
+  \le \hat \DYNAMICS_t v + δ_t\, ρ_{\F}(v).
 $$
-Applying this to $v = \hat V^\star_{t+1}$ and using the definition of $\MISMATCH_t$ also bounds the one-step mismatch:
+Applying this to $v = \hat V^\star_{t+1}$ and using $\MISMATCH_t \hat V^\star_{t+1} = (c_t - \hat c_t) + (\DYNAMICS_t - \hat \DYNAMICS_t)\hat V^\star_{t+1}$ also bounds the one-step mismatch:
 $$
-  ε^{-}_t(s,a) - δ_t(s,a)\, ρ_{\F}(\hat V^\star_{t+1})
-  \le Δ^\star_t(s,a)
-  \le ε^{+}_t(s,a) + δ_t(s,a)\, ρ_{\F}(\hat V^\star_{t+1}).
+  ε^{-}_t - δ_t\, ρ_{\F}(\hat V^\star_{t+1})
+  \le \MISMATCH_t \hat V^\star_{t+1}
+  \le ε^{+}_t + δ_t\, ρ_{\F}(\hat V^\star_{t+1}).
 $$
 
-Thus both the mismatch and any average with respect to the true dynamics can be replaced by approximate-model quantities plus or minus an IPM correction. In particular, the lower recursion of @thm-signed-sample-path is implied by
-$$
-  β^-_t(s,a)
-  \le ε^{-}_t(s,a) - δ_t(s,a)\, ρ_{\F}(\hat V^\star_{t+1})
-  + \sum_{s'} α^-_{t+1}(s') \hat P_t(s' \mid s,a)
-  - δ_t(s,a)\, ρ_{\F}(α^-_{t+1}),
-$$
-and the upper recursion is implied by
-$$
-  β^+_t(s,a)
-  \ge ε^{+}_t(s,a) + δ_t(s,a)\, ρ_{\F}(\hat V^\star_{t+1})
-  + \sum_{s'} α^+_{t+1}(s') \hat P_t(s' \mid s,a)
-  + δ_t(s,a)\, ρ_{\F}(α^+_{t+1}).
-$$
-The resulting bounds are typically looser than those built from $P_t$, but they are computable from the approximate model together with model error $(ε_t,δ_t)$.
+Thus both the mismatch and the true dynamics can be replaced by approximate-model operators plus or minus an IPM correction. In particular, the recursions of @thm-signed-sample-path are implied by
+\begin{align*}
+  β^-_t
+  &\le ε^{-}_t - δ_t\, ρ_{\F}(\hat V^\star_{t+1})
+  + \hat \DYNAMICS_t α^-_{t+1}
+  - δ_t\, ρ_{\F}(α^-_{t+1}),
+  \\
+  α^-_t
+  &\le \ALPHABET T^{π^\star_t} β^-_t,
+\end{align*}
+and
+\begin{align*}
+  β^+_t
+  &\ge ε^{+}_t + δ_t\, ρ_{\F}(\hat V^\star_{t+1})
+  + \hat \DYNAMICS_t α^+_{t+1}
+  + δ_t\, ρ_{\F}(α^+_{t+1}),
+  \\
+  α^+_t
+  &\ge \ALPHABET T^{\hat π^\star_t} β^+_t.
+\end{align*}
+The resulting bounds are typically looser than those built from $\DYNAMICS_t$, but they are computable from the approximate model together with model error $(ε^\pm_t,δ_t)$.
 
 ## Model approximation with state abstraction (Take 4)
 
@@ -462,20 +454,15 @@ $$
   β^{\hat π}_t(s,a)
   \coloneqq Q^{\hat π \circ φ}_t(s,a) - \hat Q^{\hat π}_t(φ(s),a),
 $$
-with the convention $α^{\hat π}_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$ and all $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+with the convention $α^{\hat π}_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$,
 \begin{align*}
   β^{\hat π}_t
-  &= Δ^{\hat π}_t
+  &= \hat \MISMATCH_t \hat V^{\hat π}_{t+1}
   + \DYNAMICS_t α^{\hat π}_{t+1},
   \\
-  α^{\hat π}_t(s)
-  &= β^{\hat π}_t\bigl(s, \hat π_t(φ(s))\bigr),
+  α^{\hat π}_t
+  &= \ALPHABET T^{\hat π_t \circ φ} β^{\hat π}_t.
 \end{align*}
-where
-$$
-  Δ^{\hat π}_t
-  \coloneqq \hat \MISMATCH_t \hat V^{\hat π}_{t+1}.
-$$
 :::
 
 :::{.callout-note collapse="false"}
@@ -485,9 +472,14 @@ Recall that $Q^{\hat π \circ φ}_t = \ENV_t V^{\hat π \circ φ}_{t+1}$ and $\h
 $$
   β^{\hat π}_t
   = Q^{\hat π \circ φ}_t - \hat Q^{\hat π}_t \circ φ
-  = Δ^{\hat π}_t + \DYNAMICS_t α^{\hat π}_{t+1}.
+  = \hat \MISMATCH_t \hat V^{\hat π}_{t+1} + \DYNAMICS_t α^{\hat π}_{t+1}.
 $$
-Since the lifted policy takes action $\hat π_t(φ(s))$ at state $s$, evaluating at $a = \hat π_t(φ(s))$ gives $V^{\hat π \circ φ}_t(s) = Q^{\hat π \circ φ}_t\bigl(s, \hat π_t(φ(s))\bigr)$ and $\hat V^{\hat π}_t(φ(s)) = \hat Q^{\hat π}_t\bigl(φ(s), \hat π_t(φ(s))\bigr)$, so $α^{\hat π}_t(s) = β^{\hat π}_t\bigl(s, \hat π_t(φ(s))\bigr)$.
+Since $V^{\hat π \circ φ}_t = \ALPHABET T^{\hat π_t \circ φ} Q^{\hat π \circ φ}_t$ and $\hat V^{\hat π}_t \circ φ = \ALPHABET T^{\hat π_t \circ φ}(\hat Q^{\hat π}_t \circ φ)$, linearity of $\ALPHABET T^{\hat π_t \circ φ}$ gives
+$$
+  α^{\hat π}_t
+  = V^{\hat π \circ φ}_t - \hat V^{\hat π}_t \circ φ
+  = \ALPHABET T^{\hat π_t \circ φ} β^{\hat π}_t.
+$$
 :::
 
 ### Value error
@@ -503,31 +495,36 @@ $$
   β^\star_t(s,a)
   \coloneqq Q^\star_t(s,a) - \hat Q^\star_t(φ(s),a),
 $$
-with the convention $α^\star_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$ and all $(s,a) \in \ALPHABET S \times \ALPHABET A$,
+with the convention $α^\star_{T+1} ≡ 0$. Then, for any $t \in \{1,\dots,T\}$,
 \begin{align*}
   β^\star_t
-  &= Δ^\star_t
+  &= \hat \MISMATCH_t \hat V^\star_{t+1}
   + \DYNAMICS_t α^\star_{t+1},
   \\
-  β^\star_t\bigl(s, π^\star_t(s)\bigr)
-  &\le α^\star_t(s)
-  \le β^\star_t\bigl(s, \hat π^\star_t(φ(s))\bigr),
+  \ALPHABET T^{π^\star_t} β^\star_t
+  &\le α^\star_t
+  \le \ALPHABET T^{\hat π^\star_t \circ φ} β^\star_t.
 \end{align*}
-where
-$$
-  Δ^\star_t
-  \coloneqq \hat \MISMATCH_t \hat V^\star_{t+1}.
-$$
 :::
 
 :::{.callout-note collapse="false"}
 #### Proof
 
-Applying @lem-one-step-signed-abstract with $v_{t+1} = V^\star_{t+1}$ and $\hat v_{t+1} = \hat V^\star_{t+1}$ gives $β^\star_t = Δ^\star_t + \DYNAMICS_t α^\star_{t+1}$. For the sandwich we use the two optimality properties, one at a time.
+Applying @lem-one-step-signed-abstract with $v_{t+1} = V^\star_{t+1}$ and $\hat v_{t+1} = \hat V^\star_{t+1}$ gives $β^\star_t = \hat \MISMATCH_t \hat V^\star_{t+1} + \DYNAMICS_t α^\star_{t+1}$. For the sandwich we use the two optimality properties, one at a time.
 
-*Upper bound.* By optimality of $\hat π^\star_t$ on the approximate side, $\hat V^\star_t(φ(s)) = \hat Q^\star_t\bigl(φ(s), \hat π^\star_t(φ(s))\bigr)$, while on the true side $V^\star_t(s) = \inf_a Q^\star_t(s,a) \le Q^\star_t\bigl(s, \hat π^\star_t(φ(s))\bigr)$. Therefore $α^\star_t(s) \le β^\star_t\bigl(s, \hat π^\star_t(φ(s))\bigr)$.
+*Upper bound.* By optimality of $\hat π^\star_t$ on the approximate side, $\hat V^\star_t \circ φ = \ALPHABET T^{\hat π^\star_t \circ φ}(\hat Q^\star_t \circ φ)$, while on the true side $V^\star_t = \ALPHABET T^\star Q^\star_t \le \ALPHABET T^{\hat π^\star_t \circ φ} Q^\star_t$. Therefore
+$$
+  α^\star_t
+  = V^\star_t - \hat V^\star_t \circ φ
+  \le \ALPHABET T^{\hat π^\star_t \circ φ} β^\star_t.
+$$
 
-*Lower bound.* By optimality of $π^\star_t$ on the true side, $V^\star_t(s) = Q^\star_t\bigl(s, π^\star_t(s)\bigr)$, while on the approximate side $\hat V^\star_t(φ(s)) = \inf_a \hat Q^\star_t(φ(s),a) \le \hat Q^\star_t\bigl(φ(s), π^\star_t(s)\bigr)$. Therefore $α^\star_t(s) \ge β^\star_t\bigl(s, π^\star_t(s)\bigr)$.
+*Lower bound.* By optimality of $π^\star_t$ on the true side, $V^\star_t = \ALPHABET T^{π^\star_t} Q^\star_t$, while on the approximate side $\hat V^\star_t \circ φ = \ALPHABET T^\star(\hat Q^\star_t \circ φ) \le \ALPHABET T^{π^\star_t}(\hat Q^\star_t \circ φ)$. Therefore
+$$
+  α^\star_t
+  = V^\star_t - \hat V^\star_t \circ φ
+  \ge \ALPHABET T^{π^\star_t} β^\star_t.
+$$
 :::
 
 ### Model approximation bounds
@@ -535,8 +532,8 @@ Applying @lem-one-step-signed-abstract with $v_{t+1} = V^\star_{t+1}$ and $\hat 
 As in the MDP case, optimality of $V^\star$ gives $V^{\hat π^\star \circ φ}_t \ge V^\star_t$, and since $\hat V^{\hat π^\star} = \hat V^\star$ (so $\hat V^{\hat π^\star}_t \circ φ = \hat V^\star_t \circ φ$),
 $$
   0
-  \le V^{\hat π^\star \circ φ}_t(s) - V^\star_t(s)
-  = α^{\hat π^\star}_t(s) - α^\star_t(s).
+  \le V^{\hat π^\star \circ φ}_t - V^\star_t
+  = α^{\hat π^\star}_t - α^\star_t.
 $$
 As before, we bound the right-hand side by finding $(α^+, β^+)$ and $(α^-, β^-)$ that obey the same recursions with inequalities instead of equalities.
 
@@ -545,30 +542,30 @@ As before, we bound the right-hand side by finding $(α^+, β^+)$ and $(α^-, β
 
 Suppose that for each $t \in \{1,\dots,T\}$ there exist functions $α^+_t, α^-_t \colon \ALPHABET S \to \reals$ and $β^+_t, β^-_t \colon \ALPHABET S \times \ALPHABET A \to \reals$ such that
 $$
-  β^-_T(s,a) \le Δ^\star_T(s,a) \le β^+_T(s,a),
+  β^-_T \le \hat \MISMATCH_T \hat V^\star_{T+1} \le β^+_T,
 $$
 and for $t < T$,
 \begin{align*}
-  β^-_t(s,a)
-  &\le Δ^\star_t(s,a)
-  + \sum_{s'} α^-_{t+1}(s') P_t(s' \mid s,a),
+  β^-_t
+  &\le \hat \MISMATCH_t \hat V^\star_{t+1}
+  + \DYNAMICS_t α^-_{t+1},
   \\
-  α^-_t(s)
-  &\le β^-_t\bigl(s, π^\star_t(s)\bigr),
+  α^-_t
+  &\le \ALPHABET T^{π^\star_t} β^-_t,
 \end{align*}
 and
 \begin{align*}
-  β^+_t(s,a)
-  &\ge Δ^\star_t(s,a)
-  + \sum_{s'} α^+_{t+1}(s') P_t(s' \mid s,a),
+  β^+_t
+  &\ge \hat \MISMATCH_t \hat V^\star_{t+1}
+  + \DYNAMICS_t α^+_{t+1},
   \\
-  α^+_t(s)
-  &\ge β^+_t\bigl(s, \hat π^\star_t(φ(s))\bigr),
+  α^+_t
+  &\ge \ALPHABET T^{\hat π^\star_t \circ φ} β^+_t.
 \end{align*}
-where $Δ^\star_t$ is as in @prp-value-error-signed-abstract. Then, for all $t$ and $s$,
+Then, for all $t$,
 $$
-  V^{\hat π^\star \circ φ}_t(s) - V^\star_t(s)
-  \le α^+_t(s) - α^-_t(s).
+  V^{\hat π^\star \circ φ}_t - V^\star_t
+  \le α^+_t - α^-_t.
 $$
 :::
 
@@ -577,26 +574,28 @@ $$
 
 As in @thm-signed-sample-path, a backward induction with @prp-policy-error-signed-abstract (for $\hat π^\star$) and @prp-value-error-signed-abstract shows that $α^+_t$ upper-bounds $α^{\hat π^\star}_t$ and $α^-_t$ lower-bounds $α^\star_t$. Combining the two,
 $$
-  V^{\hat π^\star \circ φ}_t(s) - V^\star_t(s)
-  = α^{\hat π^\star}_t(s) - α^\star_t(s)
-  \le α^+_t(s) - α^-_t(s).
+  V^{\hat π^\star \circ φ}_t - V^\star_t
+  = α^{\hat π^\star}_t - α^\star_t
+  \le α^+_t - α^-_t.
 $$
 :::
 
 A concrete construction that uses the best upper bound and relaxes the lower bound (so that we don't need the knowledge of $π^\star$) is
 \begin{align*}
-  α^+_t(s)
-  &= Δ^\star_t\bigl(s, \hat π^\star_t(φ(s))\bigr)
-  + \sum_{s'} α^+_{t+1}(s') P_t\bigl(s' \mid s, \hat π^\star_t(φ(s))\bigr),
+  α^+_t
+  &= \ALPHABET T^{\hat π^\star_t \circ φ}\bigl(
+    \hat \MISMATCH_t \hat V^\star_{t+1}
+    + \DYNAMICS_t α^+_{t+1}
+  \bigr),
   \\
   α^-_t(s)
   &= \min_{a \in \ALPHABET C_t(s)}
   \Bigl[
-    Δ^\star_t(s,a)
-    + \sum_{s'} α^-_{t+1}(s') P_t(s' \mid s,a)
-  \Bigr],
+    \hat \MISMATCH_t \hat V^\star_{t+1}
+    + \DYNAMICS_t α^-_{t+1}
+  \Bigr](s,a),
 \end{align*}
-where $\ALPHABET C_t(s) \subseteq \ALPHABET A$ is any set guaranteed to contain $π^\star_t(s)$.
+where $\ALPHABET C_t(s) \subseteq \ALPHABET A$ is any set guaranteed to contain $π^\star_t(s)$ (for example $\ALPHABET C_t(s) = \ALPHABET A$, in which case $α^-_t = \ALPHABET T^\star\bigl(\hat \MISMATCH_t \hat V^\star_{t+1} + \DYNAMICS_t α^-_{t+1}\bigr)$).
 
 ### Symmetric bounds
 
@@ -607,94 +606,96 @@ Taking absolute values gives a symmetric bound, exactly as in @thm-abs-sample-pa
 
 Suppose that for each $t \in \{1,\dots,T\}$ there exist functions $α^{\mathrm{abs}}_t \colon \ALPHABET S \to \reals_{\ge 0}$ and $β^{\mathrm{abs}}_t \colon \ALPHABET S \times \ALPHABET A \to \reals_{\ge 0}$ such that
 $$
-  β^{\mathrm{abs}}_T(s,a) \ge \ABS{Δ^\star_T(s,a)},
+  β^{\mathrm{abs}}_T \ge \ABS{\hat \MISMATCH_T \hat V^\star_{T+1}},
 $$
 and for $t < T$,
 $$
-  β^{\mathrm{abs}}_t(s,a)
-  \ge \ABS{Δ^\star_t(s,a)}
-  + \sum_{s' \in \ALPHABET S} α^{\mathrm{abs}}_{t+1}(s') P_t(s' \mid s,a),
+  β^{\mathrm{abs}}_t
+  \ge \ABS{\hat \MISMATCH_t \hat V^\star_{t+1}}
+  + \DYNAMICS_t α^{\mathrm{abs}}_{t+1},
 $$
 and for all $t$,
 $$
-  α^{\mathrm{abs}}_t(s)
+  α^{\mathrm{abs}}_t
   \ge \max\Bigl\{
-    β^{\mathrm{abs}}_t\bigl(s, π^\star_t(s)\bigr),\;
-    β^{\mathrm{abs}}_t\bigl(s, \hat π^\star_t(φ(s))\bigr)
+    \ALPHABET T^{π^\star_t} β^{\mathrm{abs}}_t,\;
+    \ALPHABET T^{\hat π^\star_t \circ φ} β^{\mathrm{abs}}_t
   \Bigr\},
 $$
-where $Δ^\star_t$ is as in @prp-value-error-signed-abstract. Then the lifted policy $\hat π^\star \circ φ$ satisfies, for all $t$ and $s$,
+where absolute values of $Q$-functions are pointwise. Then the lifted policy $\hat π^\star \circ φ$ satisfies, for all $t$,
 $$
-  \ABS{V^{\hat π^\star \circ φ}_t(s) - V^\star_t(s)}
-  \le 2 α^{\mathrm{abs}}_t(s).
+  \ABS{V^{\hat π^\star \circ φ}_t - V^\star_t}
+  \le 2 α^{\mathrm{abs}}_t.
 $$
 :::
 
 The proof is identical to that of @thm-abs-sample-path, with $\hat π^\star_t$ replaced by $\hat π^\star_t \circ φ$. As before, the state-independent choice
 $$
-  α^{\mathrm{abs}}_t(s)
+  α^{\mathrm{abs}}_t
   \equiv \sum_{\tau=t}^{T} \NORM{\hat \MISMATCH_\tau \hat V^\star_{\tau+1}}
 $$
 recovers the factor-of-two model-approximation bound of the state-abstraction lecture.
 
 ### Computing the bounds
 
-As before, the bound of @thm-signed-sample-path-abstract is not directly computable: the recursions use the true kernel $P_t$, and the mismatch $Δ^\star_t = \hat \MISMATCH_t \hat V^\star_{t+1}$ depends on the true model. We obtain coarser bounds that live entirely on $\hat {\ALPHABET S}$.
+As before, the bound of @thm-signed-sample-path-abstract is not directly computable: the recursions use the true dynamics $\DYNAMICS_t$, and the mismatch $\hat \MISMATCH_t \hat V^\star_{t+1}$ depends on the true model. We obtain coarser bounds that live entirely on $\hat {\ALPHABET S}$. Write $\hat \DYNAMICS_t \colon \hat {\ALPHABET V} \to \hat {\ALPHABET Q}$ for the dynamics of $\widehat{\ALPHABET M}$.
 
 Let $\F$ be as above, and write $P_{φ,t}$ for the pushed-forward kernel
 $$
   P_{φ,t}(\hat s' \mid s,a)
   \coloneqq P_t\bigl(φ^{-1}(\hat s') \mid s,a\bigr).
 $$
-
-Suppose we are given $\hat {\ALPHABET S}$-measurable cost bounds $\hat ε^{+}_t, \hat ε^{-}_t \in \hat {\ALPHABET Q}$ such that for all $(s,a)$,
+Suppose we are given $\hat {\ALPHABET S}$-measurable cost bounds $\hat ε^{+}_t, \hat ε^{-}_t \in \hat {\ALPHABET Q}$ with
 $$
-  \hat ε^{-}_t\bigl(φ(s),a\bigr)
-  \le c_t(s,a) - \hat c_t\bigl(φ(s),a\bigr)
-  \le \hat ε^{+}_t\bigl(φ(s),a\bigr).
+  \hat ε^{-}_t \circ φ
+  \le c_t - \hat c_t \circ φ
+  \le \hat ε^{+}_t \circ φ,
 $$
-Similarly, suppose we have a $\hat {\ALPHABET S}$-measurable transition discrepancy $\hat δ_t \in \hat {\ALPHABET Q}$ such that for all $(s,a)$,
+and a $\hat {\ALPHABET S}$-measurable transition discrepancy $\hat δ_t \in \hat {\ALPHABET Q}$ with
 $$
   d_{\F}\bigl(P_{φ,t}(\cdot \mid s,a), \hat P_t(\cdot \mid φ(s),a)\bigr)
-  \le \hat δ_t\bigl(φ(s),a\bigr).
+  \le \hat δ_t\bigl(φ(s),a\bigr)
 $$
-(For example, one may take $\hat δ_t(\hat s,a)$ to be the supremum of the IPM distance over the fiber $φ^{-1}(\hat s)$.)
+for all $(s,a)$ (for example, take $\hat δ_t(\hat s,a)$ to be the supremum of the IPM distance over the fiber $φ^{-1}(\hat s)$).
 
-We also restrict the value bounds to be $\hat {\ALPHABET S}$-measurable: $α^\pm_t = \hat α^\pm_t \circ φ$ and $β^\pm_t(s,a) = \hat β^\pm_t(φ(s),a)$ for some $\hat α^\pm_t \colon \hat {\ALPHABET S} \to \reals$ and $\hat β^\pm_t \in \hat {\ALPHABET Q}$. Then, for any such $\hat α$,
+We also restrict the value bounds to be $\hat {\ALPHABET S}$-measurable: $α^\pm_t = \hat α^\pm_t \circ φ$ and $β^\pm_t = \hat β^\pm_t \circ φ$ for some $\hat α^\pm_t \colon \hat {\ALPHABET S} \to \reals$ and $\hat β^\pm_t \in \hat {\ALPHABET Q}$. For any such $\hat α$, the IPM inequality between $P_{φ,t}$ and $\hat P_t$ gives
 $$
-  \sum_{s'} (\hat α \circ φ)(s') P_t(s' \mid s,a)
-  = \sum_{\hat s'} \hat α(\hat s') P_{φ,t}(\hat s' \mid s,a),
-$$
-and the IPM inequality gives
-$$
-  \sum_{\hat s'} \hat α(\hat s') \hat P_t(\hat s' \mid φ(s),a) - \hat δ_t\bigl(φ(s),a\bigr)\, ρ_{\F}(\hat α)
+  (\hat \DYNAMICS_t \hat α) \circ φ
+  - (\hat δ_t\, ρ_{\F}(\hat α)) \circ φ
   \le
-  \sum_{s'} (\hat α \circ φ)(s') P_t(s' \mid s,a)
+  \DYNAMICS_t(\hat α \circ φ)
   \le
-  \sum_{\hat s'} \hat α(\hat s') \hat P_t(\hat s' \mid φ(s),a) + \hat δ_t\bigl(φ(s),a\bigr)\, ρ_{\F}(\hat α).
+  (\hat \DYNAMICS_t \hat α) \circ φ
+  + (\hat δ_t\, ρ_{\F}(\hat α)) \circ φ.
 $$
 Applying this to $\hat α = \hat V^\star_{t+1}$ and using the definition of $\hat \MISMATCH_t$ bounds the mismatch by quantities on $\hat {\ALPHABET S}$:
 $$
-  \hat ε^{-}_t\bigl(φ(s),a\bigr) - \hat δ_t\bigl(φ(s),a\bigr)\, ρ_{\F}(\hat V^\star_{t+1})
-  \le Δ^\star_t(s,a)
-  \le \hat ε^{+}_t\bigl(φ(s),a\bigr) + \hat δ_t\bigl(φ(s),a\bigr)\, ρ_{\F}(\hat V^\star_{t+1}).
+  (\hat ε^{-}_t - \hat δ_t\, ρ_{\F}(\hat V^\star_{t+1})) \circ φ
+  \le \hat \MISMATCH_t \hat V^\star_{t+1}
+  \le (\hat ε^{+}_t + \hat δ_t\, ρ_{\F}(\hat V^\star_{t+1})) \circ φ.
 $$
 
-Combining these estimates, the lower recursion of @thm-signed-sample-path-abstract is implied by the $\hat {\ALPHABET S}$-side inequality
-$$
-  \hat β^-_t(\hat s,a)
-  \le \hat ε^{-}_t(\hat s,a) - \hat δ_t(\hat s,a)\, ρ_{\F}(\hat V^\star_{t+1})
-  + \sum_{\hat s'} \hat α^-_{t+1}(\hat s') \hat P_t(\hat s' \mid \hat s,a)
-  - \hat δ_t(\hat s,a)\, ρ_{\F}(\hat α^-_{t+1}),
-$$
-and the upper recursion is implied by
-$$
-  \hat β^+_t(\hat s,a)
-  \ge \hat ε^{+}_t(\hat s,a) + \hat δ_t(\hat s,a)\, ρ_{\F}(\hat V^\star_{t+1})
-  + \sum_{\hat s'} \hat α^+_{t+1}(\hat s') \hat P_t(\hat s' \mid \hat s,a)
-  + \hat δ_t(\hat s,a)\, ρ_{\F}(\hat α^+_{t+1}).
-$$
-The corresponding anchors are $\hat α^-_t(\hat s) \le \hat β^-_t\bigl(\hat s, π^\star_t(s)\bigr)$ for some $s \in φ^{-1}(\hat s)$ (or a minimum over a candidate set), and $\hat α^+_t(\hat s) \ge \hat β^+_t\bigl(\hat s, \hat π^\star_t(\hat s)\bigr)$. Lifting back via $α^\pm_t = \hat α^\pm_t \circ φ$ and $β^\pm_t(s,a) = \hat β^\pm_t(φ(s),a)$ yields valid bounds for @thm-signed-sample-path-abstract. The entire recursion is thus computable from the approximate model together with the $\hat {\ALPHABET S}$-measurable discrepancies $(\hat ε^\pm_t, \hat δ_t)$.
+Combining these estimates, the recursions of @thm-signed-sample-path-abstract are implied by the $\hat {\ALPHABET S}$-side inequalities
+\begin{align*}
+  \hat β^-_t
+  &\le \hat ε^{-}_t - \hat δ_t\, ρ_{\F}(\hat V^\star_{t+1})
+  + \hat \DYNAMICS_t \hat α^-_{t+1}
+  - \hat δ_t\, ρ_{\F}(\hat α^-_{t+1}),
+  \\
+  α^-_t
+  &\le \ALPHABET T^{π^\star_t} β^-_t
+\end{align*}
+(or a minimum of $β^-_t(s,\cdot)$ over a candidate set containing $π^\star_t(s)$), and
+\begin{align*}
+  \hat β^+_t
+  &\ge \hat ε^{+}_t + \hat δ_t\, ρ_{\F}(\hat V^\star_{t+1})
+  + \hat \DYNAMICS_t \hat α^+_{t+1}
+  + \hat δ_t\, ρ_{\F}(\hat α^+_{t+1}),
+  \\
+  \hat α^+_t
+  &\ge \ALPHABET T^{\hat π^\star_t} \hat β^+_t.
+\end{align*}
+Lifting via $α^\pm_t = \hat α^\pm_t \circ φ$ and $β^\pm_t = \hat β^\pm_t \circ φ$ (and using $\ALPHABET T^{\hat π^\star_t \circ φ}( \hat β^+_t \circ φ) = (\ALPHABET T^{\hat π^\star_t} \hat β^+_t)\circ φ$) yields valid bounds for @thm-signed-sample-path-abstract. The entire recursion is thus computable from the approximate model together with the $\hat {\ALPHABET S}$-measurable discrepancies $(\hat ε^\pm_t, \hat δ_t)$.
 
 ## Notes {-}
 
