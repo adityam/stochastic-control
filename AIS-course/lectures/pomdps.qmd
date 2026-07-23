@@ -58,7 +58,7 @@ Under perfect observations (lecture 2), each information set was a singleton: k
 
 ### Example: inventory with a latent demand
 
-Consider the @exm-inventory model from lecture 2, but let's assume that the distribution of the demand depends on a latent random variable $W_0 \in \{L, H\}$ that is not observed. In particular, the distribution of the demand is given by:
+Consider the @exm-inventory model from lecture 2, but let's assume that the distribution of the demand depends on a latent random variable $W_0 \in \{L, H\}$ that is not observed which determines whether the demand is low or high. In particular, the distribution of the demand is given by:
 $$
   P(W_t = 5 \mid W_0 = L) = \tfrac34,
   \quad
@@ -83,11 +83,44 @@ Each dashed rounded rectangle in the figure is an information set: the agent mus
 
 ## History-based dynamic programming
 
-The history DP of lecture 2 still applies with $H_t$ as in \eqref{eq:pomdp-history}. We state it first for a **terminal cost** $C(O_T)$, matching the leaves in @fig-inventory-latent-infosets, and will later specialize to the additive-cost case.
+The history DP of lecture 2 still applies when agent does not have perfect observation and history $H_t$ is as defined in \eqref{eq:pomdp-history}. We show this dynamic programming decomposition, first for the setting with terminal cost and then later specialize to the additive cost  case.
 
 ### Terminal cost
 
-At the last stage, average the terminal cost over the trajectories consistent with the current information set (equivalently, over the posterior on which copy, and on any residual primitive random variables, given $H_T = h_T$):
+Consider the model described above with terminal cost $C_T(O_T)$. Given any history dependent policy $π = (π_1, \dots, π_T)$, we can evaluate the performance of the policy as follows. Define
+$$
+  V^π_t(h_t) = \EXP^{π}[ C_T(O_T) \mid H_t = h_t ]
+$$
+On @fig-inventory-latent-infosets, the conditioning $H_T = h_T$ means: restrict attention to the (dashed) information set labeled by $h_T$, and average across the linked nodes on the two copies with the correct posterior weights.
+
+We can show that these value functions satisfy the following recursion:
+\begin{align*}
+  V^π_t(h_t)  &= 
+  \EXP^π\bigl[ \EXP^π [ C_T(O_T) \mid H_{t+1} ] \mid H_t = h_t \bigr]
+  \\
+  &= \EXP^π[ V_{t+1}(H_{t+1}) \mid H_t = h_t ]
+\end{align*}
+where we have used the smoothing property of conditional expectation. 
+
+As we did in the fully observed case, we rewrite this recursion in two steps:
+\begin{align*}
+  Q^π_T(h_T, a_T)
+  &= \EXP\bigl[ C(O_T) \bigm| H_T = h_T,\, A_T = a_T \bigr],
+   \\
+  V^π_T(h_T)
+  &=  Q^π_T(h_T, π_T(h_T)),
+\end{align*}
+and for $t \in \{T-1, \dots, 1\}$, 
+\begin{align*}
+  Q^π_t(h_t, a_t)
+  &= \EXP\bigl[ V^π_{t+1}(H_{t+1}) \bigm| H_t = h_t,\, A_t = a_t \bigr],
+   \\
+  V^π_t(h_t)
+  &=  Q^π_t(h_t, π_t(h_t)),
+\end{align*}
+
+
+The optimal policy and value function can be obtained by a similar dynamic program, by replacing the policy evaluation step with a policy optimization step. In particular, initialize
 \begin{align}
   Q^\star_T(h_T, a_T)
   &= \EXP\bigl[ C(O_T) \bigm| H_T = h_T,\, A_T = a_T \bigr],
@@ -99,9 +132,7 @@ At the last stage, average the terminal cost over the trajectories consistent wi
   &\in \arg\min_{a_T \in \ALPHABET A} Q^\star_T(h_T, a_T).
   \label{eq:pomdp-piT-history}
 \end{align}
-On @fig-inventory-latent-infosets, the conditioning $H_T = h_T$ means: restrict attention to the (dashed) information set labeled by $h_T$, and average across the linked nodes on the two copies with the correct posterior weights.
-
-For $t = T-1,\dots,1$, the same idea nests: choose $a_t$, then take the conditional expectation of the already-computed continuation value on the next history,
+and for $t \in \{T-1, \dots, 1\}$, recursively compute
 \begin{align}
   Q^\star_t(h_t, a_t)
   &= \EXP\bigl[
@@ -116,7 +147,8 @@ For $t = T-1,\dots,1$, the same idea nests: choose $a_t$, then take the conditio
   &\in \arg\min_{a_t \in \ALPHABET A} Q^\star_t(h_t, a_t).
   \label{eq:pomdp-pit-history}
 \end{align}
-Again the conditional law mixes the trajectories inside the information set of $h_t$. Policy evaluation replaces each min by the prescribed action: $V^π_t(h_t) = Q^π_t\bigl(h_t, π_t(h_t)\bigr)$, and $J(π) = \EXP\bigl[V^π_1(H_1)\bigr]$.
+
+As in the fully observed case, we have the following.
 
 :::{#thm-pomdp-history-dp}
 #### History-based optimality
@@ -128,11 +160,11 @@ $$
 
 The proof is the same backward induction as in lecture 2 (the comparison principle): at each information set $h_t$, choosing an action that minimizes $Q^\star_t(h_t,\cdot)$ and then following an optimal continuation cannot be improved by any other history-based choice.
 
-This reduces the original functional optimization over policies to a nested sequence of parametric optimizations on histories. The difficulty is that the domain of $V^\star_t$ grows with $t$, and each conditional expectation mixes an information set. The recursion is correct but typically intractable. The remedy is the same idea that took us from histories to states in MDPs: find a statistic of $H_t$ that is rich enough for these conditional expectations, yet lives in a fixed space.
+This reduces the original functional optimization over policies to a nested sequence of parametric optimizations on histories. The difficulty is that the domain of $V^\star_t$ grows with $t$, and each conditional expectation mixes an information set. The recursion is correct but is typically intractable as the size of the history grows over time.
 
 ### Additive per-step costs
 
-As in lecture 2, many models charge cost along the way. Write the terminal cost as a sum of per-step costs,
+As in lecture 2, many models incur cost along the trajectory. In such models, we can write the terminal cost as a sum of per-step costs,
 $$
   C(O_T) = \sum_{t=1}^T C_t,
 $$
@@ -156,7 +188,7 @@ Relative to the terminal-cost recursion, the only change is that $C_t$ is charge
 
 ## Information state
 
-The history DP is correct but the domain of $V^\star_t$ grows with $t$. As in the passage from histories to Markov states in lecture 2, the remedy is a compression of $H_t$ that is rich enough for the conditional expectations in the DP, yet lives in a (preferably small) fixed space.
+The history DP is correct but the domain of $V^\star_t$ grows with $t$. In the case of full observation, we showed that if the model satisfies certain properties, we can obtain a more compact dynamic program in terms of a state. The same idea works for partial observation as well.
 
 :::{.callout-tip}
 #### Information state
@@ -165,15 +197,17 @@ Let $\{\ALPHABET Z_t\}_{t=1}^T$ be a collection of Banach spaces. A collection o
 
 **P1. Sufficient for performance evaluation.** For every $h_t$ and $a_t$,
 $$
-  \EXP\bigl[ C_t \bigm| H_t = h_t,\, A_t = a_t \bigr]
-  = \EXP\bigl[ C_t \bigm| Z_t = σ_t(h_t),\, A_t = a_t \bigr].
+  \EXP^π\bigl[ C_t \bigm| H_t = h_t,\, A_t = a_t \bigr]
+  = \EXP\bigl[ C_t \bigm| Z_t = σ_t(h_t),\, A_t = a_t \bigr]
 $$
+where the right hand side does not depend on $π$.
 
 **P2. Sufficient to predict itself.** For every Borel set $B \subseteq \ALPHABET Z_{t+1}$,
 $$
-  \PR\bigl(Z_{t+1} \in B \bigm| H_t = h_t,\, A_t = a_t \bigr)
-  = \PR\bigl(Z_{t+1} \in B \bigm| Z_t = σ_t(h_t),\, A_t = a_t \bigr).
+  \PR^π\bigl(Z_{t+1} \in B \bigm| H_t = h_t,\, A_t = a_t \bigr)
+  = \PR\bigl(Z_{t+1} \in B \bigm| Z_t = σ_t(h_t),\, A_t = a_t \bigr)
 $$
+where the right hand side does not depend on $π$.
 
 We will use the phrase "let $\{Z_t\}_{t=1}^T$ be an information state" to mean an information state together with its generator $\{σ_t\}_{t=1}^T$. There is no a priori restriction on the spaces $\{\ALPHABET Z_t\}$, but an information state is useful in practice only when these spaces are small in an appropriate sense.
 :::
@@ -247,9 +281,10 @@ $$
 
 **P2b. Sufficient for the next observation.** For every Borel set $B \subseteq \ALPHABET Y$,
 $$
-  \PR\bigl(Y_{t+1} \in B \bigm| H_t = h_t,\, A_t = a_t \bigr)
+  \PR^π\bigl(Y_{t+1} \in B \bigm| H_t = h_t,\, A_t = a_t \bigr)
   = \PR\bigl(Y_{t+1} \in B \bigm| Z_t = σ_t(h_t),\, A_t = a_t \bigr).
 $$
+where the right hand side does not depend on $π$.
 :::
 
 :::{#prp-info-state-P2}
@@ -261,8 +296,9 @@ If $Z_t = σ_t(H_t)$ satisfies (P2a) and (P2b), then it satisfies (P2).
 #### Proof
 For any Borel set $B \subseteq \ALPHABET Z_{t+1}$,
 \begin{align*}
+  \hskip 2em & \hskip -2em
   \PR(Z_{t+1} \in B \mid H_t = h_t,\, A_t = a_t)
-  &= \sum_{y} \IND\{φ_t(σ_t(h_t), a_t, y) \in B\}
+  = \sum_{y} \IND\{φ_t(σ_t(h_t), a_t, y) \in B\}
   \,
   \PR(Y_{t+1} = y \mid H_t = h_t,\, A_t = a_t)
   \\
@@ -351,7 +387,7 @@ Nontrivial information states are model-dependent. The following gallery records
    Using the belief: between interventions the quality belief is the $t-τ$ step pushforward of a point mass at $S_τ$, so $b_t$ is a deterministic function of $(S_τ, t-τ)$; after inspect/repair/replace the belief resets to a point mass and the clock restarts. Thus $(S_τ, t-τ)$ is a sufficient compression of $b_t$, hence an information state.
    :::
 
-## Belief states for standard POMDPs
+## Standard POMDPs and belief states
 
 Specialize the general input–output system to a **hidden state** $S_t \in \ALPHABET S$. The primitive random variables are independent, the state evolves as
 $$
@@ -424,15 +460,25 @@ The conditional law $b_t[h_t]$ is the same for every policy $π$ that is consist
 #### Proof
 Indeed, $b_1$ is the Bayesian update of the prior given $Y_1$, which does not involve $π$, and @lem-belief-update gives $b_{t+1} = φ_t(b_t, A_t, Y_{t+1})$ with a map $φ_t$ that does not depend on $π$. Iterating, $b_t$ is a function of $(Y_{1:t}, A_{1:t-1})$ alone. See also @Witsenhausen1975.
 :::
-:::{#exm-belief-info-state}
+
 #### Belief is an information state
-In the standard POMDP model, $Z_t = b_t$ is an information state. Indeed (P1) holds because
+An immediate implication of the definition of belief is that
 $$
   \EXP\bigl[C_t \bigm| H_t = h_t,\, A_t = a_t\bigr]
   = \sum_{s} c_t(s,a_t)\, b_t[h_t](s),
 $$
-(P2a) is @lem-belief-update, and (P2b) holds because the predictive law of $Y_{t+1}$ given $(H_t,A_t)$ is the mixture of $\PR(Y_{t+1}\mid S_{t+1})$ under the one-step predictor built from $b_t$ and $A_t$.
-:::
+where the right hand side does not depend on the policy due to @lem-belief-policy-independent. Thus, beliefs satisfy (P1).
+
+(P2a) is @lem-belief-update. For (P2b), the predictive law of the next observation depends on the history only through $(b_t, A_t)$:
+$$
+  \PR\bigl(Y_{t+1} = y \bigm| H_t = h_t,\, A_t = a_t\bigr)
+  = \sum_{s,s'}
+  \PR(Y_{t+1} = y \mid S_{t+1} = s')\,
+  \PR(S_{t+1} = s' \mid S_t = s,\, A_t = a_t)\,
+  b_t[h_t](s).
+$$
+The right hand side is a function of $(b_t[h_t], a_t, y)$ alone (and does not depend on $π$, by @lem-belief-policy-independent), which is (P2b).
+
 :::{.callout-note}
 #### Remark
 For finite-horizon POMDPs with $C_t = c_t(S_t, A_t)$, the optimal value $\hat V^\star_t(b)$ is a **concave** function of the belief $b$. Concavity is the structural property behind classical exact POMDP solvers; we do not develop those algorithms here.
