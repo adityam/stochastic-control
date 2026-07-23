@@ -6,13 +6,13 @@ aliases:
 
 ## Motivation
 
-Exact information states (Lecture 7) turn a partially observed problem into an MDP on a fixed space $\ALPHABET Z_t$, with an exact dynamic program (@thm-info-state-dp). Useful exact compressions are rare. In a standard POMDP the natural information state is the belief $b_t = \PR(S_t \mid H_t) \in Δ(\ALPHABET S)$, which is continuous and still hard to plan on.
+In the previous lecture, we showed that a partially observed problem admits a dynamic programming decomposition once an **information state** is available (@thm-info-state-dp).
 
-The goal of this lecture is to compress history **approximately**, plan on the compressed space, lift the resulting policy back to histories, and **quantify** the loss. The punchline is structural rather than new mathematics: the history process is already an MDP with state $H_t$, so an approximate information state (AIS) is simply a (time-varying) **state abstraction** of that MDP. The mismatch / IPM machinery of Lecture 5 therefore applies verbatim, with $\ALPHABET S_t = \ALPHABET H_t$.
+In many practical scenarios, however, an exact information state is difficult to use, especially when the model is being learned. Useful exact compressions are rare. In a standard POMDP the natural information state is the belief $b_t = \PR(S_t \mid H_t) \in Δ(\ALPHABET S)$, which is continuous and still hard to plan on; under learning one may not know the dynamics needed to run a Bayes filter to update the beliefs. 
 
-Throughout we work in **finite horizon** $T$, with additive per-step costs $C_t$ (cost minimization). Infinite-horizon discounted AIS and PORL algorithms are outside the scope of this lecture; see @Subramanian2022 for those developments.
+In this lecture we characterize the features required of an information state in approximate form, and then use the model-approximation / state-abstraction results of Lecture 5 to quantify the error incurred when planning with an **approximate information state** (AIS). The starting point is that $\{H_t\}$ itself forms a **history-based MDP**. An AIS is then a (time-varying) state abstraction of that MDP, so the mismatch / IPM bounds of Lecture 5 apply with $\ALPHABET S_t = \ALPHABET H_t$.
 
-## The history MDP
+## The history-based MDP
 
 We use the finite-horizon partially observed model of Lecture 7. Observations and actions generate the history
 $$
@@ -35,7 +35,7 @@ A policy is a sequence $π = (π_1,\dots,π_T)$ with $A_t = π_t(H_t)$. With add
 \end{align*}
 with $V^\star_{T+1} \equiv 0$.
 
-This recursion is exactly the MDP dynamic program on the **growing** state space $\{\ALPHABET H_t\}_{t=1}^T$: the next history is a controlled Markov kernel on $\ALPHABET H_{t+1}$, and the per-step cost is the conditional expectation $\EXP[C_t \mid H_t, A_t]$. Call this the **history MDP**.
+This recursion is exactly the MDP dynamic program on the **growing** state space $\{\ALPHABET H_t\}_{t=1}^T$: the next history is a controlled Markov kernel on $\ALPHABET H_{t+1}$, and the per-step cost is the conditional expectation $\EXP[C_t \mid H_t, A_t]$. Call this the **history-based MDP**.
 
 An exact information state $\{σ_t\}$ (@thm-info-state-dp) is an **exact** state abstraction of that MDP: properties (P1)--(P2) say that costs and next-summary laws factor through $Z_t = σ_t(H_t)$, so the mismatch of Lecture 5 is identically zero. Approximate information states relax the same two properties.
 
@@ -59,7 +59,7 @@ Nothing in those theorems required $\ALPHABET S$ to be a “physical” state. T
 
 ## Approximate information state
 
-Fix Banach spaces $\{\ALPHABET Z_t\}_{t=1}^T$, an IPM class $\F$, and tolerances $\{(ε_t,δ_t)\}_{t=1}^T$.
+Fix Banach spaces $\{\ALPHABET Z_t\}_{t=1}^T$, a function class $\F$, and tolerances $\{(ε_t,δ_t)\}_{t=1}^T$.
 
 :::{#def-ais}
 #### Approximate information state generator
@@ -71,43 +71,43 @@ $$
   \quad
   \hat P_t \colon \ALPHABET Z_t \times \ALPHABET A \to Δ(\ALPHABET Z_{t+1}),
 $$
-is an $\{(ε_t,δ_t)\}$-**AIS generator** if $Z_t = \hat σ_t(H_t)$ satisfies the following for every history $h_t$ and action $a_t$:
+is an $\{(ε_t,δ_t)\}$-**AIS generator** if $Z_t = \hat σ_t(H_t)$ satisfies the following for every policy $π$, every history $h_t$, and every action $a_t$:
 
 **(AP1) Approximate cost evaluation.**
 $$
   \ABS{
-    \EXP[C_t \mid H_t = h_t,\, A_t = a_t]
+    \EXP^π[C_t \mid H_t = h_t,\, A_t = a_t]
     - \hat c_t\bigl(\hat σ_t(h_t), a_t\bigr)
   }
-  \le ε_t.
+  \le ε_t,
 $$
+where $\hat c_t\bigl(\hat σ_t(h_t), a_t\bigr)$ does not depend on $π$.
 
 **(AP2) Approximate self-prediction.** Writing
 $$
-  μ_t(\,\cdot\,)
-  = \PR\bigl(Z_{t+1} \in \cdot \bigm| H_t = h_t,\, A_t = a_t\bigr),
+  μ^π_t(\,\cdot\,)
+    = \PR^π\bigl(Z_{t+1} \in \cdot \bigm| H_t = h_t,\, A_t = a_t\bigr),
   \quad
   ν_t(\,\cdot\,)
   = \hat P_t\bigl(\,\cdot \mid \hat σ_t(h_t), a_t\bigr),
 $$
-we have $d_{\F}(μ_t, ν_t) \le δ_t$.
+we have $d_{\F}(μ^π_t, ν_t) \le δ_t$, where $ν_t$ does not depend on $π$.
 :::
-
-We say “$(ε,δ)$-AIS” when the tolerances do not depend on $t$. Unlike exact (P1)--(P2), the triple $(\hat σ_t, \hat c_t, \hat P_t)$ may be learned from data; that direction is taken up in @Subramanian2022 §6 and is not developed here.
+We often say that “$\{Z_t\}_{t \ge 1}$ is an $(ε,δ)$-AIS” when the generators are clear from context.
 
 :::{.callout-note}
 #### Finite spaces
 In general Borel models one also requires measurable optimal selectors for the approximate MDP on $\ALPHABET Z_t$. For **finite** $\ALPHABET Z_t$ and $\ALPHABET A$ this is automatic, so we omit a separate measurable-selection hypothesis in this lecture and in Lecture 9.
 :::
 
-### Dictionary with Lecture 5
+### AIS as state abstraction of the history-based MDP
 
 Set $φ = \hat σ_t$ (time-dependent) and take the abstract model
 $$
   \widehat{\ALPHABET M}_t
   = \bigl\langle \ALPHABET Z_t,\, \ALPHABET A,\, \hat P_t,\, \hat c_t \bigr\rangle.
 $$
-Then (AP1)--(AP2) are exactly the cost and pushed-forward transition errors of an $(ε_t,δ_t)$-approximation of the history MDP. Consequently @lem-IPM-bound-on-mismatch-abstract gives
+Then (AP1)--(AP2) are exactly the cost and pushed-forward transition errors of an $(ε_t,δ_t)$-approximation of the history-based MDP. Consequently @lem-IPM-bound-on-mismatch-abstract gives
 $$
   \NORM{\hat\MISMATCH_t \hat v}
   \le ε_t + δ_t\, ρ_{\F}(\hat v)
@@ -125,15 +125,26 @@ $$
   Z_{t+1} = \hat φ_t\bigl(Z_t, A_t, Y_{t+1}\bigr).
 $$
 
-**(AP2b) Approximate observation prediction.** There exist kernels $\hat P^Y_t$ such that
+**(AP2b) Approximate observation prediction.** There exist measurable observation prediction kernels $\{\hat P^Y_t \colon \ALPHABET Z_t \times \ALPHABET A \to Δ(\ALPHABET Y)\}$ such that for every policy $π$, every history $h_t$, and every action $a_t$, writing
 $$
-  d_{\F}\bigl(
-    \PR(Y_{t+1} \in \cdot \mid h_t, a_t),\,
-    \hat P^Y_t(\,\cdot \mid \hat σ_t(h_t), a_t)
-  \bigr)
+  μ^{Y,π}_t(\,\cdot\,)
+  = \PR^π\bigl(Y_{t+1} \in \cdot \bigm| H_t = h_t,\, A_t = a_t\bigr),
+  \quad
+  ν^Y_t(\,\cdot\,)
+  = \hat P^Y_t\bigl(\,\cdot \mid \hat σ_t(h_t), a_t\bigr),
+$$
+we have
+$$
+  d_{\F}\bigl(μ^{Y,π}_t,\, ν^Y_t\bigr)
   \le \frac{δ_t}{κ_{\F}(\hat φ_t)},
 $$
-where $κ_{\F}(\hat φ_t)$ is the IPM modulus of $\hat φ_t$ in the observation argument (equal to $1$ for total variation; equal to a Lipschitz bound on $\hat φ_t$ for Wasserstein / Kantorovich).
+where $κ_{\F}(\hat φ_t)$ is defined as
+$$
+  κ_{\F}(\hat φ_t)
+  = \sup_{h_t \in \ALPHABET H_t,\, a_t \in \ALPHABET A}
+  κ_{\F}\bigl(\hat φ_t(\hat σ_t(h_t), a_t, \cdot)\bigr).
+$$
+Note that for the total variation distance $κ_{\F}(\hat φ_t) = 1$; for the Kantorovich distance $κ_{\F}(\hat φ_t)$ is equal to the Lipschitz uniform bound on the Lipschitz constant of $\hat φ_t$ with respect to $y_t$. Finally, $ν^Y_t$ (equivalently $\hat P^Y_t(\,\cdot \mid \hat σ_t(h_t), a_t)$) does not depend on $π$.
 :::
 
 :::{#prp-ais-AP2}
@@ -145,6 +156,45 @@ $$
   \hat P^Y_t(dy \mid z, a)
 $$
 satisfies (AP2) with the same $δ_t$. Thus $\{(\hat σ_t, \hat c_t, \hat φ_t, \hat P^Y_t)\}$ is an AIS generator in the sense of (AP1)--(AP2).
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+Fix a policy $π$, a history $h_t$, and an action $a_t$, and write $z_t = \hat σ_t(h_t)$. By the law of total probability and (AP2a), the measures $μ^π_t$ and $ν_t$ in (AP2) are the pushforwards of $μ^{Y,π}_t$ and $ν^Y_t$ under $y \mapsto \hat φ_t(z_t, a_t, y)$:
+\begin{align*}
+  μ^π_t(B)
+  &= \int \IND\bigl\{\hat φ_t(z_t, a_t, y) \in B\bigr\}\, μ^{Y,π}_t(dy),
+  \\
+  ν_t(B)
+  &= \int \IND\bigl\{\hat φ_t(z_t, a_t, y) \in B\bigr\}\, ν^Y_t(dy).
+\end{align*}
+Thus, for any real-valued function $f$ on $\ALPHABET Z_{t+1}$,
+\begin{align*}
+  \int f\, dμ^π_t
+  &= \int f\bigl(\hat φ_t(z_t, a_t, y)\bigr)\, μ^{Y,π}_t(dy),
+  \\
+  \int f\, dν_t
+  &= \int f\bigl(\hat φ_t(z_t, a_t, y)\bigr)\, ν^Y_t(dy).
+\end{align*}
+Therefore, for every $f \in \F$,
+\begin{align*}
+  \ABS{\int f\, dμ^π_t - \int f\, dν_t}
+  &= \ABS{
+    \int f\bigl(\hat φ_t(z_t, a_t, y)\bigr)\, μ^{Y,π}_t(dy)
+    - \int f\bigl(\hat φ_t(z_t, a_t, y)\bigr)\, ν^Y_t(dy)
+  }
+  \\
+  &\le κ_{\F}\bigl(\hat φ_t(z_t, a_t, \cdot)\bigr)\,
+  d_{\F}(μ^{Y,π}_t, ν^Y_t),
+\end{align*}
+where the inequality is the contraction property of IPMs used to define $κ_{\F}$ above. Taking the supremum over $f \in \F$ and using the definition of $κ_{\F}(\hat φ_t)$ together with (AP2b) yields
+$$
+  d_{\F}(μ^π_t, ν_t)
+  \le κ_{\F}(\hat φ_t)\, d_{\F}(μ^{Y,π}_t, ν^Y_t)
+  \le κ_{\F}(\hat φ_t) \cdot \frac{δ_t}{κ_{\F}(\hat φ_t)}
+  = δ_t,
+$$
+which is (AP2). 
 :::
 
 This matches the (P2a)/(P2b) pattern of Lecture 7 (@prp-info-state-P2), with IPM slack in the observation channel.
@@ -163,20 +213,19 @@ Given an AIS generator, define the **abstract Bellman recursion** by $\hat V^\st
 \end{align}
 Let $\hat π^\star_t(z) \in \arg\min_a \hat Q^\star_t(z, a)$, and lift to histories by $π_t = \hat π^\star_t \circ \hat σ_t$.
 
+As in Lecture 5, the one-step discrepancy between the history-based MDP and the abstract model is measured by the **mismatch operator** with $φ = \hat σ_t$:
+$$
+  \hat\MISMATCH_t \hat v
+  = \ENV_t(\hat v \circ \hat σ_t) - (\hat\ENV_t \hat v) \circ \hat σ_t.
+$$
+
 :::{#thm-ais-approx-dp}
 #### Approximate DP for an AIS
-Suppose $\{\hat σ_t, \hat c_t, \hat P_t\}$ is an $\{(ε_t,δ_t)\}$-AIS generator. Define $(\hat Q^\star_t, \hat V^\star_t)$ by \eqref{eq:ais-Qt}--\eqref{eq:ais-Vt}, and set $α_{T+1} = 0$ with
-$$
-  α_t = ε_t + ρ_{\F}(\hat V^\star_{t+1})\, δ_t + α_{t+1},
-  \qquad t = T,\dots,1.
-$$
-Equivalently,
+Suppose $\{\hat σ_t, \hat c_t, \hat P_t\}$ is an AIS generator, and define $(\hat Q^\star_t, \hat V^\star_t)$ by \eqref{eq:ais-Qt}--\eqref{eq:ais-Vt}. Set $α_{T+1} = 0$ and
 $$
   α_t
-  = \sum_{\tau=t}^{T}
-  \bigl(
-    ε_τ + ρ_{\F}(\hat V^\star_{τ+1})\, δ_τ
-  \bigr).
+  = \sum_{\tau=t}^{T} \NORM{\hat\MISMATCH_τ \hat V^\star_{τ+1}},
+  \qquad t = T,\dots,1.
 $$
 Then, for every history $h_t$ and action $a_t$:
 
@@ -189,99 +238,128 @@ Then, for every history $h_t$ and action $a_t$:
      \le α_t.
    $$
 
-2. **Policy error.** The lifted greedy policy $π_t = \hat π^\star_t \circ \hat σ_t$ is $2α_t$-optimal:
+2. **Model approximation error.** The lifted greedy policy $π_t = \hat π^\star_t \circ \hat σ_t$ is $2α_t$-optimal: for every history $h_t$ and action $a_t$,
    $$
-     \ABS{Q^\star_t(h_t,a_t) - Q^π_t(h_t,a_t)}
+     0
+     \le
+     Q^π_t(h_t,a_t) - Q^\star_t(h_t,a_t)
      \le 2α_t,
      \qquad
-     \ABS{V^\star_t(h_t) - V^π_t(h_t)}
+     0
+     \le
+     V^π_t(h_t) - V^\star_t(h_t)
      \le 2α_t.
    $$
 :::
 
-:::{.callout-tip}
-#### Wasserstein form
-When $d_{\F} = W_1$, one has $ρ_{\F}(v) = \operatorname{Lip}(v)$. Taking $δ_T = 0$ (no transition at the terminal stage), the recursion rewrites as
-$$
-  α_t
-  =
-  ε_t
-  +
-  \sum_{τ=t}^{T-1}
-  \bigl(
-    δ_τ\, \operatorname{Lip}(\hat V^\star_{τ+1})
-    + ε_{τ+1}
-  \bigr),
-$$
-which is the form used in Lecture 9.
+:::{.callout-note collapse="false"}
+#### Proof
+This is @prp-value-error-abstract and @thm-model-error-hat-V-star-abstract specialized to the history-based MDP with $φ_t = \hat σ_t$ (and with the $\hat V^\star$-sided choice of one-step error). 
 :::
 
-:::{.callout-note collapse="true"}
-#### Proof strategy
-The argument is the Lecture 5 abstraction proof specialized to the history MDP; we only sketch the one-step step.
+The AIS axioms control the mismatch through the IPM bound of Lecture 5.
 
-Write $φ = \hat σ_t$. The history environment operator and the abstract operator differ by the mismatch $\hat\MISMATCH_t$. From (AP1)--(AP2) and @lem-IPM-bound-on-mismatch-abstract,
+:::{#cor-ais-ipm}
+#### IPM form
+If $\{\hat σ_t, \hat c_t, \hat P_t\}$ is an $\{(ε_t,δ_t)\}$-AIS generator, then @lem-IPM-bound-on-mismatch-abstract gives
 $$
   \NORM{\hat\MISMATCH_t \hat V^\star_{t+1}}
   \le ε_t + δ_t\, ρ_{\F}(\hat V^\star_{t+1}).
 $$
-The one-step abstract error lemma then yields
+Consequently the envelopes of @thm-ais-approx-dp satisfy
 $$
-  \ABS{Q^\star_t(h,a) - \hat Q^\star_t(\hat σ_t(h),a)}
-  \le ε_t + δ_t\, ρ_{\F}(\hat V^\star_{t+1}) + α_{t+1}
-  = α_t,
+  α_t
+  \le \sum_{\tau=t}^{T}
+  \bigl(
+    ε_τ + ρ_{\F}(\hat V^\star_{τ+1})\, δ_τ
+  \bigr),
 $$
-once the induction hypothesis controls $\NORM{V^\star_{t+1} - \hat V^\star_{t+1} \circ \hat σ_{t+1}}$. Minimizing over actions gives the value bound. The policy bound is the usual triangle
+or, recursively, $α_{T+1} = 0$ and
 $$
-  \NORM{V^\star_t - V^π_t}
-  \le \NORM{V^\star_t - \hat V^\star_t \circ \hat σ_t}
-  + \NORM{V^π_t - \hat V^{\hat π^\star}_t \circ \hat σ_t}
-  \le 2α_t,
+  α_t \le ε_t + ρ_{\F}(\hat V^\star_{t+1})\, δ_t + α_{t+1}.
 $$
-exactly as in @thm-model-error-IPM-abstract / @prp-value-error-abstract. Full details are in @Subramanian2022 Thm. 9 (stated there for reward maximization; the cost form is identical with mins in place of maxes).
 :::
 
-:::{.callout-note}
-#### Alternate forms
-As in Remarks 11--12 of @Subramanian2022, one can replace $ρ_{\F}(\hat V^\star_{t+1})δ_t$ by the exact integral mismatch, or run the induction on the true continuation $V^\star_{t+1}$ instead of $\hat V^\star_{t+1}$. Those variants can be tighter in special cases; for the course we keep the transparent $α_t$ / $2α_t$ form above.
-:::
 
-## Beyond uniform AIS bounds
+## Other generalizations
 
-@thm-ais-approx-dp is a **uniform** (sup-norm) guarantee: a single scalar $α_t$ controls the value gap at every history, and the lifted greedy policy is $2α_t$-optimal. That is exactly the Lecture 5 abstraction / IPM story (@thm-model-error-IPM-abstract, @prp-value-error-abstract) with $\ALPHABET S_t = \ALPHABET H_t$ and $φ_t = \hat σ_t$, which is also the route taken in @Subramanian2022.
+### Stochastic AIS
 
-Lecture 6 develops a finer alternative: **signed / sample-path** mismatch bounds driven by the pointwise discrepancy $\hat\MISMATCH_t \hat V^\star_{t+1}$, rather than only by $\NORM{\hat\MISMATCH_t \hat V^\star_{t+1}}_∞$. Envelopes $α^\pm_t$, $β^\pm_t$ obeying one-sided recursions yield lower and upper bounds on the model gap (@thm-signed-sample-path when the models share a state space; @thm-signed-sample-path-abstract when they differ via a lift $φ$). The absolute-value specialization recovers a pathwise $2α^{\mathrm{abs}}$ certificate (@thm-abs-sample-path-abstract) that is never worse than the uniform sum of one-step mismatch norms, and is often strictly tighter when the mismatch does not attain its worst sign everywhere.
+So far the compression $\hat σ_t \colon \ALPHABET H_t \to \ALPHABET Z_t$ has been deterministic. In applications (especially when learning a discrete code by stochastic gradient methods) it is convenient to allow a **randomized** compression: given $H_t = h_t$, one draws $Z_t$ from a kernel $\hat σ_t(\,\cdot \mid h_t) \in Δ(\ALPHABET Z_t)$.
 
-### Importing Lecture 6 into AIS
-
-Because an AIS is a state abstraction of the history MDP, Take 4 of Lecture 6 applies under the dictionary
+This does not require a separate theory. Realize the randomization by an auxiliary primitive random variable $θ_t$ (independent of the system noise, with a known law), and write
 $$
-  \text{history MDP} \leftrightarrow \ALPHABET M,
+  Z_t = \tilde σ_t(H_t, θ_t)
+$$
+for a deterministic map $\tilde σ_t$. Then $(H_t, θ_t)$ is just a larger history, and $\tilde σ_t$ is an ordinary (deterministic) AIS compression of that history. The approximate cost $\hat c_t$ and kernel $\hat P_t$ are unchanged. All results of this lecture---mismatch bounds, @thm-ais-approx-dp, and @cor-ais-ipm---apply verbatim to $\tilde σ_t$, and taking the expectation over $θ_t$ recovers the statements for the original randomized compression.
+
+### Observation compression
+
+In applications with high-dimensional sensors (e.g.\ video), one may first compress the observation alphabet by a fixed map $q \colon \ALPHABET Y \to \hat{\ALPHABET Y}$ and work with the compressed observations $\hat Y_t = q(Y_t)$. The corresponding compressed histories are
+$$
+  \hat H_t = (\hat Y_{1:t}, A_{1:t-1}).
+$$
+An AIS for the compressed history process is exactly an AIS in the sense of this lecture, applied to the partially observed system whose observations are $\hat Y_t$ rather than $Y_t$. The axioms (AP1)--(AP2), the mismatch operator, and the guarantees of @thm-ais-approx-dp / @cor-ais-ipm carry over unchanged; only the underlying observation channel has been replaced by $q$.
+
+### Action compression
+
+Suppose the planner is restricted to a quantized action set $\hat{\ALPHABET A} \subset \ALPHABET A$, with a quantizer $ψ \colon \ALPHABET A \to \hat{\ALPHABET A}$. The abstract model is then defined only for actions in $\hat{\ALPHABET A}$: $\hat c_t \colon \ALPHABET Z_t \times \hat{\ALPHABET A} \to \reals$ and $\hat P_t \colon \ALPHABET Z_t \times \hat{\ALPHABET A} \to Δ(\ALPHABET Z_{t+1})$. The AIS axioms are restated by comparing the true action $a_t$ on the left-hand side to its quantized version $ψ(a_t)$ on the right-hand side.
+
+**(AP1) Approximate cost evaluation.** For every policy $π$, every history $h_t$, and every action $a_t \in \ALPHABET A$,
+$$
+  \ABS{
+    \EXP^π[C_t \mid H_t = h_t,\, A_t = a_t]
+    - \hat c_t\bigl(\hat σ_t(h_t), ψ(a_t)\bigr)
+  }
+  \le ε_t,
+$$
+where $\hat c_t\bigl(\hat σ_t(h_t), ψ(a_t)\bigr)$ does not depend on $π$.
+
+**(AP2) Approximate self-prediction.** Writing
+$$
+  μ^π_t(\,\cdot\,)
+  = \PR^π\bigl(Z_{t+1} \in \cdot \bigm| H_t = h_t,\, A_t = a_t\bigr),
+  \quad
+  ν_t(\,\cdot\,)
+  = \hat P_t\bigl(\,\cdot \mid \hat σ_t(h_t), ψ(a_t)\bigr),
+$$
+we have $d_{\F}(μ^π_t, ν_t) \le δ_t$, where $ν_t$ does not depend on $π$.
+
+The abstract DP is the usual Bellman recursion, but the $\min$ (and the greedy policy $\hat π^\star_t$) run only over $\hat{\ALPHABET A}$. Because $\hat{\ALPHABET A} \subset \ALPHABET A$, a policy valued in $\hat{\ALPHABET A}$ can be executed directly in the true model. The mismatch / IPM argument is the same as before; the policy gap improves from $2α_t$ to $α_t$ in the perfectly observed special case with $\hat σ_t = \mathrm{id}$ and $(\hat c_t,\hat P_t) = (c_t,P_t)$ restricted to $\hat{\ALPHABET A}$ [@Subramanian2022 Cor. 19].
+
+## Beyond sup-norm bounds
+
+The bound in @thm-ais-approx-dp depends on the history only through the scalar
+$$
+  α_t = \sum_{\tau=t}^{T} \NORM{\hat\MISMATCH_τ \hat V^\star_{τ+1}},
+$$
+and gives $V^π_t - V^\star_t \le 2α_t$. This is the Lecture 5 abstraction argument (@thm-model-error-hat-V-star-abstract, @prp-value-error-abstract) with $\ALPHABET S_t = \ALPHABET H_t$ and $φ_t = \hat σ_t$. The IPM form @cor-ais-ipm is what @Subramanian2022 uses.
+
+In Lecture 6 we obtained tighter bounds by working with the pointwise mismatch $\hat\MISMATCH_t \hat V^\star_{t+1}$ rather than its sup-norm. The signed envelopes $α^\pm_t$, $β^\pm_t$ give lower and upper bounds on $V^{\hat π^\star \circ \hat σ}_t - V^\star_t$ (@thm-signed-sample-path when the two models share a state space; @thm-signed-sample-path-abstract when they are related by a lift $φ$). Taking absolute values recovers a pathwise bound that is never worse than the uniform sum in @thm-ais-approx-dp (@thm-abs-sample-path-abstract).
+
+### Sample-path bounds for AIS
+
+An AIS is a state abstraction of the history-based MDP, so the same results apply with
+$$
+  \text{history-based MDP} \leftrightarrow \ALPHABET M,
   \quad
   \text{AIS abstract MDP} \leftrightarrow \widehat{\ALPHABET M},
   \quad
   \hat σ_t \leftrightarrow φ_t.
 $$
-Thus @lem-one-step-signed-abstract through @thm-signed-sample-path-abstract give pathwise envelopes for
+In particular, @lem-one-step-signed-abstract through @thm-signed-sample-path-abstract give pathwise envelopes for
 $$
   V^{\hat π^\star \circ \hat σ}_t(h_t) - V^\star_t(h_t)
 $$
-(and the corresponding $Q$-gaps) without a separate AIS induction. The same $(ε_t,δ_t)$ / IPM estimates that feed $α_t$ in @thm-ais-approx-dp still control the one-step signed mismatch (via @lem-IPM-bound-on-mismatch-abstract, or the signed IPM corrections in Lecture 6); they enter the $α^\pm$, $β^\pm$ recursions as signed one-step errors rather than as a single worst-case scalar.
+(and the corresponding $Q$-gaps). The one-step terms are the signed mismatches $\hat\MISMATCH_t \hat V^\star_{t+1}$; the $(ε_t,δ_t)$ bounds from @cor-ais-ipm still control their size via @lem-IPM-bound-on-mismatch-abstract (or the signed IPM corrections in Lecture 6).
 
-### Why refine?
-
-- **Pathwise certificates.** Bounds may depend on the realized history $h_t$, not only on $\sup_{h_t}$.
-- **Sign information.** When $\hat\MISMATCH_t \hat V^\star_{t+1}$ does not attain its worst sign at every history--action pair, the envelopes $α^\pm$ can be strictly tighter than $\pm α_t$ from @thm-ais-approx-dp.
-- **Two-sided gaps.** One obtains both lower and upper bounds on $V^{\hat π^\star \circ \hat σ} - V^\star$, not merely an absolute $2α$ radius.
-- **No new AIS axioms.** (AP1)--(AP2) are unchanged; only the post-processing of mismatch into value / policy certificates is refined.
-
-We do not restate the Lecture 6 recursions here. For the course, @thm-ais-approx-dp remains the default AIS statement; the sample-path refinement is available whenever a tighter, signed analysis of a concrete $\hat σ$ is worth the bookkeeping.
+The AIS axioms (AP1)--(AP2) do not change. What changes is how the mismatch is turned into a bound on $V^π - V^\star$: pointwise rather than through the sup-norm. We do not restate the Lecture 6 recursions here; @thm-ais-approx-dp remains the default statement for this lecture. A worked packet-drop channel with signed envelopes is in @prp-packet-drop-signed below.
 
 ## Examples
 
 ### Exact information state
 
-If $\{σ_t\}$ is an exact information state and we take $\hat σ_t = σ_t$, $\hat c_t(z,a) = \EXP[C_t \mid Z_t = z, A_t = a]$, and $\hat P_t$ equal to the true conditional law of $Z_{t+1}$, then $ε_t = δ_t = 0$. @thm-ais-approx-dp collapses to @thm-info-state-dp: $α_t = 0$ and the lifted greedy policy is optimal.
+If $\{σ_t\}$ is an exact information state and we take $\hat σ_t = σ_t$, $\hat c_t(z,a) = \EXP[C_t \mid Z_t = z, A_t = a]$, and $\hat P_t$ equal to the true conditional law of $Z_{t+1}$, then $\NORM{\hat\MISMATCH_t \hat V^\star_{t+1}} = 0$ for all $t$. @thm-ais-approx-dp collapses to @thm-info-state-dp: $α_t = 0$ and the lifted greedy policy is optimal.
 
 ### MDP state abstraction
 
@@ -289,94 +367,179 @@ Suppose $Y_t = S_t$ (perfect observation) with cost $C_t = c_t(S_t, A_t)$, and l
 $$
   \hat σ_t(H_t) = φ(S_t).
 $$
-Then $(\hat σ_t, \hat c_t, \hat P_t)$ is an AIS of the history MDP, with the same $(ε_{φ,t}, \hat δ_{φ,t})$ as in @def-model-distance-abstract. State quantization in Lecture 5 is the special case where $φ$ maps each cell to a representative. Thus Lecture 5 is AIS with identity compression of observations and nontrivial compression of the physical state.
+Then $(\hat σ_t, \hat c_t, \hat P_t)$ is an AIS of the history-based MDP, with the same $(ε_{φ,t}, \hat δ_{φ,t})$ as in @def-model-distance-abstract. State quantization in Lecture 5 is the special case where $φ$ maps each cell to a representative. Thus Lecture 5 is AIS with identity compression of observations and nontrivial compression of the physical state.
 
 ### Belief compression in POMDPs
 
-This is the main POMDP-facing example (@Subramanian2022 §3.3).
+Consider a standard POMDP. Quantize the beliefs using a quantization function $φ$ such that $d_{\rm TV}(b, φ(b)) \le r$ for all $b \in Δ(\ALPHABET S)$. A concrete construction using type-lattice quantization is presented in @Reznik2011. 
 
-In a standard POMDP the belief $b_t = \PR(S_t \mid H_t)$ is an exact information state, but planning on $Δ(\ALPHABET S)$ remains continuous. An **$ε$-sufficient statistic** [@FrancoisLavet2019] is a pair $(φ_t, \hat b_t)$ with $φ_t \colon \ALPHABET H_t \to \ALPHABET Φ_t$ and $\hat b_t \colon \ALPHABET Φ_t \to Δ(\ALPHABET S)$ such that
-$$
-  \NORM{\hat b_t\bigl(φ_t(h_t)\bigr) - b_t[h_t]}_1 \le ε
-$$
-for every history $h_t$.
-
-**Type-lattice quantization.** A concrete construction [@Reznik2011] quantizes beliefs to the **type lattice**
-$$
-  Q_n
-  = \bigl\{
-    (p_1,\dots,p_m) \in Δ(\ALPHABET S)
-    :
-    n p_i \in \mathbb{Z}_{\ge 0}
-  \bigr\},
-  \qquad m = |\ALPHABET S|.
-$$
-There is an efficient nearest-type map $\mathrm{quantize}_n \colon Δ(\ALPHABET S) \to Q_n$, and
-$$
-  \NORM{b - \mathrm{quantize}_n(b)}_1
-  \lesssim \frac{m}{2n}.
-$$
-Choosing $n > m/(2ε)$ therefore yields an $ε$-sufficient statistic with $φ_t = \mathrm{id}$ on beliefs (or $φ_t$ any map that first forms $b_t$) and $\hat b_t = \mathrm{quantize}_n$.
-
-**AIS translation (finite horizon, costs).** Take $Z_t = \hat b_t$ (values in $Q_n$, or more generally in the image of $\hat b_t$), approximate cost
+Take the approximate cost
 $$
   \hat c_t(\hat b, a) = \sum_{s \in \ALPHABET S} \hat b(s)\, c_t(s,a),
 $$
-and approximate next-belief kernel equal to the Bayes update started from $\hat b$ (optionally followed by re-quantization). Metricize beliefs by total variation (equivalently $\ell_1/2$), and place an IPM $d_{\F}$ on measures over belief space (e.g. a bounded-Lipschitz metric). Then an $ε$-sufficient statistic induces an AIS with errors of order
+and approximate next-belief kernel equal to the Bayes update started from $\hat b$ (followed by re-quantization). It can be shown than for this model (see @Subramanian2022, Appendix C)
 $$
-  ε_t \asymp ε\,\SPAN(c_t),
-  \qquad
-  δ_t \asymp O(ε)
+  ε_t \le r \SPAN(c_t),
+  \quad
+  δ_t \le 3r.
 $$
-(the paper’s discounted calculation gives the concrete pair $(ε\,\SPAN(r),\, 3ε)$ for rewards; the same $\ell_1$ algebra yields the finite-horizon cost form above). @thm-ais-approx-dp then controls $α_t$ by residual cost spans and the belief-$d_{\F}$ errors. Relative to classical discounted analyses that lose a factor of order $1/(1-γ)^3$, the AIS route recovers the literature bound and improves the discount dependence when specialized to infinite horizon [@Subramanian2022 App. C].
+Then @cor-ais-ipm gives an approximation bound for using the quantized beliefs. 
 
-Other $\hat b_t$ constructions (particle filters, truncated support) fit the same template: approximate the belief, plug into Bayes and the linear cost functional, and read off $(ε_t,δ_t)$.
+### Observations over a packet-drop channel
 
-### Continual learning via action quantization
+**Model and AIS generator.** Consider a finite-horizon POMDP in which the controller observes the state through an i.i.d.\ packet-drop channel: with probability $p \in [0,1]$, independently of the past,
+$$
+  Y_t
+  =
+  \begin{cases}
+    \mathfrak{E}, & \text{packet drop}, \\
+    S_t, & \text{otherwise},
+  \end{cases}
+$$
+where $\mathfrak{E}$ is an erasure symbol. The observation channel itself is uncontrolled (no action enters the law of $Y_t$ given $S_t$). The per-step cost is the conditional expectation $c_t(h_t,a_t) = \int k_t(s,a_t)\, P(ds \mid h_t)$ of a bounded primitive state-action cost $0 \le k_t(s,a) \le k_{\max}$.
 
-The second worked application is action compression, read as a certificate for lifelong learning with a changing action set [@Subramanian2022 Cor. 19 and App. D; @Chandak2020].
+Take the AIS generator with $\ALPHABET Z_t = \ALPHABET S$,
+$$
+  \hat σ_t(y_{1:t}, a_{1:t-1})
+  =
+  \begin{cases}
+    y_t, & y_t \ne \mathfrak{E}, \\
+    s_{\mathrm{nom}}, & y_t = \mathfrak{E},
+  \end{cases}
+$$
+for a fixed nominal state $s_{\mathrm{nom}} \in \ALPHABET S$, approximate cost $\hat c_t(s,a) = k_t(s,a)$, and approximate transition $\hat P_t = P_{S,t}$ equal to the true state kernel. Write $d_t(h_t) \coloneqq \mathbf{1}_{\{y_t = \mathfrak{E}\}}$ for the drop indicator.
 
-**Setting (MDP for clarity).** The state is fully observed. The action set $\ALPHABET A$ is large or changing. Maintain a finite codebook $\hat{\ALPHABET A} \subset \ALPHABET A$ and a quantizer $ψ \colon \ALPHABET A \to \hat{\ALPHABET A}$.
+This is an abstract-model situation: the history-based MDP is $\ALPHABET M$, the AIS MDP on $\ALPHABET S$ is $\widehat{\ALPHABET M}$, and $φ_t = \hat σ_t$. On a non-drop, $\hat σ_t(h_t) = S_t$ and the immediate cost matches. On a drop, $\hat σ_t(h_t) = s_{\mathrm{nom}}$ and $\hat c_t(s_{\mathrm{nom}},a) = k_t(s_{\mathrm{nom}},a)$, while the true conditional cost still lies in $[0,k_{\max}]$, so
+$$
+  -k_t(s_{\mathrm{nom}},a)
+  \le
+  c_t(h_t,a) - \hat c_t(s_{\mathrm{nom}},a)
+  \le
+  k_{\max} - k_t(s_{\mathrm{nom}},a).
+$$
+We choose total variation as the IPM as in the properties lecture ($d_{\mathrm{TV}} = \NORM{\,\cdot\,}_1$, $ρ_{\F}(v) = \tfrac12 \SPAN(v)$). Take the (conservative) transition discrepancy $\hat δ_t = 2\, d_t$, which yields an IPM correction $\hat δ_t\, ρ_{\F}(\hat V^\star_{t+1}) = \SPAN(\hat V^\star_{t+1})\, d_t$ on each side; non-drop transition error of order $p$ is absorbed into the backward recursion through the next drop indicator.
 
-:::{.callout-tip}
-#### $(ε,δ)$-action quantizer
-A map $ψ$ is an $(ε,δ)$-**action quantizer** if for every $s \in \ALPHABET S$ and $a \in \ALPHABET A$,
+**Signed envelopes.** Apply the computable majorants from Lecture 6 with the action-dependent cost mismatches
 \begin{align*}
-  \ABS{c_t(s,a) - c_t\bigl(s, ψ(a)\bigr)}
-  &\le ε,
-  \\
-  d_{\F}\bigl(
-    P_t(\,\cdot \mid s,a),\,
-    P_t(\,\cdot \mid s, ψ(a))
-  \bigr)
-  &\le δ.
+  \hat ε^+_t(h_t,a)
+  &= \bigl(k_{\max} - k_t(s_{\mathrm{nom}},a)\bigr)\, d_t(h_t),
+  \qquad
+  \hat ε^-_t(h_t,a) = -k_t(s_{\mathrm{nom}},a)\, d_t(h_t),
 \end{align*}
+and
+\begin{align*}
+  \hat δ_t\, ρ_{\F}(\hat V^\star_{t+1})
+  &= ω_t\, d_t,
+  \qquad
+  ω_t \coloneqq \SPAN(\hat V^\star_{t+1}),
+\end{align*}
+with $ω_T \coloneqq 0$. For every $a$, the width $\hat ε^+_t(h_t,a) - \hat ε^-_t(h_t,a) = k_{\max}\, d_t(h_t)$ is action-independent. To obtain history envelopes that depend on $h_t$ only through $d_t$, replace the $a$-dependent bounds by the worst-case (over $a$) majorants
+$$
+  \underline{k}_t \coloneqq \min_{a \in \ALPHABET A} k_t(s_{\mathrm{nom}},a),
+  \qquad
+  \overline{k}_t \coloneqq \max_{a \in \ALPHABET A} k_t(s_{\mathrm{nom}},a),
+$$
+so that
+$$
+  \hat ε^+_t
+  =
+  \bigl(k_{\max} - \underline{k}_t\bigr)\, d_t,
+  \qquad
+  \hat ε^-_t
+  =
+  -\overline{k}_t\, d_t
+$$
+dominate the pointwise formulas for every $a$. Because the drop channel is uncontrolled, once $α^\pm_{t+1}$ depend on the history only through $d_{t+1}$, the conditional expectation $\DYNAMICS_t α^\pm_{t+1}$ is action-independent. The concrete construction after @thm-signed-sample-path-abstract therefore collapses to
+\begin{align*}
+  α^+_T
+  &=
+  \bigl(k_{\max} - \underline{k}_T\bigr)\, d_T,
+  \qquad
+  α^-_T
+  =
+  -\overline{k}_T\, d_T,
+\end{align*}
+and for $t < T$,
+\begin{align*}
+  α^+_t
+  &=
+  \bigl(k_{\max} - \underline{k}_t + ω_t\bigr)\, d_t
+  +
+  \int α^+_{t+1}(h_t, a_t, y_{t+1})\, P(dy_{t+1} \mid h_t, a_t),
+  \\
+  α^-_t
+  &=
+  \bigl(-\overline{k}_t - ω_t\bigr)\, d_t
+  +
+  \int α^-_{t+1}(h_t, a_t, y_{t+1})\, P(dy_{t+1} \mid h_t, a_t).
+\end{align*}
+
+:::{#prp-packet-drop-signed}
+#### Packet-drop signed sample-path bound
+
+The envelopes above satisfy the hypotheses of @thm-signed-sample-path-abstract. Consequently the lifted AIS policy $π_t = \hat π^\star_t \circ \hat σ_t$ obeys, for every $t$ and every history $h_t$,
+$$
+  V^π_t(h_t) - V^\star_t(h_t)
+  \le
+  α^+_t(h_t) - α^-_t(h_t).
+$$
+Moreover $α^\pm_t$ admit the closed forms
+$$
+  α^+_t = ξ^+_t + \bigl(k_{\max} - \underline{k}_t + ω_t\bigr)\, d_t,
+  \qquad
+  α^-_t = ξ^-_t + \bigl(-\overline{k}_t - ω_t\bigr)\, d_t,
+$$
+where $ξ^\pm_{T} = 0$, $ξ^+_{T-1} = p(k_{\max} - \underline{k}_T)$, $ξ^-_{T-1} = -p\,\overline{k}_T$, and for $t < T-1$,
+\begin{align*}
+  ξ^+_t
+  &= ξ^+_{t+1} + p\bigl(k_{\max} - \underline{k}_{t+1} + ω_{t+1}\bigr),
+  \\
+  ξ^-_t 
+  &= ξ^-_{t+1} + p\bigl(-\overline{k}_{t+1} - ω_{t+1}\bigr).
+\end{align*}
+In particular the gap $\varphi_t \coloneqq α^+_t - α^-_t$ is
+$$
+  \varphi_t =
+  ζ_t + \bigl(k_{\max} - \underline{k}_t + \overline{k}_t + 2ω_t\bigr)\, d_t,
+$$
+with $ζ_T = 0$, $ζ_{T-1} = p\bigl(k_{\max} - \underline{k}_T + \overline{k}_T\bigr)$, and for $t < T-1$,
+$$
+  ζ_t = ζ_{t+1} + p\bigl(k_{\max} - \underline{k}_{t+1} + \overline{k}_{t+1} + 2ω_{t+1}\bigr).
+$$
+When $k_t(s_{\mathrm{nom}},\,\cdot\,)$ does not depend on $a$, one has $\underline{k}_t = \overline{k}_t$ and the drop coefficient in $\varphi_t$ simplifies to $k_{\max} + 2ω_t$.
 :::
 
-This is action-compressed AIS with **identity** state compression ($\hat σ_t = \mathrm{id}$ on $S$): plan on the codebook $\hat{\ALPHABET A}$ using the true costs and transitions restricted to codebook actions. The abstract Bellman recursion is
+:::{.callout-note collapse="false"}
+#### Proof sketch
+
+On a drop, the pointwise cost bounds and the TV correction give, for every $a$,
 $$
-  \hat Q^\star_t(s, \hat a)
-  = c_t(s, \hat a)
-  + \EXP\bigl[\hat V^\star_{t+1}(S_{t+1}) \bigm| S_t = s,\, A_t = \hat a\bigr],
-  \qquad
-  \hat V^\star_t(s) = \min_{\hat a \in \hat{\ALPHABET A}} \hat Q^\star_t(s, \hat a).
+  -k_t(s_{\mathrm{nom}},a) - ω_t
+  \le
+  \bigl[\hat\MISMATCH_t \hat V^\star_{t+1}\bigr](h_t,a)
+  \le
+  k_{\max} - k_t(s_{\mathrm{nom}},a) + ω_t.
 $$
-The same $α_t = ε + ρ_{\F}(\hat V^\star_{t+1})δ + α_{t+1}$ recursion applies. Because $\hat{\ALPHABET A} \subset \ALPHABET A$, a greedy codebook policy can be executed directly in the true MDP, and the policy gap is $α_t$ rather than $2α_t$ [@Subramanian2022 Cor. 19]. (In the general POMDP action-quantized AIS, where the planner only commits to codebook labels through a decoder $ψ$, the factor two returns as in @thm-ais-approx-dp.)
+The worst-case majorants $\hat ε^\pm_t$ above dominate these for all $a$, and yield the action-free one-step interval $\bigl[-\overline{k}_t - ω_t,\, k_{\max} - \underline{k}_t + ω_t\bigr]$ on a drop. On a non-drop the same majorants are zero (under the discrepancy choice above). Substituting into the concrete $α^\pm$ construction of @thm-signed-sample-path-abstract yields the displayed recursion. The ansatz that $α^\pm_t$ depends on $h_t$ only through $d_t$ is preserved backward because
+$$
+  \int α^\pm_{t+1}\, P(dy_{t+1} \mid h_t, a_t)
+  = ξ^\pm_{t+1} + p \cdot (\text{drop coefficient at } t+1),
+$$
+independently of $(h_t,a_t)$ and of whether $d_t = 1$. The constants $ξ^\pm_t$ are exactly those drop contributions. Subtracting the two envelopes produces $\varphi_t = ζ_t + (k_{\max} - \underline{k}_t + \overline{k}_t + 2ω_t)\, d_t$ with the claimed recursion for $ζ_t$. @thm-signed-sample-path-abstract then gives $V^π_t - V^\star_t \le \varphi_t$.
+:::
 
-**Continual-learning reading.** When new tasks arrive or the action set grows, enlarge or adapt the codebook so that $(ε,δ)$ stay controlled. The AIS bound then certifies that policies computed on the codebook remain near-optimal on the true MDP, without a separate lifelong-learning theory. The POMDP version is the same idea with nontrivial $\hat σ_t$ and an action decoder $ψ$.
+Averaging at time $1$ over $H_1 = Y_1$ produces the performance bound
+$$
+  \EXP\bigl[V^π_1(H_1)\bigr] - \EXP\bigl[V^\star_1(H_1)\bigr]
+  \le
+  ζ_1 + p\bigl(k_{\max} - \underline{k}_1 + \overline{k}_1 + 2\,\SPAN(\hat V^\star_2)\bigr).
+$$
+Both this expectation and the pointwise gap $\varphi_t$ vanish as $p \to 0$.
 
-## Other generalizations
-
-Keep these as a short survey after the two main examples.
-
-- **Stochastic AIS** [@Subramanian2022 Def. 14 / Thm. 15]. Allow randomized compressions $\hat σ_t(H_t) \in Δ(\ALPHABET Z_t)$. After averaging over the randomization, the same $α_t$ recursion holds. This is useful when learning discrete codes by stochastic gradient methods.
-
-- **Observation compression** [@Subramanian2022 Def. 20]. Compress sensors by $q \colon \ALPHABET Y \to \hat{\ALPHABET Y}$, build histories from $\hat Y_t = q(Y_t)$, and apply AIS on the compressed histories. High-dimensional observations (e.g. video) are the motivating case; the guarantees of @thm-ais-approx-dp carry over unchanged.
-
-- **Bridge to Lecture 9.** Certainty equivalence (replace a belief by a mean or point estimate $\hat σ_t(H_t) \in \ALPHABET S$, then act via the fully observed optimal policy $\hat π^\star_t \circ \hat σ_t$) is a structured and often crude AIS: the compression $\hat σ_t$ is a statistic of $b_t$, and (AP1)--(AP2) quantify how far that statistic is from being an information state.
+The classical uniform (history-independent) AIS bound of @thm-ais-approx-dp yields a constant $\bar α_t$ that does **not** tend to $0$ as $p \to 0$, since it must cover the worst-case drop at every time. The sample-path envelopes repair that defect.
 
 ## Notes {-}
 
-Finite-horizon AIS in this lecture follows @Subramanian2022 §2--3 (cost form). Belief compression and $ε$-sufficient statistics are as in §3.3, building on @FrancoisLavet2019 and type-lattice quantization @Reznik2011. The continual-learning reading of action quantization uses Cor. 19 and App. D of @Subramanian2022 together with @Chandak2020. Sample-path refinements of the AIS value / policy gaps follow by specializing Lecture 6 (Take 4) to the history MDP with $φ_t = \hat σ_t$.
+Finite-horizon AIS in this lecture follows @Subramanian2022. Belief compression and $ε$-sufficient statistics are as in §3.3, building on @FrancoisLavet2019 and type-lattice quantization @Reznik2011. Sample-path refinements of the AIS value / policy gaps follow by specializing Lecture 6 (Take 4) to the history-based MDP with $φ_t = \hat σ_t$ [@Bozkurt2026].
 
 ## References {-}
