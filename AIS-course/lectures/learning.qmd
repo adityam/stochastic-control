@@ -1,0 +1,345 @@
+---
+title: "From approximation bounds to learning"
+aliases:
+  - lecture-10.html
+---
+
+In this lecture, we give a few examples showing how approximation bounds apply in learning. We first recall the infinite-horizon discounted-cost background that most of this work uses.
+
+## Infinite-horizon discounted MDPs
+
+Consider a time-homogeneous MDP with state space $\ALPHABET S$ and action space $\ALPHABET A$, transition kernel $P$, and per-step cost $c$. We assume that the system runs for an infinite horizon and the future is discounted by a factor $γ \in (0,1)$.
+
+The infinite-horizon discounted cost of a (possibly history-based) policy $π$ is
+$$
+  J(π) = \EXP^{π}\Bigl[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \Bigr].
+$$
+
+As before, define
+$$
+  V^π(s) = \EXP^{π}\Bigl[ \sum_{t=1}^∞ γ^{t-1} c(S_t, A_t) \bigm| S_1 = s \Bigr]
+$$
+and let $V^\star$ denote the value function of the optimal policy. 
+
+Intuitively, we expect $V^\pi$ and $V^\star$ to satisfy the following fixed point equations:
+$$
+  V^π = \BELLMAN^π V^π,
+  \qquad
+  V^\star = \BELLMAN^\star V^\star
+$$
+where the Bellman operators are defined as
+$$
+  \BELLMAN^π = \ALPHABET T^π \circ \ENV,
+  \quad \BELLMAN^\star = \ALPHABET T^\star \circ \ENV,
+$$
+with the environment operator given by
+$$
+  [\ENV v](s,a)
+  = c(s,a)
+  + γ \sum_{s' \in \ALPHABET S} P(s'|s,a)\, v(s'),
+$$
+and the action-selection operators $\ALPHABET T^π$, $\ALPHABET T^\star$ given by
+$$
+  [\ALPHABET T^π q](s) = q\bigl(s, π(s)\bigr),
+  \qquad
+  [\ALPHABET T^\star q](s) = \min_{a \in \ALPHABET A} q(s,a).
+$$
+
+Thus, the only structural change relative to the finite-horizon case is the factor $γ$ in $\ENV$. 
+
+:::{#lem-env-contraction}
+#### Discounted environment is a contraction
+
+For any $v, \hat v \in \ALPHABET V$,
+$$
+  \NORM{\ENV v - \ENV \hat v}
+  \le γ\, \NORM{v - \hat v}.
+$$
+In particular, $\ENV$ is a contraction of modulus $γ$ on $(\ALPHABET V, \NORM{⋅}_∞)$. The action-selection maps $\ALPHABET T^π$ and $\ALPHABET T^\star$ remain non-expansions, so both $\BELLMAN^π$ and $\BELLMAN^\star$ are $γ$-contractions as well:
+$$
+  \NORM{\BELLMAN v - \BELLMAN \hat v}
+  \le γ\, \NORM{v - \hat v},
+  \qquad
+  \BELLMAN \in \{\BELLMAN^π, \BELLMAN^\star\}.
+$$
+:::
+
+:::{.callout-note collapse="false"}
+#### Proof
+
+For any $(s,a)$,
+$$
+  \ABS{[\ENV v](s,a) - [\ENV \hat v](s,a)}
+  = γ\,
+  \ABS{
+    \sum_{s' \in \ALPHABET S}
+    P(s'|s,a)\, \bigl(v(s') - \hat v(s')\bigr)
+  }
+  \le γ\, \NORM{v - \hat v}.
+$$
+Taking the supremum over $(s,a)$ gives the claim for $\ENV$. Composing with a non-expansion preserves the contraction modulus, so the same bound holds for $\BELLMAN^π$ and $\BELLMAN^\star$.
+:::
+
+Because $\BELLMAN^π$ and $\BELLMAN^\star$ are contractions on a Banach space, the Banach fixed-point theorem implies that there exist unique bounded solutions of $V = \BELLMAN^π V$ and $V = \BELLMAN^\star V$.  We can also show that the optimal policy is the greedy policy of $V^\star$.
+
+See [lecture notes on infinite horizon MDPs](https://adityam.github.io/stochastic-control/mdps/inf-horizon.html) for more details.
+
+
+## Sup-norm approximation bounds under discounting
+
+The finite-horizon model-approximation and state-abstraction lectures bounded gaps by summing one-step mismatches. With the $\hat V^\star$-sided choice, the model-approximation error satisfied
+$$
+  α_t
+  \coloneqq \NORM{V^\star_t - V^{\hat π^\star}_t}
+  \le 2 \sum_{τ=t}^{T} \NORM{\MISMATCH_τ \hat V^\star_{τ+1}},
+$$
+and the $V^\star$-sided companion introduced additional horizon weights $(τ - t + 1)$. Sample-path envelopes accumulated the same way along residual time.
+
+In the discounted model the operators no longer depend on $t$, so write $\MISMATCH v \coloneqq \ENV v - \hat \ENV v$ for the time-homogeneous mismatch and $α \coloneqq \NORM{}$ for the (single) model-approximation gap. The contraction of $\ENV$ replaces the residual-horizon sum by a geometric series. The same one-step triangle used in the finite-horizon proofs yields
+$$
+  \NORM{V^π - \hat V^π}
+  \le \frac{1}{1-γ}\,
+  \min\bigl\{
+    \NORM{\MISMATCH V^π},\,
+    \NORM{\MISMATCH \hat V^π}
+  \bigr\}
+$$
+for policy evaluation, and the analogous bound for $V^\star - \hat V^\star$. Combining the two sides as in the model-approximation lecture gives the discounted model-approximation bound
+$$
+  \NORM{V^{\hat π^\star} - V^\star}
+  \le \frac{2}{1-γ}\, \NORM{\MISMATCH \hat V^\star}.
+$$
+The $V^\star$-sided form picks up one extra $1/(1-γ)$ factor, matching the finite-horizon weight $(τ-t+1)$ in the large-$T$ limit.
+$$
+  \NORM{V^{\hat π^\star} - V^\star}
+  \le \frac{2}{(1-γ)^2}\, \NORM{\MISMATCH V^\star}.
+$$
+State abstraction and AIS specialize in the same way: lift / push-forward the mismatch through $ϕ$ (or through the AIS compression of a history-based MDP), then close the recursion with the geometric factor $1/(1-γ)$ instead of a sum over $t,\dots,T$.
+
+Similar generalizations hold for other variations of the finite horizon approximation bounds as well. 
+
+
+## Example 1: Sample complexity of generative models
+
+An important question in model-based learning is how many samples are needed to identify an $α$-approximate solution for a prescribed accuracy $α > 0$. This is the **sample complexity** of learning. The standard analysis assumes access to a **generative model**: a black-box simulator that, on input $(s,a)$, returns an independent sample $S_+ \sim P(\cdot \mid s,a)$ of the next state.
+
+The simplest algorithm in this setting is the **plug-in estimator** (certainty equivalent controller): estimate the transition kernel from samples, compute an optimal policy for the estimated model, and deploy that policy on the true system. The approximation bounds of the infinite-horizon discounted model turn this into a concrete sample-size guarantee.
+
+### Setup
+
+Consider an infinite-horizon discounted MDP
+$$
+  \ALPHABET M = \langle \ALPHABET S, \ALPHABET A, P, c, γ \rangle
+$$
+with finite $\ALPHABET S$ and $\ALPHABET A$. Suppose $\langle \ALPHABET S, \ALPHABET A, c, γ \rangle$ are known but the transition kernel $P$ is not. We have access to a generative model: for any $(s,a)$ we may draw $S_+ \sim P(\cdot \mid s,a)$. Call the simulator $N$ times at each state-action pair and form the empirical kernel
+$$
+  \hat P_N(s' \mid s,a)
+  = \frac{\operatorname{count}(s' \mid s,a)}{N},
+$$
+where $\operatorname{count}(s' \mid s,a)$ is the number of times $s'$ is returned on input $(s,a)$. The empirical MDP
+$$
+  \widehat{\ALPHABET M}_N
+  = \langle \ALPHABET S, \ALPHABET A, \hat P_N, c, γ \rangle
+$$
+is then an approximate model of $\ALPHABET M$ in the sense of the model-approximation lecture: the cost is exact and only the transitions are perturbed.
+
+Assume a **planning oracle** that, given $\widehat{\ALPHABET M}_N$, returns an optimal policy $\hat π_N$ of the approximate model. The sample-complexity question is: given $α > 0$ and $p \in (0,1)$, how large must $N$ be so that
+$$
+  \NORM{V^\star - V^{\hat π_N}}
+  \le α
+$$
+with probability at least $1-p$?
+
+### From model mismatch to policy error
+
+As above, write $\MISMATCH v \coloneqq \ENV v - \hat\ENV v$ for the time-homogeneous mismatch between $\ALPHABET M$ and $\widehat{\ALPHABET M}_N$. Write $\DYNAMICS$ and $\hat\DYNAMICS_N$ for the corresponding dynamics operators (as in the sample-path lecture),
+$$
+  [\DYNAMICS v](s,a)
+  = \sum_{s' \in \ALPHABET S} P(s'\mid s,a)\, v(s'),
+  \qquad
+  [\hat\DYNAMICS_N v](s,a)
+  = \sum_{s' \in \ALPHABET S} \hat P_N(s'\mid s,a)\, v(s'),
+$$
+so that $\ENV v = c + γ\, \DYNAMICS v$ and likewise for $\hat\ENV$. Because the cost is known,
+$$
+  \MISMATCH V^\star
+  = γ\, (\DYNAMICS - \hat\DYNAMICS_N) V^\star,
+$$
+and therefore
+$$
+  \NORM{\MISMATCH V^\star}
+  = γ\, \NORM{(\DYNAMICS - \hat\DYNAMICS_N) V^\star}.
+$$
+
+The $V^\star$-sided discounted model-approximation bound therefore yields
+$$
+  \NORM{V^\star - V^{\hat π_N}}
+  \le \frac{2}{(1-γ)^2}\, \NORM{\MISMATCH V^\star}
+  = \frac{2γ}{(1-γ)^2}\, \NORM{(\DYNAMICS - \hat\DYNAMICS_N) V^\star}.
+$$
+
+Thus it is enough to drive $\NORM{(\DYNAMICS - \hat\DYNAMICS_N) V^\star}$ below $α(1-γ)^2/(2γ)$.
+
+### Hoeffding bound on the empirical model
+
+Let $H = \operatorname{span}(V^\star)$. For a fixed $(s,a)$ and any threshold $c > 0$, Hoeffding's inequality gives
+$$
+  \PR\biggl(
+    \ABS{\bigl[(\DYNAMICS - \hat\DYNAMICS_N) V^\star\bigr](s,a)}
+    \ge c
+  \biggr)
+  \le 2 \exp\biggl( -\frac{2 N c^2}{H^2} \biggr).
+$$
+A union bound over $\ALPHABET S \times \ALPHABET A$ then yields
+$$
+  \PR\bigl(
+    \NORM{(\DYNAMICS - \hat\DYNAMICS_N) V^\star} \ge c
+  \bigr)
+  \le 2\, |\ALPHABET S|\, |\ALPHABET A|\,
+  \exp\biggl( -\frac{2 N c^2}{H^2} \biggr).
+$$
+
+### Sample complexity
+
+Choose the threshold
+$$
+  c = \frac{α(1-γ)^2}{2γ}
+$$
+so that $\NORM{(\DYNAMICS - \hat\DYNAMICS_N) V^\star} \le c$ implies $\NORM{V^\star - V^{\hat π_N}} \le α$. Requiring the failure probability to be at most $p$ forces
+$$
+  2\, |\ALPHABET S|\, |\ALPHABET A|\,
+  \exp\biggl( -\frac{2 N c^2}{H^2} \biggr)
+  \le p,
+$$
+hence it is enough to take
+$$
+  N
+  \ge \frac{2 H^2 γ^2}{α^2 (1-γ)^4}
+  \log\biggl(
+    \frac{2\, |\ALPHABET S|\, |\ALPHABET A|}{p}
+  \biggr).
+$$
+The total number of simulator calls is $N\,|\ALPHABET S|\,|\ALPHABET A|$.
+
+In words: once the generative model has been queried often enough that the empirical MDP is close to $\ALPHABET M$ in the $V^\star$-weighted dynamics sense $\NORM{(\DYNAMICS - \hat\DYNAMICS_N) V^\star}$, the infinite-horizon model-approximation bound upgrades that model error into a policy sub-optimality guarantee of size $α$, with high probability.
+
+## Example 2: Q-learning with agent-state policies
+
+In a partially observed discounted model the natural planning state is the belief (an exact information state of the history-based MDP from the AIS lecture). Beliefs require the system model, so they are not available in a model-free learning setting. A standard substitute is an **agent state**: a recursively updated, model-free compression of the observation-action history.
+
+Fix a space $\ALPHABET Z$ and an update map $ϕ$. Starting from an initial $z_1$ (or $z_0$ with a dummy initialization), set
+$$
+  Z_{t+1}
+  = ϕ\bigl(Z_t, A_t, Y_{t+1}\bigr).
+$$
+Unrolling $ϕ$ defines a history map $σ_t \colon \ALPHABET H_t \to \ALPHABET Z$ with $Z_t = σ_t(H_t)$. Typical choices are a sliding window of recent observations (frame stacking) or the hidden state of a recurrent network. An **agent-state policy** chooses $A_t$ as a (possibly randomized) function of $Z_t$ alone.
+
+Unlike the belief, a generic agent state need **not** be Markov and need **not** be an information state: the conditional law of the next cost and next agent state given $(H_t,A_t)$ need not factor through $Z_t$. There is then no exact dynamic program on $\ALPHABET Z$, and stationary agent-state policies need not be as good as history-dependent (or even non-stationary agent-state) policies. Nevertheless one can still run tabular Q-learning **as if** $(Z_t)$ were a Markov state.
+
+### Agent-state Q-learning
+
+Let $μ \colon \ALPHABET Z \to Δ(\ALPHABET A)$ be a stationary behavior policy, and let $(Z_t,A_t,C_t,Z_{t+1})_{t \ge 1}$ be the stream observed while acting by $A_t \sim μ(Z_t)$ and receiving the realized per-step cost $C_t$. The agent-state Q-learning recursion is the usual asynchronous update on $\ALPHABET Z \times \ALPHABET A$:
+$$
+  Q_{t+1}(z,a)
+  = Q_t(z,a)
+  + α_t(z,a)\,
+  \Bigl[
+    C_t
+    + γ \min_{a' \in \ALPHABET A} Q_t(Z_{t+1}, a')
+    - Q_t(z,a)
+  \Bigr],
+$$
+with $α_t(z,a) = 0$ unless $(Z_t,A_t) = (z,a)$, and with step sizes satisfying the usual Robbins–Monro conditions ($\sum_t α_t(z,a) = ∞$ and $\sum_t α_t(z,a)^2 < ∞$ almost surely, for every $(z,a)$).
+
+### The induced agent-state MDP and the QL limit
+
+Even though $\{Z_t\}$ itself is typically non-Markov, the joint process $\{(S_t,Y_t,Z_t,A_t)\}$ **is** Markov under a stationary agent-state behavior policy. Assume $μ$ makes this chain positive recurrent with unique stationary distribution $ζ_μ$, and that every $(z,a)$ has $ζ_μ(z,a) > 0$ (so every agent-state–action pair is visited infinitely often).
+
+Define an **induced** time-homogeneous MDP $\widehat{\ALPHABET M}_μ$ on $\ALPHABET Z$ by averaging the true cost and the agent-state update against the stationary conditional of the hidden state:
+\begin{align*}
+  \hat c_μ(z,a)
+  &\coloneqq
+  \sum_{s \in \ALPHABET S}
+  c(s,a)\, ζ_μ(s \mid z,a),
+  \\
+  \hat P_μ(z' \mid z,a)
+  &\coloneqq
+  \sum_{(s,y') \in \ALPHABET S \times \ALPHABET Y}
+  \IND\bigl\{ z' = ϕ(z,a,y') \bigr\}\,
+  P^Y(y' \mid s,a)\,
+  ζ_μ(s \mid z,a).
+\end{align*}
+Let $Q_μ$ be the optimal action-value function of $\widehat{\ALPHABET M}_μ$, i.e.\ the unique solution of
+$$
+  Q_μ(z,a)
+  = \hat c_μ(z,a)
+  + γ \sum_{z' \in \ALPHABET Z}
+  \hat P_μ(z' \mid z,a)\,
+  \min_{a' \in \ALPHABET A} Q_μ(z',a'),
+$$
+and write $V_μ(z) \coloneqq \min_a Q_μ(z,a)$ with greedy policy $\hat π_μ(z) \in \arg\min_a Q_μ(z,a)$. Lift to histories by $π_μ(h) \coloneqq \hat π_μ\bigl(σ(h)\bigr)$.
+
+Under the step-size and exploration conditions above, **agent-state Q-learning converges almost surely to $Q_μ$**. (We treat this as a black-box stochastic-approximation fact and do not develop the proof here.) The policy returned by learning is therefore the greedy policy of the induced MDP $\widehat{\ALPHABET M}_μ$.
+
+Two structural remarks follow at once.
+
+1. **Policy dependence of the limit.** Because $Z_t$ is not an information state, the occupancy $ζ_μ$ (and hence $\hat c_μ$, $\hat P_μ$, and $Q_μ$) generally depends on the behavior policy $μ$. This cannot happen for belief-state Q-learning: the belief filter is policy-independent.
+
+2. **What is being optimized.** Convergence is to optimality in $\widehat{\ALPHABET M}_μ$, not to optimality in the original POMDP, and not even to the best stationary agent-state policy under a different occupancy. Improving $μ$ (or enriching $\ALPHABET Z$) changes the target.
+
+### Approximation error relative to the history-based MDP
+
+The pair $(\hat c_μ, \hat P_μ)$ is an approximate model for the history-based MDP along the agent-state coordinates, in the same sense as an AIS generator (@def-ais), except that the abstract kernels are tied to the learning occupancy $ζ_μ$ rather than chosen by the designer.
+
+Fix an IPM class $\mathfrak{F}$ on $\ALPHABET Z$ with Minkowski functional $ρ_{\mathfrak{F}}$, and define the uniform one-step mismatches
+\begin{align*}
+  ε
+  &\coloneqq
+  \sup_{h,a}
+  \ABS{
+    \EXP\bigl[c(S,A) \bigm| H = h,\, A = a\bigr]
+    - \hat c_μ\bigl(σ(h), a\bigr)
+  },
+  \\
+  δ
+  &\coloneqq
+  \sup_{h,a}
+  d_{\mathfrak{F}}\!\Bigl(
+    \PR\bigl(Z_+ \in \cdot \bigm| H = h,\, A = a\bigr),\,
+    \hat P_μ\bigl(\cdot \mid σ(h), a\bigr)
+  \Bigr).
+\end{align*}
+Thus $ε$ is the cost error of treating $ζ_μ(\,\cdot\mid z,a)$ as the hidden-state posterior given history, and $δ$ is the IPM error of the induced next-agent-state kernel (the agent-state analogue of (AP1)--(AP2)).
+
+The infinite-horizon discounted form of the AIS / model-approximation guarantee (@thm-ais-approx-dp, @cor-ais-ipm, with the geometric factor from earlier in this lecture) then yields
+$$
+  \sup_h
+  \bigl(
+    V^{π_μ}(h) - V^\star(h)
+  \bigr)
+  \le
+  \frac{2}{1-γ}
+  \bigl(
+    ε + γ\, δ\, ρ_{\mathfrak{F}}(V_μ)
+  \bigr).
+$$
+Here $V^\star$ is the optimal value over history-dependent policies (equivalently, over belief-state policies). The factor $2/(1-γ)$ is the usual discounted packaging of a uniform one-step mismatch of size $ε + γ\,δ\,ρ_{\mathfrak{F}}(V_μ)$.
+
+### Reading the bound
+
+- If the agent state is a fine approximation of the belief (so that $ζ_μ(s\mid z,a)$ stays close to the true filter and the push-forward dynamics stay close in $d_{\mathfrak{F}}$), then $ε$ and $δ$ are small and the greedy agent-state policy is near-optimal.
+- If the agent state is coarse (constant memory, short frame stack, poorly trained RNN), Q-learning may still converge cleanly to $Q_μ$, but $ε$ or $δ$ remains large and the gap to $V^\star$ need not vanish.
+- The bound compares to the **optimal history-based** value, so it already includes the representation gap between $\ALPHABET Z$ and the belief. Perfect learning of $Q_μ$ cannot remove that gap.
+
+In short: agent-state Q-learning is Q-learning for an occupancy-induced abstract MDP on $Z$; convergence identifies that MDP's optimum, while $(ε,δ)$ quantify how far that abstract optimum sits from the POMDP optimum on the history-based MDP.
+
+:::{.callout-tip}
+#### Stationary vs.\ non-stationary agent-state policies
+Because a generic agent state is not Markov, restricting to **stationary** greedy policies (as ordinary Q-learning does) can be strictly suboptimal inside the agent-state class. One remedy is to learn a **periodic** family of Q-functions and policies; that extension is conceptually the same as the construction above, with a cyclic induced model of period $L$ in place of $\widehat{\ALPHABET M}_μ$. We stay with the stationary ($L = 1$) case here.
+:::
+
+## Notes {-}
+
+The material on Q-learning with agent-state policies is from @SinhaGeistMahajan2024.
+
+## References {-}
