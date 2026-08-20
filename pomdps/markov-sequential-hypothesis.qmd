@@ -1,0 +1,152 @@
+---
+title: "Sequential hypothesis testing for Markov chains"
+keywords:
+  - POMDP
+  - belief state
+  - hypothesis testing
+  - active sensing
+---
+
+
+In this lecture, we consider a variation of the [sequential hypothesis testing](sequential-hypothesis.qmd) problem. 
+
+Let $\{S_t\}_{t \ge 1}$, $S_t \in \ALPHABET S$, be a finite-state time-homogeneous Markov chain. The chain starts with an initial state $s_1$ evolves according to a transition matrix $P_0$ or $P_1$. A decision maker wants to differentiate between two hypotheses:
+\begin{align*}
+  h_0 &: S_{t+1} \sim P_0(\cdot \mid S_t), \\
+  h_1 &: S_{t+1} \sim P_1(\cdot \mid S_t).
+\end{align*}
+As before, we can think of $h_0$ as the nominal model and $h_1$ as an alternative (for example, a failure mode). Let the random variable $H$ denote the true hypothesis, with prior $\PR(H = h_0) = p$.
+
+The system continues for a finite time $T$. At each $t < T$, the decision maker has four options:
+
+- stop and declare $h_0$
+- stop and declare $h_1$
+- sample the current state of the chain
+- wait one step without sampling, while the chain evolves according to the true transition matrix
+
+At the terminal time $T$, the sample and wait options are not available: the decision maker must stop and declare a hypothesis.
+
+Each sample has cost $c$; waiting advances time but incurs no additional cost. When the decision maker takes a stopping action $ν \in \{h_0, h_1\}$, it incurs a stopping cost $\ell(ν, H)$. As in the i.i.d. model, we typically take $\ell(h_0, h_0) = \ell(h_1, h_1) = 0$. The term $\ell(h_1, h_0)$ is the false alarm penalty and $\ell(h_0, h_1)$ is the missed detection penalty.
+
+Let $τ$ denote the time when the decision maker stops, and let $N$ denote the number of samples taken up to (but not including) time $τ$. The total cost is
+$$
+  c N + \ell(ν, H).
+$$
+The objective is to find a strategy that minimizes the expected total cost.
+
+:::{.callout-warning}
+#### Some remarks
+
+1. The above model is POMDP with unobserved state $(H, S_t)$. The hypothesis $H$ does not evolve; the chain $\{S_t\}_{t \ge 1}$ does.
+
+2. The key conceptual difference from [sequential hypothesis testing](sequential-hypothesis.qmd) is the availability of the wait action. When the observations are i.i.d., waiting does not change anything. But when the observations are Markovian, waiting can allow the Markov chain to drift to a more informative state.
+
+:::
+
+## Dynamic programming decomposition
+
+We will use $\mathsf{s}$ and $\mathsf{w}$ to denote the sample and wait actions. Let $Y_t$ denote the observations. Then,
+$$
+  Y_t = \begin{cases}
+    S_t, & \text{if } A_t = \mathsf{s} \\
+    \BLANK, & \text{if } A_t = \mathsf{w}
+  \end{cases}
+$$
+where $\BLANK$ denotes a blank observation.
+
+We now construct an information state for the model, using a combination of the ideas from [sequential-hypothesis testing](sequential-hypothesis.qmd) and [sampling a Markov chain](when-to-observe-Markov-chain.qmd). First define the decision maker's belief on the hypothesis as
+$$
+  b_t(h) = \PR(H = h \mid Y_{1:t}), \quad h \in \{h_0, h_1\}.
+$$
+Moreover, define the decision maker's belief on the state of the Markov chain when the hypothesis is $h_i$ as
+$$
+  μ_{t,i}(s) = \PR(S_t = s \mid H = h_i, \text{data up to $t$}), \quad i \in \{0,1\}.
+$$
+We use $μ_t$ to denote the tuple $(μ_{t,0}, μ_{t,1})$. As in the sequential hypothesis testing notes, we only define these beliefs on histories where a stopping decision has not yet been taken.
+
+The beliefs evolve as follows
+
+- When $A_t = \mathsf{w}$, the belief on the hypothesis remains the same $b_{t+1} = b_t$ and the beliefs on the state evolve according to their own transition matrices:
+  $$
+    μ_{t+1,0} = μ_{t,0} P_0, \qquad μ_{t+1,1} = μ_{t,1} P_1. 
+  $$
+- When $A_t = \mathsf{s}$, the belief on the hypothesis is updated according to Bayes's rule: $b_{t+1} = ψ(b_t, μ_t, y_t)$, where
+  $$
+    [ψ(b_t, μ_t, s)](h_i) = \frac{b_t(h_i)\, μ_{t,i}(s)}{b_t(h_0)\, μ_{t,0}(s) + b_t(h_1)\, μ_{t,1}(s)}, \quad i \in \{0,1\},
+  $$
+  and the beliefs on the state are reset to the corresponding row of $P_i$:
+  $$
+    μ_{t+1,0} = P_0(\cdot \mid s), \qquad μ_{t+1,1} = P_1(\cdot \mid s).
+  $$
+
+For the ease of notation, define the expected stopping costs as
+$$
+  L_i(b) = \EXP[\ell(h_i, H) \mid B = b] = \ell(h_i, h_0)\, b(h_0) + \ell(h_i, h_1)\, b(h_1), \quad i \in \{0,1\}
+$$
+and the probability of observing $s$ when taking a sample action as
+$$
+  σ(s | b_t, μ_t) = b_t(h_0)\, μ_{t,0}(s) + b_t(h_1)\, μ_{t,1}(s).
+$$
+
+Then, the dynamic program for the above model is given by
+$$
+  V_T(b_T, μ_T) = \min\{ L_0(b_T), L_1(b_T) \}
+$$
+and for $t \in \{T-1,\dots,1\}$,
+\begin{align*}
+  V_t(b_t, μ_t)
+  = \min\Biggl\{&
+      L_0(b_t),\; L_1(b_t),
+  \\
+  &
+      V_{t+1}(b_t,\, μ_{t,0} P_0,\, μ_{t,1} P_1),
+  \\
+  &
+      c + \sum_{s \in \ALPHABET S}
+      σ(s | b_t, μ_t)
+      V_{t+1}\bigl(ψ(b_t, μ_t, s),\, (P_0(\,\cdot| s),\, P_1(\,\cdot | s))\bigr)
+    \Biggr\}.
+\end{align*}
+The four cases are stop and declare $h_0$, stop and declare $h_1$, wait $\mathsf{w}$, and sample $\mathsf{s}$.
+
+## Countable information state based dynamic program
+
+Suppose that when the system starts, the decision maker knows the initial state $s_1$ of the Markov chain. Then any reachable state belief can be written as
+$$
+  μ_{t,i} = δ_{z_t} P_i^{τ_t}, \qquad i \in \{0,1\},
+$$
+where $z_t \in \ALPHABET S$ is the state observed at the most recent sample and $τ_t \in \{0,1,\dots\}$ is the number of time steps elapsed since then, with $P_i^0 \coloneqq I$. In particular, $μ_{t,i} = δ_{z_t} P_i^{τ_t}$. If the initial state $s_1$ is known at $t = 1$, the information state is $(b_1, s_1, 0)$.
+
+Hence $(b_t, z_t, τ_t)$ is an information state for the problem. The reachable set is isomorphic to $Δ^1 × \ALPHABET S × \{0,1,\dots,T\}$.
+
+Write $V_t(b, z, τ)$ for the cost-to-go from information state $(b, z, τ)$ at time $t$. Define the probability of observing $s$ on a sample action by
+$$
+  σ(s \mid b, z, τ) = b(h_0)\, [P_0^{τ}]_{zs} + b(h_1)\, [P_1^{τ}]_{zs},
+$$
+and the Bayes update on the hypothesis belief by
+$$
+  [ψ(b, z, τ, s)](h_i) = \frac{b(h_i)\, [P_i^{τ}]_{zs}}{σ(s \mid b, z, τ)}, \quad i \in \{0,1\}.
+$$
+Then the dynamic program is given by
+$$
+  V_T(b, z, τ) = \min\{ L_0(b), L_1(b) \}
+$$
+and, for $t \in \{T-1,\dots,1\}$,
+\begin{align*}
+  V_t(b, z, τ)
+  = \min\Bigl\{&
+      L_0(b),\; L_1(b),
+  \\
+  &
+      V_{t+1}(b, z, τ + 1),
+  \\
+  &
+      c + \sum_{s \in \ALPHABET S} σ(s \mid b, z, τ)\,
+      V_{t+1}\bigl(ψ(b, z, τ, s), s, 1\bigr)
+    \Bigr\}.
+\end{align*}
+As before, the four cases are stop and declare $h_0$, stop and declare $h_1$, wait $\mathsf{w}$, and sample $\mathsf{s}$. The above DP has similar simplification as in the case of [when to observe a Markov chain](when-to-observe-Markov-chain.qmd).
+
+## Notes {-}
+
+The above model is adapted from @Fields2023, which builds on the model of sequential hypothesis testing without the wait option developed in @Phatarfod1965.
